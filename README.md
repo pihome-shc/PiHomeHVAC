@@ -5,6 +5,8 @@
 <br/>
 </p>
 
+# PiHomeHVAC - Next Generation Smart Thermostat 
+
 
 ## Requirements
 Basic knowledge of command line with following main components for pihome to function. 
