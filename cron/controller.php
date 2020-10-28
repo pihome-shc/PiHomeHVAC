@@ -668,7 +668,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 					$start_cause="Frost Protection Deadband";
 					$stop_cause="Frost Protection Deadband";
 					$zone_state = $zone_status_prev;
-				}elseif(($zone_c >= $frost_c) && ($zone_c < $zone_max_c) && ($hysteresis=='0' || $system_controller_mode == 0)){
+				}elseif(($zone_c >= $frost_c) && ($zone_c < $zone_max_c) && ($hysteresis=='0')){
 					if ($away_status=='0'){
 						if (($holidays_status=='0') || ($sch_holidays=='1')) {
 							if($boost_status=='0'){
@@ -682,7 +682,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 										$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
 										$zone_state = 1;
 									}
-									if (($system_controller_mode == 0) && ($sch_status =='1') && ($zone_c < $temp_cut_out_rising)&&($sch_coop == 1 && $system_controller_mode == 0)&&($system_controller_active_status == "0")){
+									if (($sch_status =='1') && ($zone_c < $temp_cut_out_rising)&&($sch_coop == 1)&&($system_controller_active_status == "0")){
 										$zone_status="0";
 										$zone_mode = 83;
 										$stop_cause="Coop Start Schedule Waiting for Controller Start";
@@ -790,12 +790,10 @@ while ($row = mysqli_fetch_assoc($results)) {
 					$stop_cause="Zone Reached its Max Temperature ".$zone_max_c;
 					$zone_state = 0;
 				} else {
-					if ($system_controller_mode == 0) {
-						$zone_status="0";
-						$zone_mode = 100;
-						$stop_cause="Hysteresis active ";
-						$zone_state = 0;
-					}
+					$zone_status="0";
+					$zone_mode = 100;
+					$stop_cause="Hysteresis active ";
+					$zone_state = 0;
 				}
 			} elseif ($zone_category == 3) { // process category 3 zone
 				switch ($sc_mode) {
