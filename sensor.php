@@ -1,0 +1,197 @@
+<?php
+/*
+   _____    _   _    _
+  |  __ \  (_) | |  | |
+  | |__) |  _  | |__| |   ___    _ __ ___     ___
+  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \
+  | |      | | | |  | | | (_) | | | | | | | |  __/
+  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|
+
+     S M A R T   H E A T I N G   C O N T R O L
+
+*************************************************************************"
+* PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
+* from web interface and it comes with ABSOLUTELY NO WARRANTY, to the   *"
+* extent permitted by applicable law. I take no responsibility for any  *"
+* loss or damage to you or your property.                               *"
+* DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTILL UNLESS YOU KNOW *"
+* WHAT YOU ARE DOING                                                    *"
+*************************************************************************"
+*/
+require_once(__DIR__.'/st_inc/session.php');
+confirm_logged_in();
+require_once(__DIR__.'/st_inc/connection.php');
+require_once(__DIR__.'/st_inc/functions.php');
+
+$date_time = date('Y-m-d H:i:s');
+
+if(isset($_GET['id'])) {
+	$id = $_GET['id'];
+} else {
+	$id = 0;
+}
+//Form submit
+if (isset($_POST['submit'])) {
+        $pre_post = isset($_POST['pre_post']) ? $_POST['pre_post'] : "0";
+        $index_id = $_POST['index_id'];
+	$name = $_POST['name'];
+	$node_id = $_POST['selected_sensor_id'];
+        $query = "SELECT id FROM nodes WHERE node_id = '{$node_id}' LIMIT 1;";
+        $result = $conn->query($query);
+        $found_product = mysqli_fetch_array($result);
+        $sensor_id = $found_product['id'];
+	$sensor_child_id = $_POST['sensor_child_id'];
+        $sync = '0';
+        $purge= '0';
+
+	//Add or Edit Sensor record to temperature_sensors Table
+	$query = "INSERT INTO `temperature_sensors` (`id`, `sync`, `purge`, `zone_id`, `sensor_id`, `sensor_child_id`, `index_id`, `pre_post`, `name`, `graph_it`, `show_it`) VALUES ('{$id}', '{$sync}', '{$purge}', '0', '{$sensor_id}', '{$sensor_child_id}', '{$index_id}', '{$pre_post}', '{$name}', '1', '1') ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), sensor_id=VALUES(sensor_id), sensor_child_id=VALUES(sensor_child_id), index_id=VALUES(index_id), pre_post=VALUES(pre_post), name=VALUES(name), graph_it=VALUES(graph_it), show_it=VALUES(show_it);";
+	$result = $conn->query($query);
+        $temp_id = mysqli_insert_id($conn);
+	if ($result) {
+                if ($id==0){
+                        $message_success = "<p>".$lang['temp_sensor_record_add_success']."</p>";
+                } else {
+                        $message_success = "<p>".$lang['temp_sensor_record_update_success']."</p>";
+                }
+	} else {
+		$error = "<p>".$lang['temp_sensor_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+	}
+	$message_success .= "<p>".$lang['do_not_refresh']."</p>";
+	header("Refresh: 10; url=home.php");
+	// After update on all required tables, set $id to mysqli_insert_id.
+	if ($id==0){$id=$temp_id;}
+}
+?>
+<!-- ### Visible Page ### -->
+<?php include("header.php");  ?>
+<?php include_once("notice.php"); ?>
+
+<!-- Don't display form after submit -->
+<?php if (!(isset($_POST['submit']))) { ?>
+
+<!-- If the request is to EDIT, retrieve selected items from DB   -->
+<?php if ($id != 0) {
+        $query = "SELECT * FROM `temperature_sensors` WHERE `id` = {$id} limit 1;";
+	$result = $conn->query($query);
+	$row = mysqli_fetch_assoc($result);
+
+	$query = "SELECT * FROM nodes WHERE id = '{$row['sensor_id']}' LIMIT 1;";
+	$result = $conn->query($query);
+	$rownode = mysqli_fetch_assoc($result);
+}
+?>
+
+<!-- Title (e.g. Add Sensor or Edit Sensor) -->
+<div id="page-wrapper">
+<br>
+            <div class="row">
+                <div class="col-lg-12">
+                   <div class="panel panel-primary">
+                        <div class="panel-heading">
+							<?php if ($id != 0) { echo $lang['sensor_edit'] . ": " . $row['name']; }else{
+                            echo "<i class=\"fa fa-plus fa-1x\"></i>" ." ". $lang['sensor_add'];} ?>
+						<div class="pull-right"> <div class="btn-group"><?php echo date("H:i"); ?></div> </div>
+                        </div>
+                        <!-- /.panel-heading -->
+<div class="panel-body">
+
+<form data-toggle="validator" role="form" method="post" action="<?php $_SERVER['PHP_SELF'];?>" id="form-join">
+
+<!-- Before or After System Controller Icon -->
+<div class="checkbox checkbox-default checkbox-circle">
+<input id="checkbox0" class="styled" type="checkbox" name="pre_post" value="1" <?php $check = ($row['pre_post'] == 1) ? 'checked' : ''; echo $check; ?>>>
+<label for="checkbox0"> <?php echo $lang['pre_sc_tile']; ?> </label> <small class="text-muted"><?php echo $lang['pre_sc_tile_info'];?></small>
+<div class="help-block with-errors"></div></div>
+
+<!-- Index Number -->
+<?php
+$query = "select index_id from temperature_sensors order by index_id desc limit 1;";
+$result = $conn->query($query);
+$found_product = mysqli_fetch_array($result);
+$new_index_id = $found_product['index_id']+1;
+?>
+<div class="form-group" class="control-label"><label><?php echo $lang['temp_sensor_index_number']; ?>  </label> <small class="text-muted"><?php echo $lang['temp_sensor_index_number_info'];?></small>
+<input class="form-control" placeholder="<?php echo $lang['temp_sensor_index_number']; ?>r" value="<?php if(isset($row['index_id'])) { echo $row['index_id']; }else {echo $new_index_id; }  ?>" id="index_id" name="index_id" data-error="<?php echo $lang['temp_sensor_index_number_help']; ?>" autocomplete="off" required>
+<div class="help-block with-errors"></div></div>
+
+<!-- Sensor Name -->
+<div class="form-group" class="control-label"><label><?php echo $lang['sensor_name']; ?></label> <small class="text-muted"><?php echo $lang['sensor_name_info'];?></small>
+<input class="form-control" placeholder="Temperature Sensor Name" value="<?php if(isset($row['name'])) { echo $row['name']; } ?>" id="name" name="name" data-error="<?php echo $lang['sensor_name_help']; ?>" autocomplete="off" required>
+<div class="help-block with-errors"></div></div>
+
+<!-- Temperature Sensor ID -->
+<div class="form-group" class="control-label" id="sensor_id_label" style="display:block"><label><?php echo $lang['temp_sensor_id']; ?></label> <small class="text-muted"><?php echo $lang['zone_sensor_id_info'];?></small>
+<select id="sensor_id" onchange=SensorChildList(this.options[this.selectedIndex].value) name="sensor_id" class="form-control select2" data-error="<?php echo $lang['zone_temp_sensor_id_error']; ?>" autocomplete="off" required>
+<?php if(isset($rownode['node_id'])) { echo '<option selected >'.$rownode['node_id'].'</option>'; } ?>
+<?php  $query = "SELECT node_id, name, max_child_id FROM nodes where name LIKE '%Sensor' ORDER BY node_id ASC;";
+$result = $conn->query($query);
+echo "<option></option>";
+while ($datarw=mysqli_fetch_array($result)) {
+        if(strpos($datarw['name'], 'Add-On') !== false) { $max_child_id = 0; } else { $max_child_id = $datarw['max_child_id']; }
+	echo "<option value=".$datarw['max_child_id'].">".$datarw['node_id']."</option>"; } ?>
+</select>
+<div class="help-block with-errors"></div></div>
+
+<script language="javascript" type="text/javascript">
+function SensorChildList(value)
+{
+        var valuetext = value;
+	var e = document.getElementById("sensor_id");
+	var selected_sensor_id = e.options[e.selectedIndex].text;
+	document.getElementById("selected_sensor_id").value = selected_sensor_id;
+
+        var opt = document.getElementById("sensor_child_id").getElementsByTagName("option");
+        for(j=opt.length-1;j>=0;j--)
+        {
+                document.getElementById("sensor_child_id").options.remove(j);
+        }
+        for(j=0;j<=valuetext;j++)
+        {
+                var optn = document.createElement("OPTION");
+                optn.text = j;
+                optn.value = j;
+                document.getElementById("sensor_child_id").options.add(optn);
+        }
+}
+</script>
+<input type="hidden" id="selected_sensor_id" name="selected_sensor_id" value="<?php echo $rownode['node_id']?>"/>
+<input type="hidden" id="graph_it" name="graph_it" value="<?php echo $row['graph_it']?>"/>
+<input type="hidden" id="show_it" name="show_it" value="<?php echo $row['show_it']?>"/>
+
+<!-- Temperature Sensor Child ID -->
+<div class="form-group" class="control-label" id="sensor_child_id_label" style="display:block"><label><?php echo $lang['temp_sensor_child_id']; ?></label> <small class="text-muted"><?php echo $lang['zone_sensor_id_info'];?></small>
+<select id="sensor_child_id" name="sensor_child_id" class="form-control select2" data-error="<?php echo $lang['zone_temp_sensor_id_error']; ?>" autocomplete="off" required>
+<?php if(isset($row['sensor_child_id'])) { echo '<option selected >'.$row['sensor_child_id'].'</option>';
+for ($x = 0; $x <= $rownode['max_child_id']; $x++) {
+        echo "<option value=".$x.">".$x."</option>";
+        }
+} ?>
+</select>
+<div class="help-block with-errors"></div></div>
+
+<!-- Buttons -->
+<input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn btn-default btn-sm">
+<a href="home.php"><button type="button" class="btn btn-primary btn-sm"><?php echo $lang['cancel']; ?></button></a>
+</form>
+                        </div>
+                        <!-- /.panel-body -->
+						<div class="panel-footer">
+<?php
+ShowWeather($conn);
+?>
+                            <div class="pull-right">
+                                <div class="btn-group">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.col-lg-4 -->
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /#page-wrapper -->
+<?php }  ?>
+<?php include("footer.php");  ?>
+
