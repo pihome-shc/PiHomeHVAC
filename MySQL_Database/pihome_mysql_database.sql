@@ -155,7 +155,6 @@ CREATE TABLE `system_controller_logs` (
 
 LOCK TABLES `system_controller_logs` WRITE;
 /*!40000 ALTER TABLE `system_controller_logs` DISABLE KEYS */;
-INSERT INTO `system_controller_logs` VALUES (1,0,0,'2020-04-20 13:57:01','Boost Active','2020-04-20 14:04:01','No Schedule','2020-04-20 14:56:49'),(2,0,0,'2020-04-20 14:11:01','Boost Activ$
 /*!40000 ALTER TABLE `system_controller_logs` ENABLE KEYS */;
 UNLOCK TABLES;
 
