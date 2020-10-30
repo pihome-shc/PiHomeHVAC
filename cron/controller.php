@@ -1152,7 +1152,7 @@ for ($row = 0; $row < count($zone_commands); $row++){
 		$zone_controller_state = $controllers[$crow]["zone_controller_state"];
 		$zone_command = (($zone_controller_state == 1) || ($zone_overrun == 1)) ? 1:0 ;
 		if ($debug_msg == 1) { echo $zone_controler_id."-".$zone_controler_child_id.", ".$zone_controller_state.", ".$manual_button_override."\n"; }
-		if (($manual_button_override == 0) || ($manual_button_override == 1 && $zone_command == 0)) {
+		if ((($manual_button_override == 0) || ($manual_button_override == 1 && $zone_command == 0)) && ($zone_command != $zone_status_prev)) {
 			/***************************************************************************************
 			Zone Valve Wired to Raspberry Pi GPIO Section: Zone Valve Connected Raspberry Pi GPIO.
 			****************************************************************************************/
