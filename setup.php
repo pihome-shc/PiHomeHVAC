@@ -293,7 +293,7 @@ if ($results) {
 //Addming system Controller Record
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding System Controller\n";
 $datetime = date('Y-m-d H:i:s');
-$query_system = "insert INTO `system_controller` (`sync`, `purge`, `status`, `active_status`, `name`, `hysteresis_time`, `max_operation_time`, `overrun`, `datetime`, `sc_mode`, `sc_mode_prev`, `heat_relay_id`, `cool_relay_id`, `fan_relay_id`) VALUES (0, 0, 1, 0, 'Gas Boiler', 3, 60, 2, '$datetime', 0, 0, 0, 0, 0);";
+$query_system = "insert INTO `system_controller` (`sync`, `purge`, `mode`, `status`, `active_status`, `name`, `hysteresis_time`, `max_operation_time`, `overrun`, `datetime`, `sc_mode`, `sc_mode_prev`, `heat_relay_id`, `cool_relay_id`, `fan_relay_id`) VALUES (0, 0, 0, 1, 0, 'Gas Boiler', 3, 60, 2, '$datetime', 0, 0, 0, 0, 0);";
 $query_system = str_replace("version_val",$version,$query_system);
 $query_system = str_replace("build_val",$build,$query_system);
 $results = $conn->query($query_system);
