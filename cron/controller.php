@@ -1249,7 +1249,7 @@ if (in_array("1", $system_controller)) {
 		***************************************************************************************************/
 		//update messages_out table with sent status to 0 and payload to as system controller status.
                 if ($sc_mode != 3) { //process if NOT  HVAC fan only mode
-	        	if ($off_relay_type == 'MySensor'){
+	        	if ($system_controller_mode == 1 && $off_relay_type == 'MySensor'){
         	        	$query = "UPDATE messages_out SET sent = '0', payload = '0' WHERE node_id ='{$off_relay_id}' AND child_id = '{$off_relay_child_id}' LIMIT 1;";
 	        	        $conn->query($query);
         	        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$off_relay_id."\033[0m Child ID: \033[41m".$off_relay_child_id."\033[0m \n";
@@ -1270,7 +1270,7 @@ if (in_array("1", $system_controller)) {
 		System Controller Wired to Raspberry Pi GPIO Section.
 		******************************************************/
 		if ($sc_mode != 3) { //process if NOT  HVAC fan only mode
-			if ($off_relay_type == 'GPIO'){
+			if ($system_controller_mode == 1 && $off_relay_type == 'GPIO'){
 				exec("python3 /var/www/cron/gpio/gpio3_relay.py " .$off_relay_child_id ." ".$relay_off );
 				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$off_relay_child_id. "\033[0m Status: \033[41m".$relay_off."\033[0m (".$relay_on."=On, ".$relay_off."=Off) \n";
 			}
@@ -1288,7 +1288,7 @@ if (in_array("1", $system_controller)) {
 		System Controller Wired over I2C Interface Make sure you have i2c Interface enabled 
 		*******************************************************************************************/
                 if ($sc_mode != 3) { //process if NOT  HVAC fan only mode
-		        if ($off_relay_type == 'I2C'){
+		        if ($system_controller_mode == 1 && $off_relay_type == 'I2C'){
         		        exec("python3 /var/www/cron/i2c/i2c_relay.py" .$off_relay_id." ".$off_relay_child_id." 0");
                 		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller I2C Rrelay Board: \033[41m".$off_relay_id."\033[0m Relay ID: \033[41m".$off_relay_child_id."\033[0m \n";
 		        }
