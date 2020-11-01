@@ -204,8 +204,8 @@ $message = '#
 
 
 # Main engine for PiHome Smart Heating, If you want to ouput logs then comment first line and uncomment second line.
-*/1 * * * * /usr/bin/php /var/www/cron/boiler.php >/dev/null 2>&1
-# */1 * * * * /usr/bin/php /var/www/cron/boiler.php >>/var/www/cron/logs/boiler.log 2>&1
+*/1 * * * * /usr/bin/php /var/www/cron/controller.php >/dev/null 2>&1
+# */1 * * * * /usr/bin/php /var/www/cron/controller.php >>/var/www/cron/logs/controller.log 2>&1
 
 # If you signup for PiConnect - Simplify the Connected API Key you can save this key to PiConnect table to sync.
 # your data with PiConnect this way you can mange your heating from
