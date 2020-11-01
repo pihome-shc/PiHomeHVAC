@@ -1235,7 +1235,14 @@ if (in_array("1", $system_controller)) {
 	        	        $off_relay_child_id = $cool_relay_child_id;
         	        	$off_relay_type = $cool_relay_type;
 	        	}
-		}
+                } else {
+                        $on_relay_id = $heat_relay_id;
+                        $on_relay_child_id = $heat_relay_child_id;
+                        $on_relay_type = $heat_relay_type;
+                        $off_relay_id = $heat_relay_id;
+                        $off_relay_child_id = $heat_relay_child_id;
+                        $off_relay_type = $heat_relay_type;
+                }
 
 		/**************************************************************************************************
 		System Controller Wirelss Section:	MySensors Wireless Relay module for your System Controller
