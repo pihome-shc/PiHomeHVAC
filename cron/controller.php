@@ -1219,21 +1219,23 @@ if (in_array("1", $system_controller)) {
 		$query = "UPDATE system_controller SET sync = '0', active_status = '{$new_system_controller_status}', sc_mode_prev = '{$sc_mode}' WHERE id ='1' LIMIT 1";
 		$conn->query($query);
         	//when it HVAC mode determine if cool or haet relay is to be switched
-	        if ($system_controller_mode == 1 && $hvac_state == 0){
-        	        $on_relay_id = $cool_relay_id;
-                	$on_relay_child_id = $cool_relay_child_id;
-	                $on_relay_type = $cool_relay_type;
-        	        $off_relay_id = $heat_relay_id;
-                	$off_relay_child_id = $heat_relay_child_id;
-	                $off_relay_type = $heat_relay_type;
-        	} else {
-                	$on_relay_id = $heat_relay_id;
-	                $on_relay_child_id = $heat_relay_child_id;
-        	        $on_relay_type = $heat_relay_type;
-                	$off_relay_id = $cool_relay_id;
-	                $off_relay_child_id = $cool_relay_child_id;
-        	        $off_relay_type = $cool_relay_type;
-	        }
+	        if ($system_controller_mode == 1) {
+			if {$hvac_state == 0){
+	        	        $on_relay_id = $cool_relay_id;
+        	        	$on_relay_child_id = $cool_relay_child_id;
+	        	        $on_relay_type = $cool_relay_type;
+        	        	$off_relay_id = $heat_relay_id;
+                		$off_relay_child_id = $heat_relay_child_id;
+		                $off_relay_type = $heat_relay_type;
+        		} else {
+                		$on_relay_id = $heat_relay_id;
+	                	$on_relay_child_id = $heat_relay_child_id;
+	        	        $on_relay_type = $heat_relay_type;
+        	        	$off_relay_id = $cool_relay_id;
+	        	        $off_relay_child_id = $cool_relay_child_id;
+        	        	$off_relay_type = $cool_relay_type;
+	        	}
+		}
 
 		/**************************************************************************************************
 		System Controller Wirelss Section:	MySensors Wireless Relay module for your System Controller
