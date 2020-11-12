@@ -1,16 +1,6 @@
-<p align="center">
-    <a href="https://www.pihome.eu" target="_blank" align="center">
-        <img src="http://www.pihome.eu/images/pi-home_logo_text.png">
-    </a>
-<br/>
-</p>
+# Autohotspot
 
-# PiHomeHVAC - Next Generation Smart Thermostat 
+This code is the work of RaspberryConnect.com, thank you for this guide and code.
 
+The installer has been modified to add support for the Armbian OS and to allow integartion with PiHome
 
-## Requirements
-Basic knowledge of command line with following main components for pihome to function. 
-* Apache Web Server
-* PHP 7.x
-* Python 3.x
-* MySQL/MariaDB 
