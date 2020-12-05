@@ -410,7 +410,7 @@ html {
 			<div class="login-panel-foother">
                                 <h6><?php echo settings($conn, 'name').' '.settings($conn, 'version')."&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;".$lang['build']." ".settings($conn, 'build'); ?></h6>
                                 <br><br>
-                                <h6><?php echo "&copy;".$lang['copyright']; ?></h6>
+                                <h6><?php echo "&copy;&nbsp;".$lang['copyright']; ?></h6>
 			</div>
 		</div>
 	</div>
