@@ -1,7 +1,8 @@
 <?php
 //English Language File 
 
-$lang['title'] = "PiHome - Smart Heating Control";
+$lang['title'] = "MaxAir - Smart Thermostat";
+$lang['copyright'] = "BrainMax 2020. All Rights Reserved";
 $lang['home'] = "Home";
 $lang['login'] = "Login";
 $lang['sign_in'] = "Please Sign In";
