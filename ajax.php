@@ -805,7 +805,7 @@ function GetModal_Uptime($conn)
             <h5 class="modal-title" id="ajaxModalLabel">System Uptime</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">
-			<p class="text-muted"> Raspberry PI up time since last reboot. </p>
+			<p class="text-muted"> System up time since last reboot. </p>
 			<i class="fa fa-clock-o fa-1x red"></i>';
     $uptime = (exec ("cat /proc/uptime"));
     $uptime=substr($uptime, 0, strrpos($uptime, ' '));
