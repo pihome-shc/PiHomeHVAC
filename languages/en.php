@@ -231,11 +231,11 @@ $lang['schedule_temp_modify_success'] = "Schedule Temperature Modified Successfu
 $lang['schedule_temp_modify_error'] = "Schedule Temperature Modification failed with error: ";
 
 $lang['graph'] = "Graph";
-$lang['graph_temperature'] = "PiHome Temperature Graphs";
+$lang['graph_temperature'] = "MaxAir Temperature Graphs";
 $lang['graph_24h'] = "Temperature Graphs for the last 24 hours for all Zones";
-$lang['graph_saving'] = "PiHome Saving";
+$lang['graph_saving'] = "MaxAir Saving";
 $lang['graph_saving_text'] = "These Savings are based on schedule start and stop time. ";
-$lang['graph_boiler_usage'] = "PiHome Boiler Usage";
+$lang['graph_boiler_usage'] = "MaxAir Boiler Usage";
 $lang['graph_boiler_usage_text'] = "Total time Boiler is scheduled to run, actual time Boiler ran, and Boiler gas consumption saved by PiHome. ";
 $lang['graph_outsie'] = "Outside";
 $lang['graph_total_time'] = "Total Time";
