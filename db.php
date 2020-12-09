@@ -182,6 +182,11 @@ if($what=="boost"){
 		//this line update message out 
 		$query = "UPDATE messages_out SET payload = '{$set}', datetime = '{$time}', sent = '0', sync = '0' WHERE zone_id = '{$zone_id}' AND node_id = {$row['boost_button_id']} AND child_id = {$row['boost_button_child_id']} LIMIT 1";
 		$conn->query($query);
+                //HVAC mode - only allow 1 active boost, so clear all others
+                if (settings($conn, 'mode') == 1 and $set == "1") {
+                        $query = "UPDATE boost SET status = '0', sync = '0' WHERE id <> '{$wid}';";
+                        $conn->query($query);
+                }
 	}
 	if($opp=="delete"){
 		//get list of Boost console Id and Child ID
