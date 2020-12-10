@@ -531,4 +531,5 @@ $lang['default_temperature'] = "Default Temperature";
 $lang['zone_default_temperature_help'] = "Default temperature for this Zone";
 $lang['zone_default_temperature_error'] = "Default temperature this Zone, used when no scheduled temperature is active.";
 $lang['zone_default_temperature_info'] = "Default temperature this Zone, used when no scheduled temperature is active.";
+$lang['system_controller'] = "System Controller";
 ?>
