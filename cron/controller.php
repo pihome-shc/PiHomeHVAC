@@ -501,6 +501,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 			$boost_time = $boost['time'];
 			$boost_c = $boost['temperature'];
 			$boost_minute = $boost['minute'];
+			$boost_mode = $boost['hvac_mode'];
 		} else {
 			$boost_status = '0';
 		}
@@ -524,7 +525,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 				$query = "UPDATE messages_out SET payload = '{$boost_active}', sent = '0' WHERE zone_id = {$row['id']} AND node_id = {$brow['boost_button_id']} AND child_id = {$brow['boost_button_child_id']} LIMIT 1;";
 				$conn->query($query);
 				//update Boost Records in database
-				$query = "UPDATE boost SET status = '{$boost_active}', sync = '0' WHERE zone_id = {$row['id']};";
+				$query = "UPDATE boost SET status = '{$boost_active}', sync = '0' WHERE zone_id = {$row['id']} AND status = '1';";
 				$conn->query($query);
 			}else {
 				$boost_active='0';
@@ -797,109 +798,167 @@ while ($row = mysqli_fetch_assoc($results)) {
 						$zone_state = 0;
 					}
 				}
-			} elseif ($zone_category == 3) { // process category 3 zone
-				switch ($sc_mode) {
-                                        case 0: // OFF
-                                                $zone_status="0";
-                                                $zone_mode = 0;
-                                                $stop_cause="HVAC OFF ";
+			} elseif ($zone_category == 3) { // process category 3 zone (HVAC)
+				if ($away_status=='0'){
+					if (($holidays_status=='0') || ($sch_holidays=='1')) {
+						if ($boost_status=='0') {
+        		                                $zone_status="0";
+                		                        $stop_cause="Boost Finished";
+							switch ($sc_mode) {
+        	                		                case 0: // OFF
+                	                		                $zone_status="0";
+                        	                		        $zone_mode = 0;
+                                	                		$stop_cause="HVAC OFF ";
+	                                        	        	$zone_state = 0;
+	        	                                        	break;
+		        	                                case 2: // AUTO mode
+        		        	                                if ($zone_c <= $temp_cut_out_rising) {
+                		        	                                $zone_status="1";
+                        		        	                        if ($sch_status == 1) {
+                                		        	                        $zone_mode = 81;
+                                        		        	        } else {
+                                                		        	        $zone_mode = 121;
+	                                                        		}
+		                                                        	$start_cause="HVAC Heat Cycle Started ";
+	        		                                                $zone_state = 1;
+        	        		                                        $hvac_state = 1;
+                	        		                        } elseif ($zone_c > $temp_cut_out_rising && $zone_c < $temp_cut_out_falling) {
+                        	        		                        $zone_status="0";
+                                	        		                if ($sch_status == 1) {
+                                        	        		                $zone_mode = 80;
+                                                	        		} else {
+                                                        	        		$zone_mode = 120;
+		                                                	        }
+        		                                                	$stop_cause="HVAC Climate C Reached ";
+	                		                                        $zone_state = 0;
+        	                		                        } elseif ($zone_c >= $temp_cut_out_falling) {
+                	                		                        $zone_status="1";
+                        	                		                if ($sch_status == 1) {
+                                	                		                $zone_mode = 86;
+                                        	                		} else {
+                                                	                		$zone_mode = 126;
+		                                        	                }
+        		                                        	        $start_cause="HVAC Cool Cycle Started ";
+                		                                        	$zone_state = 1;
+	                        		                                $hvac_state = 0;
+        	                        		                }
+                	                        		        break;
+								case 3: // FAN mode
+		                	                        	$zone_status="1";
+									if ($sch_status == 1) {
+										$zone_mode = 87;
+									} else {
+               			                	        		$zone_mode = 127;
+									}
+		                               			        $start_cause="HVAC Fan Only ";
+			                                	        $zone_state = 1;
+							 		break;
+	                        		                case 4: // HEAT mode
+									if ($zone_c >= $temp_cut_out_rising) {
+	        	                        		                $zone_status="0";
+        	        	                        		        if ($sch_status == 1) {
+	                        	                        		        $zone_mode = 80;
+	                	        	                        	} else {
+        	                	        	                        	$zone_mode = 120;
+	                	                	        	        }
+        	        		                                	$stop_cause="HVAC Climate C Reached ";
+	        	                		                        $zone_state = 0;
+									} elseif ($zone_c < $temp_cut_out_rising) {
+                	        	                        	        $zone_status="1";
+										if ($system_controller_active_status == '1') {
+		                	        	                        	if ($sch_status == 1) {
+                		        	        	                        	$zone_mode = 81;
+	                                				                } else {
+        	                                        				        $zone_mode = 121;
+                	                                				}
+										} else {
+				                	                                if ($sch_status == 1) {
+                				        	                                $zone_mode = 83;
+                        		        			                } else {
+                                		                			        $zone_mode = 123;
+                                        		        			}
+										}
+        	                                        		        $start_cause="HVAC Heat Cycle Started ";
+                	                                        		$zone_state = 1;
+									}
+									$hvac_state = 1;
+                		                        	        break;
+	                		                        case 5: // COOL mode
+        	                		                        if ($zone_c <= $temp_cut_out_falling) {
+                	                		                        $zone_status="0";
+	                	                		                if ($sch_status == 1) {
+        	                	                		                $zone_mode = 80;
+                	                	                		} else {
+                        	                	                		$zone_mode = 120;
+		                                	                	}
+			                                                        $stop_cause="HVAC Climate C Reached ";
+        			                                                $zone_state = 0;
+                			                                } elseif ($zone_c > $temp_cut_out_falling) {
+                        			                                $zone_status="1";
+	                        			                        if ($sch_status == 1) {
+        	                        			                        $zone_mode = 86;
+                	                        			        } else {
+                        	                        			        $zone_mode = 126;
+		                                	                	}
+	        		                                                $start_cause="HVAC Cool Cycle Started ";
+        	        		                                        $zone_state = 1;
+                	        		                        }
+                        	        		                $hvac_state = 0;
+                                	        		        break;
+							} // end switch
+						} elseif ($boost_status=='1') { // end boost == 0
+        	        	                        switch ($boost_mode) {
+                	        	                        case '3': // FAN Boost
+                        	        	                        $zone_status="1";
+                                	        	                $zone_mode = 67;
+                                        	        	        $start_cause="FAN Boost Active";
+									$expected_end_date_time=date('Y-m-d H:i:s', $boost_time);
+	                                                	        $zone_state = 1;
+        	                                                	break;
+	                	                                case '4': // HEAT Boost
+									if ($zone_c < $temp_cut_out_rising) {
+	        	                	                                $zone_status="1";
+        	        	                	                        $zone_mode = 61;
+                	        	                	                $start_cause="HEAT Boost Active";
+                        	        	                	        $expected_end_date_time=date('Y-m-d H:i:s', $boost_time);
+                                	        	                	$zone_state = 1;
+	                                                	        }elseif (($zone_c >= $temp_cut_out)) {
+        	                                                	        $zone_status="0";
+                	                                                	$zone_mode = 60;
+	                        	                                        $stop_cause="HEAT Boost Target C Achived";
+        	                        	                                $zone_state = 0;
+                	                        	                }
+									$hvac_state = 1;
+                                	        		     	break;
+	                                	                case '5': // COOL Boost
+        	                                	                if ($zone_c > $temp_cut_out_falling) {
+                	                                	                $zone_status="1";
+                        	                                	        $zone_mode = 66;
+                                	                                	$start_cause="COOL Boost Active";
+	                                        	                        $expected_end_date_time=date('Y-m-d H:i:s', $boost_time);
+        	                                        	                $zone_state = 1;
+                	                                        	}elseif (($zone_c <= $temp_cut_out_falling)) {
+                        	                                        	$zone_status="0";
+	                        	                                        $zone_mode = 60;
+        	                        	                                $stop_cause="COOL Boost Target C Achived";
+                	                        	                        $zone_state = 0;
+                        	                        	        }
+									$hvac_state = 0;
+	                                        	                break;
+							} // end switch
+						} // boost = 1
+                                        } elseif (($holidays_status=='1') && ($sch_holidays=='0')) {
+                                        	$zone_status="0";
+                                                $zone_mode = 40;
+                                                $stop_cause="Holiday Active";
                                                 $zone_state = 0;
-                                                break;
-                                        case 2: // AUTO mode
-                                                if ($zone_c <= $temp_cut_out_rising) {
-                                                        $zone_status="1";
-                                                        if ($sch_status == 1) {
-                                                                $zone_mode = 81;
-                                                        } else {
-                                                                $zone_mode = 121;
-                                                        }
-                                                        $start_cause="HVAC Heat Cycle Started ";
-                                                        $zone_state = 1;
-                                                        $hvac_state = 1;
-                                                } elseif ($zone_c > $temp_cut_out_rising && $zone_c < $temp_cut_out_falling) {
-                                                        $zone_status="0";
-                                                        if ($sch_status == 1) {
-                                                                $zone_mode = 80;
-                                                        } else {
-                                                                $zone_mode = 120;
-                                                        }
-                                                        $stop_cause="HVAC Climate C Reached ";
-                                                        $zone_state = 0;
-                                                } elseif ($zone_c >= $temp_cut_out_falling) {
-                                                        $zone_status="1";
-                                                        if ($sch_status == 1) {
-                                                                $zone_mode = 86;
-                                                        } else {
-                                                                $zone_mode = 126;
-                                                        }
-                                                        $start_cause="HVAC Cool Cycle Started ";
-                                                        $zone_state = 1;
-                                                        $hvac_state = 0;
-                                                }
-                                                break;
-					case 3: // FAN mode
-	                                        $zone_status="1";
-						if ($sch_status == 1) {
-							$zone_mode = 87;
-						} else {
-               		                        	$zone_mode = 127;
-						}
-                               		        $start_cause="HVAC Fan Only ";
-	                                        $zone_state = 1;
-					 	break;
-                                        case 4: // HEAT mode
-						if ($zone_c >= $temp_cut_out_rising) {
-	                                                $zone_status="0";
-        	                                        if ($sch_status == 1) {
-	                                                        $zone_mode = 80;
-                	                                } else {
-                        	                                $zone_mode = 120;
-                                	                }
-                	                                $stop_cause="HVAC Climate C Reached ";
-                        	                        $zone_state = 0;
-						} elseif ($zone_c < $temp_cut_out_rising) {
-                                                        $zone_status="1";
-							if ($system_controller_active_status == '1') {
-		                                                if ($sch_status == 1) {
-                		                                        $zone_mode = 81;
-                                		                } else {
-                                                		        $zone_mode = 121;
-                                                		}
-							} else {
-		                                                if ($sch_status == 1) {
-                		                                        $zone_mode = 83;
-                                		                } else {
-                                                		        $zone_mode = 123;
-                                                		}
-							}
-                                                        $start_cause="HVAC Heat Cycle Started ";
-                                                        $zone_state = 1;
-						}
-						$hvac_state = 1;
-                                                break;
-                                        case 5: // COOL mode
-                                                if ($zone_c <= $temp_cut_out_falling) {
-                                                        $zone_status="0";
-	                                                if ($sch_status == 1) {
-        	                                                $zone_mode = 80;
-                	                                } else {
-                        	                                $zone_mode = 120;
-                                	                }
-                                                        $stop_cause="HVAC Climate C Reached ";
-                                                        $zone_state = 0;
-                                                } elseif ($zone_c > $temp_cut_out_falling) {
-                                                        $zone_status="1";
-	                                                if ($sch_status == 1) {
-        	                                                $zone_mode = 86;
-                	                                } else {
-                        	                                $zone_mode = 126;
-                                	                }
-                                                        $start_cause="HVAC Cool Cycle Started ";
-                                                        $zone_state = 1;
-                                                }
-                                                $hvac_state = 0;
-                                                break;
-				}
+                                        } // end holidays
+                             	} elseif ($away_status=='1'){ // end away = 0
+                                	$zone_status="0";
+                                        $zone_mode = 90;
+                                        $stop_cause="Away Active";
+                                        $zone_state = 0;
+                                }
 			} else { // process Zone Category 2 zone
 				if ($away_status=='1'){
 					$zone_status="0";
@@ -1152,6 +1211,7 @@ for ($row = 0; $row < count($zone_commands); $row++){
 		$zone_controller_state = $controllers[$crow]["zone_controller_state"];
 		$zone_command = (($zone_controller_state == 1) || ($zone_overrun == 1)) ? 1:0 ;
 		if ($debug_msg == 1) { echo $zone_controler_id."-".$zone_controler_child_id.", ".$zone_controller_state.", ".$manual_button_override."\n"; }
+//		if (($manual_button_override == 0) || ($manual_button_override == 1 && $zone_command == 0)) {
 		if ((($manual_button_override == 0) || ($manual_button_override == 1 && $zone_command == 0)) && ($zone_command != $zone_status_prev)) {
 			/***************************************************************************************
 			Zone Valve Wired to Raspberry Pi GPIO Section: Zone Valve Connected Raspberry Pi GPIO.
@@ -1206,7 +1266,6 @@ for ($row = 0; $row < count($zone_commands); $row++){
 //print_r ($system_controller);
 if (isset($system_controller_stop_datetime)) {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Switched Off At: ".$system_controller_stop_datetime. "\n";}
 if (isset($expected_end_date_time)){echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Expected End Time: ".$expected_end_date_time. "\n"; }
-
 /***********************************
       System Controller On section
 /***********************************/
@@ -1218,31 +1277,31 @@ if (in_array("1", $system_controller)) {
 		//update system controller active status to 1
 		$query = "UPDATE system_controller SET sync = '0', active_status = '{$new_system_controller_status}', sc_mode_prev = '{$sc_mode}' WHERE id ='1' LIMIT 1";
 		$conn->query($query);
-        	//when it HVAC mode determine if cool or haet relay is to be switched
+        	//when it HVAC mode determine if cool or heat relay is to be switched
 	        if ($system_controller_mode == 1) {
-			if {$hvac_state == 0){
+			if  ($hvac_state == 0){
 	        	        $on_relay_id = $cool_relay_id;
         	        	$on_relay_child_id = $cool_relay_child_id;
 	        	        $on_relay_type = $cool_relay_type;
         	        	$off_relay_id = $heat_relay_id;
-                		$off_relay_child_id = $heat_relay_child_id;
+	                	$off_relay_child_id = $heat_relay_child_id;
 		                $off_relay_type = $heat_relay_type;
         		} else {
                 		$on_relay_id = $heat_relay_id;
-	                	$on_relay_child_id = $heat_relay_child_id;
-	        	        $on_relay_type = $heat_relay_type;
-        	        	$off_relay_id = $cool_relay_id;
-	        	        $off_relay_child_id = $cool_relay_child_id;
-        	        	$off_relay_type = $cool_relay_type;
-	        	}
-                } else {
-                        $on_relay_id = $heat_relay_id;
+		                $on_relay_child_id = $heat_relay_child_id;
+        		        $on_relay_type = $heat_relay_type;
+                		$off_relay_id = $cool_relay_id;
+	                	$off_relay_child_id = $cool_relay_child_id;
+	        	        $off_relay_type = $cool_relay_type;
+		        }
+		} else {
+                	$on_relay_id = $heat_relay_id;
                         $on_relay_child_id = $heat_relay_child_id;
                         $on_relay_type = $heat_relay_type;
                         $off_relay_id = $heat_relay_id;
                         $off_relay_child_id = $heat_relay_child_id;
                         $off_relay_type = $heat_relay_type;
-                }
+		}
 
 		/**************************************************************************************************
 		System Controller Wirelss Section:	MySensors Wireless Relay module for your System Controller
