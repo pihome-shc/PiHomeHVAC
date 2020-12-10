@@ -407,7 +407,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 			if ($fired_status=='1'){$system_controller_colour="red";} elseif ($fired_status=='0'){$system_controller_colour="blue";}
 			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" href="#boiler" data-backdrop="static" data-keyboard="false">
 			<h3 class="text-info"><small>'.$system_controller_name.'</small></h3>';
-			if($zone_mode == 127 || $zone_mode == 87){
+			if($zone_mode == 127 || $zone_mode == 87 || $zone_mode == 67){
 				echo '<h3 class="degre" ><img src="images/hvac_fan_30.png" border="0"></h3>';
 			} else {
 				echo '<h3 class="degre" ><i class="'.$rval['scactive'].' fa-1x '.$rval['sccolor'].'"></i></h3>';
