@@ -187,7 +187,7 @@ if (isset($_POST['submit'])) {
         $query = "select * from schedule_daily_time_zone_view where time_id = {$time_id}";
         $zoneresults = $conn->query($query);
 } else {
-       	$query = "select zone.id as tz_id, zone.name as zone_name, zone.status as tz_status, zone_type.type, zone_type.category, zone_sensors.max_c FROM zone, zone_type, zone_sensors WHERE (zone.type_id = zone_type.id) AND (zone.id = zone_sensors.zone_id) AND status = 1 AND zone.`purge`= 0 ORDER BY index_id asc;";
+       	$query = "select zone.id as tz_id, zone.name as zone_name, zone.status as tz_status, zone_type.type, zone_type.category, zone_sensors.min_c, zone_sensors.max_c FROM zone, zone_type, zone_sensors WHERE (zone.type_id = zone_type.id) AND (zone.id = zone_sensors.zone_id) AND status = 1 AND zone.`purge`= 0 ORDER BY index_id asc;";
 	$zoneresults = $conn->query($query);
 }
 ?>
