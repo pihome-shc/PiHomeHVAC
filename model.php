@@ -603,12 +603,21 @@ echo '
             </div>
             <div class="modal-body">
 <p class="text-muted"> '.$lang['override_settings_text'].'</p>';
-$query = "SELECT * FROM override_view WHERE category < 2 ORDER BY index_id asc";
+if (settings($conn, 'mode') == 0) { //boiler mode
+        $query = "SELECT * FROM override_view WHERE category < 2 ORDER BY index_id asc";
+} else {
+        $query = "SELECT * FROM override ORDER BY hvac_mode asc";
+}
 $results = $conn->query($query);
 echo '	<div class=\"list-group\">';
 while ($row = mysqli_fetch_assoc($results)) {
+        if (settings($conn, 'mode') == 0) {
+                $name = $row['name'];
+        } else {
+                if ($row['hvac_mode']  == 4) { $name = 'HEAT'; } else { $name = 'COOL'; };
+        }
 	echo "<a href=\"#\" class=\"list-group-item\">
-	<i class=\"fa fa-refresh fa-1x blue\"></i> ".$row['name']." 
+        <i class=\"fa fa-refresh fa-1x blue\"></i> ".$name."
     <span class=\"pull-right text-muted small\"><em>".$row['temperature']."&deg; </em></span></a>";
 }
 echo '</div></div>
