@@ -247,7 +247,13 @@ if (isset($_POST['submit'])) {
 
 	//Add or Edit Zone to override table at same time
 	if ($id==0){
-		$query = "INSERT INTO `override`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$max_c}');";
+                if (settings($conn, 'mode') == 0) { //boiler mode
+			$query = "INSERT INTO `override`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `hvac_mode`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$max_c}', '0');";
+		} else {
+			for ($i = 4; $i <= 5; $i++) {
+				$query = "INSERT INTO `override`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `hvac_mode`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$max_c}', '{$i}');";
+			}
+		}
 	} else {
 		$query = "UPDATE override SET `sync` = 0, temperature='{$max_c}' WHERE zone_id='{$zone_id}';";
 	}
