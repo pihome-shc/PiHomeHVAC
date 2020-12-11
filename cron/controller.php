@@ -328,6 +328,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                 $query = "SELECT zone_sensors.*, temperature_sensors.sensor_id, temperature_sensors.sensor_child_id FROM  zone_sensors, temperature_sensors WHERE (zone_sensors.temperature_sensor_id = temperature_sensors.id) AND zone_sensors.zone_id = '{$zone_id}' LIMIT 1;";
                 $result = $conn->query($query);
                 $sensor = mysqli_fetch_array($result);
+                $zone_min_c=$sensor['min_c'];
 	        $zone_max_c=$sensor['max_c'];
 	        $zone_hysteresis_time=$sensor['hysteresis_time'];
         	$zone_sp_deadband=$sensor['sp_deadband'];
