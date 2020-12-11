@@ -96,7 +96,7 @@ join zone_type on zone_type.id = zone.type_id;
 -- Override View
 Drop View if exists override_view;
 CREATE VIEW override_view AS
-select override.`status`, override.sync, override.purge, override.zone_id, zone_idx.index_id, zone_type.category, zone.name, override.time, override.temperature
+select override.`status`, override.sync, override.purge, override.zone_id, zone_idx.index_id, zone_type.category, zone.name, override.time, override.temperature, override.hvac_mode
 from override
 join zone on override.zone_id = zone.id
 join zone zone_idx on override.zone_id = zone_idx.id
