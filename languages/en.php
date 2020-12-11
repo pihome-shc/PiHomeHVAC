@@ -199,6 +199,7 @@ $lang['zone_enable_info'] = "Enable this Zone if you want this Zone to be contro
 $lang['zone_index_number_info'] = "In the List of Zones where you want to place this Zone on the home screen";
 $lang['zone_name_info'] = "Zone display name";
 $lang['zone_type_info'] = "Zone type i.e. Heating, Hot Water or Electrical Immersion";
+$lang['zone_min_temperature_info'] = "Minimum temperature this Zone can reach before Zone cooling will shut-off for safety";
 $lang['zone_max_temperature_info'] = "Maximum temperature this Zone can reach before Zone heating will shut-off for safety";
 $lang['zone_max_operation_time_info'] = "Maximum operation time in minutes of any continuous time";
 $lang['zone_hysteresis_info'] = "Minimim delay between Zone off and on ";
