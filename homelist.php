@@ -202,7 +202,8 @@ require_once(__DIR__.'/st_inc/functions.php');
 			90 - away
 			100 - hysteresis
 			110 - Add-On 
-			120 - HVAC*/
+			120 - HVAC
+                        130 - undertemperature*/
 
 			$zone_mode_main=floor($zone_mode/10)*10;
 			$zone_mode_sub=floor($zone_mode%10);
