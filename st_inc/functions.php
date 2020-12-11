@@ -574,7 +574,7 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
         //undertemperature
         else if($zone_mode_main == 130){
                 $shactive='ion-thermometer';
-                $shcolor='red';
+                $shcolor='blue';
                 $target=number_format(DispTemp($conn,$zone_temp_target),1) . '&deg;';
         }
 	//shouldn't get here
