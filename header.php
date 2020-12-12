@@ -35,7 +35,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<meta name="HandheldFriendly" content="true" />
-    <meta name="description" content="PiHomeHVAC Smart Heating Control">
+    <meta name="description" content="PiHome Smart Heating Control">
     <meta name="author" content="Waseem Javid">
 	<link rel="shortcut icon" href="images/favicon.ico" />
 	<link rel="apple-touch-icon" href="images/apple-touch-icon.png"/>

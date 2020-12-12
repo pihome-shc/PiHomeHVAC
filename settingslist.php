@@ -55,7 +55,7 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                       	        		<ul class="nav nav-pills">
 							<button class="btn-lg btn-default btn-circle" href="#collapse_status" data-toggle="collapse" data-parent="#accordion" data-toggle="tooltip" title="<?php echo $lang['tooltip_1']; ?>"><i class="fa fa-tachometer orange"></i></button>
 							<button class="btn-lg btn-default btn-circle" href="#collapse_system" data-toggle="collapse" data-parent="#accordion" data-toggle="tooltip" title="<?php echo $lang['tooltip_2']; ?>"><i class="fa fa-cogs green"></i></button>
-                                                        <button class="btn-lg btn-default btn-circle" href="#collapse_system_controller" data-toggle="collapse" data-parent="#accordion" data-toggle="tooltip" title="<?php echo $lang['tooltip_3']; ?>"><i class="degre" ><?php echo "SC"; ?></i></button>
+							<button class="btn-lg btn-default btn-circle" href="#collapse_boiler" data-toggle="collapse" data-parent="#accordion" data-toggle="tooltip" title="<?php echo $lang['tooltip_3']; ?>"><i class="fa fa-fire red"></i></button>
 							<button class="btn-lg btn-default btn-circle" href="#collapse_nodes" data-toggle="collapse" data-parent="#accordion"" data-toggle="tooltip" title="<?php echo $lang['tooltip_4']; ?>"><i class="fa fa-sitemap blue"></i></button>
 							<br><br>
 						</ul>
@@ -73,12 +73,6 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 		                		        <h3 class="degre" ><i class="ionicons ion-network orange"></i></h3>
 		                        		<h3 class="status"></small></h3>
 			                        	</button>
-
-                        				<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_sensors.php" data-toggle="modal" data-target="#temperature_sensor">
-                                                        <h3 class="buttontop"><small><?php echo $lang['sensors']; ?></small></h3>
-                                                        <h3 class="degre" ><i class="ionicons ion-thermometer red"></i></h3>
-                                                        <h3 class="status"></small></h3>
-                                                        </button>
 
 	        		                        <button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_gpio.php" data-toggle="modal" data-target="#cron_jobs">
 	        			                <h3 class="buttontop"><small><?php echo $lang['cron_jobs']; ?></small></h3>
@@ -129,18 +123,6 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 
 				             	<div id="collapse_system" class="panel-collapse collapse animated fadeIn">
 							<h4 class="pull-left"><?php echo $lang['system_configuration']; ?></h4><br>
-
-                                                        <button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#change_system_mode">
-                                                        <h3 class="buttontop"><small><?php echo $lang['system_mode']; ?></small></h3>
-                                                        <?php 
-							if (settings($conn, 'mode') == 1) {
-								echo '<h3 class="degre" >'.$lang['hvac'].'</h3>'; 
-							} else {
-								echo '<h3 class="degre" ><i class="ionicons ion-flame fa-1x red"></i></h3>';
-							}
-							?>
-                                                        <h3 class="status"></small></h3>
-                                                        </button>
 
                                                 	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#network_setting">
                                                         <h3 class="buttontop"><small><?php echo $lang['network']; ?></small></h3>
@@ -222,8 +204,8 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 	        	        		       	</button>
         	        	        	</div>
 
-			        	        <div id="collapse_system_controller" class="panel-collapse collapse animated fadeIn">
-							<h4 class="pull-left"><?php echo $lang['system_controller_configuration']; ?></h4><br>
+			        	        <div id="collapse_boiler" class="panel-collapse collapse animated fadeIn">
+							<h4 class="pull-left"><?php echo $lang['boiler_configuration']; ?></h4><br>
 	                				<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#add_frost">
 		                                	<h3 class="buttontop"><small><?php echo $lang['frost']; ?> </small></h3>
 				                       	<h3 class="degre" ><i class="ionicons ion-ios-snowy blue"></i></h3>
@@ -234,8 +216,8 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                         	        		</button>
 
 				        	       	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_boiler.php" data-toggle="modal" data-target="#boiler">
-                                                        <h3 class="buttontop"><small><?php echo $lang['controller']; ?></small></h3>
-                                                        <h3 class="degre" ><?php echo "SC"; ?></h3>
+        		        			<h3 class="buttontop"><small><?php echo $lang['boiler']; ?></small></h3>
+                		                	<h3 class="degre" ><i class="ionicons ion-flame fa-1x red"></i></h3>
 		        		                <h3 class="status"></small></h3>
 	                				</button>
 
@@ -271,25 +253,19 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                 	                		<h3 class="degre" ><i class="fa fa-sitemap fa-1x green"></i></h3>
 				                        <h3 class="status"></small></h3>
 		                	 		</button>
+ 
+                			                <button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#node_alerts">
+		                	                <h3 class="buttontop"><small><?php echo $lang['node_alerts']; ?></small></h3>
+				        	        <h3 class="degre" ><i class="ion-android-notifications-none blueinfo"></i></h3>
+                					<h3 class="status"></small></h3>
+	                        		        </button>
 
-                                               		<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#node_alerts">
-                                                        <h3 class="buttontop"><small><?php echo $lang['node_alerts']; ?></small></h3>
-                                                        <h3 class="degre" ><i class="ion-android-notifications-none blueinfo"></i></h3>
-                                                        <h3 class="status"></small></h3>
-                                                        </button>
-
-                                     			<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#relay_setup">
-                                                        <h3 class="buttontop"><small><?php echo $lang['relays']; ?></small></h3>
-                                                        <h3 class="degre" ><i class="ionicons ion-shuffle"></i></h3>
-                                                        <h3 class="status"></small></h3>
-                                                        </button>
-
-                                                	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#sensor_setup">
-                                                        <h3 class="buttontop"><small><?php echo $lang['sensors']; ?></small></h3>
-                                                        <h3 class="degre" ><i class="ionicons ion-thermometer red"></i></h3>
-                                                        <h3 class="status"></small></h3>
-                                                        </button>
-
+							<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_sensors.php" data-toggle="modal" data-target="#temperature_sensor">
+				                	<h3 class="buttontop"><small><?php echo $lang['sensors']; ?></small></h3>
+	                				<h3 class="degre" ><i class="ionicons ion-thermometer red"></i></h3>
+        	                        		<h3 class="status"></small></h3>
+			                        	</button>
+									  
 				                       	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#sensor_gateway">
         	        			        <h3 class="buttontop"><small><?php echo $lang['gateway']; ?></small></h3>
 	        	        	                <h3 class="degre" ><i class="fa fa-heartbeat red"></i></h3>

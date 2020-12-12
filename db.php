@@ -62,13 +62,6 @@ if(($what=="zone") && ($opp=="delete")){
         $query = "UPDATE zone_controllers SET zone_controllers.purge='1' WHERE zone_id = '".$wid."'";
         $conn->query($query);
 
-        //Mark temperature sensor as un-allocated
-        $query = "UPDATE `temperature_sensors` SET `zone_id`=0 WHERE `zone_id` = '".$wid."'";
-        $conn->query($query);
-        //Delete Add-On-Zone-Logs record
-        $query = "UPDATE add_on_zone_logs SET add_on_zone_logs.purge='1' WHERE zone_id = '".$wid."'";
-        $conn->query($query);
-
 	//Delete Zone record
 	$query = "UPDATE zone SET zone.purge='1', zone.sync='0' WHERE id = '".$wid."'";
 	$conn->query($query);
@@ -89,23 +82,23 @@ if($what=="holidays"){
 	}elseif ($opp=="delete") {
 		$query = "SELECT * FROM schedule_daily_time_zone WHERE holidays_id = '".$wid."'";
 		$results = $conn->query($query);
-        	$hcount = $results->num_rows;
-        	if ($hcount == 0) {
-			while ($row = mysqli_fetch_assoc($results)) {
-				$hid = $row['schedule_daily_time_id'];
-				$schedule_time[$sch_time_index] = $hid;
-				$sch_time_index = $sch_time_index+1;
-			}
-			$query = "UPDATE schedule_daily_time_zone SET schedule_daily_time_zone.purge = '1' WHERE holidays_id = '".$wid."';";
-			$conn->query($query);
-			for ($x = 0; $x <= $sch_time_index; $x++) {
-				$query = "UPDATE schedule_daily_time set schedule_daily_time.purge = '1' WHERE id = '".$schedule_time[$x]."';";
-				$conn->query($query);
-			}
-		}
+                $hcount = $results->num_rows;
+                if ($hcount == 0) {
+                        while ($row = mysqli_fetch_assoc($results)) {
+                                $hid = $row['schedule_daily_time_id'];
+                                $schedule_time[$sch_time_index] = $hid;
+                                $sch_time_index = $sch_time_index+1;
+                        }
+                        $query = "UPDATE schedule_daily_time_zone SET schedule_daily_time_zone.purge = '1' WHERE holidays_id = '".$wid."';";
+                        $conn->query($query);
+                        for ($x = 0; $x <= $sch_time_index; $x++) {
+                                $query = "UPDATE schedule_daily_time set schedule_daily_time.purge = '1' WHERE id = '".$schedule_time[$x]."';";
+                                $conn->query($query);
+                        }
+                }
                 $query = "DELETE FROM holidays WHERE id = '".$wid."'";
                 $conn->query($query);
-	}
+        }
 }
 
 //Users accounts
@@ -375,40 +368,6 @@ if($what=="node"){
 	}
 }
 
-//Controller Relays
-if($what=="relay"){
-        if($opp=="delete"){
-                $query = "DELETE FROM controller_relays WHERE id = '".$wid."';";
-                $conn->query($query);
-                if($conn->query($query)){
-                        header('Content-type: application/json');
-                        echo json_encode(array('Success'=>'Success','Query'=>$query));
-                        return;
-                }else{
-                        header('Content-type: application/json');
-                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
-                        return;
-                }
-        }
-}
-
-//Temperature Sensors
-if($what=="sensor"){
-        if($opp=="delete"){
-                $query = "DELETE FROM temperature_sensors WHERE id = '".$wid."';";
-                $conn->query($query);
-                if($conn->query($query)){
-                        header('Content-type: application/json');
-                        echo json_encode(array('Success'=>'Success','Query'=>$query));
-                        return;
-                }else{
-                        header('Content-type: application/json');
-                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
-                        return;
-                }
-        }
-}
-
 //Zone Types
 if($what=="zone_type"){
 	if($opp=="delete"){
@@ -457,40 +416,6 @@ if($what=="away"){
 		$query = "UPDATE messages_out SET payload = '{$set}', datetime = '{$time}', sent = '0' WHERE zone_id = '0' AND node_id = {$row['away_button_id']} AND child_id = {$row['away_button_child_id']} LIMIT 1";
 		$conn->query($query);
 	}
-}
-
-//toggle hvac mode
-if($what=="sc_mode"){
-        if($opp=="active"){
-                $query = "SELECT `sc_mode` FROM `system_controller` LIMIT 1";
-                $results = $conn->query($query);
-                $row = mysqli_fetch_assoc($results);
-                $sc_mode= $row['sc_mode'];
-                switch ($sc_mode) {
-                	case 0:
-                        	$new_sc_mode = 1;
-                                break;
-                        case 1:
-                                $new_sc_mode = 2;
-                                break;
-                        case 2:
-                                $new_sc_mode = 3;
-                                break;
-                        case 3:
-                               	$new_sc_mode = 4;
-                                break;
-                        case 4:
-                                if (settings($conn, 'mode') == 0) { $new_sc_mode = 0; } else { $new_sc_mode = 5; }
-                                break;
-                        case 5:
-                                $new_sc_mode = 0;
-                                break;
-                        default:
-                                $new_sc_mode = 0;
-           	}
-                $query = "UPDATE system_controller SET sc_mode = {$new_sc_mode} LIMIT 1";
-                $conn->query($query);
-        }
 }
 
 //add_on
@@ -611,37 +536,6 @@ if($what=="units"){
 	}
 }
 
-//update system mode
-if($what=="system_mode"){
-        if($opp=="update"){
-        $query = "UPDATE `system` SET `mode`=" . $_GET['val'] . ";";
-        if($conn->query($query)){
-            header('Content-type: application/json');
-            echo json_encode(array('Success'=>'Success','Query'=>$query));
-            return;
-        }else{
-            header('Content-type: application/json');
-            echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
-            return;
-        }
-        }
-}
-
-//update system mode
-if($what=="default_temperature"){
-        if($opp=="update"){
-        $query = "UPDATE `zone_sensors` SET `default_c`=" . $_GET['default_c'] . " WHERE `zone_id` = ".$_GET['zone_id'].";";
-        if($conn->query($query)){
-            header('Content-type: application/json');
-            echo json_encode(array('Success'=>'Success','Query'=>$query));
-            return;
-        }else{
-            header('Content-type: application/json');
-            echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
-            return;
-        }
-        }
-}
 //update language
 if($what=="lang"){
 	if($opp=="update"){
@@ -689,17 +583,17 @@ if($what=="boiler_settings"){
 	$datetime = date("Y-m-d H:i:s");
 	$status = $_GET['status'];
 	$name = $_GET['name'];
-	$heat_relay_id = $_GET['heat_relay_id'];
+	$node_id = $_GET['node_id'];
+	$node_child_id = $_GET['node_child_id'];
 	$hysteresis_time = $_GET['hysteresis_time'];
 	$max_operation_time = $_GET['max_operation_time'];
 	$overrun = $_GET['overrun'];
 	if ($status=='true'){$status = '1';} else {$status = '0';}
-
-        $query = "SELECT * FROM controller_relays WHERE id ='".$heat_relay_id."' LIMIT 1";
-        $results = $conn->query($query);
-        $row = mysqli_fetch_assoc($results);
-	$node_id = $row['controler_id'];
-        $node_child_id = $row['controler_child_id'];
+	
+	//Get id from nodes table
+	$query = "SELECT * FROM nodes WHERE node_id ='".$node_id."' LIMIT 1";
+	$results = $conn->query($query);
+	$row = mysqli_fetch_assoc($results);
 
 	//Check messages_out for Boiler Node ID
 	$query = "SELECT * FROM messages_out WHERE node_id='".$node_id."' LIMIT 1;";
@@ -714,10 +608,10 @@ if($what=="boiler_settings"){
         $result = $conn->query($query);
         if (mysqli_num_rows($result)==0){
 		//No record in boiler table, so add
-		$query = "INSERT INTO `boiler` VALUES (1,0,0,1,1,'".$name."','".$hysteresis_time."','".$max_operation_time."',now(),'".$overrun."','".$heat_relay_id."');";
+		$query = "INSERT INTO `boiler` VALUES (1,0,0,1,1,'".$name."','".$row['id']."','".$node_child_id."','".$hysteresis_time."','".$max_operation_time."','".$overrun."',now());";
 	} else {
 		//Update Boiler Setting 
-		$query = "UPDATE boiler SET status = '".$status."', name = '".$name."', hysteresis_time = '".$hysteresis_time."', max_operation_time = '".$max_operation_time."', overrun = '".$overrun."', heat_relay_id = '".$heat_relay_id."' where ID = 1;";
+		$query = "UPDATE boiler SET status = '".$status."', name = '".$name."', node_id = '".$row['id']."', node_child_id = '".$node_child_id."', hysteresis_time = '".$hysteresis_time."', max_operation_time = '".$max_operation_time."', overrun = '".$overrun."' where ID = 1;";
 	}
 	if($conn->query($query)){
 		header('Content-type: application/json');
@@ -962,6 +856,7 @@ if($what=="setup_gateway"){
 //network Settings
 if($what=="setup_network"){
         $n_primary = $_GET['n_primary'];
+        $n_ap_mode = $_GET['n_ap_mode'];
         $n_int_num = $_GET['n_int_num'];
         $n_int_type = $_GET['n_int_type'];
         $n_mac = $_GET['n_mac'];
@@ -977,10 +872,10 @@ if($what=="setup_network"){
         $result = $conn->query($query);
         if (mysqli_num_rows($result)==0){
                 //No record, so add
-                $query = "INSERT INTO `network_settings`(`sync`, `purge`, `primary_interface`, `interface_num`, `interface_type`, `mac_address`, `hostname`, `ip_address`, `gateway_address`, `net_mask`, `dns1_address`, `dns2_address`) VALUES (0,0,'".$n_primary."','".$n_int_num."','".$n_int_type."','".$n_mac."','".$n_hostname."','".$n_ip."','".$n_gateway."','".$n_net_mask."','".$n_dns1."','".$n_dns2."');";
+                $query = "INSERT INTO `network_settings`(`sync`, `purge`, `primary_interface`, `ap_mode`, `interface_num`, `interface_type`, `mac_address`, `hostname`, `ip_address`, `gateway_address`, `net_mask`, `dns1_address`, `dns2_address`) VALUES (0,0,'".$n_primary."','".$n_ap_mode."','".$n_int_num."','".$n_int_type."','".$n_mac."','".$n_hostname."','".$n_ip."','".$n_gateway."','".$n_net_mask."','".$n_dns1."','".$n_dns2."');";
         } else {
                 //Update
-                $query = "UPDATE `network_settings` SET primary_interface = '".$n_primary."', interface_type = '".$n_int_type."', mac_address = '".$n_mac."', hostname = '".$n_hostname."', ip_address = '".$n_ip."', gateway_address = '".$n_gateway."', net_mask = '".$n_net_mask."', dns1_address = '".$n_dns1."', dns2_address = '".$n_dns2."' where interface_num = '".$n_int_num."';";
+                $query = "UPDATE `network_settings` SET primary_interface = '".$n_primary."', ap_mode = '".$n_ap_mode."', interface_type = '".$n_int_type."', mac_address = '".$n_mac."', hostname = '".$n_hostname."', ip_address = '".$n_ip."', gateway_address = '".$n_gateway."', net_mask = '".$n_net_mask."', dns1_address = '".$n_dns1."', dns2_address = '".$n_dns2."' where interface_num = '".$n_int_num."';";
         }
         if($conn->query($query)){
                 header('Content-type: application/json');
@@ -1029,38 +924,13 @@ if($what=="setup_email"){
 
 //Setup Graph Setting
 if($what=="setup_graph"){
-        $sel_query = "SELECT * FROM temperature_sensors ORDER BY id asc;";
+        $sel_query = "select zone.* from zone, zone_type where (`zone_type`.id = `type_id`) AND `zone_type`.`type` = 'Heating' order by index_id asc;";
         $results = $conn->query($sel_query);
         while ($row = mysqli_fetch_assoc($results)) {
                 $checkbox = 'checkbox'.$row['id'];
                 $graph_it =  $_GET[$checkbox];
                 if ($graph_it=='true'){$graph_it = '1';} else {$graph_it = '0';}
-                $query = "UPDATE temperature_sensors SET graph_it = '".$graph_it."' WHERE id = '".$row['id']."' LIMIT 1;";
-                $update_error=0;
-                if(!$conn->query($query)){
-                        $update_error=1;
-                }
-        }
-        if($update_error==0){
-                header('Content-type: application/json');
-                echo json_encode(array('Success'=>'Success','Query'=>$query));
-                return;
-        }else{
-                header('Content-type: application/json');
-                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
-                return;
-        }
-}
-
-//update sensors to show
-if($what=="show_sensors"){
-        $sel_query = "SELECT * FROM temperature_sensors ORDER BY id asc;";
-        $results = $conn->query($sel_query);
-        while ($row = mysqli_fetch_assoc($results)) {
-                $checkbox = 'checkbox'.$row['id'];
-                $show_it =  $_GET[$checkbox];
-                if ($show_it=='true'){$show_it = '1';} else {$show_it = '0';}
-                $query = "UPDATE temperature_sensors SET show_it = '".$show_it."' WHERE id = '".$row['id']."' LIMIT 1;";
+                $query = "UPDATE zone SET graph_it = '".$graph_it."' WHERE ID='".$row['id']."' LIMIT 1;";
                 $update_error=0;
                 if(!$conn->query($query)){
                         $update_error=1;
