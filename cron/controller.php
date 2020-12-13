@@ -825,33 +825,43 @@ while ($row = mysqli_fetch_assoc($results)) {
                                 	                			$stop_cause="HVAC OFF ";
 		                                        	        	$zone_state = 0;
 		        	                                        	break;
+                                                                        case 1: // TIMER mode
+										if ($sch_status == '1') {
+	                                                                                if ($zone_c <= $temp_cut_out_rising) {
+        	                                                                                $zone_status="1";
+                	                                                                        $zone_mode = 81;
+                        	                                                                $start_cause="HVAC Heat Cycle Started ";
+                                	                                                        $zone_state = 1;
+                                        	                                                $hvac_state = 1;
+                                                	                                } elseif ($zone_c > $temp_cut_out_rising && $zone_c < $temp_cut_out_falling) {
+                                                        	                                $zone_status="0";
+                                                                	                        $zone_mode = 80;
+                                                                        	                $stop_cause="HVAC Climate C Reached ";
+                                                                                	        $zone_state = 0;
+	                                                                                } elseif ($zone_c >= $temp_cut_out_falling) {
+        	                                                                                $zone_status="1";
+                	                                                                        $zone_mode = 86;
+                        	                                                                $start_cause="HVAC Cool Cycle Started ";
+                                	                                                        $zone_state = 1;
+                                        	                                                $hvac_state = 0;
+                                                	                                }
+										}
+                                                                                break;
 			        	                                case 2: // AUTO mode
         			        	                                if ($zone_c <= $temp_cut_out_rising) {
                 			        	                                $zone_status="1";
-                        			        	                        if ($sch_status == 1) {
-                                			        	                        $zone_mode = 81;
-                                        			        	        } else {
-                                                			        	        $zone_mode = 121;
-	                                                        			}
+                                               			        	        $zone_mode = 121;
 		                                                        		$start_cause="HVAC Heat Cycle Started ";
 		        		                                                $zone_state = 1;
         		        		                                        $hvac_state = 1;
                 		        		                        } elseif ($zone_c > $temp_cut_out_rising && $zone_c < $temp_cut_out_falling) {
                         		        		                        $zone_status="0";
-                                		        		                if ($sch_status == 1) {
-                                        		        		                $zone_mode = 80;
-                                                		        		} else {
-                                                        		        		$zone_mode = 120;
-		                                                		        }
+                                                       		        		$zone_mode = 120;
         		                                                		$stop_cause="HVAC Climate C Reached ";
 	                		                                        	$zone_state = 0;
 	        	                		                        } elseif ($zone_c >= $temp_cut_out_falling) {
         	        	                		                        $zone_status="1";
-                	        	                		                if ($sch_status == 1) {
-                        	        	                		                $zone_mode = 86;
-                                	        	                		} else {
-                                        	        	                		$zone_mode = 126;
-		                                	        	                }
+                                       	        	                		$zone_mode = 126;
         		                                	        	        $start_cause="HVAC Cool Cycle Started ";
                 		                                	        	$zone_state = 1;
 	                        		                        	        $hvac_state = 0;
