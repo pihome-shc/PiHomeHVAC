@@ -391,8 +391,6 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
 		else{
 			$status='orange';
 		}
-        $scactive='fa fa-circle-o-notch';
-        $sccolor='';
 	}
 	//running
 	else if($zone_mode_sub == 1 || $zone_mode_sub == 4){
@@ -416,24 +414,18 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
 		$shactive='';
 		$shcolor='';
 		$target='';     //show no target temperature
-	        $scactive='fa fa-circle-o-notch';
-        	$sccolor='';
 	}
 	//fault
 	else if($zone_mode_main == 10){
 		$shactive='ion-android-cancel';
 		$shcolor='red';
 		$target='';     //show no target temperature
-                $scactive='ionicons ion-android-cancel';
-                $sccolor='red';
 	}
 	//frost
 	else if($zone_mode_main == 20){
 		$shactive='ion-ios-snowy';
        		$shcolor='';
 		$target=number_format(DispTemp($conn,$zone_temp_target),1) . '&deg;';
-                $scactive='ionicons ion-flame';
-                $sccolor='red';
 	}
 	//overtemperature
 	else if($zone_mode_main == 30){
@@ -446,8 +438,6 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
 		$shactive='fa-paper-plane';
 		$shcolor='';
 		$target='';     //show no target temperature
-                $scactive='fa fa-circle-o-notch';
-                $sccolor='';
 	}
 	//nightclimate
 	else if($zone_mode_main == 50){
@@ -459,27 +449,10 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
 	else if($zone_mode_main == 60){
 		$shactive='fa-rocket';
 		$shcolor='';
-                if($zone_mode_sub == 4 || $zone_mode_sub == 7){
+                if($zone_mode_sub == 4){
                         $target='';     //show no target temperature
                 } else {
                         $target=number_format(DispTemp($conn,$zone_temp_target),1) . '&deg;';
-                }
-                if($zone_mode_sub == 1){
-                        $scactive='ionicons ion-flame';
-                        $sccolor='red';
-                        $status='red';
-                } elseif($zone_mode_sub == 6){
-                        $scactive='fa fa-snowflake-o';
-                        $sccolor='blueinfo';
-                        $status='blue';
-                } elseif($zone_mode_sub == 3){
-                        $scactive='ionicons ion-flame';
-                        $sccolor='blue';
-                        $status='blue';
-                } else {
-                        $scactive='fa fa-circle-o-notch';
-                        $sccolor='blue';
-                        $status='';
                 }
 	}
         //override
@@ -494,7 +467,7 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
                 }
         }
 	//sheduled
-/*	else if($zone_mode_main == 80){
+	else if($zone_mode_main == 80){
 		//if not coop start waiting for boiler
 		if($zone_mode_sub <> 3){
 			$shactive='ion-ios-clock-outline';
@@ -506,14 +479,12 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
 	               	$shcolor='green';
 		}
                 $target=number_format(DispTemp($conn,$zone_temp_target),1) . '&deg;';
-	}*/
+	}
 	//away
 	else if($zone_mode_main == 90){
 		$shactive='fa-sign-out';
 		$shcolor='';
 		$target='';     //show no target temperature
-                $scactive='fa fa-circle-o-notch';
-                $sccolor='';
 	}
 	//hysteresis
 	else if($zone_mode_main == 100){
@@ -538,60 +509,17 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
                 }
                 $target='';     //show no target temperature
         }
-	//HVAC
-        else if($zone_mode_main == 80 || $zone_mode_main == 120){
-                if($zone_mode_sub == 1){
-                        $scactive='ionicons ion-flame';
-                        $sccolor='red';
-                        $status='red';
-                } elseif($zone_mode_sub == 6){
-                        $scactive='fa fa-snowflake-o';
-                        $sccolor='blueinfo';
-                        $status='blue';
-                } elseif($zone_mode_sub == 3){
-                        $scactive='ionicons ion-flame';
-                        $sccolor='blue';
-                        $status='blue';
-                } else {
-                        $scactive='fa fa-circle-o-notch';
-                        $sccolor='blue';
-                        $status='';
-                }
- 		if($zone_mode_main == 80){
-                	//if not coop start waiting for boiler
-                	if($zone_mode_sub <> 3){
-                        	$shactive='ion-ios-clock-outline';
-                		$shcolor='';
-                	}
-                	//if coop start waiting for boiler
-                	else{
-                        	$shactive='ion-leaf';
-                        	$shcolor='green';
-                	}
-		}
-		$target=number_format(DispTemp($conn,$zone_temp_target),1) . '&deg;';
-        }
-        //undertemperature
-        else if($zone_mode_main == 130){
-                $shactive='ion-thermometer';
-                $shcolor='blue';
-                $target=number_format(DispTemp($conn,$zone_temp_target),1) . '&deg;';
-        }
 	//shouldn't get here
 	else {
 		$shactive='fa-question';
 		$shcolor='';
 		$target='';     //show no target temperature
-                $scactive='fa fa-question';
-                $sccolor='';
 	}
 
 	return array('status'=>$status,
  		'shactive'=>$shactive,
        		'shcolor'=>$shcolor,
-       		'target'=>$target,
-                'scactive'=>$scactive,
-                'sccolor'=>$sccolor
+       		'target'=>$target
        	);
 }
 
@@ -605,11 +533,11 @@ function graph_color($numOfSteps, $step) {
     $q = 1 - $f;
     switch($i % 6){
         case 0: $red = 1; $green = $f; $blue = 0; break;
-        case 1: $red = $q; $green = 1; $blue = 0; break;
+        case 5: $red = $q; $green = 1; $blue = 0; break;
         case 2: $red = 0; $green = 1; $blue = $f; break;
         case 3: $red = 0; $green = $q; $blue = 1; break;
         case 4: $red = $f; $green = 0; $blue = 1; break;
-        case 5: $red = 1; $green = 0; $blue = $q; break;
+        case 1: $red = 1; $green = 0; $blue = $q; break;
     }
     $color = '#'.sprintf('%02X', $red*255).sprintf('%02X', $green*255).sprintf('%02X', $blue*255);
     return ($color);
