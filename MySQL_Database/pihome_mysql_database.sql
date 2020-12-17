@@ -107,7 +107,6 @@ CREATE TABLE `system_controller` (
   `status` tinyint(4) DEFAULT NULL,
   `active_status` tinyint(4) DEFAULT NULL,
   `name` char(50) CHARACTER SET utf16 COLLATE utf16_bin DEFAULT NULL,
-  `node_id` int(11) DEFAULT NULL,
   `hysteresis_time` tinyint(4) DEFAULT NULL,
   `max_operation_time` tinyint(4) DEFAULT NULL,
   `overrun` smallint(6) DEFAULT NULL,
