@@ -388,41 +388,83 @@ echo '
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title">'.$lang['boost_settings'].'</h5>
             </div>
-            <div class="modal-body">
-<p class="text-muted"> '.$lang['boost_settings_text'].' </p>';
-$query = "SELECT * FROM boost_view ORDER BY index_id ASC, minute ASC;";
-$results = $conn->query($query);
-echo '<table class="table table-bordered">
-    <tr>
-        <th class="col-xs-4"><small>'.$lang['zone'].'</small></th>
-        <th class="col-xs-2"><small>'.$lang['boost_time'].'</small></th>
-        <th class="col-xs-2"><small>'.$lang['boost_temp'].'</small></th>
-        <th class="col-xs-2"><small>'.$lang['boost_console_id'].'</small></th>
-        <th class="col-xs-1"><small>'.$lang['boost_button_child_id'].'</small></th>
-        <th class="col-xs-1"></th>
-    </tr>';
+            <div class="modal-body">';
+if (settings($conn, 'mode') == 0) {
+	echo '<p class="text-muted"> '.$lang['boost_settings_text'].' </p>';
+} else {
+        echo '<p class="text-muted"> '.$lang['hvac_boost_settings_text'].' </p>';
+}
+
+if (settings($conn, 'mode') == 0) {
+	$query = "SELECT * FROM boost_view ORDER BY index_id ASC, minute ASC;";
+	$results = $conn->query($query);
+	echo '<table class="table table-bordered">
+	    <tr>
+        	<th class="col-xs-4"><small>'.$lang['zone'].'</small></th>
+        	<th class="col-xs-2"><small>'.$lang['boost_time'].'</small></th>
+        	<th class="col-xs-2"><small>'.$lang['boost_temp'].'</small></th>
+        	<th class="col-xs-2"><small>'.$lang['boost_console_id'].'</small></th>
+        	<th class="col-xs-1"><small>'.$lang['boost_button_child_id'].'</small></th>
+        	<th class="col-xs-1"></th>
+    	</tr>';
+} else {
+        $query = "SELECT * FROM boost ORDER BY hvac_mode ASC;";
+        $results = $conn->query($query);
+        echo '<table class="table table-bordered">
+            <tr>
+                <th class="col-xs-2"><small>'.$lang['hvac_function'].'</small></th>
+                <th class="col-xs-2"><small>'.$lang['boost_time'].'</small></th>
+                <th class="col-xs-2"><small>'.$lang['boost_temp'].'</small></th>
+                <th class="col-xs-1"></th>
+        </tr>';
+}
 
 while ($row = mysqli_fetch_assoc($results)) {
     $minute = $row["minute"];
     $temperature = $row["temperature"];
-    $boost_button_id = $row["boost_button_id"];
-    $boost_button_child_id = $row["boost_button_child_id"];
-    echo '
-        <tr>
-            <th scope="row"><small>'.$row['name'].'</small></th>
-            <td><input id="minute'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="minute" size="3" value="'.$minute.'" placeholder="Minutes" required></td>';
-	    if($row["category"] < 2) {
-            	echo '<td><input id="temperature'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="temperature" size="3" value="'.$temperature.'" placeholder="Temperature" required></td>
-            	<td><input id="boost_button_id'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="button_id"  size="3" value="'.$boost_button_id.'" placeholder="Button ID" required></td>
-            	<td><input id="boost_button_child_id'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="button_child_id" size="3" value="'.$boost_button_child_id.'" placeholder="Child ID" required></td>';
-	    } else {
-            	echo '<td><input id="temperature'.$row["id"].'" type="hidden" class="pull-left text" style="border: none" name="temperature" size="3" value="'.$temperature.'" placeholder="Temperature" required></td>
-            	<td><input id="boost_button_id'.$row["id"].'" type="hidden" class="pull-left text" style="border: none" name="button_id"  size="3" value="'.$boost_button_id.'" placeholder="Button ID" required></td>
-            	<td><input id="boost_button_child_id'.$row["id"].'" type="hidden" class="pull-left text" style="border: none" name="button_child_id" size="3" value="'.$boost_button_child_id.'" placeholder="Child ID" required></td>';
-	    }
-	     echo '<input type="hidden" id="zone_id'.$row["id"].'" name="zone_id" value="'.$row["zone_id"].'">
-            <td><a href="javascript:delete_boost('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="You are about to DELETE this BOOST Setting"><span class="glyphicon glyphicon-trash"></span></button> </a></td>
-        </tr>';
+    if (settings($conn, 'mode') == 0) {
+    	$boost_button_id = $row["boost_button_id"];
+    	$boost_button_child_id = $row["boost_button_child_id"];
+    	echo '
+            <tr>
+            	<th scope="row"><small>'.$row['name'].'</small></th>
+            	<td><input id="minute'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="minute" size="3" value="'.$minute.'" placeholder="Minutes" required></td>';
+	    	if($row["category"] < 2) {
+            		echo '<td><input id="temperature'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="temperature" size="3" value="'.$temperature.'" placeholder="Temperature" required></td>
+            		<td><input id="boost_button_id'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="button_id"  size="3" value="'.$boost_button_id.'" placeholder="Button ID" required></td>
+            		<td><input id="boost_button_child_id'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="button_child_id" size="3" value="'.$boost_button_child_id.'" placeholder="Child ID" required></td>';
+	    	} else {
+            		echo '<td><input id="temperature'.$row["id"].'" type="hidden" class="pull-left text" style="border: none" name="temperature" size="3" value="'.$temperature.'" placeholder="Temperature" required></td>
+            		<td><input id="boost_button_id'.$row["id"].'" type="hidden" class="pull-left text" style="border: none" name="button_id"  size="3" value="'.$boost_button_id.'" placeholder="Button ID" required></td>
+            		<td><input id="boost_button_child_id'.$row["id"].'" type="hidden" class="pull-left text" style="border: none" name="button_child_id" size="3" value="'.$boost_button_child_id.'" placeholder="Child ID" required></td>';
+	    	}
+	     	echo '<input type="hidden" id="zone_id'.$row["id"].'" name="zone_id" value="'.$row["zone_id"].'">
+		<input type="hidden" id="hvac_mode'.$row["id"].'" name="hvac_mode" value="'.$row["hvac_mode"].'">
+            	<td><a href="javascript:delete_boost('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="You are about to DELETE this BOOST Setting"><span class="glyphicon glyphicon-trash"></span></button> </a></td>
+            </tr>';
+    } else {
+	$hvac_mode = $row['hvac_mode'];
+	if ($hvac_mode == 3) {
+		$mode = "FAN";
+	} elseif ($hvac_mode ==4) {
+                $mode = "HEAT";
+	} else {
+                $mode = "COOL";
+	}
+    	echo '
+            <tr>
+            	<th scope="row"><small>'.$mode.'</small></th>
+            	<td><input id="minute'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="minute" size="3" value="'.$minute.'" placeholder="Minutes" required></td>';
+	    	if($hvac_mode > 3) {
+            		echo '<td><input id="temperature'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="temperature" size="3" value="'.$temperature.'" placeholder="Temperature" required></td>';
+	    	} else {
+            		echo '<td><input id="temperature'.$row["id"].'" type="hidden" class="pull-left text" style="border: none" name="temperature" size="3" value="'.$temperature.'" placeholder="Temperature" required></td>';
+	    	}
+	     	echo '<input type="hidden" id="zone_id'.$row["id"].'" name="zone_id" value="'.$row["zone_id"].'">
+		<input type="hidden" id="hvac_mode'.$row["id"].'" name="hvac_mode" value="'.$row["hvac_mode"].'">
+            	<td><a href="javascript:delete_boost('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="You are about to DELETE this BOOST Setting"><span class="glyphicon glyphicon-trash"></span></button> </a></td>
+            </tr>';
+    }
 }
 
 echo '</table></div>
@@ -436,6 +478,7 @@ echo '</table></div>
 </div>';
 
 //Add Boost
+if (settings($conn, 'mode') == 0) { $info_text = $lang['boost_info_text']; $zone_hvac = $lang['zone']; } else { $info_text = $lang['hvac_boost_info_text']; $zone_hvac = $lang['hvac_function']; }
 echo '
 <div class="modal fade" id="add_boost" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -445,18 +488,24 @@ echo '
                 <h5 class="modal-title">'.$lang['add_boost'].'</h5>
             </div>
             <div class="modal-body">';
-echo '<p class="text-muted">'.$lang['boost_info_text'].'</p>
+echo '<p class="text-muted">'.$info_text.'</p>
 	<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
 	
-	<div class="form-group" class="control-label"><label>'.$lang['zone'].'</label> 
+	<div class="form-group" class="control-label"><label>'.$zone_hvac.'</label> 
 	<select class="form-control input-sm" type="text" id="zone_id" name="zone_id">';
-	//Get Zone List
-	$query = "SELECT * FROM zone where status = 1;";
-	$result = $conn->query($query);
-	if ($result){
-		while ($zrow=mysqli_fetch_array($result)) {
-			echo '<option value="'.$zrow['id'].'">'.$zrow['name'].'</option>';
+	if (settings($conn, 'mode') == 0) {
+		//Get Zone List
+		$query = "SELECT * FROM zone where status = 1;";
+		$result = $conn->query($query);
+		if ($result){
+			while ($zrow=mysqli_fetch_array($result)) {
+				echo '<option value="'.$zrow['id'].'">'.$zrow['name'].'</option>';
+			}
 		}
+	} else {
+	        echo '<option value=3>FAN</option>
+        	<option value=4>HEAT</option>
+        	<option value=5>COOL</option>';
 	}
 	echo '
 	</select>
@@ -507,41 +556,46 @@ echo '<p class="text-muted">'.$lang['boost_info_text'].'</p>
 	<option value="110">110</option>
 	<option value="120">120</option>
 	</select>
-    <div class="help-block with-errors"></div></div>
-	
-	<div class="form-group" class="control-label"><label>'.$lang['boost_console_id'].'</label> <small class="text-muted">'.$lang['boost_console_id_info'].'</small>
-	<select class="form-control input-sm" type="text" id="boost_console_id" name="boost_console_id">';
-	//get list from nodes table to display 
-	$query = "SELECT * FROM nodes where name = 'Button Console' OR name = 'Boost Controller' AND node_id!=0;";
-	$result = $conn->query($query);
-	if ($result){
-		while ($nrow=mysqli_fetch_array($result)) {
-			echo '<option value="'.$nrow['node_id'].'">'.$nrow['node_id'].'</option>';
+    <div class="help-block with-errors"></div></div>';
+	if (settings($conn, 'mode') == 0) {
+		echo '<div class="form-group" class="control-label"><label>'.$lang['boost_console_id'].'</label> <small class="text-muted">'.$lang['boost_console_id_info'].'</small>
+		<select class="form-control input-sm" type="text" id="boost_console_id" name="boost_console_id">';
+		//get list from nodes table to display 
+		$query = "SELECT * FROM nodes where name = 'Button Console' OR name = 'Boost Controller' AND node_id!=0;";
+		$result = $conn->query($query);
+		if ($result){
+			while ($nrow=mysqli_fetch_array($result)) {
+				echo '<option value="'.$nrow['node_id'].'">'.$nrow['node_id'].'</option>';
+			}
 		}
+		echo '<option value="0">N/A</option>
+		</select>
+	    <div class="help-block with-errors"></div></div>
+
+		<div class="form-group" class="control-label"><label>'.$lang['boost_button_child_id'].'</label> <small class="text-muted">'.$lang['boost_button_child_id_info'].'</small>
+		<select class="form-control input-sm" type="text" id="boost_button_child_id" name="boost_button_child_id">
+		<option value="0">N/A</option>
+		<option value="1">1</option>
+		<option value="2">2</option>
+		<option value="3">3</option>
+		<option value="4">4</option>
+		<option value="5">5</option>
+		<option value="6">6</option>
+		<option value="7">7</option>
+		<option value="8">8</option>
+		</select>
+    	  <div class="help-block with-errors"></div></div>	';
 	}
-	echo '<option value="0">N/A</option>
-	</select>
-    <div class="help-block with-errors"></div></div>
-	
-	<div class="form-group" class="control-label"><label>'.$lang['boost_button_child_id'].'</label> <small class="text-muted">'.$lang['boost_button_child_id_info'].'</small>
-	<select class="form-control input-sm" type="text" id="boost_button_child_id" name="boost_button_child_id">
-	<option value="0">N/A</option>
-	<option value="1">1</option>
-	<option value="2">2</option>
-	<option value="3">3</option>
-	<option value="4">4</option>
-	<option value="5">5</option>
-	<option value="6">6</option>
-	<option value="7">7</option>
-	<option value="8">8</option>
-	</select>
-    <div class="help-block with-errors"></div></div>	';
 echo '</div>
             <div class="modal-footer">
-				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-				<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="add_boost()">
-				
-            </div>
+				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>';
+				if (settings($conn, 'mode') == 0) {
+					echo '<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="add_boost(0)">';
+				} else {
+                                        echo '<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="add_boost(1)">';
+				}
+
+            echo '</div>
         </div>
     </div>
 </div>';
@@ -557,12 +611,21 @@ echo '
             </div>
             <div class="modal-body">
 <p class="text-muted"> '.$lang['override_settings_text'].'</p>';
-$query = "SELECT * FROM override_view WHERE category < 2 ORDER BY index_id asc";
+if (settings($conn, 'mode') == 0) { //boiler mode
+        $query = "SELECT * FROM override_view WHERE category < 2 ORDER BY index_id asc";
+} else {
+        $query = "SELECT * FROM override ORDER BY hvac_mode asc";
+}
 $results = $conn->query($query);
 echo '	<div class=\"list-group\">';
 while ($row = mysqli_fetch_assoc($results)) {
+        if (settings($conn, 'mode') == 0) {
+                $name = $row['name'];
+        } else {
+                if ($row['hvac_mode']  == 4) { $name = 'HEAT'; } else { $name = 'COOL'; };
+        }
 	echo "<a href=\"#\" class=\"list-group-item\">
-	<i class=\"fa fa-refresh fa-1x blue\"></i> ".$row['name']." 
+        <i class=\"fa fa-refresh fa-1x blue\"></i> ".$name."
     <span class=\"pull-right text-muted small\"><em>".$row['temperature']."&deg; </em></span></a>";
 }
 echo '</div></div>

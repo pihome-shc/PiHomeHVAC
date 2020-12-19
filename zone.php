@@ -184,7 +184,14 @@ if (isset($_POST['submit'])) {
 
 	//Add Zone to boost table at same time
 	if ($id==0){
-		$query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `boost_button_id`, `boost_button_child_id`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$max_c}','{$max_operation_time}', '{$boost_button_id}', '{$boost_button_child_id}');";
+                if (settings($conn, 'mode') == 0) { //boiler mode
+                        $query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `boost_button_id`, `boost_button_child_id`, `hvac_mode`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$max_c}','{$max_operation_time}', '{$boost_button_id}', '{$boost_button_child_id}', '0');";
+                } else {
+                        //insert the 3 HVAC functions FAN, HEAT and COOL
+                        for ($i = 3; $i <= 5; $i++) {
+                                $query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `boost_button_id`, `boost_button_child_id`, `hvac_mode`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$max_c}','{$max_operation_time}', '0', '0', '{$i}');";
+                        }
+                }
 		$result = $conn->query($query);
 		if ($result) {
 			$message_success .= "<p>".$lang['zone_boost_success']."</p>";
@@ -195,7 +202,13 @@ if (isset($_POST['submit'])) {
 
 	//Add or Edit Zone to override table at same time
 	if ($id==0){
-		$query = "INSERT INTO `override`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$max_c}');";
+                if (settings($conn, 'mode') == 0) { //boiler mode
+			$query = "INSERT INTO `override`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `hvac_mode`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$max_c}', '0');";
+		} else {
+			for ($i = 4; $i <= 5; $i++) {
+				$query = "INSERT INTO `override`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `hvac_mode`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$max_c}', '{$i}');";
+			}
+		}
 	} else {
 		$query = "UPDATE override SET `sync` = 0, temperature='{$max_c}' WHERE zone_id='{$zone_id}';";
 	}

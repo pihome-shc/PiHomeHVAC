@@ -148,6 +148,7 @@ CREATE TABLE IF NOT EXISTS `boost` (
   `minute` tinyint(4),
   `boost_button_id` int(11),
   `boost_button_child_id` int(11),
+  `hvac_mode` tinyint(4),
   PRIMARY KEY (`id`),
   KEY `FK_boost_zone` (`zone_id`),
   CONSTRAINT `FK_boost_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
@@ -434,6 +435,7 @@ CREATE TABLE IF NOT EXISTS `override` (
   `zone_id` int(11),
   `time` timestamp NULL ON UPDATE current_timestamp(),
   `temperature` tinyint(4),
+  `hvac_mode` tinyint(4),
   PRIMARY KEY (`id`),
   KEY `FK_override_zone` (`zone_id`),
   CONSTRAINT `FK_override_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
