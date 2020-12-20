@@ -50,36 +50,94 @@ require_once(__DIR__.'/st_inc/functions.php');
 		//following variable set to current day of the week.
 		$dow = idate('w');
 
+		//Mode 0 is EU Boiler Mode, Mode 1 is US HVAC Mode
+		$system_controller_mode = settings($conn, 'mode');
+
 		//GET BOILER DATA AND FAIL ZONES IF BOILER COMMS TIMEOUT
 		//query to get last boiler operation time and hysteresis time
-		$query = "SELECT * FROM boiler LIMIT 1";
+		$query = "SELECT * FROM system_controller LIMIT 1";
 		$result = $conn->query($query);
 		$row = mysqli_fetch_array($result);
-		$bcount=$result->num_rows;
-		$fired_status = $row['fired_status'];
-		$boiler_name = $row['name'];
-		$boiler_max_operation_time = $row['max_operation_time'];
-		$boiler_hysteresis_time = $row['hysteresis_time'];
+		$sc_count=$result->num_rows;
+		$system_controller_name = $row['name'];
+		$system_controller_max_operation_time = $row['max_operation_time'];
+		$system_controller_hysteresis_time = $row['hysteresis_time'];
+		$sc_mode  = $row['sc_mode'];
+                $sc_active_status  = $row['active_status'];
 
 		//Get data from nodes table
 		$query = "SELECT * FROM nodes WHERE id = {$row['node_id']} AND status IS NOT NULL LIMIT 1";
 		$result = $conn->query($query);
-		$boiler_node = mysqli_fetch_array($result);
-		$boiler_id = $boiler_node['node_id'];
-		$boiler_seen = $boiler_node['last_seen'];
-		$boiler_notice = $boiler_node['notice_interval'];
+		$system_controller_node = mysqli_fetch_array($result);
+		$system_controller_id = $system_controller_node['node_id'];
+		$system_controller_seen = $system_controller_node['last_seen'];
+		$system_controller_notice = $system_controller_node['notice_interval'];
 
-		//Check Boiler Fault
-		$boiler_fault = 0;
-		if($boiler_notice > 0){
+		//Check System Controller Fault
+		$system_controller_fault = 0;
+		if($system_controller_notice > 0){
 			$now=strtotime(date('Y-m-d H:i:s'));
-		  	$boiler_seen_time = strtotime($boiler_seen);
-		  	if ($boiler_seen_time  < ($now - ($boiler_notice*60))){
-    				$boiler_fault = 1;
+		  	$system_controller_seen_time = strtotime($system_controller_seen);
+		  	if ($system_controller_seen_time  < ($now - ($system_controller_notice*60))){
+    				$system_controller_fault = 1;
   			}
 		}
 
-		$query = "SELECT zone.*, zone_type.type, zone_type.category FROM `zone`, `zone_type`  WHERE (`zone_type`.id = `type_id`) AND `zone`.`purge` = 0 AND `category` < 2 order by index_id asc;";
+                //if in HVAC mode display the mode selector
+                if ($system_controller_mode == 1) {
+                        switch ($sc_mode) {
+                                case 0:
+                                        $current_sc_mode = $lang['mode_off'];
+                                        break;
+                                case 1:
+                                        $current_sc_mode = $lang['mode_timer'];
+                                        break;
+                                case 2:
+                                        $current_sc_mode = $lang['mode_auto'];
+                                        break;
+                                case 3:
+                                        $current_sc_mode = $lang['mode_fan'];
+                                        break;
+                                case 4:
+                                        $current_sc_mode = $lang['mode_heat'];
+                                        break;
+                                case 5:
+                                        $current_sc_mode = $lang['mode_cool'];
+                                        break;
+                                default:
+                                        $current_sc_mode = $lang['mode_off'];
+			}
+           	} else {
+                        switch ($sc_mode) {
+                                case 0:
+                                        $current_sc_mode = $lang['mode_off'];
+                                        break;
+                                case 1:
+                                        $current_sc_mode = $lang['mode_timer'];
+                                        break;
+                                case 2:
+                                        $current_sc_mode = $lang['mode_ce'];
+                                        break;
+                                case 3:
+                                        $current_sc_mode = $lang['mode_hw'];
+                                        break;
+                                case 4:
+                                        $current_sc_mode = $lang['mode_both'];
+                                        break;
+                                default:
+                                        $current_sc_mode = $lang['mode_off'];
+			}
+
+                }
+	        echo '<a href="javascript:active_sc_mode();">
+                <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+                <h3 class="buttontop"><small>'.$lang['mode'].'</small></h3>
+                <h3 class="degre" >'.$current_sc_mode.'</h3>
+                <h3 class="status"></small></h3>
+            	</button></a>';
+
+		//loop through zones
+		$query = "SELECT zone.*, zone_type.type, zone_type.category FROM `zone`, `zone_type`  WHERE (`zone_type`.id = `type_id`) AND `zone`.`purge` = 0 AND `category` <> 2 order by index_id asc;";
 		$results = $conn->query($query);
 		while ($row = mysqli_fetch_assoc($results)) {
 			$zone_id=$row['id'];
@@ -89,11 +147,13 @@ require_once(__DIR__.'/st_inc/functions.php');
 			$zone_controller_type=$row['controller_type'];
 
                         //query to get the zone controller info
-                        $query = "SELECT * FROM zone_controllers WHERE zone_id = '{$zone_id}' LIMIT 1;";
-                        $result = $conn->query($query);
-                        $zone_controllers = mysqli_fetch_array($result);
-                        $zone_controler_id=$zone_controllers['controler_id'];
-                        $zone_controler_child_id=$zone_controllers['controler_child_id'];
+			if ($zone_category <> 3) {
+	                        $query = "SELECT controller_relays.controler_id, controller_relays.controler_child_id FROM zone_controllers, controller_relays WHERE (zone_controllers.controller_relay_id = controller_relays.id) AND zone_id = '{$zone_id}' LIMIT 1;";
+        	                $result = $conn->query($query);
+                	        $zone_controllers = mysqli_fetch_array($result);
+                        	$zone_controler_id=$zone_controllers['controler_id'];
+	                        $zone_controler_child_id=$zone_controllers['controler_child_id'];
+			}
 
 			//query to get zone current state
 			$query = "SELECT * FROM zone_current_state WHERE zone_id = '{$zone_id}' LIMIT 1;";
@@ -112,20 +172,20 @@ require_once(__DIR__.'/st_inc/functions.php');
 			$overrun= $zone_current_state['overrun'];
 
 			//get the sensor id
-	                $query = "SELECT * FROM zone_sensors WHERE zone_id = '{$zone_id}' LIMIT 1;";
+	                $query = "SELECT * FROM temperature_sensors WHERE zone_id = '{$zone_id}' LIMIT 1;";
         	        $result = $conn->query($query);
                 	$sensor = mysqli_fetch_array($result);
-	                $zone_sensor_id=$sensor['sensor_id'];
-                	$zone_sensor_child_id=$sensor['sensor_child_id'];
+	                $temperature_sensor_id=$sensor['sensor_id'];
+                	$temperature_sensor_child_id=$sensor['sensor_child_id'];
 
 			//get the node id
-                	$query = "SELECT node_id FROM nodes WHERE id = '{$zone_sensor_id}' LIMIT 1;";
+                	$query = "SELECT node_id FROM nodes WHERE id = '{$temperature_sensor_id}' LIMIT 1;";
                 	$result = $conn->query($query);
                 	$nodes = mysqli_fetch_array($result);
                 	$zone_node_id=$nodes['node_id'];
 
 			//query to get temperature from messages_in_view_24h table view
-                        $query = "SELECT * FROM messages_in WHERE node_id = '{$zone_node_id}' AND child_id = '{$zone_sensor_child_id}' ORDER BY id desc LIMIT 1;";
+                        $query = "SELECT * FROM messages_in WHERE node_id = '{$zone_node_id}' AND child_id = '{$temperature_sensor_child_id}' ORDER BY id desc LIMIT 1;";
 			$result = $conn->query($query);
 			$sensor = mysqli_fetch_array($result);
 			$zone_c = $sensor['payload'];
@@ -141,18 +201,23 @@ require_once(__DIR__.'/st_inc/functions.php');
 			80 - sheduled
 			90 - away
 			100 - hysteresis
-			110 - Add-On */
+			110 - Add-On 
+			120 - HVAC
+                        130 - undertemperature
+                        140 - manual*/
 
 			$zone_mode_main=floor($zone_mode/10)*10;
 			$zone_mode_sub=floor($zone_mode%10);
 
 			//Zone sub mode - running/ stopped different types
 		/*	0 - stopped (above cut out setpoint or not running in this mode)
-			1 - running
+			1 - heating running
 			2 - stopped (within deadband)
 			3 - stopped (coop start waiting for boiler)
 			4 - manual operation ON
-			5 - manual operation OFF */
+			5 - manual operation OFF 
+                        6 - cooling running 
+			7 - fan running*/
 
    			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#'.$zone_type.''.$zone_id.'" data-backdrop="static" data-keyboard="false">
 			<h3><small>'.$zone_name.'</small></h3>
@@ -181,10 +246,10 @@ require_once(__DIR__.'/st_inc/functions.php');
 							<h5 class="modal-title">'.$zone_name.'</h5>
 						</div>
 						<div class="modal-body">';
-  							if ($boiler_fault == '1') {
+  							if ($system_controller_fault == '1') {
 								$date_time = date('Y-m-d H:i:s');
 								$datetime1 = strtotime("$date_time");
-								$datetime2 = strtotime("$boiler_seen");
+								$datetime2 = strtotime("$system_controller_seen");
 								$interval  = abs($datetime2 - $datetime1);
 								$ctr_minutes   = round($interval / 60);
 								echo '
@@ -196,7 +261,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 											<i class="fa fa-clock-o fa-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
 											</small>
 											<br><br>
-											<p>Node ID '.$boiler_id.' last seen at '.$boiler_seen.' </p>
+											<p>Node ID '.$system_controller_id.' last seen at '.$system_controller_seen.' </p>
 											<p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
 										</div>
 									</li>
@@ -294,30 +359,73 @@ require_once(__DIR__.'/st_inc/functions.php');
 			';
 		} // end of zones while loop
 
+                // Temperature Sensors Pre System Controller
+                $query = "SELECT temperature_sensors.name, temperature_sensors.sensor_child_id, nodes.node_id, nodes.last_seen, nodes.notice_interval FROM temperature_sensors, nodes WHERE (nodes.id = temperature_sensors.sensor_id) AND temperature_sensors.zone_id = 0 AND temperature_sensors.show_it = 1 AND temperature_sensors.pre_post = 1 order by index_id asc;";
+                $results = $conn->query($query);
+                while ($row = mysqli_fetch_assoc($results)) {
+                        $sensor_name = $row['name'];
+                        $sensor_child_id = $row['sensor_child_id'];
+                        $node_id = $row['node_id'];
+                        $node_seen = $row['last_seen'];
+                        $node_notice = $row['notice_interval'];
+                        $shcolor = "green";
+                        if($node_notice > 0){
+                                $now=strtotime(date('Y-m-d H:i:s'));
+                                $node_seen_time = strtotime($node_seen);
+                                if ($node_seen_time  < ($now - ($node_notice*60))) { $shcolor = "red"; }
+                        }
+                        //query to get temperature from messages_in_view_24h table view
+                        $query = "SELECT * FROM messages_in WHERE node_id = '{$node_id}' AND child_id = '{$sensor_child_id}' ORDER BY id desc LIMIT 1;";
+                        $result = $conn->query($query);
+                        $sensor = mysqli_fetch_array($result);
+                        $sensor_c = $sensor['payload'];
+                        echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-backdrop="static" data-keyboard="false">
+                        <h3><small>'.$sensor_name.'</small></h3>
+                        <h3 class="degre">'.number_format(DispTemp($conn,$sensor_c),1).'&deg;</h3>
+                        <h3 class="status">
+                        <small class="statuscircle"><i class="fa fa-circle fa-fw '.$shcolor.'"></i></small>
+                        </h3></button>';      //close out status and button
+                }
+
 		//BOILER BUTTON
-		if ($bcount != 0) {
+		if ($sc_count != 0) {
 			//query to get last boiler statues change time
-			$query = "SELECT * FROM boiler_logs ORDER BY id desc LIMIT 1 ";
+			$query = "SELECT * FROM system_controller_logs ORDER BY id desc LIMIT 1 ";
 			$result = $conn->query($query);
-			$boiler_onoff = mysqli_fetch_array($result);
-			$boiler_last_off = $boiler_onoff['stop_datetime'];
+			$system_controller_onoff = mysqli_fetch_array($result);
+			$system_controller_last_off = $system_controller_onoff['stop_datetime'];
 
 			//check if hysteresis is passed its time or not
 			$hysteresis='0';
-			if (isset($boiler_last_off)){
-				$boiler_last_off = strtotime( $boiler_last_off );
-				$boiler_hysteresis_time = $boiler_last_off + ($boiler_hysteresis_time * 60);
+			if ($system_controller_mode == 0 && isset($system_controller_last_off)){
+				$system_controller_last_off = strtotime( $system_controller_last_off );
+				$system_controller_hysteresis_time = $system_controller_last_off + ($system_controller_hysteresis_time * 60);
 				$now=strtotime(date('Y-m-d H:i:s'));
-				if ($boiler_hysteresis_time > $now){$hysteresis='1';}
+				if ($system_controller_hysteresis_time > $now){$hysteresis='1';}
 			} else {
 				$hysteresis='0';
 			}
 
-			if ($fired_status=='1'){$boiler_colour="red";} elseif ($fired_status=='0'){$boiler_colour="blue";}
 			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" href="#boiler" data-backdrop="static" data-keyboard="false">
-			<h3 class="text-info"><small>'.$boiler_name.'</small></h3>
-			<h3 class="degre" ><i class="ionicons ion-flame fa-1x '.$boiler_colour.'"></i></h3>';
-			if($boiler_fault=='1') {echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 70px;" class="statuszoon"><i class="fa ion-android-cancel fa-1x red"></i> </small>';}
+			<h3 class="text-info"><small>'.$system_controller_name.'</small></h3>';
+			if($zone_mode == 127 || $zone_mode == 87 || $zone_mode == 67){
+				echo '<h3 class="degre" ><img src="images/hvac_fan_30.png" border="0"></h3>';
+			} else {
+				if ($system_controller_mode == 1) {
+					echo '<h3 class="degre" ><i class="'.$rval['scactive'].' fa-1x '.$rval['sccolor'].'"></i></h3>';
+				} else {
+                        		if ($sc_active_status==1) {
+						$system_controller_colour="red";
+					} elseif ($sc_active_status==0) {
+						$system_controller_colour="blue";
+					}
+					if ($sc_mode==0) {
+                                                $system_controller_colour="";
+                                        }
+                                        echo '<h3 class="degre" ><i class="ionicons ion-flame fa-1x '.$system_controller_colour.'"></i></h3>';
+				}
+			}
+			if($system_controller_fault=='1') {echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 70px;" class="statuszoon"><i class="fa ion-android-cancel fa-1x red"></i> </small>';}
 			elseif($hysteresis=='1') {echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 70px;" class="statuszoon"><i class="fa fa-hourglass fa-1x orange"></i> </small>';}
 			else { echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 48px;" class="statuszoon"></small>';}
 			echo '</h3></button>';
@@ -328,13 +436,13 @@ require_once(__DIR__.'/st_inc/functions.php');
 					<div class="modal-content">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-							<h5 class="modal-title">'.$boiler_name.' - '.$lang['boiler_recent_logs'].'</h5>
+							<h5 class="modal-title">'.$system_controller_name.' - '.$lang['boiler_recent_logs'].'</h5>
 						</div>
 						<div class="modal-body">';
-  							if ($boiler_fault == '1') {
+  							if ($system_controller_fault == '1') {
 								$date_time = date('Y-m-d H:i:s');
 								$datetime1 = strtotime("$date_time");
-								$datetime2 = strtotime("$boiler_seen");
+								$datetime2 = strtotime("$system_controller_seen");
 								$interval  = abs($datetime2 - $datetime1);
 								$ctr_minutes   = round($interval / 60);
 								echo '
@@ -346,14 +454,14 @@ require_once(__DIR__.'/st_inc/functions.php');
 											<i class="fa fa-clock-o fa-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
 											</small>
 											<br><br>
-											<p>Node ID '.$boiler_id.' last seen at '.$boiler_seen.' </p>
+											<p>Node ID '.$system_controller_id.' last seen at '.$system_controller_seen.' </p>
 											<p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
 										</div>
 									</li>
 								</ul>';
   							}
 							$bquery = "select DATE_FORMAT(start_datetime, '%H:%i') as start_datetime, DATE_FORMAT(stop_datetime, '%H:%i') as stop_datetime , DATE_FORMAT(expected_end_date_time, '%H:%i') as expected_end_date_time, TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime) as on_minuts
-							from boiler_logs order by id desc limit 5";
+							from system_controller_logs order by id desc limit 5";
 							$bresults = $conn->query($bquery);
 							if (mysqli_num_rows($bresults) == 0){
 								echo '<div class=\"list-group\">
@@ -380,6 +488,34 @@ require_once(__DIR__.'/st_inc/functions.php');
 			<!-- /.modal fade -->
 			';
 		}	// end if boiler button
+
+		// Temperature Sensors Post System Controller
+		$query = "SELECT temperature_sensors.name, temperature_sensors.sensor_child_id, nodes.node_id, nodes.last_seen, nodes.notice_interval FROM temperature_sensors, nodes WHERE (nodes.id = temperature_sensors.sensor_id) AND temperature_sensors.zone_id = 0 AND temperature_sensors.show_it = 1 AND temperature_sensors.pre_post = 0 order by index_id asc;";
+                $results = $conn->query($query);
+                while ($row = mysqli_fetch_assoc($results)) {
+			$sensor_name = $row['name'];
+                        $sensor_child_id = $row['sensor_child_id'];
+			$node_id = $row['node_id'];
+                        $node_seen = $row['last_seen'];
+                        $node_notice = $row['notice_interval'];
+			$shcolor = "green";
+	                if($node_notice > 0){
+        	                $now=strtotime(date('Y-m-d H:i:s'));
+                	        $node_seen_time = strtotime($node_seen);
+                        	if ($node_seen_time  < ($now - ($node_notice*60))) { $shcolor = "red"; }
+        	        }
+                        //query to get temperature from messages_in_view_24h table view
+                        $query = "SELECT * FROM messages_in WHERE node_id = '{$node_id}' AND child_id = '{$sensor_child_id}' ORDER BY id desc LIMIT 1;";
+                        $result = $conn->query($query);
+                        $sensor = mysqli_fetch_array($result);
+                        $sensor_c = $sensor['payload'];
+   			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-backdrop="static" data-keyboard="false">
+			<h3><small>'.$sensor_name.'</small></h3>
+			<h3 class="degre">'.number_format(DispTemp($conn,$sensor_c),1).'&deg;</h3>
+			<h3 class="status">
+                        <small class="statuscircle"><i class="fa fa-circle fa-fw '.$shcolor.'"></i></small>
+                        </h3></button>';      //close out status and button
+ 		}
 
                 // Add-On buttons
                 $query = "SELECT zone.*, zone_type.category FROM zone, zone_type WHERE zone.type_id = zone_type.id AND zone.purge = 0 AND category = 2 ORDER BY index_id asc;";
@@ -459,6 +595,17 @@ require_once(__DIR__.'/st_inc/functions.php');
 		<!-- One touch buttons -->
 		<div id="collapseone" class="panel-collapse collapse animated fadeIn">
 			<?php
+                        //query to check live temperature status
+                        $query = "SELECT status FROM live_temperature WHERE status = '1' LIMIT 1";
+                        $result = $conn->query($query);
+                        $lt_status=mysqli_num_rows($result);
+                        if ($lt_status==1) {$lt_status='red';}else{$lt_status='blue';}
+                        echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" href="#livetemperature" data-backdrop="static" data-keyboard="false">
+                        <h3 class="text-info"><small>'.$lang['live_temp'].'</small></h3>
+			<h3 class="degre" ><img src="images/hvac_temp_30.png" border="0"></h3>
+                        <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$lt_status.'"></i></small></h3>
+                        </button>';
+
 			//query to check override status
 			$query = "SELECT status FROM override WHERE status = '1' LIMIT 1";
 			$result = $conn->query($query);
@@ -520,6 +667,20 @@ require_once(__DIR__.'/st_inc/functions.php');
 			<h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-circle fa-fw <?php echo $holidaystatus; ?>"></i></small>
 			</h3></button></a>
 
+                        <a style="color: #777; cursor: pointer; text-decoration: none;" href="relay.php">
+                        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+                        <h3 class="buttontop"><small><?php echo $lang['relay_add']; ?></small></h3>
+                        <h3 class="degre" ><i class="fa fa-plus fa-1x blue"></i></h3>
+                        <h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-fw"></i></small>
+                        </h3></button></a>
+
+                        <a style="color: #777; cursor: pointer; text-decoration: none;" href="sensor.php">
+                        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+                        <h3 class="buttontop"><small><?php echo $lang['sensor_add']; ?></small></h3>
+                        <h3 class="degre" ><i class="fa fa-plus fa-1x green"></i></h3>
+                        <h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-fw"></i></small>
+                        </h3></button></a>
+
 			<a style="color: #777; cursor: pointer; text-decoration: none;" href="zone.php">
 			<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
 			<h3 class="buttontop"><small><?php echo $lang['zone_add']; ?></small></h3>
@@ -527,6 +688,48 @@ require_once(__DIR__.'/st_inc/functions.php');
 			<h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-fw"></i></small>
 			</h3></button></a>
 			</div>
+			<?php
+			// live temperature modal
+			if ($system_controller_mode == 1) {
+                        	$query = "SELECT id, default_c FROM zone_view WHERE type = 'HVAC' LIMIT 1";
+			} else {
+                                $query = "SELECT id, default_c FROM zone_view WHERE type = 'Heating' LIMIT 1";
+			}
+                        $result = $conn->query($query);
+                        $row = mysqli_fetch_array($result);
+                        echo '<input type="hidden" id="zone_id" name="zone_id" value="'.$row['id'].'"/>
+			<div class="modal fade" id="livetemperature" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                        <div class="modal-content">
+                                                <div class="modal-header">
+                                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                                                        <h5 class="modal-title">'.$lang['live_temperature'].'</h5>
+                                                </div>
+                                                <div class="modal-body">
+                                                        <table class="table">
+                                                                <tr>
+                                                                        <th class="col-xs-1"><small>'.$lang['live_temperature'].'</small></th>
+									<th class="col-xs-11"></small></th>
+                                                                </tr>
+                                                                <tr>
+                                                                        <td><div class="slider-wrapper">
+                                                                                <input type="range" min="0" max="100" step="0.5" value="'.DispTemp($conn, $row['default_c']).'" id="default_c" name="live_temp" oninput=update_slider(this.value,"live_temp")>
+                                                                        </div></td>
+									<td><h4><br><br><br><span id="live_val" style="display: inline-flex !important; font-size:18px !important;"><output name="show_min_temp_val" id="live_temp" style="padding-top:0px !important; font-size:18px !important;">'.DispTemp($conn, $row['default_c']).'</output></span>&deg;</h4><br></td>
+                                                                </tr>
+                                                        </table>
+                                                </div>
+                                                <div class="modal-footer"><button type="button" class="btn btn-default btn-sm" data-dismiss="modal">'.$lang['cancel'].'</button>
+                				<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="update_defaut_c()">
+                                                </div>
+                                                <!-- /.modal-footer -->
+                                        </div>
+                                        <!-- /.modal-content -->
+                                </div>
+                                <!-- /.modal-dialog -->
+                        </div>
+                        <!-- /.modal fade -->
+                        '; ?>
 		</div>
                 <!-- /.panel-body -->
 		<div class="panel-footer">
@@ -541,13 +744,13 @@ require_once(__DIR__.'/st_inc/functions.php');
 					sum(TIMESTAMPDIFF(MINUTE, start_datetime, expected_end_date_time)) as total_minuts,
 					sum(TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime)) as on_minuts,
 					(sum(TIMESTAMPDIFF(MINUTE, start_datetime, expected_end_date_time)) - sum(TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime))) as save_minuts
-					from boiler_logs WHERE date(start_datetime) = CURDATE() GROUP BY date(start_datetime) asc";
+					from system_controller_logs WHERE date(start_datetime) = CURDATE() GROUP BY date(start_datetime) asc";
 					$result = $conn->query($query);
-					$boiler_time = mysqli_fetch_array($result);
-					$boiler_time_total = $boiler_time['total_minuts'];
-					$boiler_time_on = $boiler_time['on_minuts'];
-					$boiler_time_save = $boiler_time['save_minuts'];
-					if($boiler_time_on >0){	echo ' <i class="ionicons ion-ios-clock-outline"></i> '.secondsToWords(($boiler_time_on)*60);}
+					$system_controller_time = mysqli_fetch_array($result);
+					$system_controller_time_total = $system_controller_time['total_minuts'];
+					$system_controller_time_on = $system_controller_time['on_minuts'];
+					$system_controller_time_save = $system_controller_time['save_minuts'];
+					if($system_controller_time_on >0){	echo ' <i class="ionicons ion-ios-clock-outline"></i> '.secondsToWords(($system_controller_time_on)*60);}
 					?>
                         	</div>
                  	</div>
@@ -556,3 +759,14 @@ require_once(__DIR__.'/st_inc/functions.php');
 	</div>
 	<!-- /.panel-primary -->
 <?php if(isset($conn)) { $conn->close();} ?>
+
+<script language="javascript" type="text/javascript">
+function update_slider(value, id)
+{
+ var valuetext = value;
+ var idtext = id;
+ document.getElementById(id).innerTex = parseFloat(value);
+ document.getElementById(id).value = parseFloat(value);
+}
+</script>
+
