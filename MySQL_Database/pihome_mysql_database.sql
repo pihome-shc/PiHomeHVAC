@@ -119,23 +119,24 @@ CREATE TABLE `system_controller` (
 /*!40000 ALTER TABLE `system_controller` DISABLE KEYS */;
 /*!40000 ALTER TABLE `system_controller` ENABLE KEYS */;
 
--- Dumping structure for table pihome.boiler_logs
-DROP TABLE IF EXISTS `boiler_logs`;
-CREATE TABLE IF NOT EXISTS `boiler_logs` (
+-- Dumping structure for table pihome.system_controller_logs
+DROP TABLE IF EXISTS `system_controller_logs`;
+CREATE TABLE `system_controller_logs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sync` tinyint(4) NOT NULL,
   `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
-  `start_datetime` timestamp NULL,
-  `start_cause` char(50) COLLATE utf16_bin,
-  `stop_datetime` timestamp NULL,
-  `stop_cause` char(50) COLLATE utf16_bin,
-  `expected_end_date_time` timestamp NULL,
+  `start_datetime` timestamp NULL DEFAULT NULL,
+  `start_cause` char(50) COLLATE utf16_bin DEFAULT NULL,
+  `stop_datetime` timestamp NULL DEFAULT NULL,
+  `stop_cause` char(50) COLLATE utf16_bin DEFAULT NULL,
+  `expected_end_date_time` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=133 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- Dumping data for table pihome.boiler_logs: ~0 rows (approximately)
-/*!40000 ALTER TABLE `boiler_logs` DISABLE KEYS */;
-/*!40000 ALTER TABLE `boiler_logs` ENABLE KEYS */;
+-- Dumping data for table pihome.system_controller_logs: ~0 rows (approximately)
+/*!40000 ALTER TABLE `system_controller_logs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `system_controller_logs` ENABLE KEYS */;
 
 -- Dumping structure for table pihome.boost
 DROP TABLE IF EXISTS `boost`;
@@ -787,12 +788,12 @@ CREATE TABLE IF NOT EXISTS `zone_logs` (
   `sync` tinyint(4) NOT NULL,
   `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
   `zone_id` int(11),
-  `boiler_log_id` int(11),
+  `system_controller_log_id` int(11),
   `status` int(11),
   PRIMARY KEY (`id`),
   KEY `FK_zone_logs_zone` (`zone_id`),
   KEY `FK_zone_logs_boiler_logs` (`boiler_log_id`),
-  CONSTRAINT `FK_zone_logs_boiler_logs` FOREIGN KEY (`boiler_log_id`) REFERENCES `boiler_logs` (`id`),
+  CONSTRAINT `FK_zone_logs_boiler_logs` FOREIGN KEY (`system_controller_log_id`) REFERENCES `system_controller_logs` (`id`),
   CONSTRAINT `FK_zone_logs_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
