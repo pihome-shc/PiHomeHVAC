@@ -73,14 +73,14 @@ join add_on_logs aoext on add_on_zone_logs.add_on_log_id = aoext.id
 join zone_type ztype on zt.type_id = ztype.id
 order by id asc;
 
--- Boiler View
-Drop View if exists boiler_view;
-CREATE VIEW boiler_view AS
-select boiler.status, boiler.sync, boiler.`purge`, boiler.fired_status, boiler.name, ctype.`type` AS controller_type, nodes.node_id, boiler.node_child_id, boiler.hysteresis_time, boiler.max_operation_time, boiler.overrun
-from boiler
-join nodes on boiler.node_id = nodes.id
-join nodes ctype on boiler.node_id = ctype.id
-where boiler.`purge` = '0';
+-- System Controller View
+Drop View if exists system_controller_view;
+CREATE VIEW system_controller_view AS
+select system_controller.status, system_controller.sync, system_controller.`purge`, system_controller.active_status, system_controller.name, ctype.`type` AS controller_type, cr.controler_id, cr.controler_child_id, system_controller.hysteresis_time, system_controller.max_operation_time, system_controller.overrun, system_controller.heat_relay_id, system_controller.cool_relay_id, system_controller.fan_relay_id
+from system_controller
+join controller_relays cr on system_controller.heat_relay_id = cr.id
+join nodes ctype on cr.controler_id = ctype.id
+where system_controller.`purge` = '0';
 
 -- Boost View
 Drop View if exists boost_view;
@@ -127,11 +127,11 @@ where datetime > DATE_SUB( NOW(), INTERVAL 24 HOUR);
 Drop View if exists zone_log_view;
 CREATE VIEW zone_log_view AS
 select zone_logs.id, zone_logs.sync, zone_logs.zone_id, ztype.type,
-zone_logs.boiler_log_id, blst.start_datetime, blet.stop_datetime, blext.expected_end_date_time, zone_logs.status
+zone_logs.system_controller_log_id, blst.start_datetime, blet.stop_datetime, blext.expected_end_date_time, zone_logs.status
 from zone_logs
 join zone zt on zone_logs.zone_id = zt.id
-join boiler_logs blst on zone_logs.boiler_log_id = blst.id
-join boiler_logs blet on zone_logs.boiler_log_id = blet.id
-join boiler_logs blext on zone_logs.boiler_log_id = blext.id
+join system_controller_logs blst on zone_logs.system_controller_log_id = blst.id
+join system_controller_logs blet on zone_logs.system_controller_log_id = blet.id
+join system_controller_logs blext on zone_logs.system_controller_log_id = blext.id
 join zone_type ztype on zt.type_id = ztype.id
 order by id asc;
