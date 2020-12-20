@@ -100,6 +100,34 @@ echo '
     </div>
 </div>';
 
+//System Mode
+$system_mode = settings($conn, 'mode');
+echo '
+<div class="modal fade" id="change_system_mode" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['system_controller_mode'].'</h5>
+            </div>
+            <div class="modal-body">
+                                <form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
+                                <div class="form-group" class="control-label"><label>'.$lang['system_mode'].'</label>
+                                <select class="form-control input-sm" type="text" id="new_mode" name="new_mode">
+                                <option value="0" ' . ($system_mode==0 || $system_mode=='0' ? 'selected' : '') . '>'.$lang['boiler'].'</option>
+                                <option value="1" ' . ($system_mode==1 || $system_mode=='1' ? 'selected' : '') . '>'.$lang['hvac'].'</option>
+                                </select>
+                <div class="help-block with-errors"></div></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['cancel'].'</button>
+                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="update_system_mode()">
+            </div>
+        </div>
+
+    </div>
+</div>';
+
 //Units
 $c_f = settings($conn, 'c_f');
 if($c_f==1 || $c_f=='1')
@@ -172,7 +200,7 @@ echo '
             </div>
             <div class="modal-body">
 <p class="text-muted">'.$lang['graph_settings_text'].'</p>';
-$query = "select * from zone_view where type = 'Heating'  OR category = 1 order by index_id asc";
+$query = "select * from temperature_sensors order by name asc";
 $results = $conn->query($query);
 echo '  <div class=\"list-group\">';
 while ($row = mysqli_fetch_assoc($results)) {
@@ -193,25 +221,25 @@ echo '
     </div>
 </div>';
 
-//Boiler settings
+//System Controller settings
 echo '
-<div class="modal fade" id="boiler" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="system_controller" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
         	<div class="modal-content">
             		<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                		<h5 class="modal-title">'.$lang['boiler_settings'].'</h5>
+                		<h5 class="modal-title">'.$lang['system_controller_settings'].'</h5>
             		</div>
             		<div class="modal-body">';
-				$query = "SELECT * FROM nodes where name = 'Boiler Relay' OR name = 'Boiler Controller' OR name = 'GPIO Controller' OR name = 'I2C Controller';";
+				$query = "SELECT * FROM nodes where name = 'System Controller' OR name = 'GPIO Controller' OR name = 'I2C Controller';";
 				$result = $conn->query($query);
 				$ncount=mysqli_num_rows($result);
 				if ($ncount > 0){
-					$query = "SELECT * FROM boiler;";
+					$query = "SELECT * FROM system_controller;";
 					$bresult = $conn->query($query);
 					$bcount = $bresult->num_rows;
 					if ($bcount > 0) { $brow = mysqli_fetch_array($bresult); }
-					echo '<p class="text-muted">'.$lang['boiler_info_text'].'</p>';
+					echo '<p class="text-muted">'.$lang['system_controller_info_text'].'</p>';
 
 					echo '
 					<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
@@ -227,73 +255,70 @@ echo '
 							} else {
 								echo '<input id="checkbox2" class="styled" type="checkbox" value="0" name="status" Enabled>';
 							}
-							echo '<label for="checkbox2"> '.$lang['boiler_enable'].'</label>
+							echo '<label for="checkbox2"> '.$lang['system_controller_enable'].'</label>
 						</div>
 					</div>
 					<!-- /.form-group -->
 
-					<div class="form-group" class="control-label"><label>'.$lang['boiler_name'].'</label>
-						<input class="form-control input-sm" type="text" id="name" name="name" value="'.$brow['name'].'" placeholder="Boiler Name to Display on Screen ">
+					<div class="form-group" class="control-label"><label>'.$lang['system_controller_name'].'</label>
+						<input class="form-control input-sm" type="text" id="name" name="name" value="'.$brow['name'].'" placeholder="System Controller Name to Display on Screen ">
 						<div class="help-block with-errors">
 						</div>
 					</div>
 					<!-- /.form-group -->
 
-					<div class="form-group" class="control-label"><label>'.$lang['boiler_node_id'].'</label> <small class="text-muted">'.$lang['boiler_node_id_info'].'</small>
-						<select class="form-control input-sm" type="text" id="node_id" name="node_id" onchange=BoilerChildList(this.options[this.selectedIndex].value)>';
-						//get current node_id from nodes table 
-						if ($bresult) {
-							$query = "SELECT * FROM nodes WHERE id ='".$brow['node_id']."' Limit 1;";
-							$result = $conn->query($query);
-							$row = mysqli_fetch_assoc($result);
-							$node_id=$row['node_id'];
-					     	   	$node_type=$row['type'];
-							$max_child_id=$row['max_child_id'];
+                        		<div class="form-group" class="control-label"><label>'.$lang['heat_relay_id'].'</label> <small class="text-muted">'.$lang['heat_relay_id_info'].'</small>
+                                                <select class="form-control input-sm" type="text" id="heat_relay_id" name="heat_relay_id" >';
+                                                //get list of heat relays to display
+                                                if (settings($conn, 'mode') == 0) { $heat_relay_type = 1; } else { $heat_relay_type = 2; }
+                                                $query = "SELECT id, name FROM controller_relays WHERE type = {$heat_relay_type};";
+                                                $result = $conn->query($query);
+                                                if ($result){
+                                                        while ($nrow=mysqli_fetch_array($result)) {
+                                                                echo '<option value="'.$nrow['id'].'">'.$nrow['name'].'</option>';
+                                                        }
+                                                }
+                                                echo '</select>
+                                                <div class="help-block with-errors">
+                                                </div>
+                                        </div>
+					<!-- /.form-group -->';
 
-							echo '<option value="'.$node_id.'" selected>'.$node_type.' - '.$node_id.'</option>';
-							echo "<option></option>";
-						}
-						//get list from nodes table to display 
-						$query = "SELECT * FROM nodes where name = 'Boiler Relay' OR name = 'Boiler Controller' OR name = 'GPIO Controller' OR name = 'I2C Controller';";
-						$result = $conn->query($query);
-						if ($result){
-							while ($nrow=mysqli_fetch_array($result)) {
-								echo '<option value="'.$nrow['max_child_id'].'">'.$nrow['type'].' - '.$nrow['node_id'].'</option>';
-							}
-						}
-						echo '</select>
-	    					<div class="help-block with-errors">
-						</div>
-					</div>
-					<!-- /.form-group -->
-					';
+					if (settings($conn, 'mode') == 1) {
+                                        echo '<div class="form-group" class="control-label"><label>'.$lang['cool_relay_id'].'</label> <small class="text-muted">'.$lang['cool_relay_id_info'].'</small>
+                                                <select class="form-control input-sm" type="text" id="cool_relay_id" name="cool_relay_id" >';
+                                                //get list of heat relays to display
+                                                $query = "SELECT id, name FROM controller_relays WHERE type = 3;";
+                                                $result = $conn->query($query);
+                                                if ($result){
+                                                        while ($nrow=mysqli_fetch_array($result)) {
+                                                                echo '<option value="'.$nrow['id'].'">'.$nrow['name'].'</option>';
+                                                        }
+                                                }
+                                                echo '</select>
+                                                <div class="help-block with-errors">
+                                                </div>
+                                        </div>
+                                        <!-- /.form-group -->
 
-					echo '
-					<input class="form-control input-sm" type="hidden" id="selected_node_id" name="selected_node_id" value="'.$node_id.'"/>
-				        <input class="form-control input-sm" type="hidden" id="selected_node_type" name="selected_node_type" value="'.$node_type.'"/>
-			        	<input class="form-control input-sm" type="hidden" id="gpio_pin_list" name="gpio_pin_list" value="'.implode(",", array_filter(Get_GPIO_List())).'"/>
-					<div class="form-group" class="control-label"><label>'.$lang['boiler_node_child_id'].'</label> <small class="text-muted">'.$lang['boiler_relay_gpio_text'].'</small>
-						<select class="form-control input-sm" type="text" id="node_child_id" name="node_child_id">
-						<option selected>'.$brow['node_child_id'].'</option>';
-				        	$pos=strpos($node_type, "GPIO");
-					        if($pos !== false) {
-				        	        $gpio_list=Get_GPIO_List();
-				                	for ($x = 0; $x <= count(array_filter($gpio_list)) - 1; $x++) {
-                        					echo "<option value=".$gpio_list[$x].">".$gpio_list[$x]."</option>";
-					                }
-				        	} else {
-				                	for ($x = 1; $x <=  $max_child_id; $x++) {
-                        					echo '<option value="'.$x.'">'.$x.'</option>';
-					                }
-        					}
-						echo '
-						</select>
-	    					<div class="help-block with-errors">
-						</div>
-					</div>
-					<!-- /.form-group -->
+                                        <div class="form-group" class="control-label"><label>'.$lang['fan_relay_id'].'</label> <small class="text-muted">'.$lang['fan_relay_id_info'].'</small>
+                                                <select class="form-control input-sm" type="text" id="fan_relay_id" name="fan_relay_id" >';
+                                                //get list of heat relays to display
+                                                $query = "SELECT id, name FROM controller_relays WHERE type = 4;";
+                                                $result = $conn->query($query);
+                                                if ($result){
+                                                        while ($nrow=mysqli_fetch_array($result)) {
+                                                                echo '<option value="'.$nrow['id'].'">'.$nrow['name'].'</option>';
+                                                        }
+                                                }
+                                                echo '</select>
+                                                <div class="help-block with-errors">
+                                                </div>
+                                        </div>
+                                        <!-- /.form-group -->';
+					}
 
-					<div class="form-group" class="control-label"><label>'.$lang['boiler_hysteresis_time'].'</label> <small class="text-muted">'.$lang['boiler_hysteresis_time_info'].'</small>
+					echo '<div class="form-group" class="control-label"><label>'.$lang['boiler_hysteresis_time'].'</label> <small class="text-muted">'.$lang['boiler_hysteresis_time_info'].'</small>
 						<select class="form-control input-sm" type="text" id="hysteresis_time" name="hysteresis_time">
 						<option selected>'.$brow['hysteresis_time'].'</option>
 						<option value="0">0</option>
@@ -337,37 +362,39 @@ echo '
 	    					<div class="help-block with-errors">
 						</div>
 					</div>
-					
-					<div class="form-group" class="control-label"><label>'.$lang['boiler_overrun'].'</label> <small class="text-muted">'.$lang['boiler_overrun_info'].'</small>
-						<select class="form-control input-sm" type="text" id="overrun" name="overrun">
-						<option selected>'.$brow['overrun'].'</option>
-						<option value="-1">Keep valve open until next boiler start</option>
-						<option value="0">Disable</option>
-						<option value="1">1</option>
-						<option value="2">2</option>
-						<option value="3">3</option>
-						<option value="4">4</option>
-						<option value="5">5</option>
-						<option value="6">6</option>
-						<option value="7">7</option>
-						<option value="8">8</option>
-						<option value="9">9</option>
-						</select>
-	    					<div class="help-block with-errors">
-						</div>
-					</div>
-					
-					
-					<!-- /.form-group -->
+                                        <!-- /.form-group -->
 					';
+
+                                        if (settings($conn, 'mode') == 0) {
+						echo '<div class="form-group" class="control-label"><label>'.$lang['boiler_overrun'].'</label> <small class="text-muted">'.$lang['boiler_overrun_info'].'</small>
+							<select class="form-control input-sm" type="text" id="overrun" name="overrun">
+							<option selected>'.$brow['overrun'].'</option>
+							<option value="-1">Keep valve open until next boiler start</option>
+							<option value="0">Disable</option>
+							<option value="1">1</option>
+							<option value="2">2</option>
+							<option value="3">3</option>
+							<option value="4">4</option>
+							<option value="5">5</option>
+							<option value="6">6</option>
+							<option value="7">7</option>
+							<option value="8">8</option>
+							<option value="9">9</option>
+							</select>
+	    						<div class="help-block with-errors">
+							</div>
+						</div>
+						<!-- /.form-group -->
+						';
+					}
 				} else {
-					echo '<p class="text-muted">'.$lang['boiler_no_nodes'].'</p>';
+					echo '<p class="text-muted">'.$lang['system_controller_no_nodes'].'</p>';
 				}
 			echo '</div>
 			<!-- /.modal-body -->
         	   	<div class="modal-footer">
 				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>';
-				if ($ncount > 0) { echo '<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="boiler_settings()">'; }
+				if ($ncount > 0) { echo '<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="system_controller_settings('.settings($conn, 'mode').')">'; }
 
             		echo '</div>
 			<!-- /.modal-footer -->
@@ -612,20 +639,20 @@ echo '
             <div class="modal-body">
 <p class="text-muted"> '.$lang['override_settings_text'].'</p>';
 if (settings($conn, 'mode') == 0) { //boiler mode
-        $query = "SELECT * FROM override_view WHERE category < 2 ORDER BY index_id asc";
+	$query = "SELECT * FROM override_view WHERE category < 2 ORDER BY index_id asc";
 } else {
         $query = "SELECT * FROM override ORDER BY hvac_mode asc";
 }
 $results = $conn->query($query);
 echo '	<div class=\"list-group\">';
 while ($row = mysqli_fetch_assoc($results)) {
-        if (settings($conn, 'mode') == 0) {
-                $name = $row['name'];
-        } else {
-                if ($row['hvac_mode']  == 4) { $name = 'HEAT'; } else { $name = 'COOL'; };
-        }
+	if (settings($conn, 'mode') == 0) {
+		$name = $row['name'];
+	} else {
+		if ($row['hvac_mode']  == 4) { $name = 'HEAT'; } else { $name = 'COOL'; };
+	}
 	echo "<a href=\"#\" class=\"list-group-item\">
-        <i class=\"fa fa-refresh fa-1x blue\"></i> ".$name."
+	<i class=\"fa fa-refresh fa-1x blue\"></i> ".$name." 
     <span class=\"pull-right text-muted small\"><em>".$row['temperature']."&deg; </em></span></a>";
 }
 echo '</div></div>
@@ -660,8 +687,8 @@ echo '<table class="table table-bordered">
         <th class="col-xs-1"></th>
     </tr>';
 while ($row = mysqli_fetch_assoc($results)) {
-    if($row["name"]=="Boiler Controller" or $row["name"]=="GPIO Controller" or $row["name"]=="I2C Controller") {
-        $query = "SELECT * FROM boiler where node_id = {$row['id']} LIMIT 1;";
+    if($row["name"]=="System Controller" or $row["name"]=="GPIO Controller" or $row["name"]=="I2C Controller") {
+        $query = "SELECT * FROM system_controller where node_id = {$row['id']} LIMIT 1;";
         $b_results = $conn->query($query);
         $rowcount=mysqli_num_rows($b_results);
         if($rowcount > 0) {
@@ -826,6 +853,150 @@ echo '<p class="text-muted">'.$lang['zone_type_add_info_text'].'</p>
     </div>
 </div>';
 
+//Relay model
+echo '
+<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['relay_settings'].'</h5>
+            </div>
+            <div class="modal-body">
+<p class="text-muted">'.$lang['relay_settings_text'].'</p>';
+$query = "select controller_relays.*, nodes.last_seen from controller_relays, nodes WHERE controller_relays.controler_id = nodes.id order by controler_id asc, controler_child_id asc";
+$results = $conn->query($query);
+echo '<table class="table table-bordered">
+    <tr>
+        <th class="col-xs-3"><small>'.$lang['relay_name'].'</small></th>
+        <th class="col-xs-2"><small>'.$lang['type'].'</small></th>
+        <th class="col-xs-2"><small>'.$lang['node_id'].'</small></th>
+        <th class="col-xs-2"><small>'.$lang['relay_child_id'].'</small></th>
+        <th class="col-xs-2"></th>
+    </tr>';
+
+$content_msg="Delete Controller Relay";
+while ($row = mysqli_fetch_assoc($results)) {
+    switch ($row['type']) {
+        case 0:
+                $relay_type ="Zone";
+                break;
+        case 1:
+                $relay_type ="Boiler";
+                break;
+        case 2:
+                $relay_type ="HVAC - Heat";
+                break;
+        case 3:
+                $relay_type ="HVAC - Cool";
+                break;
+        case 4:
+                $relay_type ="HVAC - Fan";
+                break;
+    }
+    echo '
+        <tr>
+            <td>'.$row["name"].'<br> <small>('.$row["last_seen"].')</small></td>
+            <td>'.$relay_type.'</td>
+            <td>'.$row["controler_id"].'</td>
+            <td>'.$row["controler_child_id"].'</td>
+            <td><a href="relay.php?id='.$row["id"].'"><button class="btn btn-primary btn-xs"><span class="ionicons ion-edit"></span></button> </a>&nbsp;&nbsp';
+            if ($row['type'] == 0) {
+                $query = "SELECT * FROM zone_controllers WHERE controller_relay_id = '{$row['zone_id']}' LIMIT 1;";
+            } else {
+                $query = "SELECT * FROM hvac WHERE controller_relay_id = '{$row['zone_id']}' LIMIT 1;";
+            }
+            $c_results = $conn->query($query);
+            $rowcount=mysqli_num_rows($c_results);
+            if($rowcount > 0) {
+                echo '<a href="javascript:delete_relay('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>';
+            } else {
+                echo '<a href="javascript:delete_relay('.$row["id"].');"><button class="btn btn-danger btn-xs disabled" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>';
+            }
+        echo '</tr>';
+}
+
+echo '</table></div>
+                        <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="show_sensors()">
+                <a class="btn btn-default login btn-sm" href="relay.php">'.$lang['relay_add'].'</a>
+            </div>
+        </div>
+    </div>
+</div>';
+
+//Sensor model	
+echo '
+<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['sensor_settings'].'</h5>
+            </div>
+            <div class="modal-body">
+<p class="text-muted">'.$lang['sensor_settings_text'].'</p>';
+$query = "select temperature_sensors.id, temperature_sensors.name, temperature_sensors.sensor_child_id, temperature_sensors.zone_id, temperature_sensors.show_it, nodes.node_id, nodes.last_seen from temperature_sensors, nodes WHERE temperature_sensors.sensor_id = nodes.id order by name asc";
+$results = $conn->query($query);
+echo '<table class="table table-bordered">
+    <tr>
+        <th class="col-xs-3"><small>'.$lang['sensor_name'].'</small></th>
+        <th class="col-xs-1"><small>'.$lang['node_id'].'</small></th>
+        <th class="col-xs-1"><small>'.$lang['sensor_child_id'].'</small></th>
+        <th class="col-xs-2"><small>'.$lang['zone_name'].'</small></th>
+        <th class="col-xs-1"><small>Show</small></th>
+        <th class="col-xs-2"></th>
+    </tr>';
+$content_msg="Delete Temperature Sensor";
+while ($row = mysqli_fetch_assoc($results)) {
+    if (!empty($row['zone_id'])) {
+	$query = "SELECT  name FROM zone WHERE id = '{$row['zone_id']}' LIMIT 1;";
+        $z_results = $conn->query($query);
+        $rowcount=mysqli_num_rows($z_results);
+        if($rowcount > 0) {
+		$z_row = mysqli_fetch_assoc($z_results);
+		$zone_name = $z_row['name'];
+	} else {
+        	$zone_name = "Not Allocated";
+    	}
+    } else {
+	$zone_name = "Not Allocated";
+    }
+    $check = ($row['show_it'] == 1) ? 'checked' : '';
+    echo '
+        <tr>
+            <td>'.$row["name"].'<br> <small>('.$row["last_seen"].')</small></td>
+            <td>'.$row["node_id"].'</td>
+            <td>'.$row["sensor_child_id"].'</td>
+            <td>'.$zone_name.'</td>';
+            if (empty($row['zone_id'])) { 
+		echo '<td style="text-align:center; vertical-align:middle;">
+                <input type="checkbox" id="checkbox'.$row["id"].'" name="checkbox'.$row["id"].'" value="1" '.$check.'>
+            	</td>';
+	    } else {
+                echo '<td style="text-align:center; vertical-align:middle;">
+                <input type="checkbox" id="checkbox'.$row["id"].'" name="checkbox'.$row["id"].'" value="1" '.$check.' disabled>
+                </td>';
+	    }
+	    echo '<td><a href="sensor.php?id='.$row["id"].'"><button class="btn btn-primary btn-xs"><span class="ionicons ion-edit"></span></button> </a>&nbsp;&nbsp';
+	    if (empty($row['zone_id'])) { 
+		echo '<a href="javascript:delete_sensor('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>'; 
+	    } else {
+		echo '<a href="javascript:delete_sensor('.$row["id"].');"><button class="btn btn-danger btn-xs disabled" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>';
+	    }
+        echo '</tr>';
+}
+echo '</table></div>
+			<div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="show_sensors()">
+                <a class="btn btn-default login btn-sm" href="sensor.php">'.$lang['sensor_add'].'</a>
+            </div>
+        </div>
+    </div>
+</div>';
+
 //Sensor location model
 echo '
 <div class="modal fade" id="temperature_sensor" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -895,6 +1066,8 @@ while ($row = mysqli_fetch_assoc($results)) {
         while ($vrow = mysqli_fetch_assoc($vresult)) {
                 if ($vrow['category'] == 2) {
                         echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['controller'].": ".$vrow['controller_type'].": ".$vrow['controler_id']."-".$vrow['controler_child_id']."</small></span><br>";
+		} elseif ($vrow['category'] == 3) {
+                        echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['min']." ".$vrow['min_c']."&deg; </em>, ".$lang['max']." ".$vrow['max_c']."&deg; </em> - ".$lang['sensor'].": ".$vrow['sensors_id']."</small></span><br>";
                 } else {
                         echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['max']." ".$vrow['max_c']."&deg; </em> - ".$lang['sensor'].": ".$vrow['sensors_id']." - ".$vrow['controller_type'].": ".$vrow['controler_id']."-".$vrow['controler_child_id']."</small></span><br>";
                 }

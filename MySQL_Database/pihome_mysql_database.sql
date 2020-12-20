@@ -93,29 +93,31 @@ CREATE TABLE IF NOT EXISTS `away` (
 /*!40000 ALTER TABLE `away` DISABLE KEYS */;
 /*!40000 ALTER TABLE `away` ENABLE KEYS */;
 
--- Dumping structure for table pihome.boiler
-DROP TABLE IF EXISTS `boiler`;
-CREATE TABLE IF NOT EXISTS `boiler` (
+-- Dumping structure for table pihome.system_controller
+DROP TABLE IF EXISTS `system_controller`;
+CREATE TABLE `system_controller` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sync` tinyint(4) NOT NULL,
   `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
-  `status` tinyint(4),
-  `fired_status` tinyint(4),
-  `name` char(50) CHARACTER SET utf16 COLLATE utf16_bin,
-  `node_id` int(11),
-  `node_child_id` int(11),
-  `hysteresis_time` tinyint(4),
-  `max_operation_time` SMALLINT(4),
-  `overrun` SMALLINT(6) NULL DEFAULT NULL,
-  `datetime` timestamp NULL ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `FK_boiler_zone` (`node_id`),
-  CONSTRAINT `FK_boiler_zone` FOREIGN KEY (`node_id`) REFERENCES `nodes` (`id`)
+  `mode` tinyint(1) NOT NULL,
+  `status` tinyint(4) DEFAULT NULL,
+  `active_status` tinyint(4) DEFAULT NULL,
+  `name` char(50) CHARACTER SET utf16 COLLATE utf16_bin DEFAULT NULL,
+  `hysteresis_time` tinyint(4) DEFAULT NULL,
+  `max_operation_time` tinyint(4) DEFAULT NULL,
+  `overrun` smallint(6) DEFAULT NULL,
+  `datetime` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
+  `sc_mode` tinyint(4) NOT NULL,
+  `sc_mode_prev` tinyint(4) NOT NULL,
+  `heat_relay_id` int(11) DEFAULT NULL,
+  `cool_relay_id` int(11) DEFAULT NULL,
+  `fan_relay_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
--- Dumping data for table pihome.boiler: ~0 rows (approximately)
-/*!40000 ALTER TABLE `boiler` DISABLE KEYS */;
-/*!40000 ALTER TABLE `boiler` ENABLE KEYS */;
+-- Dumping data for table pihome.system_controller: ~0 rows (approximately)
+/*!40000 ALTER TABLE `system_controller` DISABLE KEYS */;
+/*!40000 ALTER TABLE `system_controller` ENABLE KEYS */;
 
 -- Dumping structure for table pihome.boiler_logs
 DROP TABLE IF EXISTS `boiler_logs`;
@@ -627,6 +629,7 @@ CREATE TABLE IF NOT EXISTS `system` (
   `shutdown` tinyint(4),
   `reboot` tinyint(4),
   `c_f` tinyint(4) NOT NULL COMMENT '0=C, 1=F',
+  `mode` tinyint(4),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
@@ -804,6 +807,7 @@ CREATE TABLE IF NOT EXISTS `zone_sensors` (
   `sync` tinyint(4) NOT NULL,
   `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
   `zone_id` int(11),
+  `min_c` tinyint(4),
   `max_c` tinyint(4),
   `hysteresis_time` tinyint(4),
   `sp_deadband` float NOT NULL,

@@ -38,7 +38,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 //require_once (__DIR__.'/languages/'.$_COOKIE['PiHomeLanguage'].'.php');
 
 if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
-        $no_ap = 1;
+	$no_ap = 1;
 	//check id wlan0 interface is flagged as working in AP mode
 	$query = "SELECT ap_mode FROM network_settings WHERE interface_type = 'wlan0';";
 	$result_set = $conn->query($query);
@@ -60,12 +60,11 @@ if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
 	if(strpos($eth_found, 'inet ') !== false) {
         	$eth_connected = 1;
 	} else {
-        $eth_connected = 0;
+        	$eth_connected = 0;
 	}
 } else {
-        $no_ap = 0;
+	$no_ap = 0;
 }
-
 //$wifi_connected = 0;
  // start process if data is passed from url  http://192.168.99.9/index.php?user=username&pass=password
     if(($no_ap == 0 || $wifi_connected == 1 || $eth_connected == 1 || $ap_mode == 1) && isset($_GET['user']) && isset($_GET['password'])) {
@@ -329,7 +328,7 @@ html {
 	<div class="container">
         	<div class="row">
 			<br><br>
-			<h6 class="text-center"><img src="images/pi-home_logo.png" height="64"> <br><br><?php  echo settings($conn, 'name') ;?></h6>
+			<h6 class="text-center"><img src="images/brain_max_logo.png" height="64"> <br><br><?php  echo settings($conn, 'name') ;?></h6>
             		<div class="col-md-4 col-md-offset-4">
                 		<div class="login-panel panel panel-primary">
                     			<?php 
@@ -409,9 +408,9 @@ html {
     		</div>
 		<div class="col-md-8 col-md-offset-2">
 			<div class="login-panel-foother">
-				<h6><?php echo settings($conn, 'name').' '.settings($conn, 'version')."&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;".$lang['build']." ".settings($conn, 'build'); ?>&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;<?php echo $lang['powerd_by']; ?></h6>
+				<h6><?php echo settings($conn, 'name').' '.settings($conn, 'version')."&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;".$lang['build']." ".settings($conn, 'build'); ?></h6>
 				<br><br>
-				<h6><a style="color: #707070;" href="https://en.wikipedia.org/wiki/<?php echo substr($lang['dedicated_to'], strpos($lang['dedicated_to'], ":") + 2, strlen($lang['dedicated_to']) - strpos($lang['dedicated_to'], ":")); ?>" target="_blank" ><?php echo $lang['dedicated_to']; ?></a></h6>
+                                <h6><?php echo "&copy;&nbsp;".$lang['copyright']; ?></h6>
 			</div>
 		</div>
 	</div>
