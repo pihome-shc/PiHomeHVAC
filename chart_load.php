@@ -45,45 +45,34 @@ $sunset = $weather_row['sunset']* 1000 ;
 //http://php.net/manual/en/function.date-sun-info.php
 
 // create datasets based on all available zones
-$querya ="select temperature_sensors.id, temperature_sensors.name AS sensor_name, zone.id AS zone_id, zone.name AS zone_name, ztype.type, temperature_sensors.sensor_id, temperature_sensors.sensor_child_id";
-$querya = $querya." from temperature_sensors"; 
-$querya = $querya." LEFT join zone on temperature_sensors.zone_id = zone.id";
-$querya = $querya." LEFT join zone_type ztype on zone.type_id = ztype.id ";
-$querya = $querya." where temperature_sensors.`graph_it` = '1'";
-$querya = $querya." ORDER BY id ASC;";
+$querya ="select id, name, type, sensors_id, sensor_child_id from zone_view where graph_it = 1 order BY index_id asc;";
 $resulta = $conn->query($querya);
 $zones = '';
 $zonesw = '';
 while ($row = mysqli_fetch_assoc($resulta)) {
         // grab the zone names to be displayed in the plot legend
-	if($row['zone_name'] === NULL) {
-                $name=$row['sensor_name'];
-                $type='Sensor';
-        	$id=$row['id'];
-	} else {
-	        $name=$row['zone_name'];
-		$type=$row['type'];
-                $id=$row['zone_id'];
-	}
-  	$graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
-	$query="select * from zone_graphs where zone_id = {$id};";
+        $zone_name=$row['name'];
+	$zone_type=$row['type'];
+	$zone_id=$row['id'];
+  $graph_id = $row['sensors_id'].".".$row['sensor_child_id'];
+	$query="select * from zone_graphs where zone_id = {$zone_id};";
         $result = $conn->query($query);
         // create array of pairs of x and y values for every zone
         $zone_temp = array();
         $water_temp = array();
         while ($rowb = mysqli_fetch_assoc($result)) {
-                if(strpos($type, 'Heating') !== false || strpos($type, 'HVAC') !== false || strpos($type, 'Sensor') !== false) {
+                if(strpos($zone_type, 'Heating') !== false) {
                         $zone_temp[] = array(strtotime($rowb['datetime']) * 1000, $rowb['payload']);
-                } elseif((strpos($type, 'Water') !== false) || (strpos($type, 'Immersion') !== false)) {
+                } elseif((strpos($zone_type, 'Water') !== false) || (strpos($zone_type, 'Immersion') !== false)) {
                         $water_temp[] = array(strtotime($rowb['datetime']) * 1000, $rowb['payload']);
                 }
 
         }
         // create dataset entry using distinct color based on zone index(to have the same color everytime chart is opened)
-        if(strpos($type, 'Heating') !== false || strpos($type, 'HVAC') !== false || strpos($type, 'Sensor') !== false) {
-                $zones = $zones. "{label: \"".$name."\", data: ".json_encode($zone_temp).", color: '".$sensor_color[$graph_id]."'}, \n";
-        } elseif((strpos($type, 'Water') !== false) || (strpos($type, 'Immersion') !== false)) {
-                $zonesw = $zonesw. "{label: \"".$name."\", data: ".json_encode($water_temp).", color: '".$sensor_color[$graph_id]."'}, \n";
+        if(strpos($zone_type, 'Heating') !== false) {
+                $zones = $zones. "{label: \"".$zone_name."\", data: ".json_encode($zone_temp).", color: '".$sensor_color[$graph_id]."'}, \n";
+        } elseif((strpos($zone_type, 'Water') !== false) || (strpos($zone_type, 'Immersion') !== false)) {
+                $zonesw = $zonesw. "{label: \"".$zone_name."\", data: ".json_encode($water_temp).", color: '".$sensor_color[$graph_id]."'}, \n";
         }
 }
 // add outside weather temperature
@@ -97,15 +86,16 @@ $warn1 = '';
 $warn2 = '';
 while ($row = mysqli_fetch_assoc($results)) {
         if((--$count)==-1) break;
+        $zone_type=$row['type'];
         $boiler_start = strtotime($row['start_datetime']) * 1000;
         if (is_null($row['stop_datetime'])) {
                 $boiler_stop = strtotime("now") * 1000;
         } else {
                 $boiler_stop = strtotime($row['stop_datetime']) * 1000;
         }
-        if(strpos($type, 'Heating') !== false || strpos($type, 'HVAC') !== false || strpos($type, 'Sensor') !== false) {
+        if(strpos($zone_type, 'Heating') !== false) {
                 $warn1 = $warn1."{ xaxis: { from: ".$boiler_start.", to: ".$boiler_stop." }, color: \"#ffe9dc\" },  \n" ;
-        } elseif((strpos($type, 'Water') !== false) || (strpos($type, 'Immersion') !== false)) {
+        } elseif((strpos($zone_type, 'Water') !== false) || (strpos($zone_type, 'Immersion') !== false)) {
                 $warn2 = $warn2."{ xaxis: { from: ".$boiler_start.", to: ".$boiler_stop." }, color: \"#ffe9dc\" },  \n" ;
         }
 }
@@ -142,7 +132,7 @@ var dataset_hw = [
 
 // Create Zone Graphs
 var options_one = {
-    xaxis: { mode: "time", timeformat: "%H:%M"},
+    xaxis: { mode: "time", timezone: "browser", timeformat: "%H:%M"},
     series: { lines: { show: true, lineWidth: 1, fill: false}, curvedLines: { apply: true,  active: true,  monotonicFit: true } },
     grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf9f9"] }, borderColor: "#ff8839", markings: markings,},
     legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
@@ -155,7 +145,7 @@ $(document).ready(function () {
 
 // Create Hot Water Graphs
 var options_two = {
-    xaxis: { mode: "time", timeformat: "%H:%M"},
+    xaxis: { mode: "time", timezone: "browser", timeformat: "%H:%M"},
     series: { lines: { show: true, lineWidth: 1, fill: false}, curvedLines: { apply: true,  active: true,  monotonicFit: true } },
     grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf9f9"] }, borderColor: "#ff8839", markings: wmarkings,},
     legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
@@ -166,7 +156,7 @@ $(document).ready(function () {
 });
 
 var options_three = {
-    xaxis: { mode: "time", timeformat: "%H:%M"},
+    xaxis: { mode: "time", timezone: "browser", timeformat: "%H:%M"},
     series: { lines: { show: true, lineWidth: 1, fill: false}, curvedLines: { apply: true,  active: true,  monotonicFit: true } },
     grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf7f4"] }, borderColor: "#ff8839", markings: markings_boiler, },
     legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }

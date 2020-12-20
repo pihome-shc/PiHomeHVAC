@@ -187,7 +187,7 @@ if (isset($_POST['submit'])) {
         $query = "select * from schedule_daily_time_zone_view where time_id = {$time_id}";
         $zoneresults = $conn->query($query);
 } else {
-       	$query = "select zone.id as tz_id, zone.name as zone_name, zone.status as tz_status, zone_type.type, zone_type.category, zone_sensors.max_c FROM zone, zone_type, zone_sensors WHERE (zone.type_id = zone_type.id) AND (zone.id = zone_sensors.zone_id) AND status = 1 AND zone.`purge`= 0 ORDER BY index_id asc;";
+        $query = "select zone.id as tz_id, zone.name as zone_name, zone.status as tz_status, zone_type.type, zone_type.category, zone_sensors.max_c FROM zone, zone_type, zone_sensors WHERE (zone.type_id = zone_type.id) AND (zone.id = zone_sensors.zone_id) AND status = 1 AND zone.`purge`= 0 ORDER BY index_id asc;";
 	$zoneresults = $conn->query($query);
 }
 ?>
@@ -303,7 +303,6 @@ if (isset($_POST['submit'])) {
 						<hr>
 						<!-- Zone ID (tz_id) -->
 						<input type="hidden" name="id[<?php echo $row["tz_id"];?>]" value="<?php echo $row["tz_id"];?>">
-                                                <input type="hidden" name="max_c" value="<?php echo $row["max_c"];?>">
 						<?php if($time_id != 0){
 							echo '<input type="hidden" name="zoneid['.$row["tz_id"].']" value="'.$row["zone_id"].'">';
 						}?>
@@ -317,7 +316,7 @@ if (isset($_POST['submit'])) {
 
 						<!-- Group Zone Settings -->
 						<?php
-						if ($row["category"] <> 2) {
+						if ($row["category"] == 0 OR $row["category"] == 1) {
 							if($row['tz_status'] == 1 AND $time_id != 0){
 								//if($time_id != 0){
 								$style_text = "";
@@ -339,16 +338,14 @@ if (isset($_POST['submit'])) {
 									}
 									$max = $row['max_c'];
         								if(!isset($_GET['nid'])) {
-										if (settings($conn, 'mode') == 0) {
-											//<!-- Zone Coop Enable Checkbox -->
-									        	if($time_id != 0){ $check = ($row['coop'] == 1) ? 'checked' : ''; }
-										        echo '<div class="checkbox checkbox-default  checkbox-circle">
-												<input id="coop'.$row["tz_id"].'" class="styled" type="checkbox" name="coop['.$row["tz_id"].']" value="1" '.$check.'>
-											        <label for="coop'.$row["tz_id"].'">Coop Start</label> <i class="glyphicon glyphicon-leaf green"></i>
-											        <i class="fa fa-info-circle fa-lg text-info" data-container="body" data-toggle="popover" data-placement="right" data-content="'.$lang['schedule_coop_help'].'"></i>
-												<div class="help-block with-errors"></div>
-											</div>';
-										}
+										//<!-- Zone Coop Enable Checkbox -->
+								        	if($time_id != 0){ $check = ($row['coop'] == 1) ? 'checked' : ''; }
+									        echo '<div class="checkbox checkbox-default  checkbox-circle">
+											<input id="coop'.$row["tz_id"].'" class="styled" type="checkbox" name="coop['.$row["tz_id"].']" value="1" '.$check.'>
+										        <label for="coop'.$row["tz_id"].'">Coop Start</label> <i class="glyphicon glyphicon-leaf green"></i>
+										        <i class="fa fa-info-circle fa-lg text-info" data-container="body" data-toggle="popover" data-placement="right" data-content="'.$lang['schedule_coop_help'].'"></i>
+											<div class="help-block with-errors"></div>
+										</div>';
 									        // <!-- Temperature and Slider -->
 									        if($time_id != 0){ $temp = DispTemp($conn, $row['temperature']);} else { $temp = '15.0';}
 									        echo '<div class="slidecontainer">

@@ -117,6 +117,37 @@ def main():
             "24": "PA13",
             "26": "PD14",
         }
+    elif board.board_id.find('BANANA_PI_M2_ZERO') != -1:
+        pindict = {
+            "3": "PA12",
+            "5": "PA11",
+            "7": "PA6",
+            "8": "PA13",
+            "10": "PA14",
+            "11": "PA1",
+            "12": "PA16",
+            "13": "PA0",
+            "15": "PA3",
+            "16": "PA15",
+            "18": "PCC",
+            "19": "PC0",
+            "21": "PC1",
+            "22": "PA2",
+            "23": "PC2",
+            "24": "PC3",
+            "26": "PC7",
+            "27": "PA19",
+            "28": "PA18",
+            "29": "PA7",
+            "31": "PA8",
+            "32": "PL2",
+            "33": "PA9",
+            "35": "PA10",
+            "36": "PL4",
+            "37": "PA17",
+            "38": "PA21",
+            "40": "PA20",
+        }
     # check if a BEAGLEBONE
     elif board.board_id.find('BEAGLEBONE') != -1:
         # add 100 to P9 header pins so they can be referenced with an interger P9 pin number + 100

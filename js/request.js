@@ -88,12 +88,6 @@ function active_away(){
 	request('db.php', 'GET', quest, function(){ $('#homelist').load('homelist.php'); } );
 }
 
-//toggle hvac mode
-function active_sc_mode(){
-        var quest = "?w=sc_mode&o=active" + "&frost_temp=0" + "&wid=0";
-        request('db.php', 'GET', quest, function(){ $('#homelist').load('homelist.php'); } );
-}
-
 //update add_on
 function update_add_on(wid){
     var idata="w=add_on&o=update";
@@ -154,26 +148,6 @@ function update_units(){
     });
 }
 
-//update system mode
-function update_system_mode(){
-    var idata="w=system_mode&o=update";
-    idata+="&val="+$("#new_mode").val();
-    idata+="&wid=0";
-    $.get('db.php',idata)
-    .done(function(odata){
-        if(odata.Success)
-            reload_page();
-        else
-            console.log(odata.Message);
-    })
-    .fail(function( jqXHR, textStatus, errorThrown ){
-        if(jqXHR==401 || jqXHR==403) return;
-        console.log("update_system_mode: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
-    })
-    .always(function() {
-    });
-}
-
 //update language
 function update_lang(){
     var idata="w=lang&o=update";
@@ -198,7 +172,8 @@ function update_lang(){
 function boiler_settings(){
 var idata="w=boiler_settings&o=update&status="+document.getElementById("checkbox2").checked;
     idata+="&name="+document.getElementById("name").value;
-	idata+="&heat_relay_id="+document.getElementById("heat_relay_id").value;
+	idata+="&node_id="+document.getElementById("selected_node_id").value;
+	idata+="&node_child_id="+document.getElementById("node_child_id").value;
 	idata+="&hysteresis_time="+document.getElementById("hysteresis_time").value;
 	idata+="&max_operation_time="+document.getElementById("max_operation_time").value;
 	idata+="&overrun="+document.getElementById("overrun").value;
@@ -319,42 +294,6 @@ var idata="w=node&o=delete&wid="+wid;
     .fail(function( jqXHR, textStatus, errorThrown ){
         if(jqXHR==401 || jqXHR==403) return;
         console.log("delete_node: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
-    })
-    .always(function() {
-    });
-}
-
-//Delete Sensor
-function delete_sensor(wid){
-var idata="w=sensor&o=delete&wid="+wid;
-    $.get('db.php',idata)
-    .done(function(odata){
-        if(odata.Success)
-            reload_page();
-        else
-            console.log(odata.Message);
-    })
-    .fail(function( jqXHR, textStatus, errorThrown ){
-        if(jqXHR==401 || jqXHR==403) return;
-        console.log("delete_sensor: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
-    })
-    .always(function() {
-    });
-}
-
-//Delete Relay
-function delete_relay(wid){
-var idata="w=relay&o=delete&wid="+wid;
-    $.get('db.php',idata)
-    .done(function(odata){
-        if(odata.Success)
-            reload_page();
-        else
-            console.log(odata.Message);
-    })
-    .fail(function( jqXHR, textStatus, errorThrown ){
-        if(jqXHR==401 || jqXHR==403) return;
-        console.log("delete_relay: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
     })
     .always(function() {
     });
@@ -573,30 +512,6 @@ var idata="w=setup_graph&o=update";
     });
 }
 
-//update temperture sensors to display
-function show_sensors(){
-var x = document.getElementsByTagName("input");
-var i;
-var idata="w=show_sensors&o=update";
-    for (i = 0; i < x.length; i++) {
-        idata+="&"+x[i].id+"="+x[i].checked;
-    }
-    idata+="&wid=0";
-    $.get('db.php',idata)
-    .done(function(odata){
-        if(odata.Success)
-            reload_page();
-        else
-            console.log(odata.Message);
-    })
-    .fail(function( jqXHR, textStatus, errorThrown ){
-        if(jqXHR==401 || jqXHR==403) return;
-        console.log("show_sensors: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
-    })
-    .always(function() {
-    });
-}
-
 //update notice interval
 function node_alerts(){
 var x = document.getElementsByTagName("input");
@@ -636,27 +551,6 @@ function update_timezone(){
     .fail(function( jqXHR, textStatus, errorThrown ){
         if(jqXHR==401 || jqXHR==403) return;
         console.log("update_lang: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
-    })
-    .always(function() {
-    });
-}
-
-//update Default Temperature
-function update_defaut_c(){
-    var idata="w=default_temperature&o=update";
-    idata+="&default_c="+document.getElementById("default_c").value;
-    idata+="&zone_id="+document.getElementById("zone_id").value;
-    idata+="&wid=0";
-    $.get('db.php',idata)
-    .done(function(odata){
-        if(odata.Success)
-            reload_page();
-        else
-            console.log(odata.Message);
-    })
-    .fail(function( jqXHR, textStatus, errorThrown ){
-        if(jqXHR==401 || jqXHR==403) return;
-        console.log("update_default_temperature: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
     })
     .always(function() {
     });
