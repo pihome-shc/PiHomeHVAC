@@ -165,9 +165,11 @@ hostapd_config()
 		fi
 	fi
 	echo "Hostapd is installed"
-	if ! grep -F "RaspberryConnect.com" "/etc/hostapd/hostapd.conf" ;then
-		#not a autohotspot file, create backup
-		mv "/etc/hostapd/hostapd.conf" "/etc/hostapd/hostapd-RCbackup.conf"
+	if [ -f "/etc/hostapd/hostapd.conf" ]; then
+		if ! grep -F "RaspberryConnect.com" "/etc/hostapd/hostapd.conf" ;then
+			#not a autohotspot file, create backup
+			mv "/etc/hostapd/hostapd.conf" "/etc/hostapd/hostapd-RCbackup.conf"
+		fi
 	fi
 	cp "$cpath/config/hostapd.conf" /etc/hostapd/hostapd.conf
 	if [ "${osver[0]}" == "Raspbian" ]; then
