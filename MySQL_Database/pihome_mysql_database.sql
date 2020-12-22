@@ -852,6 +852,7 @@ CREATE TABLE IF NOT EXISTS `zone_sensors` (
   `zone_id` int(11),
   `min_c` tinyint(4),
   `max_c` tinyint(4),
+  `default_c` tinyint(4),
   `hysteresis_time` tinyint(4),
   `sp_deadband` float NOT NULL,
   `sensor_id` int(11),
