@@ -1,58 +1,45 @@
-<p align="center">
-    <a href="https://www.pihome.eu" target="_blank" align="center">
-        <img src="http://www.pihome.eu/images/pi-home_logo_text.png">
-    </a>
-<br/>
-</p>
+# MaxAir - Smart Thermostat
 
+### Note: Currently at Beta 1 stage.
 
-# PiHome - Smart Heating Control
+The previous version, PiHome, was centered around the creation of zones, this version is more centered around devices.
 
-![alt text](http://www.pihome.eu/images/pihome_home_page.png "PiHome - Smart Heating Control - Home Screen")
+## Setup:
 
-PiHome – Smart Heating Control is home automation system or you can say central heating control systems that runs on credit card size single board computer Raspberry Pi. You can control your home heating from your smartphone, laptop or tablet, PiHome is a wireless boiler control which mean you don’t need to run cables from pihome controller to your boiler or to your heating zone valve or to any temperature sensors in any heating zone.PiHome is active heating control of your multi zoned heating, hot water including electrical immersion with unlimited schedules, boost and night climate suites your needs.
+* Add Nodes (as per PiHome)
+* Create Temperature Measurement devices (with a node and child id)
+* Create Relay devices (with a node and child id)
+* Create Zones using the temperature measurement and relay devices created previously
+* Temperature Measurement devices can be display without the need to be allocated to a 'zombie' zone
 
-[Step by Step Instructions](http://www.pihome.eu/how-to-install/ "PiHome - Step by Step Instructions")
+* The Temperature Measurement devices can be created from the One Touch menu
+[![deploy1](https://user-images.githubusercontent.com/46624596/97433327-3a6a8880-1915-11eb-93b0-feac36159403.JPG)](https://user-images.githubusercontent.com/46624596/97433327-3a6a8880-1915-11eb-93b0-feac36159403.JPG)
 
-<p style="color:red;">Before we deep dive into this project something very important: PiHome comes with ABSOLUTELY NO WARRANTY, to the extent permitted by applicable law. DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTIL UNLESS YOU KNOW WHAT YOU ARE DOING, contents provided here are for information and education purpose only, I take no responsibility for any loss or damage to you or your property.”</p3>
+* New configuration GUIs are available for the Relays and Sensors devices
+[![deploy2](https://user-images.githubusercontent.com/46624596/97433533-946b4e00-1915-11eb-942b-75e2637affc8.JPG)](https://user-images.githubusercontent.com/46624596/97433533-946b4e00-1915-11eb-942b-75e2637affc8.JPG)
 
-###If you want to download SD card image for Raspberry Pi please visit http://www.pihome.eu 
+* Part of the reason for this version is to support HVAC systems and hence the system can be configured to work in either the existing Boiler or HVAC mode. The mode is selected from settings/system configuration menu
+[![deploy3](https://user-images.githubusercontent.com/46624596/97433816-fe83f300-1915-11eb-9ae8-5b8b38f535ee.JPG)](https://user-images.githubusercontent.com/46624596/97433816-fe83f300-1915-11eb-9ae8-5b8b38f535ee.JPG)
 
-## Smart Heating Control – Features:
-* Support Serial Gateway
-* Support Ethernet and WiFi Gateway
-* Unlimited schedule 
-* Boiler and heating zone usage graphs
-* Boost control for each Zone
-* Override for each Zone
-* Night climate
-* Away
+* The home screen will show the mode of operation
+[![deploy4](https://user-images.githubusercontent.com/46624596/97433953-33904580-1916-11eb-816c-0e33535a6831.JPG)](https://user-images.githubusercontent.com/46624596/97433953-33904580-1916-11eb-816c-0e33535a6831.JPG)
+[![deploy5](https://user-images.githubusercontent.com/46624596/97434180-8964ed80-1916-11eb-9ccf-9962900bc8f4.JPG)](https://user-images.githubusercontent.com/46624596/97434180-8964ed80-1916-11eb-9ccf-9962900bc8f4.JPG)
 
+* The 'MODE' button will cycle through the various modes of operation, for Boiler mode this is OFF, TIMER, CE, HW or BOTH, for HVAC the modes are OFF, TIMER, AUTO, HEAT, COOL or FAN.
 
-## Planned features
-A real documentation (currently there's none, but the code is self explanatory and commented as well )
-
-
-
-Follow Instructions on [PiHome](http://www.pihome.eu "PiHome - Smart Heating Control") if you have any question drop me comments and i will do my best to reply as soon as humanely possible. 
-
-![alt text](http://www.pihome.eu/images/pihome_one_touch.png "PiHome - Smart Heating Control - One Touch")
-
-![alt text](http://www.pihome.eu/images/pihome_graphs.png "PiHome - Smart Heating Control - Heating Graps")
-
-![alt text](http://www.pihome.eu/images/pihome_temperature_graps.png "PiHome - Smart Heating Control - Temperature Graps")
-
-![alt text](http://www.pihome.eu/images/pihome_settings.png "PiHome - Smart Heating Control - Settings")
+### The trusted boiler.php engine has been replaced by controller.php
 
 ## Requirements
 Basic knowledge of command line with following main components for pihome to function. 
 * Apache Web Server
 * PHP 7.x
-* MySQL/MariaDB 
+* Python 3.x
+* MySQL/MariaDB
+* Adafruit Blinka
 
 ## How To Install 
 sudo apt-get install git
-sudo git clone https://github.com/pihome-shc/pihome "/var/www"
+sudo git clone https://github.com/pihome-shc/PiHomeHVAC.git "/var/www"
 For more detailed instructiosn vist [PiHome](http://www.pihome.eu "PiHome - Smart Heating Control") website 
 
 
