@@ -2,22 +2,22 @@
 #!/usr/bin/php
 echo "\033[36m";
 echo "\n";
-echo "   _____    _   _    _                             \n";
-echo "  |  __ \  (_) | |  | |                            \n";
-echo "  | |__) |  _  | |__| |   ___    _ __ ___     ___  \n";
-echo "  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \ \n";
-echo "  | |      | | | |  | | | (_) | | | | | | | |  __/ \n";
-echo "  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___| \n";
+echo "           __  __                             _         \n";
+echo "          |  \/  |                    /\     (_)        \n";
+echo "          | \  / |   __ _  __  __    /  \     _   _ __  \n";
+echo "          | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| \n";
+echo "          | |  | | | (_| |  >  <   / ____ \  | | | |    \n";
+echo "          |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    \n";
 echo " \033[0m \n";
-echo "     \033[45m S M A R T   H E A T I N G   C O N T R O L \033[0m \n";
+echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
 echo "\033[31m";
 echo "***************************************************************\n";
-echo "*   PiHome Datase Script Version 0.41 Build Date 31/01/2018   *\n";
-echo "*   Last Modified on 27/01/2020                               *\n";
+echo "*   MaxAir Datase Script Version 0.01 Build Date 20/12/2020   *\n";
+echo "*   Last Modified on 20/12/2020                               *\n";
 echo "*                                      Have Fun - PiHome.eu   *\n";
 echo "***************************************************************\n";
 echo "\033[0m";
-echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - PiHome Database Install Script Started \n"; 
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - MaxAir Database Install Script Started \n"; 
 $line = "--------------------------------------------------------------- \n";
 
 //Set php script execution time in seconds
@@ -27,7 +27,7 @@ echo $line;
 //Check php version before doing anything else 
 $version = explode('.', PHP_VERSION);
 if ($version[0] > 7){
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - PiHome Supported on php version 5.x or above you are running version \033[41m".phpversion()."\033[0m \n"; 
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - MaxAir Supported on php version 5.x or above you are running version \033[41m".phpversion()."\033[0m \n"; 
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Please visit http://www.pihome.eu/2017/10/11/apache-php-mysql-raspberry-pi-lamp/ to install correction version. \n";
 	exit();
 }else {
@@ -46,7 +46,7 @@ echo "User Name:    ".$dbname."\n";
 echo "Password:     ".$dbpassword."\n";
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Are you sure you want to do this?  Type 'yes' to continue? \n Exiting Database will be Deleted. \n";
 echo $line;
-/*
+
 $handle = fopen ("php://stdin","r");
 $response  = fgets($handle);
 if(trim($response ) != 'yes'){
@@ -54,8 +54,6 @@ if(trim($response ) != 'yes'){
     exit;
 }
 fclose($handle);
-
-*/
 
 //Test Connection to MySQL Server with Given Username & Password 
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Testing Connection to MySQL/MariaDB Server. \n";
@@ -190,8 +188,8 @@ if (!$db_selected) {
                 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Add \033[41mSystem\033[0m Data Failed \n";
         }
 		
-		//Adding Away Record 
-		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Raspberry GPIO\n";
+		//Adding Away Record
+		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Away Status Record\n";
 		$datetime = date('Y-m-d H:i:s');
 		$query_system = "insert INTO `away` (`sync`, `purge`, `status`, start_datetime, `end_datetime`, `away_button_id`, `away_button_child_id`) VALUES (0, 0, 0, '$datetime', '$datetime', 0, 0);";
 		$query_system = str_replace("version_val",$version,$query_system);
@@ -202,38 +200,36 @@ if (!$db_selected) {
 		} else {
 				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Away Status \033[41mAway\033[0m Data Failed \n";
 		}
-		
-		//Adding Raspberry pi GPIO 
-		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Raspberry GPIO\n";
+
+		//Adding GPIO
+		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding GPIO Definition\n";
 		$datetime = date('Y-m-d H:i:s');
 		$query_system = "insert INTO `nodes` (`sync`, `purge`, `type`, node_id, `max_child_id`, `name`, `last_seen`, `notice_interval`, `min_value`, `status`, `ms_version`, `sketch_version`, `repeater`) VALUES (0, 0, 'GPIO', 0, 0, 'GPIO Controller', '$datetime', 0, '0', 'Active', 0, 0, 0);";
 		$query_system = str_replace("version_val",$version,$query_system);
 		$query_system = str_replace("build_val",$build,$query_system);
 		$results = $conn->query($query_system);
 		if ($results) {
-			echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Raspberry Pi GPIO Added \033[41mGPIO\033[0m Data Succeeded \n";
+			echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - GPIO Definition Added \033[41mGPIO\033[0m Data Succeeded \n";
 			$node_id = $conn->insert_id;
 		} else {
-			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Raspberry Pi GPIO \033[41mGPIO\033[0m Data Failed \n";
+			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - GPIO Definition \033[41mGPIO\033[0m Data Failed \n";
 		}
-		
-		//Addming Boiler Record 
-		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Raspberry GPIO\n";
+
+		//Adding System Controller Record
+		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding System Controller Record\n";
 		$datetime = date('Y-m-d H:i:s');
-		$query_system = "insert INTO `boiler` (`sync`, `purge`, `status`, `fired_status`, `name`, `node_id`, `node_child_id`, `hysteresis_time`, `max_operation_time`, `overrun`, `datetime`) VALUES (0, 0, 1, 0, 'Gas Boiler', '$node_id', 0, 3, 60, 2, '$datetime');";
-		$query_system = str_replace("version_val",$version,$query_system);
-		$query_system = str_replace("build_val",$build,$query_system);
+		$query_system = "insert INTO `system_controller` (`sync`, `purge`, `mode`, `status`, `active_status`, `name`, `hysteresis_time`, `max_operation_time`, `overrun`, `datetime`, `sc_mode`, `sc_mode_prev`, `heat_relay_id`, `cool_relay_id`, `fan_relay_id`) VALUES (0, 0, 0, 1, 0, 'Gas Boiler', 3, 60, 2, '$datetime', 0, 0, 0, 0, 0);";
 		$results = $conn->query($query_system);
 		if ($results) {
-				echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Boiler Record Added \033[41mBoiler\033[0m Data Succeeded \n";
+				echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Record Added \033[41mSystem Controller\033[0m Data Succeeded \n";
 		} else {
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Boiler Record \033[41mSBoiler\033[0m Data Failed \n";
+				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Record \033[41mSystem Controller\033[0m Data Failed \n";
 		}
 
 		//Adding Zone Type Records 
 		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Zone Type\n";
 		$datetime = date('Y-m-d H:i:s');
-		$query_zone_type = "insert INTO `zone_type` (`purge`, `sync`, `type`, `category`) VALUES (0, 0, 'Heating', 0), ('Water', 0), (0, 0, 'Immersion', 1), (0, 0, 'Lamp', 2);";
+		$query_zone_type = "insert INTO `zone_type` (`purge`, `sync`, `type`, `category`) VALUES (0, 0, 'Heating', 0), (0, 0, 'Water', 0), (0, 0, 'Immersion', 1), (0, 0, 'Lamp', 2);";
 		$results = $conn->query($query_zone_type);
 		if ($results) {
 				echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Type Records Added \033[41mZone Type\033[0m Data Succeeded \n";

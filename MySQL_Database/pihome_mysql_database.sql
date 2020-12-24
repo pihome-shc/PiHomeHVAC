@@ -119,23 +119,23 @@ CREATE TABLE `system_controller` (
 /*!40000 ALTER TABLE `system_controller` DISABLE KEYS */;
 /*!40000 ALTER TABLE `system_controller` ENABLE KEYS */;
 
--- Dumping structure for table pihome.boiler_logs
-DROP TABLE IF EXISTS `boiler_logs`;
-CREATE TABLE IF NOT EXISTS `boiler_logs` (
+-- Dumping structure for table pihome.system_controller_logs
+DROP TABLE IF EXISTS `system_controller_logs`;
+CREATE TABLE `system_controller_logs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sync` tinyint(4) NOT NULL,
   `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
-  `start_datetime` timestamp NULL,
-  `start_cause` char(50) COLLATE utf16_bin,
-  `stop_datetime` timestamp NULL,
-  `stop_cause` char(50) COLLATE utf16_bin,
-  `expected_end_date_time` timestamp NULL,
+  `start_datetime` timestamp NULL DEFAULT NULL,
+  `start_cause` char(50) COLLATE utf16_bin DEFAULT NULL,
+  `stop_datetime` timestamp NULL DEFAULT NULL,
+  `stop_cause` char(50) COLLATE utf16_bin DEFAULT NULL,
+  `expected_end_date_time` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=133 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.boiler_logs: ~0 rows (approximately)
-/*!40000 ALTER TABLE `boiler_logs` DISABLE KEYS */;
-/*!40000 ALTER TABLE `boiler_logs` ENABLE KEYS */;
+-- Dumping data for table pihome.system_controller_logs: ~0 rows (approximately)
+/*!40000 ALTER TABLE `system_controller_logs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `system_controller_logs` ENABLE KEYS */;
 
 -- Dumping structure for table pihome.boost
 DROP TABLE IF EXISTS `boost`;
@@ -155,6 +155,25 @@ CREATE TABLE IF NOT EXISTS `boost` (
   KEY `FK_boost_zone` (`zone_id`),
   CONSTRAINT `FK_boost_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
+
+-- Table structure for table `controller_relays`
+DROP TABLE IF EXISTS `controller_relays`;
+CREATE TABLE `controller_relays` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sync` tinyint(4) NOT NULL,
+  `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
+  `controler_id` int(11) DEFAULT NULL,
+  `controler_child_id` int(11) DEFAULT NULL,
+  `name` char(50) COLLATE utf8_bin DEFAULT NULL,
+  `type` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_controller_relays_nodes` (`controler_id`),
+  CONSTRAINT `FK_temperature_controller_relays` FOREIGN KEY (`controler_id`) REFERENCES `nodes` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- Dumping data for table `controller_relays`
+/*!40000 ALTER TABLE `controller_relays` DISABLE KEYS */;
+/*!40000 ALTER TABLE `controller_relays` ENABLE KEYS */;
 
 -- Dumping data for table pihome.boost: ~6 rows (approximately)
 /*!40000 ALTER TABLE `boost` DISABLE KEYS */;
@@ -367,8 +386,8 @@ CREATE TABLE IF NOT EXISTS `network_settings` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
 -- Dumping data for table pihome.network_settings: ~0 rows (approximately)
-/*!40000 ALTER TABLE `system` DISABLE KEYS */;
-/*!40000 ALTER TABLE `system` ENABLE KEYS */;
+/*!40000 ALTER TABLE `network_settings` DISABLE KEYS */;
+/*!40000 ALTER TABLE `network_settings` ENABLE KEYS */;
 
 -- Dumping structure for table pihome.nodes
 DROP TABLE IF EXISTS `nodes`;
@@ -485,7 +504,6 @@ CREATE TABLE `piconnect` (
   `zone_logs` bit(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 -- Dumping data for table pihome.piconnect: ~0 rows (approximately)
 /*!40000 ALTER TABLE `piconnect` DISABLE KEYS */;
@@ -637,6 +655,30 @@ CREATE TABLE IF NOT EXISTS `system` (
 /*!40000 ALTER TABLE `system` DISABLE KEYS */;
 /*!40000 ALTER TABLE `system` ENABLE KEYS */;
 
+-- Dumping structure for table pihome.temperature_sensors
+DROP TABLE IF EXISTS `temperature_sensors`;
+CREATE TABLE `temperature_sensors` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sync` tinyint(4) NOT NULL,
+  `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
+  `zone_id` int(11) DEFAULT NULL,
+  `sensor_id` int(11) DEFAULT NULL,
+  `sensor_child_id` int(11) DEFAULT NULL,
+  `index_id` tinyint(4) NOT NULL,
+  `pre_post` tinyint(1) NOT NULL,
+  `name` char(50) COLLATE utf8_bin DEFAULT NULL,
+  `graph_it` tinyint(1) NOT NULL,
+  `show_it` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_temperature_sensors_nodes` (`sensor_id`),
+  KEY `FK_temperature_sensors_zone` (`zone_id`),
+  CONSTRAINT `FK_temperature_sensors_nodes` FOREIGN KEY (`sensor_id`) REFERENCES `nodes` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- Dumping data for table pihome.temperature_sensors: ~0 rows (approximately)
+/*!40000 ALTER TABLE `temperature_sensors` DISABLE KEYS */;
+/*!40000 ALTER TABLE `temperature_sensors` ENABLE KEYS */;
+
 -- Dumping structure for table pihome.user
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE IF NOT EXISTS `user` (
@@ -720,21 +762,22 @@ CREATE TABLE IF NOT EXISTS `zone` (
 
 -- Dumping structure for table pihome.zone_controllers
 DROP TABLE IF EXISTS `zone_controllers`;
-CREATE TABLE IF NOT EXISTS `zone_controllers` (
+CREATE TABLE `zone_controllers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sync` tinyint(4) NOT NULL,
   `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
-  `state` tinyint(4),
-  `current_state` tinyint(4),
-  `zone_id` int(11),
-  `controler_id` int(11),
-  `controler_child_id` int(11),
+  `state` tinyint(4) DEFAULT NULL,
+  `current_state` tinyint(4) NOT NULL,
+  `zone_id` int(11) DEFAULT NULL,
+  `controller_relay_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `FK_zone_controllers_nodes` (`controler_id`),
   KEY `FK_zone_controllers_zone` (`zone_id`),
-  CONSTRAINT `FK_zone_controllers_nodes` FOREIGN KEY (`controler_id`) REFERENCES `nodes` (`id`),
   CONSTRAINT `FK_zone_controllers_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=88 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- Dumping data for table pihome.zone_controllers: 
+/*!40000 ALTER TABLE `zone_controllers` DISABLE KEYS */;
+/*!40000 ALTER TABLE `zone_controllers` ENABLE KEYS */;
 
 -- Dumping structure for table pihome.zone_current_state
 DROP TABLE IF EXISTS `zone_current_state`;
@@ -787,12 +830,12 @@ CREATE TABLE IF NOT EXISTS `zone_logs` (
   `sync` tinyint(4) NOT NULL,
   `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
   `zone_id` int(11),
-  `boiler_log_id` int(11),
+  `system_controller_log_id` int(11),
   `status` int(11),
   PRIMARY KEY (`id`),
   KEY `FK_zone_logs_zone` (`zone_id`),
-  KEY `FK_zone_logs_boiler_logs` (`boiler_log_id`),
-  CONSTRAINT `FK_zone_logs_boiler_logs` FOREIGN KEY (`boiler_log_id`) REFERENCES `boiler_logs` (`id`),
+  KEY `FK_zone_logs_system_controller_logs` (`system_controller_log_id`),
+  CONSTRAINT `FK_zone_logs_system_controller_logs` FOREIGN KEY (`system_controller_log_id`) REFERENCES `system_controller_logs` (`id`),
   CONSTRAINT `FK_zone_logs_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
@@ -809,6 +852,7 @@ CREATE TABLE IF NOT EXISTS `zone_sensors` (
   `zone_id` int(11),
   `min_c` tinyint(4),
   `max_c` tinyint(4),
+  `default_c` tinyint(4),
   `hysteresis_time` tinyint(4),
   `sp_deadband` float NOT NULL,
   `sensor_id` int(11),
