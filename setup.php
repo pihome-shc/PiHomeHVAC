@@ -2,23 +2,23 @@
 #!/usr/bin/php
 echo "\033[36m";
 echo "\n";
-echo "   _____    _   _    _                             \n";
-echo "  |  __ \  (_) | |  | |                            \n";
-echo "  | |__) |  _  | |__| |   ___    _ __ ___     ___  \n";
-echo "  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \ \n";
-echo "  | |      | | | |  | | | (_) | | | | | | | |  __/ \n";
-echo "  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___| \n";
+echo "           __  __                             _         \n";
+echo "          |  \/  |                    /\     (_)        \n";
+echo "          | \  / |   __ _  __  __    /  \     _   _ __  \n";
+echo "          | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| \n";
+echo "          | |  | | | (_| |  >  <   / ____ \  | | | |    \n";
+echo "          |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    \n";
 echo " \033[0m \n";
-echo "     \033[45m S M A R T   H E A T I N G   C O N T R O L \033[0m \n";
+echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
 echo "\033[31m";
 echo "***************************************************************\n";
-echo "*   PiHome Install Script Version 0.3 Build Date 31/01/2018   *\n";
-echo "*   Last Modified on 13/05/2018                               *\n";
+echo "*   MaxAir Datase Script Version 0.01 Build Date 20/12/2020   *\n";
+echo "*   Last Modified on 20/12/2020                               *\n";
 echo "*                                      Have Fun - PiHome.eu   *\n";
 echo "***************************************************************\n";
 echo "\033[0m";
-echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - PiHome Install Script Started \n"; 
-echo "---------------------------------------------------------------------------------------- \n";
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - MaxAir Install Script Started \n";
+$line = "--------------------------------------------------------------- \n";
 
 //Set php script execution time in seconds
 ini_set('max_execution_time', 400); 
@@ -156,17 +156,17 @@ if (file_exists($cronfile)) {
 $output = shell_exec('crontab -l');
 //Add CronJobs 
 $message = '#
-#   _____    _   _    _
-#  |  __ \  (_) | |  | |
-#  | |__) |  _  | |__| |   ___    _ __ ___     ___
-#  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \
-#  | |      | | | |  | | | (_) | | | | | | | |  __/
-#  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|
+#            __  __                             _
+#           |  \/  |                    /\     (_)
+#           | \  / |   __ _  __  __    /  \     _   _ __
+#           | |\/| |  / _` | \ \/ /   / /\ \   | | | '__|
+#           | |  | | | (_| |  >  <   / ____ \  | | | |
+#           |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 #
-#     S M A R T   H E A T I N G   C O N T R O L
+#                     S M A R T   THERMOSTAT
 #*************************************************************************
-#* PiHome is Raspberry Pi based Central Heating Control systems. It runs *
-#* from web interface and it comes with ABSOLUTELY NO WARRANTY, to the   *
+#* MaxAir is LINUX  based Central Heating Control systems. It runs from  *
+#* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *
 #* extent permitted by applicable law. I take no responsibility for any  *
 #* loss or damage to you or your property.                               *
 #* DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTILL UNLESS YOU KNOW *
@@ -246,14 +246,14 @@ $query_user = str_replace("date1",$date_time,$query_user);
 $query_user = str_replace("date2",$date_time,$query_user);
 $results = $conn->query($query_user);
 if ($results) {
-        echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Add \033[41mUser\033[0m Data  Succeeded \n";
+	echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Add \033[41mUser\033[0m Data  Succeeded \n";
 } else {
-        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Add \033[41mUser\033[0m Data Failed \n";
+      	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Add \033[41mUser\033[0m Data Failed \n";
 }
 
 // Add System table data 
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Creating System Table.  \n";
-$query_system = "REPLACE INTO `system` (`id`, `sync`, `purge`, `name`, `version`, `build`, `update_location`, `update_file`, `update_alias`, `country`, `language`, `city`, `zip`, `openweather_api`, `backup_email`, `ping_home`, `timezone`, `shutdown`, `reboot`, `c_f`) VALUES (2, 1, 0, 'PiHome - Smart Heating Control', 'version_val', 'build_val', 'http://www.pihome.eu/updates/', 'current-release-versions.php', 'pihome', 'IE', 'en', 'Portlaoise', NULL, 'aa22d10d34b1e6cb32bd6a5f2cb3fb46', '', b'1', 'Europe/Dublin', 0, 0, 0);";
+$query_system = "REPLACE INTO `system` (`id`, `sync`, `purge`, `name`, `version`, `build`, `update_location`, `update_file`, `update_alias`, `country`, `language`, `city`, `zip`, `openweather_api`, `backup_email`, `ping_home`, `timezone`, `shutdown`, `reboot`, `c_f`) VALUES (2, 1, 0, 'MaxAir - Smart Thermostat', 'version_val', 'build_val', 'http://www.pihome.eu/updates/', 'current-release-versions.php', 'pihome', 'IE', 'en', 'Portlaoise', NULL, 'aa22d10d34b1e6cb32bd6a5f2cb3fb46', '', b'1', 'Europe/Dublin', 0, 0, 0);";
 $query_system = str_replace("version_val",$version,$query_system);
 $query_system = str_replace("build_val",$build,$query_system);
 $results = $conn->query($query_system);
@@ -276,26 +276,22 @@ if ($results) {
         echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Away Status \033[41mAway\033[0m Data Failed \n";
 }
 
-//Adding Raspberry pi GPIO 
-echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Raspberry GPIO\n";
+//Adding GPIO 
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding GPIO\n";
 $datetime = date('Y-m-d H:i:s');
 $query_system = "insert INTO `nodes` (`sync`, `purge`, `type`, node_id, `max_child_id`, `name`, `last_seen`, `notice_interval`, `min_value`, `status`, `ms_version`, `sketch_version`, `repeater`) VALUES (0, 0, 'GPIO', 0, 0, 'GPIO Controller', '$datetime', 0, '0', 'Active', 0, 0, 0);";
-$query_system = str_replace("version_val",$version,$query_system);
-$query_system = str_replace("build_val",$build,$query_system);
 $results = $conn->query($query_system);
 if ($results) {
-	echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Raspberry Pi GPIO Added \033[41mGPIO\033[0m Data  Succeeded \n";
+	echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - GPIO Added \033[41mGPIO\033[0m Data  Succeeded \n";
 	$node_id = $conn->insert_id;
 } else {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Raspberry Pi GPIO \033[41mGPIO\033[0m Data Failed \n";
 }
 
-//Addming Boiler Record 
-echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Raspberry GPIO\n";
+//Adding System Controller Record
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding System Controller Record\n";
 $datetime = date('Y-m-d H:i:s');
-$query_system = "insert INTO `boiler` (`sync`, `purge`, `status`, `fired_status`, `name`, `node_id`, `node_child_id`, `hysteresis_time`, `max_operation_time`, `overrun`, `datetime`) VALUES (0, 0, 1, 0, 'Gas Boiler', '$node_id', 0, 3, 60, 2, '$datetime');";
-$query_system = str_replace("version_val",$version,$query_system);
-$query_system = str_replace("build_val",$build,$query_system);
+$query_system = "insert INTO `system_controller` (`sync`, `purge`, `mode`, `status`, `active_status`, `name`, `hysteresis_time`, `max_operation_time`, `overrun`, `datetime`, `sc_mode`, `sc_mode_prev`, `heat_relay_id`, `cool_relay_id`, `fan_relay_id`) VALUES (0, 0, 0, 1, 0, 'Gas Boiler', 3, 60, 2, '$datetime', 0, 0, 0, 0, 0);";
 $results = $conn->query($query_system);
 if ($results) {
         echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Boiler Record Added \033[41mBoiler\033[0m Data  Succeeded \n";
@@ -306,7 +302,7 @@ if ($results) {
 //Adding Zone Type Records 
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Zone Type\n";
 $datetime = date('Y-m-d H:i:s');
-$query_zone_type = "insert INTO `zone_type` (`type`, `category`) VALUES ('Heating', 0), ('Water', 0), ('Immersion', 1), ('Lamp', 2);";
+$query_zone_type = "insert INTO `zone_type` (`purge`, `sync`, `type`, `category`) VALUES (0, 0, 'Heating', 0), (0, 0, 'Water', 0), (0, 0, 'Immersion', 1), (0, 0, 'Lamp', 2);";
 $results = $conn->query($query_zone_type);
 if ($results) {
 		echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Type Records Added \033[41mZone Type\033[0m Data  Succeeded \n";
@@ -529,6 +525,6 @@ if ($tzname == 1) {
 }
 
 echo "---------------------------------------------------------------------------------------- \n";
-echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - PiHome Install Script Ended \n"; 
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - MaxAir Install Script Ended \n"; 
 echo "\033[32m****************************************************************************************\033[0m  \n";
 ?>
