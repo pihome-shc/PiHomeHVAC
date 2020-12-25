@@ -267,8 +267,6 @@ if ($results) {
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Raspberry GPIO\n";
 $datetime = date('Y-m-d H:i:s');
 $query_system = "insert INTO `away` (`sync`, `purge`, `status`, start_datetime, `end_datetime`, `away_button_id`, `away_button_child_id`) VALUES (0, 0, 0, '$datetime', '$datetime', 0, 0);";
-$query_system = str_replace("version_val",$version,$query_system);
-$query_system = str_replace("build_val",$build,$query_system);
 $results = $conn->query($query_system);
 if ($results) {
         echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Away Status Record Added \033[41mAway\033[0m Data  Succeeded \n";
@@ -294,9 +292,9 @@ $datetime = date('Y-m-d H:i:s');
 $query_system = "insert INTO `system_controller` (`sync`, `purge`, `mode`, `status`, `active_status`, `name`, `hysteresis_time`, `max_operation_time`, `overrun`, `datetime`, `sc_mode`, `sc_mode_prev`, `heat_relay_id`, `cool_relay_id`, `fan_relay_id`) VALUES (0, 0, 0, 1, 0, 'Gas Boiler', 3, 60, 2, '$datetime', 0, 0, 0, 0, 0);";
 $results = $conn->query($query_system);
 if ($results) {
-        echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Boiler Record Added \033[41mBoiler\033[0m Data  Succeeded \n";
+        echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Record Added \033[41mSystem Controller\033[0m Data  Succeeded \n";
 } else {
-        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Boiler Record \033[41mSBoiler\033[0m Data Failed \n";
+        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller \033[41mSSystem Controller\033[0m Data Failed \n";
 }
 
 //Adding Zone Type Records 
