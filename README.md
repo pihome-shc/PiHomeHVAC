@@ -30,7 +30,7 @@ The previous version, PiHome, was centered around the creation of zones, this ve
 ### The trusted boiler.php engine has been replaced by controller.php
 
 ## Requirements
-Basic knowledge of command line with following main components for pihome to function. 
+Basic knowledge of command line with following main components for MaxAir to function. 
 * Apache Web Server
 * PHP 7.x
 * Python 3.x
