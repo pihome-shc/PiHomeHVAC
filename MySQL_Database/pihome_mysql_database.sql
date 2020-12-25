@@ -749,7 +749,6 @@ CREATE TABLE IF NOT EXISTS `zone` (
   `index_id` tinyint(4),
   `name` char(50) COLLATE utf8_bin,
   `type_id` int(11),
-  `graph_it` tinyint(1) NOT NULL,
   `max_operation_time` SMALLINT(4),
   PRIMARY KEY (`id`),
   KEY `FK_zone_type_id` (`type_id`),
@@ -855,12 +854,11 @@ CREATE TABLE IF NOT EXISTS `zone_sensors` (
   `default_c` tinyint(4),
   `hysteresis_time` tinyint(4),
   `sp_deadband` float NOT NULL,
-  `sensor_id` int(11),
-  `sensor_child_id` int(11),
+  `temperature_sensor_id` int(11),
   PRIMARY KEY (`id`),
-  KEY `FK_zone_sensors_nodes` (`sensor_id`),
   KEY `FK_zone_sensors_zone` (`zone_id`),
-  CONSTRAINT `FK_zone_sensors_nodes` FOREIGN KEY (`sensor_id`) REFERENCES `nodes` (`id`),
+  KEY `FK_zone_sensors_temperature_sensors` (`temperature_sensor_id`),
+  CONSTRAINT `FK_zone_sensors_temperature_sensors` FOREIGN KEY (`temperature_sensor_id`) REFERENCES `temperature_sensors` (`id`),
   CONSTRAINT `FK_zone_sensors_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
