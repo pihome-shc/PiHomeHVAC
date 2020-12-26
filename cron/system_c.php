@@ -23,7 +23,7 @@ require_once(__DIR__.'../../st_inc/functions.php');
 
 $date_time = date('Y-m-d H:i:s');
 $output = shell_exec("cat /proc/cpuinfo | grep 'Hardware' | awk '{print $3}'");
-if (strpos($output, 'Allwinner') !== false) {
+if (strpos($output, 'Allwinner') !== false or strpos($output, 'sun50iw1p1') !== false) {
         $system_c = (exec ("cat /sys/class/thermal/thermal_zone0/temp|cut -c1-2"));
 } else {
         $system_c = exec ("vcgencmd measure_temp | cut -c6,7,8,9");
