@@ -105,7 +105,7 @@ CREATE TABLE `system_controller` (
   `name` char(50) CHARACTER SET utf16 COLLATE utf16_bin,
   `node_id` int(11),
   `hysteresis_time` tinyint(4),
-  `max_operation_time` tinyint(4) DEFAULT,
+  `max_operation_time` tinyint(4),
   `overrun` smallint(6),
   `datetime` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   `sc_mode` tinyint(4),
