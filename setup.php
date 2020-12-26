@@ -239,6 +239,33 @@ if (file_exists($cronfile)) {
 	unlink($cronfile);
 }
 
+// Check/Add sudoers file /etc/sudoers.d/maxair
+$sudoersfile = '/etc/sudoers.d/maxair';
+$message = 'www-data ALL=(ALL) NOPASSWD:/usr/sbin/iwlist wlan0 scan
+www-data ALL=(ALL) NOPASSWD:/usr/sbin/reboot
+www-data ALL=(ALL) NOPASSWD:/usr/bin/mv myfile.tmp /etc/wpa_supplicant/wpa_supplicant.conf
+www-data ALL=(ALL) NOPASSWD:/usr/sbin/ifconfig eth0
+www-data ALL=/bin/systemctl
+www-data ALL=NOPASSWD: /bin/systemctl
+
+';
+if (file_exists($sudoersfile)) {
+        $output = shell_exec('cat '.$sudoersfile);
+        if ($message==$output) {
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Valid maxair sudoers Exist, No changes required \n";
+        } else {
+                //Remove existing sudoers File
+                echo exec('rm -f '.$sudoersfile);
+                //Save updated sudoers File
+                file_put_contents($sudoersfile, $message);
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - maxair sudoers file Replaced. \n";
+        }
+} else {
+        //Save new sudoers File
+        file_put_contents($sudoersfile, $message);
+        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - New maxair sudoers file Added. \n";
+}
+
 // Add User table data 
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Creating User Table.  \n";
 $query_user = "REPLACE INTO `user` (`id`, `account_enable`, `fullname`, `username`, `email`, `password`, `cpdate`, `account_date`, `backup`, `users`, `support`, `settings`) VALUES(1, 1, 'Administrator', 'admin', '', '0f5f9ba0136d5a8588b3fc70ec752869', 'date1', 'date2', 1, 1, 1, 1);";
