@@ -37,10 +37,12 @@ Basic knowledge of command line with following main components for MaxAir to fun
 * MySQL/MariaDB
 * Adafruit Blinka
 
-## How To Install 
-sudo apt-get install git
-sudo git clone https://github.com/pihome-shc/PiHomeHVAC.git "/var/www"
-For more detailed instructiosn vist [PiHome](http://www.pihome.eu "PiHome - Smart Heating Control") website 
+## How To Install
+* sudo rm -R /var/www
+* sudo apt-get install git
+* sudo git clone https://github.com/pihome-shc/PiHomeHVAC.git "/var/www"
+* sudo chown -R www-data:www-data /var/www
+* For more detailed instructiosn vist [PiHome](http://www.pihome.eu "PiHome - Smart Heating Control") website 
 
 
 ## Secial Thanks to
