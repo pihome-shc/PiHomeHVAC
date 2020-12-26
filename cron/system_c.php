@@ -22,7 +22,12 @@ require_once(__DIR__.'../../st_inc/connection.php');
 require_once(__DIR__.'../../st_inc/functions.php');
 
 $date_time = date('Y-m-d H:i:s');
-$system_c = exec ("vcgencmd measure_temp | cut -c6,7,8,9");
+$output = shell_exec("cat /proc/cpuinfo | grep 'Hardware' | awk '{print $3}'");
+if (strpos($output, 'Allwinner') !== false) {
+        $system_c = (exec ("cat /sys/class/thermal/thermal_zone0/temp|cut -c1-2"));
+} else {
+        $system_c = exec ("vcgencmd measure_temp | cut -c6,7,8,9");
+}
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Temperature: ". $system_c."\n";
 
 if ($system_c == 0) {

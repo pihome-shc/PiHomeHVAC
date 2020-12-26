@@ -602,7 +602,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                         if ($lt_status==1) {$lt_status='red';}else{$lt_status='blue';}
                         echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" href="#livetemperature" data-backdrop="static" data-keyboard="false">
                         <h3 class="text-info"><small>'.$lang['live_temp'].'</small></h3>
-			<h3 class="degre" ><img src="images/temp_30.png" border="0"></h3>
+			<h3 class="degre" ><img src="images/temp_20.png" border="0"></h3>
                         <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$lt_status.'"></i></small></h3>
                         </button>';
 
