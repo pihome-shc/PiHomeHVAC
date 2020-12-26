@@ -42,6 +42,7 @@ Basic knowledge of command line with following main components for MaxAir to fun
 * sudo apt-get install git
 * sudo git clone https://github.com/pihome-shc/PiHomeHVAC.git "/var/www"
 * sudo chown -R www-data:www-data /var/www
+* sudo php /var/www/setup.php
 
 ### For more detailed instructiosn vist [PiHome](http://www.pihome.eu "PiHome - Smart Heating Control") website 
 
