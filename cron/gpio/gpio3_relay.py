@@ -10,14 +10,14 @@ class bc:
 	ylw = '\033[93m'
 	fail = '\033[91m'
 print(bc.hed + " ")
-print("  _____    _   _    _                            ")
-print(" |  __ \  (_) | |  | |                           ")
-print(" | |__) |  _  | |__| |   ___    _ __ ___     ___ ")
-print(" |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \ ")
-print(" | |      | | | |  | | | (_) | | | | | | | |  __/")
-print(" |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|")
+print("    __  __                             _         ")
+print("   |  \/  |                    /\     (_)        ")
+print("   | \  / |   __ _  __  __    /  \     _   _ __  ")
+print("   | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| ")
+print("   | |  | | | (_| |  >  <   / ____ \  | | | |    ")
+print("   |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
 print(" ")
-print("    " +bc.SUB + "S M A R T   H E A T I N G   C O N T R O L " + bc.ENDC)
+print("             " +bc.SUB + "S M A R T   THERMOSTAT " + bc.ENDC)
 print(bc.WARN +" ")
 print("********************************************************")
 print("*   GPIO Interface Relay Support Communication Script  *")
@@ -116,6 +116,26 @@ def main():
             "23": "PA14",
             "24": "PA13",
             "26": "PD14",
+        }
+    elif board.board_id.find('ORANGE_PI_ZERO_2') != -1:
+        pindict = {
+            "3": "PH5",
+            "5": "PH4",
+            "7": "PC9",
+            "8": "PH2",
+            "10": "PH3",
+            "11": "PC6",
+            "12": "PC11",
+            "13": "PC5",
+            "15": "PC8",
+            "16": "PC15",
+            "18": "PC14",
+            "19": "PH7",
+            "21": "PH8",
+            "22": "PC7",
+            "23": "PH6",
+            "24": "PH9",
+            "26": "PC10",
         }
     elif board.board_id.find('BANANA_PI_M2_ZERO') != -1:
         pindict = {
