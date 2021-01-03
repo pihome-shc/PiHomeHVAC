@@ -12,14 +12,14 @@ class bc:
 	GREEN = '\033[0;32;40m'
 	org = '\033[91m'
 print bc.HEADER + " "	
-print "  _____    _   _    _                            "
-print " |  __ \  (_) | |  | |                           "
-print " | |__) |  _  | |__| |   ___    _ __ ___     ___ "
-print " |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \ "
-print " | |      | | | |  | | | (_) | | | | | | | |  __/"
-print " |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|"
-print " "
-print "    "+bc.SUB + "S M A R T   H E A T I N G   C O N T R O L "+ bc.ENDC
+print("    __  __                             _         ")
+print("   |  \/  |                    /\     (_)        ")
+print("   | \  / |   __ _  __  __    /  \     _   _ __  ")
+print("   | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| ")
+print("   | |  | | | (_| |  >  <   / ____ \  | | | |    ")
+print("   |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
+print(" ")
+print("             " +bc.SUB + "S M A R T   THERMOSTAT " + bc.ENDC)
 print bc.WARN +" "
 print "*************************************************************************"
 print "* PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
