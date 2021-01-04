@@ -25,13 +25,13 @@ require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 
 //create array of colours for the graphs
-$query ="SELECT nodes.node_id, zone_sensors.sensor_child_id FROM nodes, zone_sensors WHERE nodes.id = zone_sensors.sensor_id ORDER BY node_id ASC;";
+$query ="SELECT * FROM temperature_sensors ORDER BY id ASC;";
 $result = $conn->query($query);
 $counter = 0;
 $count = mysqli_num_rows($result) + 2; //extra space made for system temperature graph
 $sensor_color = array();
 while ($row = mysqli_fetch_assoc($result)) {
-        $graph_id = $row['node_id'].".".$row['sensor_child_id'];
+        $graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
         $sensor_color[$graph_id] = graph_color($count, ++$counter);
 }
 ?>
