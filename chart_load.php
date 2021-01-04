@@ -1,17 +1,17 @@
 <?php
 /*
-   _____    _   _    _
-  |  __ \  (_) | |  | |
-  | |__) |  _  | |__| |   ___    _ __ ___     ___
-  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \
-  | |      | | | |  | | | (_) | | | | | | | |  __/
-  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|
+             __  __                             _
+            |  \/  |                    /\     (_)
+            | \  / |   __ _  __  __    /  \     _   _ __
+            | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+            | |  | | | (_| |  >  <   / ____ \  | | | |
+            |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 
-     S M A R T   H E A T I N G   C O N T R O L
+                      S M A R T   THERMOSTAT
 
 *************************************************************************"
-* PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
-* from web interface and it comes with ABSOLUTELY NO WARRANTY, to the   *"
+* MaxAir is a Linux based Central Heating Control systems. It runs from *"
+* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *"
 * extent permitted by applicable law. I take no responsibility for any  *"
 * loss or damage to you or your property.                               *"
 * DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTILL UNLESS YOU KNOW *"
@@ -45,17 +45,27 @@ $sunset = $weather_row['sunset']* 1000 ;
 //http://php.net/manual/en/function.date-sun-info.php
 
 // create datasets based on all available zones
-$querya ="select id, name, type, sensors_id, sensor_child_id from zone_view where graph_it = 1 order BY index_id asc;";
+$querya ="select temperature_sensors.id, temperature_sensors.name AS sensor_name, zone.name AS zone_name, ztype.type, temperature_sensors.sensor_id, temperature_sensors.sensor_child_id";
+$querya = $querya." from temperature_sensors";
+$querya = $querya." LEFT join zone on temperature_sensors.zone_id = zone.id";
+$querya = $querya." LEFT join zone_type ztype on zone.type_id = ztype.id ";
+$querya = $querya." where temperature_sensors.`graph_it` = '1'";
+$querya = $querya." ORDER BY id ASC;";
 $resulta = $conn->query($querya);
 $zones = '';
 $zonesw = '';
 while ($row = mysqli_fetch_assoc($resulta)) {
         // grab the zone names to be displayed in the plot legend
-        $zone_name=$row['name'];
-	$zone_type=$row['type'];
-	$zone_id=$row['id'];
-  $graph_id = $row['sensors_id'].".".$row['sensor_child_id'];
-	$query="select * from zone_graphs where zone_id = {$zone_id};";
+        if($row['zone_name'] === NULL) {
+                $name=$row['sensor_name'];
+                $type='Sensor';
+        } else {
+                $name=$row['zone_name'];
+                $type=$row['type'];
+        }
+        $id=$row['id'];
+        $graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
+        $query="select * from zone_graphs where zone_id = {$id};";
         $result = $conn->query($query);
         // create array of pairs of x and y values for every zone
         $zone_temp = array();
@@ -69,16 +79,16 @@ while ($row = mysqli_fetch_assoc($resulta)) {
 
         }
         // create dataset entry using distinct color based on zone index(to have the same color everytime chart is opened)
-        if(strpos($zone_type, 'Heating') !== false) {
-                $zones = $zones. "{label: \"".$zone_name."\", data: ".json_encode($zone_temp).", color: '".$sensor_color[$graph_id]."'}, \n";
-        } elseif((strpos($zone_type, 'Water') !== false) || (strpos($zone_type, 'Immersion') !== false)) {
-                $zonesw = $zonesw. "{label: \"".$zone_name."\", data: ".json_encode($water_temp).", color: '".$sensor_color[$graph_id]."'}, \n";
+        if(strpos($type, 'Heating') !== false || strpos($type, 'Sensor') !== false) {
+                $zones = $zones. "{label: \"".$name."\", data: ".json_encode($zone_temp).", color: '".$sensor_color[$graph_id]."'}, \n";
+        } elseif((strpos($type, 'Water') !== false) || (strpos($type, 'Immersion') !== false)) {
+                $zonesw = $zonesw. "{label: \"".$name."\", data: ".json_encode($water_temp).", color: '".$sensor_color[$graph_id]."'}, \n";
         }
 }
 // add outside weather temperature
 $zonesw = $zonesw."{label: \"".$lang['graph_outsie']."\", data: ".json_encode($weather_c).", color: '".graph_color($count, ++$counter)."'}, \n";
 
-//background-color for boiler on time
+//background-color for system controller on time
 $query="select start_datetime, stop_datetime, type from zone_log_view where status= '1' AND start_datetime > current_timestamp() - interval 24 hour;";
 $results = $conn->query($query);
 $count=mysqli_num_rows($results);
@@ -86,17 +96,16 @@ $warn1 = '';
 $warn2 = '';
 while ($row = mysqli_fetch_assoc($results)) {
         if((--$count)==-1) break;
-        $zone_type=$row['type'];
-        $boiler_start = strtotime($row['start_datetime']) * 1000;
+        $system_controller_start = strtotime($row['start_datetime']) * 1000;
         if (is_null($row['stop_datetime'])) {
-                $boiler_stop = strtotime("now") * 1000;
+                $system_controller_stop = strtotime("now") * 1000;
         } else {
-                $boiler_stop = strtotime($row['stop_datetime']) * 1000;
+                $system_controller_stop = strtotime($row['stop_datetime']) * 1000;
         }
-        if(strpos($zone_type, 'Heating') !== false) {
-                $warn1 = $warn1."{ xaxis: { from: ".$boiler_start.", to: ".$boiler_stop." }, color: \"#ffe9dc\" },  \n" ;
-        } elseif((strpos($zone_type, 'Water') !== false) || (strpos($zone_type, 'Immersion') !== false)) {
-                $warn2 = $warn2."{ xaxis: { from: ".$boiler_start.", to: ".$boiler_stop." }, color: \"#ffe9dc\" },  \n" ;
+        if(strpos($type, 'Heating') !== false || strpos($type, 'Sensor') !== false) {
+                $warn1 = $warn1."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
+        } elseif((strpos($type, 'Water') !== false) || (strpos($type, 'Immersion') !== false)) {
+                $warn2 = $warn2."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
         }
 }
 
@@ -120,7 +129,7 @@ var dataset = [ <?php echo $zones ?>];
 var wdataset = [ <?php echo $zonesw ?>];
 var markings = [ <?php echo $warn1 ?> ];
 var wmarkings = [ <?php echo $warn2 ?> ];
-var markings_boiler = [ <?php echo $warn1.$warn2 ?> ];
+var markings_system_controller = [ <?php echo $warn1.$warn2 ?> ];
 // Create System Graphs
 var system_c = <?php echo json_encode($system_c); ?>;
 //var pi_box = <?php echo json_encode($pi_box); ?>;
@@ -158,7 +167,7 @@ $(document).ready(function () {
 var options_three = {
     xaxis: { mode: "time", timezone: "browser", timeformat: "%H:%M"},
     series: { lines: { show: true, lineWidth: 1, fill: false}, curvedLines: { apply: true,  active: true,  monotonicFit: true } },
-    grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf7f4"] }, borderColor: "#ff8839", markings: markings_boiler, },
+    grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf7f4"] }, borderColor: "#ff8839", markings: markings_system_controller, },
     legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
 };
 
