@@ -21,8 +21,8 @@ print("             " +bc.SUB + "S M A R T   THERMOSTAT " + bc.ENDC)
 print(bc.WARN +" ")
 print("********************************************************")
 print("*   GPIO Interface Relay Support Communication Script  *")
-print("*    Build Date: 25/04/2020 Version 0.01               *")
-print("*    Last Modified: 25/04/2020                         *")
+print("*    Build Date: 25/04/2020 Version 0.02               *")
+print("*    Last Modified: 03/01/2021                         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -116,6 +116,26 @@ def main():
             "23": "PA14",
             "24": "PA13",
             "26": "PD14",
+        }
+    elif board.board_id.find('ORANGE_PI_ZERO') != -1:
+        pindict = {
+            "3": "PA12",
+            "5": "PA11",
+            "7": "PA6",
+            "8": "PG62",
+            "10": "PG7",
+            "11": "PA1",
+            "12": "PA7",
+            "13": "PA0",
+            "15": "PA3",
+            "16": "PA19",
+            "18": "PA18",
+            "19": "PA15",
+            "21": "PA16",
+            "22": "PA2",
+            "23": "PA14",
+            "24": "PA13",
+            "26": "PA10",
         }
     elif board.board_id.find('ORANGE_PI_ZERO_2') != -1:
         pindict = {
