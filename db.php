@@ -1,13 +1,12 @@
 <?php 
 /*
-   _____    _   _    _                             
-  |  __ \  (_) | |  | |                            
-  | |__) |  _  | |__| |   ___    _ __ ___     ___  
-  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \ 
-  | |      | | | |  | | | (_) | | | | | | | |  __/ 
-  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___| 
-
-     S M A R T   H E A T I N G   C O N T R O L 
+             __  __                             _
+            |  \/  |                    /\     (_)
+            | \  / |   __ _  __  __    /  \     _   _ __
+            | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+            | |  | | | (_| |  >  <   / ____ \  | | | |
+            |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
+                      S M A R T   THERMOSTAT
 
 *************************************************************************"
 * PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
@@ -1104,7 +1103,7 @@ if($what=="setup_graph"){
         $sel_query = "SELECT * FROM temperature_sensors ORDER BY id asc;";
         $results = $conn->query($sel_query);
         while ($row = mysqli_fetch_assoc($results)) {
-                $checkbox = 'checkbox'.$row['id'];
+                $checkbox = 'checkbox_graph'.$row['id'];
                 $graph_it =  $_GET[$checkbox];
                 if ($graph_it=='true'){$graph_it = '1';} else {$graph_it = '0';}
                 $query = "UPDATE temperature_sensors SET graph_it = '".$graph_it."' WHERE id = '".$row['id']."' LIMIT 1;";
