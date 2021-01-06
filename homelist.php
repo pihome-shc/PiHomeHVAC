@@ -1,13 +1,12 @@
 <?php
 /*
-   _____    _   _    _
-  |  __ \  (_) | |  | |
-  | |__) |  _  | |__| |   ___    _ __ ___     ___
-  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \
-  | |      | | | |  | | | (_) | | | | | | | |  __/
-  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|
-
-     S M A R T   H E A T I N G   C O N T R O L
+             __  __                             _
+            |  \/  |                    /\     (_)
+            | \  / |   __ _  __  __    /  \     _   _ __
+            | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+            | |  | | | (_| |  >  <   / ____ \  | | | |
+            |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
+                      S M A R T   THERMOSTAT
 
 *************************************************************************"
 * PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
@@ -487,7 +486,8 @@ require_once(__DIR__.'/st_inc/functions.php');
 			</div>
 			<!-- /.modal fade -->
 			';
-		}	// end if boiler button
+		}	
+		// end if boiler button
 
 		// Temperature Sensors Post System Controller
 		$query = "SELECT temperature_sensors.name, temperature_sensors.sensor_child_id, nodes.node_id, nodes.last_seen, nodes.notice_interval FROM temperature_sensors, nodes WHERE (nodes.id = temperature_sensors.sensor_id) AND temperature_sensors.zone_id = 0 AND temperature_sensors.show_it = 1 AND temperature_sensors.pre_post = 0 order by index_id asc;";

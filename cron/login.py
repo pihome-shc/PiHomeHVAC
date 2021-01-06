@@ -22,8 +22,8 @@ print(" ")
 print("             " +bc.SUB + "S M A R T   THERMOSTAT " + bc.ENDC)
 print bc.WARN +" "
 print "*************************************************************************"
-print "* PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
-print "* from web interface and it comes with ABSOLUTELY NO WARRANTY, to the   *"
+print "* MaxAir is a Linux based Central Heating Control systems. It runs from *"
+print "* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *"
 print "* extent permitted by applicable law. I take no responsibility for any  *"
 print "* loss or damage to you or your property.                               *"
 print "* DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTILL UNLESS YOU KNOW *"
