@@ -746,6 +746,7 @@ echo '<p class="text-muted">'.$lang['node_add_info_text'].'</p>
 	<option value="I2C" selected="selected">I2C</option>
 	<option value="GPIO">GPIO</option>
         <option value="Tasmota">Tasmota</option>
+        <option value="Dummy">Dummy</option>
 	</select>
     <div class="help-block with-errors"></div></div>
 
