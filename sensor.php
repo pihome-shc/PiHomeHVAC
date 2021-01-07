@@ -1,13 +1,13 @@
 <?php
 /*
-   _____    _   _    _
-  |  __ \  (_) | |  | |
-  | |__) |  _  | |__| |   ___    _ __ ___     ___
-  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \
-  | |      | | | |  | | | (_) | | | | | | | |  __/
-  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|
+             __  __                             _
+            |  \/  |                    /\     (_)
+            | \  / |   __ _  __  __    /  \     _   _ __
+            | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+            | |  | | | (_| |  >  <   / ____ \  | | | |
+            |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 
-     S M A R T   H E A T I N G   C O N T R O L
+                      S M A R T   THERMOSTAT
 
 *************************************************************************"
 * PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
@@ -45,7 +45,7 @@ if (isset($_POST['submit'])) {
         $purge= '0';
 
 	//Add or Edit Sensor record to temperature_sensors Table
-	$query = "INSERT INTO `temperature_sensors` (`id`, `sync`, `purge`, `zone_id`, `sensor_id`, `sensor_child_id`, `index_id`, `pre_post`, `name`, `graph_it`, `show_it`) VALUES ('{$id}', '{$sync}', '{$purge}', '0', '{$sensor_id}', '{$sensor_child_id}', '{$index_id}', '{$pre_post}', '{$name}', '1', '1') ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), sensor_id=VALUES(sensor_id), sensor_child_id=VALUES(sensor_child_id), index_id=VALUES(index_id), pre_post=VALUES(pre_post), name=VALUES(name), graph_it=VALUES(graph_it), show_it=VALUES(show_it);";
+	$query = "INSERT INTO `temperature_sensors` (`id`, `sync`, `purge`, `zone_id`, `sensor_id`, `sensor_child_id`, `index_id`, `pre_post`, `name`, `graph_num`, `show_it`) VALUES ('{$id}', '{$sync}', '{$purge}', '0', '{$sensor_id}', '{$sensor_child_id}', '{$index_id}', '{$pre_post}', '{$name}', '0', '1') ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), sensor_id=VALUES(sensor_id), sensor_child_id=VALUES(sensor_child_id), index_id=VALUES(index_id), pre_post=VALUES(pre_post), name=VALUES(name), graph_num=VALUES(graph_num), show_it=VALUES(show_it);";
 	$result = $conn->query($query);
         $temp_id = mysqli_insert_id($conn);
 	if ($result) {
@@ -156,7 +156,7 @@ function SensorChildList(value)
 }
 </script>
 <input type="hidden" id="selected_sensor_id" name="selected_sensor_id" value="<?php echo $rownode['node_id']?>"/>
-<input type="hidden" id="graph_it" name="graph_it" value="<?php echo $row['graph_it']?>"/>
+<input type="hidden" id="graph_num" name="graph_num" value="<?php echo $row['graph_num']?>"/>
 <input type="hidden" id="show_it" name="show_it" value="<?php echo $row['show_it']?>"/>
 
 <!-- Temperature Sensor Child ID -->

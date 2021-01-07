@@ -77,8 +77,8 @@ def insertDB(IDs, temperature):
 				name = results[5]
 				type = results[6]
 				category = int(results[7])
-				graph_it = int(results[8])
-				if category < 2 and graph_it == 1:
+				graph_num = int(results[8])
+				if category < 2 and graph_num > 0:
 					print(bc.dtm + time.ctime() + bc.ENDC + ' - Adding Temperature Reading to Graph Table From Node ID:', IDs[i], ' PayLoad:', temperature[i])
 					cur.execute('INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', (0,0,zone_id,name,type,category,IDs[i],0,0,round(temperature[i],2),time.strftime("%Y-%m-%d %H:%M:%S")))
 					con.commit()

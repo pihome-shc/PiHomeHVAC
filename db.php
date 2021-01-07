@@ -1103,10 +1103,9 @@ if($what=="setup_graph"){
         $sel_query = "SELECT * FROM temperature_sensors ORDER BY id asc;";
         $results = $conn->query($sel_query);
         while ($row = mysqli_fetch_assoc($results)) {
-                $checkbox = 'checkbox_graph'.$row['id'];
-                $graph_it =  $_GET[$checkbox];
-                if ($graph_it=='true'){$graph_it = '1';} else {$graph_it = '0';}
-                $query = "UPDATE temperature_sensors SET graph_it = '".$graph_it."' WHERE id = '".$row['id']."' LIMIT 1;";
+                $input = 'graph_num'.$row['id'];
+                $graph_num =  $_GET[$input];
+                $query = "UPDATE temperature_sensors SET graph_num = '".$graph_num."' WHERE id = '".$row['id']."' LIMIT 1;";
                 $update_error=0;
                 if(!$conn->query($query)){
                         $update_error=1;

@@ -1,12 +1,12 @@
 /*
-   _____    _   _    _
-  |  __ \  (_) | |  | |
-  | |__) |  _  | |__| |   ___    _ __ ___     ___
-  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \
-  | |      | | | |  | | | (_) | | | | | | | |  __/
-  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|
+             __  __                             _
+            |  \/  |                    /\     (_)
+            | \  / |   __ _  __  __    /  \     _   _ __
+            | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+            | |  | | | (_| |  >  <   / ____ \  | | | |
+            |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 
-     S M A R T   H E A T I N G   C O N T R O L
+                    S M A R T   T H E R M O S T A T
 
 *************************************************************************"
 * PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
@@ -40,7 +40,7 @@ where sdtz.`purge` = '0' order by zone.index_id;
 -- Zones View version 2
 Drop View if exists zone_view;
 CREATE VIEW zone_view AS
-select zone.status, zone.zone_state, zone.sync, zone.id, zone.index_id, zone.name, ztype.type, ztype.category, ts.graph_it, zs.min_c, zs.max_c, zs.default_c, max_operation_time, zs.hysteresis_time,
+select zone.status, zone.zone_state, zone.sync, zone.id, zone.index_id, zone.name, ztype.type, ztype.category, ts.graph_num, zs.min_c, zs.max_c, zs.default_c, max_operation_time, zs.hysteresis_time,
 zs.sp_deadband, sid.node_id as sensors_id, ts.sensor_child_id,
 ctype.`type` AS controller_type, cr.controler_id as controler_id, cr.controler_child_id,
 IFNULL(lasts.last_seen, lasts_2.last_seen) as last_seen, IFNULL(msv.ms_version, msv_2.ms_version) as ms_version, IFNULL(skv.sketch_version, skv_2.sketch_version) as sketch_version

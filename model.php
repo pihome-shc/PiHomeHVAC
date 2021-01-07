@@ -201,17 +201,20 @@ echo '
 <p class="text-muted">'.$lang['graph_settings_text'].'</p>';
 $query = "select * from temperature_sensors order by name asc";
 $results = $conn->query($query);
-echo '  <div class=\"list-group\">';
+echo '  <table class="table table-bordered">
+    <tr>
+        <th class="col-xs-10"><small>'.$lang['sensor_name'].'</small></th>
+        <th class="col-xs-2"><small>'.$lang['graph_num'].'</small></th>
+    </tr>';
 while ($row = mysqli_fetch_assoc($results)) {
-?>
-        <hr>
-        <div class="checkbox checkbox-default  checkbox-circle">
-        <input id="checkbox_graph<?php echo $row["id"];?>" class="styled" type="checkbox" name="graph_it[<?php echo $row["id"];?>]" value="1" <?php $check = ($row['graph_it'] == 1) ? 'checked' : ''; echo $check; ?> onclick="$('#<?php echo $row["id"];?>').toggle();">
-        <label for="checkbox_graph<?php echo $row["id"];?>"><?php echo $row["name"];?></label>
-        <div class="help-block with-errors"></div></div>
-<?php }
+    echo '
+        <tr>
+            <td>'.$row["name"].'</td>
+            <td><input id="graph_num'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="graph_num" size="3" value="'.$row["graph_num"].'" placeholder="Graph Number" required></td>
+        </tr>';
+}
 echo '
-</div></div>
+</table></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
                 <input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="setup_graph()">
