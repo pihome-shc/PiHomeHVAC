@@ -313,8 +313,8 @@ try:
                                                 name = results[name_to_index['name']]
                                                 type = results[name_to_index['type']]
                                                 category = int(results[name_to_index['category']])
-                                                graph_it = int(results[name_to_index['graph_it']])
-                                                if category < 2 and graph_it == 1:
+                                                graph_num = int(results[name_to_index['graph_num']])
+                                                if category < 2 and graph_num > 0:
                                                         if dbgLevel >= 2 and dbgMsgIn == 1:
                                                                 print("5a: Adding Temperature Reading to Graph Table From Node ID:", node_id, " Child Sensor ID:", child_sensor_id, " PayLoad:", payload)
                                                         cur.execute('INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', (0,0,zone_id,name,type,category,node_id,child_sensor_id,sub_type,payload,timestamp))
