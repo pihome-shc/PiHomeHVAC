@@ -1,12 +1,12 @@
 -- ------------------------------------------------------------------------
---  _____    _   _    _
--- |  __ \  (_) | |  | |
--- | |__) |  _  | |__| |   ___    _ __ ___     ___
--- |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \
--- | |      | | | |  | | | (_) | | | | | | | |  __/
--- |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|
+--     __  __                             _
+--    |  \/  |                    /\     (_)
+--    | \  / |   __ _  __  __    /  \     _   _ __
+--    | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+--    | |  | | | (_| |  >  <   / ____ \  | | | |
+''    |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 --
---    S M A R T   H E A T I N G   C O N T R O L
+--          S M A R T   T H E R M O S T A T
 --
 -- *************************************************************************
 -- * PiHome is Raspberry Pi based Central Heating Control systems. It runs *
@@ -668,7 +668,7 @@ CREATE TABLE `temperature_sensors` (
   `index_id` tinyint(4) NOT NULL,
   `pre_post` tinyint(1) NOT NULL,
   `name` char(50) COLLATE utf8_bin DEFAULT NULL,
-  `graph_it` tinyint(1) NOT NULL,
+  `graph_num` tinyint(4) NOT NULL,
   `show_it` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_temperature_sensors_nodes` (`sensor_id`),
