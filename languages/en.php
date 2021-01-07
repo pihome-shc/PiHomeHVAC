@@ -548,4 +548,5 @@ $lang['zone_default_temperature_info'] = "Default temperature this Zone, used wh
 $lang['hvac_function'] = "HVAC Function";
 $lang['hvac_boost_info_text'] = "Create Boost Option for HVAC Function";
 $lang['system_controller'] = "System Controller";
+$lang['graph_num'] = "Graph Number";
 ?>
