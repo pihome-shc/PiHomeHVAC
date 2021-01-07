@@ -1,17 +1,17 @@
 <?php
 /*
-             __  __                             _
-            |  \/  |                    /\     (_)
-            | \  / |   __ _  __  __    /  \     _   _ __
-            | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
-            | |  | | | (_| |  >  <   / ____ \  | | | |
-            |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
+   _____    _   _    _
+  |  __ \  (_) | |  | |
+  | |__) |  _  | |__| |   ___    _ __ ___     ___
+  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \
+  | |      | | | |  | | | (_) | | | | | | | |  __/
+  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|
 
-                      S M A R T   THERMOSTAT
+     S M A R T   H E A T I N G   C O N T R O L
 
 *************************************************************************"
-* MaxAir is a Linux based Central Heating Control systems. It runs from *"
-* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *"
+* PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
+* from web interface and it comes with ABSOLUTELY NO WARRANTY, to the   *"
 * extent permitted by applicable law. I take no responsibility for any  *"
 * loss or damage to you or your property.                               *"
 * DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTILL UNLESS YOU KNOW *"
@@ -44,49 +44,47 @@ $sunset = $weather_row['sunset']* 1000 ;
 //date_sun_info ( int $time , float $latitude , float $longitude )
 //http://php.net/manual/en/function.date-sun-info.php
 
-// create datasets based on all available zones
-$querya ="select temperature_sensors.id, temperature_sensors.name AS sensor_name, zone.name AS zone_name, ztype.type, temperature_sensors.sensor_id, temperature_sensors.sensor_child_id";
-$querya = $querya." from temperature_sensors";
-$querya = $querya." LEFT join zone on temperature_sensors.zone_id = zone.id";
-$querya = $querya." LEFT join zone_type ztype on zone.type_id = ztype.id ";
-$querya = $querya." where temperature_sensors.`graph_it` = '1'";
-$querya = $querya." ORDER BY id ASC;";
+// create datasets based on all available sensors
+$querya ="SELECT * FROM temperature_sensors WHERE graph_num > 0 ORDER BY id ASC;";
 $resulta = $conn->query($querya);
-$zones = '';
-$zonesw = '';
+$graph1 = '';
+$graph2 = '';
+$graph3 = '';
 while ($row = mysqli_fetch_assoc($resulta)) {
-        // grab the zone names to be displayed in the plot legend
-        if($row['zone_name'] === NULL) {
-                $name=$row['sensor_name'];
-                $type='Sensor';
-        } else {
-                $name=$row['zone_name'];
-                $type=$row['type'];
-        }
-        $id=$row['id'];
-        $graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
-        $query="select * from zone_graphs where zone_id = {$id};";
+        // grab the sensor names to be displayed in the plot legend
+	$name=$row['name'];
+	$id=$row['id'];
+  	$graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
+        $graph_num = $row['graph_num'];
+	$query="select * from zone_graphs where zone_id = {$id};";
         $result = $conn->query($query);
         // create array of pairs of x and y values for every zone
-        $zone_temp = array();
-        $water_temp = array();
+        $graph1_temp = array();
+        $graph2_temp = array();
+        $graph3_temp = array();
         while ($rowb = mysqli_fetch_assoc($result)) {
-                if(strpos($zone_type, 'Heating') !== false) {
-                        $zone_temp[] = array(strtotime($rowb['datetime']) * 1000, $rowb['payload']);
-                } elseif((strpos($zone_type, 'Water') !== false) || (strpos($zone_type, 'Immersion') !== false)) {
-                        $water_temp[] = array(strtotime($rowb['datetime']) * 1000, $rowb['payload']);
-                }
-
+                if($graph_num == 1) {
+                        $graph1_temp[] = array(strtotime($rowb['datetime']) * 1000, $rowb['payload']);
+                } elseif($graph_num == 2) {
+                        $graph2_temp[] = array(strtotime($rowb['datetime']) * 1000, $rowb['payload']);
+                } elseif($graph_num == 3) {
+                        $graph3_temp[] = array(strtotime($rowb['datetime']) * 1000, $rowb['payload']);
+		}
         }
         // create dataset entry using distinct color based on zone index(to have the same color everytime chart is opened)
-        if(strpos($type, 'Heating') !== false || strpos($type, 'Sensor') !== false) {
-                $zones = $zones. "{label: \"".$name."\", data: ".json_encode($zone_temp).", color: '".$sensor_color[$graph_id]."'}, \n";
-        } elseif((strpos($type, 'Water') !== false) || (strpos($type, 'Immersion') !== false)) {
-                $zonesw = $zonesw. "{label: \"".$name."\", data: ".json_encode($water_temp).", color: '".$sensor_color[$graph_id]."'}, \n";
-        }
+        if($graph_num == 1) {
+                $graph1 = $graph1. "{label: \"".$name."\", data: ".json_encode($graph1_temp).", color: '".$sensor_color[$graph_id]."'}, \n";
+        } elseif($graph_num == 2) {
+                $graph2 = $graph2. "{label: \"".$name."\", data: ".json_encode($graph2_temp).", color: '".$sensor_color[$graph_id]."'}, \n";
+        } elseif($graph_num == 3) {
+                $graph3 = $graph3. "{label: \"".$name."\", data: ".json_encode($graph3_temp).", color: '".$sensor_color[$graph_id]."'}, \n";
+	}
 }
 // add outside weather temperature
-$zonesw = $zonesw."{label: \"".$lang['graph_outsie']."\", data: ".json_encode($weather_c).", color: '".graph_color($count, ++$counter)."'}, \n";
+$graph2 = $graph2."{label: \"".$lang['graph_outsie']."\", data: ".json_encode($weather_c).", color: '".graph_color($count, ++$counter)."'}, \n";
+
+// add CPU temperature
+$graph3 = $graph3."{label: \"".$lang['cpu']."\", data: ".json_encode($system_c).", color: '".graph_color($count, ++$counter)."'}, \n";
 
 //background-color for system controller on time
 $query="select start_datetime, stop_datetime, type from zone_log_view where status= '1' AND start_datetime > current_timestamp() - interval 24 hour;";
@@ -94,6 +92,7 @@ $results = $conn->query($query);
 $count=mysqli_num_rows($results);
 $warn1 = '';
 $warn2 = '';
+$warn3 = '';
 while ($row = mysqli_fetch_assoc($results)) {
         if((--$count)==-1) break;
         $system_controller_start = strtotime($row['start_datetime']) * 1000;
@@ -102,11 +101,13 @@ while ($row = mysqli_fetch_assoc($results)) {
         } else {
                 $system_controller_stop = strtotime($row['stop_datetime']) * 1000;
         }
-        if(strpos($type, 'Heating') !== false || strpos($type, 'Sensor') !== false) {
+        if($graph_num == 1) {
                 $warn1 = $warn1."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
-        } elseif((strpos($type, 'Water') !== false) || (strpos($type, 'Immersion') !== false)) {
+        } elseif($graph_num == 2) {
                 $warn2 = $warn2."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
-        }
+        } elseif($graph_num == 3) {
+                $warn3 = $warn3."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
+	}
 }
 
 //only show on chart page footer  ?>
@@ -124,24 +125,17 @@ while ($row = mysqli_fetch_assoc($results)) {
 	<script type="text/javascript" src="js/plugins/flot/curvedLines.js"></script>
 
 <script type="text/javascript">
-// Create datasets for zones, and zone markings
-var dataset = [ <?php echo $zones ?>];
-var wdataset = [ <?php echo $zonesw ?>];
+// Create datasets for graphs, and graph markings
+var dataset = [ <?php echo $graph1 ?>];
+var wdataset = [ <?php echo $graph2 ?>];
+var hdataset = [ <?php echo $graph3 ?>];
 var markings = [ <?php echo $warn1 ?> ];
 var wmarkings = [ <?php echo $warn2 ?> ];
-var markings_system_controller = [ <?php echo $warn1.$warn2 ?> ];
-// Create System Graphs
-var system_c = <?php echo json_encode($system_c); ?>;
-//var pi_box = <?php echo json_encode($pi_box); ?>;
-//var dataset_hw = [{label: "CPU  ", data: system_c, color: "#DE000F"},{label: "Pi Box  ", data: pi_box, color: "#7D0096"} ];
-//var dataset_hw = [{label: "CPU  ", data: system_c, color: "#DE000F"}, {label: "FLOW ", data: bflow_c, color: "#0077FF"}];
-var dataset_hw = [
-        {label: "<?php echo $lang['cpu']; ?>  ", data: system_c, color: "#0077FF"}
-];
+var hmarkings = [ <?php echo $warn3 ?> ];
 
-// Create Zone Graphs
+// Create Graph 1
 var options_one = {
-    xaxis: { mode: "time", timezone: "browser", timeformat: "%H:%M"},
+    xaxis: { mode: "time", timeformat: "%H:%M"},
     series: { lines: { show: true, lineWidth: 1, fill: false}, curvedLines: { apply: true,  active: true,  monotonicFit: true } },
     grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf9f9"] }, borderColor: "#ff8839", markings: markings,},
     legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
@@ -152,9 +146,9 @@ $(document).ready(function () {
     $("#placeholder").UseTooltip();
 });
 
-// Create Hot Water Graphs
+// Create Graphs 2
 var options_two = {
-    xaxis: { mode: "time", timezone: "browser", timeformat: "%H:%M"},
+    xaxis: { mode: "time", timeformat: "%H:%M"},
     series: { lines: { show: true, lineWidth: 1, fill: false}, curvedLines: { apply: true,  active: true,  monotonicFit: true } },
     grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf9f9"] }, borderColor: "#ff8839", markings: wmarkings,},
     legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
@@ -164,14 +158,15 @@ $(document).ready(function () {
 	$("#graph2").UseTooltip();
 });
 
+// Create Graphs 3
 var options_three = {
-    xaxis: { mode: "time", timezone: "browser", timeformat: "%H:%M"},
+    xaxis: { mode: "time", timeformat: "%H:%M"},
     series: { lines: { show: true, lineWidth: 1, fill: false}, curvedLines: { apply: true,  active: true,  monotonicFit: true } },
-    grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf7f4"] }, borderColor: "#ff8839", markings: markings_system_controller, },
+    grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf7f4"] }, borderColor: "#ff8839", markings: hmarkings, },
     legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
 };
 
-$(document).ready(function () {$.plot($("#graph3"), dataset_hw, options_three);$("#graph3").UseTooltip();});
+$(document).ready(function () {$.plot($("#graph3"), hdataset, options_three);$("#graph3").UseTooltip();});
 var previousPoint = null, previousLabel = null;
 
 $.fn.UseTooltip = function () {
@@ -351,3 +346,4 @@ function showTooltip(x, y, color, contents) {
     }).appendTo("body").fadeIn(200);
 }
 </script>
+
