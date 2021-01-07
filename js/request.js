@@ -298,7 +298,11 @@ function add_node(){
 var idata="w=node&o=add&node_type="+document.getElementById("node_type").value;
 	idata+="&add_node_id="+document.getElementById("add_node_id").value;
 	idata+="&nodes_max_child_id="+document.getElementById("nodes_max_child_id").value;
-	idata+="&node_name="+document.getElementById("node_type").value+" Controller";
+        idata+="&node_name="+document.getElementById("node_type").value;
+        if(document.getElementById("node_type").value == "Dummy")
+                idata+=" Sensor";
+        else
+                idata+=" Controller";
         idata+="&notice_interval=0";
     idata+="&wid=0";
     $.get('db.php',idata)
