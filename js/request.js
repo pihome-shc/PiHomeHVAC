@@ -569,7 +569,7 @@ var x = document.getElementsByTagName("input");
 var i;
 var idata="w=setup_graph&o=update";
     for (i = 0; i < x.length; i++) {
-        idata+="&"+x[i].id+"="+x[i].checked;
+        idata+="&"+x[i].id+"="+x[i].value;
     }
     idata+="&wid=0";
     $.get('db.php',idata)
