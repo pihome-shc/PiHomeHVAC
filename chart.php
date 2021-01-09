@@ -7,7 +7,7 @@
             | |  | | | (_| |  >  <   / ____ \  | | | |
             |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 
-                      S M A R T   THERMOSTAT
+                    S M A R T   T H E R M O S T A T
 
 *************************************************************************"
 * MaxAir is a Linux based Central Heating Control systems. It runs from *"

@@ -98,6 +98,12 @@ try:
 		print(bc.grn + "UDP Port:      ",gatewayport, bc.ENDC)
 
 	msgcount = 0 # Defining variable for counting messages processed
+	
+	# Get the network address for use by Tasmota devices
+	cur.execute('SELECT gateway_address FROM network_settings where interface_type = "wlan0" limit 1')
+	row = cur.fetchone()
+	net_gw = row[0]
+	net_gw = net_gw[0:(net_gw.rfind(".")+1)]
 
 	while 1:
 	## Outgoing messages
@@ -165,7 +171,7 @@ try:
 				con.commit() #commit above
 			else:
 				# process the Sonoff device HTTP action
-				url = 'http://' + base_ip.group(0) + str(out_child_id) + '/cm'
+				url = 'http://' + net_gw + str(out_child_id) + '/cm'
 				cmd = out_payload.split(' ')[0].upper()
 				param = out_payload.split(' ')[1]
 				myobj = {'cmnd': str(out_payload)}

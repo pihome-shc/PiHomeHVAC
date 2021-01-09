@@ -455,6 +455,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 				if ($zone_category == 2) {
 					$current_state = $zone_controllers[$crow]["zone_controller_current_state"];
         	                        $add_on_state = $zone_controllers[$crow]["zone_controller_state"];
+                                        $zone_controler_child_id = $zone_controllers[$crow]["controler_child_id"];
 					if (($zone_current_mode == 114) && ($current_state != $add_on_state)) {
                         	        	$query = "UPDATE override SET status = 1, sync = '0' WHERE zone_id = {$zone_id};";
                                 	        $conn->query($query);
@@ -1136,6 +1137,8 @@ while ($row = mysqli_fetch_assoc($results)) {
 		if ($debug_msg == 1) { echo "zone_status - ".$zone_status."\n"; }
                 if ($zone_category == 3) {
 			$query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', temp_target = {$target_c},temp_cut_in = {$temp_cut_out_rising}, temp_cut_out = {$temp_cut_out}, controler_fault = {$zone_ctr_fault}, sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
+                } elseif ($zone_category == 2) {
+                        $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}' WHERE zone_id ={$zone_id} LIMIT 1;";
 		} else {
 	                $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', temp_target = {$target_c},temp_cut_in = {$temp_cut_in}, temp_cut_out = {$temp_cut_out}, controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}', sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
 		}
