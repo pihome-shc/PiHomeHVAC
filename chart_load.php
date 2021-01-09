@@ -92,7 +92,6 @@ $results = $conn->query($query);
 $count=mysqli_num_rows($results);
 $warn1 = '';
 $warn2 = '';
-$warn3 = '';
 while ($row = mysqli_fetch_assoc($results)) {
         if((--$count)==-1) break;
         $system_controller_start = strtotime($row['start_datetime']) * 1000;
@@ -101,12 +100,10 @@ while ($row = mysqli_fetch_assoc($results)) {
         } else {
                 $system_controller_stop = strtotime($row['stop_datetime']) * 1000;
         }
-        if($graph_num == 1) {
+        if(strpos($zone_type, 'Heating') {
                 $warn1 = $warn1."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
-        } elseif($graph_num == 2) {
+        } elseif((strpos($zone_type, 'Water') !== false) || (strpos($zone_type, 'Immersion') !== false)) {
                 $warn2 = $warn2."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
-        } elseif($graph_num == 3) {
-                $warn3 = $warn3."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
 	}
 }
 
@@ -131,7 +128,7 @@ var wdataset = [ <?php echo $graph2 ?>];
 var hdataset = [ <?php echo $graph3 ?>];
 var markings = [ <?php echo $warn1 ?> ];
 var wmarkings = [ <?php echo $warn2 ?> ];
-var hmarkings = [ <?php echo $warn3 ?> ];
+var markings_system_controller = [ <?php echo $warn1.$warn2 ?> ];
 
 // Create Graph 1
 var options_one = {
@@ -162,7 +159,7 @@ $(document).ready(function () {
 var options_three = {
     xaxis: { mode: "time", timeformat: "%H:%M"},
     series: { lines: { show: true, lineWidth: 1, fill: false}, curvedLines: { apply: true,  active: true,  monotonicFit: true } },
-    grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf7f4"] }, borderColor: "#ff8839", markings: hmarkings, },
+    grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf7f4"] }, borderColor: "#ff8839", markings: markings_system_controller, },
     legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
 };
 
