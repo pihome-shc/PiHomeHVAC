@@ -1,13 +1,13 @@
 <?php
 /*
-   _____    _   _    _
-  |  __ \  (_) | |  | |
-  | |__) |  _  | |__| |   ___    _ __ ___     ___
-  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \
-  | |      | | | |  | | | (_) | | | | | | | |  __/
-  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|
+             __  __                             _
+            |  \/  |                    /\     (_)
+            | \  / |   __ _  __  __    /  \     _   _ __
+            | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+            | |  | | | (_| |  >  <   / ____ \  | | | |
+            |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 
-     S M A R T   H E A T I N G   C O N T R O L
+                      S M A R T   THERMOSTAT
 
 *************************************************************************"
 * PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
@@ -30,13 +30,14 @@ require_once(__DIR__.'../../st_inc/functions.php');
 
 if(isset($_GET['zonename'])) {
         $zonename = $_GET['zonename'];
-        $query = "SELECT zone_controllers.`controler_id`, zone_controllers.`controler_child_id`, zone.`name`, zone.`zone_state` FROM `zone_controllers`, `zone` WHERE (zone.id = zone_controllers.zone_id) AND name = '{$zonename}';";
+        $query = "SELECT * FROM zone_view where name = '{$zonename}' LIMIT 1;";
         $results = $conn->query($query);
 	if(mysqli_num_rows($results) == 0) {
 	        http_response_code(400);
         	echo json_encode(array("success" => False, "state" => "No record found."));
 	} else {
 		while ($row = mysqli_fetch_assoc($results)) {
+                        $zone_id=$row['id'];
 		        $controler_id=$row['controler_id'];
         	        $controler_child_id=$row['controler_child_id'];
 			$query = "SELECT node_id, type FROM nodes WHERE id = '{$controler_id}' LIMIT 1;";
@@ -80,7 +81,7 @@ if(isset($_GET['zonename'])) {
                                         	$update = 1;
 			        	}
 
-                                        $query = "UPDATE zone_controllers SET state = '{$status}' WHERE controler_id = '{$controler_id}';";
+                                        $query = "UPDATE zone_controllers SET state = '{$status}' WHERE zone_id = '{$zone_id}';";
                                         if($conn->query($query)){
                                                 $update_error=0;
                                         }else{
