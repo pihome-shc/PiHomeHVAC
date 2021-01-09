@@ -1,17 +1,17 @@
 <?php 
 /*
-   _____    _   _    _                             
-  |  __ \  (_) | |  | |                            
-  | |__) |  _  | |__| |   ___    _ __ ___     ___  
-  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \ 
-  | |      | | | |  | | | (_) | | | | | | | |  __/ 
-  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___| 
+             __  __                             _
+            |  \/  |                    /\     (_)
+            | \  / |   __ _  __  __    /  \     _   _ __
+            | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+            | |  | | | (_| |  >  <   / ____ \  | | | |
+            |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 
-     S M A R T   H E A T I N G   C O N T R O L 
+                    S M A R T   T H E R M O S T A T
 
 *************************************************************************"
-* PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
-* from web interface and it comes with ABSOLUTELY NO WARRANTY, to the   *"
+* MaxAir is a Linux based Central Heating Control systems. It runs from *"
+* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *"
 * extent permitted by applicable law. I take no responsibility for any  *"
 * loss or damage to you or your property.                               *"
 * DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTILL UNLESS YOU KNOW *"
@@ -31,7 +31,7 @@ $query="select date(start_datetime) as month,
 sum(TIMESTAMPDIFF(MINUTE, start_datetime, expected_end_date_time))/60 as total_minuts,
 sum(TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime))/60 as on_minuts, 
 (sum(TIMESTAMPDIFF(MINUTE, start_datetime, expected_end_date_time)) - sum(TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime)))/60 as save_minuts
-from boiler_logs WHERE start_datetime >= NOW() - INTERVAL 400 DAY GROUP BY YEAR(start_datetime), MONTH(start_datetime) order by month asc";
+from system_controller_logs WHERE start_datetime >= NOW() - INTERVAL 400 DAY GROUP BY YEAR(start_datetime), MONTH(start_datetime) order by month asc";
 $result = $conn->query($query);
 
 //create array of pairs of x and y values
@@ -60,7 +60,7 @@ $query="select date(start_datetime) as month,
 sum(TIMESTAMPDIFF(MINUTE, start_datetime, expected_end_date_time))/60 as total_minuts,
 sum(TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime))/60 as on_minuts, 
 (sum(TIMESTAMPDIFF(MINUTE, start_datetime, expected_end_date_time)) - sum(TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime)))/60 as save_minuts
-from boiler_logs WHERE start_datetime >= NOW() - INTERVAL 400 DAY GROUP BY month(start_datetime) order by month asc";
+from system_controller_logs WHERE start_datetime >= NOW() - INTERVAL 400 DAY GROUP BY month(start_datetime) order by month asc";
 $result = $conn->query($query);
 
 //create array of pairs of x and y values
