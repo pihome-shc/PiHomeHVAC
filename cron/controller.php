@@ -13,7 +13,7 @@ echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
 echo "\033[31m";
 echo "******************************************************************\n";
 echo "*   System Controller Script Version 0.01 Build Date 19/10/2020  *\n";
-echo "*   Update on 19/10/2020                                         *\n";
+echo "*   Update on 10/01/2021                                         *\n";
 echo "*                                        Have Fun - PiHome.eu    *\n";
 echo "******************************************************************\n";
 echo " \033[0m \n";
@@ -33,6 +33,12 @@ if(isset($argv[1])) { $debug_msg = 1; } else { $debug_msg = 0; }
 //GPIO Value for SainSmart Relay Board to turn on  or off
 $relay_on = '1'; //GPIO value to write to turn on attached relay
 $relay_off = '0'; // GPIO value to write to turn off attached relay
+
+//set to indicate controller condition
+$start_cause ='';
+$stop_cause = '';
+$add_on_start_cause ='';
+$add_on_stop_cause = '';
 
 //Function to recursively check homebridge config.json
 function scanArrayRecursively($arr, $index) {
@@ -654,9 +660,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 				$contents = file_get_contents($url);
 			}
 		}
-		//initialize four variable
-		$start_cause ='';
-		$stop_cause = '';
+		//initialize two variable
 		$zone_mode = 0;
 		$hvac_state = 0; // 0 = COOL, 1 = HEAT
 		if ($zone_fault == '0'){
@@ -1029,44 +1033,44 @@ while ($row = mysqli_fetch_assoc($results)) {
 					$zone_status="0";
 					$zone_mode = 90;
           				$zone_state = 0;
-					$stop_cause="Away Active";
+					$add_on_stop_cause="Away Active";
 				} elseif (($holidays_status=='1') && ($sch_holidays=='0')){
 					$zone_status="0";
 					$zone_mode = 40;
             				$zone_state = 0;
-					$stop_cause="Holiday Active";
+					$add_on_stop_cause="Holiday Active";
 				} elseif(($boost_status=='0') && ($zone_current_mode == 64)){
 					$zone_status="0";
             				$zone_mode = 0;
             				$zone_state = 0;
-					$stop_cause="Boost Finished";
+					$add_on_stop_cause="Boost Finished";
         			} elseif (($zone_state == '0') && ($zone_override_status == '0') && ($zone_status_prev == 1)) {
                                         $zone_status="0";
 					$zone_mode = 0;
           				$zone_state = 0;
-					$stop_cause="Manual Stop";
+					$add_on_stop_cause="Manual Stop";
         			} elseif ($sch_status == '0' && $zone_state == '0' && $boost_status == '0') {
 				  	$zone_status="0";
 					$zone_mode = 0;
-					$stop_cause="No Schedule";
+					$add_on_stop_cause="No Schedule";
         			} elseif ($sch_status =='1') {
 					if ($zone_override_status=='0') {
 					  	$zone_status="1";
 						$zone_mode = 114;
           					$zone_state = 1;
-						$start_cause="Schedule Started";
+						$add_on_start_cause="Schedule Started";
 						$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
 					} else {
 	                                        $zone_status = (($add_on_state == 1) || ($zone_state == 1)) ? "1":"0" ;
         	                                $zone_mode = 74 + $add_on_state;
                 	                        $zone_state = $add_on_state;
-                        	                $stop_cause="Manual Override Started";
+                        	                $add_on_start_cause="Manual Override Started";
                                 	        $expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
 					}
 				} elseif ($boost_status=='1') {
 				  	$zone_status="1";
 					$zone_mode = 64;
-					$start_cause="Boost Active";
+					$add_on_start_cause="Boost Active";
           				$zone_state = 1;
 					$expected_end_date_time=date('Y-m-d H:i:s', $boost_time);
 					$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
@@ -1075,12 +1079,12 @@ while ($row = mysqli_fetch_assoc($results)) {
 	                                        $zone_status="0";
         	                                $zone_mode = 0;
 	                                        $zone_state = 0;
-                	                        $stop_cause="Schedule Finished";
+                	                        $add_on_stop_cause="Schedule Finished";
 					} else {
                                         	$zone_status="1";
                                         	$zone_mode = 111;
 	                                        $zone_state = 1;
-                                        	$start_cause="Manual Start";
+                                        	$add_on_start_cause="Manual Start";
 					}
 				}
 			} // end process
@@ -1157,12 +1161,15 @@ while ($row = mysqli_fetch_assoc($results)) {
                         $zone_controler_child_id = $zone_controllers[$crow]["controler_child_id"];
                         echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Controller: \033[41m".$zone_controler_id."\033[0m Controller Child: \033[41m".$zone_controler_child_id."\033[0m Zone Status: \033[41m".$zone_status."\033[0m \n";
                 }
-		if ($zone_category == 0) {
+		if ($zone_category == 0 || $zone_category == 3) {
 			if ($zone_status=='1') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Start Cause: ".$start_cause." - Target C:\033[41m".$target_c."\033[0m Zone C:\033[31m".$zone_c."\033[0m \n";}
 			if ($zone_status=='0') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Stop Cause: ".$stop_cause." - Target C:\033[41m".$target_c."\033[0m Zone C:\033[31m".$zone_c."\033[0m \n";}
+                } elseif ($zone_category == 1) {
+                        if ($zone_status=='1') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Start Cause: ".$start_cause."\033[0m \n";}
+                        if ($zone_status=='0') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Stop Cause: ".$stop_cause."\033[0m \n";}
 		} else {
-			if ($zone_status=='1') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Start Cause: ".$start_cause."\033[0m \n";}
-			if ($zone_status=='0') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Stop Cause: ".$stop_cause."\033[0m \n";}
+			if ($zone_status=='1') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Start Cause: ".$add_on_start_cause."\033[0m \n";}
+			if ($zone_status=='0') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Stop Cause: ".$add_on_stop_cause."\033[0m \n";}
 		}
 		//Pass data to zone commands loop
                 $zone_commands[$command_index] = (array('controllers' =>$zone_controllers, 'zone_id' =>$zone_id, 'zone_name' =>$zone_name, 'zone_category' =>$zone_category, 'zone_status'=>$zone_status, 'zone_status_prev'=>$zone_status_prev, 'zone_overrun_prev'=>$zone_overrun_prev, 'zone_override_status'=>$zone_override_status));
@@ -1181,9 +1188,9 @@ while ($row = mysqli_fetch_assoc($results)) {
 			// zone switching ON
 			if($zone_status_prev == '0' &&  ($zone_status == '1' || $zone_state  == '1')) {
 				if($zone_mode == '111' || $zone_mode == '21' ||  $zone_mode == '10') {
-					$aoquery = "INSERT INTO `add_on_logs`(`sync`, `purge`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`, `expected_end_date_time`) VALUES ('0', '0', '{$date_time}', '{$start_cause}', NULL, NULL, NULL);";
+					$aoquery = "INSERT INTO `add_on_logs`(`sync`, `purge`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`, `expected_end_date_time`) VALUES ('0', '0', '{$date_time}', '{$add_on_start_cause}', NULL, NULL, NULL);";
 				} else {
-					$aoquery = "INSERT INTO `add_on_logs`(`sync`, `purge`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`, `expected_end_date_time`) VALUES ('0', '0', '{$date_time}', '{$start_cause}', NULL, NULL,'{$expected_end_date_time}');";
+					$aoquery = "INSERT INTO `add_on_logs`(`sync`, `purge`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`, `expected_end_date_time`) VALUES ('0', '0', '{$date_time}', '{$add_on_start_cause}', NULL, NULL,'{$expected_end_date_time}');";
 				}
 				$result = $conn->query($aoquery);
 				$add_on_log_id = mysqli_insert_id($conn);
@@ -1200,7 +1207,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 				}
 			// zone switching OFF
 			} elseif ($zone_status_prev == '1' &&  $zone_status == '0') {
-				$query = "UPDATE add_on_logs SET stop_datetime = '{$date_time}', stop_cause = '{$stop_cause}' ORDER BY id DESC LIMIT 1";
+				$query = "UPDATE add_on_logs SET stop_datetime = '{$date_time}', stop_cause = '{$add_on_stop_cause}' ORDER BY id DESC LIMIT 1";
 				$result = $conn->query($query);
 				if ($result) {
 					echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table updated Successfully. \n";
@@ -1539,12 +1546,14 @@ if (in_array("1", $system_controller)) {
 		}
 
 		//Update last record with system controller stop date and time in System Controller Log table.
-		$query = "UPDATE system_controller_logs SET stop_datetime = '{$date_time}', stop_cause = '{$stop_cause}' ORDER BY id DESC LIMIT 1";
-		$result = $conn->query($query);
-		if ($result) {
-			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Log table updated Successfully. \n";
-		}else {
-			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Log table update failed. \n";
+                if ($system_controller_active_status != $new_system_controller_status){
+			$query = "UPDATE system_controller_logs SET stop_datetime = '{$date_time}', stop_cause = '{$stop_cause}' ORDER BY id DESC LIMIT 1";
+			$result = $conn->query($query);
+			if ($result) {
+				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Log table updated Successfully. \n";
+			} else {
+				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Log table update failed. \n";
+			}
 		}
 	}
 }
