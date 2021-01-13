@@ -120,12 +120,13 @@ CREATE TABLE `system_controller` (
 /*!40000 ALTER TABLE `system_controller` DISABLE KEYS */;
 /*!40000 ALTER TABLE `system_controller` ENABLE KEYS */;
 
--- Dumping structure for table pihome.system_controller_logs
-DROP TABLE IF EXISTS `system_controller_logs`;
-CREATE TABLE `system_controller_logs` (
+-- Dumping structure for table pihome.controller_zone_logs
+DROP TABLE IF EXISTS `controller_zone_logs`;
+CREATE TABLE `controller_zone_logs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sync` tinyint(4) NOT NULL,
   `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
+  `zone_id` int(11) NOT NULL,
   `start_datetime` timestamp NULL DEFAULT NULL,
   `start_cause` char(50) COLLATE utf16_bin DEFAULT NULL,
   `stop_datetime` timestamp NULL DEFAULT NULL,
@@ -134,9 +135,9 @@ CREATE TABLE `system_controller_logs` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=133 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.system_controller_logs: ~0 rows (approximately)
-/*!40000 ALTER TABLE `system_controller_logs` DISABLE KEYS */;
-/*!40000 ALTER TABLE `system_controller_logs` ENABLE KEYS */;
+-- Dumping data for table pihome.controller_zone_logs: ~0 rows (approximately)
+/*!40000 ALTER TABLE `controller_zone_logs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `controller_zone_logs` ENABLE KEYS */;
 
 -- Dumping structure for table pihome.boost
 DROP TABLE IF EXISTS `boost`;
@@ -822,26 +823,6 @@ CREATE TABLE IF NOT EXISTS `zone_graphs` (
   `datetime` timestamp NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
-
--- Dumping structure for table pihome.zone_logs
-DROP TABLE IF EXISTS `zone_logs`;
-CREATE TABLE IF NOT EXISTS `zone_logs` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `sync` tinyint(4) NOT NULL,
-  `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
-  `zone_id` int(11),
-  `system_controller_log_id` int(11),
-  `status` int(11),
-  PRIMARY KEY (`id`),
-  KEY `FK_zone_logs_zone` (`zone_id`),
-  KEY `FK_zone_logs_system_controller_logs` (`system_controller_log_id`),
-  CONSTRAINT `FK_zone_logs_system_controller_logs` FOREIGN KEY (`system_controller_log_id`) REFERENCES `system_controller_logs` (`id`),
-  CONSTRAINT `FK_zone_logs_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
-
--- Dumping data for table pihome.zone_logs: ~0 rows (approximately)
-/*!40000 ALTER TABLE `zone_logs` DISABLE KEYS */;
-/*!40000 ALTER TABLE `zone_logs` ENABLE KEYS */;
 
 -- Dumping structure for table pihome.zone_sensor
 DROP TABLE IF EXISTS `zone_sensors`;

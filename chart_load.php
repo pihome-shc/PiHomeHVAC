@@ -87,7 +87,7 @@ $graph2 = $graph2."{label: \"".$lang['graph_outsie']."\", data: ".json_encode($w
 $graph3 = $graph3."{label: \"".$lang['cpu']."\", data: ".json_encode($system_c).", color: '".graph_color($count, ++$counter)."'}, \n";
 
 //background-color for system controller on time
-$query="select start_datetime, stop_datetime, type from zone_log_view where status= '1' AND start_datetime > current_timestamp() - interval 24 hour;";
+$query="SELECT start_datetime, stop_datetime, type FROM zone_log_view WHERE start_datetime > current_timestamp() - interval 24 hour;";
 $results = $conn->query($query);
 $count=mysqli_num_rows($results);
 $warn1 = '';
