@@ -51,10 +51,6 @@ if(($what=="zone") && ($opp=="delete")){
 	$query = "UPDATE schedule_night_climat_zone SET schedule_night_climat_zone.purge='1' WHERE zone_id = '".$wid."'";
 	$conn->query($query);
 	
-	//Delete All Zone Logs records
-	$query = "UPDATE zone_logs SET zone_logs.purge='1' WHERE zone_id = '".$wid."'";
-	$conn->query($query);
-	
         //Delete Zone Sensors record
         $query = "UPDATE zone_sensors SET zone_sensors.purge='1' WHERE zone_id = '".$wid."'";
         $conn->query($query);
