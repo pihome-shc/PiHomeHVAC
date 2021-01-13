@@ -60,36 +60,31 @@ $(document).ready(function() {
 //    var fieldHTML = '<div><input type="text" name="field_name[]" value=""/><a href="javascript:void(0);" class="remove_button"><img src="./images/remove-icon.png"/></a></div>'; //New input field html 
 
     var controller_HTML = `
-                <div class="wrap">
-                        <!-- Zone Controller ID -->
-                        <div class="form-group" class="control-label"><label><?php echo $lang['zone_controller_id']; ?></label> <small class="text-muted"><?php echo $lang['zone_controler_id_info'];?></small>
-                                <input type="hidden" id="selected_controler_id[]" name="selected_controler_id[]" value="<?php echo $zone_controllers[$i]['controler_id']?>"/>
-                                <input type="hidden" id="selected_controler_child_id[]" name="selected_controler_child_id[]" value="<?php echo $zone_controllers[$i]['controler_child_id']?>"/>
-                                <input type="hidden" id="selected_controler_type[]" name="selected_controler_type[]" value="<?php echo $zone_controllers[$i]['zone_controller_type']?>"/>
-                                <div class="entry input-group col-xs-12">
-	                                <select id="controler_idx" onchange="ControlerChildList(this.options[this.selectedIndex].value, index_id)" name="controler_idx" class="form-control select2" data-error="<?php echo $lang['zone_controller_id_error']; ?>" autocomplete="off" >
-                                                <?php  $query = "SELECT node_id, type, max_child_id FROM nodes where name LIKE '%Controller%'  ORDER BY node_id ASC;";
-                                                $result = $conn->query($query);
-                                                echo "<option></option>";
-                                                while ($datarw=mysqli_fetch_array($result)) {
-                                                        echo "<option value=".$datarw['max_child_id'].">".$datarw['type'].' - '.$datarw['node_id']."</option>";
+		<div class="wrap" id>
+			<!-- Zone Controller ID -->
+			<div class="form-group" class="control-label" id="controler_id_label" style="display:block"><label><?php echo $lang['zone_controller_id']; ?></label> <small class="text-muted"><?php echo $lang['zone_controler_id_info'];?></small>
+	        	        <input type="hidden" id="selected_controler_id[]" name="selected_controler_id[]" value="<?php echo $zone_controllers[$i]['controller_relay_id']?>"/>
+				<div class="entry input-group col-xs-12" id="cnt_id - <?php echo $i ?>">
+					<select id="controler_idx<?php echo $i ?>" onchange="ControllerIDList(this.options[this.selectedIndex].value, <?php echo $i ?>)" name="controler_idx<?php echo $i ?>" class="form-control select2" data-error="<?php echo $lang['zone_controller_id_error']; ?>" autocomplete="off">
+						<?php if(isset($zone_controllers[$i]["zone_controller_name"])) { echo '<option selected >'.$zone_controllers[$i]["zone_controller_name"].'</option>'; } ?>
+						<?php  $query = "SELECT id, name, type FROM controller_relays WHERE type = 0 ORDER BY id ASC;";
+						$result = $conn->query($query);
+						echo "<option></option>";
+						while ($datarw=mysqli_fetch_array($result)) {
+							echo "<option value=".$datarw['id'].">".$datarw['name']."</option>";
+						} ?>
+					</select>
+					<div class="help-block with-errors"></div>
+					<span class="input-group-btn">
+                                                <?php if ($i == 0) {
+                                                        echo '<a href="javascript:void(0);" class="add_button" title="Add field"><img src="./images/add-icon.png"/></a>';
+                                                } else {
+                                                        echo '<a href="javascript:void(0);" class="remove_button"><img src="./images/remove-icon.png"/></a>';
                                                 } ?>
-                                        </select>
-                                        <div class="help-block with-errors"></div>
-                                        <span class="input-group-btn">
-                                                <a href="javascript:void(0);" class="remove_button"><img src="./images/remove-icon.png"/></a>
-                                        </span>
-                                </div>
-                        </div>
-
-                        <input type="hidden" id="gpio_pin_list" name="gpio_pin_list" value="<?php echo implode(",", array_filter(Get_GPIO_List()))?>"/>
-                        <!-- Zone Controller Child ID -->
-                        <div class="form-group" class="control-label"><label><?php echo $lang['zone_controller_child_id']; ?></label> <small class="text-muted"><?php echo $lang['zone_controler_child_id_info'];?></small>
-		                <select id="controler_child_idx" name="controler_child_idx" onchange="setChild_id(this.options[this.selectedIndex].value, index_id)" class="form-control select2"  data-error="<?php echo $lang['zone_controller_child_id_error']; ?>" autocomplete="off">
-                                </select>
-                                <div class="help-block with-errors"></div>
-                        </div>
-                </div>
+					</span>
+				</div>
+    			</div>
+		</div>
 		`;
 
     //Once add button is clicked
@@ -97,7 +92,6 @@ $(document).ready(function() {
         //Check maximum number of input fields
 	var x = document.getElementById("controller_count").value
         var temp_HTML = controller_HTML.replace(/controler_idx/g, "controler_id".concat(x));
-	temp_HTML = temp_HTML.replace(/controler_child_idx/g, "controler_child_id".concat(x));
         temp_HTML = temp_HTML.replace(/index_id/g, x);
         if(x < maxField){ 
             $(wrapper).append(temp_HTML); //Add field html
