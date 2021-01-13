@@ -254,7 +254,7 @@ if (mysqli_num_rows($result)==0){
 }
 
 //query to get last system controller statues change time
-$query = "SELECT * FROM system_controller_logs ORDER BY id desc LIMIT 1;";
+$query = "SELECT * FROM controller_zone_logs ORDER BY id desc LIMIT 1;";
 $result = $conn->query($query);
 $row = mysqli_fetch_array($result);
 $system_controller_start_datetime = $row['start_datetime'];
