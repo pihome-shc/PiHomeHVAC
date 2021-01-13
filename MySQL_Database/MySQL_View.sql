@@ -125,13 +125,10 @@ where datetime > DATE_SUB( NOW(), INTERVAL 24 HOUR);
 
 -- Zone Logs views
 Drop View if exists zone_log_view;
-CREATE VIEW zone_log_view AS
-select zone_logs.id, zone_logs.sync, zone_logs.zone_id, ztype.type,
-zone_logs.system_controller_log_id, blst.start_datetime, blet.stop_datetime, blext.expected_end_date_time, zone_logs.status
-from zone_logs
-join zone zt on zone_logs.zone_id = zt.id
-join system_controller_logs blst on zone_logs.system_controller_log_id = blst.id
-join system_controller_logs blet on zone_logs.system_controller_log_id = blet.id
-join system_controller_logs blext on zone_logs.system_controller_log_id = blext.id
+CREATE VIEW zone_log_view AS 
+select controller_zone_logs.id, controller_zone_logs.sync, controller_zone_logs.zone_id, ztype.type,
+controller_zone_logs.start_datetime, controller_zone_logs.stop_datetime, controller_zone_logs.expected_end_date_time
+from controller_zone_logs
+join zone zt on controller_zone_logs.zone_id = zt.id
 join zone_type ztype on zt.type_id = ztype.id
 order by id asc;
