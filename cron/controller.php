@@ -1190,18 +1190,12 @@ while ($row = mysqli_fetch_assoc($results)) {
 			// zone switching ON
 			if($zone_status_prev == '0' &&  ($zone_status == '1' || $zone_state  == '1')) {
 				if($zone_mode == '111' || $zone_mode == '21' ||  $zone_mode == '10') {
-					$aoquery = "INSERT INTO `add_on_logs`(`sync`, `purge`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`, `expected_end_date_time`) VALUES ('0', '0', '{$date_time}', '{$add_on_start_cause}', NULL, NULL, NULL);";
+					$aoquery = "INSERT INTO `add_on_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`, `expected_end_date_time`) VALUES ('0', '0', '{$zone_id}', '{$date_time}', '{$add_on_start_cause}', NULL, NULL, NULL);";
 				} else {
-					$aoquery = "INSERT INTO `add_on_logs`(`sync`, `purge`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`, `expected_end_date_time`) VALUES ('0', '0', '{$date_time}', '{$add_on_start_cause}', NULL, NULL,'{$expected_end_date_time}');";
+					$aoquery = "INSERT INTO `add_on_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`, `expected_end_date_time`) VALUES ('0', '0', '{$zone_id}', '{$date_time}', '{$add_on_start_cause}', NULL, NULL,'{$expected_end_date_time}');";
 				}
 				$result = $conn->query($aoquery);
-				$add_on_log_id = mysqli_insert_id($conn);
-
-				//echo all zone and status
 				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone ID: ".$zone_id." Status: ".$zone_status."\n";
-				$zlquery = "INSERT INTO `add_on_zone_logs`(`sync`, `purge`, `zone_id`, `add_on_log_id`, `status`) VALUES (0, 0, '{$zone_id}', '{$add_on_log_id}', '{$zone_status}');";
-				$zlresults = $conn->query($zlquery);
-				if ($zlresults) {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Zone Log table updated successfully. \n";} else {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone log update failed... ".mysql_error(). " \n";}
 				if ($result) {
 					echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table added Successfully. \n";
 				}else {
@@ -1209,7 +1203,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 				}
 			// zone switching OFF
 			} elseif ($zone_status_prev == '1' &&  $zone_status == '0') {
-				$query = "UPDATE add_on_logs SET stop_datetime = '{$date_time}', stop_cause = '{$add_on_stop_cause}' ORDER BY id DESC LIMIT 1";
+				$query = "UPDATE add_on_logs SET stop_datetime = '{$date_time}', stop_cause = '{$add_on_stop_cause}' WHERE `zone_id` = '{$zone_id}' ORDER BY id DESC LIMIT 1";
 				$result = $conn->query($query);
 				if ($result) {
 					echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table updated Successfully. \n";

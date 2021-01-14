@@ -124,11 +124,11 @@ from messages_in
 where datetime > DATE_SUB( NOW(), INTERVAL 24 HOUR);
 
 -- Zone Logs views
-Drop View if exists zone_log_view;
-CREATE VIEW zone_log_view AS 
-select controller_zone_logs.id, controller_zone_logs.sync, controller_zone_logs.zone_id, ztype.type,
-controller_zone_logs.start_datetime, controller_zone_logs.stop_datetime, controller_zone_logs.expected_end_date_time
-from controller_zone_logs
-join zone zt on controller_zone_logs.zone_id = zt.id
+Drop View if exists add_on_log_view;
+CREATE VIEW add_on_log_view AS
+select add_on_logs.id, add_on_logs.sync, add_on_logs.zone_id, ztype.type,
+add_on_logs.start_datetime, add_on_logs.stop_datetime, add_on_logs.expected_end_date_time
+from add_on_logs
+join zone zt on add_on_logs.zone_id = zt.id
 join zone_type ztype on zt.type_id = ztype.id
 order by id asc;
