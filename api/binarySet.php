@@ -30,7 +30,7 @@ require_once(__DIR__.'../../st_inc/functions.php');
 
 if(isset($_GET['zonename'])) {
         $zonename = $_GET['zonename'];
-        $query = "SELECT * FROM zone_view where name = '{$zonename}' LIMIT 1;";
+        $query = "SELECT * FROM zone_view where name = '{$zonename}';";
         $results = $conn->query($query);
 	if(mysqli_num_rows($results) == 0) {
 	        http_response_code(400);
