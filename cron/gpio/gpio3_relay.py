@@ -117,26 +117,6 @@ def main():
             "24": "PA13",
             "26": "PD14",
         }
-    elif board.board_id.find('ORANGE_PI_ZERO') != -1:
-        pindict = {
-            "3": "PA12",
-            "5": "PA11",
-            "7": "PA6",
-            "8": "PG6",
-            "10": "PG7",
-            "11": "PA1",
-            "12": "PA7",
-            "13": "PA0",
-            "15": "PA3",
-            "16": "PA19",
-            "18": "PA18",
-            "19": "PA15",
-            "21": "PA16",
-            "22": "PA2",
-            "23": "PA14",
-            "24": "PA13",
-            "26": "PA10",
-        }
     elif board.board_id.find('ORANGE_PI_ZERO_PLUS') != -1:
         pindict = {
             "3": "PA12",
@@ -176,6 +156,26 @@ def main():
             "23": "PH6",
             "24": "PH9",
             "26": "PC10",
+        }
+    elif board.board_id.find('ORANGE_PI_ZERO') != -1:
+        pindict = {
+            "3": "PA12",
+            "5": "PA11",
+            "7": "PA6",
+            "8": "PG6",
+            "10": "PG7",
+            "11": "PA1",
+            "12": "PA7",
+            "13": "PA0",
+            "15": "PA3",
+            "16": "PA19",
+            "18": "PA18",
+            "19": "PA15",
+            "21": "PA16",
+            "22": "PA2",
+            "23": "PA14",
+            "24": "PA13",
+            "26": "PA10",
         }
     elif board.board_id.find('BANANA_PI_M2_ZERO') != -1:
         pindict = {
