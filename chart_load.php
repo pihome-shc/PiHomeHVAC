@@ -209,7 +209,7 @@ function showTooltip(x, y, color, contents) {
 var options_addon = {
     xaxis: { mode: "time", timeformat: "%H:%M"},
     yaxis: { font:{ size:8, weight: "bold", family: "sans-serif", variant: "small-caps", color: "#545454" }, ticks: tick_dataset },
-    series: { lines: { show: true, lineWidth: 1, fill: false}, straightLines: { apply: true,  active: true,  monotonicFit: true } },
+    series: { lines: { show: true, lineWidth: 2, fill: false}, straightLines: { apply: true,  active: true,  monotonicFit: true } },
     grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf7f4"] }, borderColor: "#ff8839", },
     legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
 };
