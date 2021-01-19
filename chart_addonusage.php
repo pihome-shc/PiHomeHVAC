@@ -109,6 +109,8 @@ while ($row = mysqli_fetch_assoc($resulta)) {
         $ticks[] = array($offset, "OFF");
         $offset = $offset + 1;
 }
+// dummy entry for space above graph
+$ticks[] = array($offset, "");
 echo json_encode($ticks);
 ?> ;
 </script>
