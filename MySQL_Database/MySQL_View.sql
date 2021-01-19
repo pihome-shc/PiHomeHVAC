@@ -63,7 +63,7 @@ where zone.`purge` = '0';
 -- Add-On Logs views
 Drop View if exists add_on_log_view;
 CREATE VIEW add_on_log_view AS
-select add_on_logs.id, add_on_logs.sync, add_on_logs.zone_id, ztype.type,
+select add_on_logs.id, add_on_logs.sync, add_on_logs.zone_id, zt.name, ztype.type,
 add_on_logs.start_datetime, add_on_logs.stop_datetime, add_on_logs.expected_end_date_time
 from add_on_logs
 join zone zt on add_on_logs.zone_id = zt.id
