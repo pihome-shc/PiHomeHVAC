@@ -101,6 +101,24 @@ CREATE TABLE `system_controller` (
 /*!40000 ALTER TABLE `system_controller` DISABLE KEYS */;
 /*!40000 ALTER TABLE `system_controller` ENABLE KEYS */;
 
+-- Dumping structure for table pihome.system_controller_logs
+DROP TABLE IF EXISTS `system_controller_logs`;
+CREATE TABLE `system_controller_logs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sync` tinyint(4) NOT NULL,
+  `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
+  `start_datetime` timestamp NULL DEFAULT NULL,
+  `start_cause` char(50) COLLATE utf16_bin DEFAULT NULL,
+  `stop_datetime` timestamp NULL DEFAULT NULL,
+  `stop_cause` char(50) COLLATE utf16_bin DEFAULT NULL,
+  `expected_end_date_time` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=133 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
+
+-- Dumping data for table pihome.system_controller_logs: ~0 rows (approximately)
+/*!40000 ALTER TABLE `system_controller_logs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `system_controller_logs` ENABLE KEYS */;
+
 -- Dumping structure for table pihome.controller_zone_logs
 DROP TABLE IF EXISTS `controller_zone_logs`;
 CREATE TABLE `controller_zone_logs` (
