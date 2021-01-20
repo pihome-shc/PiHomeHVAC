@@ -163,7 +163,7 @@ $message = '#
 #           | |  | | | (_| |  >  <   / ____ \  | | | |
 #           |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 #
-#                     S M A R T   THERMOSTAT
+#                  S M A R T   T H E R M O S T A T
 #*************************************************************************
 #* MaxAir is LINUX  based Central Heating Control systems. It runs from  *
 #* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *
