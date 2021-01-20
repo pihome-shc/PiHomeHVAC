@@ -1134,7 +1134,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 		/*	0 - stopped (above cut out setpoint or not running in this mode)
 			1 - heating running 
 			2 - stopped (within deadband) 
-			3 - stopped (coop start waiting for boiler)
+			3 - stopped (coop start waiting for the system_controller)
 			4 - manual operation ON
 			5 - manual operation OFF
 			6 - cooling running 
