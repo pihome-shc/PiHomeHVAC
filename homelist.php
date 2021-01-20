@@ -213,7 +213,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 		/*	0 - stopped (above cut out setpoint or not running in this mode)
 			1 - heating running
 			2 - stopped (within deadband)
-			3 - stopped (coop start waiting for boiler)
+			3 - stopped (coop start waiting for system controller)
 			4 - manual operation ON
 			5 - manual operation OFF 
                         6 - cooling running 
@@ -389,7 +389,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 
 		//SYSTEM CONTROLLER BUTTON
 		if ($sc_count != 0) {
-			//query to get last boiler statues change time
+			//query to get last system_controller statues change time
 			$query = "SELECT * FROM controller_zone_logs ORDER BY id desc LIMIT 1 ";
 			$result = $conn->query($query);
 			$system_controller_onoff = mysqli_fetch_array($result);
