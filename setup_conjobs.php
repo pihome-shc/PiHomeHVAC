@@ -2,14 +2,14 @@
 #!/usr/bin/php
 echo "\033[36m";
 echo "\n";
-echo "   _____    _   _    _                             \n";
-echo "  |  __ \  (_) | |  | |                            \n";
-echo "  | |__) |  _  | |__| |   ___    _ __ ___     ___  \n";
-echo "  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \ \n";
-echo "  | |      | | | |  | | | (_) | | | | | | | |  __/ \n";
-echo "  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___| \n";
+echo "           __  __                             _         \n";
+echo "          |  \/  |                    /\     (_)        \n";
+echo "          | \  / |   __ _  __  __    /  \     _   _ __  \n";
+echo "          | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| \n";
+echo "          | |  | | | (_| |  >  <   / ____ \  | | | |    \n";
+echo "          |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    \n";
 echo " \033[0m \n";
-echo "     \033[45m S M A R T   H E A T I N G   C O N T R O L \033[0m \n";
+echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
 echo "\033[31m";
 echo "***************************************************************\n";
 echo "*   PiHome Install Script Version 0.3 Build Date 31/01/2018   *\n";
@@ -114,8 +114,8 @@ $message = '#
 
 
 # Main engine for PiHome Smart Heating, If you want to ouput logs then comment first line and uncomment second line.
-*/1 * * * * /usr/bin/php /var/www/cron/boiler.php >/dev/null 2>&1
-# */1 * * * * /usr/bin/php /var/www/cron/boiler.php >>/var/www/cron/logs/boiler.log 2>&1
+*/1 * * * * /usr/bin/php /var/www/cron/controller.php >/dev/null 2>&1
+# */1 * * * * /usr/bin/php /var/www/cron/controller.php >>/var/www/cron/logs/boiler.log 2>&1
 
 # If you signup for PiConnect - Simplify the Connected API Key you can save this key to PiConnect table to sync.
 # your data with PiConnect this way you can mange your heating from
