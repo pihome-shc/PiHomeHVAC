@@ -436,7 +436,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 					<div class="modal-content">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-							<h5 class="modal-title">'.$system_controller_name.' - '.$lang['boiler_recent_logs'].'</h5>
+							<h5 class="modal-title">'.$system_controller_name.' - '.$lang['system_controller_recent_logs'].'</h5>
 						</div>
 						<div class="modal-body">';
   							if ($system_controller_fault == '1') {
@@ -465,12 +465,12 @@ require_once(__DIR__.'/st_inc/functions.php');
 							$bresults = $conn->query($bquery);
 							if (mysqli_num_rows($bresults) == 0){
 								echo '<div class=\"list-group\">
-									<a href="#" class="list-group-item"><i class="fa fa-exclamation-triangle red"></i>&nbsp;&nbsp;'.$lang['boiler_no_log'].'</a>
+									<a href="#" class="list-group-item"><i class="fa fa-exclamation-triangle red"></i>&nbsp;&nbsp;'.$lang['system_controller_no_log'].'</a>
 								</div>';
 							} else {
-								echo '<p class="text-muted">'. mysqli_num_rows($bresults) .' '.$lang['boiler_last_records'].'</p>
+								echo '<p class="text-muted">'. mysqli_num_rows($bresults) .' '.$lang['system_controller_last_records'].'</p>
 								<div class=\"list-group\">' ;
-									echo '<a href="#" class="list-group-item"> <i class="ionicons ion-flame fa-1x red"></i> Start &nbsp; - &nbsp;End <span class="pull-right text-muted"><em> '.$lang['boiler_on_minuts'].' </em></span></a>';
+									echo '<a href="#" class="list-group-item"> <i class="ionicons ion-flame fa-1x red"></i> Start &nbsp; - &nbsp;End <span class="pull-right text-muted"><em> '.$lang['system_controller_on_minuts'].' </em></span></a>';
 									while ($brow = mysqli_fetch_assoc($bresults)) {
 										echo '<a href="#" class="list-group-item"> <i class="ionicons ion-flame fa-1x red"></i> '. $brow['start_datetime'].' - ' .$brow['stop_datetime'].' <span class="pull-right text-muted"><em> '.$brow['on_minuts'].'&nbsp;</em></span></a>';
 									}
