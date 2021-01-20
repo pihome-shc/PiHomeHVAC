@@ -402,7 +402,7 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
 	else if($zone_mode_sub == 2){
 		$status='blueinfo';
 						}
-	//not running - coop start waiting for boiler
+	//not running - coop start waiting for the system_controller
 	else if($zone_mode_sub == 3){
 		$status='blueinfo';
 	}
@@ -495,12 +495,12 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
         }
 	//sheduled
 /*	else if($zone_mode_main == 80){
-		//if not coop start waiting for boiler
+		//if not coop start waiting for the system_controller
 		if($zone_mode_sub <> 3){
 			$shactive='ion-ios-clock-outline';
                	$shcolor='';
 		}
-		//if coop start waiting for boiler
+		//if coop start waiting for the system_controller
 		else{
 			$shactive='ion-leaf';
 	               	$shcolor='green';
@@ -558,12 +558,12 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
                         $status='';
                 }
  		if($zone_mode_main == 80){
-                	//if not coop start waiting for boiler
+                	//if not coop start waiting for the system_controller
                 	if($zone_mode_sub <> 3){
                         	$shactive='ion-ios-clock-outline';
                 		$shcolor='';
                 	}
-                	//if coop start waiting for boiler
+                	//if coop start waiting for the system_controller
                 	else{
                         	$shactive='ion-leaf';
                         	$shcolor='green';

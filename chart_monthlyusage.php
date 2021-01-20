@@ -18,7 +18,7 @@
 * WHAT YOU ARE DOING                                                    *"
 *************************************************************************"
 */
-echo "<h4>".$lang['graph_boiler_usage']."</h4></p>".$lang['graph_boiler_usage_text']."</p>";
+echo "<h4>".$lang['graph_system_controller_usage']."</h4></p>".$lang['graph_system_controller_usage_text']."</p>";
 ?>
 
 <div class="flot-chart">

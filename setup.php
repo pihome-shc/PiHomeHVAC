@@ -163,7 +163,7 @@ $message = '#
 #           | |  | | | (_| |  >  <   / ____ \  | | | |
 #           |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 #
-#                     S M A R T   THERMOSTAT
+#                  S M A R T   T H E R M O S T A T
 #*************************************************************************
 #* MaxAir is LINUX  based Central Heating Control systems. It runs from  *
 #* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *
@@ -198,12 +198,12 @@ $message = '#
 # to  check and start Smart Home Gateway python script if its not running.
 */1 * * * * php /var/www/cron/check_gw.php >/dev/null 2>&1
 
-# If you have Temperature Sensors Wired to Raspberry pi GPIO un-comment
+# If you have Temperature Sensors Connected using a GPIO pins un-comment
 # following line to read temperature sensors data.
 # */1 * * * * python3 /var/www/cron/gpio_ds18b20.py >/dev/null 2>&1
 
 
-# Main engine for PiHome Smart Heating, If you want to ouput logs then comment first line and uncomment second line.
+# Main engine for MaxAir Smart Heating, If you want to ouput logs then comment first line and uncomment second line.
 */1 * * * * /usr/bin/php /var/www/cron/controller.php >/dev/null 2>&1
 # */1 * * * * /usr/bin/php /var/www/cron/controller.php >>/var/www/cron/logs/controller.log 2>&1
 
@@ -291,7 +291,7 @@ if ($results) {
 }
 
 //Adding Away Record 
-echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Raspberry GPIO\n";
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Away Status\n";
 $datetime = date('Y-m-d H:i:s');
 $query_system = "insert INTO `away` (`sync`, `purge`, `status`, start_datetime, `end_datetime`, `away_button_id`, `away_button_child_id`) VALUES (0, 0, 0, '$datetime', '$datetime', 0, 0);";
 $results = $conn->query($query_system);
@@ -310,7 +310,7 @@ if ($results) {
 	echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - GPIO Added \033[41mGPIO\033[0m Data  Succeeded \n";
 	$node_id = $conn->insert_id;
 } else {
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Raspberry Pi GPIO \033[41mGPIO\033[0m Data Failed \n";
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - GPIO \033[41mGPIO\033[0m Data Failed \n";
 }
 
 //Adding System Controller Record
@@ -327,7 +327,7 @@ if ($results) {
 //Adding Zone Type Records 
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Zone Type\n";
 $datetime = date('Y-m-d H:i:s');
-$query_zone_type = "insert INTO `zone_type` (`purge`, `sync`, `type`, `category`) VALUES (0, 0, 'Heating', 0), (0, 0, 'Water', 0), (0, 0, 'Immersion', 1), (0, 0, 'Lamp', 2);";
+$query_zone_type = "insert INTO `zone_type` (`purge`, `sync`, `type`, `category`) VALUES (0, 0, 'Heating', 0), (0, 0, 'Water', 0), (0, 0, 'Immersion', 1), (0, 0, 'Lamp', 2), (0, 0, 'HVAC', 3);";
 $results = $conn->query($query_zone_type);
 if ($results) {
 		echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Type Records Added \033[41mZone Type\033[0m Data  Succeeded \n";
@@ -491,7 +491,7 @@ if ($tzname == 1) {
 
 	// Set Language
 	if ($handle = opendir('/var/www/languages')) {
-		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Language Setting Up PIHome Language\n";
+		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Language Setting Up MaxAir Language\n";
 		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Language Listing all available languages:\n";
 		$lnglist = array();
 		while (false !== ($entry = readdir($handle))) {

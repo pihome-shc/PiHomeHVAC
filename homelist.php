@@ -53,8 +53,8 @@ require_once(__DIR__.'/st_inc/functions.php');
 		//Mode 0 is EU Boiler Mode, Mode 1 is US HVAC Mode
 		$system_controller_mode = settings($conn, 'mode');
 
-		//GET BOILER DATA AND FAIL ZONES IF BOILER COMMS TIMEOUT
-		//query to get last boiler operation time and hysteresis time
+		//GET BOILER DATA AND FAIL ZONES IF SYSTEM CONTROLLER COMMS TIMEOUT
+		//query to get last system_controller operation time and hysteresis time
 		$query = "SELECT * FROM system_controller LIMIT 1";
 		$result = $conn->query($query);
 		$row = mysqli_fetch_array($result);
@@ -213,7 +213,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 		/*	0 - stopped (above cut out setpoint or not running in this mode)
 			1 - heating running
 			2 - stopped (within deadband)
-			3 - stopped (coop start waiting for boiler)
+			3 - stopped (coop start waiting for system controller)
 			4 - manual operation ON
 			5 - manual operation OFF 
                         6 - cooling running 
@@ -256,7 +256,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 								<ul class="chat">
 									<li class="left clearfix">
 										<div class="header">
-											<strong class="primary-font red">Boiler Fault!!!</strong>
+											<strong class="primary-font red">System Controller Fault!!!</strong>
 											<small class="pull-right text-muted">
 											<i class="fa fa-clock-o fa-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
 											</small>
@@ -316,7 +316,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 								}
 								//display coop start info
 								if($zone_mode_sub == 3){
-									echo '<p>Coop Start Schedule - Waiting for boiler start.</p>';
+									echo '<p>Coop Start Schedule - Waiting for System Controller start.</p>';
 								}
 								$squery = "SELECT * FROM schedule_daily_time_zone_view where zone_id ='{$zone_id}' AND tz_status = 1 AND time_status = '1' AND (WeekDays & (1 << {$dow})) > 0 ORDER BY start asc";
 								$sresults = $conn->query($squery);
@@ -387,9 +387,9 @@ require_once(__DIR__.'/st_inc/functions.php');
                         </h3></button>';      //close out status and button
                 }
 
-		//BOILER BUTTON
+		//SYSTEM CONTROLLER BUTTON
 		if ($sc_count != 0) {
-			//query to get last boiler statues change time
+			//query to get last system_controller statues change time
 			$query = "SELECT * FROM controller_zone_logs ORDER BY id desc LIMIT 1 ";
 			$result = $conn->query($query);
 			$system_controller_onoff = mysqli_fetch_array($result);
@@ -406,7 +406,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 				$hysteresis='0';
 			}
 
-			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" href="#boiler" data-backdrop="static" data-keyboard="false">
+			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" href="#system_controller" data-backdrop="static" data-keyboard="false">
 			<h3 class="text-info"><small>'.$system_controller_name.'</small></h3>';
 			if($zone_mode == 127 || $zone_mode == 87 || $zone_mode == 67){
 				echo '<h3 class="degre" ><img src="images/hvac_fan_30.png" border="0"></h3>';
@@ -430,13 +430,13 @@ require_once(__DIR__.'/st_inc/functions.php');
 			else { echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 48px;" class="statuszoon"></small>';}
 			echo '</h3></button>';
 
-			//Boiler Last 5 Status Logs listing model
-			echo '<div class="modal fade" id="boiler" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			//System Controller Last 5 Status Logs listing model
+			echo '<div class="modal fade" id="system_controller" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-							<h5 class="modal-title">'.$system_controller_name.' - '.$lang['boiler_recent_logs'].'</h5>
+							<h5 class="modal-title">'.$system_controller_name.' - '.$lang['system_controller_recent_logs'].'</h5>
 						</div>
 						<div class="modal-body">';
   							if ($system_controller_fault == '1') {
@@ -449,7 +449,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 								<ul class="chat">
 									<li class="left clearfix">
 										<div class="header">
-											<strong class="primary-font red">Boiler Fault!!!</strong>
+											<strong class="primary-font red">System Controller Fault!!!</strong>
 											<small class="pull-right text-muted">
 											<i class="fa fa-clock-o fa-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
 											</small>
@@ -465,12 +465,12 @@ require_once(__DIR__.'/st_inc/functions.php');
 							$bresults = $conn->query($bquery);
 							if (mysqli_num_rows($bresults) == 0){
 								echo '<div class=\"list-group\">
-									<a href="#" class="list-group-item"><i class="fa fa-exclamation-triangle red"></i>&nbsp;&nbsp;'.$lang['boiler_no_log'].'</a>
+									<a href="#" class="list-group-item"><i class="fa fa-exclamation-triangle red"></i>&nbsp;&nbsp;'.$lang['system_controller_no_log'].'</a>
 								</div>';
 							} else {
-								echo '<p class="text-muted">'. mysqli_num_rows($bresults) .' '.$lang['boiler_last_records'].'</p>
+								echo '<p class="text-muted">'. mysqli_num_rows($bresults) .' '.$lang['system_controller_last_records'].'</p>
 								<div class=\"list-group\">' ;
-									echo '<a href="#" class="list-group-item"> <i class="ionicons ion-flame fa-1x red"></i> Start &nbsp; - &nbsp;End <span class="pull-right text-muted"><em> '.$lang['boiler_on_minuts'].' </em></span></a>';
+									echo '<a href="#" class="list-group-item"> <i class="ionicons ion-flame fa-1x red"></i> Start &nbsp; - &nbsp;End <span class="pull-right text-muted"><em> '.$lang['system_controller_on_minuts'].' </em></span></a>';
 									while ($brow = mysqli_fetch_assoc($bresults)) {
 										echo '<a href="#" class="list-group-item"> <i class="ionicons ion-flame fa-1x red"></i> '. $brow['start_datetime'].' - ' .$brow['stop_datetime'].' <span class="pull-right text-muted"><em> '.$brow['on_minuts'].'&nbsp;</em></span></a>';
 									}
@@ -488,7 +488,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 			<!-- /.modal fade -->
 			';
 		}	
-		// end if boiler button
+		// end if system controller button
 
 		// Temperature Sensors Post System Controller
 		$query = "SELECT temperature_sensors.name, temperature_sensors.sensor_child_id, nodes.node_id, nodes.last_seen, nodes.notice_interval FROM temperature_sensors, nodes WHERE (nodes.id = temperature_sensors.sensor_id) AND temperature_sensors.zone_id = 0 AND temperature_sensors.show_it = 1 AND temperature_sensors.pre_post = 0 order by index_id asc;";

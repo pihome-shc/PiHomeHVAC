@@ -321,7 +321,7 @@ echo '
                                         <!-- /.form-group -->';
 					}
 
-					echo '<div class="form-group" class="control-label"><label>'.$lang['boiler_hysteresis_time'].'</label> <small class="text-muted">'.$lang['boiler_hysteresis_time_info'].'</small>
+					echo '<div class="form-group" class="control-label"><label>'.$lang['system_controller_hysteresis_time'].'</label> <small class="text-muted">'.$lang['system_controller_hysteresis_time_info'].'</small>
 						<select class="form-control input-sm" type="text" id="hysteresis_time" name="hysteresis_time">
 						<option selected>'.$brow['hysteresis_time'].'</option>
 						<option value="0">0</option>
@@ -369,10 +369,10 @@ echo '
 					';
 
                                         if (settings($conn, 'mode') == 0) {
-						echo '<div class="form-group" class="control-label"><label>'.$lang['boiler_overrun'].'</label> <small class="text-muted">'.$lang['boiler_overrun_info'].'</small>
+						echo '<div class="form-group" class="control-label"><label>'.$lang['system_controller_overrun'].'</label> <small class="text-muted">'.$lang['system_controller_overrun_info'].'</small>
 							<select class="form-control input-sm" type="text" id="overrun" name="overrun">
 							<option selected>'.$brow['overrun'].'</option>
-							<option value="-1">Keep valve open until next boiler start</option>
+							<option value="-1">Keep valve open until next System Controller start</option>
 							<option value="0">Disable</option>
 							<option value="1">1</option>
 							<option value="2">2</option>
