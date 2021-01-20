@@ -291,7 +291,7 @@ if ($results) {
 }
 
 //Adding Away Record 
-echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Raspberry GPIO\n";
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Away Status\n";
 $datetime = date('Y-m-d H:i:s');
 $query_system = "insert INTO `away` (`sync`, `purge`, `status`, start_datetime, `end_datetime`, `away_button_id`, `away_button_child_id`) VALUES (0, 0, 0, '$datetime', '$datetime', 0, 0);";
 $results = $conn->query($query_system);
@@ -310,7 +310,7 @@ if ($results) {
 	echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - GPIO Added \033[41mGPIO\033[0m Data  Succeeded \n";
 	$node_id = $conn->insert_id;
 } else {
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Raspberry Pi GPIO \033[41mGPIO\033[0m Data Failed \n";
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - GPIO \033[41mGPIO\033[0m Data Failed \n";
 }
 
 //Adding System Controller Record
