@@ -69,8 +69,8 @@ if (isset($_POST['submit'])) {
 	$sync = '0';
 	$purge= '0';
 	
-	$boiler = explode('-', $_POST['system_controller_id'], 2);
-	$boiler_id = $boiler[0];
+	$system_controller = explode('-', $_POST['system_controller_id'], 2);
+	$system_controller_id = $system_controller[0];
 
 	//query to search node id for temperature sensors
 	if ($zone_category < 2) {
@@ -747,8 +747,8 @@ function ControllerIDList(value, ind)
 <?php  $query = "SELECT id, controler_id, name FROM controller_relays WHERE type = 1;";
 $result = $conn->query($query);
 while ($datarw=mysqli_fetch_array($result)) {
-$boiler_id=$datarw["id"].'-'.$datarw["name"].' Controller Relay ID: '.$datarw["controler_id"];
-echo "<option>$boiler_id</option>";} ?>
+$system_controller_id=$datarw["id"].'-'.$datarw["name"].' Controller Relay ID: '.$datarw["controler_id"];
+echo "<option>$system_controller_id</option>";} ?>
 </select>
 <div class="help-block with-errors"></div></div>
 
