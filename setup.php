@@ -491,7 +491,7 @@ if ($tzname == 1) {
 
 	// Set Language
 	if ($handle = opendir('/var/www/languages')) {
-		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Language Setting Up PIHome Language\n";
+		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Language Setting Up MaxAir Language\n";
 		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Language Listing all available languages:\n";
 		$lnglist = array();
 		while (false !== ($entry = readdir($handle))) {
