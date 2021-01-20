@@ -60,13 +60,13 @@ require_once(__DIR__.'/st_inc/functions.php');
 	$result = $conn->query($query);
 	if ($result) {echo "<p class=\"text-info\"> <strong>".date('Y-m-d H:i:s'). "</strong> - MySQL DataBase Table away Records set to Sync 0 </p>"; }else {echo "<p class=\"text-danger\" <strong>".date('Y-m-d H:i:s'). "</strong> - MySQL DataBase Table away Records set to Sync 0 Failed </p>";}
 
-	$query = "UPDATE boiler SET `sync`='0';";
+	$query = "UPDATE system_controller SET `sync`='0';";
 	$result = $conn->query($query);
-	if ($result) {echo "<p class=\"text-info\"> <strong>".date('Y-m-d H:i:s'). "</strong> - MySQL DataBase Table boiler Records set to Sync 0 </p>"; }else {echo "<p class=\"text-danger\" <strong>".date('Y-m-d H:i:s'). "</strong> - MySQL DataBase Table boiler Records set to Sync 0 Failed </p>";}
+	if ($result) {echo "<p class=\"text-info\"> <strong>".date('Y-m-d H:i:s'). "</strong> - MySQL DataBase Table system_controller Records set to Sync 0 </p>"; }else {echo "<p class=\"text-danger\" <strong>".date('Y-m-d H:i:s'). "</strong> - MySQL DataBase Table system_controller Records set to Sync 0 Failed </p>";}
 
-	$query = "UPDATE boiler_logs SET `sync`='0';";
+	$query = "UPDATE controller_zone_logs SET `sync`='0';";
 	$result = $conn->query($query);
-	if ($result) {echo "<p class=\"text-info\"> <strong>".date('Y-m-d H:i:s'). "</strong> - MySQL DataBase Table boiler_logs Records set to Sync 0 </p>"; }else {echo "<p class=\"text-danger\" <strong>".date('Y-m-d H:i:s'). "</strong> - MySQL DataBase Table boiler_logs Records set to Sync 0 Failed </p>";}
+	if ($result) {echo "<p class=\"text-info\"> <strong>".date('Y-m-d H:i:s'). "</strong> - MySQL DataBase Table controller_zone_logs Records set to Sync 0 </p>"; }else {echo "<p class=\"text-danger\" <strong>".date('Y-m-d H:i:s'). "</strong> - MySQL DataBase Table controller_zone_logs Records set to Sync 0 Failed </p>";}
 
 	$query = "UPDATE boost SET `sync` ='0';";
 	$result = $conn->query($query);
