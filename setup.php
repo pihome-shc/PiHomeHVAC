@@ -198,12 +198,12 @@ $message = '#
 # to  check and start Smart Home Gateway python script if its not running.
 */1 * * * * php /var/www/cron/check_gw.php >/dev/null 2>&1
 
-# If you have Temperature Sensors Wired to Raspberry pi GPIO un-comment
+# If you have Temperature Sensors Connected using a GPIO pins un-comment
 # following line to read temperature sensors data.
 # */1 * * * * python3 /var/www/cron/gpio_ds18b20.py >/dev/null 2>&1
 
 
-# Main engine for PiHome Smart Heating, If you want to ouput logs then comment first line and uncomment second line.
+# Main engine for MaxAir Smart Heating, If you want to ouput logs then comment first line and uncomment second line.
 */1 * * * * /usr/bin/php /var/www/cron/controller.php >/dev/null 2>&1
 # */1 * * * * /usr/bin/php /var/www/cron/controller.php >>/var/www/cron/logs/controller.log 2>&1
 
