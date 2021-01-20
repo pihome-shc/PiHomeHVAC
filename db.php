@@ -366,7 +366,7 @@ if($what=="node"){
                 $results = $conn->query($query);
                 $row = mysqli_fetch_assoc($results);
                 if($row['name'] == 'Boiler Controller') {
-                        $query = "UPDATE boiler SET node_id = NULL WHERE node_id = '".$wid."' LIMIT 1";
+                        $query = "UPDATE system_controller SET node_id = NULL WHERE node_id = '".$wid."' LIMIT 1";
                         $conn->query($query);
                 } elseif($row['name'] == 'Zone Controller') {
                         $query = "UPDATE zone SET controler_id = NULL WHERE  controler_id = '".$wid."' LIMIT 1";
@@ -780,10 +780,10 @@ if($what=="system_controller_settings"){
 	$query = "SELECT * FROM system_controller LIMIT 1;";
         $result = $conn->query($query);
         if (mysqli_num_rows($result)==0){
-		//No record in boiler table, so add
+		//No record in system_controller table, so add
 		$query = "INSERT INTO `system_controller` VALUES (1,0,0,1,1,'".$name."','".$heat_node_id."','".$hysteresis_time."','".$max_operation_time."',now(),'".$overrun."',0,0,'".$heat_relay_id."','".$cool_relay_id."','".$fan_relay_id."');";
 	} else {
-		//Update Boiler Setting 
+		//Update system_controller Setting 
 		$query = "UPDATE system_controller SET status = '".$status."', name = '".$name."', node_id = '".$heat_node_id."', hysteresis_time = '".$hysteresis_time."', max_operation_time = '".$max_operation_time."', overrun = '".$overrun."', heat_relay_id = '".$heat_relay_id."', cool_relay_id = '".$cool_relay_id."', fan_relay_id = '".$fan_relay_id."' where ID = 1;";
 	}
 	if($conn->query($query)){
@@ -839,14 +839,11 @@ if($what=="setup_piconnect"){
 	//Set away to 0 
 	$query = "UPDATE away SET `sync`='0';";
 	$result = $conn->query($query);
-	//Update Boiler to sync
-	$query = "UPDATE boiler SET `sync`='0';";
+	//Update System Controller to sync
+	$query = "UPDATE system_controller SET `sync`='0';";
 	$result = $conn->query($query);
-	//Update boiler Records to sync 
-	$query = "UPDATE boiler SET `sync`='0';";
-	$result = $conn->query($query);
-	//Update boiler logs to sync 
-	$query = "UPDATE boiler_logs SET `sync`='0';";
+	//Update system_controller logs to sync 
+	$query = "UPDATE controller_zone_logs SET `sync`='0';";
 	$result = $conn->query($query);
 	//upate boost records to sync 
 	$query = "UPDATE boost SET `sync` ='0';";
@@ -1009,7 +1006,7 @@ if($what=="setup_gateway"){
         $query = "SELECT * FROM gateway LIMIT 1;";
         $result = $conn->query($query);
         if (mysqli_num_rows($result)==0){
-                //No record in boiler gateway, so add
+                //No record in gateway, so add
                 $query = "INSERT INTO `gateway` VALUES (1,1,0,0,'".$gw_type."','".$gw_location."','".$gw_port."','".$gw_timout."',0, 0, 0, 0, 0);";
         } else {
 		$query = "UPDATE gateway SET status = '".$status."', `sync` = '0', type = '".$gw_type."', location = '".$gw_location."', port = '".$gw_port."', timout = '".$gw_timout."' where ID = 1;";
