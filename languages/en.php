@@ -549,4 +549,6 @@ $lang['hvac_function'] = "HVAC Function";
 $lang['hvac_boost_info_text'] = "Create Boost Option for HVAC Function";
 $lang['system_controller'] = "System Controller";
 $lang['graph_num'] = "Graph Number";
+$lang['graph_addon_usage'] = "Daily Add-On Zone Controller Graphs";
+$lang['graph_addon_state_text'] = "State of Add-On Zone Controllers over the last 24 hours";
 ?>

@@ -1788,7 +1788,7 @@ echo '
             <div class="modal-body">
 <p class="text-muted">'.$lang['cron_jobs_text'].'</p>';
 echo '	<div class=\"list-group\">';
-    $SArr=[['name'=>'Boiler','interval'=>'60','service'=>'/var/www/cron/boiler.php'],
+    $SArr=[['name'=>'Boiler','interval'=>'60','service'=>'/var/www/cron/controller.php'],
            ['name'=>'DB Cleanup','interval'=>'86400','service'=>'/var/www/cron/db_cleanup.php'],
            ['name'=>'Check Gateway','interval'=>'60','service'=>'/var/www/cron/check_gw.php'],
            ['name'=>'Weather Update','interval'=>'1800','service'=>'/var/www/cron/weather_update.php'],
