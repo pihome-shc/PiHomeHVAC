@@ -81,6 +81,7 @@ $lang['system_controller_no_log'] = "No System Controller log record found.";
 $lang['system_controller_last_records'] = "Last System Controller Log Records.";
 $lang['system_controller_on_minuts'] = "On Minutes";
 $lang['system_controller_recent_logs'] = "Recent Logs";
+$lang['boiler'] = "Boiler";
 $lang['boiler_enable'] = "Enable Boiler";
 $lang['boiler_name'] = "Boiler Display Name";
 $lang['boiler_node_id'] = "Node ID";
