@@ -406,10 +406,8 @@ $lang['tooltip_3'] = "Boiler Configuration Menus";
 $lang['tooltip_4'] = "Node and Zone Configuration";
 $lang['system_status'] = "System Status";
 $lang['system_configuration'] = "System Configuration";
-$lang['boiler_configuration'] = "Boiler Configuration";
 $lang['node_zone_configuration'] = "Node and Zone Configuration";
 
-$lang['boiler_no_nodes'] = "*** YOU NEED TO CONFIGURE A SUITABLE NODE FIRST ***";
 $lang['schedule_night_climate_time_success'] = "Night Climate Time Default Added Successfully.";
 $lang['schedule_night_climate_time_fail'] = "Night Climate Time Default failed with error: ";
 $lang['away_success'] = "Away Table Default Added Successfully.";
