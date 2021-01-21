@@ -17,7 +17,7 @@ print("   | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| ")
 print("   | |  | | | (_| |  >  <   / ____ \  | | | |    ")
 print("   |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
 print(" ")
-print("             " +bc.SUB + "S M A R T   THERMOSTAT " + bc.ENDC)
+print("        " +bc.SUB + "S M A R T   T H E R M O S T A T " + bc.ENDC)
 print(bc.WARN +" ")
 print("********************************************************")
 print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
@@ -35,12 +35,6 @@ from datetime import datetime
 import struct
 import requests
 import socket, re
-
-# Get the local ip address
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.connect(('google.com', 0))
-ip = s.getsockname()[0]
-base_ip = re.search('^[\d]{1,3}.[\d]{1,3}.[\d]{1,3}.', ip)
 
 # Debug print to screen configuration
 dbgLevel = 3 	# 0-off, 1-info, 2-detailed, 3-all
@@ -307,26 +301,43 @@ try:
 					cur.execute('UPDATE `nodes` SET `last_seen`=now(), `sync`=0  WHERE node_id = %s', [node_id])
 					con.commit()
                                         # Check is sensor is attached to a zone which is being graphed
-					cur.execute('SELECT * FROM `zone_view` where sensors_id = (%s) AND sensor_child_id = (%s) LIMIT 1;', (node_id, child_sensor_id))
+					cur.execute('SELECT temperature_sensors.id, temperature_sensors.zone_id, nodes.node_id, temperature_sensors.sensor_child_id, temperature_sensors.name, temperature_sensors.graph_num FROM temperature_sensors, `nodes` WHERE (temperature_sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) AND temperature_sensors.sensor_child_id = (%s) AND temperature_sensors.graph_num > 0 LIMIT 1;', (node_id, child_sensor_id))
 					results =cur.fetchone()
 					if cur.rowcount > 0:
-                                                name_to_index = dict(
-                                                (d[0], i)
-                                                for i, d
-                                                in enumerate(cur.description)
-                                                )
-                                                zone_id = int(results[name_to_index['id']])
-                                                name = results[name_to_index['name']]
-                                                type = results[name_to_index['type']]
-                                                category = int(results[name_to_index['category']])
-                                                graph_num = int(results[name_to_index['graph_num']])
-                                                if category < 2 and graph_num > 0:
-                                                        if dbgLevel >= 2 and dbgMsgIn == 1:
-                                                                print("5a: Adding Temperature Reading to Graph Table From Node ID:", node_id, " Child Sensor ID:", child_sensor_id, " PayLoad:", payload)
-                                                        cur.execute('INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', (0,0,zone_id,name,type,category,node_id,child_sensor_id,sub_type,payload,timestamp))
-                                                        con.commit()
-                                                        cur.execute('DELETE FROM zone_graphs WHERE node_id = (%s) AND child_id = (%s) AND datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR;', (node_id, child_sensor_id))
-                                                        con.commit()
+						sensor_to_index = dict(
+						(d[0], i)
+						for i, d
+						in enumerate(cur.description)
+						)
+						sensor_id = int(results[sensor_to_index['id']])
+						sensor_name = results[sensor_to_index['name']]
+						zone_id = results[sensor_to_index['zone_id']]
+                                                #type = results[zone_view_to_index['type']]
+                                                #category = int(results[zone_view_to_index['category']])
+						graph_num = int(results[sensor_to_index['graph_num']])
+						if graph_num > 0:
+							if dbgLevel >= 2 and dbgMsgIn == 1:
+								print("5a: Adding Temperature Reading to Graph Table From Node ID:", node_id, " Child Sensor ID:", child_sensor_id, " PayLoad:", payload)
+							if zone_id == 0:
+								cur.execute('INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', (0,0,sensor_id,sensor_name,"Sensor",0,node_id,child_sensor_id,sub_type,payload,timestamp))
+								con.commit()
+							else:
+								cur.execute('SELECT * FROM `zone_view` where id = (%s) LIMIT 1;', (zone_id, ))
+								results =cur.fetchone()
+								if cur.rowcount > 0:
+                                                                    zone_view_to_index = dict(
+                                                                    (d[0], i)
+                                                                    for i, d
+                                                                    in enumerate(cur.description)
+                                                                    )
+                                                                    zone_name = results[zone_view_to_index['name']]
+                                                                    type = results[zone_view_to_index['type']]
+                                                                    category = int(results[zone_view_to_index['category']])
+                                                                    if category < 2:
+                                                                        cur.execute('INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', (0,0,sensor_id,zone_name,type,category,node_id,child_sensor_id,sub_type,payload,timestamp))
+                                                                        con.commit()
+							cur.execute('DELETE FROM zone_graphs WHERE node_id = (%s) AND child_id = (%s) AND datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR;', (node_id, child_sensor_id))
+							con.commit()
 
 				# ..::Step Six::..
 				# Add Battery Voltage Nodes Battery Table

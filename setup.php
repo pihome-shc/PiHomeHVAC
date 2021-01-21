@@ -321,7 +321,7 @@ $results = $conn->query($query_system);
 if ($results) {
         echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Record Added \033[41mSystem Controller\033[0m Data  Succeeded \n";
 } else {
-        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller \033[41mSSystem Controller\033[0m Data Failed \n";
+        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller \033[41mSystem Controller\033[0m Data Failed \n";
 }
 
 //Adding Zone Type Records 
@@ -332,7 +332,17 @@ $results = $conn->query($query_zone_type);
 if ($results) {
 		echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Type Records Added \033[41mZone Type\033[0m Data  Succeeded \n";
 } else {
-		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Type Records \033[41mSZone Type\033[0m Data Failed \n";
+		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Type Records \033[41mZone Type\033[0m Data Failed \n";
+}
+
+//Adding Initial Network Settings Record, (needed by gateway.py) 
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Initial Network Settings Record\n";
+$query_network_settings = "INSERT INTO `network_settings`(`sync`, `purge`, `primary_interface`, `ap_mode`, `interface_num`, `interface_type`, `mac_address`, `hostname`, `ip_address`, `gateway_address`, `net_mask`, `dns1_address`, `dns2_address`) VALUES (0, 0, 1, 0, 0, 'wlan0', '', '', '10.0.0.100', '10.0.0.1', '255.255.255.0', '', '');";
+$results = $conn->query($query_network_settings);
+if ($results) {
+		echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Network Settings Record Added \033[41mNetwork Settings\033[0m Data  Succeeded \n";
+} else {
+		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Network Settings Record \033[41mNetwork Settings\033[0m Data Failed \n";
 }
 
 // 
