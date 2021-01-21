@@ -6,9 +6,7 @@
             | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
             | |  | | | (_| |  >  <   / ____ \  | | | |
             |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
-
                     S M A R T   T H E R M O S T A T
-
 *************************************************************************"
 * MaxAir is a Linux based Central Heating Control systems. It runs from *"
 * a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *"
@@ -87,6 +85,7 @@ $graph2 = $graph2."{label: \"".$lang['graph_outsie']."\", data: ".json_encode($w
 $graph3 = $graph3."{label: \"".$lang['cpu']."\", data: ".json_encode($system_c).", color: '".graph_color($count, ++$counter)."'}, \n";
 
 //background-color for system controller on time
+$query="select start_datetime, stop_datetime, type from zone_log_view where status= '1' AND start_datetime > current_timestamp() - interval 24 hour;";
 $query="SELECT start_datetime, stop_datetime, type FROM zone_log_view WHERE start_datetime > current_timestamp() - interval 24 hour;";
 $results = $conn->query($query);
 $count=mysqli_num_rows($results);
@@ -94,17 +93,18 @@ $warn1 = '';
 $warn2 = '';
 while ($row = mysqli_fetch_assoc($results)) {
         if((--$count)==-1) break;
+        $zone_type=$row['type'];
         $system_controller_start = strtotime($row['start_datetime']) * 1000;
         if (is_null($row['stop_datetime'])) {
                 $system_controller_stop = strtotime("now") * 1000;
         } else {
                 $system_controller_stop = strtotime($row['stop_datetime']) * 1000;
         }
-        if(strpos($zone_type, 'Heating') {
+        if(strpos($zone_type, 'Heating') !== false) {
                 $warn1 = $warn1."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
         } elseif((strpos($zone_type, 'Water') !== false) || (strpos($zone_type, 'Immersion') !== false)) {
                 $warn2 = $warn2."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
-	}
+        }
 }
 
 //only show on chart page footer  ?>
@@ -116,6 +116,7 @@ while ($row = mysqli_fetch_assoc($results)) {
     <script type="text/javascript" src="js/plugins/flot/jquery.flot.js"></script>
     <script type="text/javascript" src="js/plugins/flot/jquery.flot.time.js"></script>
     <script type="text/javascript" src="js/plugins/flot/jquery.flot.symbol.js"></script>
+    <script type="text/javascript" src="js/plugins/flot/jquery.flot.tickrotor.js"></script>
     <script type="text/javascript" src="js/plugins/flot/jquery.flot.axislabels.js"></script>
     <script type="text/javascript" src="js/plugins/flot/jquery.flot.resize.js"></script>
     <script type="text/javascript" src="js/plugins/flot/jquery.flot.tooltip.min.js"></script>
@@ -216,6 +217,7 @@ var options_addon = {
 
 $(document).ready(function () {$.plot($("#addon_state"), addon_state_dataset, options_addon);$("#addon_state").UseTooltipao();});
 var previousPoint = null, previousLabel = null;
+
 
 $.fn.UseTooltipao = function () {
     $(this).bind("plothover", function (event, pos, item) {
