@@ -335,6 +335,16 @@ if ($results) {
 		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Type Records \033[41mSZone Type\033[0m Data Failed \n";
 }
 
+//Adding Initial Network Settings Record, (needed by gateway.py) 
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Initial Network Settings Record\n";
+$query_network_settings = "INSERT INTO `network_settings`(`sync`, `purge`, `primary_interface`, `ap_mode`, `interface_num`, `interface_type`, `mac_address`, `hostname`, `ip_address`, `gateway_address`, `net_mask`, `dns1_address`, `dns2_address`) VALUES (0, 0, 1, 0, 0, "wlan0", "", "", "10.0.0.100", "10.0.0.1", "255.255.255.0", "", "");";
+$results = $conn->query($query_network_setting);
+if ($results) {
+		echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Network Settings Record Added \033[41mZone Type\033[0m Data  Succeeded \n";
+} else {
+		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Network Settings Record \033[41mSZone Type\033[0m Data Failed \n";
+}
+
 // 
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Database and Crontab Setup Completed.\n\t\t\tDo you want to continue with Time Zone, Language and Temperature Unit setup?\n\t\t\tEnter 'y' to continue or 'n' to finish with setup.\n";
 $units = array('y' => 1, 'yes'=> 1, 'n'=> 0, 'no'=> 0);
