@@ -36,12 +36,6 @@ import struct
 import requests
 import socket, re
 
-# Get the local ip address
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.connect(('google.com', 0))
-ip = s.getsockname()[0]
-base_ip = re.search('^[\d]{1,3}.[\d]{1,3}.[\d]{1,3}.', ip)
-
 # Debug print to screen configuration
 dbgLevel = 3 	# 0-off, 1-info, 2-detailed, 3-all
 dbgMsgOut = 1 	# 0-disabled, 1-enabled, show details of outgoing messages
