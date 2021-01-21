@@ -274,7 +274,6 @@ if (mysqli_num_rows($result) > 0){
 
 //following variable set to 0 on start for array index.
 $system_controller_index = '0';
-$zone_index = '0';
 $command_index = '0';
 $current_time = date('H:i:s');
 
@@ -1182,8 +1181,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 			$system_controller[$system_controller_index] = $zone_status;
 			$system_controller_index = $system_controller_index+1;
 			//all zone ids and status to multidimensional Array. and increment array index.
-			$zone_log[$zone_index] = (array('zone_id' =>$zone_id, 'status'=>$zone_status));
-			$zone_index = $zone_index+1;
+			$zone_log[$zone_id] = $zone_status;
 			//process Zone Cat 1 and 2 logs
 		} else {
 			// Process Logs Category 1 and 2 logs if zone status has changed
