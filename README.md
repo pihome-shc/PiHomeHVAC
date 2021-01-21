@@ -39,7 +39,7 @@ Basic knowledge of command line with following main components for MaxAir to fun
 
 ## How To Install
 * sudo rm -R /var/www
-* sudo apt-get install git
+* sudo apt -y install git
 * sudo git clone https://github.com/pihome-shc/PiHomeHVAC.git "/var/www"
 * sudo chown -R www-data:www-data /var/www
 * sudo php /var/www/setup.php
