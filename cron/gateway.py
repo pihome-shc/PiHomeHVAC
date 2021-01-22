@@ -94,11 +94,15 @@ try:
 	msgcount = 0 # Defining variable for counting messages processed
 	
 	# Get the network address for use by Tasmota devices
-	cur.execute('SELECT gateway_address FROM network_settings where interface_type = "wlan0" limit 1')
+	cur.execute('SELECT gateway_address FROM network_settings where interface_type = "wlan%" limit 1')
 	row = cur.fetchone()
-	net_gw = row[0]
-	net_gw = net_gw[0:(net_gw.rfind(".")+1)]
-
+	if cur.rowcount > 0:
+		network_found = 1
+		net_gw = row[0]
+		net_gw = net_gw[0:(net_gw.rfind(".")+1)]
+	else:
+		network_found = 0
+		
 	while 1:
 	## Outgoing messages
 		con.commit()
@@ -163,7 +167,7 @@ try:
 					gw.write(msg.encode('utf-8'))
 				cur.execute('UPDATE `messages_out` set sent=1 where id=%s', [out_id]) #update DB so this message will not be processed in next loop
 				con.commit() #commit above
-			else:
+			elif network_found == 1: # only process Sonoff device if connected to the local wlan
 				# process the Sonoff device HTTP action
 				url = 'http://' + net_gw + str(out_child_id) + '/cm'
 				cmd = out_payload.split(' ')[0].upper()
