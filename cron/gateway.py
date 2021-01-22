@@ -94,7 +94,7 @@ try:
 	msgcount = 0 # Defining variable for counting messages processed
 	
 	# Get the network address for use by Tasmota devices
-	cur.execute('SELECT gateway_address FROM network_settings where interface_type = "wlan%" limit 1')
+	cur.execute('SELECT gateway_address FROM network_settings where interface_type LIKE "wlan%" limit 1')
 	row = cur.fetchone()
 	if cur.rowcount > 0:
 		network_found = 1
