@@ -761,7 +761,7 @@ $(function() {
    $(".dial").knob({
        'min':0,
        'max':50,
-       "fgColor":"#FF0000",
+       "fgColor":"#0000FF",
        "skin":"tron",
        'step':0.5
    });
