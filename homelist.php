@@ -709,10 +709,10 @@ require_once(__DIR__.'/st_inc/functions.php');
                                                 </div>
 						<!-- /.modal-header -->
                                                 <div class="modal-body">
-                                                 	<div class="slidecontainer">
- 								<h4><br><span id="live_val" style="display: inline-flex !important; font-size:18px !important;"><output name="show_min_temp_val" id="live_temp" style="padding-top:0px !important; font-size:18px !important;">'.DispTemp($conn, $row['default_c']).'</output></span>&deg;</h4><br></td>
-                                                         	<input type="range" min="0" max="100" step="0.5" value="'.DispTemp($conn, $row['default_c']).'" id="default_c" name="live_temp" oninput=update_slider(this.value,"live_temp")>
-                                        		</div>
+                                                        <div style="text-align:center;">
+                                                                <h4><br><p>Default Temperature For The Heating Zone</p></h4><br>
+                                                                <input type="text" value="'.DispTemp($conn, $row['default_c']).'" class="dial" id="default_c" name="live_temp">
+                                                        </div>
                                         	<!-- /.modal-body -->
                                                 </div>
                                                 <div class="modal-footer"><button type="button" class="btn btn-default btn-sm" data-dismiss="modal">'.$lang['cancel'].'</button>
@@ -757,12 +757,14 @@ require_once(__DIR__.'/st_inc/functions.php');
 <?php if(isset($conn)) { $conn->close();} ?>
 
 <script language="javascript" type="text/javascript">
-function update_slider(value, id)
-{
- var valuetext = value;
- var idtext = id;
- document.getElementById(id).innerTex = parseFloat(value);
- document.getElementById(id).value = parseFloat(value);
-}
+$(function() {
+   $(".dial").knob({
+       'min':0,
+       'max':50,
+       "fgColor":"#FF0000",
+       "skin":"tron",
+       'step':0.5
+   });
+});
 </script>
 
