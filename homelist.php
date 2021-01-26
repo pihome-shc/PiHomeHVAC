@@ -763,7 +763,7 @@ $(function() {
        'max':50,
        "fgColor":"#0000FF",
        "skin":"tron",
-       'step':0.5
+       'step':1
    });
 });
 </script>
