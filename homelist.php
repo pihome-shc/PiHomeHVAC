@@ -707,22 +707,16 @@ require_once(__DIR__.'/st_inc/functions.php');
                                                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                                                         <h5 class="modal-title">'.$lang['live_temperature'].'</h5>
                                                 </div>
+						<!-- /.modal-header -->
                                                 <div class="modal-body">
-                                                        <table class="table">
-                                                                <tr>
-                                                                        <th class="col-xs-1"><small>'.$lang['live_temperature'].'</small></th>
-									<th class="col-xs-11"></small></th>
-                                                                </tr>
-                                                                <tr>
-                                                                        <td><div class="slider-wrapper">
-                                                                                <input type="range" min="0" max="100" step="0.5" value="'.DispTemp($conn, $row['default_c']).'" id="default_c" name="live_temp" oninput=update_slider(this.value,"live_temp")>
-                                                                        </div></td>
-									<td><h4><br><br><br><span id="live_val" style="display: inline-flex !important; font-size:18px !important;"><output name="show_min_temp_val" id="live_temp" style="padding-top:0px !important; font-size:18px !important;">'.DispTemp($conn, $row['default_c']).'</output></span>&deg;</h4><br></td>
-                                                                </tr>
-                                                        </table>
+                                                 	<div class="slidecontainer">
+ 								<h4><br><span id="live_val" style="display: inline-flex !important; font-size:18px !important;"><output name="show_min_temp_val" id="live_temp" style="padding-top:0px !important; font-size:18px !important;">'.DispTemp($conn, $row['default_c']).'</output></span>&deg;</h4><br></td>
+                                                         	<input type="range" min="0" max="100" step="0.5" value="'.DispTemp($conn, $row['default_c']).'" id="default_c" name="live_temp" oninput=update_slider(this.value,"live_temp")>
+                                        		</div>
+                                        	<!-- /.modal-body -->
                                                 </div>
                                                 <div class="modal-footer"><button type="button" class="btn btn-default btn-sm" data-dismiss="modal">'.$lang['cancel'].'</button>
-                				<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="update_defaut_c()">
+                					<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="update_defaut_c()">
                                                 </div>
                                                 <!-- /.modal-footer -->
                                         </div>
