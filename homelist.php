@@ -601,11 +601,12 @@ require_once(__DIR__.'/st_inc/functions.php');
                         $result = $conn->query($query);
                         $lt_status=mysqli_num_rows($result);
                         if ($lt_status==1) {$lt_status='red';}else{$lt_status='blue';}
-                        echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" href="#livetemperature" data-backdrop="static" data-keyboard="false">
-                        <h3 class="text-info"><small>'.$lang['live_temp'].'</small></h3>
+                        echo '<a style="color: #777; cursor: pointer; text-decoration: none;">
+                        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" href="#livetemperature" data-backdrop="static" data-keyboard="false">
+                        <h3 class="buttontop"><small>'.$lang['live_temp'].'</small></h3>
 			<h3 class="degre" ><img src="images/temp_20.png" border="0"></h3>
                         <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$lt_status.'"></i></small></h3>
-                        </button>';
+                        </button></a>';
 
 			//query to check override status
 			$query = "SELECT status FROM override WHERE status = '1' LIMIT 1";
@@ -706,22 +707,16 @@ require_once(__DIR__.'/st_inc/functions.php');
                                                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                                                         <h5 class="modal-title">'.$lang['live_temperature'].'</h5>
                                                 </div>
+						<!-- /.modal-header -->
                                                 <div class="modal-body">
-                                                        <table class="table">
-                                                                <tr>
-                                                                        <th class="col-xs-1"><small>'.$lang['live_temperature'].'</small></th>
-									<th class="col-xs-11"></small></th>
-                                                                </tr>
-                                                                <tr>
-                                                                        <td><div class="slider-wrapper">
-                                                                                <input type="range" min="0" max="100" step="0.5" value="'.DispTemp($conn, $row['default_c']).'" id="default_c" name="live_temp" oninput=update_slider(this.value,"live_temp")>
-                                                                        </div></td>
-									<td><h4><br><br><br><span id="live_val" style="display: inline-flex !important; font-size:18px !important;"><output name="show_min_temp_val" id="live_temp" style="padding-top:0px !important; font-size:18px !important;">'.DispTemp($conn, $row['default_c']).'</output></span>&deg;</h4><br></td>
-                                                                </tr>
-                                                        </table>
+                                                        <div style="text-align:center;">
+                                                                <h4><br><p>Default Temperature For The Heating Zone</p></h4><br>
+                                                                <input type="text" value="'.DispTemp($conn, $row['default_c']).'" class="dial" id="default_c" name="live_temp">
+                                                        </div>
+                                        	<!-- /.modal-body -->
                                                 </div>
                                                 <div class="modal-footer"><button type="button" class="btn btn-default btn-sm" data-dismiss="modal">'.$lang['cancel'].'</button>
-                				<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="update_defaut_c()">
+                					<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="update_defaut_c()">
                                                 </div>
                                                 <!-- /.modal-footer -->
                                         </div>
@@ -762,12 +757,14 @@ require_once(__DIR__.'/st_inc/functions.php');
 <?php if(isset($conn)) { $conn->close();} ?>
 
 <script language="javascript" type="text/javascript">
-function update_slider(value, id)
-{
- var valuetext = value;
- var idtext = id;
- document.getElementById(id).innerTex = parseFloat(value);
- document.getElementById(id).value = parseFloat(value);
-}
+$(function() {
+   $(".dial").knob({
+       'min':0,
+       'max':50,
+       "fgColor":"#0000FF",
+       "skin":"tron",
+       'step':1
+   });
+});
 </script>
 

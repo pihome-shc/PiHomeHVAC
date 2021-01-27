@@ -50,6 +50,9 @@
         <!-- bootstrap confirmation -->
         <script src="js/plugins/confirmation/bootstrap-confirmation.min.js"></script>
 
+        <!-- jquery knob -->
+        <script src="js/plugins/knob/jquery.knob.js"></script>
+
 <script>	
 $(document).ready(function() {
     var maxField = 10; //Input fields increment limitation
