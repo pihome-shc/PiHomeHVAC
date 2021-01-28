@@ -23,13 +23,19 @@ require_once(__DIR__.'/st_inc/session.php');
 confirm_logged_in();
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
+if(isset($_GET['page_name'])) {
+        $page_name = $_GET['page_name'];
+} else {
+        $page_name = "homelist";
+}
 ?>
 <?php include("header.php"); ?>
         <div id="page-wrapper">
 <br>
+<input type="hidden" id="page_link" value="<?php echo $page_name;?>">
             <div class="row">
                 <div class="col-lg-12">
-                   	<div id="homelist" >
+                   	<div id="<?php echo $page_name; ?>" >
 				   <div class="text-center"><br><br><p><?php echo $lang['please_wait_text']; ?></p>
 				   <br><br><img src="images/loader.gif">
 				   <br><br><br><br>
