@@ -50,7 +50,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 
 		<?php
 		//query to check live temperature status
-		$query = "SELECT status FROM live_temperature WHERE status = '1' LIMIT 1";
+		$query = "SELECT active FROM livetemp WHERE active = 1 LIMIT 1";
 		$result = $conn->query($query);
 		$lt_status=mysqli_num_rows($result);
 		if ($lt_status==1) {$lt_status='red';}else{$lt_status='blue';}
