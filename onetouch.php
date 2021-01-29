@@ -150,7 +150,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                 $livetemp_zone_id = $row['zone_id'];
                 $livetemp_active = $row['active'];
                 if ($livetemp_active == 0) { $check_visible = 'display:none'; } else { $check_visible = 'display:block'; }
-                $query = "SELECT mode, temp_target FROM zone_current_state WHERE zone_id = ".$livetemp_zone_id." LIMIT 1";
+                $query = "SELECT mode, temp_reading, temp_target FROM zone_current_state WHERE zone_id = ".$livetemp_zone_id." LIMIT 1";
                 $result = $conn->query($query);
                 $row = mysqli_fetch_array($result);
                 if ($row['mode'] == 0) {
@@ -171,7 +171,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 					</div>
                                         <div class="modal-body">
                                                 <div style="text-align:center;">
-                                                        <h4><br><p>Default Temperature For The Heating Zone</p></h4><br>
+                                                        <h4><br><p>Current Heating Zone Temperature - '.$row['temp_reading'].'&deg</p></h4><br>
                                                         <input type="text" value="'.DispTemp($conn, $set_temp).'" class="dial" id="livetemp_c" name="live_temp">
                                                         <div class="checkbox checkbox-default checkbox-circle" style="'.$check_visible.'">
                                                                 <input id="checkbox" class="styled" type="checkbox" value="0" name="status" checked Enabled>
