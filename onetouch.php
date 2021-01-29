@@ -144,16 +144,23 @@ require_once(__DIR__.'/st_inc/functions.php');
 
 		<?php
 		// live temperature modal
-                $query = "SELECT zone_id, active, temperature FROM livetemp LIMIT 1";
+                $query = "SELECT zone_id, active FROM livetemp LIMIT 1";
                 $result = $conn->query($query);
                 $row = mysqli_fetch_array($result);
                 $livetemp_zone_id = $row['zone_id'];
                 $livetemp_active = $row['active'];
-                $livetemp_c = $row['temperature'];
                 if ($livetemp_active == 0) { $check_visible = 'display:none'; } else { $check_visible = 'display:block'; }
-                $query = "SELECT temp_target FROM zone_current_state WHERE zone_id = ".$livetemp_zone_id." LIMIT 1";
-		$result = $conn->query($query);
-		$row = mysqli_fetch_array($result);
+                $query = "SELECT mode, temp_target FROM zone_current_state WHERE zone_id = ".$livetemp_zone_id." LIMIT 1";
+                $result = $conn->query($query);
+                $row = mysqli_fetch_array($result);
+                if ($row['mode'] == 0) {
+                        $query = "SELECT default_c FROM zone_view WHERE id =  ".$livetemp_zone_id." LIMIT 1";
+                        $zresult = $conn->query($query);
+                        $zrow = mysqli_fetch_array($zresult);
+                        $set_temp = $zrow['default_c'];
+                } else {
+                        $set_temp = $row['temp_target'];
+                }
 		echo '<input type="hidden" id="zone_id" name="zone_id" value="'.$livetemp_zone_id.'"/>
 		<div class="modal fade" id="livetemperature" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 			<div class="modal-dialog">
@@ -165,7 +172,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                                         <div class="modal-body">
                                                 <div style="text-align:center;">
                                                         <h4><br><p>Default Temperature For The Heating Zone</p></h4><br>
-                                                        <input type="text" value="'.DispTemp($conn, $row['temp_target']).'" class="dial" id="livetemp_c" name="live_temp">
+                                                        <input type="text" value="'.DispTemp($conn, $set_temp).'" class="dial" id="livetemp_c" name="live_temp">
                                                         <div class="checkbox checkbox-default checkbox-circle" style="'.$check_visible.'">
                                                                 <input id="checkbox" class="styled" type="checkbox" value="0" name="status" checked Enabled>
                                                                 <label for="checkbox"> '.$lang['livetemp_enable'].'</label>
