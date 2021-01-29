@@ -125,13 +125,14 @@ window.setTimeout(function() {
     });
 }, 10000);
 
-<?php if ($_SERVER['REQUEST_URI'] == '/home.php'){ ?>
-	//load homelist.php  
-	$(document).ready(function(){
-		$.get('homelist.php', function(output) {
-			$('#homelist').html(output).fadeIn(50);
-		});
-	});
+//load homelist or onetouch depending on value of page_link set in home.php
+<?php if (strtok($_SERVER["REQUEST_URI"], '?') == '/home.php'){ ?>
+        var x = document.getElementById("page_link").value;
+        $(document).ready(function(){
+                $.get(x.concat('.php'), function(output) {
+                        $('#'.concat(x)).html(output).fadeIn(50);
+                });
+        });
 <?php } ?>
 
 <?php if ($_SERVER['REQUEST_URI'] == '/schedule.php'){ ?>

@@ -35,7 +35,7 @@ require_once(__DIR__.'/st_inc/functions.php');
         </div>
         <!-- /.panel-heading -->
         <div class="panel-body">
-                <a style="color: #777; cursor: pointer; text-decoration: none;" data-toggle="collapse" data-parent="#accordion" href="#collapseone">
+                <a style="color: #777; cursor: pointer; text-decoration: none;" href="home.php?page_name=onetouch">
                 <button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn">
                 <h3><small><?php echo $lang['one_touch']; ?></small></h3>
                 <h3 class="degre" style="margin-top:0px;"><i class="fa fa-bullseye fa-2x"></i></h3>
@@ -593,139 +593,6 @@ require_once(__DIR__.'/st_inc/functions.php');
                 }
                 echo '<input type="hidden" id="sch_active" name="sch_active" value="'.$sch_status.'"/>';
                 ?>
-		<!-- One touch buttons -->
-		<div id="collapseone" class="panel-collapse collapse animated fadeIn">
-			<?php
-                        //query to check live temperature status
-                        $query = "SELECT status FROM live_temperature WHERE status = '1' LIMIT 1";
-                        $result = $conn->query($query);
-                        $lt_status=mysqli_num_rows($result);
-                        if ($lt_status==1) {$lt_status='red';}else{$lt_status='blue';}
-                        echo '<a style="color: #777; cursor: pointer; text-decoration: none;">
-                        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" href="#livetemperature" data-backdrop="static" data-keyboard="false">
-                        <h3 class="buttontop"><small>'.$lang['live_temp'].'</small></h3>
-			<h3 class="degre" ><img src="images/temp_20.png" border="0"></h3>
-                        <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$lt_status.'"></i></small></h3>
-                        </button></a>';
-
-			//query to check override status
-			$query = "SELECT status FROM override WHERE status = '1' LIMIT 1";
-			$result = $conn->query($query);
-			$override_status=mysqli_num_rows($result);
-			if ($override_status==1) {$override_status='red';}else{$override_status='blue';}
-			echo '<a style="color: #777; cursor: pointer; text-decoration: none;" href="override.php">
-			<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
-			<h3 class="buttontop"><small>'.$lang['override'].'</small></h3>
-			<h3 class="degre" ><i class="fa fa-refresh fa-1x"></i></h3>
-			<h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$override_status.'"></i></small>
-			</h3></button></a>';
-
-			//query to check boost status
-			$query = "SELECT status FROM boost WHERE status = '1' LIMIT 1";
-			$result = $conn->query($query);
-			$boost_status=mysqli_num_rows($result);
-			if ($boost_status ==1) {$boost_status='red';}else{$boost_status='blue';}
-			echo '<a style="color: #777; cursor: pointer; text-decoration: none;" href="boost.php">
-			<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
-			<h3 class="buttontop"><small>'.$lang['boost'].'</small></h3>
-			<h3 class="degre" ><i class="fa fa-rocket fa-1x"></i></h3>
-			<h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$boost_status.'"></i></small>
-			</h3></button></a>';
-
-			//query to check night climate
-			$query = "SELECT * FROM schedule_night_climate_time WHERE id = 1";
-			$results = $conn->query($query);
-			$row = mysqli_fetch_assoc($results);
-			if ($row['status'] == 1) {$night_status='red';}else{$night_status='blue';}
-			echo '<a style="color: #777; cursor: pointer; text-decoration: none;" href="scheduling.php?nid=0">
-			<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
-			<h3 class="buttontop"><small>'.$lang['night_climate'].'</small></h3>
-			<h3 class="degre" ><i class="fa fa-bed fa-1x"></i></h3>
-			<h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$night_status.'"></i></small>
-			</h3></button>';
-
-			//query to check away status
-			$query = "SELECT * FROM away LIMIT 1";
-			$result = $conn->query($query);
-			$away = mysqli_fetch_array($result);
-			if ($away['status']=='1'){$awaystatus="red";}elseif ($away['status']=='0'){$awaystatus="blue";}
-			echo '<a href="javascript:active_away();">
-			<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
-			<h3 class="buttontop"><small>'.$lang['away'].'</small></h3>
-			<h3 class="degre" ><i class="fa fa-sign-out fa-1x"></i></h3>
-			<h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$awaystatus.'"></i></small>
-			</h3></button></a>';
-
-			//query to check holidays status
-			$query = "SELECT status FROM holidays WHERE NOW() between start_date_time AND end_date_time AND status = '1' LIMIT 1";
-			$result = $conn->query($query);
-			$holidays_status=mysqli_num_rows($result);
-			if ($holidays_status=='1'){$holidaystatus="red";}elseif ($holidays_status=='0'){$holidaystatus="blue";}
-			?>
-			<a style="color: #777; cursor: pointer; text-decoration: none;" href="holidays.php">
-			<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
-			<h3 class="buttontop"><small><?php echo $lang['holidays']; ?></small></h3>
-			<h3 class="degre" ><i class="fa fa-paper-plane fa-1x"></i></h3>
-			<h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-circle fa-fw <?php echo $holidaystatus; ?>"></i></small>
-			</h3></button></a>
-
-                        <a style="color: #777; cursor: pointer; text-decoration: none;" href="relay.php">
-                        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
-                        <h3 class="buttontop"><small><?php echo $lang['relay_add']; ?></small></h3>
-                        <h3 class="degre" ><i class="fa fa-plus fa-1x blue"></i></h3>
-                        <h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-fw"></i></small>
-                        </h3></button></a>
-
-                        <a style="color: #777; cursor: pointer; text-decoration: none;" href="sensor.php">
-                        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
-                        <h3 class="buttontop"><small><?php echo $lang['sensor_add']; ?></small></h3>
-                        <h3 class="degre" ><i class="fa fa-plus fa-1x green"></i></h3>
-                        <h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-fw"></i></small>
-                        </h3></button></a>
-
-			<a style="color: #777; cursor: pointer; text-decoration: none;" href="zone.php">
-			<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
-			<h3 class="buttontop"><small><?php echo $lang['zone_add']; ?></small></h3>
-			<h3 class="degre" ><i class="fa fa-plus fa-1x"></i></h3>
-			<h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-fw"></i></small>
-			</h3></button></a>
-			</div>
-			<?php
-			// live temperature modal
-			if ($system_controller_mode == 1) {
-                        	$query = "SELECT id, default_c FROM zone_view WHERE type = 'HVAC' LIMIT 1";
-			} else {
-                                $query = "SELECT id, default_c FROM zone_view WHERE type = 'Heating' LIMIT 1";
-			}
-                        $result = $conn->query($query);
-                        $row = mysqli_fetch_array($result);
-                        echo '<input type="hidden" id="zone_id" name="zone_id" value="'.$row['id'].'"/>
-			<div class="modal fade" id="livetemperature" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                        <div class="modal-content">
-                                                <div class="modal-header">
-                                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                                                        <h5 class="modal-title">'.$lang['live_temperature'].'</h5>
-                                                </div>
-						<!-- /.modal-header -->
-                                                <div class="modal-body">
-                                                        <div style="text-align:center;">
-                                                                <h4><br><p>Default Temperature For The Heating Zone</p></h4><br>
-                                                                <input type="text" value="'.DispTemp($conn, $row['default_c']).'" class="dial" id="default_c" name="live_temp">
-                                                        </div>
-                                        	<!-- /.modal-body -->
-                                                </div>
-                                                <div class="modal-footer"><button type="button" class="btn btn-default btn-sm" data-dismiss="modal">'.$lang['cancel'].'</button>
-                					<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="update_defaut_c()">
-                                                </div>
-                                                <!-- /.modal-footer -->
-                                        </div>
-                                        <!-- /.modal-content -->
-                                </div>
-                                <!-- /.modal-dialog -->
-                        </div>
-                        <!-- /.modal fade -->
-                        '; ?>
 		</div>
                 <!-- /.panel-body -->
 		<div class="panel-footer">
@@ -755,16 +622,4 @@ require_once(__DIR__.'/st_inc/functions.php');
 	</div>
 	<!-- /.panel-primary -->
 <?php if(isset($conn)) { $conn->close();} ?>
-
-<script language="javascript" type="text/javascript">
-$(function() {
-   $(".dial").knob({
-       'min':0,
-       'max':50,
-       "fgColor":"#0000FF",
-       "skin":"tron",
-       'step':1
-   });
-});
-</script>
 
