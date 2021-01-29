@@ -360,6 +360,22 @@ if (isset($_POST['submit'])) {
 		}
 	}
 
+        //query to check if default livetemp record exist when creating a Heating zone
+        if(strpos($type, 'Heating') !== false) {
+                $query = "SELECT * FROM livetemp LIMIT 1;";
+                $result = $conn->query($query);
+                $ltcount = $result->num_rows;
+                if ($ltcount == 0) {
+                        $query = "INSERT INTO `livetemp` VALUES (0,0,0,'{$zone_id}',0,0,0);";
+                        $result = $conn->query($query);
+                        if ($result) {
+                                $message_success .= "<p>".$lang['livetemp_success']."</p>";
+                        } else {
+                                $error .= "<p>".$lang['livetemp_fail']."</p> <p>" .mysqli_error($conn). "</p>";
+                        }
+                }
+        }
+
 	//query to check if default holiday record exists
 	$query = "SELECT * FROM holidays LIMIT 1;";
 	$result = $conn->query($query);
