@@ -540,4 +540,6 @@ $lang['graph_addon_usage'] = "Daily Add-On Zone Controller Graphs";
 $lang['graph_addon_state_text'] = "State of Add-On Zone Controllers over the last 24 hours";
 $lang['livetemp_enable'] = "Enable Live Temperature";
 $lang['apply'] = "Apply";
+$lang['livetemp_success'] = "livetemp Table Default Added Successfully.";
+$lang['livetemp_fail'] = "livetemp Table Default failed with error: ";
 ?>
