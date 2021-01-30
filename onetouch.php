@@ -197,6 +197,9 @@ require_once(__DIR__.'/st_inc/functions.php');
                                                 <div style="text-align:center;">
                                                         <h4><br><p>Heating Zone '.$current_mode.' Temperature Control</p></h4><br>
                                                         <input type="text" value="'.DispTemp($conn, $set_temp).'" class="dial" id="livetemp_c" name="live_temp">
+                                                        <div style="float:right;">
+                                                                <textarea class="temperature-box" readonly="readonly" row="0" col="0" >'.$row['temp_reading'].'&deg</textarea>
+                                                        </div>
                                                         <div class="checkbox checkbox-default checkbox-circle" style="'.$check_visible.'">
                                                                 <input id="checkbox" class="styled" type="checkbox" value="0" name="status" checked Enabled>
                                                                 <label for="checkbox"> '.$lang['livetemp_enable'].'</label>
