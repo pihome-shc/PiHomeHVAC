@@ -153,13 +153,37 @@ require_once(__DIR__.'/st_inc/functions.php');
                 $query = "SELECT mode, temp_reading, temp_target FROM zone_current_state WHERE zone_id = ".$livetemp_zone_id." LIMIT 1";
                 $result = $conn->query($query);
                 $row = mysqli_fetch_array($result);
-                if ($row['mode'] == 0) {
+                $zone_mode = $row['mode'];
+                $zone_mode_main=floor($zone_mode/10)*10;
+                if ($zone_mode == 0) {
                         $query = "SELECT default_c FROM zone_view WHERE id =  ".$livetemp_zone_id." LIMIT 1";
                         $zresult = $conn->query($query);
                         $zrow = mysqli_fetch_array($zresult);
                         $set_temp = $zrow['default_c'];
                 } else {
                         $set_temp = $row['temp_target'];
+                }
+                switch ($zone_mode_main) {
+                        case 0:
+                                $current_mode = "";
+                                break;
+                        case 50:
+                                $current_mode = "Night Climate";
+                                break;
+                        case 60:
+                                $current_mode = "Boost";
+                                break;
+                        case 70:
+                                $current_mode = "Override";
+                                break;
+                        case 80:
+                                $current_mode = "Schedule";
+                                break;
+                        case 140:
+                                $current_mode = "Manual";
+                                break;
+                        default:
+                                $current_mode = "";
                 }
 		echo '<input type="hidden" id="zone_id" name="zone_id" value="'.$livetemp_zone_id.'"/>
 		<div class="modal fade" id="livetemperature" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -171,7 +195,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 					</div>
                                         <div class="modal-body">
                                                 <div style="text-align:center;">
-                                                        <h4><br><p>Current Heating Zone Temperature - '.$row['temp_reading'].'&deg</p></h4><br>
+                                                        <h4><br><p>Heating Zone '.$current_mode.' Temperature Control</p></h4><br>
                                                         <input type="text" value="'.DispTemp($conn, $set_temp).'" class="dial" id="livetemp_c" name="live_temp">
                                                         <div class="checkbox checkbox-default checkbox-circle" style="'.$check_visible.'">
                                                                 <input id="checkbox" class="styled" type="checkbox" value="0" name="status" checked Enabled>
