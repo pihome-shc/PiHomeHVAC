@@ -272,6 +272,14 @@ if (mysqli_num_rows($result) > 0){
         $base_addr = '000.000.000.000';
 }
 
+//query to check the live temperature status
+$query = "SELECT * FROM livetemp LIMIT 1";
+$result = $conn->query($query);
+$livetemp = mysqli_fetch_array($result);
+$livetemp_zone_id = $livetemp['zone_id'];
+$livetemp_active = $livetemp['active'];
+$livetemp_c = $livetemp['temperature'];
+
 //following variable set to 0 on start for array index.
 $system_controller_index = '0';
 $command_index = '0';
@@ -322,6 +330,11 @@ while ($row = mysqli_fetch_assoc($results)) {
 	$zone_status_prev = $zone_current_state['status'];
 	$zone_overrun_prev = $zone_current_state['overrun'];
 	$zone_current_mode = $zone_current_state['mode'];
+	if (($zone_id == $livetemp_zone_id) && ($livetemp_active == 1) && ($zone_current_mode == '0')) {
+                $query = "UPDATE livetemp SET active = 0 WHERE zone_id = {$zone_id};";
+                $conn->query($query);
+        }
+
 	// process if a sensor is attached to this zone
 	if ($zone_category <> 2) {
                 $query = "SELECT zone_sensors.*, temperature_sensors.sensor_id, temperature_sensors.sensor_child_id FROM  zone_sensors, temperature_sensors WHERE (zone_sensors.temperature_sensor_id = temperature_sensors.id) AND zone_sensors.zone_id = '{$zone_id}' LIMIT 1;";
@@ -587,7 +600,9 @@ while ($row = mysqli_fetch_assoc($results)) {
 			if ($weather_c <= 5 ) {$weather_fact = 0.3;} elseif ($weather_c <= 10 ) {$weather_fact = 0.4;} elseif ($weather_c <= 15 ) {$weather_fact = 0.5;} elseif ($weather_c <= 20 ) {$weather_fact = 0.6;} elseif ($weather_c <= 30 ) {$weather_fact = 0.7;}
 
 			//Following to decide which temperature is target temperature
-			if ($boost_active=='1') {
+                        if ($livetemp_active=='1' && $livetemp_zone_id == $zone_id) {
+                                $target_c=$livetemp_c;
+                        } elseif ($boost_active=='1') {
 				$target_c=$boost_c;
 			} elseif ($night_climate_status =='1') {
 				$target_c=$nc_min_c;
