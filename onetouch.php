@@ -253,7 +253,7 @@ $(function() {
        'max':50,
        "fgColor":"#000000",
        "skin":"tron",
-       'step'0.5
+       'step':0.5
    });
 });
 </script>
