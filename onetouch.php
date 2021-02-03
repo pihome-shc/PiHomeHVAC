@@ -50,7 +50,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 
 		<?php
 		//query to check live temperature status
-		$query = "SELECT status FROM live_temperature WHERE status = '1' LIMIT 1";
+		$query = "SELECT active FROM livetemp WHERE active = 1 LIMIT 1";
 		$result = $conn->query($query);
 		$lt_status=mysqli_num_rows($result);
 		if ($lt_status==1) {$lt_status='red';}else{$lt_status='blue';}
@@ -144,14 +144,48 @@ require_once(__DIR__.'/st_inc/functions.php');
 
 		<?php
 		// live temperature modal
-		if ($system_controller_mode == 1) {
-                       	$query = "SELECT id, default_c FROM zone_view WHERE type = 'HVAC' LIMIT 1";
-		} else {
-			$query = "SELECT id, default_c FROM zone_view WHERE type = 'Heating' LIMIT 1";
-		}
-		$result = $conn->query($query);
-		$row = mysqli_fetch_array($result);
-		echo '<input type="hidden" id="zone_id" name="zone_id" value="'.$row['id'].'"/>
+                $query = "SELECT zone_id, active FROM livetemp LIMIT 1";
+                $result = $conn->query($query);
+                $row = mysqli_fetch_array($result);
+                $livetemp_zone_id = $row['zone_id'];
+                $livetemp_active = $row['active'];
+                if ($livetemp_active == 0) { $check_visible = 'display:none'; } else { $check_visible = 'display:block'; }
+                $query = "SELECT mode, temp_reading, temp_target FROM zone_current_state WHERE zone_id = ".$livetemp_zone_id." LIMIT 1";
+                $result = $conn->query($query);
+                $row = mysqli_fetch_array($result);
+                $zone_mode = $row['mode'];
+                $zone_mode_main=floor($zone_mode/10)*10;
+                if ($zone_mode == 0) {
+                        $query = "SELECT default_c FROM zone_view WHERE id =  ".$livetemp_zone_id." LIMIT 1";
+                        $zresult = $conn->query($query);
+                        $zrow = mysqli_fetch_array($zresult);
+                        $set_temp = $zrow['default_c'];
+                } else {
+                        $set_temp = $row['temp_target'];
+                }
+                switch ($zone_mode_main) {
+                        case 0:
+                                $current_mode = "";
+                                break;
+                        case 50:
+                                $current_mode = "Night Climate";
+                                break;
+                        case 60:
+                                $current_mode = "Boost";
+                                break;
+                        case 70:
+                                $current_mode = "Override";
+                                break;
+                        case 80:
+                                $current_mode = "Schedule";
+                                break;
+                        case 140:
+                                $current_mode = "Manual";
+                                break;
+                        default:
+                                $current_mode = "";
+                }
+		echo '<input type="hidden" id="zone_id" name="zone_id" value="'.$livetemp_zone_id.'"/>
 		<div class="modal fade" id="livetemperature" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content">
@@ -159,14 +193,21 @@ require_once(__DIR__.'/st_inc/functions.php');
 						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
 						<h5 class="modal-title">'.$lang['live_temperature'].'</h5>
 					</div>
-					<div class="modal-body">
-						<div style="text-align:center;">
-							<h4><br><p>Default Temperature For The Heating Zone</p></h4><br>
-							<input type="text" value="'.DispTemp($conn, $row['default_c']).'" class="dial" id="default_c" name="live_temp">
-						</div>
-					</div>
+                                        <div class="modal-body">
+                                                <div style="text-align:center;">
+                                                        <h4><br><p>Heating Zone '.$current_mode.' Temperature Control</p></h4><br>
+                                                        <input type="text" value="'.DispTemp($conn, $set_temp).'" class="dial" id="livetemp_c" name="live_temp">
+                                                        <div style="float:right;">
+                                                                <textarea class="temperature-box" readonly="readonly" row="0" col="0" >'.$row['temp_reading'].'&deg</textarea>
+                                                        </div>
+                                                        <div class="checkbox checkbox-default checkbox-circle" style="'.$check_visible.'">
+                                                                <input id="checkbox" class="styled" type="checkbox" value="0" name="status" checked Enabled>
+                                                                <label for="checkbox"> '.$lang['livetemp_enable'].'</label>
+                                                        </div>
+                                                </div>
+                                        </div>
 					<div class="modal-footer"><button type="button" class="btn btn-default btn-sm" data-dismiss="modal">'.$lang['cancel'].'</button>
-                				<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="update_defaut_c()">
+                				<input type="button" name="submit" value="'.$lang['apply'].'" class="btn btn-default login btn-sm" onclick="update_defaut_c()">
 					</div>
                 			<!-- /.modal-footer -->
 				</div>
@@ -210,9 +251,9 @@ $(function() {
    $(".dial").knob({
        'min':0,
        'max':50,
-       "fgColor":"#0000FF",
+       "fgColor":"#000000",
        "skin":"tron",
-       'step':1
+       'step':0.5
    });
 });
 </script>

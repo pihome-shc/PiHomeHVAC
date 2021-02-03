@@ -288,6 +288,21 @@ CREATE TABLE IF NOT EXISTS `http_messages` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
+DROP TABLE IF EXISTS `livetemp`;
+CREATE TABLE IF NOT EXISTS `livetemp` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sync` tinyint(4) NOT NULL,
+  `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
+  `status` tinyint(4),
+  `zone_id` int(11),
+  `active` tinyint(1),
+  `temperature` decimal(4,1),
+  `hvac_mode` tinyint(4),
+  PRIMARY KEY (`id`),
+  KEY `FK_livetemp_zone` (`zone_id`),
+  CONSTRAINT `FK_livetemp_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
+
 -- Dumping structure for table pihome.messages_in
 DROP TABLE IF EXISTS `messages_in`;
 CREATE TABLE IF NOT EXISTS `messages_in` (

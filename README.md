@@ -1,6 +1,6 @@
 # MaxAir - Smart Thermostat
 
-### Note: Currently at Beta 1 stage.
+### Note: Currently at Beta 2.1 stage.
 
 The previous version, PiHome, was centered around the creation of zones, this version is more centered around devices.
 
@@ -12,7 +12,7 @@ The previous version, PiHome, was centered around the creation of zones, this ve
 * Create Zones using the temperature measurement and relay devices created previously
 * Temperature Measurement devices can be display without the need to be allocated to a 'zombie' zone
 
-* The Temperature Measurement devices can be created from the One Touch menu
+* The Temperature Measurement and Relay devices can be created from the One Touch menu
 [![deploy1](https://user-images.githubusercontent.com/46624596/97433327-3a6a8880-1915-11eb-93b0-feac36159403.JPG)](https://user-images.githubusercontent.com/46624596/97433327-3a6a8880-1915-11eb-93b0-feac36159403.JPG)
 
 * New configuration GUIs are available for the Relays and Sensors devices

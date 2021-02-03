@@ -658,10 +658,10 @@ if($what=="system_mode"){
         }
 }
 
-//update system mode
-if($what=="default_temperature"){
+//update live temperature
+if($what=="live_temp"){
         if($opp=="update"){
-        $query = "UPDATE `zone_sensors` SET `default_c`=" . $_GET['default_c'] . " WHERE `zone_id` = ".$_GET['zone_id'].";";
+        $query = "UPDATE `livetemp` SET `temperature`=" . $_GET['livetemp_c'] . ", `active`=" . $_GET['active'] . ";";
         if($conn->query($query)){
             header('Content-type: application/json');
             echo json_encode(array('Success'=>'Success','Query'=>$query));

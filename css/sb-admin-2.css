@@ -1005,3 +1005,12 @@ padding-top: 0px;
 .modal-header .close {
   display:none;
 }
+
+.temperature-box {
+        height:48px;
+        width:90px;
+        font-size:24px;
+        font-weight: bold;
+        resize:none;
+        background-color:#cfc;
+}

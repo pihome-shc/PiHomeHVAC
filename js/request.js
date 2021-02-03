@@ -655,10 +655,10 @@ function update_timezone(){
     });
 }
 
-//update Default Temperature
-function update_defaut_c(){
-    var idata="w=default_temperature&o=update";
-    idata+="&default_c="+document.getElementById("default_c").value;
+//update Live Temperature Temperature
+function update_livetemp(){
+    var idata="w=live_temp&o=update&active="+document.getElementById("checkbox").checked;
+    idata+="&livetemp_c="+document.getElementById("livetemp_c").value;
     idata+="&zone_id="+document.getElementById("zone_id").value;
     idata+="&wid=0";
     $.get('db.php',idata)
