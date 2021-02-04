@@ -542,4 +542,5 @@ $lang['livetemp_enable'] = "Enable Live Temperature";
 $lang['apply'] = "Apply";
 $lang['livetemp_success'] = "livetemp Table Default Added Successfully.";
 $lang['livetemp_fail'] = "livetemp Table Default failed with error: ";
+$lang['livetemp_no_control_zone'] = "Please Add Control Zone to enable this Feature";
 ?>
