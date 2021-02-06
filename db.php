@@ -767,16 +767,15 @@ if($what=="system_controller_settings"){
         	$fan_node_id = $row['node_id'];
 	}
 
-	if (strpos($heat_node_type, "GPIO") === false){
-		//Check messages_out for System Controller if NOT GPIO 
-		$query = "SELECT * FROM messages_out WHERE node_id='".$heat_node_id."' LIMIT 1;";
-		$result = $conn->query($query);
-		if (mysqli_num_rows($result)==0){
-			//Update messages_out for System Controller. 
-			$query = "INSERT INTO `messages_out`(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`) VALUES (0, 0, '".$heat_node_id."', '".$heat_controler_child_id."', 1, 1, 2, 0, 0, '".$datetime."', 0);";
-			$conn->query($query);
-		}
+	//Check messages_out for System Controller 
+        $query = "SELECT * FROM messages_out WHERE node_id='".$heat_node_id."' AND child_id='".$heat_controler_child_id."' LIMIT 1;";
+	$result = $conn->query($query);
+	if (mysqli_num_rows($result)==0){
+		//Update messages_out for System Controller. 
+		$query = "INSERT INTO `messages_out`(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`) VALUES (0, 0, '".$heat_node_id."', '".$heat_controler_child_id."', 1, 1, 2, 0, 0, '".$datetime."', 0);";
+		$conn->query($query);
 	}
+	
 	$query = "SELECT * FROM system_controller LIMIT 1;";
         $result = $conn->query($query);
         if (mysqli_num_rows($result)==0){

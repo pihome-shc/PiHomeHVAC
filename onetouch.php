@@ -189,7 +189,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 	                }
 			echo '<input type="hidden" id="zone_id" name="zone_id" value="'.$livetemp_zone_id.'"/>';
 		} // end if ($rowcount > 0)
-		<div class="modal fade" id="livetemperature" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		echo '<div class="modal fade" id="livetemperature" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
