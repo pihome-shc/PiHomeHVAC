@@ -20,16 +20,17 @@ print(" ")
 print("             " +bc.SUB + "S M A R T   THERMOSTAT " + bc.ENDC)
 print(bc.WARN +" ")
 print("********************************************************")
-print("*   GPIO Interface Relay Support Communication Script  *")
-print("*    Build Date: 25/04/2020 Version 0.02               *")
-print("*    Last Modified: 03/01/2021                         *")
+print("*   GPIO Pin Mapping Support for Adafruit Blinka       *")
+print("*    Build Date: 06/02/2021 Version 0.01               *")
+print("*    Last Modified: 06/02/2021                         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
 
+# use Adafruit PlatformDetect to determine board type
 import board
 
-# create a pin mapping
+# create a pin mapping based on board type
 # check if a Raspberry Pi
 if board.board_id.find('RASPBERRY_PI') != -1:
     pindict = {
@@ -216,6 +217,3 @@ elif board.board_id.find('BEAGLEBONE') != -1:
        elif x.find('P9') != -1:
            pin = {str(100 + int(x[y + 1:])): x }
            pindict.update(pin)
-
-
-
