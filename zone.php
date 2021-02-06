@@ -366,7 +366,7 @@ if (isset($_POST['submit'])) {
                 $result = $conn->query($query);
                 $ltcount = $result->num_rows;
                 if ($ltcount == 0) {
-                        $query = "INSERT INTO `livetemp` VALUES (0,0,0,'{$zone_id}',0,0,0);";
+                        $query = "INSERT INTO `livetemp`(`sync`, `purge`, `status`, `zone_id`, `active`, `temperature`, `hvac_mode`) VALUES (0,0,0,'{$zone_id}',0,0,0);";
                         $result = $conn->query($query);
                         if ($result) {
                                 $message_success .= "<p>".$lang['livetemp_success']."</p>";
