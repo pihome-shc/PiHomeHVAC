@@ -35,6 +35,8 @@ from datetime import datetime
 import struct
 import requests
 import socket, re
+from Pin_Dict import pindict
+import board, digitalio
 
 # Debug print to screen configuration
 dbgLevel = 3 	# 0-off, 1-info, 2-detailed, 3-all
@@ -102,7 +104,10 @@ try:
 		net_gw = net_gw[0:(net_gw.rfind(".")+1)]
 	else:
 		network_found = 0
-		
+
+	# Initialise a dictionary to hold the relay id for Adafruit Blinka
+	relay_dict = {}
+
 	while 1:
 	## Outgoing messages
 		con.commit()
@@ -159,7 +164,7 @@ try:
 				print("Pay Load:                    ",out_payload)
 				print("Node Type:                   ",node_type)
 			# node-id ; child-sensor-id ; command ; ack ; type ; payload \n
-			if node_type.find("Tasmota") == -1: # process normal node
+			if node_type.find("MySensor") != -1: # process normal node
 				if gatewaytype == 'serial':
 					gw.write(msg.encode('utf-8')) # !!!! send it to serial (arduino attached to rPI by USB port)
 				else:
@@ -167,7 +172,24 @@ try:
 					gw.write(msg.encode('utf-8'))
 				cur.execute('UPDATE `messages_out` set sent=1 where id=%s', [out_id]) #update DB so this message will not be processed in next loop
 				con.commit() #commit above
-			elif network_found == 1: # only process Sonoff device if connected to the local wlan
+			elif node_type.find("GPIO") != -1: # process GPIO mode
+				child_id = str(out_child_id) 
+				if child_id in pindict: # check if pin exists for this board
+					pin_num = pindict[child_id] # get pin identification
+					if out_child_id not in relay_dict.keys(): # if first time this GPIO is processed then add id to dictionary and configure output
+						relay_name = "relay" + child_id
+						relay_name = digitalio.DigitalInOut(getattr(board, pin_num))
+						relay_name.direction = digitalio.Direction.OUTPUT
+						relay_dict[out_child_id] = relay_name
+					relay_name = relay_dict[out_child_id] # retrieve pin identification for this pin from dictionary
+					# set pin state
+					if out_payload == '0' :
+						relay_name.value = False
+					else :
+						relay_name.value = True
+					cur.execute('UPDATE `messages_out` set sent=1 where id=%s', [out_id]) #update DB so this message will not be processed in next loop
+					con.commit() #commit above
+			elif node_type.find("Tasmota") != -1 and network_found == 1: # only process Sonoff device if connected to the local wlan
 				# process the Sonoff device HTTP action
 				url = 'http://' + net_gw + str(out_child_id) + '/cm'
 				cmd = out_payload.split(' ')[0].upper()
