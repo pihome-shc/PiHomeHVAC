@@ -13,7 +13,7 @@ echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
 echo "\033[31m";
 echo "********************************************************\n";
 echo "* System Temperature Version 0.4 Build Date 31/03/2018 *\n";
-echo "* Update on 30/03/2020                                 *\n";
+echo "* Update on 07/02/2021                                 *\n";
 echo "*                                 Have Fun - PiHome.eu *\n";
 echo "********************************************************\n";
 echo " \033[0m \n";
