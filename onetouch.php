@@ -202,7 +202,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                                                                 echo '<h4><br><p>Heating Zone '.$current_mode.' Temperature Control</p></h4><br>
                                                                 <input type="text" value="'.DispTemp($conn, $set_temp).'" class="dial" id="livetemp_c" name="live_temp">
                                                                 <div style="float:right;">
-                                                                        <textarea class="temperature-box" readonly="readonly" row="0" col="0" >'.$row['temp_reading'].'&deg</textarea>
+                                                                        <textarea id="load_temp" class="temperature-box" readonly="readonly" row="0" col="0" ></textarea>
                                                                 </div>
                                                                 <div class="checkbox checkbox-default checkbox-circle" style="'.$check_visible.'">
                                                                         <input id="checkbox" class="styled" type="checkbox" value="0" name="status" checked Enabled>
@@ -255,14 +255,23 @@ require_once(__DIR__.'/st_inc/functions.php');
 <?php if(isset($conn)) { $conn->close();} ?>
 
 <script language="javascript" type="text/javascript">
+// Knob function for live temperature model
 $(function() {
    $(".dial").knob({
        'min':0,
        'max':50,
        "fgColor":"#000000",
        "skin":"tron",
-       'step':0.5
-   });
+   });       'step':0.5
+
+});
+
+// update the heating zone temperature every 1 second
+$(document).ready(function(){
+ setInterval(function(){//setInterval() method execute on every interval until called clearInterval()
+  $('#load_temp').load("fetch_temp.php").fadeIn("slow");
+  //load() method fetch data from fetch.php page
+ }, 1000);
 });
 </script>
 

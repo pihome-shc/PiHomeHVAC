@@ -1310,7 +1310,8 @@ for ($row = 0; $row < count($zone_commands); $row++){
 			if ($zone_controller_type == 'GPIO'){
 		    		$relay_status = ($zone_command == '1') ? $relay_on : $relay_off;
 		    		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: GIOP Relay Status: \033[41m".$relay_status. "\033[0m (".$relay_on."=On, ".$relay_off."=Off) \n";
-		    		exec("python3 /var/www/cron/gpio/gpio3_relay.py ".$zone_controler_child_id." ".$relay_status);
+                                $query = "UPDATE messages_out SET sent = '0', payload = '{$zone_command}' WHERE node_id ='$zone_controler_id' AND child_id = '$zone_controler_child_id' LIMIT 1;";
+                                $conn->query($query);
 			}
 
 			/***************************************************************************************
@@ -1428,16 +1429,31 @@ if (in_array("1", $system_controller)) {
 		******************************************************/
 		if ($sc_mode != 3) { //process if NOT  HVAC fan only mode
 			if ($system_controller_mode == 1 && $off_relay_type == 'GPIO'){
-				exec("python3 /var/www/cron/gpio/gpio3_relay.py " .$off_relay_child_id ." ".$relay_off );
+                                $query = "SELECT node_id FROM nodes WHERE id = '$off_relay_id' LIMIT 1;";
+                                $result = $conn->query($query);
+                                $nodes = mysqli_fetch_array($result);
+                                $node_id = $nodes['node_id'];
+                                $query = "UPDATE messages_out SET sent = '0', payload = '0' WHERE node_id ='{$node_id}' AND child_id = '{$off_relay_child_id}' LIMIT 1;";
+                                $conn->query($query);
 				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$off_relay_child_id. "\033[0m Status: \033[41m".$relay_off."\033[0m (".$relay_on."=On, ".$relay_off."=Off) \n";
 			}
         		if ($on_relay_type == 'GPIO'){
-                		exec("python3 /var/www/cron/gpio/gpio3_relay.py " .$on_relay_child_id ." ".$relay_on );
+                                $query = "SELECT node_id FROM nodes WHERE id = '$on_relay_id' LIMIT 1;";
+                                $result = $conn->query($query);
+                                $nodes = mysqli_fetch_array($result);
+                                $node_id = $nodes['node_id'];
+                		$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$on_relay_child_id}' LIMIT 1;";
+                                $conn->query($query);
 	                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$on_relay_child_id. "\033[0m Status: \033[41m".$relay_on."\033[0m (".$relay_on."=On, ".$relay_off."=Off) \n";
 	        	}
 		}
 	        if ($system_controller_mode == 1 && $fan_relay_type == 'GPIO'){
-        	        exec("python3 /var/www/cron/gpio/gpio3_relay.py " .$fan_relay_child_id ." ".$relay_on );
+                        $query = "SELECT node_id FROM nodes WHERE id = '$fan_relay_id' LIMIT 1;";
+                        $result = $conn->query($query);
+                        $nodes = mysqli_fetch_array($result);
+                        $node_id = $nodes['node_id'];
+                	$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
+                        $conn->query($query);
                 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$fan_relay_child_id. "\033[0m Status: \033[41m".$relay_on."\033[0m (".$relay_on."=On, ".$relay_off."=Off) \n";
 	        }
 
@@ -1522,6 +1538,7 @@ if (in_array("1", $system_controller)) {
                 	//update messages_out table with sent status to 0 and payload to as system controller status.
 			if ($cool_relay_type == 'MySensor') { // HVAC cool relay OFF
         	                $query = "UPDATE messages_out SET sent = '0', payload = '0' WHERE node_id ='{$cool_relay_id}' AND child_id = '{$cool_relay_child_id}' LIMIT 1;";
+				$conn->query($query);
 			}
 	                if ($fan_relay_type == 'MySensor') {
 				if ($sc_mode == 3) { // HVAC fan ON if set to fan mode, else turn OFF
@@ -1538,20 +1555,35 @@ if (in_array("1", $system_controller)) {
 		System Controller Wired to Raspberry Pi GPIO Section.
 		******************************************************/
 		if ($heat_relay_type == 'GPIO'){
-			exec("python3 /var/www/cron/gpio/gpio3_relay.py " .$heat_relay_child_id ." ".$relay_off );
+                        $query = "SELECT node_id FROM nodes WHERE id = '$heat_relay_id' LIMIT 1;";
+                        $result = $conn->query($query);
+                        $nodes = mysqli_fetch_array($result);
+                        $node_id = $nodes['node_id'];
+        		$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$heat_relay_child_id}' LIMIT 1;";
+                        $conn->query($query);
 			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$heat_relay_child_id. "\033[0m Status: \033[41m".$relay_off."\033[0m (".$relay_on."=On, ".$relay_off."=Off) \n";
 		}
 	        if ($system_controller_mode == 1){
         	        if ($cool_relay_type == 'GPIO') { // HVAC cool relay OFF
-                	        exec("python3 /var/www/cron/gpio/gpio3_relay.py " .$cool_relay_child_id ." ".$relay_off );
+                                $query = "SELECT node_id FROM nodes WHERE id = '$cool_relay_id' LIMIT 1;";
+                                $result = $conn->query($query);
+                                $nodes = mysqli_fetch_array($result);
+                                $node_id = $nodes['node_id'];
+                                $query = "UPDATE messages_out SET sent = '0', payload = '0' WHERE node_id ='{$node_id}' AND child_id = '{$cool_relay_child_id}' LIMIT 1;";
+				$conn->query($query);
                 		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$cool_relay_child_id. "\033[0m Status: \033[41m".$relay_off."\033[0m (".$relay_on."=On, ".$relay_off."=Off) \n";
 			}
 			if ($fan_relay_type == 'GPIO') {
+                                $query = "SELECT node_id FROM nodes WHERE id = '$fan_relay_id' LIMIT 1;";
+                                $result = $conn->query($query);
+                                $nodes = mysqli_fetch_array($result);
+                                $node_id = $nodes['node_id'];
 				if ($sc_mode == 3) { // HVAC fan ON if set to fan mode, else turn OFF
-	                	        exec("python3 /var/www/cron/gpio/gpio3_relay.py " .$fan_relay_child_id ." ".$relay_on );
+                                        $query = "UPDATE messages_out SET sent = '0', payload = '1' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
 				} else {
-        	        		exec("python3 /var/www/cron/gpio/gpio3_relay.py " .$fan_relay_child_id ." ".$relay_off );
+                			$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
 				}
+				$conn->query($query);
 	                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$fan_relay_child_id. "\033[0m Status: \033[41m".$relay_off."\033[0m (".$relay_on."=On, ".$relay_off."=Off) \n";
 			}
         	}
