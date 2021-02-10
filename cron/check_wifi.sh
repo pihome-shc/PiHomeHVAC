@@ -1,7 +1,6 @@
 #!/bin/bash
 #=================================================================
 # Script Variables Settings
-clear
 wlan='wlan0'
 gateway='192.168.99.1'
 #gateway=ip route get 8.8.8.8 | grep via | cut -d ' ' -f 3
