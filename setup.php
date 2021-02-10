@@ -145,7 +145,6 @@ if (!$db_selected) {
 	
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - MySQL DataBase DataBase File \033[41m".$tableviewfilename."\033[0m Imported Successfully \n";
 
-
 //Job Scheduling
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Installing Scheduling \n";
 $output = shell_exec('sudo bash ./cron/install_jobs.sh');
