@@ -288,6 +288,20 @@ CREATE TABLE IF NOT EXISTS `http_messages` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
+-- Dumping structure for table pihome.jobs
+DROP TABLE IF EXISTS `jobs`;
+CREATE TABLE IF NOT EXISTS `jobs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `job_name` char(50) NOT NULL,
+  `script` char(100) NOT NULL,
+  `log_it` tinyint(1),
+  `time` int(11) NOT NULL,
+  `output` text NOT NULL,
+  `datetime` timestamp NOT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+-- Dumping structure for table pihome.livetemp
 DROP TABLE IF EXISTS `livetemp`;
 CREATE TABLE IF NOT EXISTS `livetemp` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
