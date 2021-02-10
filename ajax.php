@@ -585,6 +585,7 @@ function GetModal_Services($conn)
            ['name'=>'MySQL','service'=>'mysql.service'],
            ['name'=>'MariaDB','service'=>'mariadb.service'],
            ['name'=>'PiHome MQTT','service'=>'pihome.mqtt.service'],
+           ['name'=>'PiHome JOBS','service'=>'pihome_jobs_schedule.service'],
 	   ['name'=>'Amazon Echo','service'=>'pihome_amazon_echo.service'],
            ['name'=>'Homebridge','service'=>'homebridge.service']];	   
     echo '<div class="list-group">';
