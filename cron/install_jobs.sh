@@ -24,7 +24,8 @@ StartLimitIntervalSec=0
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python3 /var/www/cron/jobs_schedule.py >/dev/null 2>&1
+ExecStart=/usr/bin/python3 /var/www/cron/jobs_schedule.py
+User=www-data
 Restart=always
 RestartSec=1
 
