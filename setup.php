@@ -23,8 +23,6 @@ $line = "--------------------------------------------------------------- \n";
 //Set php script execution time in seconds
 ini_set('max_execution_time', 400); 
 $date_time = date('Y-m-d H:i:s');
-//Temporary File to save exiting CronJobs
-$cronfile = '/tmp/crontab.txt';
 
 //Check php version before doing anything else 
 $version = explode('.', PHP_VERSION);
@@ -147,97 +145,12 @@ if (!$db_selected) {
 	
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - MySQL DataBase DataBase File \033[41m".$tableviewfilename."\033[0m Imported Successfully \n";
 
-if (file_exists($cronfile)) {
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - CronTab Removing old CronJobs File \033[41m ".$cronfile." \033[0m \n";
-	unlink($cronfile);
-}
 
-//CronJobs
-$output = shell_exec('crontab -l');
-//Add CronJobs 
-$message = '#
-#            __  __                             _
-#           |  \/  |                    /\     (_)
-#           | \  / |   __ _  __  __    /  \     _   _ __
-#           | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
-#           | |  | | | (_| |  >  <   / ____ \  | | | |
-#           |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
-#
-#                  S M A R T   T H E R M O S T A T
-#*************************************************************************
-#* MaxAir is LINUX  based Central Heating Control systems. It runs from  *
-#* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *
-#* extent permitted by applicable law. I take no responsibility for any  *
-#* loss or damage to you or your property.                               *
-#* DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTILL UNLESS YOU KNOW *
-#* WHAT YOU ARE DOING                                                    *
-#*************************************************************************
-#
-#
-
-# Database Cleaup: Delete Temperature records older then 3 days.
-# Delete Node Battery status older then 3 months.
-# Delete Gateway Logs data older then 3 days.
-# if you want to keep all data comments following line.
-0 2 * * * /usr/bin/php /var/www/cron/db_cleanup.php  >/dev/null 2>&1
-
-# Get CPU temperature and update database.
-*/5 * * * * /usr/bin/php /var/www/cron/system_c.php >/dev/null 2>&1
-
-# Update Weather from OpenWeather, Make sure you signup to openweather api
-# and update api key in database->system table.
-*/30 * * * * /usr/bin/php /var/www/cron/weather_update.php >/dev/null 2>&1
-
-# Ping your gateway (home router) and if can not ping reboot wifi on Raspberry pi.
-# make sure you modify /var/www/cron/reboot_wifi.sh with your gateway ip
-# if you want to save log resuts un-commnets following line.
-# */2 * * * * sh /var/www/cron/reboot_wifi.sh >>/var/www/cron/logs/reboot_wifi.log 2>&1
-*/2 * * * * sh /var/www/cron/reboot_wifi.sh >/dev/null 2>&1
-
-# If you are using Wireless setup with Smart Home Gateway then you need following crong job
-# to  check and start Smart Home Gateway python script if its not running.
-*/1 * * * * php /var/www/cron/check_gw.php >/dev/null 2>&1
-
-# If you have Temperature Sensors Connected using a GPIO pins un-comment
-# following line to read temperature sensors data.
-# */1 * * * * python3 /var/www/cron/gpio_ds18b20.py >/dev/null 2>&1
-
-
-# Main engine for MaxAir Smart Heating, If you want to ouput logs then comment first line and uncomment second line.
-*/1 * * * * /usr/bin/php /var/www/cron/controller.php >/dev/null 2>&1
-# */1 * * * * /usr/bin/php /var/www/cron/controller.php >>/var/www/cron/logs/controller.log 2>&1
-
-# If you signup for PiConnect - Simplify the Connected API Key you can save this key to PiConnect table to sync.
-# your data with PiConnect this way you can mange your heating from
-# http://www.pihome.eu/piconnect/ as todate this service is still under testing.
-# email me at info@pihome.eu if you need help or more information about this.
-*/1 * * * * /usr/bin/php /var/www/cron/piconnect.php >/dev/null 2>&1
-
-#Following Script is deprecated
-# @reboot sh /var/www/cron/gw.sh >/dev/null 2>&1
-
-#Please add your cron jobs below this line
-#-------------------------------------------------------------------------
-';
-
-if ($message==$output) {
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - CronTab CronJobs Exist, No changes required \n";
-} else {
-	//Save Temporary CronJobs File
-	file_put_contents($cronfile, $message);
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - CronTab CronJobs Added from \033[41m ".$cronfile." \033[0m File. \n";
-	//Append Existing CronJobs to File
-	file_put_contents($cronfile, $output, FILE_APPEND);
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - CronTab Existing CronJobs Saved to \033[41m ".$cronfile." \033[0m File. \n";
-	//Add CronJobs to CronTab
-	echo exec('crontab '. $cronfile);
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - \033[41mCronTab Make Sure no duplicate jobs running 'crontab -l' .\033[0m\n";
-}
-	
-if (file_exists($cronfile)) {
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - CronTab Removing CronJobs File \033[41m ".$cronfile." \033[0m \n";
-	unlink($cronfile);
-}
+//Job Scheduling
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Installing Scheduling \n";
+$output = shell_exec('sudo bash ./cron/install_jobs.sh');
+echo $output;
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Finished Installing Scheduling \n";
 
 // Check/Add sudoers file /etc/sudoers.d/maxair
 $sudoersfile = '/etc/sudoers.d/maxair';
@@ -345,7 +258,22 @@ if ($results) {
 		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Network Settings Record \033[41mNetwork Settings\033[0m Data Failed \n";
 }
 
-// 
+//Adding job scheduling records
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Job Scheduling Recors\n";
+$query_job_scheduling = "INSERT INTO `jobs`(`job_name`, `script`, `log_it`, `time`, `output`) ";
+$query_job_scheduling .= "VALUES ('controller','/var/www/cron/controller.php',0,1,''),";
+$query_job_scheduling .= "('check_gw','/var/www/cron/check_gw.php',0,1,''),";
+$query_job_scheduling .= "('system_c','/var/www/cron/system_c.php',0,5,''),";
+$query_job_scheduling .= "('weather_update','/var/www/cron/weather_update.php',0,30,''),";
+$query_job_scheduling .= "('reboot_wifi','/var/www/cron/reboot_wifi.sh',0,2,'');";
+$results = $conn->query($query_job_scheduling);
+if ($results) {
+                echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Job Scheduling Records Added \033[41mJobs\033[0m Data  Succeeded \n";
+} else {
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Job Scheduling Records \033[41mJobs\033[0m Data Failed \n";
+}
+
+//
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Database and Crontab Setup Completed.\n\t\t\tDo you want to continue with Time Zone, Language and Temperature Unit setup?\n\t\t\tEnter 'y' to continue or 'n' to finish with setup.\n";
 $units = array('y' => 1, 'yes'=> 1, 'n'=> 0, 'no'=> 0);
 $correct = 0;
