@@ -260,11 +260,11 @@ if ($results) {
 //Adding job scheduling records
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Job Scheduling Recors\n";
 $query_job_scheduling = "INSERT INTO `jobs`(`job_name`, `script`, `log_it`, `time`, `output`) ";
-$query_job_scheduling .= "VALUES ('controller','/var/www/cron/controller.php',0,1,''),";
-$query_job_scheduling .= "('check_gw','/var/www/cron/check_gw.php',0,1,''),";
-$query_job_scheduling .= "('system_c','/var/www/cron/system_c.php',0,5,''),";
-$query_job_scheduling .= "('weather_update','/var/www/cron/weather_update.php',0,30,''),";
-$query_job_scheduling .= "('reboot_wifi','/var/www/cron/reboot_wifi.sh',0,2,'');";
+$query_job_scheduling .= "VALUES ('controller','/var/www/cron/controller.php',0,60,''),";
+$query_job_scheduling .= "('check_gw','/var/www/cron/check_gw.php',0,60,''),";
+$query_job_scheduling .= "('system_c','/var/www/cron/system_c.php',0,300,''),";
+$query_job_scheduling .= "('weather_update','/var/www/cron/weather_update.php',0,1800,''),";
+$query_job_scheduling .= "('reboot_wifi','/var/www/cron/reboot_wifi.sh',0,120,'');";
 $results = $conn->query($query_job_scheduling);
 if ($results) {
                 echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Job Scheduling Records Added \033[41mJobs\033[0m Data  Succeeded \n";
