@@ -79,7 +79,7 @@ def main():
     cur.execute("SELECT `job_name`, `script`, `log_it`, `time` FROM `jobs`")
     for row in cur:
         func_builder(row[0], row[1], row[2])()
-        schedule.every(row[3]).minutes.do(func_builder(row[0], row[1], row[2]))
+        schedule.every(row[3]).seconds.do(func_builder(row[0], row[1], row[2]))
 
     while True:
 
