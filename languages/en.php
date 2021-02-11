@@ -555,5 +555,5 @@ $lang['add_new_job'] = "Add New Scheduled Job";
 $lang['add_new_job_info_text'] = "Add New Job Name, Script Name, Log On/Off and run Interval. ";
 $lang['jobs_name_info'] = "Descriptive name for the Scheduled Job. ";
 $lang['jobs_script_info'] = "Full Path Name for the executable Job Script. ";
-$lang['jobs_time_info'] = "Run the Jobs Script Every x Minutes. ";
+$lang['jobs_time_info'] = "Run the Jobs Script Every x Seconds. ";
 ?>
