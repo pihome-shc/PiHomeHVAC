@@ -1641,7 +1641,7 @@ if (in_array("1", $system_controller)) {
                         if ($result) {
                                 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Log table updated Successfully. \n";
                         }else {
-                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller  Log table update failed. \n";
+                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Log table update failed. \n";
                         }
                 }
 	}
