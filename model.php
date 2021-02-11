@@ -1816,7 +1816,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 echo '</table></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default login btn-sm" data-href="#" data-toggle="modal" data-target="#add_job">'.$lang['add_job'].'</button>
-                <input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="schedule_jobs()">
+                <input type="button" name="submit" value="'.$lang['apply'].'" class="btn btn-default login btn-sm" onclick="schedule_jobs()">
                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
             </div>
         </div>
