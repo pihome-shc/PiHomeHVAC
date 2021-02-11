@@ -1776,98 +1776,90 @@ echo'
     </div>
 </div>';
 
-//cronetab model
+// Jobs Schedule modal
 echo '
-<div class="modal fade" id="cron_jobs" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="jobs_schedule" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['schedule_jobs'].'</h5>
+            </div>
+            <div class="modal-body">
+<p class="text-muted"> '.$lang['schedule_jobs_info'].' </p>';
+$query = "SELECT id, job_name, script, log_it, time FROM jobs ORDER BY id asc";
+$results = $conn->query($query);
+echo '<br><table>
+    <tr>
+        <th class="col-xs-3">'.$lang['jobs_name'].'</th>
+        <th class="col-xs-4">'.$lang['jobs_script'].'</th>
+        <th class="col-xs-1">'.$lang['jobs_log'].'</th>
+        <th class="col-xs-2">'.$lang['jobs_time'].'</th>
+        <th class="col-xs-1"></th>
+    </tr>';
+
+while ($row = mysqli_fetch_assoc($results)) {
+    if ($row["log_it"] == 0) { $check = ''; } else { $check = 'checked'; }
+    echo '
+        <tr>
+            <td><input id="jobs_name'.$row["id"].'" type="value" class="form-control pull-right" style="border: none" value="'.$row["job_name"].'" placeholder="Job Name"></td>
+            <td><input id="jobs_script'.$row["id"].'" type="value" class="form-control pull-right" style="border: none" value="'.$row["script"].'" placeholder="Job Script"></td>
+            <td style="text-align:center; vertical-align:middle;">
+               <input type="checkbox" id="checkbox_log'.$row["id"].'" name="logit" value="1" '.$check.'>
+            </td>
+            <td><input id="jobs_time'.$row["id"].'" type="value" class="form-control pull-right" style="border: none" value="'.$row["time"].'" placeholder="Run Job Every"></td>
+            <td><a href="javascript:delete_job('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>
+        </tr>';
+
+}
+
+echo '</table></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default login btn-sm" data-href="#" data-toggle="modal" data-target="#add_job">'.$lang['add_job'].'</button>
+                <input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="schedule_jobs()">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+            </div>
+        </div>
+    </div>
+</div>';
+
+//Add Job Schedule
+echo '
+<div class="modal fade" id="add_job" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['cron_jobs'].'</h5>
+                <h5 class="modal-title">'.$lang['add_new_job'].'</h5>
             </div>
-            <div class="modal-body">
-<p class="text-muted">'.$lang['cron_jobs_text'].'</p>';
-echo '	<div class=\"list-group\">';
-    $SArr=[['name'=>'Boiler','interval'=>'60','service'=>'/var/www/cron/controller.php'],
-           ['name'=>'DB Cleanup','interval'=>'86400','service'=>'/var/www/cron/db_cleanup.php'],
-           ['name'=>'Check Gateway','interval'=>'60','service'=>'/var/www/cron/check_gw.php'],
-           ['name'=>'Weather Update','interval'=>'1800','service'=>'/var/www/cron/weather_update.php'],
-		   ['name'=>'System Temperature','interval'=>'300','service'=>'/var/www/cron/system_c.php'],
-           ['name'=>'Reboot WiFi','interval'=>'120','service'=>'/var/www/cron/reboot_wifi.sh'],
-           ['name'=>'PI Connect','interval'=>'60','service'=>'/var/www/cron/piconnect.php']];
-    foreach($SArr as $SArrKey=>$SArrVal) {
-		// Get last cron job entry from syslogs
-		$rval=my_exec("grep -a \"".$SArrVal['service']."\" /var/log/syslog | tail -n 1");
-		// If no log entry found in syslogs and no error, check in log rotating file syslog.1
-		if($rval['stdout']=='' && $rval['stderr']==''){
-			$rval=my_exec("grep -a \"".$SArrVal['service']."\" /var/log/syslog.1 | tail -n 1");
-		}
-		$logDateLabel='';
-		$errLabel='';
-		$errMsg='';
-		$statusIcon='ion-alert-circled red';
-		// Check for possible issues reading logs
-        if($rval['stdout']=='') {
-            $errLabel='Error: ' . $rval['stderr'];
-			if($rval['stderr']=='') {
-				$errLabel='Error: No log entries.';
-				$errMsg='Logs don\'t contain any entries for CRON job ( ' . $SArrVal['service'].' ). Make sure you have executed ( sudo php /var/www/setup.php ) or CRON jobs are set to be logged in /var/logs/syslog.';
-			} elseif (strstr($rval['stderr'],'Permission denied')) {
-				$errLabel='Error: Permission denied.';
-				$errMsg = $rval['stderr'].'. This function requires read access to syslogs. Please set permission to read for others for syslog and syslog.1 files, e.g.: sudo chmod 644 /var/log/syslog';
-			} else {
-				$errLabel='Error.';
-				$errMsg = $rval['stderr'];
-			}
-        } else { // Log entry found
-			// Split log entry to array
-            $rval=explode(" ",$rval['stdout']);
-			
-			// Get correct year of log entry
-			if ($rval[0]=='Dec' && date('M')=='Jan'){
-				$logYear=date('Y')-1;
-			}else{
-				$logYear=date('Y');
-			}
-			
-			// Log DateTime
-                        if($rval[1]=='') {
-                                $logDateLabel= $rval[2]." ".$rval[0]." ".$rval[3];
-                                $logDateObj = DateTime::createFromFormat('YMdH:i:s', $logYear.$rval[0].$rval[2].$rval[3]);
-                        } else {
-                                $logDateLabel= $rval[1]." ".$rval[0]." ".$rval[2];
-                                $logDateObj = DateTime::createFromFormat('YMdH:i:s', $logYear.$rval[0].$rval[1].$rval[2]);
-                        }
-			$logDate = $logDateObj->format("Y/m/d H:i:s");
-			
-			// Current DateTime
-			$currDateObj = new DateTime();
-			$currDate = $currDateObj->format("Y/m/d H:i:s");
-			$currDateObj->sub(new DateInterval('PT'.$SArrVal['interval'].'S')); // Subtract cron job interval for comparison
-			
-			// Check if Log entry is older that current date minus interval
-			if ($logDateObj>=$currDateObj) {
-				$statusIcon='ion-checkmark-circled green';
-			} else {
-				$errLabel='Error: Delay in run time.';
-				$errMsg=$SArrVal['name'].' cron job last ran on '.$logDate.', current datetime '.$currDate.', duration between is more than expected interval of '.$SArrVal['interval'].' seconds.';
-			}
-        }
-		
-		echo "<a href=\"#\" class=\"list-group-item\">
-			<i class=\"ionicons ".$statusIcon."\"></i>  ".$SArrVal['name']."<span class=\"pull-right text-muted small\"><em>Interval in seconds: ".$SArrVal['interval']."</em></span>
-			<span class=\"center-block text-muted small\"><em>  Last run time: ".$logDateLabel."</em>
-			<div class=\"pull-right text-muted small\"><em>".$errLabel."</em></div>";
-		if($errLabel!=''){ // If error exist, display icon for popup notification.
-			echo "
-			<span class=\"pull-right fa fa-info-circle fa-lg text-info\" data-container=\"body\" data-toggle=\"popover\" data-placement=\"left\" data-content=\"".$errMsg."\"</span>";
-		}
-		echo "</span>
-			</a>";
-    }
-echo ' </div></div>
+            <div class="modal-body">';
+echo '<p class="text-muted">'.$lang['add_new_job_info_text'].'</p>
+
+	<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
+
+	<div class="form-group" class="control-label"><label>'.$lang['jobs_name'].'</label> <small class="text-muted">'.$lang['jobs_name_info'].'</small>
+	<input class="form-control input-sm" type="text" id="job_name" name="job_name" value="" placeholder="'.$lang['jobs_name'].'">
+	<div class="help-block with-errors"></div></div>
+
+        <div class="form-group" class="control-label"><label>'.$lang['jobs_script'].'</label> <small class="text-muted">'.$lang['jobs_script_info'].'</small>
+        <input class="form-control input-sm" type="text" id="job_script" name="job_script" value="" placeholder="'.$lang['jobs_script'].'">
+        <div class="help-block with-errors"></div></div>
+
+        <div class="form-group" class="control-label"><label>'.$lang['jobs_time'].'</label> <small class="text-muted">'.$lang['jobs_time_info'].'</small>
+        <input class="form-control input-sm" type="text" id="job_time" name="job_time" value="" placeholder="'.$lang['jobs_time'].'">
+        <div class="help-block with-errors"></div></div>
+
+         <div class="form-group" class="control-label">
+             <div class="checkbox checkbox-default checkbox-circle">
+                 <input id="checkbox_logit" class="styled" type="checkbox" value="0" name="status" Enabled>
+                 <label for="checkbox_logit"> '.$lang['jobs_log'].'</label>
+             </div>
+         </div>
+</div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+				<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="add_job()">
+
             </div>
         </div>
     </div>
