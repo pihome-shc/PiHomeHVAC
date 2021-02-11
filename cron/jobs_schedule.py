@@ -87,7 +87,7 @@ def main():
         # is pending to run or not
 
         schedule.run_pending()
-        time.sleep(15)
+        time.sleep(1)
 
 
 if __name__ == "__main__":
