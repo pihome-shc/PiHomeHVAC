@@ -78,12 +78,6 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                                                         <h3 class="status"></small></h3>
                                                         </button>
 
-							<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_gpio.php" data-toggle="modal" data-target="#jobs_schedule">
-                                                        <h3 class="buttontop"><small><?php echo $lang['jobs']; ?></small></h3>
-	        	        			<h3 class="degre" ><i class="ionicons ion-ios-timer-outline blue"></i></h3>
-        	        	        		<h3 class="status"></small></h3>
-	                	        	        </button>
-
 			        		        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Uptime">
 				        	        <h3 class="buttontop"><small><?php echo $lang['update_etc']; ?></small></h3>
                 					<h3 class="degre" ><i class="ionicons ion-clock red"></i></h3>
@@ -95,6 +89,12 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 		        		        	<h3 class="degre" ><i class="fa fa-linux"></i></h3>
         		        		        <h3 class="status"></small></h3>
                 		        		</button>
+
+							<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_gpio.php" data-toggle="modal" data-target="#jobs_schedule">
+                                                        <h3 class="buttontop"><small><?php echo $lang['jobs']; ?></small></h3>
+	        	        			<h3 class="degre" ><i class="ionicons ion-ios-timer-outline blue"></i></h3>
+        	        	        		<h3 class="status"></small></h3>
+	                	        	        </button>
 
 		        		        	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Services">
         		        		        <h3 class="buttontop"><small><?php echo $lang['services']; ?></small></h3>
