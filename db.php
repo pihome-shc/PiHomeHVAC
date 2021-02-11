@@ -1250,7 +1250,87 @@ if($what=="time_zone"){
 	}
 }
 
-
+if($what=="job"){
+        if($opp=="update"){
+                $update_error=0;
+                $sel_query = "SELECT * FROM jobs ORDER BY id asc";
+                $results = $conn->query($sel_query);
+                while ($row = mysqli_fetch_assoc($results) and $update_error == 0) {
+                        $id = $row['id'];
+                        if(isset($_GET["jobs_name".$id])) {
+                                $job_name =  $_GET["jobs_name".$id];
+                                $query = "UPDATE jobs SET job_name = '".$job_name."' WHERE id='".$row['id']."' LIMIT 1;";
+                                if(!$conn->query($query)){
+                                        $update_error=1;
+                                }
+                        }
+                        if(isset($_GET["jobs_script".$id])) {
+                                $job_script =  $_GET["jobs_script".$id];
+                                $query = "UPDATE jobs SET script = '".$job_script."' WHERE id='".$row['id']."' LIMIT 1;";
+                                if(!$conn->query($query)){
+                                        $update_error=1;
+                                }
+                        }
+                        if(isset($_GET["checkbox_log".$id])) {
+                                $log_it =  $_GET["checkbox_log".$id];
+                                if ($log_it=='true'){$log_it = '1';} else {$log_it = '0';}
+                                $query = "UPDATE jobs SET log_it = '".$log_it."' WHERE id='".$row['id']."' LIMIT 1;";
+                                if(!$conn->query($query)){
+                                        $update_error=1;
+                                }
+                        }
+                        if(isset($_GET["jobs_time".$id])) {
+                                $job_time =  $_GET["jobs_time".$id];
+                                $query = "UPDATE jobs SET time = '".$job_time."' WHERE id='".$row['id']."' LIMIT 1;";
+                                if(!$conn->query($query)){
+                                        $update_error=1;
+                                }
+                        }
+                }
+                my_exec("sudo /bin/systemctl restart pihome_jobs_schedule.service");
+                if($update_error==0){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+        if($opp=="delete"){
+                //Now delete from jobs
+                $query = "DELETE FROM jobs WHERE id = '".$wid."';";
+                $conn->query($query);
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+        if($opp=="add"){
+                $job_name = $_GET['job_name'];
+                $job_script = $_GET['job_script'];
+                $job_time = $_GET['job_time'];
+                $log_it = $_GET['log_it'];
+                if ($log_it=='true'){$log_it = '1';} else {$log_it = '0';}
+                //Add record to Nodes table
+                $query = "INSERT INTO `jobs`(`job_name`, `script`, `log_it`, `time`, `output`) VALUES ('".$job_name."', '".$job_script."','".$log_it."', '".$job_time."','');";
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                } else {
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+}
 
 ?>
 <?php if(isset($conn)) { $conn->close();} ?>

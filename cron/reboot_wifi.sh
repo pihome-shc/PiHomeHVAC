@@ -1,7 +1,6 @@
 #!/bin/bash
 #=================================================================
 # Script Variables Settings
-clear
 wlan='wlan0'
 gateway='192.168.99.1'
 alias ifup='/sbin/ifup'
@@ -12,33 +11,29 @@ alias ifconfig='/sbin/ifconfig'
 lockfile='/var/www/cron/reboot_wifi.pid'
 
 #=================================================================
-echo "  _____    _   _    _                            "
-echo " |  __ \  (_) | |  | |                           "
-echo " | |__) |  _  | |__| |   ___    _ __ ___     ___ "
-echo " |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \ "
-echo " | |      | | | |  | | | (_) | | | | | | | |  __/"
-echo " |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|"
-echo " "
-echo "    S M A R T   H E A T I N G   C O N T R O L "
+echo "           __  __                             _        "
+echo "          |  \/  |                    /\     (_)       "
+echo "          | \  / |   __ _  __  __    /  \     _   _ __ "
+echo "          | |\/| |  / _' | \ \/ /   / /\ \   | | |  __|"
+echo "          | |  | | | (_| |  >  <   / ____ \  | | | |   "
+echo "          |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|   "
+echo ""
+echo "                S M A R T   T H E R M O S T A T "
 echo "*************************************************************************"
-echo "* PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
-echo "* from web interface and it comes with ABSOLUTELY NO WARRANTY, to the   *"
+echo "* MaxAir is LINUX  based Central Heating Control systems. It runs from  *"
+echo "* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *"
 echo "* extent permitted by applicable law. I take no responsibility for any  *"
 echo "* loss or damage to you or your property.                               *"
 echo "* DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTIL UNLESS YOU KNOW  *"
 echo "* WHAT YOU ARE DOING                                                    *"
 echo "*************************************************************************"
 echo
-echo "                                                           Have Fun - PiHome" 
-date
+echo "                                                       Have Fun - PiHome "
 echo " - Auto Reconnect Wi-Fi Status for $wlan Script Started ";
+echo "   $(date)"
 echo
 echo "*************************************************************************"
-date
-
-echo 
-echo "Starting WiFi check for $wlan"
-echo 
+echo
 # Check to see if there is a lock file
 if [ -e $lockfile ]; then
     # A lockfile exists... Lets check to see if it is still valid

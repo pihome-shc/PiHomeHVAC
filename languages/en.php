@@ -543,4 +543,17 @@ $lang['apply'] = "Apply";
 $lang['livetemp_success'] = "livetemp Table Default Added Successfully.";
 $lang['livetemp_fail'] = "livetemp Table Default failed with error: ";
 $lang['livetemp_no_control_zone'] = "Please Add Control Zone to enable this Feature";
+$lang['jobs'] = "Jobs";
+$lang['jobs_name'] = "Job Name";
+$lang['jobs_script'] = "Script Name";
+$lang['jobs_log'] = "Log Job";
+$lang['jobs_time'] = "Run Every";
+$lang['schedule_jobs'] = "Schedule Jobs";
+$lang['schedule_jobs_info'] = "Configure Jobs to run every set interval and enable creation of a Log file if required. ";
+$lang['add_job'] = "Add Job";
+$lang['add_new_job'] = "Add New Scheduled Job";
+$lang['add_new_job_info_text'] = "Add New Job Name, Script Name, Log On/Off and run Interval. ";
+$lang['jobs_name_info'] = "Descriptive name for the Scheduled Job. ";
+$lang['jobs_script_info'] = "Full Path Name for the executable Job Script. ";
+$lang['jobs_time_info'] = "Run the Jobs Script Every x Seconds. ";
 ?>
