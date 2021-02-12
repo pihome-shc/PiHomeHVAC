@@ -13,7 +13,7 @@ echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
 echo "\033[31m";
 echo "******************************************************************\n";
 echo "*   System Controller Script Version 0.01 Build Date 19/10/2020  *\n";
-echo "*   Update on 10/01/2021                                         *\n";
+echo "*   Update on 11/02/2021                                         *\n";
 echo "*                                        Have Fun - PiHome.eu    *\n";
 echo "******************************************************************\n";
 echo " \033[0m \n";
@@ -127,6 +127,7 @@ $system_controller_mode = settings($conn, 'mode');
 $query = "SELECT * FROM system_controller LIMIT 1;";
 $result = $conn->query($query);
 $row = mysqli_fetch_array($result);
+$system_controller_id = $row['id'];
 $system_controller_status = $row['status'];
 $system_controller_active_status = $row['active_status'];
 $system_controller_hysteresis_time = $row['hysteresis_time'];
@@ -254,7 +255,7 @@ if (mysqli_num_rows($result)==0){
 }
 
 //query to get last system controller statues change time
-$query = "SELECT * FROM controller_zone_logs ORDER BY id desc LIMIT 1;";
+$query = "SELECT * FROM controller_zone_logs WHERE zone_id = '".$system_controller_id."' ORDER BY id desc LIMIT 1;";
 $result = $conn->query($query);
 $row = mysqli_fetch_array($result);
 $system_controller_start_datetime = $row['start_datetime'];
@@ -1486,12 +1487,24 @@ if (in_array("1", $system_controller)) {
 	                	}
         	        	$result = $conn->query($bsquery);
                 		if ($result) {
-                        		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Log table added Successfully. \n";
+                        		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Log table added Successfully. \n";
 	                	}else {
-        	                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Log table addition failed. \n";
+        	                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Log table addition failed. \n";
                 		}
 			}
 		} // end foreach($zone_log as $key => $value)
+		//insert date and time into system controller log table so we can record system controller start date and time.
+                if (isset($expected_end_date_time)) {
+        	        $bsquery = "INSERT INTO `controller_zone_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`, `expected_end_date_time`) VALUES ('0', '0', '{$system_controller_id}', '{$date_time}', '{$start_cause}', NULL, NULL,'{$expected_end_date_time}');";
+                } else {
+                        $bsquery = "INSERT INTO `controller_zone_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`, `expected_end_date_time`) VALUES ('0', '0', '{$system_controller_id}', '{$date_time}', '{$start_cause}', NULL, NULL,NULL);";
+		}
+		$result = $conn->query($bsquery);
+		if ($result) {
+			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Log table added Successfully. \n";
+		}else {
+			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System System Log table addition failed. \n";
+		}
 	} else {
 		foreach($zone_log as $key => $value) {
         	        if($value != $z_state[$key]) {
@@ -1506,9 +1519,9 @@ if (in_array("1", $system_controller)) {
 				}
                 	        $result = $conn->query($query);
                         	if ($result) {
-                                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Log table updated Successfully. \n";
+                                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Log table updated Successfully. \n";
 	                        }else {
-        	                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Log table update failed. \n";
+        	                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Log table update failed. \n";
 				}
                         }
 		}
@@ -1617,11 +1630,18 @@ if (in_array("1", $system_controller)) {
                         		$query = "UPDATE controller_zone_logs SET stop_datetime = '{$date_time}', stop_cause = '{$stop_cause}' WHERE `zone_id` = '{$key}' ORDER BY id DESC LIMIT 1;";
                                         $result = $conn->query($query);
                                         if ($result) {
-                                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Log table updated Successfully. \n";
+                                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Log table updated Successfully. \n";
                                         }else {
-                                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Log table update failed. \n";
+                                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Log table update failed. \n";
                                         }
                                 }
+                        }
+			$query = "UPDATE controller_zone_logs SET stop_datetime = '{$date_time}', stop_cause = '{$stop_cause}' WHERE `zone_id` = '{$system_controller_id}' ORDER BY id DESC LIMIT 1;";
+                        $result = $conn->query($query);
+                        if ($result) {
+                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Log table updated Successfully. \n";
+                        }else {
+                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Log table update failed. \n";
                         }
                 }
 	}
