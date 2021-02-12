@@ -59,6 +59,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 		$result = $conn->query($query);
 		$row = mysqli_fetch_array($result);
 		$sc_count=$result->num_rows;
+                $system_controller_id = $row['id'];
 		$system_controller_name = $row['name'];
 		$system_controller_max_operation_time = $row['max_operation_time'];
 		$system_controller_hysteresis_time = $row['hysteresis_time'];
@@ -69,7 +70,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 		$query = "SELECT * FROM nodes WHERE id = {$row['node_id']} AND status IS NOT NULL LIMIT 1";
 		$result = $conn->query($query);
 		$system_controller_node = mysqli_fetch_array($result);
-		$system_controller_id = $system_controller_node['node_id'];
+		$system_controller_node_id = $system_controller_node['node_id'];
 		$system_controller_seen = $system_controller_node['last_seen'];
 		$system_controller_notice = $system_controller_node['notice_interval'];
 
@@ -261,7 +262,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 											<i class="fa fa-clock-o fa-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
 											</small>
 											<br><br>
-											<p>Node ID '.$system_controller_id.' last seen at '.$system_controller_seen.' </p>
+											<p>Node ID '.$system_controller_node_id.' last seen at '.$system_controller_seen.' </p>
 											<p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
 										</div>
 									</li>
@@ -454,14 +455,14 @@ require_once(__DIR__.'/st_inc/functions.php');
 											<i class="fa fa-clock-o fa-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
 											</small>
 											<br><br>
-											<p>Node ID '.$system_controller_id.' last seen at '.$system_controller_seen.' </p>
+											<p>Node ID '.$system_controller_node_id.' last seen at '.$system_controller_seen.' </p>
 											<p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
 										</div>
 									</li>
 								</ul>';
   							}
 							$bquery = "select DATE_FORMAT(start_datetime, '%H:%i') as start_datetime, DATE_FORMAT(stop_datetime, '%H:%i') as stop_datetime , DATE_FORMAT(expected_end_date_time, '%H:%i') as expected_end_date_time, TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime) as on_minuts
-							from controller_zone_logs order by id desc limit 5";
+							from controller_zone_logs WHERE zone_id = ".$system_controller_id." order by id desc limit 5";
 							$bresults = $conn->query($bquery);
 							if (mysqli_num_rows($bresults) == 0){
 								echo '<div class=\"list-group\">
