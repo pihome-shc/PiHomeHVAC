@@ -60,6 +60,14 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 
 			                	<div id="collapse_status" class="panel-collapse collapse animated fadeIn">
 							<h4 class="pull-left"><?php echo $lang['system_status']; ?></h4><br>
+                                                        <button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#show_frost">
+                                                        <h3 class="buttontop"><small><?php echo $lang['frost']; ?> </small></h3>
+                                                        <h3 class="degre" ><i class="ionicons ion-ios-snowy blue"></i></h3>
+                                                        <h3 class="status">
+                                                        <small class="statuscircle"><i class="fa fa-circle fa-fw <?php echo $fcolor; ?>"></i></small>
+                                                        <small class="statuszoon"><i class="fa"></i></small></h3>
+                                                        </button>
+
 		        			        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#wifi_setup">
         		        		        <h3 class="buttontop"><small><?php echo $lang['wifi']; ?></small></h3>
                 		        	        <h3 class="degre" ><i class="fa fa-signal green"></i></h3>
@@ -222,15 +230,6 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 
 			        	        <div id="collapse_system_controller" class="panel-collapse collapse animated fadeIn">
 							<h4 class="pull-left"><?php echo $lang['system_controller_configuration']; ?></h4><br>
-	                				<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#add_frost">
-		                                	<h3 class="buttontop"><small><?php echo $lang['frost']; ?> </small></h3>
-				                       	<h3 class="degre" ><i class="ionicons ion-ios-snowy blue"></i></h3>
-                				        <h3 class="status">
-	                	        	        <small class="statuscircle"><i class="fa fa-circle fa-fw blue"></i></small>
-			        	        	<small class="statusdegree"><?php echo number_format(DispTemp($conn,$frost_temp),0);?>&deg;</small>
-                				      	<small class="statuszoon"><i class="fa"></i></small></h3>
-                        	        		</button>
-
 				        	       	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_system_controller.php" data-toggle="modal" data-target="#system_controller">
                                                         <h3 class="buttontop"><small><?php echo $lang['controller']; ?></small></h3>
                                                         <h3 class="degre" ><?php echo "SC"; ?></h3>
