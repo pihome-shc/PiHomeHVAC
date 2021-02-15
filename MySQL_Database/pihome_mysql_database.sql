@@ -158,30 +158,6 @@ CREATE TABLE `controller_relays` (
 /*!40000 ALTER TABLE `controller_relays` DISABLE KEYS */;
 /*!40000 ALTER TABLE `controller_relays` ENABLE KEYS */;
 
--- Dumping data for table pihome.boost: ~6 rows (approximately)
-/*!40000 ALTER TABLE `boost` DISABLE KEYS */;
-/*!40000 ALTER TABLE `boost` ENABLE KEYS */;
-
--- Dumping structure for table pihome.crontab
-DROP TABLE IF EXISTS `crontab`;
-CREATE TABLE IF NOT EXISTS `crontab` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `status` char(50),
-  `min` char(50),
-  `hour` char(50),
-  `day` char(50),
-  `month` char(50),
-  `weekday` char(50),
-  `command` char(50),
-  `output` char(50),
-  `comments` varchar(50),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='PiHome Smart Heating - Manage Crontab from web interface ';
-
--- Dumping data for table pihome.crontab: ~0 rows (approximately)
-/*!40000 ALTER TABLE `crontab` DISABLE KEYS */;
-/*!40000 ALTER TABLE `crontab` ENABLE KEYS */;
-
 -- Dumping structure for table pihome.email
 DROP TABLE IF EXISTS `email`;
 CREATE TABLE IF NOT EXISTS `email` (
@@ -200,21 +176,6 @@ CREATE TABLE IF NOT EXISTS `email` (
 -- Dumping data for table pihome.email: 0 rows
 /*!40000 ALTER TABLE `email` DISABLE KEYS */;
 /*!40000 ALTER TABLE `email` ENABLE KEYS */;
-
--- Dumping structure for table pihome.frost_protection
-DROP TABLE IF EXISTS `frost_protection`;
-CREATE TABLE IF NOT EXISTS `frost_protection` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `sync` tinyint(4) NOT NULL,
-  `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
-  `datetime` timestamp NULL,
-  `temperature` float NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
-
--- Dumping data for table pihome.frost_protection: ~0 rows (approximately)
-/*!40000 ALTER TABLE `frost_protection` DISABLE KEYS */;
-/*!40000 ALTER TABLE `frost_protection` ENABLE KEYS */;
 
 -- Dumping structure for table pihome.gateway
 DROP TABLE IF EXISTS `gateway`;
@@ -681,6 +642,8 @@ CREATE TABLE `temperature_sensors` (
   `name` char(50) COLLATE utf8_bin DEFAULT NULL,
   `graph_num` tinyint(4) NOT NULL,
   `show_it` tinyint(1) NOT NULL,
+  `frost_temp` int(11) NOT NULL,
+  `frost_controller` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_temperature_sensors_nodes` (`sensor_id`),
   KEY `FK_temperature_sensors_zone` (`zone_id`),

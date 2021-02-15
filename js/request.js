@@ -114,26 +114,6 @@ function update_add_on(wid){
     });
 }
 
-//update frost temperate 
-function update_frost(){
-    var idata="w=frost&o=update";
-    idata+="&frost_temp="+document.getElementsByName("frost_temp")[0].value;
-    idata+="&wid=0";
-    $.get('db.php',idata)
-    .done(function(odata){
-        if(odata.Success)
-            reload_page();
-        else
-            console.log(odata.Message);
-    })
-    .fail(function( jqXHR, textStatus, errorThrown ){
-        if(jqXHR==401 || jqXHR==403) return;
-        console.log("update_frost: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
-    })
-    .always(function() {
-    });
-}
-
 //update units
 function update_units(){
     var idata="w=units&o=update";

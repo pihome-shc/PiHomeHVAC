@@ -241,19 +241,6 @@ if ($rowcount > 0) {
 	$holidays_status = 0;
 }
 
-//query to get frost protection temperature
-$query = "SELECT * FROM frost_protection ORDER BY id desc LIMIT 1;";
-$result = $conn->query($query);
-if (mysqli_num_rows($result)==0){
-	//No record in frost_protction table, so add
-	$frost_c = 5;
-	$query = "INSERT INTO frost_protection VALUES(1, 0, 0, '{$date_time}', '" . number_format($frost_c,1) . "');";
-	$conn->query($query);
-} else {
-	$frost_q = mysqli_fetch_array($result);
-	$frost_c = $frost_q['temperature'];
-}
-
 //query to get last system controller statues change time
 $query = "SELECT * FROM controller_zone_logs WHERE zone_id = '".$system_controller_id."' ORDER BY id desc LIMIT 1;";
 $result = $conn->query($query);
@@ -677,23 +664,55 @@ while ($row = mysqli_fetch_assoc($results)) {
 				$contents = file_get_contents($url);
 			}
 		}
+
+                // check frost protection linked to this zone controller
+                $frost_controller = $zone_controllers[0]["controller_relay_id"];
+                $query = "SELECT temperature_sensors.sensor_id, temperature_sensors.sensor_child_id, temperature_sensors.name AS sensor_name, temperature_sensors.frost_temp, controller_relays.name AS controller_name FROM temperature_sensors, controller_relays WHERE (temperature_sensors.frost_controller = controller_relays.id) AND frost_controller = ".$frost_controller.";";
+                $fresults = $conn->query($query);
+                $frost_active = 0;
+                $frost_target_c = 99;
+                while ($row = mysqli_fetch_assoc($fresults)) {
+                        $frost_c = $row["frost_temp"];
+                        $query = "SELECT node_id FROM nodes WHERE id = ".$row['sensor_id']." LIMIT 1;";
+                        $result = $conn->query($query);
+                        $frost_sensor_node = mysqli_fetch_array($result);
+                        $frost_sensor_node_id = $frost_sensor_node['node_id'];
+                        //query to get temperature from messages_in_view_24h table view
+                        $query = "SELECT * FROM messages_in_view_24h WHERE node_id = '".$frost_sensor_node_id."' AND child_id = ".$row['sensor_child_id']." ORDER BY datetime desc LIMIT 1;";
+                        $result = $conn->query($query);
+                        $msg_in = mysqli_fetch_array($result);
+                        $frost_sensor_c = $msg_in['payload'];
+                        //enable frost protection if any sensor temparature attached to the zone is below the threshold
+                        if ($frost_sensor_c < $frost_c-$zone_sp_deadband) {
+                                $frost_active = 1;
+                                //use the lowest value if multiple values
+                                if ($frost_c < $frost_target_c) { $frost_target_c = $frost_c; }
+                        } else if (($frost_sensor_c >= $frost_target_c-$zone_sp_deadband) && ($frost_sensor_c < $frost_target_c)) {
+                                $frost_active = 2;
+                                //use the lowest value if multiple values
+                                if ($frost_c < $frost_target_c) { $frost_target_c = $frost_c; }
+                        }
+                        if ($debug_msg == 1) {
+                                echo "Sensor Name - ".$row['sensor_name'].", Frost Target Temperture - ".$frost_target_c.", Frost Sensor Temperature - ".$frost_sensor_c."\n"; }
+                }
+		
 		//initialize two variable
 		$zone_mode = 0;
 		$hvac_state = 0; // 0 = COOL, 1 = HEAT
 		if ($zone_fault == '0'){
 			if ($zone_category < 2) {
-				if ($zone_c < $frost_c-$zone_sp_deadband){
+				if ($frost_active == 1){
 					$zone_status="1";
 					$zone_mode = 21;
 					$start_cause="Frost Protection";
 					$zone_state= 1;
-				} elseif (($zone_c >= $frost_c-$zone_sp_deadband) && ($zone_c < $frost_c)) {
+				} elseif ($frost_active == 2) {
 					$zone_status=$zone_status_prev;
 					$zone_mode = 22 - $zone_status_prev;
 					$start_cause="Frost Protection Deadband";
 					$stop_cause="Frost Protection Deadband";
 					$zone_state = $zone_status_prev;
-				} elseif (($zone_c >= $frost_c) && ($zone_c < $zone_max_c) && ($hysteresis=='0' || $system_controller_mode == 0)) {
+				} elseif (($frost_active == 0) && ($zone_c < $zone_max_c) && ($hysteresis=='0' || $system_controller_mode == 0)) {
 					if ($sc_mode != 0) {
 						if ($sc_mode == 4 || ($sc_mode == 2 && strpos($zone_type, 'Heating') !== false)  || ($sc_mode == 3 && strpos($zone_type, 'Water') !== false)) {
                                                 	if ($zone_c < $temp_cut_out_rising) {
@@ -850,20 +869,20 @@ while ($row = mysqli_fetch_assoc($results)) {
 					}
 				}
 			} elseif ($zone_category == 3) { // process category 3 zone (HVAC)
-                                if ($zone_c < $frost_c-$zone_sp_deadband){
+                                if ($frost_active == 1){
                                         $zone_status="1";
                                         $zone_mode = 21;
                                         $start_cause="Frost Protection";
                                         $zone_state= 1;
 					$hvac_state = 1;
-                                } elseif (($zone_c >= $frost_c-$zone_sp_deadband) && ($zone_c < $frost_c)) {
+                                } elseif ($frost_active == 2) {
                                         $zone_status=$zone_status_prev;
                                         $zone_mode = 22 - $zone_status_prev;
                                         $start_cause="Frost Protection Deadband";
                                         $stop_cause="Frost Protection Deadband";
                                         $zone_state = $zone_status_prev;
 					$hvac_state = 1;
-                                } elseif (($zone_c >= $frost_c) && ($zone_c < $zone_max_c) && ($zone_c > $zone_min_c)) {
+                                } elseif (($frost_active == 0) && ($zone_c < $zone_max_c) && ($zone_c > $zone_min_c)) {
 					if ($away_status=='0'){
 						if (($holidays_status=='0') || ($sch_holidays=='1')) {
 							if ($boost_status=='0') {
@@ -1120,7 +1139,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 		} // for ($crow = 0; $crow < count($zone_controllers); $crow++)
 
 		//Update temperature values fore zone current status table (frost protection and overtemperature)
-		if (floor($zone_mode/10) == 2 ) { $target_c= $frost_c;$temp_cut_out_rising = $frost_c-$zone_sp_deadband; $temp_cut_out = $frost_c;}
+		if (floor($zone_mode/10) == 2 ) { $target_c= $frost_target_c;$temp_cut_out_rising = $frost_target_c-$zone_sp_deadband; $temp_cut_out = $frost_target_c;}
 		if (floor($zone_mode/10) == 3 ) { $target_c= $zone_max_c;$temp_cut_out_rising = 0; $temp_cut_out = 0;}
 		//reset if temperature control is not active
 		if ((floor($zone_mode/10) == 0 ) || (floor($zone_mode/10) == 1 ) || (floor($zone_mode/10) == 4 ) || (floor($zone_mode/10) == 9 )||(floor($zone_mode/10) == 10 ))  { $target_c= 0;$temp_cut_out_rising = 0; $temp_cut_out = 0;}
