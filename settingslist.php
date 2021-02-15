@@ -22,10 +22,21 @@ confirm_logged_in();
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 //query to frost protection temperature 
-$query = "SELECT * FROM frost_protection LIMIT 1 ";
-$result = $conn->query($query);
-$frosttemp = mysqli_fetch_array($result);
-$frost_temp = $frosttemp['temperature'];
+$fcolor = "blue";
+$query = "SELECT sensor_id, sensor_child_id, frost_temp FROM temperature_sensors WHERE frost_temp <> 0;";
+$results = $conn->query($query);
+while ($row = mysqli_fetch_assoc($results)) {
+        $query = "SELECT node_id FROM nodes WHERE id = ".$row['sensor_id']." LIMIT 1;";
+        $result = $conn->query($query);
+        $frost_sensor_node = mysqli_fetch_array($result);
+        $frost_sensor_node_id = $frost_sensor_node['node_id'];
+        //query to get temperature from messages_in_view_24h table view
+        $query = "SELECT payload FROM messages_in_view_24h WHERE node_id = '".$frost_sensor_node_id."' AND child_id = ".$row['sensor_child_id']." ORDER BY datetime desc LIMIT 1;";
+        $result = $conn->query($query);
+        $msg_in = mysqli_fetch_array($result);
+        $frost_sensor_c = $msg_in['payload'];
+        if ($frost_sensor_c <= $row["frost_temp"]) { $fcolor = "red"; }
+}
 ?>
 <script language="javascript" type="text/javascript">
 $("#ajaxModal").on("show.bs.modal", function(e) {
