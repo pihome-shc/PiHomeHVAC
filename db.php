@@ -601,31 +601,6 @@ if($what=="add_on"){
         }
 }
 
-//update frost temperature
-if($what=="frost"){
-	if($opp=="update"){
-		$datetime = date("Y-m-d H:i:s");
-		$temp=TempToDB($conn,$_GET['frost_temp']);
-                $query = "SELECT * FROM frost_protection LIMIT 1;";
-                $result = $conn->query($query);
-                if (mysqli_num_rows($result)==0){
-                        //No record in frost_protction table, so add
-                        $query = "INSERT INTO frost_protection VALUES(1, 0, 0, '{$datetime}', '" . number_format($temp,1) . "');";
-                } else {
-                        $query = "UPDATE frost_protection SET datetime = '{$datetime}', temperature = '" . number_format($temp,1) . "', sync = 0 LIMIT 1";
-                }
-        	if($conn->query($query)){
-            		header('Content-type: application/json');
-            		echo json_encode(array('Success'=>'Success','Query'=>$query));
-            		return;
-        	}else{
-            		header('Content-type: application/json');
-            		echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
-            		return;
-        	}
-	}
-}
-
 //update units
 if($what=="units"){
 	if($opp=="update"){
