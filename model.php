@@ -60,41 +60,48 @@ echo '</div></div>
     </div>
 </div>';
 
-//query to frost protection temperature 
-$query = "SELECT * FROM frost_protection LIMIT 1 ";
-$result = $conn->query($query);
-$frosttemp = mysqli_fetch_array($result);
-$frost = $frosttemp['temperature'];
-echo '
-<div class="modal fade" id="add_frost" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+// show frost protection
+echo '<div class="modal fade" id="show_frost" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title">'.$lang['frost_protection'].'</h5>
             </div>
             <div class="modal-body">
-                <p class="text-muted"> '.$lang['frost_protection_text'].'</p>
-				<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
-				<div class="form-group" class="control-label"><label>'.$lang['temperature'].'</label>
-				<select class="form-control input-sm" type="number" id="frost_temp" name="frost_temp" >';
-$c_f = settings($conn, 'c_f');
-if($c_f==1 || $c_f=='1') {
-    for($t=28;$t<=50;$t++){
-        echo '<option value="' . $t . '" ' . (DispTemp($conn, $frost)==$t ? 'selected' : '') . '>' . $t . '</option>';
-    }
-} else {
-    for($t=-1;$t<=12;$t++) {
-        echo '<option value="' . $t . '" ' . ($frost==$t ? 'selected' : '') . '>' . $t . '</option>';
-    }
-}
-echo '
-				</select>
-                <div class="help-block with-errors"></div></div>
+                <p class="text-muted">'.$lang['frost_ptotection_info'].'</p>';
+                $query = "SELECT temperature_sensors.sensor_id, temperature_sensors.sensor_child_id, temperature_sensors.name AS sensor_name, temperature_sensors.frost_temp, controller_relays.name AS controller_name FROM temperature_sensors, controller_relays WHERE (temperature_sensors.frost_controller = controller_relays.id) AND frost_temp <> 0;";
+                $results = $conn->query($query);
+                echo '<table class="table table-bordered">
+                        <tr>
+                                <th style="text-align:center; vertical-align:middle;" class="col-xs-3"><small>'.$lang['temperature_sensor'].'</small></th>
+                                <th style="text-align:center; vertical-align:middle;" class="col-xs-3"><small>'.$lang['frost_temparature'].'</small></th>
+                                <th style="text-align:center; vertical-align:middle;" class="col-xs-3"><small>'.$lang['frost_controller'].'</small></th>
+                                <th style="text-align:center; vertical-align:middle;" class="col-xs-1"><small>'.$lang['status'].'</small></th>
+                        </tr>';
+                        while ($row = mysqli_fetch_assoc($results)) {
+                                $query = "SELECT node_id FROM nodes WHERE id = ".$row['sensor_id']." LIMIT 1;";
+                                $result = $conn->query($query);
+                                $frost_sensor_node = mysqli_fetch_array($result);
+                                $frost_sensor_node_id = $frost_sensor_node['node_id'];
+                                //query to get temperature from messages_in_view_24h table view
+                        	$query = "SELECT * FROM messages_in_view_24h WHERE node_id = '".$frost_sensor_node_id."' AND child_id = ".$row['sensor_child_id']." ORDER BY datetime desc LIMIT 1;";
+                                $result = $conn->query($query);
+                                $msg_in = mysqli_fetch_array($result);
+                                $frost_sensor_c = $msg_in['payload'];
+                                if ($frost_sensor_c <= $row["frost_temp"]) { $scolor = "red"; } else { $scolor = "blue"; }
+                                echo '
+                                <tr>
+                                        <td>'.$row["sensor_name"].'</td>
+                                        <td style="text-align:center; vertical-align:middle;">'.$row["frost_temp"].'</td>
+                                        <td>'.$row["controller_name"].'</td>
+                                        <td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="fa fa-circle fa-fw '.$scolor.'"></i></td>
+                                </tr>';
+                        }
+                echo '</table>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['cancel'].'</button>
-                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="update_frost()">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
             </div>
         </div>
     </div>
