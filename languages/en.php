@@ -556,4 +556,8 @@ $lang['add_new_job_info_text'] = "Add New Job Name, Script Name, Log On/Off and 
 $lang['jobs_name_info'] = "Descriptive name for the Scheduled Job. ";
 $lang['jobs_script_info'] = "Full Path Name for the executable Job Script. ";
 $lang['jobs_time_info'] = "Run the Jobs Script Every x Seconds. ";
+$lang['frost_controller'] = "Frost Controller";
+$lang['frost_temparature'] = "Frost Temperature";
+$lang['frost_controller_text'] = "The zone controller to be activated when frost protection is triggered by this temperature sensor.";
+$lang['frost_ptotection_info'] = "Show Temperature Sensors used for Frost Protection, the Trigger Temperature and the associated Zone Controller. ";
 ?>
