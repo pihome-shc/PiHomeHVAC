@@ -875,7 +875,7 @@ echo '
             </div>
             <div class="modal-body">
 <p class="text-muted">'.$lang['relay_settings_text'].'</p>';
-$query = "select controller_relays.*, nodes.last_seen from controller_relays, nodes WHERE controller_relays.controler_id = nodes.id order by controler_id asc, controler_child_id asc";
+$query = "select controller_relays.*, node_id, nodes.last_seen from controller_relays, nodes WHERE controller_relays.controler_id = nodes.id order by controler_id asc, controler_child_id asc";
 $results = $conn->query($query);
 echo '<table class="table table-bordered">
     <tr>
@@ -909,7 +909,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         <tr>
             <td>'.$row["name"].'<br> <small>('.$row["last_seen"].')</small></td>
             <td>'.$relay_type.'</td>
-            <td>'.$row["controler_id"].'</td>
+            <td>'.$row["node_id"].'</td>
             <td>'.$row["controler_child_id"].'</td>
             <td><a href="relay.php?id='.$row["id"].'"><button class="btn btn-primary btn-xs"><span class="ionicons ion-edit"></span></button> </a>&nbsp;&nbsp';
             if ($row['type'] == 0) {
