@@ -34,7 +34,10 @@ if(isset($_GET['id'])) {
 if (isset($_POST['submit'])) {
 	$name = $_POST['name'];
         $type = $_POST['type_id'];
-	$controler_id = $_POST['selected_relay_id'];
+        $query = "SELECT id FROM nodes WHERE node_id = '".$_POST['selected_relay_id']."' LIMIT 1;";
+        $result = $conn->query($query);
+        $row = mysqli_fetch_array($result);
+        $controler_id = $row['id'];
 	$controler_child_id = $_POST['relay_child_id'];
         $sync = '0';
         $purge= '0';
@@ -143,13 +146,13 @@ function RelayTypeID(value)
 <!-- Relay ID -->
 <div class="form-group" class="control-label" id="relay_id_label" style="display:block"><label><?php echo $lang['relay_id']; ?></label> <small class="text-muted"><?php echo $lang['relay_id_info'];?></small>
 <select id="relay_id" onchange=RelayChildList(this.options[this.selectedIndex].value) name="relay_id" class="form-control select2" data-error="<?php echo $lang['zone_temp_sensor_id_error']; ?>" autocomplete="off" required>
-<?php if(isset($rownode['id'])) { echo '<option selected >'.$rownode['id'].'</option>'; } ?>
-<?php  $query = "SELECT id, name, max_child_id FROM nodes ORDER BY node_id ASC;";
+<?php if(isset($rownode['node_id'])) { echo '<option selected >'.$rownode['node_id']." - ".$rownode['name'].'</option>'; } ?>
+<?php  $query = "SELECT id, node_id, name, max_child_id FROM nodes ORDER BY node_id ASC;";
 $result = $conn->query($query);
 echo "<option></option>";
 while ($datarw=mysqli_fetch_array($result)) {
         if(strpos($datarw['name'], 'Add-On') !== false) { $max_child_id = 0; } else { $max_child_id = $datarw['max_child_id']; }
-	echo "<option value=".$datarw['max_child_id'].">".$datarw['id']." - ".$datarw['name']."</option>"; } ?>
+        echo "<option value=".$datarw['max_child_id'].">".$datarw['node_id']." - ".$datarw['name']."</option>"; } ?>
 </select>
 <div class="help-block with-errors"></div></div>
 
