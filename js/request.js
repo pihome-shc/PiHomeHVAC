@@ -770,7 +770,7 @@ function update_email(){
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            window.location.href = "home.php";
+            reload_page();
         else
             console.log(odata.Message);
     })
