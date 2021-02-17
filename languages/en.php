@@ -560,4 +560,8 @@ $lang['frost_controller'] = "Frost Controller";
 $lang['frost_temparature'] = "Frost Temperature";
 $lang['frost_controller_text'] = "The zone controller to be activated when frost protection is triggered by this temperature sensor.";
 $lang['frost_ptotection_info'] = "Show Temperature Sensors used for Frost Protection, the Trigger Temperature and the associated Zone Controller. ";
+$lang['fullname'] = "Full Name";
+$lang['old_password'] = "Old Password";
+$lang['new_password'] = "New Password";
+$lang['confirm_password'] = "Confirm Password";
 ?>
