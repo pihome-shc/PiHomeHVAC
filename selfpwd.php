@@ -1,17 +1,17 @@
-<?php 
+<?php
 /*
-   _____    _   _    _                             
-  |  __ \  (_) | |  | |                            
-  | |__) |  _  | |__| |   ___    _ __ ___     ___  
-  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \ 
-  | |      | | | |  | | | (_) | | | | | | | |  __/ 
-  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___| 
+             __  __                             _
+            |  \/  |                    /\     (_)
+            | \  / |   __ _  __  __    /  \     _   _ __
+            | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+            | |  | | | (_| |  >  <   / ____ \  | | | |
+            |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 
-     S M A R T   H E A T I N G   C O N T R O L 
+                   S M A R T   T H E R M O S T A T
 
 *************************************************************************"
-* PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
-* from web interface and it comes with ABSOLUTELY NO WARRANTY, to the   *"
+* MaxAir is a Linux based Central Heating Control systems. It runs from *"
+* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *"
 * extent permitted by applicable law. I take no responsibility for any  *"
 * loss or damage to you or your property.                               *"
 * DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTILL UNLESS YOU KNOW *"
@@ -19,13 +19,17 @@
 *************************************************************************"
 */
 
-require_once(__DIR__.'/st_inc/session.php'); 
+require_once(__DIR__.'/st_inc/session.php');
 confirm_logged_in();
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 
-$id = $_SESSION['user_id'];
-if (isset($_POST['submit'])) { 
+if(isset($_GET['id'])) {
+	$id = $_GET['id'];
+} else {
+	$id = $_SESSION['user_id'];
+}
+if (isset($_POST['submit'])) {
 	if ((!isset($_POST['old_pass'])) || (empty($_POST['old_pass']))) {
 		$error_message = $LANG['old_password_error'];
 	}elseif ((!isset($_POST['new_pass'])) || (empty($_POST['new_pass']))) {
@@ -38,9 +42,9 @@ if (isset($_POST['submit'])) {
 	$old_pass = mysqli_real_escape_string($conn,(md5($_POST['old_pass'])));
 	$new_pass = mysqli_real_escape_string($conn,(md5($_POST['new_pass'])));
 	$con_pass = mysqli_real_escape_string($conn,(md5($_POST['con_pass'])));
-	
+
 	$query = "SELECT * FROM user WHERE id = {$id}";
-	$results = $conn->query($query);	
+	$results = $conn->query($query);
 	$user_oldpass = mysqli_fetch_assoc($results);
 	if ($user_oldpass['password'] != $old_pass ){
 		$error_message = 'Your Old Password is Incorrect!';
@@ -60,7 +64,7 @@ if (isset($_POST['submit'])) {
 	}
 }
 $query = "SELECT * FROM user WHERE id = {$id}";
-$results = $conn->query($query);	
+$results = $conn->query($query);
 $row = mysqli_fetch_assoc($results);
 ?>
 <?php include("header.php"); ?>
@@ -74,40 +78,40 @@ $row = mysqli_fetch_assoc($results);
                         </div>
                         <!-- /.panel-heading -->
               		<div class="panel-body">
-				<p > Please enter your password details below.  <p class="text-danger"> <strong>Do not use any special character i.e 
-				' &nbsp;&nbsp; ` &nbsp;&nbsp; , &nbsp;&nbsp; & &nbsp;&nbsp; ? &nbsp;&nbsp; { &nbsp;&nbsp; } &nbsp;&nbsp; [ &nbsp;&nbsp; ] &nbsp;&nbsp; ( &nbsp;&nbsp; ) &nbsp;&nbsp; - &nbsp;&nbsp; &nbsp;&nbsp; ; &nbsp;&nbsp; ! &nbsp;&nbsp; ~ &nbsp;&nbsp; * &nbsp;&nbsp; % &nbsp;&nbsp; \ &nbsp;&nbsp; |</strong></p> 
+				<p > Please enter your password details below.  <p class="text-danger"> <strong>Do not use any special character i.e
+				' &nbsp;&nbsp; ` &nbsp;&nbsp; , &nbsp;&nbsp; & &nbsp;&nbsp; ? &nbsp;&nbsp; { &nbsp;&nbsp; } &nbsp;&nbsp; [ &nbsp;&nbsp; ] &nbsp;&nbsp; ( &nbsp;&nbsp; ) &nbsp;&nbsp; - &nbsp;&nbsp; &nbsp;&nbsp; ; &nbsp;&nbsp; ! &nbsp;&nbsp; ~ &nbsp;&nbsp; * &nbsp;&nbsp; % &nbsp;&nbsp; \ &nbsp;&nbsp; |</strong></p>
         	        	<form method="post" action="<?php $PHP_SELF ?>" data-toggle="validator" role="form" >
 
-				<div class="form-group"><label><?php echo $LANG['fullname']; ?></label>
-                			<input type="text" class="form-control" placeholder="Full Name" value="<?php echo $row['fullname'] ;?>" disabled> 
+				<div class="form-group"><label><?php echo $lang['fullname']; ?></label>
+                			<input type="text" class="form-control" placeholder="Full Name" value="<?php echo $row['fullname'] ;?>" disabled>
 	                	</div>
 
-        	        	<div class="form-group"><label><?php echo $LANG['username']; ?></label>
-                			<input type="text" class="form-control" placeholder="User Name" value="<?php echo $row['username'] ;?>" disabled> 
+        	        	<div class="form-group"><label><?php echo $lang['username']; ?></label>
+                			<input type="text" class="form-control" placeholder="User Name" value="<?php echo $row['username'] ;?>" disabled>
                 		</div>
 
-	                	<div class="form-group"><label><?php echo $LANG['old_password']; ?></label>
-        	        		<input class="form-control" type="password" class="form-control" placeholder="Old Password" value="" id="old_pass" name="old_pass" data-error="Old Password is Required" autocomplete="off" required> 
+	                	<div class="form-group"><label><?php echo $lang['old_password']; ?></label>
+        	        		<input class="form-control" type="password" class="form-control" placeholder="Old Password" value="" id="old_pass" name="old_pass" data-error="Old Password is Required" autocomplete="off" required>
                 			<div class="help-block with-errors"></div>
 				</div>
 
-	                	<div class="form-group"><label><?php echo $LANG['new_password']; ?></label>
-        	        		<input class="form-control" type="password" class="form-control" placeholder="New Password" value="" id="example-progress-bar" name="new_pass" data-error="New Password is Required" autocomplete="off" required> 
+	                	<div class="form-group"><label><?php echo $lang['new_password']; ?></label>
+        	        		<input class="form-control" type="password" class="form-control" placeholder="New Password" value="" id="example-progress-bar" name="new_pass" data-error="New Password is Required" autocomplete="off" required>
                 			<div class="help-block with-errors"></div>
 				</div>
 
-	                	<div class="form-group"><label><?php echo $LANG['confirm_password']; ?></label>
-        	        		<input class="form-control" type="password" class="form-control" placeholder="Confirm New Password" value="" id="con_pass" name="con_pass" data-error="Confirm New Password is Required" autocomplete="off" required> 
+	                	<div class="form-group"><label><?php echo $lang['confirm_password']; ?></label>
+        	        		<input class="form-control" type="password" class="form-control" placeholder="Confirm New Password" value="" id="con_pass" name="con_pass" data-error="Confirm New Password is Required" autocomplete="off" required>
                 			<div class="help-block with-errors"></div>
 				</div>
-				<a href="home.php"><button type="button" class="btn btn-primary btn-sm">Cancel</button></a>
-        	        	<input type="submit" name="submit" value="Submit" class="btn btn-default btn-sm">
+				<a href="home.php"><button type="button" class="btn btn-primary btn-sm"><?php echo $lang['cancel']; ?></button></a>
+        	        	<input type="submit" name="submit" value="<?php echo $lang['save']; ?>" class="btn btn-default btn-sm">
 
                 		</form>
 	           	</div>
         	        <!-- /.panel-body -->
 			<div class="panel-footer">
-				<?php 
+				<?php
 				ShowWeather($conn);
 				?>
                     	</div>
