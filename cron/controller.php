@@ -683,7 +683,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                         $msg_in = mysqli_fetch_array($result);
                         $frost_sensor_c = $msg_in['payload'];
                         //enable frost protection if any sensor temparature attached to the zone is below the threshold
-                        if ($frost_sensor_c < $frost_c-$zone_sp_deadband) {
+                        if (($frost_sensor_c < $frost_c-$zone_sp_deadband) && ($frost_c != 0)) {
                                 $frost_active = 1;
                                 //use the lowest value if multiple values
                                 if ($frost_c < $frost_target_c) { $frost_target_c = $frost_c; }
