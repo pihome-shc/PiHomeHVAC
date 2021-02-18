@@ -1,6 +1,6 @@
 # MaxAir - Smart Thermostat
 
-### Note: Currently at Beta 4.1 stage.
+### Note: Currently at Beta 4.2 stage.
 
 The previous version, PiHome, was centered around the creation of zones, this version is more centered around devices.
 

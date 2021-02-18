@@ -64,7 +64,9 @@ $lang['dec'] = "Dec";
 
 $lang['user_accounts'] = "User Accounts";
 $lang['user_pass_empty'] = "Username and Password is empty.";
+$lang['fullname_empty'] = "Fullname is empty";
 $lang['user_empty'] = "Username is empty";
+$lang['email_empty'] = "Email Address is empty";
 $lang['pass_empty'] = "Password is empty";
 $lang['user_pass_error'] = "Username/Password combination incorrect. Please make sure your caps lock key is off and try again.";
 $lang['user_logout'] = "You are now logged out.";
@@ -564,4 +566,11 @@ $lang['fullname'] = "Full Name";
 $lang['old_password'] = "Old Password";
 $lang['new_password'] = "New Password";
 $lang['confirm_password'] = "Confirm Password";
+$lang['add_user'] = "Add User";
+$lang['edit_user'] = "Edit User";
+$lang['change_password_text'] = "Edit Password Details below. ";
+$lang['edit_user_text'] = "Edit User Account Details below. ";
+$lang['add_user_text'] = "Add New User Account Details below. ";
+$lang['email_address'] = "Email Address";
+$lang['old_password_info'] = " (Leave Blank if not changing Password.)";
 ?>
