@@ -197,11 +197,16 @@ $pword = $row['password'];
                                         <input type="text" class="form-control" placeholder="Email Address" value="<?php echo $email ;?>" id="user_email" name="user_email" data-error="Email Address is Required" autocomplete="off" required <?php echo $dis; ?>>
                                 </div>
 
-				<?php if($id !=0) {
-	                	echo '<div class="form-group"><label>'.$lang['old_password'].'</label>
-        	        		<input class="form-control" type="password" class="form-control" placeholder="Old Password" value="" id="old_pass" name="old_pass" data-error="Old Password is Required" autocomplete="off" '.$req.'>
-                			<div class="help-block with-errors"></div>
-				</div>'; } ?>
+                                <?php if($mode != 2) {
+                                        if($mode == 1) {
+                                                echo '<div class="form-group"><label>'.$lang['old_password'].'</label> <small class="text-muted">'.$lang['old_password_info'].'</small>';
+                                        } else {
+                                                echo '<div class="form-group"><label>'.$lang['old_password'].'</label>';
+                                        }
+                                                echo '<input class="form-control" type="password" class="form-control" placeholder="Old Password" value="" id="old_pass" name="old_pass" data-error="Old Password is Required" autocomplete="off" '.$req.'>
+                                                <div class="help-block with-errors"></div>
+                                        </div>';
+                                } ?>
 
 	                	<div class="form-group"><label><?php echo $lang['new_password']; ?></label>
         	        		<input class="form-control" type="password" class="form-control" placeholder="New Password" value="" id="example-progress-bar" name="new_pass" data-error="New Password is Required" autocomplete="off" <?php echo $req; ?>>
