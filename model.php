@@ -2124,11 +2124,12 @@ while ($row = mysqli_fetch_assoc($results)) {
     <i class=\"ionicons ion-person blue\"></i> ".$username."
     <span class=\"pull-right text-muted small\"><em>
 	<a href=\"javascript:del_user(".$row["id"].");\"><button class=\"btn btn-danger btn-xs\" data-toggle=\"confirmation\" data-title=".$lang['confirmation']." data-content=\"$content_msg\"><span class=\"glyphicon glyphicon-trash\"></span></button> </a>
-	<a href=\"selfpwd.php?uid=".$row["id"]."\"><button class=\"btn btn-primary btn-xs\"><span class=\"fa fa-user fa-key\"></span></button> </a>
+        <a href=\"user_accounts.php?uid=".$row["id"]."\"><button class=\"btn btn-default btn-xs login\"><span class=\"ionicons ion-edit\"></span></button> </a>
 	</em></span></div>";
 }
 echo '</div></div>
             <div class="modal-footer">
+                <a href="user_accounts.php?uid=0"><button class="btn btn-default login btn-sm">'.$lang['add_user'].'</button></a>
                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
             </div>
         </div>
