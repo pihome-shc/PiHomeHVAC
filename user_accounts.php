@@ -173,7 +173,7 @@ $pword = $row['password'];
 	<div class="row">
         	<div class="panel panel-primary">
                 	<div class="panel-heading">
-                        	<i class="fa fa-key fa-fw"></i> <?php echo $title; ?>
+                        	<?php echo $title; ?>
                         </div>
                         <!-- /.panel-heading -->
               		<div class="panel-body">
