@@ -2115,16 +2115,17 @@ $results = $conn->query($query);
 while ($row = mysqli_fetch_assoc($results)) {
 	$full_name=$row['fullname'];
 	$username=$row['username'];
+        if ($_SESSION['user_id'] == $row['id']) { $username .= " (Logged On)"; }
         if($row['account_enable'] == 1) {
                 $content_msg="You are about to DELETE an ENABLED USER";
         } else {
                 $content_msg="You are about to DELETE a CURRENTLY DISABLED USER";
         }
-	echo "<div href=\"settings.php?uid=".$row['id']."\"  class=\"list-group-item\"> 
-    <i class=\"ionicons ion-person blue\"></i> ".$username."
-    <span class=\"pull-right text-muted small\"><em>
-        <a href=\"user_accounts.php?uid=".$row["id"]."\"><button class=\"btn btn-default btn-xs login\"><span class=\"ionicons ion-edit\"></span></button> </a>
-	<a href=\"javascript:del_user(".$row["id"].");\"><button class=\"btn btn-danger btn-xs\" data-toggle=\"confirmation\" data-title=".$lang['confirmation']." data-content=\"$content_msg\"><span class=\"glyphicon glyphicon-trash\"></span></button> </a>
+	echo "<div href=\"settings.php?uid=".$row['id']."\"  class=\"list-group-item\"> <i class=\"ionicons ion-person blue\"></i> ".$username."<span class=\"pull-right text-muted small\"><em>";
+	if ($_SESSION['user_id'] != $row['id']) {
+		echo "<a href=\"javascript:del_user(".$row["id"].");\"><button class=\"btn btn-danger btn-xs\" data-toggle=\"confirmation\" data-title=".$lang["confirmation"]." data-content=\"$content_msg\"><span class=\"glyphicon glyphicon-trash\"></span></button> </a>";
+	}
+        echo "<a href=\"user_accounts.php?uid=".$row["id"]."\"><button class=\"btn btn-default btn-xs login\"><span class=\"ionicons ion-edit\"></span></button> </a>
 	</em></span></div>";
 }
 echo '</div></div>
