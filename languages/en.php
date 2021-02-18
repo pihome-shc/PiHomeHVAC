@@ -573,4 +573,6 @@ $lang['edit_user_text'] = "Edit User Account Details below. ";
 $lang['add_user_text'] = "Add New User Account Details below. ";
 $lang['email_address'] = "Email Address";
 $lang['old_password_info'] = " (Leave Blank if not changing Password.)";
+$lang['account_enable'] = "Enable User Account";
+$lang['account_enable_info'] = "Disabling the account will prevent the user accessing the system.";
 ?>
