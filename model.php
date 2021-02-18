@@ -2123,8 +2123,8 @@ while ($row = mysqli_fetch_assoc($results)) {
 	echo "<div href=\"settings.php?uid=".$row['id']."\"  class=\"list-group-item\"> 
     <i class=\"ionicons ion-person blue\"></i> ".$username."
     <span class=\"pull-right text-muted small\"><em>
-	<a href=\"javascript:del_user(".$row["id"].");\"><button class=\"btn btn-danger btn-xs\" data-toggle=\"confirmation\" data-title=".$lang['confirmation']." data-content=\"$content_msg\"><span class=\"glyphicon glyphicon-trash\"></span></button> </a>
         <a href=\"user_accounts.php?uid=".$row["id"]."\"><button class=\"btn btn-default btn-xs login\"><span class=\"ionicons ion-edit\"></span></button> </a>
+	<a href=\"javascript:del_user(".$row["id"].");\"><button class=\"btn btn-danger btn-xs\" data-toggle=\"confirmation\" data-title=".$lang['confirmation']." data-content=\"$content_msg\"><span class=\"glyphicon glyphicon-trash\"></span></button> </a>
 	</em></span></div>";
 }
 echo '</div></div>
