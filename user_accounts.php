@@ -86,12 +86,13 @@ if (isset($_POST['submit'])) {
                 } elseif ((!isset($_POST['user_email'])) || (empty($_POST['user_email']))) {
                         $error_message = $lang['email_empty'];
 		}
+		$account_enable = isset($_POST['account_enable']) ? $_POST['account_enable'] : "0";
                 $fullname = $_POST['full_name'];
                 $username = $_POST['user_name'];
                 $email = $_POST['user_email'];
 		$cpdate = $account_date = date("Y-m-d H:i:s");
 		if ((!isset($_POST['old_pass'])) || (empty($_POST['old_pass']))) {
-			$query = "UPDATE user SET fullname = '{$fullname}',username = '{$username}',email = '{$email}', account_date = '{$account_date}' WHERE id = '{$id}' LIMIT 1";
+			$query = "UPDATE user SET account_enable = '{$account_enable}',fullname = '{$fullname}',username = '{$username}',email = '{$email}', account_date = '{$account_date}' WHERE id = '{$id}' LIMIT 1";
 	                if ($conn->query($query)) {
         	                $message_success = "User account successfully edited!!!";
                 	        header("Refresh: 10; url=home.php");
@@ -118,7 +119,7 @@ if (isset($_POST['submit'])) {
         	                $error_message = 'Your Old Password is Incorrect!';
                 	} else {
                         	if ( !isset($error_message) && ($new_pass == $con_pass)) {
-                        		$query = "UPDATE user SET fullname = '{$fullname}',username = '{$username}',email = '{$email}', password = '{$new_pass}', cpdate = '{$cpdate}', account_date = '{$account_date}' WHERE id = '{$id}' LIMIT 1";
+                        		$query = "UPDATE user SET account_enable = '{$account_enable}',fullname = '{$fullname}',username = '{$username}',email = '{$email}', password = '{$new_pass}', cpdate = '{$cpdate}', account_date = '{$account_date}' WHERE id = '{$id}' LIMIT 1";
         	                        if ($conn->query($query)) {
                 	                        $message_success = "User account and Password successfully edited!!!";
                         	                header("Refresh: 10; url=home.php");
@@ -143,12 +144,13 @@ if (isset($_POST['submit'])) {
                 } elseif($_POST['new_pass'] != $_POST['con_pass']) {
                         $error_message = $lang['conf_password_error2'];
                 }
+		$account_enable = isset($_POST['account_enable']) ? $_POST['account_enable'] : "0";
 		$password = mysqli_real_escape_string($conn,(md5($_POST['new_pass'])));
                 $fullname = $_POST['full_name'];
                 $username = $_POST['user_name'];
 		$email = $_POST['user_email'];
 		$cpdate = $account_date = date("Y-m-d H:i:s");
-		$query = "INSERT INTO `user`(`account_enable`, `fullname`, `username`, `email`, `password`, `cpdate`, `account_date`, `backup`, `users`, `support`, `settings`) VALUES (1,'".$fullname."','".$username."','".$email."','".$password."','".$cpdate."','".$account_date."',1,1,1,1)";
+		$query = "INSERT INTO `user`(`account_enable`, `fullname`, `username`, `email`, `password`, `cpdate`, `account_date`, `backup`, `users`, `support`, `settings`) VALUES (".$account_enable.",'".$fullname."','".$username."','".$email."','".$password."','".$cpdate."','".$account_date."',1,1,1,1)";
                 if ($conn->query($query)) {
                         $message_success = "New User account successfully added!!!";
                         header("Refresh: 10; url=home.php");
@@ -161,6 +163,7 @@ if (isset($_POST['submit'])) {
 $query = "SELECT * FROM user WHERE id = {$id} LIMIT 1";
 $results = $conn->query($query);
 $row = mysqli_fetch_assoc($results);
+$aenable = $row['account_enable'];
 $fname = $row['fullname'];
 $uname = $row['username'];
 $email = $row['email'];
@@ -185,6 +188,14 @@ $pword = $row['password'];
 				' &nbsp;&nbsp; ` &nbsp;&nbsp; , &nbsp;&nbsp; & &nbsp;&nbsp; ? &nbsp;&nbsp; { &nbsp;&nbsp; } &nbsp;&nbsp; [ &nbsp;&nbsp; ] &nbsp;&nbsp; ( &nbsp;&nbsp; ) &nbsp;&nbsp; - &nbsp;&nbsp; &nbsp;&nbsp; ; &nbsp;&nbsp; ! &nbsp;&nbsp; ~ &nbsp;&nbsp; * &nbsp;&nbsp; % &nbsp;&nbsp; \ &nbsp;&nbsp; |</strong></p>
 				</div>
 
+                                <?php if($mode != 0) { ?>
+                                        <div class="checkbox checkbox-default checkbox-circle">
+						<input id="checkbox0" class="styled" type="checkbox" name="account_enable" value="1" <?php if($aenable == 1 && $mode != 2) { echo 'checked'; } ?> <?php if($id == $_SESSION['user_id']) { echo 'disabled'; } ?> >
+						<label for="checkbox0"> <?php echo $lang['account_enable']; ?> </label> <small class="text-muted"><?php echo $lang['account_enable_info'];?></small>
+                                                <div class="help-block with-errors"></div>
+                                        </div>
+                                <?php } ?>
+
 				<div class="form-group"><label><?php echo $lang['fullname']; ?></label>
                 			<input type="text" class="form-control" placeholder="Full Name" value="<?php echo $fname ;?>" id="full_name" name="full_name" data-error="Full Name is Required" autocomplete="off" required <?php echo $dis; ?>>
 	                	</div>
@@ -197,12 +208,12 @@ $pword = $row['password'];
                                         <input type="text" class="form-control" placeholder="Email Address" value="<?php echo $email ;?>" id="user_email" name="user_email" data-error="Email Address is Required" autocomplete="off" required <?php echo $dis; ?>>
                                 </div>
 
-                                <?php if($mode != 2) {
-					echo '<div class="form-group"><label>'.$lang['old_password'].'</label>'; if($mode == 1) { echo '<small class="text-muted">'.$lang['old_password_info'].'</small>'; }
-                                                echo '<input class="form-control" type="password" class="form-control" placeholder="Old Password" value="" id="old_pass" name="old_pass" data-error="Old Password is Required" autocomplete="off" '.$req.'>
-                                                <div class="help-block with-errors"></div>
-                                        </div>';
-                                } ?>
+				<?php if($mode != 2) {
+	                		echo '<div class="form-group"><label>'.$lang['old_password'].'</label>'; if($mode == 1) { echo '<small class="text-muted">'.$lang['old_password_info'].'</small>'; }
+        	        			echo '<input class="form-control" type="password" class="form-control" placeholder="Old Password" value="" id="old_pass" name="old_pass" data-error="Old Password is Required" autocomplete="off" '.$req.'>
+                			<div class="help-block with-errors"></div>
+					</div>';
+				} ?>
 
 	                	<div class="form-group"><label><?php echo $lang['new_password']; ?></label>
         	        		<input class="form-control" type="password" class="form-control" placeholder="New Password" value="" id="example-progress-bar" name="new_pass" data-error="New Password is Required" autocomplete="off" <?php echo $req; ?>>

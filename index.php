@@ -1,17 +1,17 @@
 <?php 
 /*
-   _____    _   _    _                             
-  |  __ \  (_) | |  | |                            
-  | |__) |  _  | |__| |   ___    _ __ ___     ___  
-  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \ 
-  | |      | | | |  | | | (_) | | | | | | | |  __/ 
-  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___| 
+             __  __                             _
+            |  \/  |                    /\     (_)
+            | \  / |   __ _  __  __    /  \     _   _ __
+            | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+            | |  | | | (_| |  >  <   / ____ \  | | | |
+            |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 
-     S M A R T   H E A T I N G   C O N T R O L 
+                   S M A R T   T H E R M O S T A T
 
 *************************************************************************"
-* PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
-* from web interface and it comes with ABSOLUTELY NO WARRANTY, to the   *"
+* MaxAir is a Linux based Central Heating Control systems. It runs from *"
+* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *"
 * extent permitted by applicable law. I take no responsibility for any  *"
 * loss or damage to you or your property.                               *"
 * DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTILL UNLESS YOU KNOW *"
@@ -83,7 +83,7 @@ if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
 		$password = mysqli_real_escape_string($conn,(md5($_POST['password'])));
 		if ( !isset($error_message) ) {
 			// Check database to see if username and the hashed password exist there.
-			$query = "SELECT id, username FROM user WHERE username = '{$username}' AND password = '{$password}';";
+			$query = "SELECT id, username FROM user WHERE username = '{$username}' AND password = '{$password}' AND account_enable = 1 LIMIT 1;";
 			$result_set = $conn->query($query);
 			if (mysqli_num_rows($result_set) == 1) {
 				// username/password authenticated
@@ -146,7 +146,7 @@ if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
 
 			if ( !isset($error_message) ) {
 				// Check database to see if username and the hashed password exist there.
-				$query = "SELECT id, username FROM user WHERE username = '{$username}' AND password = '{$password}';";
+				$query = "SELECT id, username FROM user WHERE username = '{$username}' AND password = '{$password}' AND account_enable = 1 LIMIT 1;";
 				$result_set = $conn->query($query);
 				if (mysqli_num_rows($result_set) == 1) {
 					// username/password authenticated
