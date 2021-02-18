@@ -572,5 +572,5 @@ $lang['change_password_text'] = "Edit Password Details below. ";
 $lang['edit_user_text'] = "Edit User Account Details below. ";
 $lang['add_user_text'] = "Add New User Account Details below. ";
 $lang['email_address'] = "Email Address";
-$lang['old_password_info'] = "(Leave Blank if not changing Password.)";
+$lang['old_password_info'] = " (Leave Blank if not changing Password.)";
 ?>
