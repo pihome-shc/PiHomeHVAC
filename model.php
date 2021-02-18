@@ -2115,6 +2115,7 @@ $results = $conn->query($query);
 while ($row = mysqli_fetch_assoc($results)) {
 	$full_name=$row['fullname'];
 	$username=$row['username'];
+        if ($_SESSION['user_id'] == $row['id']) { $username .= " (Logged On)"; }
         if($row['account_enable'] == 1) {
                 $content_msg="You are about to DELETE an ENABLED USER";
         } else {
