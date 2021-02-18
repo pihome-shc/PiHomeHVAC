@@ -198,7 +198,7 @@ $pword = $row['password'];
                                 </div>
 
                                 <?php if($mode != 2) {
-						echo '<div class="form-group"><label>'.$lang['old_password'].'</label>'; if($mode == 1) { echo '<small class="text-muted">'.$lang['old_password_info'].'</small>'; }
+					echo '<div class="form-group"><label>'.$lang['old_password'].'</label>'; if($mode == 1) { echo '<small class="text-muted">'.$lang['old_password_info'].'</small>'; }
                                                 echo '<input class="form-control" type="password" class="form-control" placeholder="Old Password" value="" id="old_pass" name="old_pass" data-error="Old Password is Required" autocomplete="off" '.$req.'>
                                                 <div class="help-block with-errors"></div>
                                         </div>';
