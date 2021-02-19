@@ -922,7 +922,7 @@ while ($row = mysqli_fetch_assoc($results)) {
             if($rowcount > 0) {
                 echo '<a href="javascript:delete_relay('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>';
             } else {
-                echo '<a href="javascript:delete_relay('.$row["id"].');"><button class="btn btn-danger btn-xs disabled" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>';
+                echo '<button class="btn btn-danger btn-xs disabled"><span class="glyphicon glyphicon-trash"></span></button></td>';
             }
         echo '</tr>';
 }
@@ -994,7 +994,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 	    if (empty($row['zone_id'])) { 
 		echo '<a href="javascript:delete_sensor('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>'; 
 	    } else {
-		echo '<a href="javascript:delete_sensor('.$row["id"].');"><button class="btn btn-danger btn-xs disabled" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>';
+		echo '<button class="btn btn-danger btn-xs disabled"><span class="glyphicon glyphicon-trash"></span></button></td>';
 	    }
         echo '</tr>';
 }
@@ -1032,15 +1032,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 	$rcount = mysqli_num_rows($zresult);
 	echo "<div class=\"list-group-item\"><i class=\"ionicons ion-thermometer red\"></i> ".$row['node_id'];
 	if ($row['ms_version'] > 0){echo "- <i class=\"fa fa-battery-full\"></i> ".round($brow ['bat_level'],0)."% - ".$brow ['bat_voltage'];}
-	echo "<span class=\"pull-right text-muted small\"><em>".$row['last_seen']."</em> ";
-	//if sensor in use disable delete button
-	if ($rcount > 0){
-		echo '<a href="javascript:delete_node('.$row["id"].');">&nbsp;&nbsp;<button class="btn btn-danger btn-xs disabled" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="#"><span class="glyphicon glyphicon-trash"></span></button></a>';
-	//if sensors not in use by zone enable delete button
-	}else{
-		echo '<a href="javascript:delete_node('.$row["id"].');">&nbsp;&nbsp;<button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$lang['confirm_del_sensor'].'"><span class="glyphicon glyphicon-trash"></span></button></a>';
-	}
-	echo "</span></div> "; 	
+        echo "<span class=\"pull-right text-muted small\"><em>".$row['last_seen']."&nbsp</em></span></div> ";
 }
 echo '</div></div>
             <div class="modal-footer">
@@ -2121,12 +2113,16 @@ while ($row = mysqli_fetch_assoc($results)) {
         } else {
                 $content_msg="You are about to DELETE a CURRENTLY DISABLED USER";
         }
-	echo "<div href=\"settings.php?uid=".$row['id']."\"  class=\"list-group-item\"> <i class=\"ionicons ion-person blue\"></i> ".$username."<span class=\"pull-right text-muted small\"><em>";
-	if ($_SESSION['user_id'] != $row['id']) {
-		echo "<a href=\"javascript:del_user(".$row["id"].");\"><button class=\"btn btn-danger btn-xs\" data-toggle=\"confirmation\" data-title=".$lang["confirmation"]." data-content=\"$content_msg\"><span class=\"glyphicon glyphicon-trash\"></span></button> </a>";
-	}
-        echo "<a href=\"user_accounts.php?uid=".$row["id"]."\"><button class=\"btn btn-default btn-xs login\"><span class=\"ionicons ion-edit\"></span></button> </a>
-	</em></span></div>";
+        echo "<div href=\"settings.php?uid=".$row['id']."\"  class=\"list-group-item\"> <i class=\"ionicons ion-person blue\"></i> ".$username."
+                <span class=\"pull-right text-muted small\"><em>
+                <a href=\"user_accounts.php?uid=".$row["id"]."\"><button class=\"btn btn-default btn-xs login\"><span class=\"ionicons ion-edit\"></span></button>&nbsp</a>";
+                if ($_SESSION['user_id'] != $row['id']) {
+                        echo "<a href=\"javascript:del_user(".$row["id"].");\"><button class=\"btn btn-danger btn-xs\" data-toggle=\"confirmation\" data-title=".$lang["confirmation"]." dat$
+                } else {
+                        echo "<button class=\"btn btn-danger btn-xs disabled\"><span class=\"glyphicon glyphicon-trash\"></span></button>";
+                }
+                echo "</em></span>
+        </div>";
 }
 echo '</div></div>
             <div class="modal-footer">
