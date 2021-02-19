@@ -1032,15 +1032,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 	$rcount = mysqli_num_rows($zresult);
 	echo "<div class=\"list-group-item\"><i class=\"ionicons ion-thermometer red\"></i> ".$row['node_id'];
 	if ($row['ms_version'] > 0){echo "- <i class=\"fa fa-battery-full\"></i> ".round($brow ['bat_level'],0)."% - ".$brow ['bat_voltage'];}
-	echo "<span class=\"pull-right text-muted small\"><em>".$row['last_seen']."</em> ";
-	//if sensor in use disable delete button
-	if ($rcount > 0){
-		echo '&nbsp;&nbsp;<button class="btn btn-danger btn-xs disabled"><span class="glyphicon glyphicon-trash"></span></button>';
-	//if sensors not in use by zone enable delete button
-	}else{
-		echo '<a href="javascript:delete_node('.$row["id"].');">&nbsp;&nbsp;<button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$lang['confirm_del_sensor'].'"><span class="glyphicon glyphicon-trash"></span></button></a>';
-	}
-	echo "</span></div> "; 	
+        echo "<span class=\"pull-right text-muted small\"><em>".$row['last_seen']."</em></span></div> ";
 }
 echo '</div></div>
             <div class="modal-footer">
