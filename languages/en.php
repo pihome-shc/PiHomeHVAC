@@ -575,4 +575,6 @@ $lang['email_address'] = "Email Address";
 $lang['old_password_info'] = " (Leave Blank if not changing Password.)";
 $lang['account_enable'] = "Enable User Account";
 $lang['account_enable_info'] = "Disabling the account will prevent the user accessing the system.";
+$lang['admin_account'] = "Administrator Account";
+$lang['admin_account_info'] = "Account with full access to all systems features and settings. ";
 ?>
