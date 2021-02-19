@@ -1035,7 +1035,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 	echo "<span class=\"pull-right text-muted small\"><em>".$row['last_seen']."</em> ";
 	//if sensor in use disable delete button
 	if ($rcount > 0){
-		echo '<a href="javascript:delete_node('.$row["id"].');">&nbsp;&nbsp;<button class="btn btn-danger btn-xs disabled" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="#"><span class="glyphicon glyphicon-trash"></span></button></a>';
+		echo '&nbsp;&nbsp;<button class="btn btn-danger btn-xs disabled"><span class="glyphicon glyphicon-trash"></span></button>';
 	//if sensors not in use by zone enable delete button
 	}else{
 		echo '<a href="javascript:delete_node('.$row["id"].');">&nbsp;&nbsp;<button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$lang['confirm_del_sensor'].'"><span class="glyphicon glyphicon-trash"></span></button></a>';
