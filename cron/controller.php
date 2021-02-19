@@ -606,7 +606,11 @@ while ($row = mysqli_fetch_assoc($results)) {
 			$temp_cut_out_rising = $target_c - $weather_fact - $zone_sp_deadband;
                         $temp_cut_out_falling = $target_c - $weather_fact + $zone_sp_deadband;
                         $temp_cut_in = $target_c - $weather_fact - $zone_sp_deadband;
-			$temp_cut_out = $target_c - $weather_fact;
+                        if ($night_climate_status == '0') {
+                                $temp_cut_out = $target_c - $weather_fact;
+                        } else {
+                                $temp_cut_out = $nc_max_c - $weather_fact;
+                        }
 			//check if hysteresis is passed its time or not
 			$hysteresis='0';
 			if ($system_controller_mode == 0 && isset($system_controller_stop_datetime)){
