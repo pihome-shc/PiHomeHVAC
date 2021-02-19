@@ -83,7 +83,7 @@ if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
 		$password = mysqli_real_escape_string($conn,(md5($_POST['password'])));
 		if ( !isset($error_message) ) {
 			// Check database to see if username and the hashed password exist there.
-			$query = "SELECT id, username FROM user WHERE username = '{$username}' AND password = '{$password}' AND account_enable = 1 LIMIT 1;";
+			$query = "SELECT id, username, admin_account FROM user WHERE username = '{$username}' AND password = '{$password}' AND account_enable = 1 LIMIT 1;";
 			$result_set = $conn->query($query);
 			if (mysqli_num_rows($result_set) == 1) {
 				// username/password authenticated
@@ -91,6 +91,7 @@ if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
 				// Set username session variable
 				$_SESSION['user_id'] = $found_user['id'];
 				$_SESSION['username'] = $found_user['username'];
+                                $_SESSION['admin'] = $found_user['admin_account'];
 
 				if(!empty($_POST["remember"])) {
 					setcookie ("user_login",$_POST["username"],time()+ (10 * 365 * 24 * 60 * 60));
@@ -146,7 +147,7 @@ if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
 
 			if ( !isset($error_message) ) {
 				// Check database to see if username and the hashed password exist there.
-				$query = "SELECT id, username FROM user WHERE username = '{$username}' AND password = '{$password}' AND account_enable = 1 LIMIT 1;";
+				$query = "SELECT id, username, admin_account FROM user WHERE username = '{$username}' AND password = '{$password}' AND account_enable = 1 LIMIT 1;";
 				$result_set = $conn->query($query);
 				if (mysqli_num_rows($result_set) == 1) {
 					// username/password authenticated
@@ -154,6 +155,7 @@ if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
 					// Set username session variable
 					$_SESSION['user_id'] = $found_user['id'];
         				$_SESSION['username'] = $found_user['username'];
+                                	$_SESSION['admin'] = $found_user['admin_account'];
 
 					if(!empty($_POST["remember"])) {
 						setcookie ("user_login",$_POST["username"],time()+ (10 * 365 * 24 * 60 * 60));

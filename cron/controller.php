@@ -289,7 +289,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         $zone_max_operation_time=$row['max_operation_time'];
 
         //get the zone controllers for this zone to array
-        $query = "SELECT zone_controllers.id AS zc_id, cid.node_id as controler_id, cr.controler_child_id, zone_controllers.state, zone_controllers.current_state, ctype.`type` ";
+        $query = "SELECT zone_controllers.id AS zc_id, cid.node_id as controler_id, cr.controler_child_id, zone_controllers.controller_relay_id, zone_controllers.state, zone_controllers.current_state, ctype.`type` ";
         $query = $query."FROM zone_controllers ";
         $query = $query."join controller_relays cr on controller_relay_id = cr.id ";
         $query = $query."join nodes ctype on cr.controler_id = ctype.id ";
@@ -299,7 +299,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         $index = 0;
         $zone_controllers=[];
         while ($crow = mysqli_fetch_assoc($cresult)) {
-                $zone_controllers[$index] = array('zc_id' =>$crow['zc_id'], 'controler_id' =>$crow['controler_id'], 'controler_child_id' =>$crow['controler_child_id'], 'zone_controller_state' =>$crow['state'], 'zone_controller_current_state' =>$crow['current_state'], 'zone_controller_type' =>$crow['type'], 'manual_button_override' >=0);
+                $zone_controllers[$index] = array('zc_id' =>$crow['zc_id'], 'controler_id' =>$crow['controler_id'], 'controler_child_id' =>$crow['controler_child_id'], 'controller_relay_id' =>$crow['controller_relay_id'], 'zone_controller_state' =>$crow['state'], 'zone_controller_current_state' =>$crow['current_state'], 'zone_controller_type' =>$crow['type'], 'manual_button_override' >=0);
                 $index = $index + 1;
         }
 	//query to check if zone_current_state record exists tor the zone
@@ -606,7 +606,11 @@ while ($row = mysqli_fetch_assoc($results)) {
 			$temp_cut_out_rising = $target_c - $weather_fact - $zone_sp_deadband;
                         $temp_cut_out_falling = $target_c - $weather_fact + $zone_sp_deadband;
                         $temp_cut_in = $target_c - $weather_fact - $zone_sp_deadband;
-			$temp_cut_out = $target_c - $weather_fact;
+                        if ($night_climate_status == '0') {
+                                $temp_cut_out = $target_c - $weather_fact;
+                        } else {
+                                $temp_cut_out = $nc_max_c - $weather_fact;
+                        }
 			//check if hysteresis is passed its time or not
 			$hysteresis='0';
 			if ($system_controller_mode == 0 && isset($system_controller_stop_datetime)){
@@ -1382,6 +1386,8 @@ if ($debug_msg == 1) {
         echo count($z_state)."\n";
         echo "system_controller Array\n";
         print_r ($system_controller);
+        echo "zone_controllers Array\n";
+        print_r ($zone_controllers);
 }
 if (isset($system_controller_stop_datetime)) {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Switched Off At: ".$system_controller_stop_datetime. "\n";}
 if (isset($expected_end_date_time)){echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Expected End Time: ".$expected_end_date_time. "\n"; }
