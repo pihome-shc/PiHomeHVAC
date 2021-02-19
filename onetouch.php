@@ -120,27 +120,29 @@ require_once(__DIR__.'/st_inc/functions.php');
 		<h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-circle fa-fw <?php echo $holidaystatus; ?>"></i></small>
 		</h3></button></a>
 
-                <a style="color: #777; cursor: pointer; text-decoration: none;" href="relay.php">
-                <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
-                <h3 class="buttontop"><small><?php echo $lang['relay_add']; ?></small></h3>
-                <h3 class="degre" ><i class="fa fa-plus fa-1x blue"></i></h3>
-                <h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-fw"></i></small>
-                </h3></button></a>
+                <?php if($_SESSION['admin'] == 1) { ?>
+                        <a style="color: #777; cursor: pointer; text-decoration: none;" href="relay.php">
+                        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+                        <h3 class="buttontop"><small><?php echo $lang['relay_add']; ?></small></h3>
+                        <h3 class="degre" ><i class="fa fa-plus fa-1x blue"></i></h3>
+                        <h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-fw"></i></small>
+                        </h3></button></a>
 
-                <a style="color: #777; cursor: pointer; text-decoration: none;" href="sensor.php">
-                <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
-                <h3 class="buttontop"><small><?php echo $lang['sensor_add']; ?></small></h3>
-                <h3 class="degre" ><i class="fa fa-plus fa-1x green"></i></h3>
-                <h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-fw"></i></small>
-                </h3></button></a>
+                        <a style="color: #777; cursor: pointer; text-decoration: none;" href="sensor.php">
+                        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+                        <h3 class="buttontop"><small><?php echo $lang['sensor_add']; ?></small></h3>
+                        <h3 class="degre" ><i class="fa fa-plus fa-1x green"></i></h3>
+                        <h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-fw"></i></small>
+                        </h3></button></a>
 
-		<a style="color: #777; cursor: pointer; text-decoration: none;" href="zone.php">
-		<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
-		<h3 class="buttontop"><small><?php echo $lang['zone_add']; ?></small></h3>
-		<h3 class="degre" ><i class="fa fa-plus fa-1x"></i></h3>
-		<h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-fw"></i></small>
-		</h3></button></a>
-		</div>
+                        <a style="color: #777; cursor: pointer; text-decoration: none;" href="zone.php">
+                        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+                        <h3 class="buttontop"><small><?php echo $lang['zone_add']; ?></small></h3>
+                        <h3 class="degre" ><i class="fa fa-plus fa-1x"></i></h3>
+                        <h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-fw"></i></small>
+                        </h3></button></a>
+                        </div>
+                <?php } ?>
 
 		<?php
 		// live temperature modal
