@@ -1032,7 +1032,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 	$rcount = mysqli_num_rows($zresult);
 	echo "<div class=\"list-group-item\"><i class=\"ionicons ion-thermometer red\"></i> ".$row['node_id'];
 	if ($row['ms_version'] > 0){echo "- <i class=\"fa fa-battery-full\"></i> ".round($brow ['bat_level'],0)."% - ".$brow ['bat_voltage'];}
-        echo "<span class=\"pull-right text-muted small\"><em>".$row['last_seen']."</em></span></div> ";
+        echo "<span class=\"pull-right text-muted small\"><em>".$row['last_seen']."&nbsp</em></span></div> ";
 }
 echo '</div></div>
             <div class="modal-footer">
