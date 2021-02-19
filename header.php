@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
              __  __                             _
             |  \/  |                    /\     (_)
@@ -43,7 +43,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-	
+
     <!-- MetisMenu CSS -->
     <link href="css/plugins/metisMenu/metisMenu.min.css" rel="stylesheet">
 	    <!-- DataTables CSS -->
@@ -57,11 +57,10 @@ require_once(__DIR__.'/st_inc/functions.php');
 
 	<!-- Datetimepicker CSS -->
 	<link href="css/plugins/datepicker/bootstrap-datetimepicker.css" rel="stylesheet">
-	
-	
+
 	<!-- Custom Fonts awesome-->
     <link href="fonts/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
- 
+
 	<!-- Custom Fonts ionicons-->
 	<link rel="stylesheet" type="text/css" media="screen" href="fonts/ionicons-2.0.1/css/ionicons.min.css">
 
@@ -74,9 +73,8 @@ require_once(__DIR__.'/st_inc/functions.php');
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-	
-	
-<script src="js/request.js"></script>	
+
+<script src="js/request.js"></script>
     <script type="text/javascript">
         (function(document,navigator,standalone) {
             // prevents links from apps from oppening in mobile safari
@@ -111,38 +109,40 @@ require_once(__DIR__.'/st_inc/functions.php');
                         <i class="fa fa-home fa-lg"></i>
                     </a>
                 </li>
-				<?php // Alert icon need some thinking: May be table with list of alerts and one cron job to check if any thing not communicating. 
+				<?php // Alert icon need some thinking: May be table with list of alerts and one cron job to check if any thing not communicating.
 				/*<li class="dropdown">
                     <a class="dropdown-toggle" href="#">
-                        <i class="fa fa-exclamation-triangle fa-fw"></i>  
+                        <i class="fa fa-exclamation-triangle fa-fw"></i>
                     </a>
                 </li>
 				*/
 				?>
                 <li class="dropdown">
                     <a class="dropdown-toggle" href="schedule.php">
-                        <i class="fa fa-clock-o fa-lg"></i>  
+                        <i class="fa fa-clock-o fa-lg"></i>
                     </a>
                 </li>
                 <li class="dropdown">
                     <a class="dropdown-toggle" href="chart.php">
-                        <i class="fa fa-bar-chart fa-lg"></i>  
+                        <i class="fa fa-bar-chart fa-lg"></i>
                     </a>
-                </li>		
+                </li>
 
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="modal" href="#weather" data-backdrop="static" data-keyboard="false">
-                        <i class="fa fa-sun-o fa-lg"></i>  
-                    </a>
-                </li>
-				
-                <li class="dropdown">
-                    <a class="dropdown-toggle" href="settings.php">
-                        <i class="fa fa-cog fa-lg"></i>
+                        <i class="fa fa-sun-o fa-lg"></i>
                     </a>
                 </li>
 
-		    <!-- /.dropdown-user -->			
+		<?php if ($_SESSION['admin'] == 1) { ?>
+	                <li class="dropdown">
+        	            <a class="dropdown-toggle" href="settings.php">
+                	        <i class="fa fa-cog fa-lg"></i>
+                    	    </a>
+                	</li>
+		<?php } ?>
+
+		    <!-- /.dropdown-user -->
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                         <i class="fa fa-user fa-lg fa-fw"></i><i class="fa fa-caret-down"></i>
@@ -165,31 +165,31 @@ $row = mysqli_fetch_array($result);
 $fullname = $row['fullname'];
 ?>
 <div id="user_email_Modal" class="modal fade">
-        <div class="modal-dialog">
-                <div class="modal-content">
-                        <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                <h4 class="modal-title">Missing e-mail address!!!</h4>
-                        </div>
-                        <div class="modal-body">
-                        	<p>Thank you for using PiHome Smart Heating. Looks like your email address is missing from the system, please enter valid e-mail address to get the latest PiHome updates straight in to your inbox.</p>
-                                <div class="form-group" class="control-label"><label>Enter a correctly formatted Email Address for user - '<?php echo $fullname ?>'</label>
-                                        <input type="email" id="email_add" class="form-control" placeholder="Email Address">
-                                        <div class="help-block with-errors">
-                                </div>
-                        </div>
-                        <!-- /.modal-body -->
-                        <div class="modal-footer">
-                                <input type="button" name="submit" value="<?php echo $lang['save'] ?>" class="btn btn-default login btn-sm" onclick="update_email()">
-                        </div>
-                        <!-- /.modal-footer -->
-                </div>
-                <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
+	<div class="modal-dialog">
+        	<div class="modal-content">
+            		<div class="modal-header">
+                		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                		<h4 class="modal-title">Missing e-mail address!!!</h4>
+            		</div>
+            		<div class="modal-body">
+				<p>Thank you for using PiHome Smart Heating. Looks like your email address is missing from the system, please enter valid e-mail address to get the latest PiHome updates straight in to your inbox.</p>
+                		<div class="form-group" class="control-label"><label>Enter a correctly formatted Email Address for user - '<?php echo $fullname ?>'</label>
+                			<input type="email" id="email_add" class="form-control" placeholder="Email Address">
+					<div class="help-block with-errors">
+            			</div>
+            		</div>
+			<!-- /.modal-body -->
+            		<div class="modal-footer">
+                		<input type="button" name="submit" value="<?php echo $lang['save'] ?>" class="btn btn-default login btn-sm" onclick="update_email()">
+            		</div>
+			<!-- /.modal-footer -->
+        	</div>
+		<!-- /.modal-content -->
+    	</div>
+	<!-- /.modal-dialog -->
 </div>
 
-<?php 
+<?php
 $query="select * from weather;";
 $result=$conn->query($query);
 $weather = mysqli_fetch_array($result);
@@ -214,10 +214,10 @@ else
                 <h5 class="modal-title"><i class="fa fa-sun-o fa-fw"></i> <?php echo $weather['location'] ;?> <?php echo $lang['weather']; ?></h5>
             </div>
             <div class="modal-body">
-			<div class="row"> 
+			<div class="row">
 				<div class="col-xs-10 col-sm-10 col-md-10">
-<h5><span><img border="0" src="images/<?php echo $weather['img'];?>.png" title="<?php echo $weather['title'];?> - 
-<?php echo $weather['description'];?>"></span> <span><?php echo $weather['title'];?> - 
+<h5><span><img border="0" src="images/<?php echo $weather['img'];?>.png" title="<?php echo $weather['title'];?> -
+<?php echo $weather['description'];?>"></span> <span><?php echo $weather['title'];?> -
 <?php echo $weather['description'];?></span></h5>
 				</div>
             <div class="col-xs-7 col-sm-6 col-md-6 wdata">
@@ -225,13 +225,13 @@ else
                 <?php echo $lang['sunset']; ?>: <?php echo date('H:i', $weather['sunset']);?> <br>
                 <?php echo $lang['wind']; ?>: <?php echo $weather['wind_speed'] . '&nbsp;' . $WUnit;?>
 			<?php //date_sun_info( int $weather['sunrise'], float $weather['lat'] , float $weather['lon']) ;?>
-			</div>     
+			</div>
             <div class="col-xs-5 col-sm-6 col-md-6">
                 <span class="pull-right degrees"><?php echo DispTemp($conn,$weather['c']) . '&deg;&nbsp;' . $TUnit;?></span>
-            </div> 
-        </div> 
+            </div>
+        </div>
 		<br>
-			<div class="row"> 
+			<div class="row">
 			<div class="col-lg-12">
 			<?php if(filesize('weather_6days.json')>0) { ?>
 			<h4 class="text-center"><?php echo $lang['weather_six_day']; ?></h4>
@@ -246,7 +246,7 @@ echo '<a href="weather.php" class="list-group-item"><img border="0" width="28" h
 }
 ?>
 </div>
-<?php } //end of filesize if ?>  
+<?php } //end of filesize if ?>
 <a href="weather.php" button type="button" class="btn btn-default login btn-sm btn-edit"><?php echo $lang['weather_3_hour']; ?></a>
 <button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><?php echo $lang['close']; ?></button>
         </div></div>
