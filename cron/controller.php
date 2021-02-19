@@ -1382,6 +1382,8 @@ if ($debug_msg == 1) {
         echo count($z_state)."\n";
         echo "system_controller Array\n";
         print_r ($system_controller);
+        echo "zone_controllers Array\n";
+        print_r ($zone_controllers);
 }
 if (isset($system_controller_stop_datetime)) {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Switched Off At: ".$system_controller_stop_datetime. "\n";}
 if (isset($expected_end_date_time)){echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Expected End Time: ".$expected_end_date_time. "\n"; }
