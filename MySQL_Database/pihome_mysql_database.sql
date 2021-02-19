@@ -665,10 +665,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `password` varchar(255) NOT NULL,
   `cpdate` timestamp NOT NULL ON UPDATE current_timestamp(),
   `account_date` timestamp NOT NULL,
-  `backup` tinyint(4),
-  `users` tinyint(4),
-  `support` tinyint(4),
-  `settings` tinyint(4),
+  `admin_account` tinyint(4),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
