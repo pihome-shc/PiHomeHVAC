@@ -289,7 +289,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         $zone_max_operation_time=$row['max_operation_time'];
 
         //get the zone controllers for this zone to array
-        $query = "SELECT zone_controllers.id AS zc_id, cid.node_id as controler_id, cr.controler_child_id, zone_controllers.state, zone_controllers.current_state, ctype.`type` ";
+        $query = "SELECT zone_controllers.id AS zc_id, cid.node_id as controler_id, cr.controler_child_id, zone_controllers.controller_relay_id, zone_controllers.state, zone_controllers.current_state, ctype.`type` ";
         $query = $query."FROM zone_controllers ";
         $query = $query."join controller_relays cr on controller_relay_id = cr.id ";
         $query = $query."join nodes ctype on cr.controler_id = ctype.id ";
@@ -299,7 +299,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         $index = 0;
         $zone_controllers=[];
         while ($crow = mysqli_fetch_assoc($cresult)) {
-                $zone_controllers[$index] = array('zc_id' =>$crow['zc_id'], 'controler_id' =>$crow['controler_id'], 'controler_child_id' =>$crow['controler_child_id'], 'zone_controller_state' =>$crow['state'], 'zone_controller_current_state' =>$crow['current_state'], 'zone_controller_type' =>$crow['type'], 'manual_button_override' >=0);
+                $zone_controllers[$index] = array('zc_id' =>$crow['zc_id'], 'controler_id' =>$crow['controler_id'], 'controler_child_id' =>$crow['controler_child_id'], 'controller_relay_id' =>$crow['controller_relay_id'], 'zone_controller_state' =>$crow['state'], 'zone_controller_current_state' =>$crow['current_state'], 'zone_controller_type' =>$crow['type'], 'manual_button_override' >=0);
                 $index = $index + 1;
         }
 	//query to check if zone_current_state record exists tor the zone
