@@ -654,7 +654,13 @@ echo '
             <div class="modal-body">
 <p class="text-muted"> '.$lang['override_settings_text'].'</p>';
 if (settings($conn, 'mode') == 0) { //boiler mode
-	$query = "SELECT * FROM override_view WHERE category < 2 ORDER BY index_id asc";
+	$query = "SELECT override.`status`, override.sync, override.purge, override.zone_id, zone_idx.index_id, zone_type.category, zone.name, override.time, override.temperature, override.hvac_mode
+	FROM override
+	JOIN zone ON override.zone_id = zone.id
+	JOIN zone zone_idx ON override.zone_id = zone_idx.id
+	JOIN zone_type ON zone_type.id = zone.type_id
+	WHERE category < 2
+        ORDER BY index_id ASC;";
 } else {
         $query = "SELECT * FROM override ORDER BY hvac_mode asc";
 }
