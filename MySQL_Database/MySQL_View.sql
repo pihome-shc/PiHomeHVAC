@@ -79,24 +79,6 @@ join controller_relays cr on system_controller.heat_relay_id = cr.id
 join nodes ctype on cr.controler_id = ctype.id
 where system_controller.`purge` = '0';
 
--- Boost View
-Drop View if exists boost_view;
-CREATE VIEW boost_view AS
-select boost.id, boost.`status`, boost.sync, boost.zone_id, zone_idx.index_id, zone_type.category, zone.name, boost.temperature, boost.minute, boost_button_id, boost_button_child_id, hvac_mode
-from boost
-join zone on boost.zone_id = zone.id
-join zone zone_idx on boost.zone_id = zone_idx.id
-join zone_type on zone_type.id = zone.type_id;
-
--- Override View
-Drop View if exists override_view;
-CREATE VIEW override_view AS
-select override.`status`, override.sync, override.purge, override.zone_id, zone_idx.index_id, zone_type.category, zone.name, override.time, override.temperature, override.hvac_mode
-from override
-join zone on override.zone_id = zone.id
-join zone zone_idx on override.zone_id = zone_idx.id
-join zone_type on zone_type.id = zone.type_id;
-
 -- Schedule List with zone details view table version 1.x
 Drop View if exists schedule_night_climat_zone_view;
 CREATE VIEW schedule_night_climat_zone_view AS
