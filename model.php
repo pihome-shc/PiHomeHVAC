@@ -433,7 +433,12 @@ if (settings($conn, 'mode') == 0) {
 }
 
 if (settings($conn, 'mode') == 0) {
-	$query = "SELECT * FROM boost_view ORDER BY index_id ASC, minute ASC;";
+	$query = "SELECT boost.id, boost.`status`, boost.sync, boost.zone_id, zone_idx.index_id, zone_type.category, zone.name, boost.temperature, boost.minute, boost_button_id, boost_button_child_id, hvac_mode
+	FROM boost
+	JOIN zone ON boost.zone_id = zone.id
+	JOIN zone zone_idx ON boost.zone_id = zone_idx.id
+	JOIN zone_type ON zone_type.id = zone.type_id
+	ORDER BY index_id ASC, minute ASC;";
 	$results = $conn->query($query);
 	echo '<table class="table table-bordered">
 	    <tr>
