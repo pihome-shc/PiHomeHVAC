@@ -177,14 +177,13 @@ echo '
                 <h5 class="modal-title">'.$lang['language'].'</h5>
             </div>
             <div class="modal-body">
-				
 				<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
 				<div class="form-group" class="control-label"><label>'.$lang['language'].'</label>
 				<select class="form-control input-sm" type="text" id="new_lang" name="new_lang">';
 				$languages = ListLanguages($language);
 				for ($x = 0; $x <=  count($languages) - 1; $x++) {
 					echo '<option value="'.$languages[$x][0].'" ' . ($language==$languages[$x][0] ? 'selected' : '') . '>'.$languages[$x][1].'</option>';
-				}	
+				}
 				echo '</select>
                 <div class="help-block with-errors"></div></div>
             </div>
@@ -532,7 +531,6 @@ echo '
             <div class="modal-body">';
 echo '<p class="text-muted">'.$info_text.'</p>
 	<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
-	
 	<div class="form-group" class="control-label"><label>'.$zone_hvac.'</label> 
 	<select class="form-control input-sm" type="text" id="zone_id" name="zone_id">';
 	if (settings($conn, 'mode') == 0) {
@@ -552,7 +550,7 @@ echo '<p class="text-muted">'.$info_text.'</p>
 	echo '
 	</select>
     <div class="help-block with-errors"></div></div>
-	
+
 	<div class="form-group" class="control-label"><label>'.$lang['boost_temperature'].'</label> <small class="text-muted">'.$lang['boost_temperature_info'].'</small>
 	<select class="form-control input-sm" type="text" id="boost_temperature" name="boost_temperature">
 	<option value="20">20</option>
@@ -660,7 +658,7 @@ if (settings($conn, 'mode') == 0) { //boiler mode
 	JOIN zone zone_idx ON override.zone_id = zone_idx.id
 	JOIN zone_type ON zone_type.id = zone.type_id
 	WHERE category < 2
-        ORDER BY index_id ASC;";
+	ORDER BY index_id asc";
 } else {
         $query = "SELECT * FROM override ORDER BY hvac_mode asc";
 }
@@ -759,7 +757,7 @@ echo '
             </div>
             <div class="modal-body">';
 echo '<p class="text-muted">'.$lang['node_add_info_text'].'</p>
-	
+
 	<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
 
 	<div class="form-group" class="control-label"><label>'.$lang['node_type'].'</label> <small class="text-muted">'.$lang['node_type_info'].'</small>
@@ -776,7 +774,7 @@ echo '<p class="text-muted">'.$lang['node_add_info_text'].'</p>
 	<div class="form-group" class="control-label"><label>'.$lang['node_id'].'</label> <small class="text-muted">'.$lang['node_id_info'].'</small>
 	<input class="form-control input-sm" type="text" id="add_node_id" name="add_node_id" value="" placeholder="'.$lang['node_id'].'">
 	<div class="help-block with-errors"></div></div>
-		
+
 	<div class="form-group" class="control-label" id="add_devices_label" style="display:block"><label>'.$lang['node_child_id'].'</label> <small class="text-muted">'.$lang['node_child_id_info'].'</small>
 	<input class="form-control input-sm" type="text" id="nodes_max_child_id" name="nodes_max_child_id" value="0" placeholder="'.$lang['node_max_child_id'].'">
 	<div class="help-block with-errors"></div></div>
@@ -785,7 +783,7 @@ echo '<p class="text-muted">'.$lang['node_add_info_text'].'</p>
             <div class="modal-footer">
 				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
 				<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="add_node()">
-				
+
             </div>
         </div>
     </div>
@@ -886,7 +884,7 @@ echo '
             </div>
             <div class="modal-body">
 <p class="text-muted">'.$lang['relay_settings_text'].'</p>';
-$query = "select controller_relays.*, node_id, nodes.last_seen from controller_relays, nodes WHERE controller_relays.controler_id = nodes.id order by controler_id asc, controler_child_id asc";
+$query = "select controller_relays.*, nodes.last_seen from controller_relays, nodes WHERE controller_relays.controler_id = nodes.id order by controler_id asc, controler_child_id asc";
 $results = $conn->query($query);
 echo '<table class="table table-bordered">
     <tr>
@@ -920,7 +918,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         <tr>
             <td>'.$row["name"].'<br> <small>('.$row["last_seen"].')</small></td>
             <td>'.$relay_type.'</td>
-            <td>'.$row["node_id"].'</td>
+            <td>'.$row["controler_id"].'</td>
             <td>'.$row["controler_child_id"].'</td>
             <td><a href="relay.php?id='.$row["id"].'"><button class="btn btn-primary btn-xs"><span class="ionicons ion-edit"></span></button> </a>&nbsp;&nbsp';
             if ($row['type'] == 0) {
@@ -948,7 +946,7 @@ echo '</table></div>
     </div>
 </div>';
 
-//Sensor model	
+//Sensor model
 echo '
 <div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -1002,10 +1000,10 @@ while ($row = mysqli_fetch_assoc($results)) {
                 </td>';
 	    }
 	    echo '<td><a href="sensor.php?id='.$row["id"].'"><button class="btn btn-primary btn-xs"><span class="ionicons ion-edit"></span></button> </a>&nbsp;&nbsp';
-	    if (empty($row['zone_id'])) { 
+	    if (empty($row['zone_id'])) {
 		echo '<a href="javascript:delete_sensor('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>'; 
 	    } else {
-		echo '<button class="btn btn-danger btn-xs disabled"><span class="glyphicon glyphicon-trash"></span></button></td>';
+		echo '<button class="btn btn-danger btn-xs disabled" data-toggle="confirmation"><span class="glyphicon glyphicon-trash"></span></button> </td>';
 	    }
         echo '</tr>';
 }
@@ -1043,7 +1041,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 	$rcount = mysqli_num_rows($zresult);
 	echo "<div class=\"list-group-item\"><i class=\"ionicons ion-thermometer red\"></i> ".$row['node_id'];
 	if ($row['ms_version'] > 0){echo "- <i class=\"fa fa-battery-full\"></i> ".round($brow ['bat_level'],0)."% - ".$brow ['bat_voltage'];}
-        echo "<span class=\"pull-right text-muted small\"><em>".$row['last_seen']."&nbsp</em></span></div> ";
+	echo "<span class=\"pull-right text-muted small\"><em>".$row['last_seen']."&nbsp</em></span></div> ";
 }
 echo '</div></div>
             <div class="modal-footer">
@@ -1053,7 +1051,7 @@ echo '</div></div>
     </div>
 </div>';
 
-//Zone model	
+//Zone model
 echo '
 <div class="modal fade" id="zone_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -1544,7 +1542,7 @@ $erow = mysqli_fetch_array($gresult);
 echo '<p class="text-muted">'.$lang['email_text'].'</p>';
 echo '
 	<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
-	
+
 	<div class="form-group" class="control-label">
 	<div class="checkbox checkbox-default checkbox-circle">';
 	if ($erow['status'] == '1'){
@@ -1552,14 +1550,14 @@ echo '
 	}else {
 		echo '<input id="checkbox3" class="styled" type="checkbox" value="1" name="status">';
 	}
-echo ' 
+echo '
 
 	<label for="checkbox2"> '.$lang['email_enable'].'</label></div></div>
-	
+
 	<div class="form-group" class="control-label"><label>'.$lang['email_smtp_server'].'</label>
 	<input class="form-control input-sm" type="text" id="e_smtp" name="e_smtp" value="'.$erow['smtp'].'" placeholder="e-mail SMTP Server Address ">
 	<div class="help-block with-errors"></div></div>
-	
+
 	<div class="form-group" class="control-label"><label>'.$lang['email_username'].' </label>
 	<input class="form-control input-sm" type="text" id="e_username" name="e_username" value="'.$erow['username'].'" placeholder="Username for e-mail Server">
 	<div class="help-block with-errors"></div></div>
@@ -1580,7 +1578,7 @@ echo '</div>
             <div class="modal-footer">
 				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
 				<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="setup_email()">
-				
+
             </div>
         </div>
     </div>
@@ -1653,7 +1651,7 @@ echo '
 				<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
 				<div class="form-group" class="control-label"><label>'.$lang['time_zone'].'</label>
 				<select class="form-control input-sm" type="number" id="new_time_zone" name="new_time_zone" >
-				
+
 				<option selected >'.settings($conn, 'timezone').'</option>';
 $timezones = array(
     'Pacific/Midway'       => "(GMT-11:00) Midway Island",
@@ -1900,7 +1898,7 @@ echo '
 			   <div class="list-group">
 				<a href="#" class="list-group-item"><i class="fa fa-linux"></i> '.$lines[1].'</a>
 				<a href="#" class="list-group-item"><i class="fa fa-linux"></i> '.$lines[3].'</a>
-				</div>				
+				</div>
            </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
@@ -1921,17 +1919,17 @@ echo '
             <div class="modal-body">
 			<p class="text-muted"> '.$lang['pihome_update_text'].' </p>';
 
-		
+
 echo '	<div class=\"list-group\">';
 echo "                            <a href=\"#\" class=\"list-group-item\">
                                     <i class=\"fa fa-server fa-1x blueinfo\"></i> ".$lang['pihome_update_c_version']."
                                     <span class=\"pull-right text-muted small\"><em>".settings($conn, 'version')."</em>
                                     </span>
-                                </a>"; 
+                                </a>";
 ini_set('max_execution_time',90);
 $getVersions = file_get_contents(''.settings($conn, 'update_location').''.settings($conn, 'update_file').'');
 if ($getVersions != ''){
-$versionList = explode("\n", $getVersions);	
+$versionList = explode("\n", $getVersions);
 	foreach ($versionList as $aV)
 	{
 		echo "<a href=\"settings.php?uid=10\"  class=\"list-group-item\">
@@ -1939,7 +1937,7 @@ $versionList = explode("\n", $getVersions);
         <span class=\"pull-right text-muted small\"><em>".$aV."</em></span>
          </a>";
 	}
-}	
+}
 echo '</div></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
@@ -2048,10 +2046,10 @@ echo '
 <i class="fa fa-signal green"></i> '.$lang['mac'].': '.$wifimac.'
 </a>
 <a href="#" class="list-group-item">
-<i class="fa fa-signal green"></i> '.$lang['download'].': '.number_format($rxwifidata,0).' MB 
+<i class="fa fa-signal green"></i> '.$lang['download'].': '.number_format($rxwifidata,0).' MB
 </a>
 <a href="#" class="list-group-item">
-<i class="fa fa-signal green"></i> '.$lang['upload'].': '.number_format($txwifidata,0).' MB 
+<i class="fa fa-signal green"></i> '.$lang['upload'].': '.number_format($txwifidata,0).' MB
 </a>
 </div>
             </div>
@@ -2089,7 +2087,7 @@ echo '
 				<a href="#" class="list-group-item"><i class="ionicons ion-network green"></i>
 				'.$lang['mac'].': '.$nicmac.'</a>
 				<a href="#" class="list-group-item"><i class="ionicons ion-network green"></i>
-				'.$lang['download'].': '.number_format($rxdata,0).' MB </a> 
+				'.$lang['download'].': '.number_format($rxdata,0).' MB </a>
 				<a href="#" class="list-group-item"><i class="ionicons ion-network green"></i>
 				'.$lang['upload'].': '.number_format($txdata,0).' MB </a>
 				</div>
@@ -2101,7 +2099,7 @@ echo '
     </div>
 </div>';
 
-//user accounts model 
+//user accounts model
 echo '
 <div class="modal fade" id="user_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -2118,33 +2116,33 @@ $results = $conn->query($query);
 while ($row = mysqli_fetch_assoc($results)) {
 	$full_name=$row['fullname'];
 	$username=$row['username'];
-        if ($_SESSION['user_id'] == $row['id']) { $username .= " (Logged On)"; }
+	if ($_SESSION['user_id'] == $row['id']) { $username .= " (Logged On)"; }
         if($row['account_enable'] == 1) {
                 $content_msg="You are about to DELETE an ENABLED USER";
         } else {
                 $content_msg="You are about to DELETE a CURRENTLY DISABLED USER";
         }
-        echo "<div href=\"settings.php?uid=".$row['id']."\"  class=\"list-group-item\"> <i class=\"ionicons ion-person blue\"></i> ".$username."
-                <span class=\"pull-right text-muted small\"><em>
-                <a href=\"user_accounts.php?uid=".$row["id"]."\"><button class=\"btn btn-default btn-xs login\"><span class=\"ionicons ion-edit\"></span></button>&nbsp</a>";
-                if ($_SESSION['user_id'] != $row['id']) {
-                        echo "<a href=\"javascript:del_user(".$row["id"].");\"><button class=\"btn btn-danger btn-xs\" data-toggle=\"confirmation\" data-title=".$lang["confirmation"]." dat$
-                } else {
-                        echo "<button class=\"btn btn-danger btn-xs disabled\"><span class=\"glyphicon glyphicon-trash\"></span></button>";
-                }
-                echo "</em></span>
-        </div>";
+	echo "<div href=\"settings.php?uid=".$row['id']."\"  class=\"list-group-item\"> <i class=\"ionicons ion-person blue\"></i> ".$username."
+		<span class=\"pull-right text-muted small\"><em>
+		<a href=\"user_accounts.php?uid=".$row["id"]."\"><button class=\"btn btn-default btn-xs login\"><span class=\"ionicons ion-edit\"></span></button>&nbsp</a>";
+		if ($_SESSION['user_id'] != $row['id']) {
+			echo "<a href=\"javascript:del_user(".$row["id"].");\"><button class=\"btn btn-danger btn-xs\" data-toggle=\"confirmation\" data-title=".$lang["confirmation"]." data-content=\"$content_msg\"><span class=\"glyphicon glyphicon-trash\"></span></button></a>";
+		} else {
+			echo "<button class=\"btn btn-danger btn-xs disabled\"><span class=\"glyphicon glyphicon-trash\"></span></button>";
+		}
+		echo "</em></span>
+	</div>";
 }
 echo '</div></div>
             <div class="modal-footer">
-                <a href="user_accounts.php?uid=0"><button class="btn btn-default login btn-sm">'.$lang['add_user'].'</button></a>
+		<a href="user_accounts.php?uid=0"><button class="btn btn-default login btn-sm">'.$lang['add_user'].'</button></a>
                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
             </div>
         </div>
     </div>
 </div>';
 
-//Big Thank you 	
+//Big Thank you
 echo '
 <div class="modal fade" id="big_thanks" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -2156,7 +2154,7 @@ echo '
             <div class="modal-body">
 <p class="text-muted"> '.$lang['credits_text'].' </p>';
 echo '	<div class=\"list-group\">';
-echo " 
+echo "
 
 <a href=\"http://startbootstrap.com/template-overviews/sb-admin-2\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> SB Admin 2 Template <span class=\"pull-right text-muted small\"><em>...</em></span></a>
 <a href=\"http://www.cssscript.com/pretty-checkbox-radio-inputs-bootstrap-awesome-bootstrap-checkbox-css\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> Pretty Checkbox <span class=\"pull-right text-muted small\"><em>...</em></span></a>
