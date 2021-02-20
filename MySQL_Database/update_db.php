@@ -2,22 +2,22 @@
 #!/usr/bin/php
 echo "\033[36m";
 echo "\n";
-echo "   _____    _   _    _                             \n";
-echo "  |  __ \  (_) | |  | |                            \n";
-echo "  | |__) |  _  | |__| |   ___    _ __ ___     ___  \n";
-echo "  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \ \n";
-echo "  | |      | | | |  | | | (_) | | | | | | | |  __/ \n";
-echo "  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___| \n";
+echo "           __  __                             _         \n";
+echo "          |  \/  |                    /\     (_)        \n";
+echo "          | \  / |   __ _  __  __    /  \     _   _ __  \n";
+echo "          | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| \n";
+echo "          | |  | | | (_| |  >  <   / ____ \  | | | |    \n";
+echo "          |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    \n";
 echo " \033[0m \n";
-echo "     \033[45m S M A R T   H E A T I N G   C O N T R O L \033[0m \n";
+echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
 echo "\033[31m";
 echo "***************************************************************\n";
-echo "*   PiHome Datase Script Version 0.02 Build Date 15/09/2019   *\n";
-echo "*   Last Modified on 05/04/2020                               *\n";
+echo "*   MaxAir Database Script Version 0.01 Build Date 20/02/2021  *\n";
+echo "*   Last Modified on 20/02/2021                               *\n";
 echo "*                                      Have Fun - PiHome.eu   *\n";
 echo "***************************************************************\n";
 echo "\033[0m";
-echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - PiHome Database Update Script Started \n"; 
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - MySQL Database Update Script Started \n"; 
 $line = "--------------------------------------------------------------- \n";
 
 require_once(__DIR__.'/../st_inc/dbStruct.php');
@@ -71,7 +71,7 @@ if ($db_selected) {
 	//dump the databse with no data or views or triggers
 	exec("mysqldump -d -u root --password=\"$dbpassword\" $dbname --skip-triggers ".implode(" ",$views), $struct1);
 	//create an image of the latest database from GITHUB
-	$struct2 = file_get_contents('https://raw.githubusercontent.com/pihome-shc/pihome/master/MySQL_Database/pihome_mysql_database.sql');
+	$struct2 = file_get_contents('https://raw.githubusercontent.com/pihome-shc/PiHomeHVAC/master/MySQL_Database/pihome_mysql_database.sql');
 	//create an array of SQL commands to transform the structure of the currently installed database to match the GITHUB image
 	$updater = new dbStructUpdater();
 	$res = $updater->getUpdates(implode("\n",$struct1), $struct2);
