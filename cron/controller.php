@@ -13,7 +13,7 @@ echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
 echo "\033[31m \n";
 echo "******************************************************************\n";
 echo "*   System Controller Script Version 0.01 Build Date 19/10/2020  *\n";
-echo "*   Update on 11/02/2021                                         *\n";
+echo "*   Update on 21/02/2021                                         *\n";
 echo "*                                        Have Fun - PiHome.eu    *\n";
 echo "******************************************************************\n";
 echo " \033[0m \n";
