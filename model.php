@@ -351,6 +351,7 @@ echo '
 					<div class="form-group" class="control-label"><label>'.$lang['max_operation_time'].'</label> <small class="text-muted">'.$lang['max_operation_time_info'].'</small>
 						<select class="form-control input-sm" type="text" id="max_operation_time" name="max_operation_time">
 						<option selected>'.$brow['max_operation_time'].'</option>
+                                                <option value="0">0</option>
 						<option value="30">30</option>
 						<option value="40">40</option>
 						<option value="45">45</option>
