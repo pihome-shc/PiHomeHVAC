@@ -1,17 +1,17 @@
 <?php
 /*
-   _____    _   _    _
-  |  __ \  (_) | |  | |
-  | |__) |  _  | |__| |   ___    _ __ ___     ___
-  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \
-  | |      | | | |  | | | (_) | | | | | | | |  __/
-  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|
+             __  __                             _
+            |  \/  |                    /\     (_)
+            | \  / |   __ _  __  __    /  \     _   _ __
+            | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+            | |  | | | (_| |  >  <   / ____ \  | | | |
+            |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 
-     S M A R T   H E A T I N G   C O N T R O L
+                   S M A R T   T H E R M O S T A T
 
 *************************************************************************"
-* PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
-* from web interface and it comes with ABSOLUTELY NO WARRANTY, to the   *"
+* MaxAir is a Linux based Central Heating Control systems. It runs from *"
+* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *"
 * extent permitted by applicable law. I take no responsibility for any  *"
 * loss or damage to you or your property.                               *"
 * DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTILL UNLESS YOU KNOW *"
@@ -34,7 +34,8 @@ if(isset($_GET['id'])) {
 if (isset($_POST['submit'])) {
 	$name = $_POST['name'];
         $type = $_POST['type_id'];
-        $query = "SELECT id FROM nodes WHERE node_id = '".$_POST['selected_relay_id']."' LIMIT 1;";
+	$selected_relay_id = $_POST['selected_relay_id'];
+        $query = "SELECT id FROM nodes WHERE node_id = '".$selected_relay_id."' LIMIT 1;";
         $result = $conn->query($query);
         $row = mysqli_fetch_array($result);
         $controler_id = $row['id'];
@@ -192,7 +193,7 @@ function RelayChildList(value)
 	}
 }
 </script>
-<input type="hidden" id="selected_relay_id" name="selected_relay_id" value="<?php echo $row['controler_id']?>"/>
+<input type="hidden" id="selected_relay_id" name="selected_relay_id" value="<?php echo $rownode['node_id']?>"/>
 
 <!-- Relay Child ID -->
 <input type="hidden" id="gpio_pin_list" name="gpio_pin_list" value="<?php echo implode(",", array_filter(Get_GPIO_List()))?>"/>
