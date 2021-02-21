@@ -255,6 +255,7 @@ CREATE TABLE IF NOT EXISTS `jobs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `job_name` char(50) NOT NULL,
   `script` char(100) NOT NULL,
+  `enabled` tinyint(1),
   `log_it` tinyint(1),
   `time` int(11) NOT NULL,
   `output` text NOT NULL,
