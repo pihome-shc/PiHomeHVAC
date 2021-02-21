@@ -788,7 +788,7 @@ var x = document.getElementsByTagName("input");
 var i;
 var idata="w=job&o=update";
     for (i = 0; i < x.length; i++) {
-        if(x[i].name == "logit")
+        if(x[i].name == "logit" || x[i].name == "enabled")
              idata+="&"+x[i].id+"="+x[i].checked;
         else
              idata+="&"+x[i].id+"="+x[i].value;
@@ -812,6 +812,7 @@ var idata="w=job&o=update";
 //add new scheduled jobs
 function add_job(){
 var idata="w=job&o=add";
+        idata+="&enabled="+document.getElementById("checkbox_enabled").checked;
         idata+="&job_name="+document.getElementById("job_name").value;
         idata+="&job_script="+document.getElementById("job_script").value;
         idata+="&job_time="+document.getElementById("job_time").value;
