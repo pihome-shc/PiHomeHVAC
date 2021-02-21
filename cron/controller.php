@@ -10,10 +10,10 @@ echo "          | |  | | | (_| |  >  <   / ____ \  | | | |    \n";
 echo "          |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    \n";
 echo " \033[0m \n";
 echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
-echo "\033[31m";
+echo "\033[31m \n";
 echo "******************************************************************\n";
 echo "*   System Controller Script Version 0.01 Build Date 19/10/2020  *\n";
-echo "*   Update on 11/02/2021                                         *\n";
+echo "*   Update on 21/02/2021                                         *\n";
 echo "*                                        Have Fun - PiHome.eu    *\n";
 echo "******************************************************************\n";
 echo " \033[0m \n";
@@ -1442,7 +1442,7 @@ if ($debug_msg == 1) {
 if (isset($system_controller_stop_datetime)) {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Switched Off At: ".$system_controller_stop_datetime. "\n";}
 if (isset($expected_end_date_time)){
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Expected End Time: ".$expected_end_date_time. "\n";
-        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller ON Time: ".$system_controller_on_time." seconds\n";
+        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller ON Time: \033[41m".$system_controller_on_time."\033[0m seconds\n";
 }
 /***********************************
       System Controller On section

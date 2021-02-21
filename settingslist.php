@@ -109,18 +109,6 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
         		        		        <h3 class="status"></small></h3>
                 		        		</button>
 
-							<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_gpio.php" data-toggle="modal" data-target="#jobs_schedule">
-                                                        <h3 class="buttontop"><small><?php echo $lang['jobs']; ?></small></h3>
-	        	        			<h3 class="degre" ><i class="ionicons ion-ios-timer-outline blue"></i></h3>
-        	        	        		<h3 class="status"></small></h3>
-	                	        	        </button>
-
-		        		        	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Services">
-        		        		        <h3 class="buttontop"><small><?php echo $lang['services']; ?></small></h3>
-                		        		<h3 class="degre" ><i class="ionicons ion-ios-cog-outline"></i></h3>
-		                        		<h3 class="status"></small></h3>
-			                                </button>
-
 				                        <?php
 	        				        $query = "select * from messages_in where node_id = 0 order by datetime desc limit 1";
         	        				$result = $conn->query($query);
@@ -158,6 +146,18 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 							?>
                                                         <h3 class="status"></small></h3>
                                                         </button>
+
+							<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_gpio.php" data-toggle="modal" data-target="#jobs_schedule">
+                                                        <h3 class="buttontop"><small><?php echo $lang['jobs']; ?></small></h3>
+	        	        			<h3 class="degre" ><i class="ionicons ion-ios-timer-outline blue"></i></h3>
+        	        	        		<h3 class="status"></small></h3>
+	                	        	        </button>
+
+		        		        	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Services">
+        		        		        <h3 class="buttontop"><small><?php echo $lang['services']; ?></small></h3>
+                		        		<h3 class="degre" ><i class="ionicons ion-ios-cog-outline"></i></h3>
+		                        		<h3 class="status"></small></h3>
+			                                </button>
 
                                                 	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#network_setting">
                                                         <h3 class="buttontop"><small><?php echo $lang['network']; ?></small></h3>
