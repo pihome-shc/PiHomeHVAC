@@ -290,7 +290,7 @@ $current_time = date('H:i:s');
 //following variable set to current day of the week.
 $dow = idate('w');
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Day of the Week: \033[41m".$dow. "\033[0m \n";
-echo "---------------------------------------------------------------------------------------- \n";
+echo "------------------------------------------------------------------------------------------------------- \n";
 $query = "SELECT zone.id, zone.status, zone.zone_state, zone.name, zone_type.type, zone_type.category, zone.max_operation_time FROM zone, zone_type WHERE zone.type_id = zone_type.id order by index_id asc;";
 $results = $conn->query($query);
 while ($row = mysqli_fetch_assoc($results)) {
@@ -1299,7 +1299,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 				}
 			}
 		} //end process Zone Cat 1 and 2 logs
-		echo "---------------------------------------------------------------------------------------- \n";
+		echo "------------------------------------------------------------------------------------------------------- \n";
         } //end if($zone_status == 1)
 } //end of while loop
 
@@ -1737,7 +1737,7 @@ if (TimeIsBetweenTwoTimes($current_time, $start_time, $end_time)) {
 	$result = $conn->query($query);
 	$user_row = mysqli_fetch_array($result);
 	$email = $user_row['email'];
-	echo "---------------------------------------------------------------------------------------- \n";
+	echo "------------------------------------------------------------------------------------------------------- \n";
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Calling Home \n";
 	$external_ip = file_get_contents('http://www.pihome.eu/piconnect/myip.php');
 	$pi_serial = exec ("cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2");
@@ -1761,16 +1761,16 @@ if (TimeIsBetweenTwoTimes($current_time, $start_time, $end_time)) {
 	$result = url_get_contents($url);
 	$result = file_get_contents($url);
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - PiHome Says: ".$result."\n";
-	echo "---------------------------------------------------------------------------------------- \n";
+	echo "------------------------------------------------------------------------------------------------------- \n";
 }
 
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Active Status: \033[41m".$new_system_controller_status."\033[0m \n";
 if ($system_controller_mode == 0) {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Hysteresis Status: \033[41m".$hysteresis."\033[0m \n";
 }
-echo "---------------------------------------------------------------------------------------- \n";
+echo "------------------------------------------------------------------------------------------------------- \n";
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Controller Script Ended \n";
-echo "\033[32m****************************************************************************************\033[0m  \n";
+echo "\033[32m*******************************************************************************************************\033[0m  \n";
 if(isset($conn)) { $conn->close();}
 ?>
 
