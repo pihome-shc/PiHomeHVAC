@@ -1246,6 +1246,14 @@ if($what=="job"){
                                         $update_error=1;
                                 }
                         }
+                        if(isset($_GET["checkbox_enabled".$id])) {
+                                $enabled =  $_GET["checkbox_enabled".$id];
+                                if ($enabled=='true'){$enabled = '1';} else {$enabled = '0';}
+                                $query = "UPDATE jobs SET enabled = '".$enabled."' WHERE id='".$row['id']."' LIMIT 1;";
+                                if(!$conn->query($query)){
+                                        $update_error=1;
+                                }
+                        }
                         if(isset($_GET["checkbox_log".$id])) {
                                 $log_it =  $_GET["checkbox_log".$id];
                                 if ($log_it=='true'){$log_it = '1';} else {$log_it = '0';}
@@ -1288,13 +1296,14 @@ if($what=="job"){
                 }
         }
         if($opp=="add"){
-                $job_name = $_GET['job_name'];
+               	$enabled = $_GET['enabled'];
+               	$job_name = $_GET['job_name'];
                 $job_script = $_GET['job_script'];
                 $job_time = $_GET['job_time'];
                 $log_it = $_GET['log_it'];
                 if ($log_it=='true'){$log_it = '1';} else {$log_it = '0';}
                 //Add record to Nodes table
-                $query = "INSERT INTO `jobs`(`job_name`, `script`, `log_it`, `time`, `output`) VALUES ('".$job_name."', '".$job_script."','".$log_it."', '".$job_time."','');";
+                $query = "INSERT INTO `jobs`(`job_name`, `script`, `enabled`, `log_it`, `time`, `output`) VALUES ('".$job_name."', '".$job_script."','".$enabled."','".$log_it."', '".$job_time."','');";
                 if($conn->query($query)){
                         header('Content-type: application/json');
                         echo json_encode(array('Success'=>'Success','Query'=>$query));
