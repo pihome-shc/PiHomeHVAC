@@ -351,6 +351,7 @@ echo '
 					<div class="form-group" class="control-label"><label>'.$lang['max_operation_time'].'</label> <small class="text-muted">'.$lang['max_operation_time_info'].'</small>
 						<select class="form-control input-sm" type="text" id="max_operation_time" name="max_operation_time">
 						<option selected>'.$brow['max_operation_time'].'</option>
+                                                <option value="0">0</option>
 						<option value="30">30</option>
 						<option value="40">40</option>
 						<option value="45">45</option>
@@ -1801,19 +1802,24 @@ echo '<br><table>
     <tr>
         <th class="col-xs-3">'.$lang['jobs_name'].'</th>
         <th class="col-xs-4">'.$lang['jobs_script'].'</th>
+        <th class="col-xs-1">'.$lang['enabled'].'</th>
         <th class="col-xs-1">'.$lang['jobs_log'].'</th>
         <th class="col-xs-2">'.$lang['jobs_time'].'</th>
         <th class="col-xs-1"></th>
     </tr>';
 
 while ($row = mysqli_fetch_assoc($results)) {
-    if ($row["log_it"] == 0) { $check = ''; } else { $check = 'checked'; }
+    if ($row["log_it"] == 0) { $log_check = ''; } else { $log_check = 'checked'; }
+    if ($row["enabled"] == 0) { $enabled_check = ''; } else { $enabled_check = 'checked'; }
     echo '
         <tr>
             <td><input id="jobs_name'.$row["id"].'" type="value" class="form-control pull-right" style="border: none" value="'.$row["job_name"].'" placeholder="Job Name"></td>
             <td><input id="jobs_script'.$row["id"].'" type="value" class="form-control pull-right" style="border: none" value="'.$row["script"].'" placeholder="Job Script"></td>
             <td style="text-align:center; vertical-align:middle;">
-               <input type="checkbox" id="checkbox_log'.$row["id"].'" name="logit" value="1" '.$check.'>
+               <input type="checkbox" id="checkbox_enabled'.$row["id"].'" name="enabled" value="1" '.$enabled_check.'>
+            </td>
+            <td style="text-align:center; vertical-align:middle;">
+               <input type="checkbox" id="checkbox_log'.$row["id"].'" name="logit" value="1" '.$log_check.'>
             </td>
             <td><input id="jobs_time'.$row["id"].'" type="value" class="form-control pull-right" style="border: none" value="'.$row["time"].'" placeholder="Run Job Every"></td>
             <td><a href="javascript:delete_job('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>
@@ -1845,7 +1851,14 @@ echo '<p class="text-muted">'.$lang['add_new_job_info_text'].'</p>
 
 	<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
 
-	<div class="form-group" class="control-label"><label>'.$lang['jobs_name'].'</label> <small class="text-muted">'.$lang['jobs_name_info'].'</small>
+        <div class="form-group" class="control-label">
+             <div class="checkbox checkbox-default checkbox-circle">
+                 <input id="checkbox_enabled" class="styled" type="checkbox" value="0" name="status" Enabled>
+                 <label for="checkbox_enabled"> '.$lang['enabled'].'</label>
+             </div>
+        </div>
+
+ 	<div class="form-group" class="control-label"><label>'.$lang['jobs_name'].'</label> <small class="text-muted">'.$lang['jobs_name_info'].'</small>
 	<input class="form-control input-sm" type="text" id="job_name" name="job_name" value="" placeholder="'.$lang['jobs_name'].'">
 	<div class="help-block with-errors"></div></div>
 

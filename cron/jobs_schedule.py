@@ -76,10 +76,11 @@ def main():
     schedule.clear()
 
     # Build the new schedules
-    cur.execute("SELECT `job_name`, `script`, `log_it`, `time` FROM `jobs`")
+    cur.execute("SELECT `job_name`, `script`, `enabled`, `log_it`, `time` FROM `jobs`")
     for row in cur:
-        func_builder(row[0], row[1], row[2])()
-        schedule.every(row[3]).seconds.do(func_builder(row[0], row[1], row[2]))
+        if row[2] == 1:
+            func_builder(row[0], row[1], row[3])()
+            schedule.every(row[4]).seconds.do(func_builder(row[0], row[1], row[3]))
 
     while True:
 
