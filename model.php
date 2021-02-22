@@ -877,8 +877,7 @@ echo '<p class="text-muted">'.$lang['zone_type_add_info_text'].'</p>
 </div>';
 
 //Relay model
-echo '
-<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -886,58 +885,57 @@ echo '
                 <h5 class="modal-title">'.$lang['relay_settings'].'</h5>
             </div>
             <div class="modal-body">
-<p class="text-muted">'.$lang['relay_settings_text'].'</p>';
-$query = "SELECT controller_relays.id, controller_relays.controler_id, controller_relays.controler_child_id, controller_relays.name, controller_relays.type, zc.zone_id, nd.node_id, nd.last_seen
-FROM controller_relays
-LEFT join zone_controllers zc ON controller_relays.id = zc.controller_relay_id
-JOIN nodes nd ON controller_relays.controler_id = nd.id
-ORDER BY controler_id asc, controler_child_id ASC;";
-$results = $conn->query($query);
-echo '<table class="table table-bordered">
-    <tr>
-        <th class="col-xs-3"><small>'.$lang['relay_name'].'</small></th>
-        <th class="col-xs-2"><small>'.$lang['type'].'</small></th>
-        <th class="col-xs-2"><small>'.$lang['node_id'].'</small></th>
-        <th class="col-xs-2"><small>'.$lang['relay_child_id'].'</small></th>
-        <th class="col-xs-2"></th>
-    </tr>';
+		<p class="text-muted">'.$lang['relay_settings_text'].'</p>';
+		$query = "SELECT controller_relays.id, controller_relays.controler_id, controller_relays.controler_child_id, controller_relays.name, controller_relays.type, zc.zone_id, nd.node_id, nd.last_seen
+		FROM controller_relays
+		LEFT join zone_controllers zc ON controller_relays.id = zc.controller_relay_id
+		JOIN nodes nd ON controller_relays.controler_id = nd.id
+		ORDER BY controler_id asc, controler_child_id ASC;";
+		$results = $conn->query($query);
+		echo '<table class="table table-bordered">
+    			<tr>
+        			<th class="col-xs-3"><small>'.$lang['relay_name'].'</small></th>
+        			<th class="col-xs-2"><small>'.$lang['type'].'</small></th>
+        			<th class="col-xs-2"><small>'.$lang['node_id'].'</small></th>
+        			<th class="col-xs-2"><small>'.$lang['relay_child_id'].'</small></th>
+        			<th class="col-xs-2"></th>
+    			</tr>';
 
-$content_msg="Delete Controller Relay";
-while ($row = mysqli_fetch_assoc($results)) {
-    switch ($row['type']) {
-        case 0:
-                $relay_type ="Zone";
-                break;
-        case 1:
-                $relay_type ="Boiler";
-                break;
-        case 2:
-                $relay_type ="HVAC - Heat";
-                break;
-        case 3:
-                $relay_type ="HVAC - Cool";
-                break;
-        case 4:
-                $relay_type ="HVAC - Fan";
-                break;
-    }
-    echo '
-        <tr>
-            <td>'.$row["name"].'<br> <small>('.$row["last_seen"].')</small></td>
-            <td>'.$relay_type.'</td>
-            <td>'.$row["node_id"].'</td>
-            <td>'.$row["controler_child_id"].'</td>
-            <td><a href="relay.php?id='.$row["id"].'"><button class="btn btn-primary btn-xs"><span class="ionicons ion-edit"></span></button> </a>&nbsp;&nbsp';
-            if(isset($row['zone_id']) || $row['type'] == 1) {
-		 echo '<button class="btn btn-danger btn-xs disabled"><span class="glyphicon glyphicon-trash"></span></button></td>';
-	    } else {
-                echo '<a href="javascript:delete_relay('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>';
-            }
-        echo '</tr>';
-}
-
-echo '</table></div>
-                        <div class="modal-footer">
+			$content_msg="Delete Controller Relay";
+			while ($row = mysqli_fetch_assoc($results)) {
+    				switch ($row['type']) {
+        				case 0:
+                				$relay_type ="Zone";
+                				break;
+        				case 1:
+                				$relay_type ="Boiler";
+                				break;
+        				case 2:
+                				$relay_type ="HVAC - Heat";
+                				break;
+        				case 3:
+                				$relay_type ="HVAC - Cool";
+                				break;
+        				case 4:
+                				$relay_type ="HVAC - Fan";
+                				break;
+    				}
+    				echo '<tr>
+            				<td>'.$row["name"].'<br> <small>('.$row["last_seen"].')</small></td>
+            				<td>'.$relay_type.'</td>
+            				<td>'.$row["node_id"].'</td>
+            				<td>'.$row["controler_child_id"].'</td>
+            				<td><a href="relay.php?id='.$row["id"].'"><button class="btn btn-primary btn-xs"><span class="ionicons ion-edit"></span></button> </a>&nbsp;&nbsp';
+            				if(isset($row['zone_id']) || $row['type'] == 1) {
+		 				echo '<button class="btn btn-danger btn-xs disabled"><span class="glyphicon glyphicon-trash"></span></button></td>';
+	    				} else {
+                				echo '<a href="javascript:delete_relay('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>';
+            				}
+        			echo '</tr>';
+			}
+		echo '</table>
+	    </div>
+            <div class="modal-footer">
                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
                 <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="show_sensors()">
                 <a class="btn btn-default login btn-sm" href="relay.php">'.$lang['relay_add'].'</a>
@@ -946,9 +944,8 @@ echo '</table></div>
     </div>
 </div>';
 
-//Sensor model	
-echo '
-<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+//Sensor model
+echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -956,70 +953,69 @@ echo '
                 <h5 class="modal-title">'.$lang['sensor_settings'].'</h5>
             </div>
             <div class="modal-body">
-<p class="text-muted">'.$lang['sensor_settings_text'].'</p>';
-$query = "select temperature_sensors.id, temperature_sensors.name, temperature_sensors.sensor_child_id, temperature_sensors.zone_id, temperature_sensors.show_it, nodes.node_id, nodes.last_seen from temperature_sensors, nodes WHERE temperature_sensors.sensor_id = nodes.id order by name asc";
-$results = $conn->query($query);
-echo '<table class="table table-bordered">
-    <tr>
-        <th class="col-xs-3"><small>'.$lang['sensor_name'].'</small></th>
-        <th class="col-xs-1"><small>'.$lang['node_id'].'</small></th>
-        <th class="col-xs-1"><small>'.$lang['sensor_child_id'].'</small></th>
-        <th class="col-xs-2"><small>'.$lang['zone_name'].'</small></th>
-        <th class="col-xs-1"><small>Show</small></th>
-        <th class="col-xs-2"></th>
-    </tr>';
-$content_msg="Delete Temperature Sensor";
-while ($row = mysqli_fetch_assoc($results)) {
-    if (!empty($row['zone_id'])) {
-	$query = "SELECT  name FROM zone WHERE id = '{$row['zone_id']}' LIMIT 1;";
-        $z_results = $conn->query($query);
-        $rowcount=mysqli_num_rows($z_results);
-        if($rowcount > 0) {
-		$z_row = mysqli_fetch_assoc($z_results);
-		$zone_name = $z_row['name'];
-	} else {
-        	$zone_name = "Not Allocated";
-    	}
-    } else {
-	$zone_name = "Not Allocated";
-    }
-    $check = ($row['show_it'] == 1) ? 'checked' : '';
-    echo '
-        <tr>
-            <td>'.$row["name"].'<br> <small>('.$row["last_seen"].')</small></td>
-            <td>'.$row["node_id"].'</td>
-            <td>'.$row["sensor_child_id"].'</td>
-            <td>'.$zone_name.'</td>';
-            if (empty($row['zone_id'])) { 
-		echo '<td style="text-align:center; vertical-align:middle;">
-                <input type="checkbox" id="checkbox'.$row["id"].'" name="checkbox'.$row["id"].'" value="1" '.$check.'>
-            	</td>';
-	    } else {
-                echo '<td style="text-align:center; vertical-align:middle;">
-                <input type="checkbox" id="checkbox'.$row["id"].'" name="checkbox'.$row["id"].'" value="1" '.$check.' disabled>
-                </td>';
-	    }
-	    echo '<td><a href="sensor.php?id='.$row["id"].'"><button class="btn btn-primary btn-xs"><span class="ionicons ion-edit"></span></button> </a>&nbsp;&nbsp';
-	    if (empty($row['zone_id'])) { 
-		echo '<a href="javascript:delete_sensor('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>'; 
-	    } else {
-		echo '<button class="btn btn-danger btn-xs disabled"><span class="glyphicon glyphicon-trash"></span></button></td>';
-	    }
-        echo '</tr>';
-}
-echo '</table></div>
-			<div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="show_sensors()">
-                <a class="btn btn-default login btn-sm" href="sensor.php">'.$lang['sensor_add'].'</a>
+		<p class="text-muted">'.$lang['sensor_settings_text'].'</p>';
+		$query = "select temperature_sensors.id, temperature_sensors.name, temperature_sensors.sensor_child_id, temperature_sensors.zone_id, temperature_sensors.show_it, nodes.node_id, nodes.last_seen from temperature_sensors, nodes WHERE temperature_sensors.sensor_id = nodes.id order by name asc";
+		$results = $conn->query($query);
+		echo '<table class="table table-bordered">
+    			<tr>
+        			<th class="col-xs-3"><small>'.$lang['sensor_name'].'</small></th>
+        			<th class="col-xs-1"><small>'.$lang['node_id'].'</small></th>
+        			<th class="col-xs-1"><small>'.$lang['sensor_child_id'].'</small></th>
+        			<th class="col-xs-2"><small>'.$lang['zone_name'].'</small></th>
+        			<th class="col-xs-1"><small>Show</small></th>
+        			<th class="col-xs-2"></th>
+    			</tr>';
+			$content_msg="Delete Temperature Sensor";
+			while ($row = mysqli_fetch_assoc($results)) {
+    				if (!empty($row['zone_id'])) {
+					$query = "SELECT  name FROM zone WHERE id = '{$row['zone_id']}' LIMIT 1;";
+        				$z_results = $conn->query($query);
+        				$rowcount=mysqli_num_rows($z_results);
+        				if($rowcount > 0) {
+						$z_row = mysqli_fetch_assoc($z_results);
+						$zone_name = $z_row['name'];
+					} else {
+        					$zone_name = "Not Allocated";
+    					}
+    				} else {
+					$zone_name = "Not Allocated";
+    				}
+    				$check = ($row['show_it'] == 1) ? 'checked' : '';
+    				echo '<tr>
+            				<td>'.$row["name"].'<br> <small>('.$row["last_seen"].')</small></td>
+            				<td>'.$row["node_id"].'</td>
+            				<td>'.$row["sensor_child_id"].'</td>
+            				<td>'.$zone_name.'</td>';
+            				if (empty($row['zone_id'])) { 
+						echo '<td style="text-align:center; vertical-align:middle;">
+                				<input type="checkbox" id="checkbox'.$row["id"].'" name="checkbox'.$row["id"].'" value="1" '.$check.'>
+            					</td>';
+	    				} else {
+                				echo '<td style="text-align:center; vertical-align:middle;">
+                				<input type="checkbox" id="checkbox'.$row["id"].'" name="checkbox'.$row["id"].'" value="1" '.$check.' disabled>
+                				</td>';
+	    				}
+	    				echo '<td><a href="sensor.php?id='.$row["id"].'"><button class="btn btn-primary btn-xs"><span class="ionicons ion-edit"></span></button> </a>&nbsp;&nbsp';
+	    				if (empty($row['zone_id'])) { 
+						echo '<a href="javascript:delete_sensor('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>'; 
+	    				} else {
+						echo '<button class="btn btn-danger btn-xs disabled"><span class="glyphicon glyphicon-trash"></span></button></td>';
+	    				}
+        			echo '</tr>';
+			}
+		echo '</table>
+	    </div>
+		<div class="modal-footer">
+                	<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                	<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="show_sensors()">
+                	<a class="btn btn-default login btn-sm" href="sensor.php">'.$lang['sensor_add'].'</a>
             </div>
         </div>
     </div>
 </div>';
 
 //Sensor location model
-echo '
-<div class="modal fade" id="temperature_sensor" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+echo '<div class="modal fade" id="temperature_sensor" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -1027,23 +1023,25 @@ echo '
                 <h5 class="modal-title">'.$lang['temperature_sensor'].'</h5>
             </div>
             <div class="modal-body">
-<p class="text-muted"> '.$lang['temperature_sensor_text'].' </p>';
-$query = "SELECT * FROM nodes where name LIKE '%Sensor' ORDER BY node_id asc;";
-$results = $conn->query($query);
-echo '	<div class=\"list-group\">';
-while ($row = mysqli_fetch_assoc($results)) {
-	$batquery = "select * from nodes_battery where node_id = {$row['node_id']} ORDER BY id desc limit 1;";
-	$batresults = $conn->query($batquery);
-	$brow = mysqli_fetch_array($batresults);
-	//check if sensors in use by any zone 
-	$query = "SELECT * FROM zone_sensors where sensor_id = {$row['id']} Limit 1;";
-	$zresult = $conn->query($query);
-	$rcount = mysqli_num_rows($zresult);
-	echo "<div class=\"list-group-item\"><i class=\"ionicons ion-thermometer red\"></i> ".$row['node_id'];
-	if ($row['ms_version'] > 0){echo "- <i class=\"fa fa-battery-full\"></i> ".round($brow ['bat_level'],0)."% - ".$brow ['bat_voltage'];}
-        echo "<span class=\"pull-right text-muted small\"><em>".$row['last_seen']."&nbsp</em></span></div> ";
-}
-echo '</div></div>
+		<p class="text-muted"> '.$lang['temperature_sensor_text'].' </p>';
+		$query = "SELECT * FROM nodes where name LIKE '%Sensor' ORDER BY node_id asc;";
+		$results = $conn->query($query);
+		echo '<div class=\"list-group\">';
+			while ($row = mysqli_fetch_assoc($results)) {
+				$batquery = "select * from nodes_battery where node_id = {$row['node_id']} ORDER BY id desc limit 1;";
+				$batresults = $conn->query($batquery);
+				$brow = mysqli_fetch_array($batresults);
+				//check if sensors in use by any zone
+				$query = "SELECT * FROM zone_sensors where sensor_id = {$row['id']} Limit 1;";
+				$zresult = $conn->query($query);
+				$rcount = mysqli_num_rows($zresult);
+				echo "<div class=\"list-group-item\"><i class=\"ionicons ion-thermometer red\"></i> ".$row['node_id'];
+					if ($row['ms_version'] > 0){echo "- <i class=\"fa fa-battery-full\"></i> ".round($brow ['bat_level'],0)."% - ".$brow ['bat_voltage'];}
+        				echo "<span class=\"pull-right text-muted small\"><em>".$row['last_seen']."&nbsp</em></span>
+				</div> ";
+			}
+		echo '</div>
+	    </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
             </div>
@@ -1051,7 +1049,7 @@ echo '</div></div>
     </div>
 </div>';
 
-//Zone model	
+//Zone model
 echo '
 <div class="modal fade" id="zone_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -1061,39 +1059,39 @@ echo '
                 <h5 class="modal-title">'.$lang['zone_settings'].'</h5>
             </div>
             <div class="modal-body">
-<p class="text-muted">'.$lang['zone_settings_text'].'</p>';
-$query = "select * from zone order by index_id asc";
-$results = $conn->query($query);
-echo '	<div class=\"list-group\">';
-while ($row = mysqli_fetch_assoc($results)) {
-        if($row['status'] == 1) {
-                $content_msg=$lang['confirm_dell_active_zone'];
-        } else {
-                $content_msg=$lang['confirm_dell_de_active_zone'];
-        }
-	echo "<div class=\"list-group-item\">
-        <i class=\"glyphicon glyphicon-th-large orange\"></i> ".$row['name']."";
-        $query = "select * from zone_view WHERE id = '{$row['id']}'order by index_id asc";
-        $vresult = $conn->query($query);
-        while ($vrow = mysqli_fetch_assoc($vresult)) {
-                if ($vrow['category'] == 2) {
-                        echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['controller'].": ".$vrow['controller_type'].": ".$vrow['controler_id']."-".$vrow['controler_child_id']."</small></span><br>";
-		} elseif ($vrow['category'] == 3) {
-                        echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['min']." ".$vrow['min_c']."&deg; </em>, ".$lang['max']." ".$vrow['max_c']."&deg; </em> - ".$lang['sensor'].": ".$vrow['sensors_id']."</small></span><br>";
-                } else {
-                        echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['max']." ".$vrow['max_c']."&deg; </em> - ".$lang['sensor'].": ".$vrow['sensors_id']." - ".$vrow['controller_type'].": ".$vrow['controler_id']."-".$vrow['controler_child_id']."</small></span><br>";
-                }
-        }
-        echo "<span class=\"pull-right \"><small>
-        <a href=\"zone.php?id=".$row['id']."\" class=\"btn btn-default btn-xs login\"><span class=\"ionicons ion-edit\"></span></a>&nbsp;&nbsp;
-        <a href=\"javascript:delete_zone(".$row['id'].");\"><button class=\"btn btn-danger btn-xs\" data-toggle=\"confirmation\" data-title=".$lang['confirmation']." data-content=\"$content_msg\"><span class=\"glyphicon glyphicon-trash\"></span></button></a>
-        </small></span>
-        <br>
-        </div>";
-}
-echo '
-</div></div>
-			<div class="modal-footer">
+		<p class="text-muted">'.$lang['zone_settings_text'].'</p>';
+		$query = "select * from zone order by index_id asc";
+		$results = $conn->query($query);
+		echo '<div class=\"list-group\">';
+			while ($row = mysqli_fetch_assoc($results)) {
+        			if($row['status'] == 1) {
+                			$content_msg=$lang['confirm_dell_active_zone'];
+        			} else {
+                			$content_msg=$lang['confirm_dell_de_active_zone'];
+        			}
+				echo "<div class=\"list-group-item\">
+        				<i class=\"glyphicon glyphicon-th-large orange\"></i> ".$row['name']."";
+        				$query = "select * from zone_view WHERE id = '{$row['id']}'order by index_id asc";
+        				$vresult = $conn->query($query);
+        				while ($vrow = mysqli_fetch_assoc($vresult)) {
+                				if ($vrow['category'] == 2) {
+                        				echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['controller'].": ".$vrow['controller_type'].": ".$vrow['controler_id']."-".$vrow['controler_child_id']."</small></span><br>";
+						} elseif ($vrow['category'] == 3) {
+                        				echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['min']." ".$vrow['min_c']."&deg; </em>, ".$lang['max']." ".$vrow['max_c']."&deg; </em> - ".$lang['sensor'].": ".$vrow['sensors_id']."</small></span><br>";
+                				} else {
+                        				echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['max']." ".$vrow['max_c']."&deg; </em> - ".$lang['sensor'].": ".$vrow['sensors_id']." - ".$vrow['controller_type'].": ".$vrow['controler_id']."-".$vrow['controler_child_id']."</small></span><br>";
+                				}
+        				}
+        				echo "<span class=\"pull-right \"><small>
+        					<a href=\"zone.php?id=".$row['id']."\" class=\"btn btn-default btn-xs login\"><span class=\"ionicons ion-edit\"></span></a>&nbsp;&nbsp;
+        					<a href=\"javascript:delete_zone(".$row['id'].");\"><button class=\"btn btn-danger btn-xs\" data-toggle=\"confirmation\" data-title=".$lang['confirmation']." data-content=\"$content_msg\"><span class=\"glyphicon glyphicon-trash\"></span></button></a>
+        				</small></span>
+        				<br>
+        			</div>";
+			}
+		echo '</div>
+	    </div>
+	    <div class="modal-footer">
                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
                 <a class="btn btn-default login btn-sm" href="zone.php">'.$lang['zone_add'].'</a>
             </div>
