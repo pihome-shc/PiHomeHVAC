@@ -155,6 +155,7 @@ $lang['category'] = "Category";
 $lang['zone_category0'] = "Sensor and Boiler Control";
 $lang['zone_category1'] = "Sensor and NO Boiler Control";
 $lang['zone_category2'] = "NO Sensor and NO Boiler Control";
+$lang['zone_category3'] = "Sensor and System Control";
 $lang['zone_category_info'] = "Select Zone Type Category for Process Control";
 $lang['zone_type_heating'] = "Heating";
 $lang['zone_type_water'] = "Water";
