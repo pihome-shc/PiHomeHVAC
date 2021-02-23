@@ -10,7 +10,7 @@ The previous version, PiHome, was centered around the creation of zones, this ve
 * Create Temperature Measurement devices (with a node and child id)
 * Create Relay devices (with a node and child id)
 * Create Zones using the temperature measurement and relay devices created previously
-* Temperature Measurement devices can be display without the need to be allocated to a 'zombie' zone
+* Temperature Measurement devices can be displayed without the need to be allocated to a 'zombie' zone
 
 * The Temperature Measurement and Relay devices can be created from the One Touch menu
 [![deploy1](https://user-images.githubusercontent.com/46624596/97433327-3a6a8880-1915-11eb-93b0-feac36159403.JPG)](https://user-images.githubusercontent.com/46624596/97433327-3a6a8880-1915-11eb-93b0-feac36159403.JPG)
