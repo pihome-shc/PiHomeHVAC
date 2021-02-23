@@ -94,7 +94,7 @@ try:
 		print(bc.grn + "UDP Port:      ",gatewayport, bc.ENDC)
 
 	msgcount = 0 # Defining variable for counting messages processed
-	
+
 	# Get the network address for use by Tasmota devices
 	cur.execute('SELECT gateway_address FROM network_settings where interface_type LIKE "wlan%" limit 1')
 	row = cur.fetchone()
@@ -107,6 +107,15 @@ try:
 
 	# Initialise a dictionary to hold the relay id for Adafruit Blinka
 	relay_dict = {}
+
+	# re-sync any outputs
+	cur.execute("SELECT COUNT(*) FROM `messages_out`")
+	count = cur.fetchone()
+	count = count[0]
+	# re-send the last messages in the messages_out queue
+	if count > 0:
+		cur.execute('UPDATE `messages_out` set sent=0')
+		con.commit()
 
 	while 1:
 	## Outgoing messages
@@ -513,3 +522,4 @@ finally:
 	print(infomsg)
 	logging.exception(Exception)
 	sys.exit(1)
+

@@ -126,7 +126,7 @@ CREATE TABLE `boost` (
 
 LOCK TABLES `boost` WRITE;
 /*!40000 ALTER TABLE `boost` DISABLE KEYS */;
-INSERT INTO `boost` VALUES (46,0,0,0,66,'2020-12-10 22:48:01',25,60,0,0,3),(53,0,0,0,66,'2020-12-10 15:37:49',21,60,0,0,4),(55,0,0,0,66,'2020-12-10 15:19:02',19,10,0,0,5);
+INSERT INTO `boost` VALUES (56,0,0,0,69,'2020-12-14 14:35:52',25,60,0,0,0),(57,0,0,0,70,'2020-12-14 14:37:09',45,60,0,0,0);
 /*!40000 ALTER TABLE `boost` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -180,7 +180,7 @@ CREATE TABLE `controller_relays` (
 
 LOCK TABLES `controller_relays` WRITE;
 /*!40000 ALTER TABLE `controller_relays` DISABLE KEYS */;
-INSERT INTO `controller_relays` VALUES (44,0,0,24,33,'HEAT',2),(45,0,0,24,35,'COOL',3),(46,0,0,24,40,'FAN',4),(47,0,0,39,53,'Lamp',0);
+INSERT INTO `controller_relays` VALUES (44,0,0,24,33,'Ground Floor',0),(45,0,0,24,35,'Hot Water',0),(46,0,0,24,40,'Gas Boiler',1),(47,0,0,39,53,'Lamp',0);
 /*!40000 ALTER TABLE `controller_relays` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -202,7 +202,7 @@ CREATE TABLE `controller_zone_logs` (
   `stop_cause` char(50) COLLATE utf16_bin DEFAULT NULL,
   `expected_end_date_time` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=319 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=277 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -212,37 +212,6 @@ CREATE TABLE `controller_zone_logs` (
 LOCK TABLES `controller_zone_logs` WRITE;
 /*!40000 ALTER TABLE `controller_zone_logs` DISABLE KEYS */;
 /*!40000 ALTER TABLE `controller_zone_logs` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `crontab`
---
-
-DROP TABLE IF EXISTS `crontab`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `crontab` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `status` char(50) DEFAULT NULL,
-  `min` char(50) DEFAULT NULL,
-  `hour` char(50) DEFAULT NULL,
-  `day` char(50) DEFAULT NULL,
-  `month` char(50) DEFAULT NULL,
-  `weekday` char(50) DEFAULT NULL,
-  `command` char(50) DEFAULT NULL,
-  `output` char(50) DEFAULT NULL,
-  `comments` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='PiHome Smart Heating - Manage Crontab from web interface ';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `crontab`
---
-
-LOCK TABLES `crontab` WRITE;
-/*!40000 ALTER TABLE `crontab` DISABLE KEYS */;
-/*!40000 ALTER TABLE `crontab` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -276,33 +245,6 @@ LOCK TABLES `email` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `frost_protection`
---
-
-DROP TABLE IF EXISTS `frost_protection`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `frost_protection` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `sync` tinyint(4) NOT NULL,
-  `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
-  `datetime` timestamp NULL DEFAULT NULL,
-  `temperature` float NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `frost_protection`
---
-
-LOCK TABLES `frost_protection` WRITE;
-/*!40000 ALTER TABLE `frost_protection` DISABLE KEYS */;
-INSERT INTO `frost_protection` VALUES (1,0,0,'2021-01-20 15:45:02',5);
-/*!40000 ALTER TABLE `frost_protection` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `gateway`
 --
 
@@ -333,7 +275,7 @@ CREATE TABLE `gateway` (
 
 LOCK TABLES `gateway` WRITE;
 /*!40000 ALTER TABLE `gateway` DISABLE KEYS */;
-INSERT INTO `gateway` VALUES (1,1,0,0,'serial','/dev/ttyS3','9600','3','7677','Wed Jan 20 18:38:00 2021',0,0,'0');
+INSERT INTO `gateway` VALUES (1,1,0,0,'serial','/dev/ttyS3','9600','3','20095','Tue Feb 23 13:01:33 2021',0,0,'0');
 /*!40000 ALTER TABLE `gateway` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -355,7 +297,7 @@ CREATE TABLE `gateway_logs` (
   `pid_start_time` char(50) COLLATE utf16_bin DEFAULT NULL,
   `pid_datetime` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=174 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=131 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -364,6 +306,7 @@ CREATE TABLE `gateway_logs` (
 
 LOCK TABLES `gateway_logs` WRITE;
 /*!40000 ALTER TABLE `gateway_logs` DISABLE KEYS */;
+INSERT INTO `gateway_logs` VALUES (125,0,0,'serial','/dev/ttyS3','9600','19776','Tue Feb 23 12:56:28 2021','2021-02-23 12:56:29'),(126,0,0,'serial','/dev/ttyS3','9600','19836','Tue Feb 23 12:57:29 2021','2021-02-23 12:57:30'),(127,0,0,'serial','/dev/ttyS3','9600','19890','Tue Feb 23 12:58:30 2021','2021-02-23 12:58:31'),(128,0,0,'serial','/dev/ttyS3','9600','19964','Tue Feb 23 12:59:31 2021','2021-02-23 12:59:32'),(129,0,0,'serial','/dev/ttyS3','9600','20038','Tue Feb 23 13:00:32 2021','2021-02-23 13:00:33'),(130,0,0,'serial','/dev/ttyS3','9600','20095','Tue Feb 23 13:01:33 2021','2021-02-23 13:01:34');
 /*!40000 ALTER TABLE `gateway_logs` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -426,6 +369,68 @@ INSERT INTO `http_messages` VALUES (3,0,0,'Lamp','101','1','Power','ON'),(10,0,0
 UNLOCK TABLES;
 
 --
+-- Table structure for table `jobs`
+--
+
+DROP TABLE IF EXISTS `jobs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `jobs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `job_name` char(50) NOT NULL,
+  `script` char(100) NOT NULL,
+  `enabled` tinyint(1) DEFAULT NULL,
+  `log_it` tinyint(1) DEFAULT NULL,
+  `time` int(11) NOT NULL,
+  `output` text NOT NULL,
+  `datetime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jobs`
+--
+
+LOCK TABLES `jobs` WRITE;
+/*!40000 ALTER TABLE `jobs` DISABLE KEYS */;
+INSERT INTO `jobs` VALUES (1,'controller','/var/www/cron/controller.php',1,0,60,'[36m\n           __  __                             _         \n          |  \\/  |                    /\\     (_)        \n          | \\  / |   __ _  __  __    /  \\     _   _ __  \n          | |\\/| |  / _` | \\ \\/ /   / /\\ \\   | | | \'__| \n          | |  | | | (_| |  >  <   / ____ \\  | | | |    \n          |_|  |_|  \\__,_| /_/\\_\\ /_/    \\_\\ |_| |_|    \n [0m \n                [45m S M A R T   T H E R M O S T A T [0m \n[31m \n******************************************************************\n*   System Controller Script Version 0.01 Build Date 19/10/2020  *\n*   Update on 11/02/2021                                         *\n*                                        Have Fun - PiHome.eu    *\n******************************************************************\n [0m \n[36m2021-02-23 13:01:34[0m - Controller Script Started \n[36m2021-02-23 13:01:34[0m - Operating in Boiler Mode \n[36m2021-02-23 13:01:34[0m - Day of the Week: [41m2[0m \n------------------------------------------------------------------------------------------------------- \n[36m2021-02-23 13:01:34[0m - Zone: Sensor Reading     [41m[0m \n[36m2021-02-23 13:01:34[0m - Zone: Weather Factor     [41m0.3[0m \n[36m2021-02-23 13:01:34[0m - Zone: DeadBand           [41m0.5[0m \n[36m2021-02-23 13:01:34[0m - Zone: Cut In Temperature        [41m0[0m \n[36m2021-02-23 13:01:34[0m - Zone: Cut Out Temperature       [41m0[0m \n[36m2021-02-23 13:01:34[0m - Zone: Mode       [41m0[0m \n[36m2021-02-23 13:01:34[0m - Zone ID: [41m69[0m \n[36m2021-02-23 13:01:34[0m - Zone: Ground Floor Controller: [41m0[0m Controller Child: [41m33[0m Zone Status: [41m0[0m \n[36m2021-02-23 13:01:34[0m - Zone: Ground Floor Stop Cause: System is OFF - Target C:[41m0[0m Zone C:[31m[0m \n------------------------------------------------------------------------------------------------------- \n[36m2021-02-23 13:01:34[0m - Temperature sensor communication timeout for This Zone. Last temperature reading: \n[36m2021-02-23 13:01:34[0m - Zone: Sensor Reading     [41m[0m \n[36m2021-02-23 13:01:34[0m - Zone: Weather Factor     [41m0.3[0m \n[36m2021-02-23 13:01:34[0m - Zone: DeadBand           [41m0.5[0m \n[36m2021-02-23 13:01:34[0m - Zone: Cut In Temperature        [41m0[0m \n[36m2021-02-23 13:01:34[0m - Zone: Cut Out Temperature       [41m0[0m \n[36m2021-02-23 13:01:34[0m - Zone: Mode       [41m10[0m \n[36m2021-02-23 13:01:34[0m - Zone ID: [41m70[0m \n[36m2021-02-23 13:01:34[0m - Zone: Hot Water Controller: [41m0[0m Controller Child: [41m35[0m Zone Status: [41m0[0m \n[36m2021-02-23 13:01:34[0m - Zone: Hot Water Stop Cause: Zone fault - Target C:[41m0[0m Zone C:[31m[0m \n------------------------------------------------------------------------------------------------------- \n[36m2021-02-23 13:01:34[0m - System Controller GIOP: [41m40[0m Status: [41m0[0m (1=On, 0=Off) \n[36m2021-02-23 13:01:34[0m - System Controller Active Status: [41m0[0m \n[36m2021-02-23 13:01:34[0m - System Controller Hysteresis Status: [41m0[0m \n------------------------------------------------------------------------------------------------------- \n[36m2021-02-23 13:01:34[0m - Controller Script Ended \n[32m*******************************************************************************************************[0m  \n\n','2021-02-23 13:01:34'),(2,'check_gw','/var/www/cron/check_gw.php',1,0,60,'[36m\n           __  __                             _         \n          |  \\/  |                    /\\     (_)        \n          | \\  / |   __ _  __  __    /  \\     _   _ __  \n          | |\\/| |  / _` | \\ \\/ /   / /\\ \\   | | | \'__| \n          | |  | | | (_| |  >  <   / ____ \\  | | | |    \n          |_|  |_|  \\__,_| /_/\\_\\ /_/    \\_\\ |_| |_|    \n [0m \n                [45m S M A R T   T H E R M O S T A T [0m \n[31m********************************************************\n*   Gateway Script Version 0.3 Build Date 22/01/2018   *\n*          Last Modification Date 24/04/2020           *\n*                                Have Fun - PiHome.eu  *\n********************************************************\n [0m \n[36m2021-02-23 13:01:34[0m - Python Gateway Script Status Check Script Started \n[36m2021-02-23 13:01:34[0m - Gateway Connection Lost in Last 10 minutes: 5 \n[36m2021-02-23 13:01:34[0m - Python Gateway Script for Gateway [41mNot Running[0m \n[36m2021-02-23 13:01:34[0m - Starting Python Script for Gateway \n[36m2021-02-23 13:01:34[0m - The PID is: [41m20095[0m \n\n\n--------------------------------------------------------------------------\n[36m2021-02-23 13:01:34[0m - Python Gateway Script Status Check Script Ended \n[32m***************************************************************************[0m\n','2021-02-23 13:01:34'),(3,'system_c','/var/www/cron/system_c.php',1,0,300,'[36m\n           __  __                             _         \n          |  \\/  |                    /\\     (_)        \n          | \\  / |   __ _  __  __    /  \\     _   _ __  \n          | |\\/| |  / _` | \\ \\/ /   / /\\ \\   | | | \'__| \n          | |  | | | (_| |  >  <   / ____ \\  | | | |    \n          |_|  |_|  \\__,_| /_/\\_\\ /_/    \\_\\ |_| |_|    \n [0m \n                [45m S M A R T   T H E R M O S T A T [0m \n[31m********************************************************\n* System Temperature Version 0.4 Build Date 31/03/2018 *\n* Update on 07/02/2021                                 *\n*                                 Have Fun - PiHome.eu *\n********************************************************\n [0m \n[36m2021-02-23 12:58:28[0m - System Temperature: 52\n','2021-02-23 12:58:28'),(4,'weather_update','/var/www/cron/weather_update.php',0,0,1800,'[36m\n           __  __                             _         \n          |  \\/  |                    /\\     (_)        \n          | \\  / |   __ _  __  __    /  \\     _   _ __  \n          | |\\/| |  / _` | \\ \\/ /   / /\\ \\   | | | \'__| \n          | |  | | | (_| |  >  <   / ____ \\  | | | |    \n          |_|  |_|  \\__,_| /_/\\_\\ /_/    \\_\\ |_| |_|    \n [0m \n                [45m S M A R T   T H E R M O S T A T [0m \n[31m************************************************************\n* Weather Update Script Version 0.11 Build Date 31/01/2018 *\n* Update on 27/01/2020                                     *\n*                                     Have Fun - PiHome.eu *\n************************************************************\n [0m \n[36m2021-02-21 18:15:50[0m - Weather Update Script Started \n[36m2021-02-21 18:15:50[0m - Weather Data Downloaded \n[36m2021-02-21 18:15:50[0m - Current Weather Temperature 8  \n[36m2021-02-21 18:15:50[0m - Database Updated \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-21 21:00:00 \n[1;33mMin Temperature for day: [0m0 4.42  \n[1;33mMax Temperature for day: [0m0 6.24 \n[1;33mWeather: [0m                Clouds - overcast clouds \n[1;33mCloud %: [0m                99 \n[1;33mWind Speed %: [0m           2.57 \n[1;33mHumidity : [0m              87 \n[1;33mIcon : [0m                  04n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-22 00:00:00 \n[1;33mMin Temperature for day: [0m1 3.7  \n[1;33mMax Temperature for day: [0m1 4.62 \n[1;33mWeather: [0m                Clouds - overcast clouds \n[1;33mCloud %: [0m                100 \n[1;33mWind Speed %: [0m           2.3 \n[1;33mHumidity : [0m              91 \n[1;33mIcon : [0m                  04n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-22 03:00:00 \n[1;33mMin Temperature for day: [0m2 2.1  \n[1;33mMax Temperature for day: [0m2 2.48 \n[1;33mWeather: [0m                Clouds - scattered clouds \n[1;33mCloud %: [0m                45 \n[1;33mWind Speed %: [0m           2.41 \n[1;33mHumidity : [0m              92 \n[1;33mIcon : [0m                  03n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-22 06:00:00 \n[1;33mMin Temperature for day: [0m3 1.49  \n[1;33mMax Temperature for day: [0m3 1.54 \n[1;33mWeather: [0m                Clouds - few clouds \n[1;33mCloud %: [0m                22 \n[1;33mWind Speed %: [0m           2.6 \n[1;33mHumidity : [0m              91 \n[1;33mIcon : [0m                  02n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-22 09:00:00 \n[1;33mMin Temperature for day: [0m4 3.24  \n[1;33mMax Temperature for day: [0m4 3.24 \n[1;33mWeather: [0m                Clear - clear sky \n[1;33mCloud %: [0m                0 \n[1;33mWind Speed %: [0m           2.98 \n[1;33mHumidity : [0m              87 \n[1;33mIcon : [0m                  01d \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-22 12:00:00 \n[1;33mMin Temperature for day: [0m5 8.78  \n[1;33mMax Temperature for day: [0m5 8.78 \n[1;33mWeather: [0m                Clear - clear sky \n[1;33mCloud %: [0m                0 \n[1;33mWind Speed %: [0m           5.19 \n[1;33mHumidity : [0m              69 \n[1;33mIcon : [0m                  01d \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-22 15:00:00 \n[1;33mMin Temperature for day: [0m6 9.81  \n[1;33mMax Temperature for day: [0m6 9.81 \n[1;33mWeather: [0m                Clouds - few clouds \n[1;33mCloud %: [0m                20 \n[1;33mWind Speed %: [0m           5.87 \n[1;33mHumidity : [0m              69 \n[1;33mIcon : [0m                  02d \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-22 18:00:00 \n[1;33mMin Temperature for day: [0m7 6.16  \n[1;33mMax Temperature for day: [0m7 6.16 \n[1;33mWeather: [0m                Clouds - scattered clouds \n[1;33mCloud %: [0m                46 \n[1;33mWind Speed %: [0m           5.25 \n[1;33mHumidity : [0m              86 \n[1;33mIcon : [0m                  03n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-22 21:00:00 \n[1;33mMin Temperature for day: [0m8 6.18  \n[1;33mMax Temperature for day: [0m8 6.18 \n[1;33mWeather: [0m                Clouds - broken clouds \n[1;33mCloud %: [0m                83 \n[1;33mWind Speed %: [0m           6.61 \n[1;33mHumidity : [0m              86 \n[1;33mIcon : [0m                  04n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-23 00:00:00 \n[1;33mMin Temperature for day: [0m9 7.65  \n[1;33mMax Temperature for day: [0m9 7.65 \n[1;33mWeather: [0m                Clouds - overcast clouds \n[1;33mCloud %: [0m                92 \n[1;33mWind Speed %: [0m           11.19 \n[1;33mHumidity : [0m              71 \n[1;33mIcon : [0m                  04n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-23 03:00:00 \n[1;33mMin Temperature for day: [0m10 7.22  \n[1;33mMax Temperature for day: [0m10 7.22 \n[1;33mWeather: [0m                Rain - light rain \n[1;33mCloud %: [0m                100 \n[1;33mWind Speed %: [0m           11.88 \n[1;33mHumidity : [0m              90 \n[1;33mIcon : [0m                  10n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-23 06:00:00 \n[1;33mMin Temperature for day: [0m11 9.65  \n[1;33mMax Temperature for day: [0m11 9.65 \n[1;33mWeather: [0m                Rain - light rain \n[1;33mCloud %: [0m                100 \n[1;33mWind Speed %: [0m           12.19 \n[1;33mHumidity : [0m              89 \n[1;33mIcon : [0m                  10n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-23 09:00:00 \n[1;33mMin Temperature for day: [0m12 11.1  \n[1;33mMax Temperature for day: [0m12 11.1 \n[1;33mWeather: [0m                Rain - light rain \n[1;33mCloud %: [0m                100 \n[1;33mWind Speed %: [0m           10.57 \n[1;33mHumidity : [0m              92 \n[1;33mIcon : [0m                  10d \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-23 12:00:00 \n[1;33mMin Temperature for day: [0m13 11.7  \n[1;33mMax Temperature for day: [0m13 11.7 \n[1;33mWeather: [0m                Rain - light rain \n[1;33mCloud %: [0m                100 \n[1;33mWind Speed %: [0m           11.78 \n[1;33mHumidity : [0m              91 \n[1;33mIcon : [0m                  10d \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-23 15:00:00 \n[1;33mMin Temperature for day: [0m14 11.58  \n[1;33mMax Temperature for day: [0m14 11.58 \n[1;33mWeather: [0m                Rain - light rain \n[1;33mCloud %: [0m                100 \n[1;33mWind Speed %: [0m           11.58 \n[1;33mHumidity : [0m              92 \n[1;33mIcon : [0m                  10d \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-23 18:00:00 \n[1;33mMin Temperature for day: [0m15 11.39  \n[1;33mMax Temperature for day: [0m15 11.39 \n[1;33mWeather: [0m                Rain - moderate rain \n[1;33mCloud %: [0m                100 \n[1;33mWind Speed %: [0m           11.39 \n[1;33mHumidity : [0m              92 \n[1;33mIcon : [0m                  10n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-23 21:00:00 \n[1;33mMin Temperature for day: [0m16 11.48  \n[1;33mMax Temperature for day: [0m16 11.48 \n[1;33mWeather: [0m                Rain - light rain \n[1;33mCloud %: [0m                100 \n[1;33mWind Speed %: [0m           10.27 \n[1;33mHumidity : [0m              92 \n[1;33mIcon : [0m                  10n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-24 00:00:00 \n[1;33mMin Temperature for day: [0m17 10.69  \n[1;33mMax Temperature for day: [0m17 10.69 \n[1;33mWeather: [0m                Rain - light rain \n[1;33mCloud %: [0m                100 \n[1;33mWind Speed %: [0m           5.23 \n[1;33mHumidity : [0m              92 \n[1;33mIcon : [0m                  10n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-24 03:00:00 \n[1;33mMin Temperature for day: [0m18 9.4  \n[1;33mMax Temperature for day: [0m18 9.4 \n[1;33mWeather: [0m                Rain - light rain \n[1;33mCloud %: [0m                100 \n[1;33mWind Speed %: [0m           4.25 \n[1;33mHumidity : [0m              94 \n[1;33mIcon : [0m                  10n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-24 06:00:00 \n[1;33mMin Temperature for day: [0m19 7.6  \n[1;33mMax Temperature for day: [0m19 7.6 \n[1;33mWeather: [0m                Rain - moderate rain \n[1;33mCloud %: [0m                100 \n[1;33mWind Speed %: [0m           3.09 \n[1;33mHumidity : [0m              94 \n[1;33mIcon : [0m                  10n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-24 09:00:00 \n[1;33mMin Temperature for day: [0m20 7.03  \n[1;33mMax Temperature for day: [0m20 7.03 \n[1;33mWeather: [0m                Rain - light rain \n[1;33mCloud %: [0m                100 \n[1;33mWind Speed %: [0m           3.69 \n[1;33mHumidity : [0m              91 \n[1;33mIcon : [0m                  10d \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-24 12:00:00 \n[1;33mMin Temperature for day: [0m21 8.62  \n[1;33mMax Temperature for day: [0m21 8.62 \n[1;33mWeather: [0m                Rain - light rain \n[1;33mCloud %: [0m                100 \n[1;33mWind Speed %: [0m           5.26 \n[1;33mHumidity : [0m              86 \n[1;33mIcon : [0m                  10d \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-24 15:00:00 \n[1;33mMin Temperature for day: [0m22 9.74  \n[1;33mMax Temperature for day: [0m22 9.74 \n[1;33mWeather: [0m                Rain - light rain \n[1;33mCloud %: [0m                99 \n[1;33mWind Speed %: [0m           5.68 \n[1;33mHumidity : [0m              81 \n[1;33mIcon : [0m                  10d \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-24 18:00:00 \n[1;33mMin Temperature for day: [0m23 6.85  \n[1;33mMax Temperature for day: [0m23 6.85 \n[1;33mWeather: [0m                Rain - light rain \n[1;33mCloud %: [0m                98 \n[1;33mWind Speed %: [0m           3.6 \n[1;33mHumidity : [0m              89 \n[1;33mIcon : [0m                  10n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-24 21:00:00 \n[1;33mMin Temperature for day: [0m24 4.75  \n[1;33mMax Temperature for day: [0m24 4.75 \n[1;33mWeather: [0m                Clouds - broken clouds \n[1;33mCloud %: [0m                62 \n[1;33mWind Speed %: [0m           2.84 \n[1;33mHumidity : [0m              93 \n[1;33mIcon : [0m                  04n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-25 00:00:00 \n[1;33mMin Temperature for day: [0m25 3.87  \n[1;33mMax Temperature for day: [0m25 3.87 \n[1;33mWeather: [0m                Clouds - broken clouds \n[1;33mCloud %: [0m                59 \n[1;33mWind Speed %: [0m           3.57 \n[1;33mHumidity : [0m              93 \n[1;33mIcon : [0m                  04n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-25 03:00:00 \n[1;33mMin Temperature for day: [0m26 2.92  \n[1;33mMax Temperature for day: [0m26 2.92 \n[1;33mWeather: [0m                Clear - clear sky \n[1;33mCloud %: [0m                0 \n[1;33mWind Speed %: [0m           3.41 \n[1;33mHumidity : [0m              92 \n[1;33mIcon : [0m                  01n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-25 06:00:00 \n[1;33mMin Temperature for day: [0m27 2.38  \n[1;33mMax Temperature for day: [0m27 2.38 \n[1;33mWeather: [0m                Clear - clear sky \n[1;33mCloud %: [0m                0 \n[1;33mWind Speed %: [0m           3.57 \n[1;33mHumidity : [0m              93 \n[1;33mIcon : [0m                  01n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-25 09:00:00 \n[1;33mMin Temperature for day: [0m28 4.02  \n[1;33mMax Temperature for day: [0m28 4.02 \n[1;33mWeather: [0m                Clouds - broken clouds \n[1;33mCloud %: [0m                69 \n[1;33mWind Speed %: [0m           4.47 \n[1;33mHumidity : [0m              91 \n[1;33mIcon : [0m                  04d \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-25 12:00:00 \n[1;33mMin Temperature for day: [0m29 7.69  \n[1;33mMax Temperature for day: [0m29 7.69 \n[1;33mWeather: [0m                Clouds - scattered clouds \n[1;33mCloud %: [0m                38 \n[1;33mWind Speed %: [0m           5.69 \n[1;33mHumidity : [0m              72 \n[1;33mIcon : [0m                  03d \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-25 15:00:00 \n[1;33mMin Temperature for day: [0m30 8.21  \n[1;33mMax Temperature for day: [0m30 8.21 \n[1;33mWeather: [0m                Rain - light rain \n[1;33mCloud %: [0m                39 \n[1;33mWind Speed %: [0m           5.67 \n[1;33mHumidity : [0m              67 \n[1;33mIcon : [0m                  10d \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-25 18:00:00 \n[1;33mMin Temperature for day: [0m31 5.26  \n[1;33mMax Temperature for day: [0m31 5.26 \n[1;33mWeather: [0m                Clouds - scattered clouds \n[1;33mCloud %: [0m                33 \n[1;33mWind Speed %: [0m           3.7 \n[1;33mHumidity : [0m              83 \n[1;33mIcon : [0m                  03n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-25 21:00:00 \n[1;33mMin Temperature for day: [0m32 4.52  \n[1;33mMax Temperature for day: [0m32 4.52 \n[1;33mWeather: [0m                Clouds - overcast clouds \n[1;33mCloud %: [0m                88 \n[1;33mWind Speed %: [0m           4.45 \n[1;33mHumidity : [0m              87 \n[1;33mIcon : [0m                  04n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-26 00:00:00 \n[1;33mMin Temperature for day: [0m33 3.97  \n[1;33mMax Temperature for day: [0m33 3.97 \n[1;33mWeather: [0m                Clouds - broken clouds \n[1;33mCloud %: [0m                72 \n[1;33mWind Speed %: [0m           3.7 \n[1;33mHumidity : [0m              90 \n[1;33mIcon : [0m                  04n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-26 03:00:00 \n[1;33mMin Temperature for day: [0m34 3.96  \n[1;33mMax Temperature for day: [0m34 3.96 \n[1;33mWeather: [0m                Clouds - broken clouds \n[1;33mCloud %: [0m                67 \n[1;33mWind Speed %: [0m           3.85 \n[1;33mHumidity : [0m              93 \n[1;33mIcon : [0m                  04n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-26 06:00:00 \n[1;33mMin Temperature for day: [0m35 4.76  \n[1;33mMax Temperature for day: [0m35 4.76 \n[1;33mWeather: [0m                Clouds - broken clouds \n[1;33mCloud %: [0m                62 \n[1;33mWind Speed %: [0m           4.8 \n[1;33mHumidity : [0m              94 \n[1;33mIcon : [0m                  04n \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-26 09:00:00 \n[1;33mMin Temperature for day: [0m36 7.25  \n[1;33mMax Temperature for day: [0m36 7.25 \n[1;33mWeather: [0m                Clouds - overcast clouds \n[1;33mCloud %: [0m                97 \n[1;33mWind Speed %: [0m           7.04 \n[1;33mHumidity : [0m              86 \n[1;33mIcon : [0m                  04d \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-26 12:00:00 \n[1;33mMin Temperature for day: [0m37 9.49  \n[1;33mMax Temperature for day: [0m37 9.49 \n[1;33mWeather: [0m                Clouds - overcast clouds \n[1;33mCloud %: [0m                98 \n[1;33mWind Speed %: [0m           7.91 \n[1;33mHumidity : [0m              77 \n[1;33mIcon : [0m                  04d \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-26 15:00:00 \n[1;33mMin Temperature for day: [0m38 10.09  \n[1;33mMax Temperature for day: [0m38 10.09 \n[1;33mWeather: [0m                Clouds - overcast clouds \n[1;33mCloud %: [0m                100 \n[1;33mWind Speed %: [0m           8.39 \n[1;33mHumidity : [0m              75 \n[1;33mIcon : [0m                  04d \n[31m------------------------------------------------------[0m \n[1;33mDate and Time: [0m          2021-02-26 18:00:00 \n[1;33mMin Temperature for day: [0m39 8.44  \n[1;33mMax Temperature for day: [0m39 8.44 \n[1;33mWeather: [0m                Clouds - overcast clouds \n[1;33mCloud %: [0m                98 \n[1;33mWind Speed %: [0m           5.89 \n[1;33mHumidity : [0m              85 \n[1;33mIcon : [0m                  04d \n \n[36m2021-02-21 18:15:50[0m - Weather Data Downloaded \n  \n[36m2021-02-21 18:15:50[0m - Weather Update Script Finished \n','2021-02-21 18:20:42'),(6,'reboot_wifi','/var/www/cron/reboot_wifi.sh',1,0,120,'           __  __                             _        \n          |  \\/  |                    /\\     (_)       \n          | \\  / |   __ _  __  __    /  \\     _   _ __ \n          | |\\/| |  / _\' | \\ \\/ /   / /\\ \\   | | |  __|\n          | |  | | | (_| |  >  <   / ____ \\  | | | |   \n          |_|  |_|  \\__,_| /_/\\_\\ /_/    \\_\\ |_| |_|   \n\n                S M A R T   T H E R M O S T A T \n*************************************************************************\n* MaxAir is LINUX  based Central Heating Control systems. It runs from  *\n* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *\n* extent permitted by applicable law. I take no responsibility for any  *\n* loss or damage to you or your property.                               *\n* DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTIL UNLESS YOU KNOW  *\n* WHAT YOU ARE DOING                                                    *\n*************************************************************************\n\n                                                       Have Fun - PiHome \n - Auto Reconnect Wi-Fi Status for wlan0 Script Started \n   Tue 23 Feb 2021 01:00:38 PM GMT\n\n*************************************************************************\n\nSetting Lockfile\nPerforming Network check for wlan0\nPING 192.168.0.1 (192.168.0.1) 56(84) bytes of data.\n64 bytes from 192.168.0.1: icmp_seq=1 ttl=64 time=7.64 ms\n64 bytes from 192.168.0.1: icmp_seq=2 ttl=64 time=7.02 ms\n\n--- 192.168.0.1 ping statistics ---\n2 packets transmitted, 2 received, 0% packet loss, time 7ms\nrtt min/avg/max/mdev = 7.019/7.330/7.642/0.323 ms\nReboot WiFi Script Ended\nTue 23 Feb 2021 01:00:40 PM GMT\n','2021-02-23 13:00:40');
+/*!40000 ALTER TABLE `jobs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `livetemp`
+--
+
+DROP TABLE IF EXISTS `livetemp`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `livetemp` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sync` tinyint(4) NOT NULL,
+  `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
+  `status` tinyint(4) DEFAULT NULL,
+  `zone_id` int(11) DEFAULT NULL,
+  `active` tinyint(1) DEFAULT NULL,
+  `temperature` decimal(4,1) DEFAULT NULL,
+  `hvac_mode` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_livetemp_zone` (`zone_id`),
+  CONSTRAINT `FK_livetemp_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `livetemp`
+--
+
+LOCK TABLES `livetemp` WRITE;
+/*!40000 ALTER TABLE `livetemp` DISABLE KEYS */;
+INSERT INTO `livetemp` VALUES (1,0,0,0,38,0,20.0,0);
+/*!40000 ALTER TABLE `livetemp` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `messages_in`
 --
 
@@ -442,7 +447,7 @@ CREATE TABLE `messages_in` (
   `payload` decimal(10,2) DEFAULT NULL,
   `datetime` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -451,7 +456,7 @@ CREATE TABLE `messages_in` (
 
 LOCK TABLES `messages_in` WRITE;
 /*!40000 ALTER TABLE `messages_in` DISABLE KEYS */;
-INSERT INTO `messages_in` VALUES (4,0,0,'1',0,0,3.00,'2021-01-20 16:00:02'),(5,0,0,'1',0,0,3.00,'2021-01-20 16:30:01'),(6,0,0,'1',0,0,3.00,'2021-01-20 17:00:01'),(7,0,0,'1',0,0,3.00,'2021-01-20 17:30:01'),(8,0,0,'1',0,0,2.00,'2021-01-20 18:00:02'),(9,0,0,'1',0,0,2.00,'2021-01-20 18:30:01');
+INSERT INTO `messages_in` VALUES (4,0,0,'1',0,0,3.00,'2021-01-20 16:00:02'),(5,0,0,'1',0,0,3.00,'2021-01-20 16:30:01'),(6,0,0,'1',0,0,3.00,'2021-01-20 17:00:01'),(7,0,0,'1',0,0,3.00,'2021-01-20 17:30:01'),(8,0,0,'0',0,0,52.00,'2021-02-23 12:58:28');
 /*!40000 ALTER TABLE `messages_in` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -715,7 +720,7 @@ CREATE TABLE `override` (
 
 LOCK TABLES `override` WRITE;
 /*!40000 ALTER TABLE `override` DISABLE KEYS */;
-INSERT INTO `override` VALUES (38,0,0,0,66,'2020-12-11 12:53:11',30,4),(39,0,0,0,66,'2020-12-13 16:17:21',10,5);
+INSERT INTO `override` VALUES (40,0,0,0,69,'2020-12-14 14:35:52',25,0),(41,0,0,0,70,'2020-12-14 14:37:09',45,0);
 /*!40000 ALTER TABLE `override` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -859,7 +864,7 @@ CREATE TABLE `schedule_daily_time` (
   `WeekDays` smallint(6) NOT NULL,
   `sch_name` varchar(200) COLLATE utf16_bin DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -868,7 +873,7 @@ CREATE TABLE `schedule_daily_time` (
 
 LOCK TABLES `schedule_daily_time` WRITE;
 /*!40000 ALTER TABLE `schedule_daily_time` DISABLE KEYS */;
-INSERT INTO `schedule_daily_time` VALUES (54,0,0,1,'06:30:00','09:30:00',62,'WeekDays AM'),(55,0,0,1,'15:30:00','19:30:00',62,'WeekDays PM'),(56,0,0,1,'08:00:00','10:30:00',65,'WeekEnd AM'),(57,0,0,1,'16:00:00','19:30:00',65,'WeekEnd PM');
+INSERT INTO `schedule_daily_time` VALUES (50,0,0,1,'06:30:00','09:30:00',62,'WeekDays AM'),(51,0,0,1,'15:30:00','19:00:00',62,'WeekDays PM'),(52,0,0,1,'08:00:00','10:30:00',65,'WeekEnd AM'),(53,0,0,1,'16:00:00','19:30:00',65,'WeekEnd PM');
 /*!40000 ALTER TABLE `schedule_daily_time` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -896,7 +901,7 @@ CREATE TABLE `schedule_daily_time_zone` (
   KEY `FK_schedule_daily_time_zone_zone` (`zone_id`),
   CONSTRAINT `FK_schedule_daily_time_zone_schedule_daily_time` FOREIGN KEY (`schedule_daily_time_id`) REFERENCES `schedule_daily_time` (`id`),
   CONSTRAINT `FK_schedule_daily_time_zone_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=80 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=76 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -905,7 +910,7 @@ CREATE TABLE `schedule_daily_time_zone` (
 
 LOCK TABLES `schedule_daily_time_zone` WRITE;
 /*!40000 ALTER TABLE `schedule_daily_time_zone` DISABLE KEYS */;
-INSERT INTO `schedule_daily_time_zone` VALUES (76,0,0,1,54,66,19,0,0,0,0),(77,0,0,1,55,66,19.5,0,0,0,0),(78,0,0,1,56,66,19.5,0,0,0,0),(79,0,0,1,57,66,19.5,0,0,0,0);
+INSERT INTO `schedule_daily_time_zone` VALUES (68,0,0,1,50,70,40,0,0,0,0),(69,0,0,1,50,69,19.5,0,0,0,0),(70,0,0,1,51,70,40,0,0,0,0),(71,0,0,1,51,69,19.5,0,0,0,0),(72,0,0,1,52,70,40,0,0,0,0),(73,0,0,1,52,69,19.5,0,0,0,0),(74,0,0,1,53,70,40,0,0,0,0),(75,0,0,1,53,69,19.5,0,0,0,0);
 /*!40000 ALTER TABLE `schedule_daily_time_zone` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1071,7 +1076,7 @@ CREATE TABLE `system` (
 
 LOCK TABLES `system` WRITE;
 /*!40000 ALTER TABLE `system` DISABLE KEYS */;
-INSERT INTO `system` VALUES (2,1,0,'MaxAir - Smart Thermostat','0.1','Beta 1','http://www.pihome.eu/updates/','current-release-versions.php','pihome','IE','en','Portlaoise',NULL,'aa22d10d34b1e6cb32bd6a5f2cb3fb46','','','Europe/Dublin',0,0,0,NULL);
+INSERT INTO `system` VALUES (2,1,0,'MaxAir - Smart Thermostat','0.1','Beta 4.0','http://www.pihome.eu/updates/','current-release-versions.php','pihome','IE','en','Portlaoise',NULL,'aa22d10d34b1e6cb32bd6a5f2cb3fb46','','','Europe/Dublin',0,0,0,NULL);
 /*!40000 ALTER TABLE `system` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1110,7 +1115,7 @@ CREATE TABLE `system_controller` (
 
 LOCK TABLES `system_controller` WRITE;
 /*!40000 ALTER TABLE `system_controller` DISABLE KEYS */;
-INSERT INTO `system_controller` VALUES (1,0,0,0,1,1,'HVAC STATE',0,3,60,0,'2020-12-15 20:40:52',1,1,44,45,46);
+INSERT INTO `system_controller` VALUES (1,0,0,0,1,0,'Gas Boiler',0,3,60,2,'2021-02-23 12:57:30',0,0,46,0,0);
 /*!40000 ALTER TABLE `system_controller` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1159,6 +1164,8 @@ CREATE TABLE `temperature_sensors` (
   `name` char(50) COLLATE utf8_bin DEFAULT NULL,
   `graph_num` tinyint(4) NOT NULL,
   `show_it` tinyint(1) NOT NULL,
+  `frost_controller` int(11) NOT NULL,
+  `frost_temp` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_temperature_sensors_nodes` (`sensor_id`),
   KEY `FK_temperature_sensors_zone` (`zone_id`),
@@ -1172,7 +1179,7 @@ CREATE TABLE `temperature_sensors` (
 
 LOCK TABLES `temperature_sensors` WRITE;
 /*!40000 ALTER TABLE `temperature_sensors` DISABLE KEYS */;
-INSERT INTO `temperature_sensors` VALUES (51,0,0,0,45,0,2,1,'Lounge',1,1),(52,0,0,0,45,1,3,1,'Main Bedroom',1,1),(54,0,0,66,52,0,4,1,'HVAC',1,1);
+INSERT INTO `temperature_sensors` VALUES (51,0,0,70,45,0,2,1,'Hot Water',1,1,44,4),(52,0,0,0,45,1,3,0,'Main Bedroom',1,1,0,0),(54,0,0,69,52,0,4,1,'Ground Floor',1,1,44,3);
 /*!40000 ALTER TABLE `temperature_sensors` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1192,10 +1199,7 @@ CREATE TABLE `user` (
   `password` varchar(255) NOT NULL,
   `cpdate` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE current_timestamp(),
   `account_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `backup` tinyint(4) DEFAULT NULL,
-  `users` tinyint(4) DEFAULT NULL,
-  `support` tinyint(4) DEFAULT NULL,
-  `settings` tinyint(4) DEFAULT NULL,
+  `admin_account` tinyint(4) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1206,7 +1210,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,1,'Administrator','admin','terry.adams@btinternet.com','0f5f9ba0136d5a8588b3fc70ec752869','2021-01-20 17:00:38','2021-01-20 15:44:09',1,1,1,1);
+INSERT INTO `user` VALUES (1,1,'Administrator','admin','terry.adams@btinternet.com','0f5f9ba0136d5a8588b3fc70ec752869','2021-02-23 12:58:46','2021-01-20 15:44:09',1);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1225,7 +1229,7 @@ CREATE TABLE `userhistory` (
   `audit` tinytext DEFAULT NULL,
   `ipaddress` tinytext DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=146 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=147 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1234,7 +1238,7 @@ CREATE TABLE `userhistory` (
 
 LOCK TABLES `userhistory` WRITE;
 /*!40000 ALTER TABLE `userhistory` DISABLE KEYS */;
-INSERT INTO `userhistory` VALUES (144,'admin','0f5f9ba0136d5a8588b3fc70ec752869','2021-01-20 17:00:33','Successful','192.168.0.2'),(145,'admin','0f5f9ba0136d5a8588b3fc70ec752869','2021-01-20 18:32:25','Successful','192.168.0.2');
+INSERT INTO `userhistory` VALUES (144,'admin','0f5f9ba0136d5a8588b3fc70ec752869','2021-01-20 17:00:33','Successful','192.168.0.2'),(145,'admin','0f5f9ba0136d5a8588b3fc70ec752869','2021-02-23 12:57:46','Successful','192.168.0.10'),(146,'admin','0f5f9ba0136d5a8588b3fc70ec752869','2021-02-23 12:59:04','Successful','192.168.0.10');
 /*!40000 ALTER TABLE `userhistory` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1267,7 +1271,7 @@ CREATE TABLE `weather` (
 
 LOCK TABLES `weather` WRITE;
 /*!40000 ALTER TABLE `weather` DISABLE KEYS */;
-INSERT INTO `weather` VALUES (1,0,'Portlaoise',2,'2','Clouds','overcast clouds','1611131374','1611161434','04n','2021-01-20 18:30:01');
+INSERT INTO `weather` VALUES (1,0,'Portlaoise',3,'1','Clouds','overcast clouds','1611131374','1611161434','04n','2021-01-20 17:30:02');
 /*!40000 ALTER TABLE `weather` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1300,7 +1304,7 @@ CREATE TABLE `zone` (
 
 LOCK TABLES `zone` WRITE;
 /*!40000 ALTER TABLE `zone` DISABLE KEYS */;
-INSERT INTO `zone` VALUES (66,0,0,1,1,1,'HVAC',10,60);
+INSERT INTO `zone` VALUES (69,0,0,1,0,1,'Ground Floor',2,60),(70,0,0,1,0,1,'Hot Water',3,60);
 /*!40000 ALTER TABLE `zone` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1331,7 +1335,7 @@ CREATE TABLE `zone_controllers` (
 
 LOCK TABLES `zone_controllers` WRITE;
 /*!40000 ALTER TABLE `zone_controllers` DISABLE KEYS */;
-INSERT INTO `zone_controllers` VALUES (83,0,0,0,0,66,0);
+INSERT INTO `zone_controllers` VALUES (86,0,0,1,1,69,44),(88,0,0,1,1,70,45);
 /*!40000 ALTER TABLE `zone_controllers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1369,7 +1373,7 @@ CREATE TABLE `zone_current_state` (
 
 LOCK TABLES `zone_current_state` WRITE;
 /*!40000 ALTER TABLE `zone_current_state` DISABLE KEYS */;
-INSERT INTO `zone_current_state` VALUES (69,0,0,69,0,0,0.0,0.0,0.0,0.0,0,NULL,0,NULL,NULL,0),(70,0,0,70,0,0,0.0,0.0,0.0,0.0,0,NULL,0,NULL,NULL,0),(66,0,0,66,0,0,0.0,0.0,0.0,0.0,0,NULL,0,NULL,NULL,0);
+INSERT INTO `zone_current_state` VALUES (69,0,0,69,0,0,0.0,0.0,0.0,0.0,0,NULL,0,NULL,NULL,0),(70,0,0,70,0,0,0.0,0.0,0.0,0.0,0,NULL,0,NULL,NULL,0);
 /*!40000 ALTER TABLE `zone_current_state` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1457,7 +1461,7 @@ CREATE TABLE `zone_sensors` (
 
 LOCK TABLES `zone_sensors` WRITE;
 /*!40000 ALTER TABLE `zone_sensors` DISABLE KEYS */;
-INSERT INTO `zone_sensors` VALUES (47,0,0,66,10,30,20,3,0.5,54);
+INSERT INTO `zone_sensors` VALUES (49,0,0,69,0,25,25,3,0.5,54),(50,0,0,70,0,45,40,3,0.5,51);
 /*!40000 ALTER TABLE `zone_sensors` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1475,7 +1479,7 @@ CREATE TABLE `zone_type` (
   `type` char(50) COLLATE utf8_bin DEFAULT NULL,
   `category` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1484,7 +1488,7 @@ CREATE TABLE `zone_type` (
 
 LOCK TABLES `zone_type` WRITE;
 /*!40000 ALTER TABLE `zone_type` DISABLE KEYS */;
-INSERT INTO `zone_type` VALUES (2,0,0,'Heating',0),(3,0,0,'Hot Water',0),(4,0,0,'Lamp',2),(5,0,0,'Immersion',1),(10,0,0,'HVAC',3);
+INSERT INTO `zone_type` VALUES (2,0,0,'Heating',0),(3,0,0,'Water',0),(4,0,0,'Immersion',1),(5,0,0,'Lamp',2);
 /*!40000 ALTER TABLE `zone_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1703,4 +1707,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-20 18:38:40
+-- Dump completed on 2021-02-23 13:02:22

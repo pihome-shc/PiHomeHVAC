@@ -199,7 +199,7 @@ $lang['zone_max_temperature_info'] = "Maximum temperature this Zone can reach be
 $lang['zone_max_operation_time_info'] = "Maximum operation time in minutes of any continuous time";
 $lang['zone_hysteresis_info'] = "Minimim delay between Zone off and on ";
 $lang['zone_sp_deadband_info'] = "Check link for <u><a class=\"text-muted\" href=\"https://en.wikipedia.org/wiki/Deadband\">Deadband</a></u>";
-$lang['zone_sensor_id_info'] = "Pre-discovered sensor";
+$lang['zone_sensor_id_info'] = "Node ID for the Sensor";
 $lang['zone_controler_id_info'] = "Select Zone Controller Type and Number ";
 $lang['zone_controler_child_id_info'] = "Zone controller relay number where a Zone is connected";
 $lang['zone_gpio_pin_info'] = "In the case where a Zone valve is controlled by RPI GPIO, these are the physical header pin numbers for the GPIO used";
