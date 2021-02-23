@@ -82,7 +82,7 @@ if (isset($_POST['submit'])) {
 	$result = $conn->query($query);
 	$rownode = mysqli_fetch_assoc($result);
 
-        $query = "SELECT name FROM controller_relays WHERE id = '{$row['frost_controller']}' LIMIT 1;";
+        $query = "SELECT id, name FROM controller_relays WHERE id = '{$row['frost_controller']}' LIMIT 1;";
         $result = $conn->query($query);
         $rowcontroller = mysqli_fetch_assoc($result);
 }
@@ -220,22 +220,18 @@ if (isset($_POST['submit'])) {
 						</script>
 						<!-- Frost Controller -->
 						<div class="form-group"  id="frost_controller_label" style="display:block"><label><?php echo $lang['frost_controller']; ?></label> <small class="text-muted"><?php echo $lang['frost_controller_text'];?></small>
-        						<select class="form-control select2" type="number" id="frost_controller" name="frost_controller" >
-								<?php $query = "SELECT controller_relays.id, controller_relays.name, ztype.type FROM controller_relays ";
-								$query .= "JOIN zone_controllers zc on controller_relays.id = zc.controller_relay_id ";
-								$query .= "JOIN zone as zn on zc.zone_id = zn.id ";
-								$query .= "join zone_type ztype on zn.type_id = ztype.id ";
-								$query .= "WHERE ztype.type = 'Heating' LIMIT 1;";
-								$result = $conn->query($query);
-								$datadc=mysqli_fetch_array($result);
-								echo "<option value=".$datadc['id'].">".$datadc['name']."</option>"; ?>
-								<?php if(isset($rowcontroller['name'])) { echo '<option selected >'.$rowcontroller['name'].'</option>'; } ?>
-								<?php $query = "SELECT id, name, type FROM controller_relays WHERE type = 0 ORDER BY id ASC;";
-								$result = $conn->query($query);
-								while ($datarw=mysqli_fetch_array($result)) {
-									echo "<option value=".$datarw['id'].">".$datarw['name']."</option>";
-								} ?>
-        						</select>
+                                                        <select class="form-control select2" type="number" id="frost_controller" name="frost_controller" >
+                                                                <?php if(isset($rowcontroller['id'])) {
+                                                                        echo '<option selected value='.$rowcontroller['id'].'>'.$rowcontroller['name'].'</option>';
+                                                        		$query = "SELECT id, name, type FROM controller_relays WHERE type <> 1 AND id <> ".$rowcontroller['id']." ORDER BY id ASC;";
+                                                                } else {
+                                                                        $query = "SELECT id, name, type FROM controller_relays WHERE type <> 1 ORDER BY id ASC;";
+                                                                }
+                                                                $result = $conn->query($query);
+                                                                while ($datarw=mysqli_fetch_array($result)) {
+                                                                        echo "<option value=".$datarw['id'].">".$datarw['name']."</option>";
+                                                                } ?>
+                                                        </select>
 							<div class="help-block with-errors"></div>
 						</div>
 
