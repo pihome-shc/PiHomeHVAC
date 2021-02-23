@@ -1179,7 +1179,7 @@ CREATE TABLE `temperature_sensors` (
 
 LOCK TABLES `temperature_sensors` WRITE;
 /*!40000 ALTER TABLE `temperature_sensors` DISABLE KEYS */;
-INSERT INTO `temperature_sensors` VALUES (51,0,0,0,45,0,2,1,'Lounge',1,1,0,0),(52,0,0,0,45,1,3,1,'Main Bedroom',1,1,0,0),(54,0,0,66,52,0,4,1,'HVAC',1,1,0,0);
+INSERT INTO `temperature_sensors` VALUES (51,0,0,0,45,0,2,1,'Lounge',1,1,0,0),(52,0,0,0,45,1,3,1,'Main Bedroom',1,1,0,0),(54,0,0,66,52,0,4,1,'HVAC',1,1,44,2);
 /*!40000 ALTER TABLE `temperature_sensors` ENABLE KEYS */;
 UNLOCK TABLES;
 
