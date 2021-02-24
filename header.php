@@ -175,7 +175,7 @@ $fullname = $row['fullname'];
 				<p>Thank you for using PiHome Smart Heating. Looks like your email address is missing from the system, please enter valid e-mail address to get the latest PiHome updates straight in to your inbox.</p>
                 		<div class="form-group" class="control-label"><label>Enter a correctly formatted Email Address for user - '<?php echo $fullname ?>'</label>
                 			<input type="email" id="email_add" class="form-control" placeholder="Email Address">
-					<div class="help-block with-errors">
+					<div class="help-block with-errors"></div>
             			</div>
             		</div>
 			<!-- /.modal-body -->
