@@ -589,7 +589,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                         echo '<small class="statusdegree">' . $rval['target'] .'</small>';
                         //Right icon for what/why
                         echo '<small class="statuszoon"><i class="fa ' . $rval['shactive'] . ' ' . $rval['shcolor'] . ' fa-fw"></i></small>';
-                        echo '</h3></button>';      //close out status and button
+                        echo '</h3></button></a>';      //close out status and button
 
                 }
                 echo '<input type="hidden" id="sch_active" name="sch_active" value="'.$sch_status.'"/>';
