@@ -465,6 +465,7 @@ function find_gw() {
 function setup_gateway(){
 var selected_gw_type=document.getElementById("gw_type").value;
 var idata="w=setup_gateway&o=update&status="+document.getElementById("checkbox1").checked;
+    idata+="&enable_outgoing="+document.getElementById("checkbox4").checked;
     idata+="&gw_type="+document.getElementById("gw_type").value;
         if(selected_gw_type.includes("wifi")) {
             idata+="&gw_location="+document.getElementById("wifi_location").value;
