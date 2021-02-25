@@ -550,6 +550,9 @@ $lang['jobs'] = "Jobs";
 $lang['jobs_name'] = "Job Name";
 $lang['jobs_script'] = "Script Name";
 $lang['jobs_log'] = "Log Job";
+$lang['job_status'] = "Job Status";
+$lang['jobs_status_log'] = "Job Last Status Logs";
+$lang['last_job_log_info'] = "Select Job to display last Status Report.";
 $lang['jobs_time'] = "Run Every";
 $lang['schedule_jobs'] = "Schedule Jobs";
 $lang['schedule_jobs_info'] = "Configure Jobs to run every set interval and enable creation of a Log file if required. ";
@@ -579,4 +582,5 @@ $lang['account_enable_info'] = "Disabling the account will prevent the user acce
 $lang['admin_account'] = "Administrator Account";
 $lang['admin_account_info'] = "Account with full access to all systems features and settings. ";
 $lang['enabled'] = "Enabled";
+$lang['enable_outgoing'] = "Enable Outgoing Messages (GPIO Outputs Enabled by Default)";
 ?>
