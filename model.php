@@ -1883,6 +1883,50 @@ echo '<p class="text-muted">'.$lang['add_new_job_info_text'].'</p>
     </div>
 </div>';
 
+//last job log status model
+echo '
+<div class="modal fade" id="status_job" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                                <h5 class="modal-title">'.$lang['jobs_status_log'].'</h5>
+                        </div>
+                        <div class="modal-body">
+                                <div class="form-group" class="control-label"><label>'.$lang['jobs_name'].'</label> <small class="text-muted">'.$lang['last_job_log_info'].'</small>
+                                        <select class="form-control input-sm" type="text" id="job_name" name="job_name" onchange=last_job_log(this.options[this.selectedIndex].value)>';
+                                        //get list of heat relays to display
+                                        $query = "SELECT id, job_name, output FROM jobs;";
+                                        $result = $conn->query($query);
+                                        if ($result){
+                                                while ($jrow=mysqli_fetch_array($result)) {
+                                                        echo '<option value="'.$jrow['output'].'">'.$jrow['job_name'].'</option>';
+                                                }
+                                        }
+                                        echo '</select>
+                                        <div class="help-block with-errors"></div>
+                                </div>
+                                <!-- /.form-group -->';
+                                $query = "select id, output from jobs where id = 1 limit 1";
+                                $results = $conn->query($query);
+                                $row = mysqli_fetch_assoc($results);
+                                echo '<textarea id="job_status_text" style="background-color: black;color:#fff;height: 500px; min-width: 100%"><pre>'.$row['output'].'</pre></textarea>
+                        </div>
+                        <div class="modal-footer" id="ajaxModalFooter_1">
+                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Close</button>
+                        </div>
+                </div>
+        </div>
+</div>';
+?>
+<script>
+function last_job_log(value){
+        var valuetext = value;
+        document.getElementById("job_status_text").value = valuetext;
+}
+</script>
+<?php
+
 //OS version model
 //$osversion = exec ("cat /etc/os-release");
 //$lines=file('/etc/os-release');
