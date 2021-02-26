@@ -76,9 +76,10 @@ print(" " + bc.ENDC)
 
 source_dir = './temp_dir'
 target_dir = '/var/www'
+repository = 'https://github.com/pihome-shc/PiHomeHVAC.git'
 count = 0
 c = filecmp.dircmp(source_dir, target_dir)
-os.system('sudo git clone https://github.com/pihome-shc/PiHomeHVAC.git ' + source_dir) 
+os.system('sudo git clone ' + repository + ' ' + source_dir) 
 report_recursive(c)
 
 if count > 0:
