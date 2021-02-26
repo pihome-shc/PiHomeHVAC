@@ -193,6 +193,7 @@ CREATE TABLE IF NOT EXISTS `gateway` (
   `reboot` tinyint(4),
   `find_gw` tinyint(4),
   `version` char(50) COLLATE utf16_bin,
+  `enable_outgoing` tinyint(4),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
