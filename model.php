@@ -1133,10 +1133,23 @@ echo '
 							echo '<input id="checkbox1" class="styled" type="checkbox" value="1" name="status">';
 						}
 						echo '
-						<label for="checkbox0"> '.$lang['smart_home_gateway_enable'].'</label>
+						<label for="checkbox1"> '.$lang['smart_home_gateway_enable'].'</label>
 					</div>
 				</div>
                                	<!-- /.form-group -->
+
+                                <div class="form-group" class="control-label">
+                                        <div class="checkbox checkbox-default checkbox-circle">';
+                                                if ($grow['enable_outgoing'] == '1'){
+                                                        echo '<input id="checkbox4" class="styled" type="checkbox" value="1" name="enable_outgoing" checked>';
+                                                }else {
+                                                        echo '<input id="checkbox4" class="styled" type="checkbox" value="1" name="enable_outgoing">';
+                                                }
+                                                echo '
+                                                <label for="checkbox4"> '.$lang['enable_outgoing'].'</label>
+                                        </div>
+                                </div>
+                                <!-- /.form-group -->
 
                                 <div class="form-group" class="control-label"><label>'.$lang['smart_home_gateway_type'].'</label>
                                         <select class="form-control input-sm" type="text" id="gw_type" name="gw_type" onchange=gw_location()>
@@ -1550,7 +1563,7 @@ echo '
 	}
 echo ' 
 
-	<label for="checkbox2"> '.$lang['email_enable'].'</label></div></div>
+	<label for="checkbox3"> '.$lang['email_enable'].'</label></div></div>
 	
 	<div class="form-group" class="control-label"><label>'.$lang['email_smtp_server'].'</label>
 	<input class="form-control input-sm" type="text" id="e_smtp" name="e_smtp" value="'.$erow['smtp'].'" placeholder="e-mail SMTP Server Address ">

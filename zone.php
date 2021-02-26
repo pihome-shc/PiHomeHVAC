@@ -1,17 +1,17 @@
 <?php
 /*
-   _____    _   _    _
-  |  __ \  (_) | |  | |
-  | |__) |  _  | |__| |   ___    _ __ ___     ___
-  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \
-  | |      | | | |  | | | (_) | | | | | | | |  __/
-  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|
+             __  __                             _
+            |  \/  |                    /\     (_)
+            | \  / |   __ _  __  __    /  \     _   _ __
+            | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+            | |  | | | (_| |  >  <   / ____ \  | | | |
+            |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 
-     S M A R T   H E A T I N G   C O N T R O L
+                   S M A R T   T H E R M O S T A T
 
 *************************************************************************"
-* PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
-* from web interface and it comes with ABSOLUTELY NO WARRANTY, to the   *"
+* MaxAir is a Linux based Central Heating Control systems. It runs from *"
+* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *"
 * extent permitted by applicable law. I take no responsibility for any  *"
 * loss or damage to you or your property.                               *"
 * DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTILL UNLESS YOU KNOW *"
@@ -759,11 +759,11 @@ function ControllerIDList(value, ind)
 <!-- System Controller -->
 <div class="form-group" class="control-label" id="system_controller_id_label" style="display:block"><label><?php echo $lang['system_controller']; ?></label>
 <select id="system_controller_id" name="system_controller_id" class="form-control select2" data-error="System Controller ID can not be empty!" autocomplete="off" required>
-<?php if(isset($rowsystem_controller['id'])) { echo '<option selected >'.$rowsystem_controller['id'].'-'.$rowsystem_controller['name'].' Node ID: '.$rowsystem_controller['node_id'].'</option>'; } ?>
+<?php if(isset($rowsystem_controller['id'])) { echo '<option selected >'.$rowsystem_controller['id'].'-'.$rowsystem_controller['name'].' Controller Relay Node ID: '.$rowsystem_controller['controler_id'].'</option>'; } ?>
 <?php  $query = "SELECT id, controler_id, name FROM controller_relays WHERE type = 1;";
 $result = $conn->query($query);
 while ($datarw=mysqli_fetch_array($result)) {
-$system_controller_id=$datarw["id"].'-'.$datarw["name"].' Controller Relay ID: '.$datarw["controler_id"];
+$system_controller_id=$datarw["id"].'-'.$datarw["name"].' Controller Relay Node ID: '.$datarw["controler_id"];
 echo "<option>$system_controller_id</option>";} ?>
 </select>
 <div class="help-block with-errors"></div></div>
