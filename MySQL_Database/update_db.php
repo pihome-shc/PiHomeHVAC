@@ -71,7 +71,7 @@ if ($db_selected) {
 	//dump the databse with no data or views or triggers
 	exec("mysqldump -d -u root --password=\"$dbpassword\" $dbname --skip-triggers ".implode(" ",$views), $struct1);
 	//create an image of the latest database from GITHUB
-	$struct2 = file_get_contents('https://raw.githubusercontent.com/pihome-shc/PiHomeHVAC/master/MySQL_Database/pihome_mysql_database.sql');
+	$struct2 = file_get_contents('https://raw.githubusercontent.com/pihome-shc/PiHomeHVAC/master/MySQL_Database/maxair_mysql_database.sql');
 	//create an array of SQL commands to transform the structure of the currently installed database to match the GITHUB image
 	$updater = new dbStructUpdater();
 	$res = $updater->getUpdates(implode("\n",$struct1), $struct2);
@@ -200,7 +200,7 @@ if ($db_selected) {
 	$conn->query($query);	
 	$query = "UPDATE zone_type SET `purge` = '0', `sync`= '0' WHERE `purge` is Null;";
 	$conn->query($query);
-	$query = "DELETE FROM `pihome`.`zone_current_state`;";
+	$query = "DELETE FROM `maxair`.`zone_current_state`;";
 	$conn->query($query);
 	
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Update Version: \033[41m".$version."\033[0m \n";
