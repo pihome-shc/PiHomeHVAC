@@ -112,7 +112,7 @@ if (!$db_selected) {
 }
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Importing SQL File to Database, This could take few minuts.  \n";
 	// Name of the file
-	$filename = __DIR__.'/pihome_mysql_database.sql';
+	$filename = __DIR__.'/maxair_mysql_database.sql';
 	// Select database
 	mysqli_select_db($conn, $dbname) or die('Error Selecting MySQL Database: ' . mysqli_error($conn));
 	// Temporary variable, used to store current query
