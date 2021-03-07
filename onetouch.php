@@ -141,7 +141,6 @@ require_once(__DIR__.'/st_inc/functions.php');
                         <h3 class="degre" ><i class="fa fa-plus fa-1x"></i></h3>
                         <h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-fw"></i></small>
                         </h3></button></a>
-                        </div>
                 <?php } ?>
 
 		<?php
