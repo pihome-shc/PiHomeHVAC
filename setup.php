@@ -153,10 +153,10 @@ echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Finished Installing Scheduling \
 
 // Check/Add sudoers file /etc/sudoers.d/maxair
 $sudoersfile = '/etc/sudoers.d/maxair';
-$message = 'www-data ALL=(ALL) NOPASSWD:/usr/sbin/iwlist wlan0 scan
-www-data ALL=(ALL) NOPASSWD:/usr/sbin/reboot
-www-data ALL=(ALL) NOPASSWD:/usr/bin/mv myfile.tmp /etc/wpa_supplicant/wpa_supplicant.conf
-www-data ALL=(ALL) NOPASSWD:/usr/sbin/ifconfig eth0
+$message = 'www-data ALL=(ALL) NOPASSWD:/sbin/iwlist wlan0 scan
+www-data ALL=(ALL) NOPASSWD:/sbin/reboot
+www-data ALL=(ALL) NOPASSWD:/bin/mv myfile1.tmp /etc/wpa_supplicant/wpa_supplicant.conf
+www-data ALL=(ALL) NOPASSWD:/sbin/ifconfig eth0
 www-data ALL=/bin/systemctl
 www-data ALL=NOPASSWD: /bin/systemctl
 
