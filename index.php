@@ -254,7 +254,7 @@ if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
                                         $result = $conn->query($query);
                                         $row = mysqli_fetch_array($result);
                                         $max_interface_num = $row['max_interface_num'] + 1;
-                                        $query = "INSERT INTO `network_settings`(`sync`, `purge`, `primary_interface`, `interface_num`, `interface_type`, `mac_address`, `hostname`, `ip_address`, `gateway_address`, `net_mask`, `dns1_address`, `dns2_address`, `ap_mode`) VALUES ('0', '0', '0', '{$max_interface_num}', 'wlan0', '', '', '', '', '', '', '', '1');";
+                                        $query = "INSERT INTO `network_settings`(`sync`, `purge`, `primary_interface`, `ap_mode`, `interface_num`, `interface_type`, `mac_address`, `hostname`, `ip_address`, `gateway_address`, `net_mask`, `dns1_address`, `dns2_address`) VALUES ('0', '0', '0', '1', '{$max_interface_num}', 'wlan0', '', '', '', '', '', '', '');";
                                         $result = $conn->query($query);
 				}
 				redirect_to('index.php');
