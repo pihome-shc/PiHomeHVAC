@@ -22,6 +22,7 @@ con = mdb.connect(dbhost, dbuser, dbpass, dbname)
 cur = con.cursor()
 cur.execute("SELECT * FROM zone_view WHERE status  = 1 or graph_it = 1")
 result = cur.fetchall()
+row_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
 cur.close()
 con.close()
 
@@ -44,11 +45,11 @@ switches = []
 for row in result:
         if row[0] == 1:
                 sub_d = collections.OrderedDict()
-                sub_d['id'] = 'switch' + str(row[3])
-                sub_d['name'] = row[5] + ' Zone'
-                sub_d['on_url'] = 'http://127.0.0.1/api/boostSet?zonename=' + row[5] + '&state=1'
+                sub_d['id'] = 'switch' + str(row[row_to_index['id']])
+                sub_d['name'] = row[row_to_index['name']] + ' Zone'
+                sub_d['on_url'] = 'http://127.0.0.1/api/boostSet?zonename=' + row[row_to_index['name']] + '&state=1'
                 sub_d['on_method'] = 'GET'
-                sub_d['off_url'] = 'http://127.0.0.1/api/boostSet?zonename=' + row[5] + '&state=0'
+                sub_d['off_url'] = 'http://127.0.0.1/api/boostSet?zonename=' + row[row_to_index['name']] + '&state=0'
                 sub_d['off_method'] = 'GET'
                 switches.append(sub_d)
 d['switches'] = switches
@@ -57,8 +58,8 @@ d['switches'] = switches
 sensors = []
 for row in result:
         sub_d = collections.OrderedDict()
-        sub_d['id'] = 'sensor' + str(row[3])
-        sub_d['name'] = row[5] + ' Temperature'
+        sub_d['id'] = 'sensor' + str(row[row_to_index['id']])
+        sub_d['name'] = row[row_to_index['name']] + ' Temperature'
         sub_d['type'] = 'temperature'
         sensors.append(sub_d)
 d['sensors'] = sensors
