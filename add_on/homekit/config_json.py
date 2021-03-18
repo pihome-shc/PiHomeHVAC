@@ -43,7 +43,7 @@ d['https'] = False
 # Add switches for active zone controllers
 switches = []
 for row in result:
-        if row[0] == 1:
+        if row[row_to_index['status']] == 1:
                 sub_d = collections.OrderedDict()
                 sub_d['id'] = 'switch' + str(row[row_to_index['id']])
                 sub_d['name'] = row[row_to_index['name']] + ' Zone'
