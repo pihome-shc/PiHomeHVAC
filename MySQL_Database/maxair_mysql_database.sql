@@ -29,7 +29,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table pihome.node_id
+-- Dumping structure for table maxair.node_id
 DROP TABLE IF EXISTS `node_id`;
 CREATE TABLE IF NOT EXISTS `node_id` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `node_id` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4;
 
--- Dumping structure for table pihome.add_on_logs
+-- Dumping structure for table maxair.add_on_logs
 DROP TABLE IF EXISTS `add_on_logs`;
 CREATE TABLE IF NOT EXISTS `add_on_logs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS `add_on_logs` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping structure for table pihome.away
+-- Dumping structure for table maxair.away
 DROP TABLE IF EXISTS `away`;
 CREATE TABLE IF NOT EXISTS `away` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -70,11 +70,11 @@ CREATE TABLE IF NOT EXISTS `away` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.away: 1 rows
+-- Dumping data for table maxair.away: 1 rows
 /*!40000 ALTER TABLE `away` DISABLE KEYS */;
 /*!40000 ALTER TABLE `away` ENABLE KEYS */;
 
--- Dumping structure for table pihome.system_controller
+-- Dumping structure for table maxair.system_controller
 DROP TABLE IF EXISTS `system_controller`;
 CREATE TABLE `system_controller` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -97,11 +97,11 @@ CREATE TABLE `system_controller` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
--- Dumping data for table pihome.system_controller: ~0 rows (approximately)
+-- Dumping data for table maxair.system_controller: ~0 rows (approximately)
 /*!40000 ALTER TABLE `system_controller` DISABLE KEYS */;
 /*!40000 ALTER TABLE `system_controller` ENABLE KEYS */;
 
--- Dumping structure for table pihome.controller_zone_logs
+-- Dumping structure for table maxair.controller_zone_logs
 DROP TABLE IF EXISTS `controller_zone_logs`;
 CREATE TABLE `controller_zone_logs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -116,11 +116,11 @@ CREATE TABLE `controller_zone_logs` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=133 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.controller_zone_logs: ~0 rows (approximately)
+-- Dumping data for table maxair.controller_zone_logs: ~0 rows (approximately)
 /*!40000 ALTER TABLE `controller_zone_logs` DISABLE KEYS */;
 /*!40000 ALTER TABLE `controller_zone_logs` ENABLE KEYS */;
 
--- Dumping structure for table pihome.boost
+-- Dumping structure for table maxair.boost
 DROP TABLE IF EXISTS `boost`;
 CREATE TABLE IF NOT EXISTS `boost` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -158,7 +158,7 @@ CREATE TABLE `controller_relays` (
 /*!40000 ALTER TABLE `controller_relays` DISABLE KEYS */;
 /*!40000 ALTER TABLE `controller_relays` ENABLE KEYS */;
 
--- Dumping structure for table pihome.email
+-- Dumping structure for table maxair.email
 DROP TABLE IF EXISTS `email`;
 CREATE TABLE IF NOT EXISTS `email` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -173,11 +173,11 @@ CREATE TABLE IF NOT EXISTS `email` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.email: 0 rows
+-- Dumping data for table maxair.email: 0 rows
 /*!40000 ALTER TABLE `email` DISABLE KEYS */;
 /*!40000 ALTER TABLE `email` ENABLE KEYS */;
 
--- Dumping structure for table pihome.gateway
+-- Dumping structure for table maxair.gateway
 DROP TABLE IF EXISTS `gateway`;
 CREATE TABLE IF NOT EXISTS `gateway` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -197,11 +197,11 @@ CREATE TABLE IF NOT EXISTS `gateway` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.gateway: ~0 rows (approximately)
+-- Dumping data for table maxair.gateway: ~0 rows (approximately)
 /*!40000 ALTER TABLE `gateway` DISABLE KEYS */;
 /*!40000 ALTER TABLE `gateway` ENABLE KEYS */;
 
--- Dumping structure for table pihome.gateway_logs
+-- Dumping structure for table maxair.gateway_logs
 DROP TABLE IF EXISTS `gateway_logs`;
 CREATE TABLE IF NOT EXISTS `gateway_logs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -216,11 +216,11 @@ CREATE TABLE IF NOT EXISTS `gateway_logs` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.gateway_logs: ~0 rows (approximately)
+-- Dumping data for table maxair.gateway_logs: ~0 rows (approximately)
 /*!40000 ALTER TABLE `gateway_logs` DISABLE KEYS */;
 /*!40000 ALTER TABLE `gateway_logs` ENABLE KEYS */;
 
--- Dumping structure for table pihome.holidays
+-- Dumping structure for table maxair.holidays
 DROP TABLE IF EXISTS `holidays`;
 CREATE TABLE IF NOT EXISTS `holidays` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -232,11 +232,11 @@ CREATE TABLE IF NOT EXISTS `holidays` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.holidays: ~0 rows (approximately)
+-- Dumping data for table maxair.holidays: ~0 rows (approximately)
 /*!40000 ALTER TABLE `holidays` DISABLE KEYS */;
 /*!40000 ALTER TABLE `holidays` ENABLE KEYS */;
 
--- Dumping structure for table pihome.http_messages
+-- Dumping structure for table maxair.http_messages
 DROP TABLE IF EXISTS `http_messages`;
 CREATE TABLE IF NOT EXISTS `http_messages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -250,7 +250,7 @@ CREATE TABLE IF NOT EXISTS `http_messages` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping structure for table pihome.jobs
+-- Dumping structure for table maxair.jobs
 DROP TABLE IF EXISTS `jobs`;
 CREATE TABLE IF NOT EXISTS `jobs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -264,7 +264,7 @@ CREATE TABLE IF NOT EXISTS `jobs` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
--- Dumping structure for table pihome.livetemp
+-- Dumping structure for table maxair.livetemp
 DROP TABLE IF EXISTS `livetemp`;
 CREATE TABLE IF NOT EXISTS `livetemp` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -280,7 +280,7 @@ CREATE TABLE IF NOT EXISTS `livetemp` (
   CONSTRAINT `FK_livetemp_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping structure for table pihome.messages_in
+-- Dumping structure for table maxair.messages_in
 DROP TABLE IF EXISTS `messages_in`;
 CREATE TABLE IF NOT EXISTS `messages_in` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -294,11 +294,11 @@ CREATE TABLE IF NOT EXISTS `messages_in` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.messages_in: ~1 rows (approximately)
+-- Dumping data for table maxair.messages_in: ~1 rows (approximately)
 /*!40000 ALTER TABLE `messages_in` DISABLE KEYS */;
 /*!40000 ALTER TABLE `messages_in` ENABLE KEYS */;
 
--- Dumping structure for table pihome.messages_out
+-- Dumping structure for table maxair.messages_out
 DROP TABLE IF EXISTS `messages_out`;
 CREATE TABLE IF NOT EXISTS `messages_out` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -316,11 +316,11 @@ CREATE TABLE IF NOT EXISTS `messages_out` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf32 COLLATE=utf32_bin;
 
--- Dumping data for table pihome.messages_out: ~9 rows (approximately)
+-- Dumping data for table maxair.messages_out: ~9 rows (approximately)
 /*!40000 ALTER TABLE `messages_out` DISABLE KEYS */;
 /*!40000 ALTER TABLE `messages_out` ENABLE KEYS */;
 
--- Dumping structure for table pihome.mqtt
+-- Dumping structure for table maxair.mqtt
 DROP TABLE IF EXISTS `mqtt`;
 CREATE TABLE `mqtt` (
 	`id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -336,11 +336,11 @@ CREATE TABLE `mqtt` (
 COLLATE='utf16_bin'
 ENGINE=InnoDB;
 
--- Dumping data for table pihome.mqtt: ~0 rows (approximately)
+-- Dumping data for table maxair.mqtt: ~0 rows (approximately)
 /*!40000 ALTER TABLE `mqtt` DISABLE KEYS */;
 /*!40000 ALTER TABLE `mqtt` ENABLE KEYS */;
 
--- Dumping structure for table pihome.network_settings
+-- Dumping structure for table maxair.network_settings
 DROP TABLE IF EXISTS `network_settings`;
 CREATE TABLE IF NOT EXISTS `network_settings` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -360,11 +360,11 @@ CREATE TABLE IF NOT EXISTS `network_settings` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.network_settings: ~0 rows (approximately)
+-- Dumping data for table maxair.network_settings: ~0 rows (approximately)
 /*!40000 ALTER TABLE `network_settings` DISABLE KEYS */;
 /*!40000 ALTER TABLE `network_settings` ENABLE KEYS */;
 
--- Dumping structure for table pihome.nodes
+-- Dumping structure for table maxair.nodes
 DROP TABLE IF EXISTS `nodes`;
 CREATE TABLE IF NOT EXISTS `nodes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -384,11 +384,11 @@ CREATE TABLE IF NOT EXISTS `nodes` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.nodes: ~7 rows (approximately)
+-- Dumping data for table maxair.nodes: ~7 rows (approximately)
 /*!40000 ALTER TABLE `nodes` DISABLE KEYS */;
 /*!40000 ALTER TABLE `nodes` ENABLE KEYS */;
 
--- Dumping structure for table pihome.nodes_battery
+-- Dumping structure for table maxair.nodes_battery
 DROP TABLE IF EXISTS `nodes_battery`;
 CREATE TABLE IF NOT EXISTS `nodes_battery` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -401,11 +401,11 @@ CREATE TABLE IF NOT EXISTS `nodes_battery` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.nodes_battery: ~0 rows (approximately)
+-- Dumping data for table maxair.nodes_battery: ~0 rows (approximately)
 /*!40000 ALTER TABLE `nodes_battery` DISABLE KEYS */;
 /*!40000 ALTER TABLE `nodes_battery` ENABLE KEYS */;
 
--- Dumping structure for table pihome.notice
+-- Dumping structure for table maxair.notice
 DROP TABLE IF EXISTS `notice`;
 CREATE TABLE IF NOT EXISTS `notice` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -417,11 +417,11 @@ CREATE TABLE IF NOT EXISTS `notice` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=181 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.notice: ~0 rows (approximately)
+-- Dumping data for table maxair.notice: ~0 rows (approximately)
 /*!40000 ALTER TABLE `notice` DISABLE KEYS */;
 /*!40000 ALTER TABLE `notice` ENABLE KEYS */;
 
--- Dumping structure for table pihome.override
+-- Dumping structure for table maxair.override
 DROP TABLE IF EXISTS `override`;
 CREATE TABLE IF NOT EXISTS `override` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -437,11 +437,11 @@ CREATE TABLE IF NOT EXISTS `override` (
   CONSTRAINT `FK_override_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.override: ~3 rows (approximately)
+-- Dumping data for table maxair.override: ~3 rows (approximately)
 /*!40000 ALTER TABLE `override` DISABLE KEYS */;
 /*!40000 ALTER TABLE `override` ENABLE KEYS */;
 
--- Dumping structure for table pihome.piconnect
+-- Dumping structure for table maxair.piconnect
 DROP TABLE IF EXISTS `piconnect`;
 CREATE TABLE `piconnect` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -480,11 +480,11 @@ CREATE TABLE `piconnect` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.piconnect: ~0 rows (approximately)
+-- Dumping data for table maxair.piconnect: ~0 rows (approximately)
 /*!40000 ALTER TABLE `piconnect` DISABLE KEYS */;
 /*!40000 ALTER TABLE `piconnect` ENABLE KEYS */;
 
--- Dumping structure for table pihome.piconnect_logs
+-- Dumping structure for table maxair.piconnect_logs
 DROP TABLE IF EXISTS `piconnect_logs`;
 CREATE TABLE IF NOT EXISTS `piconnect_logs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -517,7 +517,7 @@ CREATE TABLE IF NOT EXISTS `piconnect_logs` (
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
--- Dumping structure for table pihome.schedule_daily_time
+-- Dumping structure for table maxair.schedule_daily_time
 DROP TABLE IF EXISTS `schedule_daily_time`;
 CREATE TABLE IF NOT EXISTS `schedule_daily_time` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -531,11 +531,11 @@ CREATE TABLE IF NOT EXISTS `schedule_daily_time` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.schedule_daily_time: ~0 rows (approximately)
+-- Dumping data for table maxair.schedule_daily_time: ~0 rows (approximately)
 /*!40000 ALTER TABLE `schedule_daily_time` DISABLE KEYS */;
 /*!40000 ALTER TABLE `schedule_daily_time` ENABLE KEYS */;
 
--- Dumping structure for table pihome.schedule_daily_time_zone
+-- Dumping structure for table maxair.schedule_daily_time_zone
 DROP TABLE IF EXISTS `schedule_daily_time_zone`;
 CREATE TABLE IF NOT EXISTS `schedule_daily_time_zone` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -556,11 +556,11 @@ CREATE TABLE IF NOT EXISTS `schedule_daily_time_zone` (
   CONSTRAINT `FK_schedule_daily_time_zone_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.schedule_daily_time_zone: ~0 rows (approximately)
+-- Dumping data for table maxair.schedule_daily_time_zone: ~0 rows (approximately)
 /*!40000 ALTER TABLE `schedule_daily_time_zone` DISABLE KEYS */;
 /*!40000 ALTER TABLE `schedule_daily_time_zone` ENABLE KEYS */;
 
--- Dumping structure for table pihome.schedule_night_climate_time
+-- Dumping structure for table maxair.schedule_night_climate_time
 DROP TABLE IF EXISTS `schedule_night_climate_time`;
 CREATE TABLE IF NOT EXISTS `schedule_night_climate_time` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -573,11 +573,11 @@ CREATE TABLE IF NOT EXISTS `schedule_night_climate_time` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.schedule_night_climate_time: ~0 rows (approximately)
+-- Dumping data for table maxair.schedule_night_climate_time: ~0 rows (approximately)
 /*!40000 ALTER TABLE `schedule_night_climate_time` DISABLE KEYS */;
 /*!40000 ALTER TABLE `schedule_night_climate_time` ENABLE KEYS */;
 
--- Dumping structure for table pihome.schedule_night_climat_zone
+-- Dumping structure for table maxair.schedule_night_climat_zone
 DROP TABLE IF EXISTS `schedule_night_climat_zone`;
 CREATE TABLE IF NOT EXISTS `schedule_night_climat_zone` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -595,11 +595,11 @@ CREATE TABLE IF NOT EXISTS `schedule_night_climat_zone` (
   CONSTRAINT `FK_schedule_zone_night_climat_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.schedule_night_climat_zone: ~3 rows (approximately)
+-- Dumping data for table maxair.schedule_night_climat_zone: ~3 rows (approximately)
 /*!40000 ALTER TABLE `schedule_night_climat_zone` DISABLE KEYS */;
 /*!40000 ALTER TABLE `schedule_night_climat_zone` ENABLE KEYS */;
 
--- Dumping structure for table pihome.system
+-- Dumping structure for table maxair.system
 DROP TABLE IF EXISTS `system`;
 CREATE TABLE IF NOT EXISTS `system` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -626,11 +626,11 @@ CREATE TABLE IF NOT EXISTS `system` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping data for table pihome.system: ~0 rows (approximately)
+-- Dumping data for table maxair.system: ~0 rows (approximately)
 /*!40000 ALTER TABLE `system` DISABLE KEYS */;
 /*!40000 ALTER TABLE `system` ENABLE KEYS */;
 
--- Dumping structure for table pihome.temperature_sensors
+-- Dumping structure for table maxair.temperature_sensors
 DROP TABLE IF EXISTS `temperature_sensors`;
 CREATE TABLE `temperature_sensors` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -652,11 +652,11 @@ CREATE TABLE `temperature_sensors` (
   CONSTRAINT `FK_temperature_sensors_nodes` FOREIGN KEY (`sensor_id`) REFERENCES `nodes` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
--- Dumping data for table pihome.temperature_sensors: ~0 rows (approximately)
+-- Dumping data for table maxair.temperature_sensors: ~0 rows (approximately)
 /*!40000 ALTER TABLE `temperature_sensors` DISABLE KEYS */;
 /*!40000 ALTER TABLE `temperature_sensors` ENABLE KEYS */;
 
--- Dumping structure for table pihome.user
+-- Dumping structure for table maxair.user
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE IF NOT EXISTS `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -671,11 +671,11 @@ CREATE TABLE IF NOT EXISTS `user` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
--- Dumping data for table pihome.user: ~0 rows (approximately)
+-- Dumping data for table maxair.user: ~0 rows (approximately)
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 
--- Dumping structure for table pihome.userhistory
+-- Dumping structure for table maxair.userhistory
 DROP TABLE IF EXISTS `userhistory`;
 CREATE TABLE IF NOT EXISTS `userhistory` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -687,11 +687,11 @@ CREATE TABLE IF NOT EXISTS `userhistory` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=144 DEFAULT CHARSET=latin1;
 
--- Dumping data for table pihome.userhistory: ~139 rows (approximately)
+-- Dumping data for table maxair.userhistory: ~139 rows (approximately)
 /*!40000 ALTER TABLE `userhistory` DISABLE KEYS */;
 /*!40000 ALTER TABLE `userhistory` ENABLE KEYS */;
 
--- Dumping structure for table pihome.weather
+-- Dumping structure for table maxair.weather
 DROP TABLE IF EXISTS `weather`;
 CREATE TABLE IF NOT EXISTS `weather` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -708,11 +708,11 @@ CREATE TABLE IF NOT EXISTS `weather` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
--- Dumping data for table pihome.weather: ~0 rows (approximately)
+-- Dumping data for table maxair.weather: ~0 rows (approximately)
 /*!40000 ALTER TABLE `weather` DISABLE KEYS */;
 /*!40000 ALTER TABLE `weather` ENABLE KEYS */;
 
--- Dumping structure for table pihome.zone
+-- Dumping structure for table maxair.zone
 DROP TABLE IF EXISTS `zone`;
 CREATE TABLE IF NOT EXISTS `zone` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -729,11 +729,11 @@ CREATE TABLE IF NOT EXISTS `zone` (
   CONSTRAINT `FK_zone_type_id` FOREIGN KEY (`type_id`) REFERENCES `zone_type` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
--- Dumping data for table pihome.zone: ~3 rows (approximately)
+-- Dumping data for table maxair.zone: ~3 rows (approximately)
 /*!40000 ALTER TABLE `zone` DISABLE KEYS */;
 /*!40000 ALTER TABLE `zone` ENABLE KEYS */;
 
--- Dumping structure for table pihome.zone_controllers
+-- Dumping structure for table maxair.zone_controllers
 DROP TABLE IF EXISTS `zone_controllers`;
 CREATE TABLE `zone_controllers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -748,11 +748,11 @@ CREATE TABLE `zone_controllers` (
   CONSTRAINT `FK_zone_controllers_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=88 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
--- Dumping data for table pihome.zone_controllers: 
+-- Dumping data for table maxair.zone_controllers: 
 /*!40000 ALTER TABLE `zone_controllers` DISABLE KEYS */;
 /*!40000 ALTER TABLE `zone_controllers` ENABLE KEYS */;
 
--- Dumping structure for table pihome.zone_current_state
+-- Dumping structure for table maxair.zone_current_state
 DROP TABLE IF EXISTS `zone_current_state`;
 CREATE TABLE IF NOT EXISTS `zone_current_state` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -774,11 +774,11 @@ CREATE TABLE IF NOT EXISTS `zone_current_state` (
  PRIMARY KEY (`id`)
 ) ENGINE=MEMORY DEFAULT CHARSET=utf8;
 
--- Dumping data for table pihome.zone_current_state: 8 rows
+-- Dumping data for table maxair.zone_current_state: 8 rows
 /*!40000 ALTER TABLE `zone_current_state` DISABLE KEYS */;
 /*!40000 ALTER TABLE `zone_current_state` ENABLE KEYS */;
 
--- Dumping structure for table pihome.zone_graphs
+-- Dumping structure for table maxair.zone_graphs
 DROP TABLE IF EXISTS `zone_graphs`;
 CREATE TABLE IF NOT EXISTS `zone_graphs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -796,7 +796,7 @@ CREATE TABLE IF NOT EXISTS `zone_graphs` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Dumping structure for table pihome.zone_sensor
+-- Dumping structure for table maxair.zone_sensor
 DROP TABLE IF EXISTS `zone_sensors`;
 CREATE TABLE IF NOT EXISTS `zone_sensors` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -816,7 +816,7 @@ CREATE TABLE IF NOT EXISTS `zone_sensors` (
   CONSTRAINT `FK_zone_sensors_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
--- Dumping structure for table pihome.zone_type
+-- Dumping structure for table maxair.zone_type
 DROP TABLE IF EXISTS `zone_type`;
 CREATE TABLE IF NOT EXISTS `zone_type` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -830,3 +830,4 @@ CREATE TABLE IF NOT EXISTS `zone_type` (
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+
