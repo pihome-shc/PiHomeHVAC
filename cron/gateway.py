@@ -59,7 +59,7 @@ null_value = None
 relay_dict = {}
 
 
-def set_relays(node_type, out_id, out_child_id, out_payload, enable_outgoing):
+def set_relays(msg, node_type, out_id, out_child_id, out_payload, enable_outgoing):
     # node-id ; child-sensor-id ; command ; ack ; type ; payload \n
     if node_type.find("MySensor") != -1 and enable_outgoing == 1:  # process normal node
         if gatewaytype == "serial":
@@ -196,14 +196,29 @@ try:
             out_id = nd[node_to_index["node_id"]]
             node_type = nd[node_to_index["type"]]
             cur.execute(
-                "SELECT `payload` FROM `messages_out` where node_id = (%s) AND child_id = (%s) ORDER BY id DESC LIMIT 1",
+                "SELECT `sub_type`, `ack`, `type`, `payload` FROM `messages_out` where node_id = (%s) AND child_id = (%s) ORDER BY id DESC LIMIT 1",
                 (out_id, out_child_id),
             )
             msg = cur.fetchone()
             msg_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+            out_sub_type = msg[msg_to_index["sub_type"]]
+            out_ack = msg[msg_to_index["ack"]]
+            out_type = msg[msg_to_index["type"]]
             out_payload = msg[msg_to_index["payload"]]
+            msg = str(out_id)  # Node ID
+            msg += ";"  # Separator
+            msg += str(out_child_id)  # Child ID of the Node.
+            msg += ";"  # Separator
+            msg += str(out_sub_type)
+            msg += ";"  # Separator
+            msg += str(out_ack)
+            msg += ";"  # Separator
+            msg += str(out_type)
+            msg += ";"  # Separator
+            msg += str(out_payload)  # Payload from DB
+            msg += " \n"  # New line
             set_relays(
-                node_type, out_id, out_child_id, out_payload, gatewayenableoutgoing
+                msg, node_type, out_id, out_child_id, out_payload, gatewayenableoutgoing
             )
 
     while 1:
@@ -284,7 +299,7 @@ try:
 
             # node-id ; child-sensor-id ; command ; ack ; type ; payload \n
             set_relays(
-                node_type, out_id, out_child_id, out_payload, gatewayenableoutgoing
+                msg, node_type, out_id, out_child_id, out_payload, gatewayenableoutgoing
             )
 
         ## Incoming messages
