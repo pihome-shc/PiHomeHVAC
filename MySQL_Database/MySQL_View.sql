@@ -18,7 +18,7 @@
 *************************************************************************"
 */
 
--- You Must create following View Talbes in MySQL for PiHome Smart Heating to work
+-- You Must create following View Talbes in MySQL for MaxAir Smart Thermostat to work
 
 -- Schedule List with zone details view table version 1.x
 Drop View if exists schedule_daily_time_zone_view;

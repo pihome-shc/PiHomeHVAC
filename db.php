@@ -1299,6 +1299,7 @@ if($what=="job"){
         }
         if($opp=="add"){
                	$enabled = $_GET['enabled'];
+                if ($enabled=='true'){$enabled = '1';} else {$enabled = '0';}
                	$job_name = $_GET['job_name'];
                 $job_script = $_GET['job_script'];
                 $job_time = $_GET['job_time'];
