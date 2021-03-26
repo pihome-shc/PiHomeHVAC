@@ -97,7 +97,13 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                                                         <h3 class="status"></small></h3>
                                                         </button>
 
-                        				<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_sensors.php" data-toggle="modal" data-target="#temperature_sensor">
+                                 			<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_override.php" data-toggle="modal" data-target="#list_nodes">
+                                                        <h3 class="buttontop"><small><?php echo $lang['nodes']; ?></small></h3>
+                                                        <h3 class="degre" ><i class="fa fa-sitemap fa-1x green"></i></h3>
+                                                        <h3 class="status"></small></h3>
+                                                        </button>
+
+                       				<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_sensors.php" data-toggle="modal" data-target="#temperature_sensor">
                                                         <h3 class="buttontop"><small><?php echo $lang['sensors']; ?></small></h3>
                                                         <h3 class="degre" ><i class="ionicons ion-thermometer red"></i></h3>
                                                         <h3 class="status"></small></h3>
