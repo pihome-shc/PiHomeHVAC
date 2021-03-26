@@ -583,4 +583,7 @@ $lang['admin_account'] = "Administrator Account";
 $lang['admin_account_info'] = "Account with full access to all systems features and settings. ";
 $lang['enabled'] = "Enabled";
 $lang['enable_outgoing'] = "Enable Outgoing Messages (GPIO Outputs Enabled by Default)";
+$lang['nodes'] = "Nodes";
+$lang['list_nodes_setting'] = "List Nodes";
+$lang['list_nodes_settings_text'] = "List of all Nodes and the maximum number of associated Child IDs";
 ?>
