@@ -115,9 +115,9 @@ check_wificountry()
 		read
 	fi
         #echo "Checking iwlist sudo access"
-        if [ ! -f "/etc/sudoers.d/pihome" ]; then
+        if [ ! -f "/etc/sudoers.d/MaxAir" ]; then
                 echo "Creating a sudo file for iwlist."
-                cp "$cpath/config/pihome" /etc/sudoers.d
+                cp "$cpath/config/MaxAir" /etc/sudoers.d
         fi
 }
 
@@ -165,11 +165,9 @@ hostapd_config()
 		fi
 	fi
 	echo "Hostapd is installed"
-	if [ -f "/etc/hostapd/hostapd.conf" ]; then
-		if ! grep -F "RaspberryConnect.com" "/etc/hostapd/hostapd.conf" ;then
-			#not a autohotspot file, create backup
-			mv "/etc/hostapd/hostapd.conf" "/etc/hostapd/hostapd-RCbackup.conf"
-		fi
+	if ! grep -F "RaspberryConnect.com" "/etc/hostapd/hostapd.conf" ;then
+		#not a autohotspot file, create backup
+		mv "/etc/hostapd/hostapd.conf" "/etc/hostapd/hostapd-RCbackup.conf"
 	fi
 	cp "$cpath/config/hostapd.conf" /etc/hostapd/hostapd.conf
 	if [ "${osver[0]}" == "Raspbian" ]; then

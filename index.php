@@ -234,7 +234,7 @@ if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
     				if ($replaced)
     					{
       						exec("sudo mv myfile2.tmp ".$wpa_conf);
-						exec("sudo rm myfile1.tmp");
+						exec("sudo rm myfile*.tmp");
     					} else {
       						exec("rm myfile*.tmp");
 	    				}
