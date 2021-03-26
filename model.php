@@ -792,6 +792,44 @@ echo '<p class="text-muted">'.$lang['node_add_info_text'].'</p>
     </div>
 </div>';
 
+//list_nodes model
+echo '
+<div class="modal fade" id="list_nodes" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['list_nodes_setting'].'</h5>
+            </div>
+            <div class="modal-body">
+<p class="text-muted"> '.$lang['list_nodes_settings_text'].' </p>';
+
+$query = "SELECT * FROM nodes ORDER BY node_id";
+$results = $conn->query($query);
+echo '<table class="table table-bordered">
+    <tr>
+        <th class="col-xs-2"><small>'.$lang['node_id'].'</small></th>
+        <th class="col-xs-2"><small>'.$lang['max_child'].'</small></th>
+        <th class="col-xs-4"><small>'.$lang['name'].'</small></th>
+        <th class="col-xs-2"><small>'.$lang['type'].'</small></th>
+    </tr>';
+while ($row = mysqli_fetch_assoc($results)) {
+    echo '
+        <tr>
+            <td>'.$row["node_id"].'</td>
+            <td>'.$row["max_child_id"].'</td>
+            <td>'.$row["name"].'</td>
+            <td>'.$row["type"].'</td>
+        </tr>';
+}
+echo '</table></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+            </div>
+        </div>
+    </div>
+</div>';
+
 //Zone Type
 echo '
 <div class="modal fade" id="zone_types" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
