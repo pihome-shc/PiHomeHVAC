@@ -18,15 +18,11 @@
 -- * DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTILL UNLESS YOU KNOW *
 -- * WHAT YOU ARE DOING                                                    *
 -- *************************************************************************
-
-getBoiler.php
-When called returns the current status of the boiler.
-
+getController.php
+When called returns the current status of the system controller.
 E.g.
-http://192.168.1.2/api/getBoiler
-
+http://192.168.1.2/api/getController
 {"success":true,"state":"ON"}
-
 */
 
 header("Access-Control-Allow-Origin: *");
@@ -55,4 +51,3 @@ if(! $row) {
 	}
 }
 ?>
-
