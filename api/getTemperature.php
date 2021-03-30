@@ -34,13 +34,6 @@ if(isset($_GET['sensorname'])) {
         if(! $row) {
                 http_response_code(400);
                 echo json_encode(array("success" => False, "state" => "No Sensor with that name found."));
-        } else {
-                $query = "SELECT node_id FROM nodes where id = '{$row['sensor_id']}' LIMIT 1;";
-                $nresult = $conn->query($query);
-                $nrow = mysqli_fetch_assoc($nresult);
-                if(! $nrow) {
-                        http_response_code(400);
-                        echo json_encode(array("success" => False, "state" => "No Node found."));
                 } else {
                         $node_id=$nrow['node_id'];
                         $child_id=$row['sensor_child_id'];
@@ -53,9 +46,23 @@ if(isset($_GET['sensorname'])) {
                                 http_response_code(400);
                                 echo json_encode(array("success" => False, "state" => "Sensor has not reported in the last 24 hours."));
                         } else {
-                                $zone_c = $sensor['payload'];
-                                http_response_code(200);
-                                echo json_encode(array("success" => True, "state" => $zone_c));
+                                $sensor_temp = $sensor['payload'];
+                                $sensor_time = $sensor['datetime'];
+
+                                //query to get battery info from nodes_battery table
+                                $query = "SELECT * FROM nodes_battery WHERE node_id = '{$node_id}' ORDER BY id desc LIMIT 1;";
+                                $result = $conn->query($query);
+                                $node = mysqli_fetch_array($result);
+                                if(! $node) {
+                                        http_response_code(200);
+                                        echo json_encode(array("success" => True, "state" => $sensor_temp, "datetime" => $sensor_time));
+                                } else {
+                                        $sensor_bat_voltage = $node['bat_voltage'];
+                                        $sensor_bat_level = $node['bat_level'];
+                                        http_response_code(200);
+                                        echo json_encode(array("success" => True, "state" => $sensor_temp, "datetime" => $sensor_time, "bat_voltage" => $sensor_bat_voltage, "bat_level" => $sensor_bat_level));
+                                }
+
                         }
                 }
         }
