@@ -12,13 +12,13 @@ The returned JSON format is:
     }
 ```
 
-## Get Zone Temperature API
-This API is used to return the temperture for a given zone by name.
-To return the temperature for a zone call using http://pihome ip address/api/getTemperature?zonename=abc where abc is the name of the zone.
+## Get Sensor Temperature API
+This API is used to return the temperture for a given temperature sensor by name.
+To return the temperature for a temperature sensor call using http://pihome ip address/api/getTemperature?sensorname=abc where abc is the name of the temperature sensor.
 The returned JSON format is:
 ```
     {
         "success": true,
-        "state": zoneTemperature
+        "state": sensorTemperature
     }
 ```
