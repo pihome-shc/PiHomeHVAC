@@ -334,11 +334,15 @@ if($what=="http_msg"){
                 $http_command = $_GET['http_command'];
                 $http_parameter = $_GET['http_parameter'];
                 if ($wid == 1) {
+                        $add_on_zone_name = $http_id;
                         $query = "SELECT controler_id FROM zone_view WHERE name = '".$add_on_zone_name."' LIMIT 1";
                         $results = $conn->query($query);
                         $row = mysqli_fetch_assoc($results);
-                        $node_id = $row['controler_id'];
-                        $add_on_zone_name = $http_id;
+                        $controler_id = $row['controler_id'];
+                        $query = "SELECT node_id FROM nodes WHERE id = ".$controler_id." LIMIT 1";
+                        $nresult = $conn->query($query);
+                        $nrow = mysqli_fetch_assoc($nresult);
+                        $node_id = $nrow['node_id'];
                 } else {
                         $node_id = $http_id;
                         $add_on_zone_name = "";
