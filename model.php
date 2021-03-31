@@ -884,7 +884,7 @@ echo '
         <div class="modal-content">
             <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['node_add'].'</h5>
+                <h5 class="modal-title">'.$lang['zone_type_add'].'</h5>
             </div>
             <div class="modal-body">';
 echo '<p class="text-muted">'.$lang['zone_type_add_info_text'].'</p>
