@@ -1,17 +1,17 @@
 <?php 
 /*
-   _____    _   _    _                             
-  |  __ \  (_) | |  | |                            
-  | |__) |  _  | |__| |   ___    _ __ ___     ___  
-  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \ 
-  | |      | | | |  | | | (_) | | | | | | | |  __/ 
-  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___| 
+             __  __                             _
+            |  \/  |                    /\     (_)
+            | \  / |   __ _  __  __    /  \     _   _ __
+            | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+            | |  | | | (_| |  >  <   / ____ \  | | | |
+            |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 
-     S M A R T   H E A T I N G   C O N T R O L 
+                   S M A R T   T H E R M O S T A T
 
 *************************************************************************"
-* PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
-* from web interface and it comes with ABSOLUTELY NO WARRANTY, to the   *"
+* MaxAir is a Linux based Central Heating Control systems. It runs from *"
+* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *"
 * extent permitted by applicable law. I take no responsibility for any  *"
 * loss or damage to you or your property.                               *"
 * DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTILL UNLESS YOU KNOW *"
@@ -587,7 +587,8 @@ function GetModal_Services($conn)
            ['name'=>'PiHome MQTT','service'=>'pihome.mqtt.service'],
            ['name'=>'PiHome JOBS','service'=>'pihome_jobs_schedule.service'],
 	   ['name'=>'Amazon Echo','service'=>'pihome_amazon_echo.service'],
-           ['name'=>'Homebridge','service'=>'homebridge.service']];	   
+           ['name'=>'Homebridge','service'=>'homebridge.service'],
+           ['name'=>'Autohotspot','service'=>'autohotspot.service']];
     echo '<div class="list-group">';
     foreach($SArr as $SArrKey=>$SArrVal) {
         echo '<span class="list-group-item">';
@@ -707,7 +708,7 @@ function GetModal_ServicesInfo($conn)
     echo '</span>';
     echo '</span>';
     
-    if(substr($_GET['id'],0,7)=='pihome.' or substr($_GET['id'],0,7)=='pihome_' or substr($_GET['id'],0,10)=='homebridge') {
+    if(substr($_GET['id'],0,7)=='pihome.' or substr($_GET['id'],0,7)=='pihome_' or substr($_GET['id'],0,10)=='homebridge' or substr($_GET['id'],0,11)=='autohotspot') {
         echo '<span class="list-group-item" style="height:40px;">&nbsp;';
         echo '<span class="pull-right text-muted small">
               <button class="btn btn-warning btn-xs" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_ServicesInfo&id=' . $_GET['id'] . '&Action=start" onclick="services_Info(this);">
