@@ -22,3 +22,5 @@ The returned JSON format is:
         "state": sensorTemperature
     }
 ```
+## Enable Rewrite
+The shell script enable_rewrite.sh can be used to enable calling of the APIs without the need for the .php file extension
