@@ -1,7 +1,6 @@
 #!/bin/bash
 
-echo "Enabling mod_rewrite"
-sudo a2enmod rewrite
+bash /var/www/api/enable_rewrite.sh
 
 echo "Check if pip3 is Installed"
 var=$(which pip3)
