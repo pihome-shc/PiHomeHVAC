@@ -1,23 +1,8 @@
 #!/bin/bash
 
-echo "Enabling mod_rewrite"
-sudo a2enmod rewrite
-echo "Backing Up and Modifying /etc/apache2/sites-available/000-default.conf"
-FILE=/etc/apache2/sites-available/000-default.conf
-if grep -q "<Directory /var/www/api>" $FILE
-then
-    echo "000-default.conf Already Modified"
-else
-    sudo cp -a -- "$FILE" "$FILE-$(date +"%Y%m%d-%H%M%S")"
-    sudo awk '/DocumentRoot/{print $0 RS "" RS "        <Directory /var/www/api>"\
-      RS "              Options Indexes FollowSymLinks" \
-      RS "              AllowOverride All" \
-      RS "              Require all granted" \
-      RS "        </Directory>";next}1' $FILE > tmp && mv tmp $FILE
+#service_name homebridge.service
 
-    echo "Restarting the apache service"
-    sudo systemctl restart apache2
-fi
+bash /var/www/api/enable_rewrite.sh
 
 echo "Installing the WebHooks Plugin"
 sudo npm install -g homebridge-http-webhooks

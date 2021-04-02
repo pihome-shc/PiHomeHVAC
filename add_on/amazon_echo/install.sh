@@ -1,7 +1,8 @@
 #!/bin/bash
 
-echo "Enabling mod_rewrite"
-sudo a2enmod rewrite
+#service_name pihome_amazon_echo.service
+
+bash /var/www/api/enable_rewrite.sh
 
 echo "Check if pip3 is Installed"
 var=$(which pip3)
@@ -46,16 +47,13 @@ sudo cat <<EOT >> /lib/systemd/system/pihome_amazon_echo.service
 Description=Fauxmo
 After=network-online.target
 Wants=network-online.target
-
 [Service]
 Type=simple
 WorkingDirectory=/var/www/add_on/amazon_echo
-
 ExecStart=/var/www/add_on/amazon_echo/fauxmo -c /etc/fauxmo/config.json -v
 Restart=on-failure
 RestartSec=10s
 User=fauxmo
-
 [Install]
 WantedBy=multi-user.target
 EOT
@@ -65,4 +63,3 @@ sudo systemctl daemon-reload
 sudo systemctl enable pihome_amazon_echo.service
 echo "Starting the service"
 sudo systemctl start pihome_amazon_echo.service
-
