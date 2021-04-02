@@ -42,7 +42,7 @@ if [  -f "$FILE" ]; then
     rm $FILE
 fi
 echo "Creating Unit File: $FILE"
-sudo cat <<EOT >> /lib/systemd/system/pihome_amazon_echo.service
+sudo cat <<EOT >> service.tmp
 [Unit]
 Description=Fauxmo
 After=network-online.target
@@ -57,6 +57,8 @@ User=fauxmo
 [Install]
 WantedBy=multi-user.target
 EOT
+
+sudo mv service.tmp /lib/systemd/system/pihome_amazon_echo.service
 
 echo "Enabling the service"
 sudo systemctl daemon-reload
