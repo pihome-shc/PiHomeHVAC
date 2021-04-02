@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#service_name homebridge.service
+
 bash /var/www/api/enable_rewrite.sh
 
 echo "Installing the WebHooks Plugin"
