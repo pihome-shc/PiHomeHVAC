@@ -20,6 +20,7 @@ if [ -d "$DIR" ]; then
   fi
 else
     echo "Creating Directory, Changing Ownership and Permissions"
+    sudo mkdir /var/lib/homebridge/.node-persist
     sudo mkdir $DIR
     sudo chown homebridge:homebridge $DIR
     sudo chmod 755 $DIR
