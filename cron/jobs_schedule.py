@@ -54,7 +54,11 @@ cur = con.cursor()
 # Build functions based on entries in table
 def func_builder(name, script, log_it):
     def f():
-        action = os.popen(script.split(".", 1)[1] + " " + script + " \n")
+        if script.split(".", 1)[1] == 'py':
+            cmd = 'python3'
+        else:
+            cmd = script.split(".", 1)[1]
+        action = os.popen(cmd + " " + script + " \n")
         action_output = action.read()
         if log_it == 1:
             file_object = open("/var/www/cron/logs/" + name + ".log", "a")
