@@ -147,7 +147,7 @@ if (!$db_selected) {
 
 //Job Scheduling
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Installing Scheduling \n";
-$output = shell_exec('sudo bash ./cron/install_jobs.sh');
+$output = shell_exec('sudo bash /var/www/cron/install_jobs.sh');
 echo $output;
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Finished Installing Scheduling \n";
 
