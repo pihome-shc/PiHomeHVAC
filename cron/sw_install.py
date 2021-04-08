@@ -43,30 +43,6 @@ dbuser = config.get('db', 'dbusername')
 dbpass = config.get('db', 'dbpassword')
 dbname = config.get('db', 'dbname')
 
-def startProcess(name, path):
-    """
-    Starts a process in the background and writes a PID file
-
-    returns integer: pid
-    """
-
-    # Check if the process is already running
-    status, pid = processStatus(name)
-
-    if status == RUNNING:
-        raise AlreadyStartedError(pid)
-
-    # Start process
-    process = subprocess.Popen(path + ' > /dev/null 2> /dev/null &', shell=True)
-
-    # Write PID file
-    pidfilename = os.path.join(PIDPATH, name + '.pid')
-    pidfile = open(pidfilename, 'w')
-    pidfile.write(str(process.pid))
-    pidfile.close()
-
-    return process.pid
-
 def is_running(pid):
     if os.path.isdir('/proc/{}'.format(pid)):
         return True
@@ -87,7 +63,8 @@ try:
 		pid = row[sw_to_index["pid"]]
 		if pid is None:
 			print("Starting Execution of script: ", script)
-			process = subprocess.Popen('/bin/bash ' + script + ' > /dev/null 2> /dev/null &', shell=True)
+			command = '/bin/bash ' + script
+			process = subprocess.Popen(command + ' > /var/www/cron/sw_install.txt &', shell=True)
 			running_pid = process.pid + 1
 			print("PID: ", running_pid)
 			cur.execute('UPDATE `sw_install` SET `start_datetime`=now(),`pid` = %s WHERE id = %s', [running_pid, id])
