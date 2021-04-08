@@ -605,6 +605,8 @@ CREATE TABLE IF NOT EXISTS `sw_install` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `script` char(100) NOT NULL,
   `pid` int(11),
+  `start_datetime` timestamp NULL,
+  `stop_datetime` timestamp NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
