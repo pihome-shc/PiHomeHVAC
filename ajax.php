@@ -868,10 +868,15 @@ function GetModal_Software_Install($conn)
                 <div class="list-group">';
                 $installpath = "/var/www/api/enable_rewrite.sh";
                 $installname = "enable_rewrite";
+                if (file_exists("/etc/apache2/mods-available/rewrite.load")) {
+                        $prompt = "Re-Install";
+                } else {
+                        $prompt = "Install";
+                }
                 echo '<span class="list-group-item">
                 <i class="fa fa-terminal fa-2x green"></i> '.$installname;
                 echo '<span class="pull-right text-muted small"><button type="button" class="btn btn-primary btn-sm"
-                data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Add_Software&id=' . $installpath . '" onclick="sw_Install(this);">Install</button></span></span>';
+                data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Add_Software&id=' . $installpath . '" onclick="sw_Install(this);">'.$prompt.'</button></span></span>';
                 $path = '/var/www/add_on';
                 $dir = new DirectoryIterator($path);
                 $searchfor = 'service_name';
