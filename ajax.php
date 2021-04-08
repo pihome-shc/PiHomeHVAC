@@ -856,3 +856,100 @@ if($_GET['Ajax']=='GetModal_Uptime')
     GetModal_Uptime($conn);
     return;
 }
+
+function GetModal_Software_Install($conn)
+{
+        echo '<div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title" id="ajaxModalLabel">Install Software</h5>
+        </div>
+        <div class="modal-body" id="ajaxModalBody">
+                <p class="text-muted"> Select Software to Install. </p>
+                <div class="list-group">';
+                $installpath = "/var/www/api/enable_rewrite.sh";
+                $installname = "enable_rewrite";
+                echo '<span class="list-group-item">
+                <i class="fa fa-terminal fa-2x green"></i> '.$installname;
+                echo '<span class="pull-right text-muted small"><button type="button" class="btn btn-primary btn-sm"
+                data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Add_Software&id=' . $installpath . '" onclick="sw_Install(this);">Install</button></span></span>';
+                $path = '/var/www/add_on';
+                $dir = new DirectoryIterator($path);
+                $searchfor = 'service_name';
+                        foreach ($dir as $fileinfo) {
+                                if ($fileinfo->isDir() && !$fileinfo->isDot()) {
+                                        $installpath = $path."/".$fileinfo->getFilename()."/install.sh";
+                                        if (file_exists($installpath)) {
+                                                $contents = file_get_contents($installpath);
+                                                $pattern = preg_quote($searchfor, '/');
+                                                $pattern = "/^.*$pattern.*\$/m";
+                                                if(preg_match_all($pattern, $contents, $matches)){
+                                                        $str = implode("\n", $matches[0]);
+                                                        $service_name = explode(' ',$str);
+                                                        $rval=my_exec("/bin/systemctl status " . $service_name[1]);
+                                                        if ($rval['stdout']=='') { $installed = 0; } else { $installed = 1; }
+                                                } else {
+                                                        $instaleed = 2;
+                                                }
+                                                echo '<span class="list-group-item">
+                                                <i class="fa fa-terminal fa-2x green"></i> '.$fileinfo->getFilename();
+                                                if ($installed == 0) {
+                                                        echo '<span class="pull-right text-muted small"><button type="button" class="btn btn-primary btn-sm"
+                                                        data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Add_Software&id=' . $installpath . '" onclick="sw_Install(this);">Install</button></span></span>';
+                                                } elseif ($installed == 1) {
+                                                        echo '<span class="pull-right text"><p> Already Installed</p></span></span>';
+                                                } elseif ($installed == 2) {
+                                                        echo '<span class="pull-right text"><p> NO Installer</p></span></span>';
+                                                }
+                                        }
+                                }
+                        }
+                echo '</div>';      //close class="list-group">';
+        echo '</div>';      //close class="modal-body">
+        echo '<div class="modal-footer" id="ajaxModalFooter">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Close</button>
+        </div>';      //close class="modal-footer">
+    echo '<script language="javascript" type="text/javascript">
+        sw_Install=function(ithis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(ithis)); }).modal("hide");};
+    </script>';
+    return;
+}
+if($_GET['Ajax']=='GetModal_Software_Install')
+{
+    GetModal_Software_Install($conn);
+    return;
+}
+
+function GetModal_Add_Software($conn)
+{
+        $script = $_GET['id'];
+        $query = "INSERT INTO `sw_install` (`script`, `pid`) VALUES ('{$script}', NULL);";
+        $conn->query($query);
+        sleep(10);
+        echo '<div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title" id="ajaxModalLabel">Software Install</h5>
+        </div>
+        <div class="modal-body" id="ajaxModalBody">';
+                $query = "SELECT `pid` FROM `sw_install` LIMIT 1;";
+                $result = $conn->query($query);
+                $rowcount=mysqli_num_rows($result);
+                if($rowcount > 0) {
+                        $row = mysqli_fetch_array($result);
+                        $proc_file = "/proc/".$row['pid'];
+                        while (file_exists( $proc_file )) {
+                                sleep(5);
+                        }
+                }
+                echo '<p>Software Installed with PID '.$row['pid'].'</p>
+        </div>
+        <div class="modal-footer" id="ajaxModalFooter">
+                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Close</button>
+        </div>';      //close class="modal-footer">
+        return;
+}
+if($_GET['Ajax']=='GetModal_Add_Software')
+{
+    GetModal_Add_Software($conn);
+    return;
+}
+
