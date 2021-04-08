@@ -586,4 +586,5 @@ $lang['enable_outgoing'] = "Enable Outgoing Messages (GPIO Outputs Enabled by De
 $lang['nodes'] = "Nodes";
 $lang['list_nodes_setting'] = "List Nodes";
 $lang['list_nodes_settings_text'] = "List of all Nodes and the maximum number of associated Child IDs";
+$lang['install_sw'] = "Install Software";
 ?>
