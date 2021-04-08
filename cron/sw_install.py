@@ -2,6 +2,7 @@
 import subprocess
 import sys
 import time, os, fnmatch, MySQLdb as mdb, logging
+from datetime import datetime
 import configparser
 class bc:
 	hed = '\033[0;36;40m'
@@ -77,7 +78,7 @@ print( "-" * 68)
 try:
 	con = mdb.connect(dbhost, dbuser, dbpass, dbname);
 	cur = con.cursor()
-	cur.execute('SELECT * FROM `sw_install` LIMIT 1;')
+	cur.execute('SELECT * FROM `sw_install` WHERE `pid` IS NULL LIMIT 1;')
 	results =cur.fetchone()
 	if cur.rowcount > 0:
 		id = results[0]
@@ -88,12 +89,12 @@ try:
 			process = subprocess.Popen('/bin/bash ' + script + ' > /dev/null 2> /dev/null &', shell=True)
 			running_pid = process.pid + 1
 			print("PID: ", running_pid)
-			cur.execute('UPDATE `sw_install` SET `pid` = %s WHERE id = %s', [running_pid, id])
+			cur.execute('UPDATE `sw_install` SET `start_datetime`=now(),`pid` = %s WHERE id = %s', [running_pid, id])
 			con.commit()
 			while is_running(running_pid) :
 				pass
 			time.sleep(10)
-			cur.execute('DELETE FROM `sw_install`')
+			cur.execute('UPDATE `sw_install` SET `stop_datetime`=now() WHERE id = %s', [id])
 			con.commit()
 			con.close()
 			print("Finished Executing script: ", script)
