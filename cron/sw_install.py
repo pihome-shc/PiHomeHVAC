@@ -79,11 +79,12 @@ try:
 	con = mdb.connect(dbhost, dbuser, dbpass, dbname);
 	cur = con.cursor()
 	cur.execute('SELECT * FROM `sw_install` WHERE `pid` IS NULL ORDER BY `id` DESC LIMIT 1;')
-	results =cur.fetchone()
+	row = cur.fetchone()
 	if cur.rowcount > 0:
-		id = results[0]
-		script = results[1]
-		pid = results[2]
+		sw_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+		id = row[sw_to_index["id"]
+		script = row[sw_to_index["script"]
+		pid = row[sw_to_index["pid"]
 		if pid is None:
 			print("Starting Execution of script: ", script)
 			process = subprocess.Popen('/bin/bash ' + script + ' > /dev/null 2> /dev/null &', shell=True)
