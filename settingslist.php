@@ -109,7 +109,7 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                                                         <h3 class="status"></small></h3>
                                                         </button>
 
-			        		        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Uptime">
+			        		        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Uptime">
 				        	        <h3 class="buttontop"><small><?php echo $lang['update_etc']; ?></small></h3>
                 					<h3 class="degre" ><i class="ionicons ion-clock red"></i></h3>
                         				<h3 class="status"></small></h3>
