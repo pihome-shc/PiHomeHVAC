@@ -929,23 +929,23 @@ function GetModal_Add_Software($conn)
         $script = $_GET['id'];
         $query = "INSERT INTO `sw_install` (`script`, `pid`) VALUES ('{$script}', NULL);";
         $conn->query($query);
+        $id = mysqli_insert_id($conn);
         sleep(10);
         echo '<div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title" id="ajaxModalLabel">Software Install</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">';
-                $query = "SELECT `pid` FROM `sw_install` LIMIT 1;";
+                $query = "SELECT `pid` FROM `sw_install` WHERE `id` = '.$id. ' LIMIT 1;";
                 $result = $conn->query($query);
-                $rowcount=mysqli_num_rows($result);
-                if($rowcount > 0) {
-                        $row = mysqli_fetch_array($result);
+                $row = mysqli_fetch_array($result);
+                if(isset($row['pid'])) {
                         $proc_file = "/proc/".$row['pid'];
                         while (file_exists( $proc_file )) {
                                 sleep(5);
                         }
                 }
-                echo '<p>Software Installed with PID '.$row['pid'].'</p>
+                echo '<p>Software Installed with PID '.$row['pid'].', Table ID '.$id.'</p>
         </div>
         <div class="modal-footer" id="ajaxModalFooter">
                  <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Close</button>
