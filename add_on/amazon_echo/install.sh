@@ -32,7 +32,7 @@ echo "Backing Up and Updateing /etc/fauxmo/config.json"
 echo "Adding Accessories for Each Zone"
 FILE=/etc/fauxmo/config.json
 sudo cp -a -- "$FILE" "$FILE-$(date +"%Y%m%d-%H%M%S")"
-/usr/bin/python3 config_json.py
+sudo /usr/bin/python3 /var/www/add_on/amazon_echo/config_json.py
 
 # check if Unit File already exists
 echo "Checking For Existing Unit File"

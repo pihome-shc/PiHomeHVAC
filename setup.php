@@ -147,7 +147,7 @@ if (!$db_selected) {
 
 //Job Scheduling
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Installing Scheduling \n";
-$output = shell_exec('sudo bash ./cron/install_jobs.sh');
+$output = shell_exec('sudo bash /var/www/cron/install_jobs.sh');
 echo $output;
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Finished Installing Scheduling \n";
 
@@ -159,7 +159,6 @@ www-data ALL=(ALL) NOPASSWD:/bin/mv myfile1.tmp /etc/wpa_supplicant/wpa_supplica
 www-data ALL=(ALL) NOPASSWD:/sbin/ifconfig eth0
 www-data ALL=/bin/systemctl
 www-data ALL=NOPASSWD: /bin/systemctl
-
 ';
 if (file_exists($sudoersfile)) {
         $output = shell_exec('cat '.$sudoersfile);
@@ -265,6 +264,7 @@ $query_job_scheduling .= "('check_gw','/var/www/cron/check_gw.php',0,0,60,''),";
 $query_job_scheduling .= "('system_c','/var/www/cron/system_c.php',0,0,300,''),";
 $query_job_scheduling .= "('weather_update','/var/www/cron/weather_update.php',0,0,1800,''),";
 $query_job_scheduling .= "('reboot_wifi','/var/www/cron/reboot_wifi.sh',0,0,120,'');";
+$query_job_scheduling .= "('sw_install','/var/www/cron/sw_install.py',0,0,10,'');";
 $results = $conn->query($query_job_scheduling);
 if ($results) {
                 echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Job Scheduling Records Added \033[41mJobs\033[0m Data  Succeeded \n";

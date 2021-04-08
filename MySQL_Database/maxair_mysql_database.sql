@@ -599,6 +599,17 @@ CREATE TABLE IF NOT EXISTS `schedule_night_climat_zone` (
 /*!40000 ALTER TABLE `schedule_night_climat_zone` DISABLE KEYS */;
 /*!40000 ALTER TABLE `schedule_night_climat_zone` ENABLE KEYS */;
 
+-- Dumping structure for table maxair.sw_install
+DROP TABLE IF EXISTS `sw_install`;
+CREATE TABLE IF NOT EXISTS `sw_install` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `script` char(100) NOT NULL,
+  `pid` int(11),
+  `start_datetime` timestamp NULL,
+  `stop_datetime` timestamp NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
 -- Dumping structure for table maxair.system
 DROP TABLE IF EXISTS `system`;
 CREATE TABLE IF NOT EXISTS `system` (
