@@ -936,16 +936,14 @@ function GetModal_Add_Software($conn)
                 <h5 class="modal-title" id="ajaxModalLabel">Software Install</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">';
-                $query = "SELECT `pid` FROM `sw_install` WHERE `id` = '.$id. ' LIMIT 1;";
-                $result = $conn->query($query);
-                $row = mysqli_fetch_array($result);
-                if(isset($row['pid'])) {
-                        $proc_file = "/proc/".$row['pid'];
-                        while (file_exists( $proc_file )) {
-                                sleep(5);
-                        }
+                $cmd = "ps -aux|grep ".$script."|grep -v grep";
+                $output = my_exec($cmd);
+                while (strpos($output['stdout'], $script) !== false) {
+                        sleep(5);
+                        $output = my_exec($cmd);
                 }
-                echo '<p>Software Installed with PID '.$row['pid'].', Table ID '.$id.'</p>
+                $output = file_get_contents('/var/www/cron/sw_install.txt');
+                echo '<textarea id="job_status_text" style="background-color: black;color:#fff;height: 500px; min-width: 100%">'.$output.'</textarea>
         </div>
         <div class="modal-footer" id="ajaxModalFooter">
                  <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Close</button>
