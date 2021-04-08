@@ -78,7 +78,7 @@ print( "-" * 68)
 try:
 	con = mdb.connect(dbhost, dbuser, dbpass, dbname);
 	cur = con.cursor()
-	cur.execute('SELECT * FROM `sw_install` WHERE `pid` IS NULL LIMIT 1;')
+	cur.execute('SELECT * FROM `sw_install` WHERE `pid` IS NULL ORDER BY `id` DESC LIMIT 1;')
 	results =cur.fetchone()
 	if cur.rowcount > 0:
 		id = results[0]
