@@ -930,7 +930,7 @@ function GetModal_Add_Software($conn)
         $query = "INSERT INTO `sw_install` (`script`, `pid`) VALUES ('{$script}', NULL);";
         $conn->query($query);
         $id = mysqli_insert_id($conn);
-        sleep(10);
+        sleep(5);
         echo '<div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title" id="ajaxModalLabel">Software Install</h5>
