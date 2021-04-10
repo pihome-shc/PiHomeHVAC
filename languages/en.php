@@ -591,4 +591,5 @@ $lang['install_software'] = "Install Software";
 $lang['install_software_text'] = "Select Software to be Installed.";
 $lang['installing_sw'] = "Installing Software";
 $lang['installing_sw_info'] = "Please Be Patient Installing Software in the background, this could take some time.";
+$lang['last_sw_install'] = "Results of Last Software Install Action";
 ?>
