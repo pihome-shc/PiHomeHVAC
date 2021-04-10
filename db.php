@@ -312,6 +312,22 @@ if($what=="boost"){
 	}
 }
 
+//Software Install
+if($what=="sw_install"){
+        if($opp=="add"){
+                $query = "INSERT INTO `sw_install` (`script`, `pid`, `start_datetime`, `stop_datetime`) VALUES ('{$wid}', NULL, NULL, NULL);";
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+}
+
 //HTTP Messages
 if($what=="http_msg"){
         if($opp=="delete"){
