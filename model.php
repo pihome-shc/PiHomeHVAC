@@ -1978,6 +1978,97 @@ function last_job_log(value){
 </script>
 <?php
 
+//Software Install Modal
+echo '
+<div class="modal fade" id="sw_install" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                                <h5 class="modal-title">'.$lang['install_software'].'</h5>
+                        </div>
+                        <div class="modal-body">
+                                <p class="text-muted">'.$lang['install_software_text'].'</p>
+                                <div class=\"list-group\">';
+                                        $installpath = "/var/www/api/enable_rewrite.sh";
+                                        $installname = "enable_rewrite";
+                                        if (file_exists("/etc/apache2/mods-available/rewrite.load")) {
+                                                $prompt = "Re-Install";
+                                        } else {
+                                                $prompt = "Install";
+                                        }
+                                        echo '<span class="list-group-item">
+                                        <i class="fa fa-terminal fa-2x green"></i> '.$installname.'
+                                        <span class="pull-right text-muted small"><button type="button" class="btn btn-primary btn-sm"
+                                        onclick="install_software(`'.$installpath.'`)">'.$prompt.'</button></span>
+                                        </span>';
+                                        $path = '/var/www/add_on';
+                                        $dir = new DirectoryIterator($path);
+                                        $searchfor = 'service_name';
+                                        foreach ($dir as $fileinfo) {
+                                                if ($fileinfo->isDir() && !$fileinfo->isDot()) {
+                                                        $installpath = $path."/".$fileinfo->getFilename()."/install.sh";
+                                                        if (file_exists($installpath)) {
+                                                                $contents = file_get_contents($installpath);
+                                                                $pattern = preg_quote($searchfor, '/');
+                                                                $pattern = "/^.*$pattern.*\$/m";
+                                                                if(preg_match_all($pattern, $contents, $matches)){
+                                                                        $str = implode("\n", $matches[0]);
+                                                                        $service_name = explode(' ',$str);
+                                                                        $rval=my_exec("/bin/systemctl status " . $service_name[1]);
+                                                                        if ($rval['stdout']=='') { $installed = 0; } else { $installed = 1; }
+                                                                } else {
+                                                                        $instaleed = 2;
+                                                                }
+                                                                echo '<span class="list-group-item">
+                                                                <i class="fa fa-terminal fa-2x green"></i> '.$fileinfo->getFilename();
+                                                                if ($installed == 0) {
+                                                                        echo '<span class="pull-right text-muted small"><button type="button" class="btn btn-primary btn-sm"
+                                                                        onclick="install_software(`'.$installpath.'`)">'.$lang['install'].'</button></span></span>';
+
+                                                                } elseif ($installed == 1) {
+                                                                        echo '<span class="pull-right text"><p> Already Installed</p></span>';
+                                                                } else {
+                                                                        echo '<span class="pull-right text"><p> NO Installer</p></span>';
+                                                                }
+                                                        }
+                                                }
+                                        }
+                                echo '</div>
+                        </div>
+                        <!-- /.modal-body -->
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                        </div>
+                        <!-- /.modal-footer -->
+                </div>
+                <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+</div>
+<!-- /.modal-fade -->
+';
+
+// Software Install Add
+echo '<div class="modal" id="add_install">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <h4 class="modal-title">'.$lang['installing_sw'].'</h4>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted">'.$lang['installing_sw_info'].'</p>';
+        $output = file_get_contents('/var/www/cron/sw_install.txt');
+        echo '<textarea id="install_status_text" style="background-color: black;color:#fff;height: 500px; min-width: 100%"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">'.$lang['close'].'</button>
+      </div>
+    </div>
+  </div>
+</div>';
+
 //OS version model
 //$osversion = exec ("cat /etc/os-release");
 //$lines=file('/etc/os-release');
@@ -2282,6 +2373,10 @@ echo '</div></div>
 
 <script>
 $(document).ready(function(){
+ setInterval(function(){//setInterval() method execute on every interval until called clearInterval()
+  $('#install_status_text').load("check_install_status.php").fadeIn("slow");
+  //load() method fetch data from fetch.php page
+ }, 1000);
   $('[data-toggle="popover"]').popover();
 });
 
