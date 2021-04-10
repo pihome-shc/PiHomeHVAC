@@ -1990,7 +1990,6 @@ echo '
                         <div class="modal-body">
                                 <p class="text-muted">'.$lang['install_software_text'].'</p>
                                 <div class=\"list-group\">';
-                                        file_put_contents('/var/www/cron/sw_install.txt', '');
                                         $installpath = "/var/www/api/enable_rewrite.sh";
                                         $installname = "enable_rewrite";
                                         if (file_exists("/etc/apache2/mods-available/rewrite.load")) {
@@ -2065,6 +2064,25 @@ echo '<div class="modal" id="add_install">
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary btn-sm" onclick="sw_install_close()">'.$lang['close'].'</button>
+      </div>
+    </div>
+  </div>
+</div>';
+
+// Last Software Install Model
+echo '<div class="modal" id="last_sw_install" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <h4 class="modal-title">'.$lang['last_sw_install'].'</h4>
+      </div>
+      <div class="modal-body">';
+        $output = file_get_contents('/var/www/cron/sw_install.txt');
+        echo '<textarea id="install_status_text" style="background-color: black;color:#fff;height: 500px; min-width: 100%">'.$output.'</textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
       </div>
     </div>
   </div>
