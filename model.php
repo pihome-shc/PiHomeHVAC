@@ -2027,9 +2027,9 @@ echo '
                                                                         onclick="install_software(`'.$installpath.'`)">'.$lang['install'].'</button></span></span>';
 
                                                                 } elseif ($installed == 1) {
-                                                                        echo '<span class="pull-right text"><p> Already Installed</p></span>';
+                                                                        echo '<span class="pull-right text"><p> Already Installed</p></span></span>';
                                                                 } else {
-                                                                        echo '<span class="pull-right text"><p> NO Installer</p></span>';
+                                                                        echo '<span class="pull-right text"><p> NO Installer</p></span></span>';
                                                                 }
                                                         }
                                                 }
