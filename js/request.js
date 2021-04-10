@@ -851,3 +851,10 @@ var idata="w=job&o=delete&wid="+wid;
     .always(function() {
     });
 }
+
+//Install Software
+function install_software(wid){
+        var quest = "?w=sw_install&o=add&wid=" + wid + "&frost_temp=0";
+        request('db.php', 'GET', quest, function(){ $("#add_install").modal('show'); } );
+}
+
