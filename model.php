@@ -2063,7 +2063,7 @@ echo '<div class="modal" id="add_install">
         echo '<textarea id="install_status_text" style="background-color: black;color:#fff;height: 500px; min-width: 100%"></textarea>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" onclick="sw_install_close()">'.$lang['close'].'</button>
+        <button type="button" class="btn btn-primary btn-sm" onclick="sw_install_close()">'.$lang['close'].'</button>
       </div>
     </div>
   </div>
