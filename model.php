@@ -1990,6 +1990,7 @@ echo '
                         <div class="modal-body">
                                 <p class="text-muted">'.$lang['install_software_text'].'</p>
                                 <div class=\"list-group\">';
+                                        file_put_contents('/var/www/cron/sw_install.txt', '');
                                         $installpath = "/var/www/api/enable_rewrite.sh";
                                         $installname = "enable_rewrite";
                                         if (file_exists("/etc/apache2/mods-available/rewrite.load")) {
