@@ -103,7 +103,7 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                                                         <h3 class="status"></small></h3>
                                                         </button>
 
-                       				<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_sensors.php" data-toggle="modal" data-target="#temperature_sensor">
+                       					<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_sensors.php" data-toggle="modal" data-target="#temperature_sensor">
                                                         <h3 class="buttontop"><small><?php echo $lang['sensors']; ?></small></h3>
                                                         <h3 class="degre" ><i class="ionicons ion-thermometer red"></i></h3>
                                                         <h3 class="status"></small></h3>
@@ -142,6 +142,12 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                                 		        <h3 class="degre" ><i class="ionicons ion-help-buoy blueinfo"></i></h3>
                                         		<h3 class="status"></small></h3>
 	                                              	</button>
+
+							<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#last_sw_install">
+                                                        <h3 class="buttontop"><small><?php echo $lang['install_software']; ?></small></h3>
+                                                        <h3 class="degre" ><i class="fa fa-terminal"></i></h3>
+                                                        <h3 class="status"></small></h3>
+                                                        </button>
 		                		</div>
 
 				             	<div id="collapse_system" class="panel-collapse collapse animated fadeIn">
