@@ -2088,6 +2088,33 @@ echo '<div class="modal" id="last_sw_install" tabindex="-1">
   </div>
 </div>';
 
+// Documentation Model
+echo '<div class="modal" id="documentation" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <h4 class="modal-title">'.$lang['documentation'].'</h4>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted">'.$lang['documentation_info'].'</p>
+        <div class=\"list-group\">';
+                $path = '/var/www/documentation/pdf_format';
+                $allFiles = array_diff(scandir($path . "/"), [".", ".."]); // Use array_diff to remove both period values eg: ("." , "..")
+                foreach ($allFiles as $value) {
+                        echo '<span class="list-group-item">
+                        <i class="fa fa-file fa-2x orange"></i> '.$value.'<a href="pdf_download.php?file='.$value.'">
+                        <button type="button" class="pull-right btn btn-primary btn-sm" >'.$lang['open'].'</button></a></span>';
+                }
+        echo '</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+      </div>
+    </div>
+  </div>
+</div>';
+
 //OS version model
 //$osversion = exec ("cat /etc/os-release");
 //$lines=file('/etc/os-release');
