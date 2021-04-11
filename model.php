@@ -1999,7 +1999,7 @@ echo '
                                         }
                                         echo '<span class="list-group-item">
                                         <i class="fa fa-terminal fa-2x green"></i> '.$installname.'
-                                        <span class="pull-right text-muted small"><button type="button" class="btn btn-primary btn-sm"
+                                        <span class="pull-right text-muted small"><button type="button" class="btn btn-default login btn-sm"
                                         onclick="install_software(`'.$installpath.'`)">'.$prompt.'</button></span>
                                         </span>';
                                         $path = '/var/www/add_on';
@@ -2023,7 +2023,7 @@ echo '
                                                                 echo '<span class="list-group-item">
                                                                 <i class="fa fa-terminal fa-2x green"></i> '.$fileinfo->getFilename();
                                                                 if ($installed == 0) {
-                                                                        echo '<span class="pull-right text-muted small"><button type="button" class="btn btn-primary btn-sm"
+                                                                        echo '<span class="pull-right text-muted small"><button type="button" class="btn btn-default login btn-sm"
                                                                         onclick="install_software(`'.$installpath.'`)">'.$lang['install'].'</button></span></span>';
 
                                                                 } elseif ($installed == 1) {
@@ -2104,7 +2104,7 @@ echo '<div class="modal" id="documentation" tabindex="-1">
                 foreach ($allFiles as $value) {
                         echo '<span class="list-group-item">
                         <i class="fa fa-file fa-2x orange"></i> '.$value.'<a href="pdf_download.php?file='.$value.'" target="_blank">
-                        <button type="button" class="pull-right btn btn-primary btn-sm" >'.$lang['open'].'</button></a></span>';
+                        <button type="button" class="pull-right btn btn-default login btn-sm" >'.$lang['open'].'</button></a></span>';
                 }
         echo '</div>
       </div>
