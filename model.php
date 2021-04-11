@@ -2103,7 +2103,7 @@ echo '<div class="modal" id="documentation" tabindex="-1">
                 $allFiles = array_diff(scandir($path . "/"), [".", ".."]); // Use array_diff to remove both period values eg: ("." , "..")
                 foreach ($allFiles as $value) {
                         echo '<span class="list-group-item">
-                        <i class="fa fa-file fa-2x orange"></i> '.$value.'<a href="pdf_download.php?file='.$value.'">
+                        <i class="fa fa-file fa-2x orange"></i> '.$value.'<a href="pdf_download.php?file='.$value.'" target="_blank">
                         <button type="button" class="pull-right btn btn-primary btn-sm" >'.$lang['open'].'</button></a></span>';
                 }
         echo '</div>
