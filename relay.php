@@ -146,7 +146,7 @@ function RelayTypeID(value)
 
 <!-- Relay ID -->
 <div class="form-group" class="control-label" id="relay_id_label" style="display:block"><label><?php echo $lang['relay_id']; ?></label> <small class="text-muted"><?php echo $lang['relay_id_info'];?></small>
-<select id="relay_id" onchange=RelayChildList(this.options[this.selectedIndex].value) name="relay_id" class="form-control select2" data-error="<?php echo $lang['zone_temp_sensor_id_error']; ?>" autocomplete="off" required>
+<select id="relay_id" onchange=RelayChildList(this.options[this.selectedIndex].value) name="relay_id" class="form-control select2" data-error="<?php echo $lang['relay_id_error']; ?>" autocomplete="off" required>
 <?php if(isset($rownode['node_id'])) {
         echo '<option selected >'.$rownode['node_id']." - ".$rownode['name'].'</option>';
         $query = "SELECT id, node_id, name, max_child_id FROM nodes WHERE name LIKE '%Controller%' AND id <> ".$rownode['id']." ORDER BY node_id ASC;";
@@ -202,7 +202,7 @@ function RelayChildList(value)
 <!-- Relay Child ID -->
 <input type="hidden" id="gpio_pin_list" name="gpio_pin_list" value="<?php echo implode(",", array_filter(Get_GPIO_List()))?>"/>
 <div class="form-group" class="control-label"><label><?php echo $lang['relay_child_id']; ?></label> <small class="text-muted"><?php echo $lang['relay_child_id_info'];?></small>
-        <select id="relay_child_id" name="relay_child_id" class="form-control select2" data-error="<?php echo $lang['relay_id_error']; ?>" autocomplete="off" required>
+        <select id="relay_child_id" name="relay_child_id" class="form-control select2" data-error="<?php echo $lang['relay_child_id_error']; ?>" autocomplete="off" required>
                 <?php if(isset($row['controler_child_id'])) {
                         echo '<option selected >'.$row['controler_child_id'].'</option>';
                         $pos=strpos($rownode["type"], "GPIO");
