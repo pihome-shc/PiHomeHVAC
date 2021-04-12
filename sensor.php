@@ -129,9 +129,9 @@ if (isset($_POST['submit'])) {
 							<div class="help-block with-errors"></div>
 						</div>
 
-						<!-- Temperature Sensor ID -->
-						<div class="form-group" class="control-label" id="sensor_id_label" style="display:block"><label><?php echo $lang['temp_sensor_id']; ?></label> <small class="text-muted"><?php echo $lang['zone_sensor_id_info'];?></small>
-							<select id="sensor_id" onchange=SensorChildList(this.options[this.selectedIndex].value) name="sensor_id" class="form-control select2" data-error="<?php echo $lang['zone_temp_sensor_id_error']; ?>" autocomplete="off" required>
+						<!-- Sensor ID -->
+						<div class="form-group" class="control-label" id="sensor_id_label" style="display:block"><label><?php echo $lang['sensor_id']; ?></label> <small class="text-muted"><?php echo $lang['sensor_id_info'];?></small>
+							<select id="sensor_id" onchange=SensorChildList(this.options[this.selectedIndex].value) name="sensor_id" class="form-control select2" data-error="<?php echo $lang['sensor_id_error']; ?>" autocomplete="off" required>
                                                                 <?php if(isset($rownode['node_id'])) {
                                                                         echo '<option selected >'.$rownode['node_id'].' - '.$rownode['name'].'</option>';
                                                 			$query = "SELECT node_id, name, max_child_id FROM nodes where name LIKE '%Sensor' AND id <> ".$rownode['id']." ORDER BY node_id ASC;";
@@ -176,9 +176,9 @@ if (isset($_POST['submit'])) {
 						<input type="hidden" id="graph_num" name="graph_num" value="<?php echo $row['graph_num']?>"/>
 						<input type="hidden" id="show_it" name="show_it" value="<?php echo $row['show_it']?>"/>
 
-						<!-- Temperature Sensor Child ID -->
-						<div class="form-group" class="control-label" id="sensor_child_id_label" style="display:block"><label><?php echo $lang['temp_sensor_child_id']; ?></label> <small class="text-muted"><?php echo $lang['zone_sensor_id_info'];?></small>
-							<select id="sensor_child_id" name="sensor_child_id" class="form-control select2" data-error="<?php echo $lang['zone_temp_sensor_id_error']; ?>" autocomplete="off" required>
+						<!-- Sensor Child ID -->
+						<div class="form-group" class="control-label" id="sensor_child_id_label" style="display:block"><label><?php echo $lang['sensor_child_id']; ?></label> <small class="text-muted"><?php echo $lang['sensor_child_id_info'];?></small>
+							<select id="sensor_child_id" name="sensor_child_id" class="form-control select2" data-error="<?php echo $lang['sensor_child_id_error']; ?>" autocomplete="off" required>
 								<?php if(isset($row['sensor_child_id'])) { echo '<option selected >'.$row['sensor_child_id'].'</option>';
 								for ($x = 0; $x <= $rownode['max_child_id']; $x++) {
         								echo "<option value=".$x.">".$x."</option>";
