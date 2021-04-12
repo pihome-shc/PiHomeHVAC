@@ -466,8 +466,8 @@ $lang['sunset_enable'] = "Enable Sunset & Set Offset in Minutes ";
 $lang['sunset_enable_info'] = "Enable Sunset Override for Start Time with an Offset in minutes eg -30 is 30 minutes before sunset";
 $lang['select_zone'] = "Select Zone/s";
 
-$lang['sensor_settings'] = "Temperature Sensor Settings";
-$lang['sensor_settings_text'] = "Edit or Delete the Temperature Sensors Configuration. <br> Temperature Sensors Allocated to a Zone Cannot be Deleted. <br> Last Seen Date/Time is shown with Sensor Name. ";
+$lang['sensor_settings'] = "Sensor Settings";
+$lang['sensor_settings_text'] = "Edit or Delete the Sensor's Configuration. <br> Sensors Allocated to a Zone Cannot be Deleted. <br> Last Seen Date/Time is shown with Sensor Name. ";
 $lang['temp_sensor_id'] = "Temperature Sensor ID";
 $lang['temp_sensor_child_id'] = "Temperature Sensor Child ID";
 $lang['sensor_add'] = "Add Sensor";
