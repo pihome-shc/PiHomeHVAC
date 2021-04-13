@@ -1150,16 +1150,26 @@ echo '
 				$gquery = "SELECT * FROM gateway";
 				$gresult = $conn->query($gquery);
 				$grow = mysqli_fetch_array($gresult);
-				echo '<p class="text-muted">'; 
-				if ($grow['type']=='wifi'){
-					echo $lang['smart_home_gateway_text_wifi'];
-					$display_wifi = "display:block";
-					$display_serial = "display:none";
-				} elseif ($grow['type']=='serial') {
-					echo $lang['smart_home_gateway_text_serial'];
+                                $rowcount=mysqli_num_rows($gresult);
+                                if($rowcount == 0) {
+                                        echo $lang['smart_home_gateway_text_serial'];
                                         $display_wifi = "display:none";
                                         $display_serial = "display:block";
- 				}
+                                        $gateway_type = 'serial';
+                                } else {
+                                        $grow = mysqli_fetch_array($gresult);
+                                        $gateway_type = $grow['type'];
+                                        echo '<p class="text-muted">';
+                                        if ($gateway_type=='wifi'){
+                                                echo $lang['smart_home_gateway_text_wifi'];
+                                                $display_wifi = "display:block";
+                                                $display_serial = "display:none";
+                                        } elseif ($gateway_type=='serial') {
+                                                echo $lang['smart_home_gateway_text_serial'];
+                                                $display_wifi = "display:none";
+                                                $display_serial = "display:block";
+                                        }
+                                }
 				echo '</p>';
 				echo '
 				<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
@@ -1191,8 +1201,8 @@ echo '
 
                                 <div class="form-group" class="control-label"><label>'.$lang['smart_home_gateway_type'].'</label>
                                         <select class="form-control input-sm" type="text" id="gw_type" name="gw_type" onchange=gw_location()>
-                                        <option value="wifi" ' . ($grow['type']=='wifi' ? 'selected' : '') . '>'.$lang['wifi'].'</option>
-                                        <option value="serial" ' . ($grow['type']=='serial' ? 'selected' : '') . '>'.$lang['serial'].'</option>
+                                        <option value="wifi" ' . ($gateway_type=='wifi' ? 'selected' : '') . '>'.$lang['wifi'].'</option>
+                                        <option value="serial" ' . ($gateway_type=='serial' ? 'selected' : '') . '>'.$lang['serial'].'</option>
                                         </select>
                                         <div class="help-block with-errors">
                                         </div>
