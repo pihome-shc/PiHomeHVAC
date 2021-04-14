@@ -27,7 +27,7 @@ echo "<h4>".$lang['graph_humidity']."</h4></p>".$lang['graph_humidity_24h']."</p
 // create humidity level dataset based on all available sensors
 var humidity_level_dataset = [
 <?php
-    $querya ="SELECT * FROM temperature_sensors WHERE graph_num = 4 ORDER BY id ASC;";
+    $querya ="SELECT * FROM temperature_sensors WHERE sensor_type_id = 2 ORDER BY id ASC;";
     $resulta = $conn->query($querya);
     $counter = 0;
     $count = mysqli_num_rows($resulta) + 1;
