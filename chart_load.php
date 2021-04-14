@@ -43,7 +43,7 @@ $sunset = $weather_row['sunset']* 1000 ;
 //http://php.net/manual/en/function.date-sun-info.php
 
 // create datasets based on all available sensors
-$querya ="SELECT * FROM temperature_sensors WHERE graph_num > 0 ORDER BY id ASC;";
+$querya ="SELECT * FROM temperature_sensors WHERE graph_num > 0 AND  graph_num <= 3 ORDER BY id ASC;";
 $resulta = $conn->query($querya);
 $graph1 = '';
 $graph2 = '';
@@ -205,6 +205,17 @@ function showTooltip(x, y, color, contents) {
         opacity: 0.7
     }).appendTo("body").fadeIn(200);
 }
+
+// Create Graph Humidity
+var options_humidity = {
+    xaxis: { mode: "time", timeformat: "%H:%M"},
+    series: { lines: { show: true, lineWidth: 1, fill: false}, curvedLines: { apply: true,  active: true,  monotonicFit: true } },
+    grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf9f9"] }, borderColor: "#ff8839",},
+    legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
+};
+
+$(document).ready(function () {$.plot($("#humidity_level"), humidity_level_dataset, options_humidity);$("#humidity_level").UseTooltip();});
+var previousPoint = null, previousLabel = null;
 
 // Create Graphs Add-On State
 var options_addon = {

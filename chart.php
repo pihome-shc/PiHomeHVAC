@@ -51,7 +51,8 @@ while ($row = mysqli_fetch_assoc($result)) {
  				<div class="panel-body">
                         		<!-- Nav tabs -->
 	        			<ul class="nav nav-pills">
-        	    			<button class="btn-lg btn-default btn-circle active" href="#temperature-pills" data-toggle="tab"><i class="fa fa-bar-chart red"></i></i></button>
+        	    					<button class="btn-lg btn-default btn-circle active" href="#temperature-pills" data-toggle="tab"><i class="fa fa-bar-chart red"></i></i></button>
+                                        		<button class="btn-lg btn-default btn-circle" href="#humidity-pills" data-toggle="tab"><i class="fa fa-bar-chart blue"></i></i></button>
 							<button class="btn-lg btn-default btn-circle" href="#add-on-pills" data-toggle="tab"><img src="./images/icons8-light-automation-20.png"/></i></button>
 							<button class="btn-lg btn-default btn-circle" href="#controller-pills" data-toggle="tab"><i class="glyphicon glyphicon-leaf green"></i></button>
 							<button class="btn-lg btn-default btn-circle" href="#month-pills" data-toggle="tab"><i class="fa fa-area-chart blue"></i></button>
@@ -60,6 +61,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 	        			<!-- Tab panes -->
         				<div class="tab-content">
             						<div class="tab-pane fade in active" id="temperature-pills"><br><?php include("chart_dailyusage.php"); ?></div>
+                                                        <div class="tab-pane fade" id="humidity-pills"><br><?php include("chart_humidity_daily.php"); ?></div>
             	                 			<div class="tab-pane fade" id="add-on-pills"><br><?php include("chart_addonusage.php"); ?></div>
 							<div class="tab-pane fade" id="controller-pills"><br><?php include("chart_controllerlist.php"); ?></div>
 							<div class="tab-pane fade" id="month-pills"><br><?php include("chart_monthlyusage.php"); ?></div>
