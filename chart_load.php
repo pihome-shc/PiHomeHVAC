@@ -217,7 +217,46 @@ var options_humidity = {
 $(document).ready(function () {$.plot($("#humidity_level"), humidity_level_dataset, options_humidity);$("#humidity_level").UseTooltip();});
 var previousPoint = null, previousLabel = null;
 
-// Create Graphs Add-On State
+$.fn.UseTooltiphu = function () {
+    $(this).bind("plothover", function (event, pos, item) {
+        if (item) {
+            if ((previousLabel != item.series.label) ||
+                 (previousPoint != item.dataIndex)) {
+                previousPoint = item.dataIndex;
+                previousLabel = item.series.label;
+                $("#tooltip").remove();
+                var x = item.datapoint[0];
+                var y = item.datapoint[1];
+                var color = item.series.color;
+                showTooltiphu(item.pageX,
+                        item.pageY,
+                        color,
+                        "<strong>" + item.series.label + "</strong> At: " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"<br> <strong><?php echo $lang['humid']; ?>  : " + $.formatNumber(y, { format: "#,###", locale: "us" }) + "%rh</strong> ");
+            }
+        } else {
+            $("#tooltip").remove();
+            previousPoint = null;
+        }
+    });
+};
+
+function showTooltiphu(x, y, color, contents) {
+    $('<div id="tooltip">' + contents + '</div>').css({
+        position: 'absolute',
+        display: 'none',
+        top: y - 10,
+        left: x + 10,
+        border: '1px solid ' + color,
+        padding: '3px',
+        'font-size': '9px',
+        'border-radius': '5px',
+        'background-color': '#fff',
+        'font-family': 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+        opacity: 0.7
+    }).appendTo("body").fadeIn(200);
+}
+
+	// Create Graphs Add-On State
 var options_addon = {
     xaxis: { mode: "time", timeformat: "%H:%M"},
     yaxis: { font:{ size:8, weight: "bold", family: "sans-serif", variant: "small-caps", color: "#545454" }, ticks: tick_dataset },
