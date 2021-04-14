@@ -601,4 +601,6 @@ $lang['last_sw_install'] = "Results of Last Software Install Action";
 $lang['documentation'] = "Documentation";
 $lang['documentation_info'] = "Select Documentation to be opened in a new Browser Tab";
 $lang['open'] = "Open";
+$lang['sensor_type'] = "Sensor Type";
+$lang['sensor_type_info'] = "Temperature, Humidity, etc";
 ?>
