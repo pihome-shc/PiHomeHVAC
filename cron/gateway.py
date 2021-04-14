@@ -657,9 +657,120 @@ try:
                             )
                             con.commit()
 
-                            # ..::Step Six::..
-                            # Add Battery Voltage Nodes Battery Table
-                            # Example: 25;1;1;0;38;4.39
+                    # ..::Step Six ::..
+                    # Add Humidity Reading to database
+                if (
+                    node_id != 0
+                    and child_sensor_id != 255
+                    and message_type == 1
+                    and sub_type == 1
+                ):
+                    if dbgLevel >= 2 and dbgMsgIn == 1:
+                        print(
+                            "6: Adding Humidity Reading From Node ID:",
+                            node_id,
+                            " Child Sensor ID:",
+                            child_sensor_id,
+                            " PayLoad:",
+                            payload,
+                        )
+                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    cur.execute(
+                        "INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s)",
+                        (0, 0, node_id, child_sensor_id, sub_type, payload, timestamp),
+                    )
+                    con.commit()
+                    cur.execute(
+                        "UPDATE `nodes` SET `last_seen`=now(), `sync`=0  WHERE node_id = %s",
+                        [node_id],
+                    )
+                    con.commit()
+                    # Check is sensor is attached to a zone which is being graphed
+                    cur.execute(
+                        "SELECT temperature_sensors.id, temperature_sensors.zone_id, nodes.node_id, temperature_sensors.sensor_child_id, temperature_sensors.name, temperature_sensors.graph_num FROM temperature_sensors, `nodes` WHERE (temperature_sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) AND temperature_sensors.sensor_child_id = (%s) AND temperature_sensors.graph_num > 0 LIMIT 1;",
+                        (node_id, child_sensor_id),
+                    )
+                    results = cur.fetchone()
+                    if cur.rowcount > 0:
+                        sensor_to_index = dict(
+                            (d[0], i) for i, d in enumerate(cur.description)
+                        )
+                        sensor_id = int(results[sensor_to_index["id"]])
+                        sensor_name = results[sensor_to_index["name"]]
+                        zone_id = results[sensor_to_index["zone_id"]]
+                        # type = results[zone_view_to_index['type']]
+                        # category = int(results[zone_view_to_index['category']])
+                        graph_num = int(results[sensor_to_index["graph_num"]])
+                        if graph_num > 0:
+                            if dbgLevel >= 2 and dbgMsgIn == 1:
+                                print(
+                                    "6a: Adding Humidity Reading to Graph Table From Node ID:",
+                                    node_id,
+                                    " Child Sensor ID:",
+                                    child_sensor_id,
+                                    " PayLoad:",
+                                    payload,
+                                )
+                            if zone_id == 0:
+                                cur.execute(
+                                    "INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                                    (
+                                        0,
+                                        0,
+                                        sensor_id,
+                                        sensor_name,
+                                        "Sensor",
+                                        0,
+                                        node_id,
+                                        child_sensor_id,
+                                        sub_type,
+                                        payload,
+                                        timestamp,
+                                    ),
+                                )
+                                con.commit()
+                            else:
+                                cur.execute(
+                                    "SELECT * FROM `zone_view` where id = (%s) LIMIT 1;",
+                                    (zone_id,),
+                                )
+                                results = cur.fetchone()
+                                if cur.rowcount > 0:
+                                    zone_view_to_index = dict(
+                                        (d[0], i) for i, d in enumerate(cur.description)
+                                    )
+                                    zone_name = results[zone_view_to_index["name"]]
+                                    type = results[zone_view_to_index["type"]]
+                                    category = int(
+                                        results[zone_view_to_index["category"]]
+                                    )
+                                    if category < 2:
+                                        cur.execute(
+                                            "INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                                            (
+                                                0,
+                                                0,
+                                                sensor_id,
+                                                zone_name,
+                                                type,
+                                                category,
+                                                node_id,
+                                                child_sensor_id,
+                                                sub_type,
+                                                payload,
+                                                timestamp,
+                                            ),
+                                        )
+                                        con.commit()
+                            cur.execute(
+                                "DELETE FROM zone_graphs WHERE node_id = (%s) AND child_id = (%s) AND datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR;",
+                                (node_id, child_sensor_id),
+                            )
+                            con.commit()
+
+                    # ..::Step Seven::..
+                    # Add Battery Voltage Nodes Battery Table
+                    # Example: 25;1;1;0;38;4.39
                 if (
                     node_id != 0
                     and child_sensor_id != 255
@@ -668,7 +779,7 @@ try:
                 ):
                     if dbgLevel >= 2 and dbgMsgIn == 1:
                         print(
-                            "6: Battery Voltage for Node ID:",
+                            "7: Battery Voltage for Node ID:",
                             node_id,
                             " Battery Voltage:",
                             payload,
@@ -682,7 +793,7 @@ try:
                     ##cur.execute('UPDATE `nodes` SET `last_seen`=now() WHERE node_id = %s', [node_id])
                     con.commit()
 
-                    # ..::Step Seven::..
+                    # ..::Step Eight::..
                     # Add Battery Level Nodes Battery Table
                     # Example: 25;255;3;0;0;104
                 if (
@@ -693,7 +804,7 @@ try:
                 ):
                     if dbgLevel >= 2 and dbgMsgIn == 1:
                         print(
-                            "7: Adding Battery Level & Voltage for Node ID:",
+                            "8: Adding Battery Level & Voltage for Node ID:",
                             node_id,
                             "Battery Level:",
                             payload,
@@ -709,7 +820,7 @@ try:
                     )
                     con.commit()
 
-                    # ..::Step Eight::..
+                    # ..::Step Nine::..
                     # Add Boost Status Level to Database/Relay Last seen gets added here as well when ACK is set to 1 in messages_out table.
                 if (
                     node_id != 0
@@ -720,7 +831,7 @@ try:
                     # print "2 insert: ", node_id, " , ", child_sensor_id, "payload", payload
                     if dbgLevel >= 2 and dbgMsgIn == 1:
                         print(
-                            "8. Adding Database Record: Node ID:",
+                            "9. Adding Database Record: Node ID:",
                             node_id,
                             " Child Sensor ID:",
                             child_sensor_id,
@@ -736,7 +847,7 @@ try:
                     )
                     con.commit()
 
-                    # ..::Step Nine::..
+                    # ..::Step Ten::..
                     # Add Away Status Level to Database
                 if (
                     node_id != 0
@@ -748,7 +859,7 @@ try:
                     # print "2 insert: ", node_id, " , ", child_sensor_id, "payload", payload
                     if dbgLevel >= 2 and dbgMsgIn == 1:
                         print(
-                            "9. Adding Database Record: Node ID:",
+                            "10. Adding Database Record: Node ID:",
                             node_id,
                             " Child Sensor ID:",
                             child_sensor_id,
@@ -766,7 +877,7 @@ try:
                     # else:
                     # print bc.WARN+ "No Action Defined Incomming Node Message Ignored \n\n" +bc.ENDC
 
-                    # ..::Step Ten::..
+                    # ..::Step Eleven::..
                     # When Gateway Startup Completes
                 if (
                     node_id == 0
@@ -775,11 +886,11 @@ try:
                     and sub_type == 18
                 ):
                     if dbgLevel >= 2 and dbgMsgIn == 1:
-                        print("10: PiHome MySensors Gateway Version :", payload)
+                        print("11: PiHome MySensors Gateway Version :", payload)
                     cur.execute("UPDATE gateway SET version = %s", [payload])
                     con.commit()
 
-                    # ..::Step Eleven::.. 40;0;3;0;1;02:27
+                    # ..::Step Twelve::.. 40;0;3;0;1;02:27
                     # When client is requesting time
                 if (
                     node_id != 0
@@ -788,19 +899,19 @@ try:
                     and sub_type == 1
                 ):
                     if dbgLevel >= 2 and dbgMsgIn == 1:
-                        print("11: Node ID: ", node_id, " Requested Time")
+                        print("12: Node ID: ", node_id, " Requested Time")
                         # nowtime = time.ctime()
                     nowtime = time.strftime("%H:%M")
                     ntime = "UPDATE messages_out SET payload=%s, sent=%s WHERE node_id=%s AND child_id = %s"
                     cur.execute(ntime, (nowtime, "0", node_id, child_sensor_id))
                     con.commit()
 
-                    # ..::Step Twelve::.. 40;0;3;0;1;02:27
+                    # ..::Step Thirteen::.. 40;0;3;0;1;02:27
                     # When client is requesting text
                 if node_id != 0 and message_type == 2 and sub_type == 47:
                     if dbgLevel >= 2 and dbgMsgIn == 1:
                         print(
-                            "12: Node ID: ",
+                            "13: Node ID: ",
                             node_id,
                             "Child ID: ",
                             child_sensor_id,
@@ -811,14 +922,14 @@ try:
                     # cur.execute(ntime, (nowtime, '0', node_id, child_sensor_id,))
                     # con.commit()
 
-                    # ..::Step Thirteen::.. 255;18;3;0;3;
+                    # ..::Step Fourteen::.. 255;18;3;0;3;
                     # When Node is requesting ID
                 if (
                     node_id != 0 and message_type == 3 and sub_type == 3
                 ):  # best is to check node_id is 255 but i can not get to work with that.
                     if dbgLevel >= 2 and dbgMsgIn == 1:
                         print(
-                            "12: Node ID: ",
+                            "14: Node ID: ",
                             node_id,
                             " Child ID: ",
                             child_sensor_id,
