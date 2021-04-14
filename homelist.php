@@ -36,7 +36,7 @@ require_once(__DIR__.'/st_inc/functions.php');
         <!-- /.panel-heading -->
         <div class="panel-body">
                 <a style="color: #777; cursor: pointer; text-decoration: none;" href="home.php?page_name=onetouch">
-                <button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn">
+                <button class="btn btn-default btn-circle black-background btn-xxl mainbtn animated fadeIn">
                 <h3><small><?php echo $lang['one_touch']; ?></small></h3>
                 <h3 class="degre" style="margin-top:0px;"><i class="fa fa-bullseye fa-2x"></i></h3>
                 <h3 class="status"></h3>
@@ -361,7 +361,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 		} // end of zones while loop
 
                 // Temperature Sensors Pre System Controller
-                $query = "SELECT temperature_sensors.name, temperature_sensors.sensor_child_id, nodes.node_id, nodes.last_seen, nodes.notice_interval FROM temperature_sensors, nodes WHERE (nodes.id = temperature_sensors.sensor_id) AND temperature_sensors.zone_id = 0 AND temperature_sensors.show_it = 1 AND temperature_sensors.pre_post = 1 order by index_id asc;";
+                $query = "SELECT temperature_sensors.name, temperature_sensors.sensor_child_id, temperature_sensors.sensor_type_id, nodes.node_id, nodes.last_seen, nodes.notice_interval FROM temperature_sensors, nodes WHERE (nodes.id = temperature_sensors.sensor_id) AND temperature_sensors.zone_id = 0 AND temperature_sensors.show_it = 1 AND temperature_sensors.pre_post = 1 order by index_id asc;";
                 $results = $conn->query($query);
                 while ($row = mysqli_fetch_assoc($results)) {
                         $sensor_name = $row['name'];
@@ -369,6 +369,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                         $node_id = $row['node_id'];
                         $node_seen = $row['last_seen'];
                         $node_notice = $row['notice_interval'];
+			$sensor_type = $row['sensor_type_id'];
                         $shcolor = "green";
                         if($node_notice > 0){
                                 $now=strtotime(date('Y-m-d H:i:s'));
@@ -381,9 +382,13 @@ require_once(__DIR__.'/st_inc/functions.php');
                         $sensor = mysqli_fetch_array($result);
                         $sensor_c = $sensor['payload'];
                         echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-backdrop="static" data-keyboard="false">
-                        <h3><small>'.$sensor_name.'</small></h3>
-                        <h3 class="degre">'.number_format(DispTemp($conn,$sensor_c),1).'&deg;</h3>
-                        <h3 class="status">
+                        <h3><small>'.$sensor_name.'</small></h3>';
+			if ($sensor_type == 1) {
+                        	echo '<h3 class="degre">'.number_format(DispTemp($conn,$sensor_c),1).'&deg;</h3>';
+			} else {
+                                echo '<h3 class="degre">'.number_format(DispTemp($conn,$sensor_c),1).'</h3>';
+			}
+                        echo '<h3 class="status">
                         <small class="statuscircle"><i class="fa fa-circle fa-fw '.$shcolor.'"></i></small>
                         </h3></button>';      //close out status and button
                 }
@@ -492,7 +497,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 		// end if system controller button
 
 		// Temperature Sensors Post System Controller
-		$query = "SELECT temperature_sensors.name, temperature_sensors.sensor_child_id, nodes.node_id, nodes.last_seen, nodes.notice_interval FROM temperature_sensors, nodes WHERE (nodes.id = temperature_sensors.sensor_id) AND temperature_sensors.zone_id = 0 AND temperature_sensors.show_it = 1 AND temperature_sensors.pre_post = 0 order by index_id asc;";
+		$query = "SELECT temperature_sensors.name, temperature_sensors.sensor_child_id, temperature_sensors.sensor_type_id,nodes.node_id, nodes.last_seen, nodes.notice_interval FROM temperature_sensors, nodes WHERE (nodes.id = temperature_sensors.sensor_id) AND temperature_sensors.zone_id = 0 AND temperature_sensors.show_it = 1 AND temperature_sensors.pre_post = 0 order by index_id asc;";
                 $results = $conn->query($query);
                 while ($row = mysqli_fetch_assoc($results)) {
 			$sensor_name = $row['name'];
@@ -500,6 +505,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 			$node_id = $row['node_id'];
                         $node_seen = $row['last_seen'];
                         $node_notice = $row['notice_interval'];
+			$sensor_type = $row['sensor_type_id'];
 			$shcolor = "green";
 	                if($node_notice > 0){
         	                $now=strtotime(date('Y-m-d H:i:s'));
@@ -512,9 +518,13 @@ require_once(__DIR__.'/st_inc/functions.php');
                         $sensor = mysqli_fetch_array($result);
                         $sensor_c = $sensor['payload'];
    			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-backdrop="static" data-keyboard="false">
-			<h3><small>'.$sensor_name.'</small></h3>
-			<h3 class="degre">'.number_format(DispTemp($conn,$sensor_c),1).'&deg;</h3>
-			<h3 class="status">
+                        <h3><small>'.$sensor_name.'</small></h3>';
+                        if ($sensor_type == 1) {
+                                echo '<h3 class="degre">'.number_format(DispTemp($conn,$sensor_c),1).'&deg;</h3>';
+                        } else {
+                                echo '<h3 class="degre">'.number_format(DispTemp($conn,$sensor_c),1).'%</h3>';
+                        }
+                        echo '<h3 class="status">
                         <small class="statuscircle"><i class="fa fa-circle fa-fw '.$shcolor.'"></i></small>
                         </h3></button>';      //close out status and button
  		}

@@ -43,7 +43,7 @@ $sunset = $weather_row['sunset']* 1000 ;
 //http://php.net/manual/en/function.date-sun-info.php
 
 // create datasets based on all available sensors
-$querya ="SELECT * FROM temperature_sensors WHERE graph_num > 0 ORDER BY id ASC;";
+$querya ="SELECT * FROM temperature_sensors WHERE graph_num > 0 AND sensor_type_id = 1 ORDER BY id ASC;";
 $resulta = $conn->query($querya);
 $graph1 = '';
 $graph2 = '';
@@ -206,7 +206,57 @@ function showTooltip(x, y, color, contents) {
     }).appendTo("body").fadeIn(200);
 }
 
-// Create Graphs Add-On State
+// Create Graph Humidity
+var options_humidity = {
+    xaxis: { mode: "time", timeformat: "%H:%M"},
+    series: { lines: { show: true, lineWidth: 1, fill: false}, curvedLines: { apply: true,  active: true,  monotonicFit: true } },
+    grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf9f9"] }, borderColor: "#ff8839",},
+    legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
+};
+
+$(document).ready(function () {$.plot($("#humidity_level"), humidity_level_dataset, options_humidity);$("#humidity_level").UseTooltip();});
+var previousPoint = null, previousLabel = null;
+
+$.fn.UseTooltiphu = function () {
+    $(this).bind("plothover", function (event, pos, item) {
+        if (item) {
+            if ((previousLabel != item.series.label) ||
+                 (previousPoint != item.dataIndex)) {
+                previousPoint = item.dataIndex;
+                previousLabel = item.series.label;
+                $("#tooltip").remove();
+                var x = item.datapoint[0];
+                var y = item.datapoint[1];
+                var color = item.series.color;
+                showTooltiphu(item.pageX,
+                        item.pageY,
+                        color,
+                        "<strong>" + item.series.label + "</strong> At: " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"<br> <strong><?php echo $lang['humid']; ?>  : " + $.formatNumber(y, { format: "#,###", locale: "us" }) + "%rh</strong> ");
+            }
+        } else {
+            $("#tooltip").remove();
+            previousPoint = null;
+        }
+    });
+};
+
+function showTooltiphu(x, y, color, contents) {
+    $('<div id="tooltip">' + contents + '</div>').css({
+        position: 'absolute',
+        display: 'none',
+        top: y - 10,
+        left: x + 10,
+        border: '1px solid ' + color,
+        padding: '3px',
+        'font-size': '9px',
+        'border-radius': '5px',
+        'background-color': '#fff',
+        'font-family': 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+        opacity: 0.7
+    }).appendTo("body").fadeIn(200);
+}
+
+	// Create Graphs Add-On State
 var options_addon = {
     xaxis: { mode: "time", timeformat: "%H:%M"},
     yaxis: { font:{ size:8, weight: "bold", family: "sans-serif", variant: "small-caps", color: "#545454" }, ticks: tick_dataset },
