@@ -257,7 +257,7 @@ if ($results) {
 }
 
 //Adding job scheduling records
-echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Job Scheduling Recors\n";
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Job Scheduling Records\n";
 $query_job_scheduling = "INSERT INTO `jobs`(`job_name`, `script`, `enabled`, `log_it`, `time`, `output`) ";
 $query_job_scheduling .= "VALUES ('controller','/var/www/cron/controller.php',1,0,60,''),";
 $query_job_scheduling .= "('check_gw','/var/www/cron/check_gw.php',1,0,60,''),";
@@ -271,6 +271,18 @@ if ($results) {
                 echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Job Scheduling Records Added \033[41mJobs\033[0m Data  Succeeded \n";
 } else {
                 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Job Scheduling Records \033[41mJobs\033[0m Data Failed \n";
+}
+
+//Adding sensor type records
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Sensor Type Records\n";
+$query_sensor_type = "INSERT INTO `sensor_type`(`id`, `sync`, `purge`, `type`) ";
+$query_sensor_type .= "VALUES (1,0,0,'Temperature'),";
+$query_sensor_type .= "(2,0,0,'Humidity');";
+$results = $conn->query($query_sensor_type);
+if ($results) {
+                echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Sensor Type Records Added \033[41mSensor Types\033[0m Data  Succeeded \n";
+} else {
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Sensor Type Records \033[41mSensor Types\033[0m Data Failed \n";
 }
 
 //
