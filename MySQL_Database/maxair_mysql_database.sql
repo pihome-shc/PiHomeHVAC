@@ -599,6 +599,16 @@ CREATE TABLE IF NOT EXISTS `schedule_night_climat_zone` (
 /*!40000 ALTER TABLE `schedule_night_climat_zone` DISABLE KEYS */;
 /*!40000 ALTER TABLE `schedule_night_climat_zone` ENABLE KEYS */;
 
+-- Dumping structure for table maxair.sensor_type
+DROP TABLE IF EXISTS `sensor_type`;
+CREATE TABLE IF NOT EXISTS `sensor_type` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sync` tinyint(4) NOT NULL,
+  `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
+  `type` char(50) COLLATE utf8_bin,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 -- Dumping structure for table maxair.sw_install
 DROP TABLE IF EXISTS `sw_install`;
 CREATE TABLE IF NOT EXISTS `sw_install` (
@@ -650,6 +660,7 @@ CREATE TABLE `temperature_sensors` (
   `zone_id` int(11) DEFAULT NULL,
   `sensor_id` int(11) DEFAULT NULL,
   `sensor_child_id` int(11) DEFAULT NULL,
+  `sensor_type_id` int(11) DEFAULT NULL,
   `index_id` tinyint(4) NOT NULL,
   `pre_post` tinyint(1) NOT NULL,
   `name` char(50) COLLATE utf8_bin DEFAULT NULL,
