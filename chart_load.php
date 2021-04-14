@@ -43,7 +43,7 @@ $sunset = $weather_row['sunset']* 1000 ;
 //http://php.net/manual/en/function.date-sun-info.php
 
 // create datasets based on all available sensors
-$querya ="SELECT * FROM temperature_sensors WHERE graph_num > 0 AND  graph_num <= 3 ORDER BY id ASC;";
+$querya ="SELECT * FROM temperature_sensors WHERE graph_num > 0 AND sensor_type_id = 1 ORDER BY id ASC;";
 $resulta = $conn->query($querya);
 $graph1 = '';
 $graph2 = '';
