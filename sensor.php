@@ -35,6 +35,7 @@ if (isset($_POST['submit'])) {
         $pre_post = isset($_POST['pre_post']) ? $_POST['pre_post'] : "0";
         $index_id = $_POST['index_id'];
 	$name = $_POST['name'];
+	$sensor_type_id = $_POST['type'];
 	$node_id = $_POST['selected_sensor_id'];
         $query = "SELECT id FROM nodes WHERE node_id = '{$node_id}' LIMIT 1;";
         $result = $conn->query($query);
@@ -47,7 +48,7 @@ if (isset($_POST['submit'])) {
 	if ($frost_temp == 0) { $frost_controller = 0; } else { $frost_controller = $_POST['frost_controller']; }
 
 	//Add or Edit Sensor record to temperature_sensors Table
-	$query = "INSERT INTO `temperature_sensors` (`id`, `sync`, `purge`, `zone_id`, `sensor_id`, `sensor_child_id`, `index_id`, `pre_post`, `name`, `graph_num`, `show_it`, `frost_temp`, `frost_controller`) VALUES ('{$id}', '{$sync}', '{$purge}', '0', '{$sensor_id}', '{$sensor_child_id}', '{$index_id}', '{$pre_post}', '{$name}', '0', '1', '{$frost_temp}', '{$frost_controller}') ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), sensor_id=VALUES(sensor_id), sensor_child_id=VALUES(sensor_child_id), index_id=VALUES(index_id), pre_post=VALUES(pre_post), name=VALUES(name), graph_num=VALUES(graph_num), show_it=VALUES(show_it), frost_temp=VALUES(frost_temp), frost_controller=VALUES(frost_controller);";
+	$query = "INSERT INTO `temperature_sensors` (`id`, `sync`, `purge`, `zone_id`, `sensor_id`, `sensor_child_id`, `sensor_type_id`, `index_id`, `pre_post`, `name`, `graph_num`, `show_it`, `frost_temp`, `frost_controller`) VALUES ('{$id}', '{$sync}', '{$purge}', '0', '{$sensor_id}', '{$sensor_child_id}', '{$sensor_type_id}', '{$index_id}', '{$pre_post}', '{$name}', '0', '1', '{$frost_temp}', '{$frost_controller}') ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), sensor_id=VALUES(sensor_id), sensor_child_id=VALUES(sensor_child_id), sensor_type_id=VALUES(sensor_type_id), index_id=VALUES(index_id), pre_post=VALUES(pre_post), name=VALUES(name), graph_num=VALUES(graph_num), show_it=VALUES(show_it), frost_temp=VALUES(frost_temp), frost_controller=VALUES(frost_controller);";
 	$result = $conn->query($query);
         $temp_id = mysqli_insert_id($conn);
 	if ($result) {
@@ -85,6 +86,10 @@ if (isset($_POST['submit'])) {
         $query = "SELECT id, name FROM controller_relays WHERE id = '{$row['frost_controller']}' LIMIT 1;";
         $result = $conn->query($query);
         $rowcontroller = mysqli_fetch_assoc($result);
+
+        $query = "SELECT id, type FROM sensor_type WHERE id = '{$row['sensor_type_id']}' LIMIT 1;";
+        $result = $conn->query($query);
+        $rowtype = mysqli_fetch_assoc($result);
 }
 ?>
 
@@ -123,14 +128,47 @@ if (isset($_POST['submit'])) {
 							<div class="help-block with-errors"></div>
 						</div>
 
+						<!-- Sensor Type -->
+						<div class="form-group" class="control-label" style="display:block"><label><?php echo $lang['sensor_type']; ?></label> <small class="text-muted"><?php echo $lang['sensor_type_info'];?></small>
+							<select class="form-control select2" type="number" id="type" name="type" onchange=enable_frost_temp(this.options[this.selectedIndex].value)>
+
+							<?php if(isset($rowtype['type'])) { 
+								echo '<option selected value='.$rowtype['id'].'>'.$rowtype['type'].'</option>'; 
+							} else {
+								echo '<option selected value=1>'.$lang['temperature'].'</option>';
+							} ?>
+							<?php  $query = "SELECT DISTINCT `id`, `type` FROM `sensor_type` ORDER BY `id` ASC;";
+							$result = $conn->query($query);
+							echo "<option></option>";
+							while ($datarw=mysqli_fetch_array($result)) {
+        							echo "<option value=".$datarw['id'].">".$datarw['type']."</option>";
+							} ?>
+							</select>
+							<div class="help-block with-errors"></div>
+						</div>
+
+                                                <script language="javascript" type="text/javascript">
+                                                function enable_frost_temp(value)
+                                                {
+                                                        var valuetext = value;
+                                                        if (valuetext == 2) {
+                                                                document.getElementById("frost_temp").style.display = 'none';
+                                                                document.getElementById("frost_protection_label").style.visibility = 'hidden';
+                                                        } else {
+                                                                document.getElementById("frost_temp").style.display = 'block';
+                                                                document.getElementById("frost_protection_label").style.visibility = 'visible';
+                                                        }
+                                                }
+                                                </script>
+
 						<!-- Sensor Name -->
 						<div class="form-group" class="control-label"><label><?php echo $lang['sensor_name']; ?></label> <small class="text-muted"><?php echo $lang['sensor_name_info'];?></small>
 							<input class="form-control" placeholder="Temperature Sensor Name" value="<?php if(isset($row['name'])) { echo $row['name']; } ?>" id="name" name="name" data-error="<?php echo $lang['sensor_name_help']; ?>" autocomplete="off" required>
 							<div class="help-block with-errors"></div>
 						</div>
 
-						<!-- Sensor ID -->
-						<div class="form-group" class="control-label" id="sensor_id_label" style="display:block"><label><?php echo $lang['sensor_id']; ?></label> <small class="text-muted"><?php echo $lang['sensor_id_info'];?></small>
+						<!-- Temperature Sensor ID -->
+						<div class="form-group" class="control-label" id="sensor_id_label" style="display:block"><label><?php echo $lang['sensor_id']; ?></label> <small class="text-muted"><?php echo $lang['zone_sensor_id_info'];?></small>
 							<select id="sensor_id" onchange=SensorChildList(this.options[this.selectedIndex].value) name="sensor_id" class="form-control select2" data-error="<?php echo $lang['sensor_id_error']; ?>" autocomplete="off" required>
                                                                 <?php if(isset($rownode['node_id'])) {
                                                                         echo '<option selected >'.$rownode['node_id'].' - '.$rownode['name'].'</option>';
@@ -154,7 +192,7 @@ if (isset($_POST['submit'])) {
 							var e = document.getElementById("sensor_id");
 							var selected_sensor_id = e.options[e.selectedIndex].text;
 							var selected_sensor_id = selected_sensor_id.split(" - ");
-							
+
 							document.getElementById("selected_sensor_id").value = selected_sensor_id[0];
 
         						var opt = document.getElementById("sensor_child_id").getElementsByTagName("option");
@@ -176,7 +214,7 @@ if (isset($_POST['submit'])) {
 						<input type="hidden" id="graph_num" name="graph_num" value="<?php echo $row['graph_num']?>"/>
 						<input type="hidden" id="show_it" name="show_it" value="<?php echo $row['show_it']?>"/>
 
-						<!-- Sensor Child ID -->
+						<!-- Temperature Sensor Child ID -->
 						<div class="form-group" class="control-label" id="sensor_child_id_label" style="display:block"><label><?php echo $lang['sensor_child_id']; ?></label> <small class="text-muted"><?php echo $lang['sensor_child_id_info'];?></small>
 							<select id="sensor_child_id" name="sensor_child_id" class="form-control select2" data-error="<?php echo $lang['sensor_child_id_error']; ?>" autocomplete="off" required>
 								<?php if(isset($row['sensor_child_id'])) { echo '<option selected >'.$row['sensor_child_id'].'</option>';
@@ -189,7 +227,7 @@ if (isset($_POST['submit'])) {
 						</div>
 
 						<!-- Frost Temperature -->
-						<div class="form-group" class="control-label" style="display:block"><label><?php echo $lang['frost_protection']; ?></label> <small class="text-muted"><?php echo $lang['frost_protection_text'];?></small>
+						<div class="form-group" class="control-label" id="frost_protection_label" style="display:block"><label><?php echo $lang['frost_protection']; ?></label> <small class="text-muted"><?php echo $lang['frost_protection_text'];?></small>
 							<select class="form-control select2" type="number" id="frost_temp" name="frost_temp" onchange=enable_frost()>
                 						<?php if(isset($row['frost_temp'])) { 
 									echo '<option selected >'.$row['frost_temp'].'</option>';
@@ -254,6 +292,10 @@ if (isset($_POST['submit'])) {
      					'enable_frost("'.$row['frost_temp'].'");',
      					'</script>'
 					;
+                                        echo '<script type="text/javascript">',
+                                        'enable_frost_temp("'.$rowtype['id'].'");',
+                                        '</script>'
+                                        ;
 					ShowWeather($conn);
 					?>
                         		<div class="pull-right">
