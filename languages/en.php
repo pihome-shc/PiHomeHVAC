@@ -27,6 +27,7 @@ $lang['submit'] = "Submit";
 $lang['do_not_refresh'] = "Do Not refresh or click the Back button on your Browser.";
 $lang['temperature'] = "Temperature";
 $lang['temp'] = "Temp";
+$lang['humid'] = "Humid";
 $lang['hot_water'] = "Hot Water";
 $lang['cpu'] = "CPU";
 $lang['start'] = "Start";
