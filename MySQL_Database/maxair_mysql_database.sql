@@ -258,7 +258,7 @@ CREATE TABLE IF NOT EXISTS `jobs` (
   `script` char(100) NOT NULL,
   `enabled` tinyint(1),
   `log_it` tinyint(1),
-  `time` int(11) NOT NULL,
+  `time` char(50) NOT NULL,
   `output` text NOT NULL,
   `datetime` timestamp NOT NULL ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`)
