@@ -207,7 +207,7 @@ echo '
             </div>
             <div class="modal-body">
 <p class="text-muted">'.$lang['graph_settings_text'].'</p>';
-$query = "select * from temperature_sensors order by name asc";
+$query = "SELECT * FROM temperature_sensors WHERE sensor_type_id = 1 ORDER BY name asc";
 $results = $conn->query($query);
 echo '  <table class="table table-bordered">
     <tr>
@@ -1149,7 +1149,6 @@ echo '
             		<div class="modal-body">';
 				$gquery = "SELECT * FROM gateway";
 				$gresult = $conn->query($gquery);
-				$grow = mysqli_fetch_array($gresult);
                                 $rowcount=mysqli_num_rows($gresult);
                                 if($rowcount == 0) {
                                         echo $lang['smart_home_gateway_text_serial'];

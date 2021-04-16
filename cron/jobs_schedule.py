@@ -83,8 +83,12 @@ def main():
     cur.execute("SELECT `job_name`, `script`, `enabled`, `log_it`, `time` FROM `jobs`")
     for row in cur:
         if row[2] == 1:
-            func_builder(row[0], row[1], row[3])()
-            schedule.every(row[4]).seconds.do(func_builder(row[0], row[1], row[3]))
+            if row[4].find(':') != -1:
+                func_builder(row[0], row[1], row[3])()
+                schedule.every().day.at(row[4]).do(func_builder(row[0], row[1], row[3]))
+            else:
+                func_builder(row[0], row[1], row[3])()
+                schedule.every(int(row[4])).seconds.do(func_builder(row[0], row[1], row[3]))
 
     while True:
 
