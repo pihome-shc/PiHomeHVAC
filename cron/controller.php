@@ -748,42 +748,42 @@ while ($row = mysqli_fetch_assoc($results)) {
 		$hvac_state = 0; // 0 = COOL, 1 = HEAT
 		if ($zone_fault == '0'){
 			if ($zone_category < 2) {
-				if ($frost_active == 1){
-					$zone_status="1";
-					$zone_mode = 21;
-					$start_cause="Frost Protection";
-					$zone_state= 1;
-				} elseif ($frost_active == 2) {
-					$zone_status=$zone_status_prev;
-					$zone_mode = 22 - $zone_status_prev;
-					$start_cause="Frost Protection Deadband";
-					$stop_cause="Frost Protection Deadband";
-					$zone_state = $zone_status_prev;
-				} elseif ($frost_active == 0 && $zone_c < $zone_max_c && $hysteresis=='0') {
-					//check system controller not in OFF mode
-					if ($sc_mode != 0) {
+	                        //check system controller not in OFF mode
+        	                if ($sc_mode != 0) {
+					if ($frost_active == 1){
+						$zone_status="1";
+						$zone_mode = 21;
+						$start_cause="Frost Protection";
+						$zone_state= 1;
+					} elseif ($frost_active == 2) {
+						$zone_status=$zone_status_prev;
+						$zone_mode = 22 - $zone_status_prev;
+						$start_cause="Frost Protection Deadband";
+						$stop_cause="Frost Protection Deadband";
+						$zone_state = $zone_status_prev;
+					} elseif ($frost_active == 0 && $zone_c < $zone_max_c && $hysteresis=='0') {
 						//system controller has not exceeded max running timw
 						if (($system_controller_on_time < $system_controller_max_operation_time) || ($system_controller_max_operation_time == 0)) {
 							if ($sc_mode == 4 || ($sc_mode == 2 && strpos($zone_type, 'Heating') !== false)  || ($sc_mode == 3 && strpos($zone_type, 'Water') !== false)) {
-        	                                        	if ($zone_c < $temp_cut_out_rising) {
-                	                                        	$zone_status="1";
-                        	                                        $zone_mode = 141;
-                                	                                $start_cause="Manual Start";
-                                        	                        $zone_state = 1;
-                                                	        }
-                                                        	if (($zone_c >= $temp_cut_out_rising) && ($zone_c < $temp_cut_out)){
-                                                                	$zone_status=$zone_status_prev;
-	                                                                $zone_mode = 142 - $zone_status_prev;
-        	                                                        $start_cause="Manual Target Deadband";
-                	                                                $stop_cause="Manual Target Deadband";
-                        	                                        $zone_state = $zone_status_prev;
-                                	                        }
-                                        	                if (($zone_c >= $temp_cut_out)){
-                                                	                $zone_status="0";
-                                                        	        $zone_mode = 140;
-                                                                	$stop_cause="Manual Target C Achieved";
-	                                                                $zone_state = 0;
-        	                                                }
+       	                                        		if ($zone_c < $temp_cut_out_rising) {
+               	                                	        	$zone_status="1";
+                       	                	                        $zone_mode = 141;
+                               		                                $start_cause="Manual Start";
+                        	               	                        $zone_state = 1;
+                	                               	        }
+        	                                               	if (($zone_c >= $temp_cut_out_rising) && ($zone_c < $temp_cut_out)){
+	                                                               	$zone_status=$zone_status_prev;
+                                                                	$zone_mode = 142 - $zone_status_prev;
+       	                                                	        $start_cause="Manual Target Deadband";
+               	                                	                $stop_cause="Manual Target Deadband";
+                       	                	                        $zone_state = $zone_status_prev;
+                               		                        }
+                        	               	                if (($zone_c >= $temp_cut_out)){
+                	                               	                $zone_status="0";
+        	                                               	        $zone_mode = 140;
+	                                                               	$stop_cause="Manual Target C Achieved";
+                                                                	$zone_state = 0;
+       	                                                	}
 							} elseif ($away_status=='0') {
 								if (($holidays_status=='0') || ($sch_holidays=='1')) {
 									if($boost_status=='0'){
@@ -900,26 +900,29 @@ while ($row = mysqli_fetch_assoc($results)) {
 								$zone_state = 0;
 							}
 						} elseif ($system_controller_max_operation_time != 0) {
-	                                                $zone_status="0";
-        	                                        $zone_mode = (floor($zone_status_prev/10)*10) + 8;
-                	                                $stop_cause="Max Running Time Exceeded - Hysteresis active";
-                        	                        $zone_state = 0;
+                                        	        $zone_status="0";
+       	                        	                $zone_mode = (floor($zone_status_prev/10)*10) + 8;
+               	        	                        $stop_cause="Max Running Time Exceeded - Hysteresis active";
+                	       	                        $zone_state = 0;
 						}
-					} else {
-	                                        $zone_status="0";
-        	                                $zone_mode = 0;
-                	                        $stop_cause="System is OFF";
-                        	                $zone_state = 0;
+					}elseif($zone_c >= $zone_max_c){
+						$zone_status="0";
+						$zone_mode = 30;
+						$stop_cause="Zone Reached its Max Temperature ".$zone_max_c;
+						$zone_state = 0;
+					} elseif ($hysteresis == '1' && floor($zone_status_prev%10) != 8) {
+						$zone_status="0";
+						$zone_mode = 100;
+						$stop_cause="Hysteresis active ";
+						$zone_state = 0;
 					}
-				}elseif($zone_c >= $zone_max_c){
+
+
+
+				} else {
 					$zone_status="0";
-					$zone_mode = 30;
-					$stop_cause="Zone Reached its Max Temperature ".$zone_max_c;
-					$zone_state = 0;
-				} elseif ($hysteresis == '1' && floor($zone_status_prev%10) != 8) {
-					$zone_status="0";
-					$zone_mode = 100;
-					$stop_cause="Hysteresis active ";
+					$zone_mode = 0;
+					$stop_cause="System is OFF";
 					$zone_state = 0;
 				}
 			} elseif ($zone_category == 3) { // process category 3 zone (HVAC)
