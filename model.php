@@ -1149,7 +1149,6 @@ echo '
             		<div class="modal-body">';
 				$gquery = "SELECT * FROM gateway";
 				$gresult = $conn->query($gquery);
-				$grow = mysqli_fetch_array($gresult);
                                 $rowcount=mysqli_num_rows($gresult);
                                 if($rowcount == 0) {
                                         echo $lang['smart_home_gateway_text_serial'];
