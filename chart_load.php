@@ -214,7 +214,7 @@ var options_humidity = {
     legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
 };
 
-$(document).ready(function () {$.plot($("#humidity_level"), humidity_level_dataset, options_humidity);$("#humidity_level").UseTooltip();});
+$(document).ready(function () {$.plot($("#humidity_level"), humidity_level_dataset, options_humidity);$("#humidity_level").UseTooltiphu();});
 var previousPoint = null, previousLabel = null;
 
 $.fn.UseTooltiphu = function () {
