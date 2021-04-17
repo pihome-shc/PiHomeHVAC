@@ -68,7 +68,7 @@ $(document).ready(function() {
 				<div class="entry input-group col-xs-12" id="cnt_id - <?php echo $i ?>">
 					<select id="controler_idx" onchange="ControllerIDList(this.options[this.selectedIndex].value, <?php echo $i ?>)" name="controler_idx" class="form-control select2" data-error="<?php echo $lang['zone_controller_id_error']; ?>" autocomplete="off">
 						<?php if(isset($zone_controllers[$i]["zone_controller_name"])) { echo '<option selected >'.$zone_controllers[$i]["zone_controller_name"].'</option>'; } ?>
-						<?php  $query = "SELECT id, name, type FROM controller_relays WHERE type = 0 ORDER BY id ASC;";
+						<?php  $query = "SELECT id, name, type FROM relays WHERE type = 0 ORDER BY id ASC;";
 						$result = $conn->query($query);
 						echo "<option></option>";
 						while ($datarw=mysqli_fetch_array($result)) {

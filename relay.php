@@ -43,8 +43,8 @@ if (isset($_POST['submit'])) {
         $sync = '0';
         $purge= '0';
 
-	//Add or Edit relay record to controller_relays Table
-	$query = "INSERT INTO `controller_relays` (`id`, `sync`, `purge`, `controler_id`, `controler_child_id`, `name`, `type`) VALUES ('{$id}', '{$sync}', '{$purge}', '{$controler_id}', '{$controler_child_id}', '{$name}', '{$type}') ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), controler_id='{$controler_id}', controler_child_id='{$controler_child_id}', name=VALUES(name), type=VALUES(type);";
+	//Add or Edit relay record to relays Table
+	$query = "INSERT INTO `relays` (`id`, `sync`, `purge`, `controler_id`, `controler_child_id`, `name`, `type`) VALUES ('{$id}', '{$sync}', '{$purge}', '{$controler_id}', '{$controler_child_id}', '{$name}', '{$type}') ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), controler_id='{$controler_id}', controler_child_id='{$controler_child_id}', name=VALUES(name), type=VALUES(type);";
 	$result = $conn->query($query);
         $temp_id = mysqli_insert_id($conn);
 	if ($result) {
@@ -71,7 +71,7 @@ if (isset($_POST['submit'])) {
 
 <!-- If the request is to EDIT, retrieve selected items from DB   -->
 <?php if ($id != 0) {
-        $query = "SELECT * FROM `controller_relays` WHERE `id` = {$id} limit 1;";
+        $query = "SELECT * FROM `relays` WHERE `id` = {$id} limit 1;";
 	$result = $conn->query($query);
 	$row = mysqli_fetch_assoc($result);
 

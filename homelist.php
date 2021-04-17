@@ -149,7 +149,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 
                         //query to get the zone controller info
 			if ($zone_category <> 3) {
-	                        $query = "SELECT controller_relays.controler_id, controller_relays.controler_child_id FROM zone_controllers, controller_relays WHERE (zone_controllers.controller_relay_id = controller_relays.id) AND zone_id = '{$zone_id}' LIMIT 1;";
+	                        $query = "SELECT relays.controler_id, relays.controler_child_id FROM zone_controllers, relays WHERE (zone_controllers.controller_relay_id = relays.id) AND zone_id = '{$zone_id}' LIMIT 1;";
         	                $result = $conn->query($query);
                 	        $zone_controllers = mysqli_fetch_array($result);
                         	$zone_controler_id=$zone_controllers['controler_id'];
@@ -173,7 +173,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 			$overrun= $zone_current_state['overrun'];
 
 			//get the sensor id
-	                $query = "SELECT * FROM temperature_sensors WHERE zone_id = '{$zone_id}' LIMIT 1;";
+	                $query = "SELECT * FROM sensors WHERE zone_id = '{$zone_id}' LIMIT 1;";
         	        $result = $conn->query($query);
                 	$sensor = mysqli_fetch_array($result);
 	                $temperature_sensor_id=$sensor['sensor_id'];
@@ -361,7 +361,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 		} // end of zones while loop
 
                 // Temperature Sensors Pre System Controller
-                $query = "SELECT temperature_sensors.name, temperature_sensors.sensor_child_id, temperature_sensors.sensor_type_id, nodes.node_id, nodes.last_seen, nodes.notice_interval FROM temperature_sensors, nodes WHERE (nodes.id = temperature_sensors.sensor_id) AND temperature_sensors.zone_id = 0 AND temperature_sensors.show_it = 1 AND temperature_sensors.pre_post = 1 order by index_id asc;";
+                $query = "SELECT sensors.name, sensors.sensor_child_id, sensors.sensor_type_id, nodes.node_id, nodes.last_seen, nodes.notice_interval FROM sensors, nodes WHERE (nodes.id = sensors.sensor_id) AND sensors.zone_id = 0 AND sensors.show_it = 1 AND sensors.pre_post = 1 order by index_id asc;";
                 $results = $conn->query($query);
                 while ($row = mysqli_fetch_assoc($results)) {
                         $sensor_name = $row['name'];
@@ -497,7 +497,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 		// end if system controller button
 
 		// Temperature Sensors Post System Controller
-		$query = "SELECT temperature_sensors.name, temperature_sensors.sensor_child_id, temperature_sensors.sensor_type_id,nodes.node_id, nodes.last_seen, nodes.notice_interval FROM temperature_sensors, nodes WHERE (nodes.id = temperature_sensors.sensor_id) AND temperature_sensors.zone_id = 0 AND temperature_sensors.show_it = 1 AND temperature_sensors.pre_post = 0 order by index_id asc;";
+		$query = "SELECT sensors.name, sensors.sensor_child_id, sensors.sensor_type_id,nodes.node_id, nodes.last_seen, nodes.notice_interval FROM sensors, nodes WHERE (nodes.id = sensors.sensor_id) AND sensors.zone_id = 0 AND sensors.show_it = 1 AND sensors.pre_post = 0 order by index_id asc;";
                 $results = $conn->query($query);
                 while ($row = mysqli_fetch_assoc($results)) {
 			$sensor_name = $row['name'];

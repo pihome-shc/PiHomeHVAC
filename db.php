@@ -59,7 +59,7 @@ if(($what=="zone") && ($opp=="delete")){
         $conn->query($query);
 
         //Mark temperature sensor as un-allocated
-        $query = "UPDATE `temperature_sensors` SET `zone_id`=0 WHERE `zone_id` = '".$wid."'";
+        $query = "UPDATE `sensors` SET `zone_id`=0 WHERE `zone_id` = '".$wid."'";
         $conn->query($query);
         //Delete Add-On-Zone-Logs record
         $query = "UPDATE add_on_zone_logs SET add_on_zone_logs.purge='1' WHERE zone_id = '".$wid."'";
@@ -429,7 +429,7 @@ if($what=="node"){
 //Controller Relays
 if($what=="relay"){
         if($opp=="delete"){
-                $query = "DELETE FROM controller_relays WHERE id = '".$wid."';";
+                $query = "DELETE FROM relays WHERE id = '".$wid."';";
                 $conn->query($query);
                 if($conn->query($query)){
                         header('Content-type: application/json');
@@ -446,7 +446,7 @@ if($what=="relay"){
 //Temperature Sensors
 if($what=="sensor"){
         if($opp=="delete"){
-                $query = "DELETE FROM temperature_sensors WHERE id = '".$wid."';";
+                $query = "DELETE FROM sensors WHERE id = '".$wid."';";
                 $conn->query($query);
                 if($conn->query($query)){
                         header('Content-type: application/json');
@@ -729,7 +729,7 @@ if($what=="system_controller_settings"){
 	$max_operation_time = $_GET['max_operation_time'];
 	if ($status=='true'){$status = '1';} else {$status = '0';}
 
-        $query = "SELECT * FROM controller_relays WHERE id ='".$heat_relay_id."' LIMIT 1";
+        $query = "SELECT * FROM relays WHERE id ='".$heat_relay_id."' LIMIT 1";
         $results = $conn->query($query);
         $row = mysqli_fetch_assoc($results);
 	$heat_controler_id = $row['controler_id'];
@@ -741,7 +741,7 @@ if($what=="system_controller_settings"){
         $heat_node_type = $row['type'];
 
         if ($_GET['wid'] == 1) {
-	        $query = "SELECT * FROM controller_relays WHERE id ='".$cool_relay_id."' LIMIT 1";
+	        $query = "SELECT * FROM relays WHERE id ='".$cool_relay_id."' LIMIT 1";
         	$results = $conn->query($query);
 	        $row = mysqli_fetch_assoc($results);
         	$cool_controler_id = $row['controler_id'];
@@ -751,7 +751,7 @@ if($what=="system_controller_settings"){
         	$row = mysqli_fetch_assoc($results);
 	        $cool_node_id = $row['node_id'];
 
-        	$query = "SELECT * FROM controller_relays WHERE id ='".$fan_relay_id."' LIMIT 1";
+        	$query = "SELECT * FROM relays WHERE id ='".$fan_relay_id."' LIMIT 1";
 	        $results = $conn->query($query);
         	$row = mysqli_fetch_assoc($results);
 	        $fan_controler_id = $row['controler_id'];
@@ -1090,12 +1090,12 @@ if($what=="setup_email"){
 
 //Setup Graph Setting
 if($what=="setup_graph"){
-        $sel_query = "SELECT * FROM temperature_sensors ORDER BY id asc;";
+        $sel_query = "SELECT * FROM sensors ORDER BY id asc;";
         $results = $conn->query($sel_query);
         while ($row = mysqli_fetch_assoc($results)) {
                 $input = 'graph_num'.$row['id'];
                 $graph_num =  $_GET[$input];
-                $query = "UPDATE temperature_sensors SET graph_num = '".$graph_num."' WHERE id = '".$row['id']."' LIMIT 1;";
+                $query = "UPDATE sensors SET graph_num = '".$graph_num."' WHERE id = '".$row['id']."' LIMIT 1;";
                 $update_error=0;
                 if(!$conn->query($query)){
                         $update_error=1;
@@ -1114,13 +1114,13 @@ if($what=="setup_graph"){
 
 //update sensors to show
 if($what=="show_sensors"){
-        $sel_query = "SELECT * FROM temperature_sensors ORDER BY id asc;";
+        $sel_query = "SELECT * FROM sensors ORDER BY id asc;";
         $results = $conn->query($sel_query);
         while ($row = mysqli_fetch_assoc($results)) {
                 $checkbox = 'checkbox'.$row['id'];
                 $show_it =  $_GET[$checkbox];
                 if ($show_it=='true'){$show_it = '1';} else {$show_it = '0';}
-                $query = "UPDATE temperature_sensors SET show_it = '".$show_it."' WHERE id = '".$row['id']."' LIMIT 1;";
+                $query = "UPDATE sensors SET show_it = '".$show_it."' WHERE id = '".$row['id']."' LIMIT 1;";
                 $update_error=0;
                 if(!$conn->query($query)){
                         $update_error=1;

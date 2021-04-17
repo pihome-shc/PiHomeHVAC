@@ -47,8 +47,8 @@ if (isset($_POST['submit'])) {
 	$frost_temp = $_POST['frost_temp'];
 	if ($frost_temp == 0) { $frost_controller = 0; } else { $frost_controller = $_POST['frost_controller']; }
 
-	//Add or Edit Sensor record to temperature_sensors Table
-	$query = "INSERT INTO `temperature_sensors` (`id`, `sync`, `purge`, `zone_id`, `sensor_id`, `sensor_child_id`, `sensor_type_id`, `index_id`, `pre_post`, `name`, `graph_num`, `show_it`, `frost_temp`, `frost_controller`) VALUES ('{$id}', '{$sync}', '{$purge}', '0', '{$sensor_id}', '{$sensor_child_id}', '{$sensor_type_id}', '{$index_id}', '{$pre_post}', '{$name}', '0', '1', '{$frost_temp}', '{$frost_controller}') ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), sensor_id=VALUES(sensor_id), sensor_child_id=VALUES(sensor_child_id), sensor_type_id=VALUES(sensor_type_id), index_id=VALUES(index_id), pre_post=VALUES(pre_post), name=VALUES(name), graph_num=VALUES(graph_num), show_it=VALUES(show_it), frost_temp=VALUES(frost_temp), frost_controller=VALUES(frost_controller);";
+	//Add or Edit Sensor record to sensors Table
+	$query = "INSERT INTO `sensors` (`id`, `sync`, `purge`, `zone_id`, `sensor_id`, `sensor_child_id`, `sensor_type_id`, `index_id`, `pre_post`, `name`, `graph_num`, `show_it`, `frost_temp`, `frost_controller`) VALUES ('{$id}', '{$sync}', '{$purge}', '0', '{$sensor_id}', '{$sensor_child_id}', '{$sensor_type_id}', '{$index_id}', '{$pre_post}', '{$name}', '0', '1', '{$frost_temp}', '{$frost_controller}') ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), sensor_id=VALUES(sensor_id), sensor_child_id=VALUES(sensor_child_id), sensor_type_id=VALUES(sensor_type_id), index_id=VALUES(index_id), pre_post=VALUES(pre_post), name=VALUES(name), graph_num=VALUES(graph_num), show_it=VALUES(show_it), frost_temp=VALUES(frost_temp), frost_controller=VALUES(frost_controller);";
 	$result = $conn->query($query);
         $temp_id = mysqli_insert_id($conn);
 	if ($result) {
@@ -75,7 +75,7 @@ if (isset($_POST['submit'])) {
 
 <!-- If the request is to EDIT, retrieve selected items from DB   -->
 <?php if ($id != 0) {
-        $query = "SELECT * FROM `temperature_sensors` WHERE `id` = {$id} limit 1;";
+        $query = "SELECT * FROM `sensors` WHERE `id` = {$id} limit 1;";
 	$result = $conn->query($query);
 	$row = mysqli_fetch_assoc($result);
 
@@ -83,7 +83,7 @@ if (isset($_POST['submit'])) {
 	$result = $conn->query($query);
 	$rownode = mysqli_fetch_assoc($result);
 
-        $query = "SELECT id, name FROM controller_relays WHERE id = '{$row['frost_controller']}' LIMIT 1;";
+        $query = "SELECT id, name FROM relays WHERE id = '{$row['frost_controller']}' LIMIT 1;";
         $result = $conn->query($query);
         $rowcontroller = mysqli_fetch_assoc($result);
 
@@ -118,7 +118,7 @@ if (isset($_POST['submit'])) {
 
 						<!-- Index Number -->
 						<?php
-						$query = "select index_id from temperature_sensors order by index_id desc limit 1;";
+						$query = "select index_id from sensors order by index_id desc limit 1;";
 						$result = $conn->query($query);
 						$found_product = mysqli_fetch_array($result);
 						$new_index_id = $found_product['index_id']+1;
@@ -267,9 +267,9 @@ if (isset($_POST['submit'])) {
                                                         <select class="form-control select2" type="number" id="frost_controller" name="frost_controller" >
                                                                 <?php if(isset($rowcontroller['id'])) {
                                                                         echo '<option selected value='.$rowcontroller['id'].'>'.$rowcontroller['name'].'</option>';
-                                                        		$query = "SELECT id, name, type FROM controller_relays WHERE type <> 1 AND id <> ".$rowcontroller['id']." ORDER BY id ASC;";
+                                                        		$query = "SELECT id, name, type FROM relays WHERE type <> 1 AND id <> ".$rowcontroller['id']." ORDER BY id ASC;";
                                                                 } else {
-                                                                        $query = "SELECT id, name, type FROM controller_relays WHERE type <> 1 ORDER BY id ASC;";
+                                                                        $query = "SELECT id, name, type FROM relays WHERE type <> 1 ORDER BY id ASC;";
                                                                 }
                                                                 $result = $conn->query($query);
                                                                 while ($datarw=mysqli_fetch_array($result)) {

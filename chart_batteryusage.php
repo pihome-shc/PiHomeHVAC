@@ -35,7 +35,7 @@ var bat_level_dataset = [
         //grab the node id to be displayed in the plot legend
                 $id=$row['id'];
                 $node_id=$row['node_id'];
-                $query="select * from temperature_sensors where sensor_id = '{$id}' limit 1;";
+                $query="select * from sensors where sensor_id = '{$id}' limit 1;";
                 $result_ts = $conn->query($query);
                 $temp_sensor_row = mysqli_fetch_array($result_ts);
                 $name = $temp_sensor_row['name'];

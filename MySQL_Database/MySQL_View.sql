@@ -46,9 +46,9 @@ ctype.`type` AS controller_type, cr.controler_id as controler_id, cr.controler_c
 IFNULL(lasts.last_seen, lasts_2.last_seen) as last_seen, IFNULL(msv.ms_version, msv_2.ms_version) as ms_version, IFNULL(skv.sketch_version, skv_2.sketch_version) as sketch_version
 from zone
 LEFT join zone_sensors zs on zone.id = zs.zone_id
-LEFT join temperature_sensors ts on zone.id = ts.zone_id
+LEFT join sensors ts on zone.id = ts.zone_id
 LEFT join zone_controllers zc on zone.id = zc.zone_id
-LEFT join controller_relays cr on zc.controller_relay_id = cr.id
+LEFT join relays cr on zc.controller_relay_id = cr.id
 join zone_type ztype on zone.type_id = ztype.id
 LEFT join nodes sid on ts.sensor_id = sid.id
 LEFT join nodes ctype on cr.controler_id = ctype.id
@@ -75,7 +75,7 @@ Drop View if exists system_controller_view;
 CREATE VIEW system_controller_view AS
 select system_controller.status, system_controller.sync, system_controller.`purge`, system_controller.active_status, system_controller.name, ctype.`type` AS controller_type, cr.controler_id, cr.controler_child_id, system_controller.hysteresis_time, system_controller.max_operation_time, system_controller.overrun, system_controller.heat_relay_id, system_controller.cool_relay_id, system_controller.fan_relay_id
 from system_controller
-join controller_relays cr on system_controller.heat_relay_id = cr.id
+join relays cr on system_controller.heat_relay_id = cr.id
 join nodes ctype on cr.controler_id = ctype.id
 where system_controller.`purge` = '0';
 

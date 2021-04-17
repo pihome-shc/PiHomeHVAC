@@ -139,9 +139,9 @@ CREATE TABLE IF NOT EXISTS `boost` (
   CONSTRAINT `FK_boost_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
--- Table structure for table `controller_relays`
-DROP TABLE IF EXISTS `controller_relays`;
-CREATE TABLE `controller_relays` (
+-- Table structure for table `relays`
+DROP TABLE IF EXISTS `relays`;
+CREATE TABLE `relays` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sync` tinyint(4) NOT NULL,
   `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
@@ -150,13 +150,13 @@ CREATE TABLE `controller_relays` (
   `name` char(50) COLLATE utf8_bin DEFAULT NULL,
   `type` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `FK_controller_relays_nodes` (`controler_id`),
-  CONSTRAINT `FK_temperature_controller_relays` FOREIGN KEY (`controler_id`) REFERENCES `nodes` (`id`)
+  KEY `FK_relays_nodes` (`controler_id`),
+  CONSTRAINT `FK_temperature_relays` FOREIGN KEY (`controler_id`) REFERENCES `nodes` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
--- Dumping data for table `controller_relays`
-/*!40000 ALTER TABLE `controller_relays` DISABLE KEYS */;
-/*!40000 ALTER TABLE `controller_relays` ENABLE KEYS */;
+-- Dumping data for table `relays`
+/*!40000 ALTER TABLE `relays` DISABLE KEYS */;
+/*!40000 ALTER TABLE `relays` ENABLE KEYS */;
 
 -- Dumping structure for table maxair.email
 DROP TABLE IF EXISTS `email`;
@@ -651,9 +651,9 @@ CREATE TABLE IF NOT EXISTS `system` (
 /*!40000 ALTER TABLE `system` DISABLE KEYS */;
 /*!40000 ALTER TABLE `system` ENABLE KEYS */;
 
--- Dumping structure for table maxair.temperature_sensors
-DROP TABLE IF EXISTS `temperature_sensors`;
-CREATE TABLE `temperature_sensors` (
+-- Dumping structure for table maxair.sensors
+DROP TABLE IF EXISTS `sensors`;
+CREATE TABLE `sensors` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sync` tinyint(4) NOT NULL,
   `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
@@ -669,14 +669,14 @@ CREATE TABLE `temperature_sensors` (
   `frost_temp` int(11) NOT NULL,
   `frost_controller` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `FK_temperature_sensors_nodes` (`sensor_id`),
-  KEY `FK_temperature_sensors_zone` (`zone_id`),
-  CONSTRAINT `FK_temperature_sensors_nodes` FOREIGN KEY (`sensor_id`) REFERENCES `nodes` (`id`)
+  KEY `FK_sensors_nodes` (`sensor_id`),
+  KEY `FK_sensors_zone` (`zone_id`),
+  CONSTRAINT `FK_sensors_nodes` FOREIGN KEY (`sensor_id`) REFERENCES `nodes` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
--- Dumping data for table maxair.temperature_sensors: ~0 rows (approximately)
-/*!40000 ALTER TABLE `temperature_sensors` DISABLE KEYS */;
-/*!40000 ALTER TABLE `temperature_sensors` ENABLE KEYS */;
+-- Dumping data for table maxair.sensors: ~0 rows (approximately)
+/*!40000 ALTER TABLE `sensors` DISABLE KEYS */;
+/*!40000 ALTER TABLE `sensors` ENABLE KEYS */;
 
 -- Dumping structure for table maxair.user
 DROP TABLE IF EXISTS `user`;
@@ -830,11 +830,11 @@ CREATE TABLE IF NOT EXISTS `zone_sensors` (
   `default_c` tinyint(4),
   `hysteresis_time` tinyint(4),
   `sp_deadband` float NOT NULL,
-  `temperature_sensor_id` int(11),
+  `zone_sensor_id` int(11),
   PRIMARY KEY (`id`),
   KEY `FK_zone_sensors_zone` (`zone_id`),
-  KEY `FK_zone_sensors_temperature_sensors` (`temperature_sensor_id`),
-  CONSTRAINT `FK_zone_sensors_temperature_sensors` FOREIGN KEY (`temperature_sensor_id`) REFERENCES `temperature_sensors` (`id`),
+  KEY `FK_zone_sensors_sensors` (`zone_sensor_id`),
+  CONSTRAINT `FK_zone_sensors_sensors` FOREIGN KEY (`zone_sensor_id`) REFERENCES `sensors` (`id`),
   CONSTRAINT `FK_zone_sensors_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 

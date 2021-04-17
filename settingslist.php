@@ -23,7 +23,7 @@ require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 //query to frost protection temperature 
 $fcolor = "blue";
-$query = "SELECT sensor_id, sensor_child_id, frost_temp FROM temperature_sensors WHERE frost_temp <> 0;";
+$query = "SELECT sensor_id, sensor_child_id, frost_temp FROM sensors WHERE frost_temp <> 0;";
 $results = $conn->query($query);
 while ($row = mysqli_fetch_assoc($results)) {
         $query = "SELECT node_id FROM nodes WHERE id = ".$row['sensor_id']." LIMIT 1;";

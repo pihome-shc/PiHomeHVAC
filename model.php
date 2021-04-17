@@ -70,7 +70,7 @@ echo '<div class="modal fade" id="show_frost" tabindex="-1" role="dialog" aria-l
             </div>
             <div class="modal-body">
                 <p class="text-muted">'.$lang['frost_ptotection_info'].'</p>';
-                $query = "SELECT temperature_sensors.sensor_id, temperature_sensors.sensor_child_id, temperature_sensors.name AS sensor_name, temperature_sensors.frost_temp, controller_relays.name AS controller_name FROM temperature_sensors, controller_relays WHERE (temperature_sensors.frost_controller = controller_relays.id) AND frost_temp <> 0;";
+                $query = "SELECT sensors.sensor_id, sensors.sensor_child_id, sensors.name AS sensor_name, sensors.frost_temp, relays.name AS controller_name FROM sensors, relays WHERE (sensors.frost_controller = relays.id) AND frost_temp <> 0;";
                 $results = $conn->query($query);
                 echo '<table class="table table-bordered">
                         <tr>
@@ -207,7 +207,7 @@ echo '
             </div>
             <div class="modal-body">
 <p class="text-muted">'.$lang['graph_settings_text'].'</p>';
-$query = "SELECT * FROM temperature_sensors WHERE sensor_type_id = 1 ORDER BY name asc";
+$query = "SELECT * FROM sensors WHERE sensor_type_id = 1 ORDER BY name asc";
 $results = $conn->query($query);
 echo '  <table class="table table-bordered">
     <tr>
@@ -281,7 +281,7 @@ echo '
                                                 <select class="form-control input-sm" type="text" id="heat_relay_id" name="heat_relay_id" >';
                                                 //get list of heat relays to display
                                                 if (settings($conn, 'mode') == 0) { $heat_relay_type = 1; } else { $heat_relay_type = 2; }
-                                                $query = "SELECT id, name FROM controller_relays WHERE type = {$heat_relay_type};";
+                                                $query = "SELECT id, name FROM relays WHERE type = {$heat_relay_type};";
                                                 $result = $conn->query($query);
                                                 if ($result){
                                                         while ($nrow=mysqli_fetch_array($result)) {
@@ -298,7 +298,7 @@ echo '
                                         echo '<div class="form-group" class="control-label"><label>'.$lang['cool_relay_id'].'</label> <small class="text-muted">'.$lang['cool_relay_id_info'].'</small>
                                                 <select class="form-control input-sm" type="text" id="cool_relay_id" name="cool_relay_id" >';
                                                 //get list of heat relays to display
-                                                $query = "SELECT id, name FROM controller_relays WHERE type = 3;";
+                                                $query = "SELECT id, name FROM relays WHERE type = 3;";
                                                 $result = $conn->query($query);
                                                 if ($result){
                                                         while ($nrow=mysqli_fetch_array($result)) {
@@ -314,7 +314,7 @@ echo '
                                         <div class="form-group" class="control-label"><label>'.$lang['fan_relay_id'].'</label> <small class="text-muted">'.$lang['fan_relay_id_info'].'</small>
                                                 <select class="form-control input-sm" type="text" id="fan_relay_id" name="fan_relay_id" >';
                                                 //get list of heat relays to display
-                                                $query = "SELECT id, name FROM controller_relays WHERE type = 4;";
+                                                $query = "SELECT id, name FROM relays WHERE type = 4;";
                                                 $result = $conn->query($query);
                                                 if ($result){
                                                         while ($nrow=mysqli_fetch_array($result)) {
@@ -924,10 +924,10 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['relay_settings_text'].'</p>';
-		$query = "SELECT controller_relays.id, controller_relays.controler_id, controller_relays.controler_child_id, controller_relays.name, controller_relays.type, zc.zone_id, nd.node_id, nd.last_seen
-		FROM controller_relays
-		LEFT join zone_controllers zc ON controller_relays.id = zc.controller_relay_id
-		JOIN nodes nd ON controller_relays.controler_id = nd.id
+		$query = "SELECT relays.id, relays.controler_id, relays.controler_child_id, relays.name, relays.type, zc.zone_id, nd.node_id, nd.last_seen
+		FROM relays
+		LEFT join zone_controllers zc ON relays.id = zc.controller_relay_id
+		JOIN nodes nd ON relays.controler_id = nd.id
 		ORDER BY controler_id asc, controler_child_id ASC;";
 		$results = $conn->query($query);
 		echo '<table class="table table-bordered">
@@ -992,7 +992,7 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['sensor_settings_text'].'</p>';
-		$query = "select temperature_sensors.id, temperature_sensors.name, temperature_sensors.sensor_child_id, temperature_sensors.zone_id, temperature_sensors.show_it, nodes.node_id, nodes.last_seen from temperature_sensors, nodes WHERE temperature_sensors.sensor_id = nodes.id order by name asc";
+		$query = "select sensors.id, sensors.name, sensors.sensor_child_id, sensors.zone_id, sensors.show_it, nodes.node_id, nodes.last_seen from sensors, nodes WHERE sensors.sensor_id = nodes.id order by name asc";
 		$results = $conn->query($query);
 		echo '<table class="table table-bordered">
     			<tr>

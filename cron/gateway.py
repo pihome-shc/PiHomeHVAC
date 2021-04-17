@@ -175,12 +175,12 @@ try:
         network_found = 0
 
     # re-sync any setup relays
-    cur.execute("SELECT COUNT(*) FROM `controller_relays`")
+    cur.execute("SELECT COUNT(*) FROM `relays`")
     count = cur.fetchone()
     count = count[0]
     # process any relays present
     if count > 0:
-        cur.execute("SELECT * FROM controller_relays")
+        cur.execute("SELECT * FROM relays")
         relays = cur.fetchall()
         relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
         # get the last relay state from the messages_out table
@@ -576,7 +576,7 @@ try:
                     con.commit()
                     # Check is sensor is attached to a zone which is being graphed
                     cur.execute(
-                        "SELECT temperature_sensors.id, temperature_sensors.zone_id, nodes.node_id, temperature_sensors.sensor_child_id, temperature_sensors.name, temperature_sensors.graph_num FROM temperature_sensors, `nodes` WHERE (temperature_sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) AND temperature_sensors.sensor_child_id = (%s) AND temperature_sensors.graph_num > 0 LIMIT 1;",
+                        "SELECT sensors.id, sensors.zone_id, nodes.node_id, sensors.sensor_child_id, sensors.name, sensors.graph_num FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) AND sensors.sensor_child_id = (%s) AND sensors.graph_num > 0 LIMIT 1;",
                         (node_id, child_sensor_id),
                     )
                     results = cur.fetchone()
@@ -687,7 +687,7 @@ try:
                     con.commit()
                     # Check is sensor is attached to a zone which is being graphed
                     cur.execute(
-                        "SELECT temperature_sensors.id, temperature_sensors.zone_id, nodes.node_id, temperature_sensors.sensor_child_id, temperature_sensors.name, temperature_sensors.graph_num FROM temperature_sensors, `nodes` WHERE (temperature_sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) AND temperature_sensors.sensor_child_id = (%s) LIMIT 1;",
+                        "SELECT sensors.id, sensors.zone_id, nodes.node_id, sensors.sensor_child_id, sensors.name, sensors.graph_num FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) AND sensors.sensor_child_id = (%s)  LIMIT 1;",
                         (node_id, child_sensor_id),
                     )
                     results = cur.fetchone()

@@ -28,7 +28,7 @@ require_once(__DIR__.'../../st_inc/functions.php');
 
 if(isset($_GET['sensorname'])) {
         $sensorname = $_GET['sensorname'];
-        $query = "SELECT sensor_id, sensor_child_id FROM temperature_sensors where name = '{$sensorname}' LIMIT 1;";
+        $query = "SELECT sensor_id, sensor_child_id FROM sensors where name = '{$sensorname}' LIMIT 1;";
         $results = $conn->query($query);
         $row = mysqli_fetch_assoc($results);
         if(! $row) {

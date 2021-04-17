@@ -54,7 +54,7 @@ if (isset($_POST['submit'])) {
 	$max_operation_time = $_POST['max_operation_time'];
 	$hysteresis_time = $_POST['hysteresis_time'];
 	$sp_deadband = $_POST['sp_deadband'];
-        $temperature_sensor_id = $_POST['selected_sensor_id'];
+        $zone_sensor_id = $_POST['selected_sensor_id'];
         $initial_sensor_id = $_POST['initial_sensor_id'];
 	$controllers = array();
         if($zone_category <> 3) {
@@ -138,8 +138,8 @@ if (isset($_POST['submit'])) {
 	        for ($i = 0; $i < count($controllers); $i++)  {
 			//Re-add Zones Controllers Table
 			$controler_relay_id = $controllers[$i][0];
-                	//query to search controller_relays for zone controller child id
-	                $query = "SELECT controler_id, controler_child_id FROM controller_relays WHERE id = '{$controler_relay_id}' LIMIT 1;";
+                	//query to search relays for zone controller child id
+	                $query = "SELECT controler_id, controler_child_id FROM relays WHERE id = '{$controler_relay_id}' LIMIT 1;";
         	        $result = $conn->query($query);
                 	$found_product = mysqli_fetch_array($result);
                         $controler_id = $found_product['controler_id'];
@@ -187,9 +187,9 @@ if (isset($_POST['submit'])) {
         if ($zone_category <> 2) {
                 //Add or Edit Zone record to Zone_Sensor Table
                 if ($id==0){
-                        $query = "INSERT INTO `zone_sensors` (`sync`, `purge`, `zone_id`, `min_c`, `max_c`, `default_c`, `hysteresis_time`, `sp_deadband`, `temperature_sensor_id`) VALUES ('{$sync}', '{$purge}', '{$cnt_id}', '{$min_c}', '{$max_c}', '{$default_c}', '{$hysteresis_time}', '{$sp_deadband}', '{$temperature_sensor_id}');";
+                        $query = "INSERT INTO `zone_sensors` (`sync`, `purge`, `zone_id`, `min_c`, `max_c`, `default_c`, `hysteresis_time`, `sp_deadband`, `zone_sensor_id`) VALUES ('{$sync}', '{$purge}', '{$cnt_id}', '{$min_c}', '{$max_c}', '{$default_c}', '{$hysteresis_time}', '{$sp_deadband}', '{$zone_sensor_id}');";
                 } else {
-                        $query = "UPDATE `zone_sensors` SET `sync` = 0, `min_c` ='{$min_c}', `max_c` ='{$max_c}', `default_c` ='{$default_c}', `hysteresis_time` = '{$hysteresis_time}', `sp_deadband` = '{$sp_deadband}', `temperature_sensor_id` = '{$temperature_sensor_id}' WHERE zone_id='{$id}';";
+                        $query = "UPDATE `zone_sensors` SET `sync` = 0, `min_c` ='{$min_c}', `max_c` ='{$max_c}', `default_c` ='{$default_c}', `hysteresis_time` = '{$hysteresis_time}', `sp_deadband` = '{$sp_deadband}', `zone_sensor_id` = '{$zone_sensor_id}' WHERE zone_id='{$id}';";
                 }
                 $result = $conn->query($query);
                 if ($result) {
@@ -202,8 +202,8 @@ if (isset($_POST['submit'])) {
                         $error = "<p>".$lang['sensor_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
                 }
                 // if in edit mode check if sensor has change and update the temperature sensors table
-                if ($id != 0 && strcmp($initial_sensor_id, $temperature_sensor_id) != 0){
-                        $query = "UPDATE `temperature_sensors` SET `zone_id` = NULL WHERE `id` = '{$initial_sensor_id}';";
+                if ($id != 0 && strcmp($initial_sensor_id, $zone_sensor_id) != 0){
+                        $query = "UPDATE `sensors` SET `zone_id` = NULL WHERE `id` = '{$initial_sensor_id}';";
                         $result = $conn->query($query);
                         if ($result) {
                                 $message_success .= "<p>".$lang['temp_sensor_record_update_success']."</p>";
@@ -211,7 +211,7 @@ if (isset($_POST['submit'])) {
                                 $error .= "<p>".$lang['temp_sensor_record_fail']."</p> <p>" .mysqli_error($conn). "</p>";
                         }
                 }
-                $query = "UPDATE `temperature_sensors` SET `zone_id` = '{$cnt_id}' WHERE `id` = '{$temperature_sensor_id}';";
+                $query = "UPDATE `sensors` SET `zone_id` = '{$cnt_id}' WHERE `id` = '{$zone_sensor_id}';";
                 $result = $conn->query($query);
                 if ($result) {
                         $message_success .= "<p>".$lang['temp_sensor_record_update_success']."</p>";
@@ -408,7 +408,7 @@ if (isset($_POST['submit'])) {
 	$result = $conn->query($query);
 	$row = mysqli_fetch_assoc($result);
 
-        $query = "SELECT * FROM temperature_sensors WHERE zone_id = '{$row['id']}' LIMIT 1;";
+        $query = "SELECT * FROM sensors WHERE zone_id = '{$row['id']}' LIMIT 1;";
         $result = $conn->query($query);
         $rowtempsensors = mysqli_fetch_assoc($result);
 
@@ -420,7 +420,7 @@ if (isset($_POST['submit'])) {
 	        $query = "SELECT * FROM zone_controllers WHERE zone_id = '{$row['id']}' LIMIT 1;";
         	$result = $conn->query($query);
 	        $rowcontrollers = mysqli_fetch_assoc($result);
-        	$query = "SELECT controller_relays.controler_id, controller_relays.controler_child_id, zone_controllers.controller_relay_id, zone_controllers.state, controller_relays.name FROM  zone_controllers, controller_relays WHERE (zone_controllers.controller_relay_id = controller_relays.id) AND zone_id = '{$row['id']}';";
+        	$query = "SELECT relays.controler_id, relays.controler_child_id, zone_controllers.controller_relay_id, zone_controllers.state, relays.name FROM  zone_controllers, relays WHERE (zone_controllers.controller_relay_id = relays.id) AND zone_id = '{$row['id']}';";
 	        $cresult = $conn->query($query);
         	$index = 0;
 	        while ($crow = mysqli_fetch_assoc($cresult)) {
@@ -442,8 +442,8 @@ if (isset($_POST['submit'])) {
 	$result = $conn->query($query);
 	$rowboost = mysqli_fetch_assoc($result);
 
-//	$query = "SELECT id, controler_id, name FROM controller_relays WHERE id = '{$row['boiler_id']}' LIMIT 1;";
-        $query = "SELECT id, controler_id, name FROM controller_relays WHERE type > 0 LIMIT 1;";
+//	$query = "SELECT id, controler_id, name FROM relays WHERE id = '{$row['boiler_id']}' LIMIT 1;";
+        $query = "SELECT id, controler_id, name FROM relays WHERE type > 0 LIMIT 1;";
 	$result = $conn->query($query);
 	$rowsystem_controller = mysqli_fetch_assoc($result);
 }
@@ -522,7 +522,7 @@ function zone_category(value)
                         document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
                         document.getElementById("sp_deadband").style.display = 'block';
                         document.getElementById("sp_deadband_label").style.visibility = 'visible';;
-                        document.getElementById("temperature_sensor_id").style.display = 'block';
+                        document.getElementById("zone_sensor_id").style.display = 'block';
                         document.getElementById("sensor_id_label").style.visibility = 'visible';;
                         document.getElementById("system_controller_id").style.display = 'block';
                         document.getElementById("system_controller_id_label").style.visibility = 'visible';;
@@ -533,7 +533,7 @@ function zone_category(value)
                         document.getElementById("max_c").required = true;
                         document.getElementById("hysteresis_time").required = true;
                         document.getElementById("sp_deadband").required = true;
-                        document.getElementById("temperature_sensor_id").required = true;
+                        document.getElementById("zone_sensor_id").required = true;
                         document.getElementById("controler_id_label").style.visibility = 'visible';;
                         document.getElementById("boost_button_id").required = true;
                         document.getElementById("boost_button_child_id").required = true;
@@ -550,7 +550,7 @@ function zone_category(value)
                         document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
                         document.getElementById("sp_deadband").style.display = 'block';
                         document.getElementById("sp_deadband_label").style.visibility = 'visible';;
-                        document.getElementById("temperature_sensor_id").style.display = 'block';
+                        document.getElementById("zone_sensor_id").style.display = 'block';
                         document.getElementById("sensor_id_label").style.visibility = 'visible';;
                         document.getElementById("system_controller_id").style.display = 'none';
                         document.getElementById("system_controller_id_label").style.visibility = 'hidden';;
@@ -561,7 +561,7 @@ function zone_category(value)
                         document.getElementById("max_c").required = true;
                         document.getElementById("hysteresis_time").required = true;
                         document.getElementById("sp_deadband").required = true;
-                        document.getElementById("temperature_sensor_id").required = true;
+                        document.getElementById("zone_sensor_id").required = true;
                         document.getElementById("controler_id_label").style.visibility = 'visible';;
                         document.getElementById("boost_button_id").required = true;
                         document.getElementById("boost_button_child_id").required = true;
@@ -578,7 +578,7 @@ function zone_category(value)
                         document.getElementById("hysteresis_time_label").style.visibility = 'hidden';;
                         document.getElementById("sp_deadband").style.display = 'none';
                         document.getElementById("sp_deadband_label").style.visibility = 'hidden';;
-                        document.getElementById("temperature_sensor_id").style.display = 'none';
+                        document.getElementById("zone_sensor_id").style.display = 'none';
                         document.getElementById("sensor_id_label").style.visibility = 'hidden';;
                         document.getElementById("controler_id_label").style.visibility = 'visible';;
                         document.getElementById("system_controller_id").style.display = 'none';
@@ -590,7 +590,7 @@ function zone_category(value)
                         document.getElementById("max_c").required = false;
                         document.getElementById("hysteresis_time").required = false;
                         document.getElementById("sp_deadband").required = false;
-                        document.getElementById("temperature_sensor_id").required = false;
+                        document.getElementById("zone_sensor_id").required = false;
                         document.getElementById("controler_id_label").style.visibility = 'visible';;
                         document.getElementById("boost_button_id").required = false;
                         document.getElementById("boost_button_child_id").required = false;
@@ -607,7 +607,7 @@ function zone_category(value)
                         document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
                         document.getElementById("sp_deadband").style.display = 'block';
                         document.getElementById("sp_deadband_label").style.visibility = 'visible';;
-                        document.getElementById("temperature_sensor_id").style.display = 'block';
+                        document.getElementById("zone_sensor_id").style.display = 'block';
                         document.getElementById("sensor_id_label").style.visibility = 'visible';;
                         document.getElementById("controler_id_label").style.visibility = 'hidden';;
                         document.getElementById("system_controller_id").style.display = 'block';
@@ -619,7 +619,7 @@ function zone_category(value)
                         document.getElementById("max_c").required = true;
                         document.getElementById("hysteresis_time").required = true;
                         document.getElementById("sp_deadband").required = true;
-                        document.getElementById("temperature_sensor_id").required = true;
+                        document.getElementById("zone_sensor_id").required = true;
                         document.getElementById("boost_button_id").required = true;
                         document.getElementById("boost_button_child_id").required = true;
                         document.getElementById("system_controller_id").required = true;
@@ -661,9 +661,9 @@ function zone_category(value)
 
 <!-- Temperature Sensor ID -->
 <div class="form-group" class="control-label" id="sensor_id_label" style="display:block"><label><?php echo $lang['temperature_sensor']; ?></label> <small class="text-muted"><?php echo $lang['zone_sensor_id_info'];?></small>
-<select id="temperature_sensor_id" onchange=SensorIDList(this.options[this.selectedIndex].value) name="temperature_sensor_id" class="form-control select2" data-error="<?php echo $lang['zone_temp_sensor_id_error']; ?>" autocomplete="off" required>
+<select id="zone_sensor_id" onchange=SensorIDList(this.options[this.selectedIndex].value) name="zone_sensor_id" class="form-control select2" data-error="<?php echo $lang['zone_temp_sensor_id_error']; ?>" autocomplete="off" required>
 <?php if(isset($rowtempsensors['name'])) { echo '<option selected >'.$rowtempsensors['name'].'</option>'; } ?>
-<?php  $query = "SELECT id, name FROM temperature_sensors ORDER BY name ASC;";
+<?php  $query = "SELECT id, name FROM sensors ORDER BY name ASC;";
 $result = $conn->query($query);
 echo "<option></option>";
 while ($datarw=mysqli_fetch_array($result)) {
@@ -675,7 +675,7 @@ while ($datarw=mysqli_fetch_array($result)) {
 function SensorIDList(value)
 {
         var valuetext = value;
-	var e = document.getElementById("temperature_sensor_id");
+	var e = document.getElementById("zone_sensor_id");
 	var selected_sensor_id = e.options[e.selectedIndex].value;
 	document.getElementById("selected_sensor_id").value = selected_sensor_id;
 }
@@ -693,7 +693,7 @@ function SensorIDList(value)
 				<div class="entry input-group col-xs-12" id="cnt_id - <?php echo $i ?>">
 					<select id="controler_id<?php echo $i ?>" onchange="ControllerIDList(this.options[this.selectedIndex].value, <?php echo $i ?>)" name="controler_id<?php echo $i ?>" class="form-control select2" data-error="<?php echo $lang['zone_controller_id_error']; ?>" autocomplete="off">
 						<?php if(isset($zone_controllers[$i]["zone_controller_name"])) { echo '<option selected >'.$zone_controllers[$i]["zone_controller_name"].'</option>'; } ?>
-						<?php  $query = "SELECT id, name, type FROM controller_relays WHERE type = 0 ORDER BY id ASC;";
+						<?php  $query = "SELECT id, name, type FROM relays WHERE type = 0 ORDER BY id ASC;";
 						$result = $conn->query($query);
 						echo "<option></option>";
 						while ($datarw=mysqli_fetch_array($result)) {
@@ -760,7 +760,7 @@ function ControllerIDList(value, ind)
 <div class="form-group" class="control-label" id="system_controller_id_label" style="display:block"><label><?php echo $lang['system_controller']; ?></label>
 <select id="system_controller_id" name="system_controller_id" class="form-control select2" data-error="System Controller ID can not be empty!" autocomplete="off" required>
 <?php if(isset($rowsystem_controller['id'])) { echo '<option selected >'.$rowsystem_controller['id'].'-'.$rowsystem_controller['name'].' Controller Relay Node ID: '.$rowsystem_controller['controler_id'].'</option>'; } ?>
-<?php  $query = "SELECT id, controler_id, name FROM controller_relays WHERE type = 1;";
+<?php  $query = "SELECT id, controler_id, name FROM relays WHERE type = 1;";
 $result = $conn->query($query);
 while ($datarw=mysqli_fetch_array($result)) {
 $system_controller_id=$datarw["id"].'-'.$datarw["name"].' Controller Relay Node ID: '.$datarw["controler_id"];
