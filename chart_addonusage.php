@@ -58,7 +58,7 @@ while ($row = mysqli_fetch_assoc($resulta)) {
         $id=$row['id'];
         $controler_id = $row['controler_id'];
         $controler_child_id = $row['controler_child_id'];
-        $query="SELECT name FROM controller_relays WHERE controler_id = '{$controler_id}' LIMIT 1;";
+        $query="SELECT name FROM relays WHERE controler_id = '{$controler_id}' LIMIT 1;";
         $result = $conn->query($query);
         $row = mysqli_fetch_array($result);
         $name = $row['name'];

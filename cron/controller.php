@@ -144,8 +144,8 @@ if ($system_controller_active_status == 1) {
 }
 if ($debug_msg == 1) { echo "System Controller on time - ".$system_controller_on_time." seconds\n"; }
 
-//Get data from controller_relays table
-$query = "SELECT * FROM controller_relays WHERE id = ".$row['heat_relay_id']." LIMIT 1;";
+//Get data from relays table
+$query = "SELECT * FROM relays WHERE id = ".$row['heat_relay_id']." LIMIT 1;";
 $result = $conn->query($query);
 $heat_relay = mysqli_fetch_array($result);
 $heat_relay_id = $heat_relay['controler_id'];
@@ -169,8 +169,8 @@ if ($system_controller_mode == 1) {
         // 4 = heat
 	// 5 = cool
 
-        //Get data from controller_relays table
-        $query = "SELECT * FROM controller_relays WHERE id ='".$row['cool_relay_id']."' LIMIT 1;";
+        //Get data from relays table
+        $query = "SELECT * FROM relays WHERE id ='".$row['cool_relay_id']."' LIMIT 1;";
         $result = $conn->query($query);
         $cool_relay = mysqli_fetch_array($result);
         $cool_relay_id = $cool_relay['controler_id'];
@@ -185,8 +185,8 @@ if ($system_controller_mode == 1) {
         $cool_relay_notice = $cool_relay_node['notice_interval'];
         $cool_relay_type = $cool_relay_node['type'];
 
-        //Get data from controller_relays table
-        $query = "SELECT * FROM controller_relays WHERE id ='".$row['fan_relay_id']."' LIMIT 1;";
+        //Get data from relays table
+        $query = "SELECT * FROM relays WHERE id ='".$row['fan_relay_id']."' LIMIT 1;";
         $result = $conn->query($query);
         $fan_relay = mysqli_fetch_array($result);
         $fan_relay_id = $fan_relay['controler_id'];
@@ -305,7 +305,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         //get the zone controllers for this zone to array
         $query = "SELECT zone_controllers.id AS zc_id, cid.node_id as controler_id, cr.controler_child_id, zone_controllers.controller_relay_id, zone_controllers.state, zone_controllers.current_state, ctype.`type` ";
         $query = $query."FROM zone_controllers ";
-        $query = $query."join controller_relays cr on controller_relay_id = cr.id ";
+        $query = $query."join relays cr on controller_relay_id = cr.id ";
         $query = $query."join nodes ctype on cr.controler_id = ctype.id ";
         $query = $query."join nodes cid on cr.controler_id = cid.id ";
         $query = $query."WHERE zone_id = '$zone_id';";
@@ -339,7 +339,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 
 	// process if a sensor is attached to this zone
 	if ($zone_category <> 2) {
-                $query = "SELECT zone_sensors.*, temperature_sensors.sensor_id, temperature_sensors.sensor_child_id FROM  zone_sensors, temperature_sensors WHERE (zone_sensors.temperature_sensor_id = temperature_sensors.id) AND zone_sensors.zone_id = '{$zone_id}' LIMIT 1;";
+                $query = "SELECT zone_sensors.*, sensors.sensor_id, sensors.sensor_child_id FROM  zone_sensors, sensors WHERE (zone_sensors.zone_sensor_id = sensors.id) AND zone_sensors.zone_id = '{$zone_id}' LIMIT 1;";
                 $result = $conn->query($query);
                 $sensor = mysqli_fetch_array($result);
                 $zone_min_c=$sensor['min_c'];
@@ -714,7 +714,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 
                 // check frost protection linked to this zone controller
                 $frost_controller = $zone_controllers[0]["controller_relay_id"];
-                $query = "SELECT temperature_sensors.sensor_id, temperature_sensors.sensor_child_id, temperature_sensors.name AS sensor_name, temperature_sensors.frost_temp, controller_relays.name AS controller_name FROM temperature_sensors, controller_relays WHERE (temperature_sensors.frost_controller = controller_relays.id) AND frost_controller = ".$frost_controller.";";
+                $query = "SELECT sensors.sensor_id, sensors.sensor_child_id, sensors.name AS sensor_name, sensors.frost_temp, relays.name AS controller_name FROM sensors, relays WHERE (sensors.frost_controller = relays.id) AND frost_controller = ".$frost_controller.";";
                 $fresults = $conn->query($query);
                 $frost_active = 0;
                 $frost_target_c = 99;

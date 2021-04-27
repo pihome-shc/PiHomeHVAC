@@ -25,7 +25,7 @@ require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 
 //create array of colours for the graphs
-$query ="SELECT * FROM temperature_sensors ORDER BY id ASC;";
+$query ="SELECT * FROM sensors ORDER BY id ASC;";
 $result = $conn->query($query);
 $counter = 0;
 $count = mysqli_num_rows($result) + 2; //extra space made for system temperature graph
