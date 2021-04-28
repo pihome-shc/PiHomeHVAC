@@ -493,6 +493,39 @@ if($what=="zone_type"){
 	}
 }
 
+//Sensor Types
+if($what=="sensor_type"){
+        if($opp=="delete"){
+                //Delete from Sensor Type
+                $query = "UPDATE sensor_type SET sensor_type.purge='1' WHERE id = '".$wid."'";
+                $query = "DELETE FROM sensor_type WHERE id = '".$wid."';";
+                $conn->query($query);
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+        if($opp=="add"){
+                $sensor_type = $_GET['sensor_type'];
+                //Add record to sensor_type table
+                $query = "INSERT INTO `sensor_type`(`sync`, `purge`, `type`) VALUES ('0', '0', '{$sensor_type}')";
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+}
+
 //Away 
 if($what=="away"){
 	if($opp=="active"){
