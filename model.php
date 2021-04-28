@@ -1087,6 +1087,75 @@ echo '<div class="modal fade" id="temperature_sensor" tabindex="-1" role="dialog
     </div>
 </div>';
 
+//Sensor Type
+echo '
+<div class="modal fade" id="sensor_types" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['sensor_type'].'</h5>
+            </div>
+            <div class="modal-body">
+<p class="text-muted"> '.$lang['sensor_type_info'].' </p>';
+
+echo '<table class="table table-bordered">
+    <tr>
+        <th class="col-xs-11"><small>'.$lang['type'].'</small></th>
+        <th class="col-xs-1"></th>
+    </tr>';
+
+$query = "SELECT * FROM sensor_type where `purge`=0;";
+$results = $conn->query($query);
+while ($row = mysqli_fetch_assoc($results)) {
+    $query = "SELECT * FROM `sensors` WHERE `sensor_type_id` = '".$row['id']."' LIMIT 1;";
+    $t_results = $conn->query($query);
+    $rowcount=mysqli_num_rows($t_results);
+    if($rowcount > 0) {
+        $content_msg=$lang['confirm_del_active_sensor_type'];
+    } else {
+        $content_msg=$lang['confirm_del_de_active_sensor_type'];
+    }
+
+    echo '
+        <tr>
+            <td>'.$row["type"].'</td>
+            <td><a href="javascript:delete_sensor_type('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>
+        </tr>';
+}
+echo '</table></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                <button type="button" class="btn btn-default login btn-sm" data-href="#" data-toggle="modal" data-target="#add_sensor_type">'.$lang['sensor_type_add'].'</button>
+            </div>
+        </div>
+    </div>
+</div>';
+
+//Add Sensor Type
+echo '
+<div class="modal fade" id="add_sensor_type" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['sensor_type_add'].'</h5>
+            </div>
+            <div class="modal-body">';
+echo '<p class="text-muted">'.$lang['sensor_type_add_info_text'].'</p>
+        <form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
+        <div class="form-group" class="control-label"><label>'.$lang['sensor_type'].'</label> <small class="text-muted">'.$lang['sensor_type_info'].'</small>
+        <input class="form-control input-sm" type="text" id="sensor_type" name="sensor_type" value="" placeholder="'.$lang['sensor_type'].'">
+        <div class="help-block with-errors"></div></div>
+</div>
+            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                                <input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="add_sensor_type()">
+            </div>
+        </div>
+    </div>
+</div>';
+
 //Zone model
 echo '
 <div class="modal fade" id="zone_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
