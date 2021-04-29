@@ -603,4 +603,8 @@ $lang['documentation_info'] = "Select Documentation to be opened in a new Browse
 $lang['open'] = "Open";
 $lang['sensor_type'] = "Sensor Type";
 $lang['sensor_type_info'] = "Temperature, Humidity, etc";
+$lang['confirm_del_active_sensor_type'] = "You are about to DELETE a Sensor Type Which Is In Use";
+$lang['confirm_del_de_active_sensor_type'] = "You are about to DELETE a Sensor Type Which Is NOT In Use";
+$lang['sensor_type_add'] = "Add Type";
+$lang['sensor_type_add_info_text'] = "You can Add New Sensor Types.";
 ?>

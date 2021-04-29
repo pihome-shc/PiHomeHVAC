@@ -31,7 +31,7 @@ print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
 
-import MySQLdb as mdb, sys, serial, telnetlib, time, datetime
+import MySQLdb as mdb, sys, serial, telnetlib, time, datetime, os
 import configparser, logging
 from datetime import datetime
 import struct
@@ -222,6 +222,11 @@ try:
             )
 
     while 1:
+        ## Terminate gateway script if no route to network gateway
+        if gatewaytype == "wifi":
+            gateway_up  = True if os.system("ping -c 1 " + gatewaylocation) is 0 else False
+            if not gateway_up:
+                break
         ## Outgoing messages
         con.commit()
         cur.execute(
