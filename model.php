@@ -698,7 +698,7 @@ echo '
             <div class="modal-body">
 <p class="text-muted"> '.$lang['node_settings_text'].' </p>';
 
-$query = "SELECT * FROM nodes where type not like '%Sensor';";
+$query = "SELECT * FROM nodes;";
 $results = $conn->query($query);
 echo '<table class="table table-bordered">
     <tr>
@@ -709,25 +709,80 @@ echo '<table class="table table-bordered">
         <th class="col-xs-1"></th>
     </tr>';
 while ($row = mysqli_fetch_assoc($results)) {
-    if($row["name"]=="System Controller" or $row["name"]=="GPIO Controller" or $row["name"]=="I2C Controller") {
-        $query = "SELECT * FROM system_controller where node_id = {$row['id']} LIMIT 1;";
-        $b_results = $conn->query($query);
-        $rowcount=mysqli_num_rows($b_results);
-        if($rowcount > 0) {
-                $content_msg=$lang['confirm_del_controller_use2'];
+    if(strpos($row["name"], 'Sensor') !== false) {
+        $query = "SELECT name, zone_id FROM sensors WHERE sensor_id = {$row['id']};";
+        $s_results = $conn->query($query);
+        $scount=mysqli_num_rows($s_results);
+        if($scount > 0) {
+                $count = 0;
+                $zcount = 0;
+                while ($s_row = mysqli_fetch_assoc($s_results)) {
+                        if ($s_row["zone_id"] != 0) {
+                                $query = "SELECT name FROM zone WHERE id = {$s_row['zone_id']} LIMIT 1;";
+                                $z_results = $conn->query($query);
+                                $z_row = mysqli_fetch_assoc($z_results);
+                                if($zcount == 0) {
+                                        $content_msg_z=$lang['confirm_del_sensor_3'].$z_row["name"];
+                                } else {
+                                        $content_msg_z=$content_msg_z." and - ".$z_row["name"];
+                                }
+                                $zcount = $zcount + 1;
+                        } else {
+                                if($count == 0) {
+                                        $content_msg=$lang['confirm_del_sensor_2'].$s_row["name"];
+                                } else {
+                                        $content_msg=$content_msg." and - ".$s_row["name"];
+                                }
+                                $count = $count + 1;
+                        }
+                }
         } else {
-                $content_msg=$lang['confirm_del_controller'];
+                $content_msg=$lang['confirm_del_sensor_1'];
         }
-
-    } else {
-        $query = "SELECT zone.name, zone_controllers.* FROM zone, zone_controllers where (zone_id = zone.id) AND zone_controllers.controler_id  = {$row['id']} LIMIT 1;";
-        $z_results = $conn->query($query);
-        $rowcount=mysqli_num_rows($z_results);
-        if($rowcount > 0) {
-			$z_row = mysqli_fetch_assoc($z_results);
-			$content_msg=$lang['confirm_del_controller_use']." ".$z_row["name"]." ".$lang['zone'];
+    } elseif(strpos($row["name"], 'Controller') !== false || strpos($row["name"], 'Relay') !== false) {
+        $query = "SELECT id, name, type FROM relays where controler_id = {$row['id']};";
+        $r_results = $conn->query($query);
+        $rcount=mysqli_num_rows($r_results);
+        if($rcount > 0) {
+                $count = 0;
+		$zcount = 0;
+                while ($r_row = mysqli_fetch_assoc($r_results)) {
+			switch ($r_row["type"]) {
+				case 0:
+					$query = "SELECT zone.name FROM zone_controllers, zone where (zone.id = zone_controllers.zone_id) AND zone_controllers.controller_relay_id = {$r_row['id']} LIMIT 1;";
+					break;
+                                case 1:
+                                case 2:
+                                        $query = "SELECT name FROM system_controller where heat_relay_id = {$r_row['id']} LIMIT 1;";
+                                        break;
+                                case 3:
+                                        $query = "SELECT name FROM system_controller where cool_relay_id = {$r_row['id']} LIMIT 1;";
+                                        break;
+                                case 4:
+                                        $query = "SELECT name FROM system_controller where fan_relay_id = {$r_row['id']} LIMIT 1;";
+                                        break;
+			}
+                        $zc_results = $conn->query($query);
+			$zccount=mysqli_num_rows($zc_results);
+			if($zccount > 0) {
+                        	$zc_row = mysqli_fetch_assoc($zc_results);
+                                if($zcount == 0) {
+                                        $content_msg_z=$lang['confirm_del_controller_3']." ".$zc_row["name"];
+                                } else {
+                                        $content_msg_z=$content_msg_z." and - ".$zc_row["name"];
+                                }
+                                $zcount = $zcount + 1;
+			} else {
+                        	if($count == 0) {
+                                	$content_msg=$lang['confirm_del_controller_2']." ".$r_row["name"];
+                        	} else {
+                                	$content_msg=$content_msg." and - ".$r_row["name"];
+                        	}
+                        	$count = $count + 1;
+			}
+                }
         } else {
-			$content_msg=$lang['confirm_del_controller'];
+                $content_msg=$lang['confirm_del_controller_1'];
         }
     }
     echo '
@@ -735,9 +790,13 @@ while ($row = mysqli_fetch_assoc($results)) {
             <td>'.$row["type"].'</td>
             <td>'.$row["node_id"].'</td>
             <td>'.$row["max_child_id"].'</td>
-            <td>'.$row["name"].'</td>
-			<td><a href="javascript:delete_node('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>
-        </tr>';
+            <td>'.$row["name"].'</td>';
+	    if($zcount != 0) {
+		echo '<td><a href="javascript:delete_node('.$row["id"].');"><button class="btn btn-danger btn-xs disabled" data-toggle="tooltip" title="'.$content_msg_z.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>';
+	    } else {
+		echo '<td><a href="javascript:delete_node('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>';
+	    }
+        echo '</tr>';
 }
 echo '</table></div>
             <div class="modal-footer">

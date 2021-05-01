@@ -387,7 +387,7 @@ $lang['node_id'] = "Node ID";
 $lang['last_seen'] = "Last Seen";
 
 $lang['node_setting'] = "Node Setting";
-$lang['node_settings_text'] = "You can Add GPIO, I2C relay board as Node, Wireless Nodes are automatically discovered. ";
+$lang['node_settings_text'] = "You can Add GPIO, I2C relay board as Node, Wireless Nodes are automatically discovered.<br>Nodes attached to any Zone cannot be deleted until detached from the associated Zone.";
 $lang['node_add'] = "Add Node";
 $lang['node_add_info_text'] = "You can Add GPIO, I2C relay board as Node, Wireless Nodes are automatically discovered.";
 $lang['node_type'] = "Node Type";
@@ -607,4 +607,10 @@ $lang['confirm_del_active_sensor_type'] = "You are about to DELETE a Sensor Type
 $lang['confirm_del_de_active_sensor_type'] = "You are about to DELETE a Sensor Type Which Is NOT In Use";
 $lang['sensor_type_add'] = "Add Type";
 $lang['sensor_type_add_info_text'] = "You can Add New Sensor Types.";
+$lang['confirm_del_sensor_1'] = "You are about to DELETE a Node with No Active Sensors";
+$lang['confirm_del_sensor_2'] = "You are about to DELETE ACTIVE Sensor - ";
+$lang['confirm_del_sensor_3'] = "Cannot DELETE Node, Sensor attached to Zone - ";
+$lang['confirm_del_controller_1'] = "You are about to DELETE a Node with no active Relays";
+$lang['confirm_del_controller_2'] = "You are about to DELETE ACTIVE Relay - ";
+$lang['confirm_del_controller_3'] = "Cannot DELETE Node, Relay attached to - ";
 ?>
