@@ -265,7 +265,7 @@ $query_job_scheduling .= "('check_gw','/var/www/cron/check_gw.php',1,0,'60',''),
 $query_job_scheduling .= "('system_c','/var/www/cron/system_c.php',1,0,'300',''),";
 $query_job_scheduling .= "('weather_update','/var/www/cron/weather_update.php',1,0,'1800',''),";
 $query_job_scheduling .= "('reboot_wifi','/var/www/cron/reboot_wifi.sh',1,0,'120',''),";
-$query_job_scheduling .= "('gpio_ds18b20','/var/www/cron/gpio_ds18b20.py',0,0,'60',''),";
+$query_job_scheduling .= "('check_ds18b20','/var/www/cron/check_ds18b20.php',0,0,'60',''),";
 $query_job_scheduling .= "('sw_install','/var/www/cron/sw_install.py',1,0,'10','');";
 $results = $conn->query($query_job_scheduling);
 if ($results) {

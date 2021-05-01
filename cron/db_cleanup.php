@@ -29,7 +29,7 @@ echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Database Cleanup Script Started 
 $query = "DELETE FROM messages_in WHERE datetime < DATE_SUB(curdate(), INTERVAL 3 DAY);";
 $result = $conn->query($query);
 if (isset($result)) {
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Temperature Records Delete from Tables \n"; 
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Temperature Records Deleted from Tables \n"; 
 }else {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Temperature Records Delete from Tables Failed\n";
 	echo mysql_error()."\n";
@@ -39,17 +39,27 @@ if (isset($result)) {
 $query = "DELETE FROM nodes_battery WHERE `update` < DATE_SUB(CURDATE(), INTERVAL 3 MONTH);";
 $result = $conn->query($query);
 if (isset($result)) {
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Node Battery Records Delete from Tables \n"; 
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Node Battery Records Deleted from Tables \n"; 
 }else {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Node Battery Records Delete from Tables Failed\n";
 	echo mysql_error()."\n";
+}
+
+//Delete Orphaned Node Battery.
+$query = "DELETE FROM nodes_battery WHERE node_id NOT IN (SELECT nodes.node_id  FROM nodes);";
+$result = $conn->query($query);
+if (isset($result)) {
+        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Orphaned Node Battery Records Deleted from Tables \n";
+}else {
+        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Node Battery Records Delete Orphaned Records from Tables Failed\n";
+        echo mysql_error()."\n";
 }
 
 //Delete Gateway Logs data older then 3 days. 
 $query = "DELETE FROM gateway_logs WHERE pid_datetime < DATE_SUB(curdate(), INTERVAL 3 DAY);";
 $result = $conn->query($query);
 if (isset($result)) {
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Gateway Logs Records Delete from Tables \n"; 
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Gateway Logs Records Deleted from Tables \n"; 
 }else {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Gateway Logs Records Delete from Tables Failed\n";
 	echo mysql_error()."\n";
@@ -59,7 +69,7 @@ if (isset($result)) {
 $query = "DELETE FROM zone_graphs WHERE datetime < DATE_SUB(curdate(), INTERVAL 1 DAY);";
 $result = $conn->query($query);
 if (isset($result)) {
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Graphs Records Delete from Tables \n"; 
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Graphs Records Deleted from Tables \n"; 
 }else {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Graphs Records Delete from Tables Failed\n";
 	echo mysql_error()."\n";
