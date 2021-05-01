@@ -184,6 +184,10 @@ body {
     }
 }
 
+.btn.disabled {
+    pointer-events: auto;
+}
+
 .btn-outline {
     color: inherit;
     background-color: transparent;
