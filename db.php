@@ -381,6 +381,11 @@ if($what=="http_msg"){
 //Nodes
 if($what=="node"){
 	if($opp=="delete"){
+                //Get id from nodes table
+                $query = "SELECT * FROM nodes WHERE id = '".$wid."' LIMIT 1";
+                $results = $conn->query($query);
+                $row = mysqli_fetch_assoc($results);
+                $node_id = $row['node_id';
                 //delete any associated sensors
                 $query = "DELETE FROM sensors WHERE sensor_id = '".$wid."';";
                 if($conn->query($query)){
@@ -390,6 +395,13 @@ if($what=="node"){
                 }
                 //delete any associated relays
                 $query = "DELETE FROM relays WHERE controler_id = '".$wid."';";
+                if($conn->query($query)){
+                        $delete_error = 0;
+                }else{
+                        $delete_error = 1;
+                }
+                //delete any associated battery node data
+                $query = "DELETE FROM nodes_battery WHERE node_id = '".$node_id."';";
                 if($conn->query($query)){
                         $delete_error = 0;
                 }else{
