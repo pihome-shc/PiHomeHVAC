@@ -948,6 +948,7 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
 		$query = "SELECT relays.id, relays.controler_id, relays.controler_child_id, relays.name, relays.type, zc.zone_id, nd.node_id, nd.last_seen
 		FROM relays
 		LEFT join zone_controllers zc ON relays.id = zc.controller_relay_id
+                LEFT JOIN zone z ON zc.zone_id = z.id
 		JOIN nodes nd ON relays.controler_id = nd.id
 		ORDER BY controler_id asc, controler_child_id ASC;";
 		$results = $conn->query($query);
@@ -960,23 +961,27 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
         			<th class="col-xs-2"></th>
     			</tr>';
 
-			$content_msg="Delete Controller Relay";
 			while ($row = mysqli_fetch_assoc($results)) {
     				switch ($row['type']) {
         				case 0:
                 				$relay_type ="Zone";
+                                                $attached_to = $row["zone_name"]." Zone";
                 				break;
         				case 1:
                 				$relay_type ="Boiler";
+                                                $attached_to = "System Controller Relay";
                 				break;
         				case 2:
                 				$relay_type ="HVAC - Heat";
+                                                $attached_to = "HVAC Heat Relay";
                 				break;
         				case 3:
                 				$relay_type ="HVAC - Cool";
+                                                $attached_to = "HVAC Cool Relay";
                 				break;
         				case 4:
                 				$relay_type ="HVAC - Fan";
+                                                $attached_to = "HVAC Fan Relay";
                 				break;
     				}
     				echo '<tr>
@@ -986,9 +991,9 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
             				<td>'.$row["controler_child_id"].'</td>
             				<td><a href="relay.php?id='.$row["id"].'"><button class="btn btn-primary btn-xs"><span class="ionicons ion-edit"></span></button> </a>&nbsp;&nbsp';
             				if(isset($row['zone_id']) || $row['type'] == 1) {
-		 				echo '<button class="btn btn-danger btn-xs disabled"><span class="glyphicon glyphicon-trash"></span></button></td>';
+		 				echo '<button class="btn btn-danger btn-xs disabled" data-toggle="tooltip" title="'.$lang['confirm_del_relay_2'].$attached_to.'"><span class="glyphicon glyphicon-trash"></span></button></td>';
 	    				} else {
-                				echo '<a href="javascript:delete_relay('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>';
+                				echo '<a href="javascript:delete_relay('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$lang['confirm_del_relay_1'].'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>';
             				}
         			echo '</tr>';
 			}
@@ -1024,7 +1029,6 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
         			<th class="col-xs-1"><small>Show</small></th>
         			<th class="col-xs-2"></th>
     			</tr>';
-			$content_msg="Delete Temperature Sensor";
 			while ($row = mysqli_fetch_assoc($results)) {
     				if (!empty($row['zone_id'])) {
 					$query = "SELECT  name FROM zone WHERE id = '{$row['zone_id']}' LIMIT 1;";
@@ -1056,9 +1060,9 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
 	    				}
 	    				echo '<td><a href="sensor.php?id='.$row["id"].'"><button class="btn btn-primary btn-xs"><span class="ionicons ion-edit"></span></button> </a>&nbsp;&nbsp';
 	    				if (empty($row['zone_id'])) { 
-						echo '<a href="javascript:delete_sensor('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>'; 
+						echo '<a href="javascript:delete_sensor('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$lang['confirm_del_sensor_4'].'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>'; 
 	    				} else {
-						echo '<button class="btn btn-danger btn-xs disabled"><span class="glyphicon glyphicon-trash"></span></button></td>';
+						echo '<button class="btn btn-danger btn-xs disabled" data-toggle="tooltip" title="'.$lang['confirm_del_sensor_5'].$zone_name.'"><span class="glyphicon glyphicon-trash"></span></button></td>';
 	    				}
         			echo '</tr>';
 			}
