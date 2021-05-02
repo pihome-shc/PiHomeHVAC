@@ -608,7 +608,11 @@ $lang['sensor_type_add_info_text'] = "You can Add New Sensor Types.";
 $lang['confirm_del_sensor_1'] = "You are about to DELETE a Node with No Active Sensors";
 $lang['confirm_del_sensor_2'] = "You are about to DELETE ACTIVE Sensor - ";
 $lang['confirm_del_sensor_3'] = "Cannot DELETE Node, Sensor attached to Zone - ";
+$lang['confirm_del_sensor_4'] = "DELETE Sensor";;
+$lang['confirm_del_sensor_5'] = "Cannot DELETE Sensor attached to Zone - ";
 $lang['confirm_del_controller_1'] = "You are about to DELETE a Node with no active Relays";
 $lang['confirm_del_controller_2'] = "You are about to DELETE ACTIVE Relay - ";
 $lang['confirm_del_controller_3'] = "Cannot DELETE Node, Relay attached to - ";
+$lang['confirm_del_relay_1'] = "DELETE Relay";
+$lang['confirm_del_relay_2'] = "Cannot DELETE Relay, attaced to - ";
 ?>
