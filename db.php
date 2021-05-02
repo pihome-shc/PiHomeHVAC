@@ -385,7 +385,7 @@ if($what=="node"){
                 $query = "SELECT * FROM nodes WHERE id = '".$wid."' LIMIT 1";
                 $results = $conn->query($query);
                 $row = mysqli_fetch_assoc($results);
-                $node_id = $row['node_id';
+                $node_id = $row['node_id'];
                 //delete any associated sensors
                 $query = "DELETE FROM sensors WHERE sensor_id = '".$wid."';";
                 if($conn->query($query)){
