@@ -35,10 +35,6 @@ if(($what=="zone") && ($opp=="delete")){
 	$query = "UPDATE boost SET boost.purge='1' WHERE zone_id = '".$wid."'";
 	$conn->query($query);
 	
-	//Delete All Message Out records
-	$query = "DELETE FROM messages_out WHERE zone_id = '".$wid."'";
-	$conn->query($query);
-	
 	//Delete Override records
 	$query = "UPDATE override SET override.purge='1' WHERE zone_id = '".$wid."'";
 	$conn->query($query);
@@ -54,7 +50,8 @@ if(($what=="zone") && ($opp=="delete")){
         //Delete Zone Sensors record
         $query = "UPDATE zone_sensors SET zone_sensors.purge='1' WHERE zone_id = '".$wid."'";
         $conn->query($query);
-        //Delete Zone Controller record
+
+	//Delete Zone Controller record
         $query = "UPDATE zone_controllers SET zone_controllers.purge='1' WHERE zone_id = '".$wid."'";
         $conn->query($query);
 
@@ -448,9 +445,25 @@ if($what=="node"){
 //Controller Relays
 if($what=="relay"){
         if($opp=="delete"){
-                $query = "DELETE FROM relays WHERE id = '".$wid."';";
-                $conn->query($query);
+                //delete any associated message_out entries
+                $query = "SELECT nodes.node_id, relays.controler_child_id FROM nodes, relays WHERE (nodes.id = relays.controler_id) AND relays.id = '".$wid."' LIMIT 1;";
+                $results = $conn->query($query);
+                $row = mysqli_fetch_assoc($results);
+                $node_id = $row['node_id'];
+                $child_id = $row['controler_child_id'];
+                $query = "DELETE FROM messages_out WHERE node_id = '".$node_id."' AND child_id = '".$child_id."';";
                 if($conn->query($query)){
+                        $delete_error=0;
+                }else{
+                        $delete_error=1;
+                }
+                $query = "DELETE FROM relays WHERE id = '".$wid."';";
+                if($conn->query($query)){
+                        $delete_error=0;
+                }else{
+                        $delete_error=1;
+                }
+                if($delete_error == 0){
                         header('Content-type: application/json');
                         echo json_encode(array('Success'=>'Success','Query'=>$query));
                         return;

@@ -35,27 +35,58 @@ if (isset($_POST['submit'])) {
 	$name = $_POST['name'];
         $type = $_POST['type_id'];
 	$selected_relay_id = $_POST['selected_relay_id'];
-        $query = "SELECT id FROM nodes WHERE node_id = '".$selected_relay_id."' LIMIT 1;";
+        $original_node_id = $_POST['original_node_id'];
+        $original_child_id = $_POST['original_child_id'];
+        $query = "SELECT id, type FROM nodes WHERE node_id = '".$selected_relay_id."' LIMIT 1;";
         $result = $conn->query($query);
         $row = mysqli_fetch_array($result);
         $controler_id = $row['id'];
+        $controller_type = $row['type'];
 	$controler_child_id = $_POST['relay_child_id'];
         $sync = '0';
         $purge= '0';
 
-	//Add or Edit relay record to relays Table
-	$query = "INSERT INTO `relays` (`id`, `sync`, `purge`, `controler_id`, `controler_child_id`, `name`, `type`) VALUES ('{$id}', '{$sync}', '{$purge}', '{$controler_id}', '{$controler_child_id}', '{$name}', '{$type}') ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), controler_id='{$controler_id}', controler_child_id='{$controler_child_id}', name=VALUES(name), type=VALUES(type);";
-	$result = $conn->query($query);
+        //Add or Edit relay record to relays Table
+        $query = "INSERT INTO `relays` (`id`, `sync`, `purge`, `controler_id`, `controler_child_id`, `name`, `type`) VALUES ('{$id}', '{$sync}', '{$purge}', '{$controler_id}', '{$controler_child_id}', '{$name}', '{$type}') ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), controler_id='{$controler_id}', controler_child_id='{$controler_child_id}', name=VALUES(name), type=VALUES(type);";
+        $result = $conn->query($query);
         $temp_id = mysqli_insert_id($conn);
-	if ($result) {
+        if ($result) {
                 if ($id==0){
                         $message_success = "<p>".$lang['relay_record_add_success']."</p>";
                 } else {
                         $message_success = "<p>".$lang['relay_record_update_success']."</p>";
                 }
-	} else {
-		$error = "<p>".$lang['relay_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
-	}
+        } else {
+                $error = "<p>".$lang['relay_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+        }
+
+        //delete existing messages_out Record
+        if ($id!=0){
+                $query = "DELETE FROM messages_out WHERE node_id = '{$original_node_id}' AND child_id = '{$original_child_id}';";
+                $conn->query($query);
+        }
+        //add to messages_out queue
+        if(strpos($controller_type, 'Tasmota') !== false) {
+                $query = "SELECT * FROM http_messages WHERE node_id = '{$selected_relay_id}' AND message_type = 0 LIMIT 1;";
+                $result = $conn->query($query);
+                $found_product = mysqli_fetch_array($result);
+                $payload = $found_product['command']." ".$found_product['parameter'];
+        } else {
+                $payload = 0;
+        }
+
+        $query = "INSERT INTO `messages_out` (`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`) VALUES ('0', '0', '{$selected_relay_id}','{$controler_child_id}', '1', '1', '2', '{$payload}', '0', '{$date_time}', '0');";
+        $result = $conn->query($query);
+        if ($result) {
+                if ($id==0){
+                        $message_success .= "<p>".$lang['messages_out_add_success']."</p>";
+                } else {
+                        $message_success .= "<p>".$lang['messages_out_update_success']."</p>";
+                }
+        } else {
+                $error .= "<p>".$lang['messages_out_fail']."</p> <p>" .mysqli_error($conn). "</p>";
+        }
+
 	$message_success .= "<p>".$lang['do_not_refresh']."</p>";
 	header("Refresh: 10; url=home.php");
 	// After update on all required tables, set $id to mysqli_insert_id.
@@ -198,6 +229,8 @@ function RelayChildList(value)
 }
 </script>
 <input type="hidden" id="selected_relay_id" name="selected_relay_id" value="<?php echo $rownode['node_id']?>"/>
+<input type="hidden" id="original_node_id" name="original_node_id" value="<?php echo $rownode['node_id']?>"/>
+<input type="hidden" id="original_child_id" name="original_child_id" value="<?php echo $row['controler_child_id']?>"/>
 
 <!-- Relay Child ID -->
 <input type="hidden" id="gpio_pin_list" name="gpio_pin_list" value="<?php echo implode(",", array_filter(Get_GPIO_List()))?>"/>

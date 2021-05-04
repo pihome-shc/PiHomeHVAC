@@ -130,11 +130,8 @@ if (isset($_POST['submit'])) {
 	        if ($id!=0){ //if in edit mode delete existing zone controller records for the current zone
         		$query = "DELETE FROM `zone_controllers` WHERE `zone_id` = '{$cnt_id}';";
 	        	$result = $conn->query($query);
-	        	//delete existing messages_out records for the current zone
-		        $query = "DELETE FROM `messages_out` WHERE `zone_id` = '{$cnt_id}';";
-        		$result = $conn->query($query);
 		}
-		//loop through zone controller for the current zone and replace zone_controllers and messages_out records to cope with individual deleted zone controllers
+		//loop through zone controller for the current zone and replace zone_controllers records to cope with individual deleted zone controllers
 	        for ($i = 0; $i < count($controllers); $i++)  {
 			//Re-add Zones Controllers Table
 			$controler_relay_id = $controllers[$i][0];
@@ -163,24 +160,6 @@ if (isset($_POST['submit'])) {
 		        } else {
        			        $error = "<p>".$lang['controller_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
 		        }
-
-        	        //Re-add Controller to message out table at same time to send out instructions to controller for each zone.
-        		if(strpos($controller_type, 'Tasmota') !== false) { 
-	                	$query = "SELECT * FROM http_messages WHERE node_id = '{$controler_node_id}' AND message_type = 0 LIMIT 1;";
-	        	        $result = $conn->query($query);
-        	        	$found_product = mysqli_fetch_array($result);
-	        	        $payload = $found_product['command']." ".$found_product['parameter'];
-			} else {
-				$payload = 0;
-			}
-
-	               	$query = "INSERT INTO `messages_out` (`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`) VALUES ('0', '0', '{$controler_node_id}','{$controler_child_id}', '1', '1', '2', '{$payload}', '0', '{$date_time}', '{$cnt_id}');";
-        	        $result = $conn->query($query);
-                	if ($result) {
-                      		$message_success .= "<p>".$lang['messages_out_add_success']."</p>";
-	                } else {
-        	                $error .= "<p>".$lang['messages_out_fail']."</p> <p>" .mysqli_error($conn). "</p>";
-                	}
 		}
 	}
 

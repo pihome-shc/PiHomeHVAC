@@ -1,6 +1,6 @@
 # MaxAir - Smart Thermostat
 
-### Note: Currently at RC2 (Release Candidate 2) stage.
+### Note: Now at Version 1.0.
 
 The previous version, PiHome, was centered around the creation of zones, this version is more centered around devices.
 
