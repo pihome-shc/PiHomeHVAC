@@ -35,7 +35,8 @@ if (isset($_POST['submit'])) {
 	$name = $_POST['name'];
         $type = $_POST['type_id'];
 	$selected_relay_id = $_POST['selected_relay_id'];
-        $selected_child_id = $_POST['selected_child_id'];
+        $original_node_id = $_POST['original_node_id'];
+        $original_child_id = $_POST['original_child_id'];
         $query = "SELECT id, type FROM nodes WHERE node_id = '".$selected_relay_id."' LIMIT 1;";
         $result = $conn->query($query);
         $row = mysqli_fetch_array($result);
@@ -61,7 +62,7 @@ if (isset($_POST['submit'])) {
 
         //delete existing messages_out Record
         if ($id!=0){
-                $query = "DELETE FROM messages_out WHERE node_id = '{$selected_relay_id}' AND child_id = '{$selected_child_id}';";
+                $query = "DELETE FROM messages_out WHERE node_id = '{$original_node_id}' AND child_id = '{$selected_child_id}';";
                 $conn->query($query);
         }
         //add to messages_out queue
@@ -228,7 +229,8 @@ function RelayChildList(value)
 }
 </script>
 <input type="hidden" id="selected_relay_id" name="selected_relay_id" value="<?php echo $rownode['node_id']?>"/>
-<input type="hidden" id="selected_child_id" name="selected_child_id" value="<?php echo $row['controler_child_id']?>"/>
+<input type="hidden" id="original_node_id" name="original_node_id" value="<?php echo $row['node_id']?>"/>
+<input type="hidden" id="original_child_id" name="original_child_id" value="<?php echo $row['controler_child_id']?>"/>
 
 <!-- Relay Child ID -->
 <input type="hidden" id="gpio_pin_list" name="gpio_pin_list" value="<?php echo implode(",", array_filter(Get_GPIO_List()))?>"/>
