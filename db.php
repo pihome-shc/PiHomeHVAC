@@ -58,7 +58,12 @@ if(($what=="zone") && ($opp=="delete")){
         //Mark temperature sensor as un-allocated
         $query = "UPDATE `sensors` SET `zone_id`=0 WHERE `zone_id` = '".$wid."'";
         $conn->query($query);
-        //Delete Add-On-Zone-Logs record
+
+	//Delete Controller-Zone-Logs record
+        $query = "UPDATE controller_zone_logs SET controller_zone_logs.purge='1' WHERE zone_id = '".$wid."'";
+        $conn->query($query);
+
+	//Delete Add-On-Zone-Logs record
         $query = "UPDATE add_on_zone_logs SET add_on_zone_logs.purge='1' WHERE zone_id = '".$wid."'";
         $conn->query($query);
 
