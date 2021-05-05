@@ -1,17 +1,17 @@
 <?php
 /*
-   _____    _   _    _
-  |  __ \  (_) | |  | |
-  | |__) |  _  | |__| |   ___    _ __ ___     ___
-  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \
-  | |      | | | |  | | | (_) | | | | | | | |  __/
-  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|
+             __  __                             _
+            |  \/  |                    /\     (_)
+            | \  / |   __ _  __  __    /  \     _   _ __
+            | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+            | |  | | | (_| |  >  <   / ____ \  | | | |
+            |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 
-     S M A R T   H E A T I N G   C O N T R O L
+                   S M A R T   T H E R M O S T A T
 
 *************************************************************************"
-* PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
-* from web interface and it comes with ABSOLUTELY NO WARRANTY, to the   *"
+* MaxAir is a Linux based Central Heating Control systems. It runs from *"
+* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *"
 * extent permitted by applicable law. I take no responsibility for any  *"
 * loss or damage to you or your property.                               *"
 * DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTILL UNLESS YOU KNOW *"
@@ -632,6 +632,24 @@ function graph_color($numOfSteps, $step) {
     }
     $color = '#'.sprintf('%02X', $red*255).sprintf('%02X', $green*255).sprintf('%02X', $blue*255);
     return ($color);
+}
+
+function purge_tables() {
+//Delete Zone tables
+$query = "DELETE FROM boost WHERE `purge`= 1 LIMIT 1;
+DELETE FROM override WHERE `purge`= 1  LIMIT 1;
+DELETE FROM schedule_daily_time_zone WHERE `purge`= 1;
+DELETE FROM schedule_night_climat_zone WHERE `purge`= 1;
+DELETE FROM controller_zone_logs WHERE `purge`= 1;
+DELETE FROM add_on_zone_logs WHERE `purge`= 1;
+DELETE FROM zone_sensors WHERE `purge`= 1;
+DELETE FROM zone_controllers WHERE `purge`= 1;
+DELETE FROM livetemp WHERE `purge`= 1 LIMIT 1;
+DELETE FROM zone WHERE `purge`= 1 LIMIT 1;
+DELETE FROM schedule_daily_time_zone WHERE `purge`= 1;
+DELETE FROM holidays WHERE `purge`= 1;
+DELETE FROM schedule_daily_time WHERE `purge`= 1;";
+return $query;
 }
 
 ?>
