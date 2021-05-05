@@ -1772,6 +1772,12 @@ if ($system_controller_mode == 0) {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Hysteresis Status: \033[41m".$hysteresis."\033[0m \n";
 }
 echo "------------------------------------------------------------------------------------------------------- \n";
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Purging marked records. \n";
+$query = purge_tables();
+foreach(preg_split("/((\r?\n)|(\r\n?))/", $query) as $line){
+        $conn->query($line);
+}
+echo "------------------------------------------------------------------------------------------------------- \n";
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Controller Script Ended \n";
 echo "\033[32m*******************************************************************************************************\033[0m  \n";
 if(isset($conn)) { $conn->close();}
