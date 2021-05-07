@@ -151,7 +151,7 @@ CREATE TABLE `relays` (
   `type` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_relays_nodes` (`controler_id`),
-  CONSTRAINT `FK_temperature_relays` FOREIGN KEY (`controler_id`) REFERENCES `nodes` (`id`)
+  CONSTRAINT `FK_relays_nodes` FOREIGN KEY (`controler_id`) REFERENCES `nodes` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- Dumping data for table `relays`
