@@ -185,8 +185,8 @@ try:
         relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
         # get the last relay state from the messages_out table
         for x in relays:
-            controler_id = x[relay_to_index["controler_id"]]
-            out_child_id = x[relay_to_index["controler_child_id"]]
+            controler_id = x[relay_to_index["relay_id"]]
+            out_child_id = x[relay_to_index["relay_child_id"]]
             cur.execute(
                 "SELECT `node_id`, `type` FROM `nodes` where id = (%s) LIMIT 1",
                 (controler_id,),

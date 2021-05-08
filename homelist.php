@@ -145,15 +145,14 @@ require_once(__DIR__.'/st_inc/functions.php');
 			$zone_name=$row['name'];
 			$zone_type=$row['type'];
                         $zone_category=$row['category'];
-			$zone_controller_type=$row['controller_type'];
 
                         //query to get the zone controller info
 			if ($zone_category <> 3) {
-	                        $query = "SELECT relays.controler_id, relays.controler_child_id FROM zone_controllers, relays WHERE (zone_controllers.controller_relay_id = relays.id) AND zone_id = '{$zone_id}' LIMIT 1;";
+	                        $query = "SELECT relays.relay_id, relays.relay_child_id FROM zone_relays, relays WHERE (zone_relays.zone_relay_id = relays.id) AND zone_id = '{$zone_id}' LIMIT 1;";
         	                $result = $conn->query($query);
-                	        $zone_controllers = mysqli_fetch_array($result);
-                        	$zone_controler_id=$zone_controllers['controler_id'];
-	                        $zone_controler_child_id=$zone_controllers['controler_child_id'];
+                	        $zone_relays = mysqli_fetch_array($result);
+                        	$zone_relay_id=$zone_relays['relay_id'];
+	                        $zone_relay_child_id=$zone_relays['relay_child_id'];
 			}
 
 			//query to get zone current state
@@ -283,7 +282,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 											<i class="fa fa-clock-o fa-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
 											</small>
 											<br><br>
-											<p>Controller ID '.$zone_controler_id.' last seen at '.$controler_seen.' </p>
+											<p>Controller ID '.$zone_relay_id.' last seen at '.$controler_seen.' </p>
 											<p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
 										</div>
 									</li>
