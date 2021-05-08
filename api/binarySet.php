@@ -38,12 +38,12 @@ if(isset($_GET['zonename'])) {
 	} else {
 		while ($row = mysqli_fetch_assoc($results)) {
                         $zone_id=$row['id'];
-		        $controler_id=$row['controler_id'];
-        	        $controler_child_id=$row['controler_child_id'];
-			$query = "SELECT node_id, type FROM nodes WHERE id = '{$controler_id}' LIMIT 1;";
+		        $relay_id=$row['relay_id'];
+        	        $relay_child_id=$row['relay_child_id'];
+			$query = "SELECT node_id, type FROM nodes WHERE id = '{$relay_id}' LIMIT 1;";
 			$result = $conn->query($query);
 			$node = mysqli_fetch_array($result);
-                        $controler_node_id=$node['node_id'];
+                        $relay_node_id=$node['node_id'];
 			$type = $node['type'];
 	                if(isset($_GET['state'])) {
 				switch ($_GET['state']) {
@@ -70,9 +70,9 @@ if(isset($_GET['zonename'])) {
 				}
 				if($status == 0 or $status == 1) {
 					if (strpos($type, 'Tasmota') !== false) {
-						$query = "UPDATE messages_out SET payload = '{$http_status}', sent = 0 where node_id = '{$controler_node_id}' AND child_id = '{$controler_child_id}';";
+						$query = "UPDATE messages_out SET payload = '{$http_status}', sent = 0 where node_id = '{$relay_node_id}' AND child_id = '{$relay_child_id}';";
 					} else {
-        					$query = "UPDATE messages_out SET payload = '{$status}', sent = 0 where node_id = '{$controler_node_id}' AND child_id = '{$controler_child_id}';";
+        					$query = "UPDATE messages_out SET payload = '{$status}', sent = 0 where node_id = '{$relay_node_id}' AND child_id = '{$relay_child_id}';";
 					}
 			        	$conn->query($query);
         				if($conn->query($query)){
@@ -81,7 +81,7 @@ if(isset($_GET['zonename'])) {
                                         	$update = 1;
 			        	}
 
-                                        $query = "UPDATE zone_controllers SET state = '{$status}' WHERE zone_id = '{$zone_id}';";
+                                        $query = "UPDATE zone_relays SET state = '{$status}' WHERE zone_id = '{$zone_id}';";
                                         if($conn->query($query)){
                                                 $update_error=0;
                                         }else{
