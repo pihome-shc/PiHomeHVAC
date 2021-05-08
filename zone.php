@@ -156,12 +156,12 @@ if (isset($_POST['submit'])) {
 			$result = $conn->query($query);
 	       		if ($result) {
         	       		if ($id==0){
-                	       		$message_success .= "<p>".$lang['controller_record_add_success']."</p>";
+                	       		$message_success .= "<p>".$lang['zone_relay_record_add_success']."</p>";
 	                	} else {
-       		                	$message_success .= "<p>".$lang['controller_record_update_success']."</p>";
+       		                	$message_success .= "<p>".$lang['zone_relay_record_update_success']."</p>";
 	               		}
 		        } else {
-       			        $error .= "<p>".$lang['controller_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+       			        $error .= "<p>".$lang['zone_relay_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
 		        }
 
         	        //Re-add Controller to message out table at same time to send out instructions to controller for each zone.
