@@ -118,12 +118,12 @@ if (isset($_POST['submit'])) {
                 $result = $conn->query($query);
                 if ($result) {
                 	if ($id==0){
-                        	$message_success = "<p>".$lang['controller_record_add_success']."</p>";
+                        	$message_success .= "<p>".$lang['controller_record_add_success']."</p>";
                         } else {
-                                $message_success = "<p>".$lang['controller_record_update_success']."</p>";
+                                $message_success .= "<p>".$lang['controller_record_update_success']."</p>";
                         }
                 } else {
-                          $error = "<p>".$lang['controller_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+                          $error .= "<p>".$lang['controller_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
                 }
 
 	} else {
@@ -137,9 +137,9 @@ if (isset($_POST['submit'])) {
 		//loop through zone controller for the current zone and replace zone_controllers and messages_out records to cope with individual deleted zone controllers
 	        for ($i = 0; $i < count($controllers); $i++)  {
 			//Re-add Zones Controllers Table
-			$controler_relay_id = $controllers[$i][0];
-                	//query to search relays for zone controller child id
-	                $query = "SELECT relay_id, relay_child_id FROM relays WHERE id = '{$controler_relay_id}' LIMIT 1;";
+			$zone_relay_id = $controllers[$i][0];
+                	//query to search relays for zone relay child id
+	                $query = "SELECT relay_id, relay_child_id FROM relays WHERE id = '{$zone_relay_id}' LIMIT 1;";
         	        $result = $conn->query($query);
                 	$found_product = mysqli_fetch_array($result);
                         $relay_id = $found_product['relay_id'];
@@ -156,12 +156,12 @@ if (isset($_POST['submit'])) {
 			$result = $conn->query($query);
 	       		if ($result) {
         	       		if ($id==0){
-                	       		$message_success = "<p>".$lang['controller_record_add_success']."</p>";
+                	       		$message_success .= "<p>".$lang['controller_record_add_success']."</p>";
 	                	} else {
-       		                	$message_success = "<p>".$lang['controller_record_update_success']."</p>";
+       		                	$message_success .= "<p>".$lang['controller_record_update_success']."</p>";
 	               		}
 		        } else {
-       			        $error = "<p>".$lang['controller_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+       			        $error .= "<p>".$lang['controller_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
 		        }
 
         	        //Re-add Controller to message out table at same time to send out instructions to controller for each zone.
@@ -194,12 +194,12 @@ if (isset($_POST['submit'])) {
                 $result = $conn->query($query);
                 if ($result) {
                         if ($id==0){
-                                $message_success = "<p>".$lang['sensor_record_add_success']."</p>";
+                                $message_success .= "<p>".$lang['sensor_record_add_success']."</p>";
                         } else {
-                                $message_success = "<p>".$lang['sensor_record_update_success']."</p>";
+                                $message_success .= "<p>".$lang['sensor_record_update_success']."</p>";
                         }
                 } else {
-                        $error = "<p>".$lang['sensor_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+                        $error .= "<p>".$lang['sensor_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
                 }
                 // if in edit mode check if sensor has change and update the temperature sensors table
                 if ($id != 0 && strcmp($initial_sensor_id, $zone_sensor_id) != 0){
