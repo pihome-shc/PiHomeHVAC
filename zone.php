@@ -194,29 +194,29 @@ if (isset($_POST['submit'])) {
                 $result = $conn->query($query);
                 if ($result) {
                         if ($id==0){
-                                $message_success .= "<p>".$lang['sensor_record_add_success']."</p>";
+                                $message_success .= "<p>".$lang['zone_sensor_record_add_success']."</p>";
                         } else {
-                                $message_success .= "<p>".$lang['sensor_record_update_success']."</p>";
+                                $message_success .= "<p>".$lang['zone_sensor_record_update_success']."</p>";
                         }
                 } else {
-                        $error .= "<p>".$lang['sensor_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+                        $error .= "<p>".$lang['zone_sensor_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
                 }
                 // if in edit mode check if sensor has change and update the temperature sensors table
                 if ($id != 0 && strcmp($initial_sensor_id, $zone_sensor_id) != 0){
                         $query = "UPDATE `sensors` SET `zone_id` = NULL WHERE `id` = '{$initial_sensor_id}';";
                         $result = $conn->query($query);
                         if ($result) {
-                                $message_success .= "<p>".$lang['temp_sensor_record_update_success']."</p>";
+                                $message_success .= "<p>".$lang['sensor_record_update_success']."</p>";
                         } else {
-                                $error .= "<p>".$lang['temp_sensor_record_fail']."</p> <p>" .mysqli_error($conn). "</p>";
+                                $error .= "<p>".$lang['sensor_record_fail']."</p> <p>" .mysqli_error($conn). "</p>";
                         }
                 }
                 $query = "UPDATE `sensors` SET `zone_id` = '{$cnt_id}' WHERE `id` = '{$zone_sensor_id}';";
                 $result = $conn->query($query);
                 if ($result) {
-                        $message_success .= "<p>".$lang['temp_sensor_record_update_success']."</p>";
+                        $message_success .= "<p>".$lang['sensor_record_update_success']."</p>";
                 } else {
-                        $error .= "<p>".$lang['temp_sensor_record_fail']."</p> <p>" .mysqli_error($conn). "</p>";
+                        $error .= "<p>".$lang['sensor_record_fail']."</p> <p>" .mysqli_error($conn). "</p>";
                 }
         }
 
