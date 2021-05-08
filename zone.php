@@ -114,52 +114,73 @@ if (isset($_POST['submit'])) {
         if ($zone_id == 0) { $cnt_id = $id; } else { $cnt_id = $zone_id; }
 
 	if($zone_category == 3) {
-        	$query = "INSERT INTO `zone_controllers` (`sync`, `purge`, `state`, `current_state`, `zone_id`, `controller_relay_id`) VALUES ('{$sync}', '{$purge}', '0', '0', '{$cnt_id}', '0');";
+        	$query = "INSERT INTO `zone_relays` (`sync`, `purge`, `state`, `current_state`, `zone_id`, `zone_relay_id`) VALUES ('{$sync}', '{$purge}', '0', '0', '{$cnt_id}', '0');";
                 $result = $conn->query($query);
                 if ($result) {
                 	if ($id==0){
-                        	$message_success = "<p>".$lang['controller_record_add_success']."</p>";
+                        	$message_success .= "<p>".$lang['controller_record_add_success']."</p>";
                         } else {
-                                $message_success = "<p>".$lang['controller_record_update_success']."</p>";
+                                $message_success .= "<p>".$lang['controller_record_update_success']."</p>";
                         }
                 } else {
-                          $error = "<p>".$lang['controller_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+                          $error .= "<p>".$lang['controller_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
                 }
 
 	} else {
 	        if ($id!=0){ //if in edit mode delete existing zone controller records for the current zone
-        		$query = "DELETE FROM `zone_controllers` WHERE `zone_id` = '{$cnt_id}';";
+        		$query = "DELETE FROM `zone_relays` WHERE `zone_id` = '{$cnt_id}';";
 	        	$result = $conn->query($query);
+	        	//delete existing messages_out records for the current zone
+		        $query = "DELETE FROM `messages_out` WHERE `zone_id` = '{$cnt_id}';";
+        		$result = $conn->query($query);
 		}
-		//loop through zone controller for the current zone and replace zone_controllers records to cope with individual deleted zone controllers
+		//loop through zone controller for the current zone and replace zone_controllers and messages_out records to cope with individual deleted zone controllers
 	        for ($i = 0; $i < count($controllers); $i++)  {
 			//Re-add Zones Controllers Table
-			$controler_relay_id = $controllers[$i][0];
-                	//query to search relays for zone controller child id
-	                $query = "SELECT controler_id, controler_child_id FROM relays WHERE id = '{$controler_relay_id}' LIMIT 1;";
+			$zone_relay_id = $controllers[$i][0];
+                	//query to search relays for zone relay child id
+	                $query = "SELECT relay_id, relay_child_id FROM relays WHERE id = '{$zone_relay_id}' LIMIT 1;";
         	        $result = $conn->query($query);
                 	$found_product = mysqli_fetch_array($result);
-                        $controler_id = $found_product['controler_id'];
-	                $controler_child_id = $found_product['controler_child_id'];
+                        $relay_id = $found_product['relay_id'];
+	                $relay_child_id = $found_product['relay_child_id'];
 
                         //query to search node id for zone controller
-                        $query = "SELECT * FROM nodes WHERE id = '{$controler_id}' LIMIT 1;";
+                        $query = "SELECT * FROM nodes WHERE id = '{$relay_id}' LIMIT 1;";
                         $result = $conn->query($query);
                         $found_product = mysqli_fetch_array($result);
                         $controller_type = $found_product['type'];
                         $controler_node_id = intval($found_product['node_id']);
 
-			$query = "INSERT INTO `zone_controllers` (`sync`, `purge`, `state`, `current_state`, `zone_id`, `controller_relay_id`) VALUES ('0', '0', '0', '0', '{$cnt_id}', '{$controler_relay_id}');";
+			$query = "INSERT INTO `zone_relays` (`sync`, `purge`, `state`, `current_state`, `zone_id`, `zone_relay_id`) VALUES ('0', '0', '0', '0', '{$cnt_id}', '{$zone_relay_id}');";
 			$result = $conn->query($query);
 	       		if ($result) {
         	       		if ($id==0){
-                	       		$message_success = "<p>".$lang['controller_record_add_success']."</p>";
+                	       		$message_success .= "<p>".$lang['zone_relay_record_add_success']."</p>";
 	                	} else {
-       		                	$message_success = "<p>".$lang['controller_record_update_success']."</p>";
+       		                	$message_success .= "<p>".$lang['zone_relay_record_update_success']."</p>";
 	               		}
 		        } else {
-       			        $error = "<p>".$lang['controller_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+       			        $error .= "<p>".$lang['zone_relay_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
 		        }
+
+        	        //Re-add Controller to message out table at same time to send out instructions to controller for each zone.
+        		if(strpos($controller_type, 'Tasmota') !== false) { 
+	                	$query = "SELECT * FROM http_messages WHERE node_id = '{$controler_node_id}' AND message_type = 0 LIMIT 1;";
+	        	        $result = $conn->query($query);
+        	        	$found_product = mysqli_fetch_array($result);
+	        	        $payload = $found_product['command']." ".$found_product['parameter'];
+			} else {
+				$payload = 0;
+			}
+
+	               	$query = "INSERT INTO `messages_out` (`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`) VALUES ('0', '0', '{$controler_node_id}','{$relay_child_id}', '1', '1', '2', '{$payload}', '0', '{$date_time}', '{$cnt_id}');";
+        	        $result = $conn->query($query);
+                	if ($result) {
+                      		$message_success .= "<p>".$lang['messages_out_add_success']."</p>";
+	                } else {
+        	                $error .= "<p>".$lang['messages_out_fail']."</p> <p>" .mysqli_error($conn). "</p>";
+                	}
 		}
 	}
 
@@ -173,29 +194,29 @@ if (isset($_POST['submit'])) {
                 $result = $conn->query($query);
                 if ($result) {
                         if ($id==0){
-                                $message_success = "<p>".$lang['sensor_record_add_success']."</p>";
+                                $message_success .= "<p>".$lang['zone_sensor_record_add_success']."</p>";
                         } else {
-                                $message_success = "<p>".$lang['sensor_record_update_success']."</p>";
+                                $message_success .= "<p>".$lang['zone_sensor_record_update_success']."</p>";
                         }
                 } else {
-                        $error = "<p>".$lang['sensor_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+                        $error .= "<p>".$lang['zone_sensor_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
                 }
                 // if in edit mode check if sensor has change and update the temperature sensors table
                 if ($id != 0 && strcmp($initial_sensor_id, $zone_sensor_id) != 0){
                         $query = "UPDATE `sensors` SET `zone_id` = NULL WHERE `id` = '{$initial_sensor_id}';";
                         $result = $conn->query($query);
                         if ($result) {
-                                $message_success .= "<p>".$lang['temp_sensor_record_update_success']."</p>";
+                                $message_success .= "<p>".$lang['sensor_record_update_success']."</p>";
                         } else {
-                                $error .= "<p>".$lang['temp_sensor_record_fail']."</p> <p>" .mysqli_error($conn). "</p>";
+                                $error .= "<p>".$lang['sensor_record_fail']."</p> <p>" .mysqli_error($conn). "</p>";
                         }
                 }
                 $query = "UPDATE `sensors` SET `zone_id` = '{$cnt_id}' WHERE `id` = '{$zone_sensor_id}';";
                 $result = $conn->query($query);
                 if ($result) {
-                        $message_success .= "<p>".$lang['temp_sensor_record_update_success']."</p>";
+                        $message_success .= "<p>".$lang['sensor_record_update_success']."</p>";
                 } else {
-                        $error .= "<p>".$lang['temp_sensor_record_fail']."</p> <p>" .mysqli_error($conn). "</p>";
+                        $error .= "<p>".$lang['sensor_record_fail']."</p> <p>" .mysqli_error($conn). "</p>";
                 }
         }
 
@@ -396,23 +417,23 @@ if (isset($_POST['submit'])) {
         $rowzonesensors = mysqli_fetch_assoc($result);
 
         if($zone_category <> 3) {
-	        $query = "SELECT * FROM zone_controllers WHERE zone_id = '{$row['id']}' LIMIT 1;";
+	        $query = "SELECT * FROM zone_relays WHERE zone_id = '{$row['id']}' LIMIT 1;";
         	$result = $conn->query($query);
-	        $rowcontrollers = mysqli_fetch_assoc($result);
-        	$query = "SELECT relays.controler_id, relays.controler_child_id, zone_controllers.controller_relay_id, zone_controllers.state, relays.name FROM  zone_controllers, relays WHERE (zone_controllers.controller_relay_id = relays.id) AND zone_id = '{$row['id']}';";
+	        $rowrelays = mysqli_fetch_assoc($result);
+        	$query = "SELECT relays.relay_id, relays.relay_child_id, zone_relays.zone_relay_id, zone_relays.state, relays.name FROM  zone_relays, relays WHERE (zone_relays.zone_relay_id = relays.id) AND zone_id = '{$row['id']}';";
 	        $cresult = $conn->query($query);
         	$index = 0;
 	        while ($crow = mysqli_fetch_assoc($cresult)) {
-        	        $zone_controllers[$index] = array('controler_id' =>$crow['controler_id'], 'controler_child_id' =>$crow['controler_child_id'],'controller_relay_id' =>$crow['controller_relay_id'], 'zone_controller_state' =>$crow['state'], 'zone_controller_name' =>$crow['name']);
+        	        $zone_controllers[$index] = array('controler_id' =>$crow['relay_id'], 'controler_child_id' =>$crow['relay_child_id'],'controller_relay_id' =>$crow['zone_relay_id'], 'zone_controller_state' =>$crow['state'], 'zone_controller_name' =>$crow['name']);
                 	$index = $index + 1;
 	        }
 		$controller_count = $index;
 
-		$query = "SELECT * FROM nodes WHERE id = '{$rowcontrollers['controler_id']}' LIMIT 1;";
+		$query = "SELECT * FROM nodes WHERE id = '{$rowrelays['relay_id']}' LIMIT 1;";
 		$result = $conn->query($query);
 		$rowcont = mysqli_fetch_assoc($result);
 
-	        $query = "SELECT id FROM messages_out WHERE node_id = '{$rowcont['node_id']}' AND child_id = '{$rowcontrollers['controler_child_id']}' AND zone_id  = {$id} LIMIT 1;";
+	        $query = "SELECT id FROM messages_out WHERE node_id = '{$rowcont['node_id']}' AND child_id = '{$rowrelays['relay_child_id']}' AND zone_id  = {$id} LIMIT 1;";
         	$result = $conn->query($query);
         	$rowmount = mysqli_fetch_assoc($result);
 	}
@@ -422,7 +443,7 @@ if (isset($_POST['submit'])) {
 	$rowboost = mysqli_fetch_assoc($result);
 
 //	$query = "SELECT id, controler_id, name FROM relays WHERE id = '{$row['boiler_id']}' LIMIT 1;";
-        $query = "SELECT id, controler_id, name FROM relays WHERE type > 0 LIMIT 1;";
+        $query = "SELECT id, relay_id, name FROM relays WHERE type > 0 LIMIT 1;";
 	$result = $conn->query($query);
 	$rowsystem_controller = mysqli_fetch_assoc($result);
 }
@@ -738,11 +759,11 @@ function ControllerIDList(value, ind)
 <!-- System Controller -->
 <div class="form-group" class="control-label" id="system_controller_id_label" style="display:block"><label><?php echo $lang['system_controller']; ?></label>
 <select id="system_controller_id" name="system_controller_id" class="form-control select2" data-error="System Controller ID can not be empty!" autocomplete="off" required>
-<?php if(isset($rowsystem_controller['id'])) { echo '<option selected >'.$rowsystem_controller['id'].'-'.$rowsystem_controller['name'].' Controller Relay Node ID: '.$rowsystem_controller['controler_id'].'</option>'; } ?>
-<?php  $query = "SELECT id, controler_id, name FROM relays WHERE type = 1;";
+<?php if(isset($rowsystem_controller['id'])) { echo '<option selected >'.$rowsystem_controller['id'].'-'.$rowsystem_controller['name'].' Controller Relay Node ID: '.$rowsystem_controller['relay_id'].'</option>'; } ?>
+<?php  $query = "SELECT id, relay_id, name FROM relays WHERE type = 1;";
 $result = $conn->query($query);
 while ($datarw=mysqli_fetch_array($result)) {
-$system_controller_id=$datarw["id"].'-'.$datarw["name"].' Controller Relay Node ID: '.$datarw["controler_id"];
+$system_controller_id=$datarw["id"].'-'.$datarw["name"].' Controller Relay Node ID: '.$datarw["relay_id"];
 echo "<option>$system_controller_id</option>";} ?>
 </select>
 <div class="help-block with-errors"></div></div>

@@ -740,7 +740,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                 $content_msg=$lang['confirm_del_sensor_1'];
         }
     } elseif(strpos($row["name"], 'Controller') !== false || strpos($row["name"], 'Relay') !== false) {
-        $query = "SELECT id, name, type FROM relays where controler_id = {$row['id']};";
+        $query = "SELECT id, name, type FROM relays where relay_id = {$row['id']};";
         $r_results = $conn->query($query);
         $rcount=mysqli_num_rows($r_results);
         if($rcount > 0) {
@@ -749,7 +749,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                 while ($r_row = mysqli_fetch_assoc($r_results)) {
 			switch ($r_row["type"]) {
 				case 0:
-					$query = "SELECT zone.name FROM zone_controllers, zone where (zone.id = zone_controllers.zone_id) AND zone_controllers.controller_relay_id = {$r_row['id']} LIMIT 1;";
+					$query = "SELECT zone.name FROM zone_controllers, zone where (zone.id = zone_controllers.zone_id) AND zone_relays.zone_relay_id = {$r_row['id']} LIMIT 1;";
 					break;
                                 case 1:
                                 case 2:
@@ -945,12 +945,12 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['relay_settings_text'].'</p>';
-		$query = "SELECT relays.id, relays.controler_id, relays.controler_child_id, relays.name, relays.type, zc.zone_id, nd.node_id, nd.last_seen
+		$query = "SELECT relays.id, relays.relay_id, relays.relay_child_id, relays.name, relays.type, zr.zone_id, nd.node_id, nd.last_seen
 		FROM relays
-		LEFT join zone_controllers zc ON relays.id = zc.controller_relay_id
-                LEFT JOIN zone z ON zc.zone_id = z.id
-		JOIN nodes nd ON relays.controler_id = nd.id
-		ORDER BY controler_id asc, controler_child_id ASC;";
+		LEFT join zone_relays zr ON relays.id = zr.zone_relay_id
+                LEFT JOIN zone z ON zr.zone_id = z.id
+		JOIN nodes nd ON relays.relay_id = nd.id
+		ORDER BY relay_id asc, relay_child_id ASC;";
 		$results = $conn->query($query);
 		echo '<table class="table table-bordered">
     			<tr>
@@ -988,7 +988,7 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
             				<td>'.$row["name"].'<br> <small>('.$row["last_seen"].')</small></td>
             				<td>'.$relay_type.'</td>
             				<td>'.$row["node_id"].'</td>
-            				<td>'.$row["controler_child_id"].'</td>
+            				<td>'.$row["relay_child_id"].'</td>
             				<td><a href="relay.php?id='.$row["id"].'"><button class="btn btn-primary btn-xs"><span class="ionicons ion-edit"></span></button> </a>&nbsp;&nbsp';
             				if(isset($row['zone_id']) || $row['type'] == 1) {
 		 				echo '<button class="btn btn-danger btn-xs disabled" data-toggle="tooltip" title="'.$lang['confirm_del_relay_2'].$attached_to.'"><span class="glyphicon glyphicon-trash"></span></button></td>';
@@ -1207,11 +1207,11 @@ echo '
         				$vresult = $conn->query($query);
         				while ($vrow = mysqli_fetch_assoc($vresult)) {
                 				if ($vrow['category'] == 2) {
-                        				echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['controller'].": ".$vrow['controller_type'].": ".$vrow['controler_id']."-".$vrow['controler_child_id']."</small></span><br>";
+                        				echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['controller'].": ".$vrow['relay_type'].": ".$vrow['relay_id']."-".$vrow['relay_child_id']."</small></span><br>";
 						} elseif ($vrow['category'] == 3) {
                         				echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['min']." ".$vrow['min_c']."&deg; </em>, ".$lang['max']." ".$vrow['max_c']."&deg; </em> - ".$lang['sensor'].": ".$vrow['sensors_id']."</small></span><br>";
                 				} else {
-                        				echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['max']." ".$vrow['max_c']."&deg; </em> - ".$lang['sensor'].": ".$vrow['sensors_id']." - ".$vrow['controller_type'].": ".$vrow['controler_id']."-".$vrow['controler_child_id']."</small></span><br>";
+                        				echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['max']." ".$vrow['max_c']."&deg; </em> - ".$lang['sensor'].": ".$vrow['sensors_id']." - ".$vrow['relay_type'].": ".$vrow['relay_id']."-".$vrow['relay_child_id']."</small></span><br>";
                 				}
         				}
         				echo "<span class=\"pull-right \"><small>
@@ -1403,7 +1403,7 @@ echo '
         <div class="modal-content">
             <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>';
-                $query = "SELECT `name` FROM `zone_view` WHERE `controller_type` = 'Tasmota' ORDER BY `name` ASC;";
+                $query = "SELECT `name` FROM `zone_view` WHERE `relay_type` = 'Tasmota' ORDER BY `name` ASC;";
                 $zresult = $conn->query($query);
                 $zcount = $zresult->num_rows;
                 $query = "SELECT `node_id` FROM `nodes` WHERE `type` = 'Tasmota' ORDER BY `node_id` ASC;";

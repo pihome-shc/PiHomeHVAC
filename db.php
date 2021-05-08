@@ -35,6 +35,10 @@ if(($what=="zone") && ($opp=="delete")){
 	$query = "UPDATE boost SET boost.purge='1' WHERE zone_id = '".$wid."'";
 	$conn->query($query);
 	
+	//Delete All Message Out records
+	$query = "DELETE FROM messages_out WHERE zone_id = '".$wid."'";
+	$conn->query($query);
+	
 	//Delete Override records
 	$query = "UPDATE override SET override.purge='1' WHERE zone_id = '".$wid."'";
 	$conn->query($query);
@@ -50,20 +54,19 @@ if(($what=="zone") && ($opp=="delete")){
         //Delete Zone Sensors record
         $query = "UPDATE zone_sensors SET zone_sensors.purge='1' WHERE zone_id = '".$wid."'";
         $conn->query($query);
-
-	//Delete Zone Controller record
-        $query = "UPDATE zone_controllers SET zone_controllers.purge='1' WHERE zone_id = '".$wid."'";
+        //Delete Zone Controller record
+        $query = "UPDATE zone_relays SET zone_relays.purge='1' WHERE zone_id = '".$wid."'";
         $conn->query($query);
 
         //Mark temperature sensor as un-allocated
         $query = "UPDATE `sensors` SET `zone_id`=0 WHERE `zone_id` = '".$wid."'";
         $conn->query($query);
 
-	//Delete Controller-Zone-Logs record
+        //Delete Controller-Zone-Logs record
         $query = "UPDATE controller_zone_logs SET controller_zone_logs.purge='1' WHERE zone_id = '".$wid."'";
         $conn->query($query);
 
-	//Delete Add-On-Zone-Logs record
+        //Delete Add-On-Zone-Logs record
         $query = "UPDATE add_on_zone_logs SET add_on_zone_logs.purge='1' WHERE zone_id = '".$wid."'";
         $conn->query($query);
 
@@ -357,11 +360,11 @@ if($what=="http_msg"){
                 $http_parameter = $_GET['http_parameter'];
                 if ($wid == 1) {
                         $add_on_zone_name = $http_id;
-                        $query = "SELECT controler_id FROM zone_view WHERE name = '".$add_on_zone_name."' LIMIT 1";
+                        $query = "SELECT relay_id FROM zone_view WHERE name = '".$add_on_zone_name."' LIMIT 1";
                         $results = $conn->query($query);
                         $row = mysqli_fetch_assoc($results);
-                        $controler_id = $row['controler_id'];
-                        $query = "SELECT node_id FROM nodes WHERE id = ".$controler_id." LIMIT 1";
+                        $relay_id = $row['relay_id'];
+                        $query = "SELECT node_id FROM nodes WHERE id = ".$relay_id." LIMIT 1";
                         $nresult = $conn->query($query);
                         $nrow = mysqli_fetch_assoc($nresult);
                         $node_id = $nrow['node_id'];
@@ -400,7 +403,7 @@ if($what=="node"){
                         $delete_error = 1;
                 }
                 //delete any associated relays
-                $query = "DELETE FROM relays WHERE controler_id = '".$wid."';";
+                $query = "DELETE FROM relays WHERE relay_id = '".$wid."';";
                 if($conn->query($query)){
                         $delete_error = 0;
                 }else{
@@ -454,25 +457,9 @@ if($what=="node"){
 //Controller Relays
 if($what=="relay"){
         if($opp=="delete"){
-                //delete any associated message_out entries
-                $query = "SELECT nodes.node_id, relays.controler_child_id FROM nodes, relays WHERE (nodes.id = relays.controler_id) AND relays.id = '".$wid."' LIMIT 1;";
-                $results = $conn->query($query);
-                $row = mysqli_fetch_assoc($results);
-                $node_id = $row['node_id'];
-                $child_id = $row['controler_child_id'];
-                $query = "DELETE FROM messages_out WHERE node_id = '".$node_id."' AND child_id = '".$child_id."';";
-                if($conn->query($query)){
-                        $delete_error=0;
-                }else{
-                        $delete_error=1;
-                }
                 $query = "DELETE FROM relays WHERE id = '".$wid."';";
+                $conn->query($query);
                 if($conn->query($query)){
-                        $delete_error=0;
-                }else{
-                        $delete_error=1;
-                }
-                if($delete_error == 0){
                         header('Content-type: application/json');
                         echo json_encode(array('Success'=>'Success','Query'=>$query));
                         return;
@@ -659,7 +646,7 @@ if($what=="add_on"){
                                 $update_error=1;
                         }
 
-                        $query = "UPDATE zone_controllers SET state = '{$set}' WHERE zone_id = '{$wid}';";
+                        $query = "UPDATE zone_relays SET state = '{$set}' WHERE zone_id = '{$wid}';";
                         if($conn->query($query)){
                                 $update_error=0;
                         }else{
@@ -806,8 +793,8 @@ if($what=="system_controller_settings"){
         $query = "SELECT * FROM relays WHERE id ='".$heat_relay_id."' LIMIT 1";
         $results = $conn->query($query);
         $row = mysqli_fetch_assoc($results);
-	$heat_controler_id = $row['controler_id'];
-        $heat_controler_child_id = $row['controler_child_id'];
+	$heat_controler_id = $row['relay_id'];
+        $heat_controler_child_id = $row['relay_child_id'];
         $query = "SELECT node_id, type FROM nodes WHERE id ='".$heat_controler_id."' LIMIT 1";
         $results = $conn->query($query);
         $row = mysqli_fetch_assoc($results);
@@ -818,8 +805,8 @@ if($what=="system_controller_settings"){
 	        $query = "SELECT * FROM relays WHERE id ='".$cool_relay_id."' LIMIT 1";
         	$results = $conn->query($query);
 	        $row = mysqli_fetch_assoc($results);
-        	$cool_controler_id = $row['controler_id'];
-	        $cool_controler_child_id = $row['controler_child_id'];
+        	$cool_controler_id = $row['relay_id'];
+	        $cool_controler_child_id = $row['relay_child_id'];
         	$query = "SELECT node_id FROM nodes WHERE id ='".$cool_controler_id."' LIMIT 1";
 	        $results = $conn->query($query);
         	$row = mysqli_fetch_assoc($results);
@@ -828,8 +815,8 @@ if($what=="system_controller_settings"){
         	$query = "SELECT * FROM relays WHERE id ='".$fan_relay_id."' LIMIT 1";
 	        $results = $conn->query($query);
         	$row = mysqli_fetch_assoc($results);
-	        $fan_controler_id = $row['controler_id'];
-        	$fan_controler_child_id = $row['controler_child_id'];
+	        $fan_controler_id = $row['relay_id'];
+        	$fan_controler_child_id = $row['relay_child_id'];
 	        $query = "SELECT node_id FROM nodes WHERE id ='".$fan_controler_id."' LIMIT 1";
         	$results = $conn->query($query);
 	        $row = mysqli_fetch_assoc($results);

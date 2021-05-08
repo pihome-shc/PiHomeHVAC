@@ -49,16 +49,16 @@ function rainbow(numOfSteps, step) {
 // create add-on dataset based on all available zones/controllers
 var addon_state_dataset = [
 <?php
-$querya ="SELECT DISTINCT id,  controler_id, controler_child_id FROM zone_view WHERE category = 2;";
+$querya ="SELECT DISTINCT id,  relay_id, relay_child_id FROM zone_view WHERE category = 2;";
 $resulta = $conn->query($querya);
 $offset = 0;
 $count=mysqli_num_rows($resulta) + 1;
 $counter = 0;
 while ($row = mysqli_fetch_assoc($resulta)) {
         $id=$row['id'];
-        $controler_id = $row['controler_id'];
-        $controler_child_id = $row['controler_child_id'];
-        $query="SELECT name FROM relays WHERE controler_id = '{$controler_id}' LIMIT 1;";
+        $relay_id = $row['relay_id'];
+        $relay_child_id = $row['relay_child_id'];
+        $query="SELECT name FROM relays WHERE relay_id = '{$relay_id}' LIMIT 1;";
         $result = $conn->query($query);
         $row = mysqli_fetch_array($result);
         $name = $row['name'];
@@ -71,7 +71,7 @@ while ($row = mysqli_fetch_assoc($resulta)) {
         while ($rowb = mysqli_fetch_assoc($results)) {
                 if((--$zcount)==-1) break;
                 $zone_id = $rowb['zone_id'];
-                $label = $name ." - ID ".$zone_id."-".$controler_child_id;
+                $label = $name ." - ID ".$zone_id."-".$relay_child_id;
                 $graph_id = $zone_id.".0";
                 $system_controller_start = strtotime($rowb['start_datetime']) * 1000;
                 $stop = $rowb['stop_datetime'];
@@ -102,7 +102,7 @@ while ($row = mysqli_fetch_assoc($resulta)) {
 var tick_dataset =
 <?php
 $ticks = array();
-$querya ="SELECT DISTINCT id,  controler_id, controler_child_id FROM zone_view WHERE category = 2;";
+$querya ="SELECT DISTINCT id,  relay_id, relay_child_id FROM zone_view WHERE category = 2;";
 $resulta = $conn->query($querya);
 $offset = 0;
 while ($row = mysqli_fetch_assoc($resulta)) {

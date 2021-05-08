@@ -148,8 +148,8 @@ if ($debug_msg == 1) { echo "System Controller on time - ".$system_controller_on
 $query = "SELECT * FROM relays WHERE id = ".$row['heat_relay_id']." LIMIT 1;";
 $result = $conn->query($query);
 $heat_relay = mysqli_fetch_array($result);
-$heat_relay_id = $heat_relay['controler_id'];
-$heat_relay_child_id = $heat_relay['controler_child_id'];
+$heat_relay_id = $heat_relay['relay_id'];
+$heat_relay_child_id = $heat_relay['relay_child_id'];
 
 //Get data from nodes table
 $query = "SELECT * FROM nodes WHERE id = ".$heat_relay_id." AND status IS NOT NULL LIMIT 1;";
@@ -173,8 +173,8 @@ if ($system_controller_mode == 1) {
         $query = "SELECT * FROM relays WHERE id ='".$row['cool_relay_id']."' LIMIT 1;";
         $result = $conn->query($query);
         $cool_relay = mysqli_fetch_array($result);
-        $cool_relay_id = $cool_relay['controler_id'];
-        $cool_relay_child_id = $cool_relay['controler_child_id'];
+        $cool_relay_id = $cool_relay['relay_id'];
+        $cool_relay_child_id = $cool_relay['relay_child_id'];
 
         //Get data from nodes table
         $query = "SELECT * FROM nodes WHERE id = ".$cool_relay_id." AND status IS NOT NULL LIMIT 1;";
@@ -189,8 +189,8 @@ if ($system_controller_mode == 1) {
         $query = "SELECT * FROM relays WHERE id ='".$row['fan_relay_id']."' LIMIT 1;";
         $result = $conn->query($query);
         $fan_relay = mysqli_fetch_array($result);
-        $fan_relay_id = $fan_relay['controler_id'];
-        $fan_relay_child_id = $fan_relay['controler_child_id'];
+        $fan_relay_id = $fan_relay['relay_id'];
+        $fan_relay_child_id = $fan_relay['relay_child_id'];
 
         //Get data from nodes table
         $query = "SELECT * FROM nodes WHERE id = ".$fan_relay_id." AND status IS NOT NULL LIMIT 1;";
@@ -303,17 +303,17 @@ while ($row = mysqli_fetch_assoc($results)) {
         $zone_max_operation_time=$row['max_operation_time'];
 
         //get the zone controllers for this zone to array
-        $query = "SELECT zone_controllers.id AS zc_id, cid.node_id as controler_id, cr.controler_child_id, zone_controllers.controller_relay_id, zone_controllers.state, zone_controllers.current_state, ctype.`type` ";
-        $query = $query."FROM zone_controllers ";
-        $query = $query."join relays cr on controller_relay_id = cr.id ";
-        $query = $query."join nodes ctype on cr.controler_id = ctype.id ";
-        $query = $query."join nodes cid on cr.controler_id = cid.id ";
+        $query = "SELECT zone_relays.id AS zc_id, cid.node_id as relay_id, zr.relay_child_id, zone_relays.zone_relay_id, zone_relays.state, zone_relays.current_state, ctype.`type` ";
+        $query = $query."FROM zone_relays ";
+        $query = $query."join relays zr on zone_relay_id = zr.id ";
+        $query = $query."join nodes ctype on zr.relay_id = ctype.id ";
+        $query = $query."join nodes cid on zr.relay_id = cid.id ";
         $query = $query."WHERE zone_id = '$zone_id';";
         $cresult = $conn->query($query);
         $index = 0;
         $zone_controllers=[];
         while ($crow = mysqli_fetch_assoc($cresult)) {
-                $zone_controllers[$index] = array('zc_id' =>$crow['zc_id'], 'controler_id' =>$crow['controler_id'], 'controler_child_id' =>$crow['controler_child_id'], 'controller_relay_id' =>$crow['controller_relay_id'], 'zone_controller_state' =>$crow['state'], 'zone_controller_current_state' =>$crow['current_state'], 'zone_controller_type' =>$crow['type'], 'manual_button_override' >=0);
+                $zone_controllers[$index] = array('zc_id' =>$crow['zc_id'], 'controler_id' =>$crow['relay_id'], 'controler_child_id' =>$crow['relay_child_id'], 'controller_relay_id' =>$crow['zone_relay_id'], 'zone_controller_state' =>$crow['state'], 'zone_controller_current_state' =>$crow['current_state'], 'zone_controller_type' =>$crow['type'], 'manual_button_override' >=0);
                 $index = $index + 1;
         }
 	//query to check if zone_current_state record exists tor the zone
@@ -1727,7 +1727,6 @@ if (in_array("1", $system_controller)) {
                 }
 	}
 }
-
 /********************************************************************************************************************************************************************
 Following section is Optional for States collection
 I thank you for not commenting it out as it will help me to allocate time to keep this systems updated.
@@ -1775,7 +1774,7 @@ echo "--------------------------------------------------------------------------
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Purging marked records. \n";
 $query = purge_tables();
 foreach(preg_split("/((\r?\n)|(\r\n?))/", $query) as $line){
-        $conn->query($line);
+	$conn->query($line);
 }
 echo "------------------------------------------------------------------------------------------------------- \n";
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Controller Script Ended \n";

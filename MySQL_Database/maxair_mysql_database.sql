@@ -755,24 +755,24 @@ CREATE TABLE IF NOT EXISTS `zone` (
 /*!40000 ALTER TABLE `zone` DISABLE KEYS */;
 /*!40000 ALTER TABLE `zone` ENABLE KEYS */;
 
--- Dumping structure for table maxair.zone_controllers
-DROP TABLE IF EXISTS `zone_controllers`;
-CREATE TABLE `zone_controllers` (
+-- Dumping structure for table maxair.zone_relays
+DROP TABLE IF EXISTS `zone_relays`;
+CREATE TABLE `zone_relays` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sync` tinyint(4) NOT NULL,
   `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
   `state` tinyint(4) DEFAULT NULL,
   `current_state` tinyint(4) NOT NULL,
   `zone_id` int(11) DEFAULT NULL,
-  `controller_relay_id` int(11) NOT NULL,
+  `zone_relay_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `FK_zone_controllers_zone` (`zone_id`),
-  CONSTRAINT `FK_zone_controllers_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
+  KEY `FK_zone_relays_zone` (`zone_id`),
+  CONSTRAINT `FK_zone_relays_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=88 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
--- Dumping data for table maxair.zone_controllers: 
-/*!40000 ALTER TABLE `zone_controllers` DISABLE KEYS */;
-/*!40000 ALTER TABLE `zone_controllers` ENABLE KEYS */;
+-- Dumping data for table maxair.zone_relayss: 
+/*!40000 ALTER TABLE `zone_relays` DISABLE KEYS */;
+/*!40000 ALTER TABLE `zone_relays` ENABLE KEYS */;
 
 -- Dumping structure for table maxair.zone_current_state
 DROP TABLE IF EXISTS `zone_current_state`;
