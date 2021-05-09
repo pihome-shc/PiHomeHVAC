@@ -145,13 +145,13 @@ CREATE TABLE `relays` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sync` tinyint(4) NOT NULL,
   `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
-  `controler_id` int(11) DEFAULT NULL,
-  `controler_child_id` int(11) DEFAULT NULL,
+  `relay_id` int(11) DEFAULT NULL,
+  `relay_child_id` int(11) DEFAULT NULL,
   `name` char(50) COLLATE utf8_bin DEFAULT NULL,
   `type` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `FK_relays_nodes` (`controler_id`),
-  CONSTRAINT `FK_relays_nodes` FOREIGN KEY (`controler_id`) REFERENCES `nodes` (`id`)
+  KEY `FK_relays_nodes` (`relay_id`),
+  CONSTRAINT `FK_relays_nodes` FOREIGN KEY (`relay_id`) REFERENCES `nodes` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- Dumping data for table `relays`
