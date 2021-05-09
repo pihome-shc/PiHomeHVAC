@@ -83,15 +83,57 @@ if ($db_selected) {
                 }
 
         }
+	// Save the current zone_controller data to an array
+	$query = "SELECT * FROM `zone_controllers`";
+        $results = $conn->query($query);
+	$zone_controllers_array = array();
+	while ($row = mysqli_fetch_assoc($results)) {
+		$zone_controllers_array[] = $row;
+	}
+	$arrayLength = count($zone_controllers_array);
+
 	// Rename the controller_relays table to relays
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Renaming Tables and modifying foreign keys.  \n";
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Moving zone_controller table to zone_relays.  \n";
 
 	$query = "ALTER TABLE `zone_controllers` DROP FOREIGN KEY IF EXISTS `FK_zone_controllers_zone`;";
         $conn->query($query);
-	$query = "RENAME TABLE `zone_controllers` TO `zone_relays`;";
+
+	//Create the new zone_relays table
+	$query = "DROP TABLE IF EXISTS `zone_relays`;";
         $conn->query($query);
-        $query = "ALTER TABLE `zone_relays` CHANGE COLUMN `controller_relay_id` `zone_relay_id` int(11);";
+        $query = "CREATE TABLE IF NOT EXISTS `zone_relays` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `sync` tinyint(4) NOT NULL,
+        `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
+        `state` tinyint(4) DEFAULT NULL,
+        `current_state` tinyint(4) NOT NULL,
+        `zone_id` int(11) DEFAULT NULL,
+        `zone_relay_id` int(11) NOT NULL,
+        PRIMARY KEY (`id`),
+        KEY `FK_zone_relays_zone` (`zone_id`),
+        CONSTRAINT `FK_zone_relays_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
+        ) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;";
         $conn->query($query);
+
+        $row = 0;
+        while ($row < $arrayLength)
+        {
+        	$id = $zone_controllers_array[$row]['id'];
+		$zone_id = $zone_controllers_array[$row]['zone_id'];
+                $zone_relay_id =$zone_controllers_array[$row]['controller_relay_id'];
+                $query = "INSERT INTO `zone_relays`(`id`, `sync`, `purge`, `state`, `current_state`, `zone_id`, `zone_relay_id`)  VALUES ('{$id}','0', '0', '0', '0', '{$zone_id}','{$zone_relay_id}');";
+                $conn->query($query);
+            $row++;
+        }
+
+	$query = "DROP TABLE `zone_controllers`;";
+        $conn->query($query);
+
+        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - zone_controllers Table Successfully moved to zone_relays\n";
+
+        // Rename columns in relays table
+        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Renaming columns in relays table.  \n";
+
         $query = "ALTER TABLE `relays` DROP FOREIGN KEY IF EXISTS `FK_temperature_relays`;";
         $conn->query($query);
         $query = "ALTER TABLE `relays` DROP FOREIGN KEY IF EXISTS `FK_relays_nodes`;";
@@ -103,7 +145,7 @@ if ($db_selected) {
         $query = "ALTER TABLE `relays` ADD CONSTRAINT `FK_relays_nodes` FOREIGN KEY (`relay_id`) REFERENCES `nodes` (`id`);";
         $conn->query($query);
 
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Tables Successfully Modified\n";
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - relays Table Successfully Modified\n";
 
  	//Apply the Migration Views file
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Importing Migration SQL View File to Database, This could take few minuts.  \n";
