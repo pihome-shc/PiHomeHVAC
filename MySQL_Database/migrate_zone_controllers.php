@@ -60,12 +60,12 @@ if ($conn->connect_error){
 $query = "SELECT * 
 FROM information_schema.tables
 WHERE table_schema = 'maxair' 
-    AND table_name = 'zone_relays'
+    AND table_name = 'zone_controllers'
 LIMIT 1;";
 $result = $conn->query($query);
 $rowcount=mysqli_num_rows($result);
-if ($rowcount > 0) {
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - zone_relays Table Already Exists, Aborting Migration \n";
+if ($rowcount == 0) {
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - zone_controllers Table Does Not Exist, Aborting Migration \n";
 } else {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Checking if Database Exits \n";
 	$db_selected = mysqli_select_db($conn, $dbname);
