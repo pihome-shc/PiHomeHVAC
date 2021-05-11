@@ -56,130 +56,142 @@ if ($conn->connect_error){
 }else {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Database Server Connection Successfull \n";
 }
-echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Checking if Database Exits \n";
-$db_selected = mysqli_select_db($conn, $dbname);
-if ($db_selected) {
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Database ".$dbname." Found \n";
-        // create an image of the currently installed database, without VIEWS
-        mysqli_select_db($conn, $dbname) or die('Error Selecting MySQL Database: ' . mysqli_error($conn));
-        //dump all mysql database and save as sql file
-        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Creating Dump File for Exiting Database. \n";
-        $dumpfname = $dbname . "_" . date("Y-m-d_H-i-s").".sql";
-        $command = "mysqldump --host=$hostname --user=$dbusername ";
-        if ($dbpassword) {
-                $command.= "--password=". $dbpassword ." ";
-                $command.= $dbname;
-                $command.= " > " . $dumpfname;
-                system($command);
-                // compress sql file and unlink (delete) sql file after creating zip file.
-                $zipfname = $dbname . "_" . date("Y-m-d_H-i-s").".zip";
-                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Compressing Database Dump File \033[41m".$dumpfname."\033[0m \n";
-                $zip = new ZipArchive();
-                if($zip->open($zipfname,ZIPARCHIVE::CREATE)){
-                        $zip->addFile($dumpfname,$dumpfname);
-                        $zip->close();
-                        unlink($dumpfname);
-                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Compressed Database Dump File \033[41m".$zipfname."\033[0m \n";
-                }
+//check if zone_relays table already exist
+$query = "SELECT * 
+FROM information_schema.tables
+WHERE table_schema = 'maxair' 
+    AND table_name = 'zone_controllers'
+LIMIT 1;";
+$result = $conn->query($query);
+$rowcount=mysqli_num_rows($result);
+if ($rowcount == 0) {
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - zone_controllers Table Does Not Exist, Aborting Migration \n";
+} else {
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Checking if Database Exits \n";
+	$db_selected = mysqli_select_db($conn, $dbname);
+	if ($db_selected) {
+		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Database ".$dbname." Found \n";
+	        // create an image of the currently installed database, without VIEWS
+        	mysqli_select_db($conn, $dbname) or die('Error Selecting MySQL Database: ' . mysqli_error($conn));
+	        //dump all mysql database and save as sql file
+        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Creating Dump File for Exiting Database. \n";
+	        $dumpfname = $dbname . "_" . date("Y-m-d_H-i-s").".sql";
+        	$command = "mysqldump --host=$hostname --user=$dbusername ";
+	        if ($dbpassword) {
+        	        $command.= "--password=". $dbpassword ." ";
+                	$command.= $dbname;
+	                $command.= " > " . $dumpfname;
+        	        system($command);
+                	// compress sql file and unlink (delete) sql file after creating zip file.
+	                $zipfname = $dbname . "_" . date("Y-m-d_H-i-s").".zip";
+        	        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Compressing Database Dump File \033[41m".$dumpfname."\033[0m \n";
+                	$zip = new ZipArchive();
+	                if($zip->open($zipfname,ZIPARCHIVE::CREATE)){
+        	                $zip->addFile($dumpfname,$dumpfname);
+                	        $zip->close();
+                        	unlink($dumpfname);
+	                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Compressed Database Dump File \033[41m".$zipfname."\033[0m \n";
+        	        }
 
-        }
-	// Save the current zone_controller data to an array
-	$query = "SELECT * FROM `zone_controllers`";
-        $results = $conn->query($query);
-	$zone_controllers_array = array();
-	while ($row = mysqli_fetch_assoc($results)) {
-		$zone_controllers_array[] = $row;
-	}
-	$arrayLength = count($zone_controllers_array);
-
-	// Rename the controller_relays table to relays
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Moving zone_controller table to zone_relays.  \n";
-
-	$query = "ALTER TABLE `zone_controllers` DROP FOREIGN KEY IF EXISTS `FK_zone_controllers_zone`;";
-        $conn->query($query);
-
-	//Create the new zone_relays table
-	$query = "DROP TABLE IF EXISTS `zone_relays`;";
-        $conn->query($query);
-        $query = "CREATE TABLE IF NOT EXISTS `zone_relays` (
-        `id` int(11) NOT NULL AUTO_INCREMENT,
-        `sync` tinyint(4) NOT NULL,
-        `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
-        `state` tinyint(4) DEFAULT NULL,
-        `current_state` tinyint(4) NOT NULL,
-        `zone_id` int(11) DEFAULT NULL,
-        `zone_relay_id` int(11) NOT NULL,
-        PRIMARY KEY (`id`),
-        KEY `FK_zone_relays_zone` (`zone_id`),
-        CONSTRAINT `FK_zone_relays_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
-        ) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;";
-        $conn->query($query);
-
-        $row = 0;
-        while ($row < $arrayLength)
-        {
-        	$id = $zone_controllers_array[$row]['id'];
-		$zone_id = $zone_controllers_array[$row]['zone_id'];
-                $zone_relay_id =$zone_controllers_array[$row]['controller_relay_id'];
-                $query = "INSERT INTO `zone_relays`(`id`, `sync`, `purge`, `state`, `current_state`, `zone_id`, `zone_relay_id`)  VALUES ('{$id}','0', '0', '0', '0', '{$zone_id}','{$zone_relay_id}');";
-                $conn->query($query);
-            $row++;
-        }
-
-	$query = "DROP TABLE `zone_controllers`;";
-        $conn->query($query);
-
-        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - zone_controllers Table Successfully moved to zone_relays\n";
-
-        // Rename columns in relays table
-        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Renaming columns in relays table.  \n";
-
-        $query = "ALTER TABLE `relays` DROP FOREIGN KEY IF EXISTS `FK_temperature_relays`;";
-        $conn->query($query);
-        $query = "ALTER TABLE `relays` DROP FOREIGN KEY IF EXISTS `FK_relays_nodes`;";
-        $conn->query($query);
-        $query = "ALTER TABLE `relays` CHANGE COLUMN `controler_id` `relay_id` int(11);";
-        $conn->query($query);
-        $query = "ALTER TABLE `relays` CHANGE COLUMN `controler_child_id` `relay_child_id` int(11);";
-        $conn->query($query);
-        $query = "ALTER TABLE `relays` ADD CONSTRAINT `FK_relays_nodes` FOREIGN KEY (`relay_id`) REFERENCES `nodes` (`id`);";
-        $conn->query($query);
-
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - relays Table Successfully Modified\n";
-
- 	//Apply the Migration Views file
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Importing Migration SQL View File to Database, This could take few minuts.  \n";
-	// Name of the file
-	$migratefilename = __DIR__.'/MySQL_View.sql';
-	// Select database
-	mysqli_select_db($conn, $dbname) or die('Error Selecting MySQL Database: ' . mysqli_error($conn));
-	// Temporary variable, used to store current query
-	$migratetempline = '';
-	// Read in entire file
-	$migratelines = file($migratefilename);
-	// Loop through each line
-	foreach ($migratelines as $migrateline){
-	// Skip it if it's a comment
-		if (substr($migrateline, 0, 2) == '--' || $migrateline == '')
-			continue;
-			// Add this line to the current segment
-			$migratetempline .= $migrateline;
-			// If it has a semicolon at the end, it's the end of the query
-			if (substr(trim($migrateline), -1, 1) == ';'){
-				// Perform the query
-				$conn->query($migratetempline) or print("MySQL Database Error with Query ".$migratetempline.":". mysqli_error($conn)."\n");
-				//mysqli_query($migratetempline) or print("MySQL Database Error with Query ".$migratetempline.":". mysqli_error($conn)."\n");
-				// Reset temp variable to empty
-				$migratetempline = '';
-			}
+	        }
+		// Save the current zone_controller data to an array
+		$query = "SELECT * FROM `zone_controllers`";
+        	$results = $conn->query($query);
+		$zone_controllers_array = array();
+		while ($row = mysqli_fetch_assoc($results)) {
+			$zone_controllers_array[] = $row;
 		}
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Views File \033[41m".$migratefilename."\033[0m Imported Successfully \n";
+		$arrayLength = count($zone_controllers_array);
 
-	//Update Version and build number 
-	$query = "UPDATE system SET version = '{$version}', build = '{$build}' LIMIT 1;";
-	$conn->query($query);
+		// Rename the controller_relays table to relays
+		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Moving zone_controller table to zone_relays.  \n";
 
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Updated Successfully \n";
+		$query = "ALTER TABLE `zone_controllers` DROP FOREIGN KEY IF EXISTS `FK_zone_controllers_zone`;";
+        	$conn->query($query);
+
+		//Create the new zone_relays table
+		$query = "DROP TABLE IF EXISTS `zone_relays`;";
+	        $conn->query($query);
+        	$query = "CREATE TABLE IF NOT EXISTS `zone_relays` (
+	        `id` int(11) NOT NULL AUTO_INCREMENT,
+        	`sync` tinyint(4) NOT NULL,
+	        `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
+        	`state` tinyint(4) DEFAULT NULL,
+	        `current_state` tinyint(4) NOT NULL,
+        	`zone_id` int(11) DEFAULT NULL,
+	        `zone_relay_id` int(11) NOT NULL,
+        	PRIMARY KEY (`id`),
+	        KEY `FK_zone_relays_zone` (`zone_id`),
+        	CONSTRAINT `FK_zone_relays_zone` FOREIGN KEY (`zone_id`) REFERENCES `zone` (`id`)
+	        ) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;";
+        	$conn->query($query);
+
+	        $row = 0;
+        	while ($row < $arrayLength)
+	        {
+        		$id = $zone_controllers_array[$row]['id'];
+			$zone_id = $zone_controllers_array[$row]['zone_id'];
+	                $zone_relay_id =$zone_controllers_array[$row]['controller_relay_id'];
+        	        $query = "INSERT INTO `zone_relays`(`id`, `sync`, `purge`, `state`, `current_state`, `zone_id`, `zone_relay_id`)  VALUES ('{$id}','0', '0', '0', '0', '{$zone_id}','{$zone_relay_id}');";
+                	$conn->query($query);
+	            $row++;
+        	}
+
+		$query = "DROP TABLE `zone_controllers`;";
+        	$conn->query($query);
+
+	        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - zone_controllers Table Successfully moved to zone_relays\n";
+
+        	// Rename columns in relays table
+	        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Renaming columns in relays table.  \n";
+
+        	$query = "ALTER TABLE `relays` DROP FOREIGN KEY IF EXISTS `FK_temperature_relays`;";
+	        $conn->query($query);
+        	$query = "ALTER TABLE `relays` DROP FOREIGN KEY IF EXISTS `FK_relays_nodes`;";
+	        $conn->query($query);
+        	$query = "ALTER TABLE `relays` CHANGE COLUMN `controler_id` `relay_id` int(11);";
+	        $conn->query($query);
+        	$query = "ALTER TABLE `relays` CHANGE COLUMN `controler_child_id` `relay_child_id` int(11);";
+	        $conn->query($query);
+        	$query = "ALTER TABLE `relays` ADD CONSTRAINT `FK_relays_nodes` FOREIGN KEY (`relay_id`) REFERENCES `nodes` (`id`);";
+	        $conn->query($query);
+
+		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - relays Table Successfully Modified\n";
+
+	 	//Apply the Migration Views file
+		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Importing Migration SQL View File to Database, This could take few minuts.  \n";
+		// Name of the file
+		$migratefilename = __DIR__.'/MySQL_View.sql';
+		// Select database
+		mysqli_select_db($conn, $dbname) or die('Error Selecting MySQL Database: ' . mysqli_error($conn));
+		// Temporary variable, used to store current query
+		$migratetempline = '';
+		// Read in entire file
+		$migratelines = file($migratefilename);
+		// Loop through each line
+		foreach ($migratelines as $migrateline){
+		// Skip it if it's a comment
+			if (substr($migrateline, 0, 2) == '--' || $migrateline == '')
+				continue;
+				// Add this line to the current segment
+				$migratetempline .= $migrateline;
+				// If it has a semicolon at the end, it's the end of the query
+				if (substr(trim($migrateline), -1, 1) == ';'){
+					// Perform the query
+					$conn->query($migratetempline) or print("MySQL Database Error with Query ".$migratetempline.":". mysqli_error($conn)."\n");
+					//mysqli_query($migratetempline) or print("MySQL Database Error with Query ".$migratetempline.":". mysqli_error($conn)."\n");
+					// Reset temp variable to empty
+					$migratetempline = '';
+				}
+			}
+		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Views File \033[41m".$migratefilename."\033[0m Imported Successfully \n";
+
+		//Update Version and build number 
+		$query = "UPDATE system SET version = '{$version}', build = '{$build}' LIMIT 1;";
+		$conn->query($query);
+
+		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Updated Successfully \n";
+	}
 }
 if(isset($conn)) { $conn->close(); }
 ?>
