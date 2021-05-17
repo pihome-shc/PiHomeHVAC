@@ -267,9 +267,11 @@ if($what=="boost"){
         	                $boost_button_child_id = $_GET[$input4];
 	                        $zone_id = $_GET[$input5];
         	                $hvac_mode = $_GET[$input6];
-	                        //Delete all boost console records from messages_out
-        	                $query = "DELETE FROM messages_out WHERE node_id = '{$boost_button_id}';";
-                	        $conn->query($query);
+                                if ($row['boost_button_id'] != 0) {
+                                        //Delete all boost console records from messages_out
+                                        $query = "DELETE FROM messages_out WHERE node_id = '{$boost_button_id}';";
+                                        $conn->query($query);
+                                }
 			} else {
                                 $input1 = 'minute'.$id;
                                 $input2 = 'temperature'.$id;
