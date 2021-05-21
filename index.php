@@ -337,7 +337,7 @@ html {
             		<div class="col-md-4 col-md-offset-4">
                 		<div class="login-panel panel panel-primary">
                     			<?php 
-					if ($wifi_connected == 1 || $eth_connected == 1) {
+					if ($no_ap == 0 || $wifi_connected == 1 || $eth_connected == 1) {
 						echo '<div class="panel-heading">'.$lang['sign_in'].'</div>';
 					} else {
                                                 echo '<div class="panel-heading">'.$lang['wifi_connect'].'</div>';
