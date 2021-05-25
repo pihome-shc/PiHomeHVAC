@@ -236,6 +236,34 @@ elif board.board_id.find('BANANA_PI_M2_ZERO') != -1:
         "38": "PA21",
         "40": "PA20",
     }
+elif board.board_id.find('ROCK_PI_E') != -1:
+    pindict = {
+        "3": "D3",
+        "5": "D5",
+        "7": "D7",
+        "8": "D8",
+        "10": "D10",
+        "11": "D11",
+        "12": "D12",
+        "13": "D13",
+        "15": "D15",
+        "19": "D19",
+        "21": "D21",
+        "23": "D23",
+        "24": "D24",
+        "26": "D26",
+        "27": "D27",
+        "28": "D28",
+        "29": "D29",
+        "31": "D31",
+        "32": "D32",
+        "33": "D33",
+        "35": "D33",
+        "36": "D36",
+        "37": "D37",
+        "38": "D38",
+        "40": "D40",
+    }
     # check if a BEAGLEBONE
 elif board.board_id.find('BEAGLEBONE') != -1:
     # add 100 to P9 header pins so they can be referenced with an interger P9 pin number + 100

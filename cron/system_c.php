@@ -23,7 +23,7 @@ require_once(__DIR__.'../../st_inc/functions.php');
 
 $date_time = date('Y-m-d H:i:s');
 $output = shell_exec("uname -a");
-if (strpos($output, 'orangepi') !== false || strpos($output, 'pineh64') !== false) {
+if (strpos($output, 'orangepi') !== false || strpos($output, 'pineh64') !== false || strpos($output, 'rockpi-e') !== false) {
         $system_c = (exec ("cat /sys/class/thermal/thermal_zone0/temp|cut -c1-2"));
 } elseif(strpos($output, 'beaglebone') !== false) {
         $id = (exec ("ls /sys/bus/w1/devices/ | grep  28-"));
