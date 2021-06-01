@@ -163,7 +163,7 @@ def insertDB(IDs, temperature):
                             (
                                 0,
                                 0,
-                                zone_id,
+                                sensor_id,
                                 sensor_name,
                                 type,
                                 category,
