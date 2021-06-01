@@ -227,36 +227,37 @@ while True:
             with open("/sys/bus/w1/devices/" + filename + "/w1_slave") as fileobj:
                 lines = fileobj.readlines()
                 # print lines
-                if lines[0].find("YES"):
-                    pok = lines[1].find("=")
-                    current_temperature = (
-                        float(lines[1][pok + 1 : pok + 6]) / 1000
-                    )  # Current tempearture reading
-                    current_ID = filename  # Current sensor ID
-                    if (
-                        filename in IDs
-                    ):  # Check if data from this sensor had alread been received
-                        i = IDs.index(filename)  # Find the index for the sensore
+                if len(lines) > 0:
+                    if lines[0].find("YES"):
+                        pok = lines[1].find("=")
+                        current_temperature = (
+                            float(lines[1][pok + 1 : pok + 6]) / 1000
+                        )  # Current tempearture reading
+                        current_ID = filename  # Current sensor ID
                         if (
-                            skip_count[i] == skip_max
-                        ):  # If the maximum number of readings as been reached force and update
-                            old_temperature[i] = current_temperature
-                        if (
-                            abs(current_temperature - old_temperature[i]) < dT_max
-                        ):  # If the new reading is within the max range update temperature with the EMA
-                            skip_count[i] = 0
-                            temperature[i] = (1 - alpha) * old_temperature[
-                                i
-                            ] + alpha * current_temperature
-                        else:  # If the new reading is not within the max range return the revious reading
-                            skip_count[i] += 1
-                            temperature[i] = old_temperature[i]
-                    else:  # If this is a new sensor append it to the end and set the skip count to 0
-                        temperature.append(current_temperature)
-                        IDs.append(current_ID)
-                        skip_count.append(0)
-                else:
-                    logger.error("Error reading sensor with ID: %s" % (filename))
+                            filename in IDs
+                        ):  # Check if data from this sensor had alread been received
+                            i = IDs.index(filename)  # Find the index for the sensore
+                            if (
+                                skip_count[i] == skip_max
+                            ):  # If the maximum number of readings as been reached force and update
+                                old_temperature[i] = current_temperature
+                            if (
+                                abs(current_temperature - old_temperature[i]) < dT_max
+                            ):  # If the new reading is within the max range update temperature with the EMA
+                                skip_count[i] = 0
+                                temperature[i] = (1 - alpha) * old_temperature[
+                                    i
+                                ] + alpha * current_temperature
+                            else:  # If the new reading is not within the max range return the revious reading
+                                skip_count[i] += 1
+                                temperature[i] = old_temperature[i]
+                        else:  # If this is a new sensor append it to the end and set the skip count to 0
+                            temperature.append(current_temperature)
+                            IDs.append(current_ID)
+                            skip_count.append(0)
+                    else:
+                        logger.error("Error reading sensor with ID: %s" % (filename))
     old_temperature = temperature  # Update the previous tempearture record
     if len(temperature) > 0:
         insertDB(IDs, temperature)
