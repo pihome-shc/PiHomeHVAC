@@ -184,6 +184,10 @@ elif board.board_id.find('ORANGE_PI_ZERO_2') != -1:
         "23": "PH6",
         "24": "PH9",
         "26": "PC10",
+        "36": "PC1",
+        "37": "PI16",
+        "38": "PI6",
+        "39": "PH10",
     }
 elif board.board_id.find('ORANGE_PI_ZERO') != -1:
     pindict = {
