@@ -9,51 +9,57 @@
 // *****************************************************************
 // *    PiHome MySensors WiFi Gateway Based on ESP82666 Sketch     *
 // *            Version 0.2 Build Date 06/11/2017                  *
+// *            Last Modification Date 08/06/2021                  *
 // *                                          Have Fun - PiHome.eu *
 // *****************************************************************
 
 // Enable debug prints to serial monitor
 #define MY_DEBUG
-
 //Define Sketch Version
 #define SKETCH_VERSION "0.2"
-
 // Use a bit lower baudrate for serial prints on ESP8266 than default in MyConfig.h
 #define MY_BAUD_RATE 9600
 
-// Enables and select radio type (if attached)
-//#define MY_RADIO_NRF24
-//#define MY_RADIO_RFM69
-
-// For RFM95
 #define MY_RADIO_RFM95
+//#define   MY_DEBUG_VERBOSE_RFM95
+#define MY_RFM95_MAX_POWER_LEVEL_DBM (20) //Set max TX power in dBm if local legislation requires this - 1mW = 0dBm, 10mW = 10dBm, 25mW = 14dBm, 100mW = 20dBm
+#define MY_RFM95_FREQUENCY (RFM95_434MHZ) //The frequency to use - RFM95_169MHZ, RFM95_315MHZ, RFM95_434MHZ, RFM95_868MHZ, RFM95_915MHZ
+#define MY_RFM95_MODEM_CONFIGRUATION RFM95_BW125CR45SF128 
+/* 
+#define MY_RFM95_MODEM_CONFIGRUATION RFM95_BW125CR45SF128 
+RFM95 modem configuration.
+BW = Bandwidth in kHz CR = Error correction code SF = Spreading factor, chips / symbol
+CONFIG 					BW 		CR 		SF		Comment
+RFM95_BW125CR45SF128 	125 	4/5 	128 	Default, medium range
+RFM95_BW500CR45SF128 	500 	4/5 	128 	Fast, short range
+RFM95_BW31_25CR48SF512 	31.25 	4/8 	512 	Slow, long range
+RFM95_BW125CR48SF4096 	125 	4/8 	4096 	Slow, long range 
+*/
+//#define MY_RFM95_TCXO // Enable to force your radio to use an external frequency source (e.g. TCXO, if present). This allows for better stability using SF 9 to 12. 
+//#define MY_RFM95_TX_POWER_DBM   (13u) //Set TX power level, default 13dBm (overridden if ATC mode enabled) 
+//#define MY_DEBUG_VERBOSE_RFM95_REGISTERS
+//#define MY_RFM95_ATC_TARGET_RSSI (-70)  //target RSSI -70dBm Target RSSI level (in dBm) for RFM95 ATC mode. 
 
 #define MY_TRANSPORT_STATE_TIMEOUT_MS  (3*1000ul)
 #define RFM95_RETRY_TIMEOUT_MS  (3000ul)
-#define   MY_DEBUG_VERBOSE_RFM95
-//#define   MY_DEBUG_VERBOSE_RFM95_REGISTERS
-//#define MY_RFM95_ATC_TARGET_RSSI (-70)  // target RSSI -70dBm
-//#define   MY_RFM95_MAX_POWER_LEVEL_DBM (20)   // max. TX power 10dBm = 10mW
-#define   MY_RFM95_FREQUENCY (RFM95_434MHZ)
-#define MY_RFM95_MODEM_CONFIGRUATION RFM95_BW125CR45SF128
-
-#define MY_RFM95_IRQ_PIN D1
+#define MY_RFM95_IRQ_PIN 1
 #define MY_RFM95_IRQ_NUM MY_RFM95_IRQ_PIN
-#define MY_RFM95_CS_PIN D8
-#endif
+#define MY_RFM95_CS_PIN 8
 
-//#define MY_RF24_PA_LEVEL RF24_PA_MAX
-//#define MY_DEBUG_VERBOSE_RF24
+//MaxAir Node ID - Not needed for Gateway 
+//#define MY_NODE_ID 100
 
-// RF channel for the sensor net, 0-127
-//#define MY_RF24_CHANNEL 91
+//Enable Signing <Make Sure you Change Password>
+//#define MY_SIGNING_SIMPLE_PASSWD "maxair2021"
 
-//RF24_250KBPS for 250kbs, RF24_1MBPS for 1Mbps, or RF24_2MBPS for 2Mbps
-//#define MY_RF24_DATARATE RF24_250KBPS
+//Enable Encryption This uses less memory, and hides the actual data. <Make Sure you Change Password>
+//#define MY_ENCRYPTION_SIMPLE_PASSWD "maxair2021"
 
-//#define MY_ENCRYPTION_SIMPLE_PASSWD "pihome2019"
+//Enable repeater functionality for this node
+//#define MY_REPEATER_FEATURE
 
-//#define MY_SIGNING_SIMPLE_PASSWD "pihome2019"
+//set how long to wait for transport ready in milliseconds
+//#define MY_TRANSPORT_WAIT_READY_MS 3000
 
 #define MY_INDICATION_HANDLER
 
@@ -67,13 +73,11 @@
 // Set blinking period
 #define MY_DEFAULT_LED_BLINK_PERIOD 400
 
-
 #define MY_GATEWAY_ESP8266
-
 //#define MY_WIFI_SSID "MySSID"
 //#define MY_WIFI_PASSWORD "MyVerySecretPassword"
-#define MY_HOSTNAME "ESP8266_GW"
 
+#define MY_HOSTNAME "ESP8266_GW"
 
 // Enable UDP communication
 //#define MY_USE_UDP
@@ -93,7 +97,7 @@
 #define MY_PORT 5003
 
 // How many clients should be able to connect to this gateway (default 1)
-#define MY_GATEWAY_MAX_CLIENTS 2
+#define MY_GATEWAY_MAX_CLIENTS 3
 
 // Controller ip address. Enables client mode (default is "server" mode).
 // Also enable this if MY_USE_UDP is used and you want sensor data sent somewhere.
@@ -113,18 +117,13 @@
 #include <WiFiUdp.h>
 #endif
 
-
-
 #include <WiFiClient.h>
-
-
 #include <ESP8266WiFi.h>          //https://github.com/esp8266/Arduino
 //needed for library
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
 //#include <ESP8266mDNS.h>		 // Makes the WiFi Gateway accessible throught http://pihomegw.local
-
 
 ESP8266WebServer WebServer(80);
 //Gateway Web Interface Stats
@@ -137,15 +136,12 @@ unsigned long GWErTx = 0;
 unsigned long GWErVer = 0;
 unsigned long GWErTran = 0;
 
-
 //String WebPage = "<h1>PiHome Smart Home Gateway</h1>";
 String WebPage = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\" name=\"viewport\" content=\"width=device-width, initial-scale=1, user-scalable=no\"/><title>PiHome Smart Home Gateway</title></head><body>";
-
 
 void setupWebServer();
 void showRootPage();
 String readableTimestamp(unsigned long milliseconds);
-
 
 const char* host = "pihomegw";
 #include <MySensors.h>
@@ -203,18 +199,6 @@ void setup(){
 		delay(5000);
 	}
 
-	//WiFi.hostname(host);
-	//Serial.println(WiFi.hostname());
-	/*
-	if (!MDNS.begin(host)){
-		Serial.println("error starting MDNS responder!");
-	}
-	Serial.println("mDNS responder started");
-	server.begin();
-	MDNS.addService("http", "tcp", 80);
-
-*/
-
 	//if you get here you have connected to the WiFi
 	Serial.println("Smart Home Gateway Connected to your WiFi Successfully");
 	ticker.detach();
@@ -226,8 +210,7 @@ void setup(){
 
 }
 
-void presentation()
-{
+void presentation(){
 	// Present locally attached sensors here
 }
 
@@ -277,8 +260,7 @@ void indication( const indication_t ind ){
   };
 }
 
-void showRootPage()
-{
+void showRootPage(){
   unsigned long runningTime = millis() - startTime;
   String page = WebPage;
 
@@ -311,8 +293,8 @@ void showRootPage()
   WebServer.send(200, "text/html", page);
 }
 
-String readableTimestamp(unsigned long milliseconds)
-{
+
+String readableTimestamp(unsigned long milliseconds){
   int days = milliseconds / 86400000;
 
   milliseconds=milliseconds % 86400000;
