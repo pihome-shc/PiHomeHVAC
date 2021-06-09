@@ -1,11 +1,11 @@
-//  _____    _   _    _
-// |  __ \  (_) | |  | |
-// | |__) |  _  | |__| |   ___    _ __ ___     ___
-// |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \
-// | |      | | | |  | | | (_) | | | | | | | |  __/
-// |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|
-//
-//    S M A R T   H E A T I N G   C O N T R O L
+//             __  __                             _
+//            |  \/  |                    /\     (_)
+//            | \  / |   __ _  __  __    /  \     _   _ __
+//            | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+//            | |  | | | (_| |  >  <   / ____ \  | | | |
+//            |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
+//           
+//                   S M A R T   T H E R M O S T A T
 // *****************************************************************
 // *       Battery Powered OneWire DS18B20 Temperature Sensor      *
 // *           Version 0.35 Build Date 06/11/2017                  *
@@ -15,71 +15,48 @@
 
 // Enable debug prints to serial monitor
 //#define MY_DEBUG
-
 //Set MY_SPLASH_SCREEN_DISABLED to disable MySensors splash screen. (This saves 120 bytes of flash)
 #define MY_SPLASH_SCREEN_DISABLED
-
 //Define Sketch Name
 #define SKETCH_NAME "Temperature Sensor"
 //Define Sketch Version
 #define SKETCH_VERSION "0.35"
 
-// Enable and select radio type attached
-//#define MY_RADIO_RF24
-//#define MY_RADIO_NRF5_ESB
-//#define MY_RADIO_RFM69
 #define MY_RADIO_RFM95
-
-//IRQ Pin on Arduino
-//#define MY_RF24_IRQ_PIN 2
-
-//Enable OTA
-//#define MY_OTA_FIRMWARE_FEATURE
-
-// * - RF24_PA_MIN = -18dBm
-// * - RF24_PA_LOW = -12dBm
-// * - RF24_PA_HIGH = -6dBm
-// * - RF24_PA_MAX = 0dBm
-// Set LOW transmit power level as default, if you have an amplified NRF-module and
-// power your radio separately with a good regulator you can turn up PA level.
-// RF24_PA_MIN RF24_PA_LOW RF24_PA_HIGH RF24_PA_MAX RF24_PA_ERROR
-//#define MY_RF24_PA_LEVEL RF24_PA_MIN
-//#define MY_DEBUG_VERBOSE_RF24
-
-/**
- * @brief RF channel for the sensor net, 0-125.
- * Frequencies: 2400 Mhz - 2525 Mhz
- * @see https://www.nordicsemi.com/eng/nordic/download_resource/8765/2/42877161/2726
- * - 0 => 2400 Mhz (RF24 channel 1)
- * - 1 => 2401 Mhz (RF24 channel 2)
- * - 76 => 2476 Mhz (RF24 channel 77)
- * - 83 => 2483 Mhz (RF24 channel 84)
- * - 124 => 2524 Mhz (RF24 channel 125)
- * - 125 => 2525 Mhz (RF24 channel 126)
- * In some countries there might be limitations, in Germany for example only the range
- * 2400,0 - 2483,5 Mhz is allowed.
- * @see http://www.bundesnetzagentur.de/SharedDocs/Downloads/DE/Sachgebiete/Telekommunikation/Unternehmen_Institutionen/Frequenzen/Allgemeinzuteilungen/2013_10_WLAN_2,4GHz_pdf.pdf
- */
-
-//Default RF channel Default is 76
-//#define MY_RF24_CHANNEL  91
-
 //#define   MY_DEBUG_VERBOSE_RFM95
-#define   MY_RFM95_MAX_POWER_LEVEL_DBM (20)   // max. TX power 10dBm = 10mW
-#define   MY_RFM95_FREQUENCY (RFM95_434MHZ)
-#define MY_RFM95_MODEM_CONFIGRUATION RFM95_BW125CR45SF128
+#define   MY_RFM95_MAX_POWER_LEVEL_DBM (20) //Set max TX power in dBm if local legislation requires this - 1mW = 0dBm, 10mW = 10dBm, 25mW = 14dBm, 100mW = 20dBm
+#define   MY_RFM95_FREQUENCY (RFM95_434MHZ) //The frequency to use - RFM95_169MHZ, RFM95_315MHZ, RFM95_434MHZ, RFM95_868MHZ, RFM95_915MHZ
+#define MY_RFM95_MODEM_CONFIGRUATION RFM95_BW125CR45SF128 
+/* 
+#define MY_RFM95_MODEM_CONFIGRUATION RFM95_BW125CR45SF128 
+RFM95 modem configuration.
+BW = Bandwidth in kHz CR = Error correction code SF = Spreading factor, chips / symbol
+CONFIG 					BW 		CR 		SF		Comment
+RFM95_BW125CR45SF128 	125 	4/5 	128 	Default, medium range
+RFM95_BW500CR45SF128 	500 	4/5 	128 	Fast, short range
+RFM95_BW31_25CR48SF512 	31.25 	4/8 	512 	Slow, long range
+RFM95_BW125CR48SF4096 	125 	4/8 	4096 	Slow, long range 
+*/
+//#define MY_RFM95_TCXO // Enable to force your radio to use an external frequency source (e.g. TCXO, if present). This allows for better stability using SF 9 to 12. 
+//#define MY_RFM95_TX_POWER_DBM   (13u) //Set TX power level, default 13dBm (overridden if ATC mode enabled) 
+//#define MY_RFM95_ATC_TARGET_RSSI (-70)  //target RSSI -70dBm Target RSSI level (in dBm) for RFM95 ATC mode. 
+#define MY_TRANSPORT_STATE_TIMEOUT_MS  (3*1000ul)
+#define RFM95_RETRY_TIMEOUT_MS  (3000ul)
+#define MY_RFM95_IRQ_PIN 2
+#define MY_RFM95_IRQ_NUM MY_RFM95_IRQ_PIN
+#define MY_RFM95_CS_PIN 8
 
-//PiHome - Make Sure you change Node ID, for each temperature sensor. 21 for Ground Floor, 20 for First Floor, 30 for Domastic Hot Water.
+//MaxAir - Make Sure you change Node ID, for each temperature sensor. 21 for Ground Floor, 20 for First Floor, 30 for Domastic Hot Water.
 #define MY_NODE_ID 20
 
 //RF24_250KBPS for 250kbs, RF24_1MBPS for 1Mbps, or RF24_2MBPS for 2Mbps
 //#define MY_RF24_DATARATE RF24_250KBPS
 
 //Enable Signing
-//#define MY_SIGNING_SIMPLE_PASSWD "pihome"
+//#define MY_SIGNING_SIMPLE_PASSWD "maxair2021"
 
 //Enable Encryption This uses less memory, and hides the actual data.
-//#define MY_ENCRYPTION_SIMPLE_PASSWD "pihome"
+//#define MY_ENCRYPTION_SIMPLE_PASSWD "maxair2021"
 
 // Set baud rate to same as optibot
 //#define MY_BAUD_RATE 9600
@@ -91,7 +68,7 @@
 #include <DallasTemperature.h>
 #include <OneWire.h>
 
-#define ledpin 4      // LED for one Blink Power On, second blink for temperature sensors after successfull radio contact with gateway and three blinks for low battery
+#define ledpin 4      // LED for one Blink Power On, second blink for temperature sensors after successfull radio contact with gateway
 
 // Define sensor node childs
 #define CHILD_ID_BATT 1
