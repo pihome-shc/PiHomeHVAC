@@ -167,7 +167,7 @@ elif board.board_id.find('ORANGE_PI_ZERO_PLUS') != -1:
     }
 elif board.board_id.find('ORANGE_PI_ZERO_2') != -1:
     pindict = {
-        "3": "PH5",
+        "3": "PH5",	# start of pin mapping for 2x13 pin header
         "5": "PH4",
         "7": "PC9",
         "8": "PH2",
@@ -184,7 +184,7 @@ elif board.board_id.find('ORANGE_PI_ZERO_2') != -1:
         "23": "PH6",
         "24": "PH9",
         "26": "PC10",
-        "36": "PC1",
+        "36": "PC1",	# start of pin mapping for 1x13 pin header
         "37": "PI16",
         "38": "PI6",
         "39": "PH10",
