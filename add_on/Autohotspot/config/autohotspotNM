@@ -1,0 +1,42 @@
+#!/bin/bash
+#version 0.1
+sleep 20 #give time for connection to be completed to router
+output=$(nmcli con show --active | grep wlan0 | awk '{print $1}')
+if [ -z "$output" ]
+then
+      #check if a new wireless connection is to be setup
+      FILE=/var/www/add_on/Autohotspot/profile.txt
+      if [ -f "$FILE" ]; then
+          echo "Setting up new Wireless Connection."
+          IFS=$'\n' read -d '' -r -a lines < "$FILE"
+          echo "${lines[0]}" #SSID
+          echo "${lines[1]}" #PASSWORD
+          #setup connection and bring it up
+          nmcli d wifi connect ${lines[0]} password ${lines[1]}
+          nmcli c modify ${lines[0]} connection.autoconnect yes
+          nmcli c up ${lines[0]}
+          #delete the profile file
+          rm -f "$FILE"
+      else
+          #no profile file and no existing active connection so setup HotSpot
+          echo "Activating HotSpot Connection"
+          #Create a text file containing local SSIDs
+          nmcli --fields SSID device wifi > tmp.txt
+          sed -i '/SSID/d' ./tmp.txt
+          sed -i '/--/d' ./tmp.txt
+          sort tmp.txt | uniq > /var/www/add_on/Autohotspot/ssid.txt
+          #No active WiFi connection, so bring up the MaxAir connection which has been configured as a NetworkManager HotSpot.
+          nmcli con up HotSpot >/dev/null 2>&1
+	  #Add the HotSpot SSID to the list of local SSIDs
+          nmcli --fields SSID device wifi > tmp.txt
+          sed -i '/SSID/d' ./tmp.txt
+          sed -i '/--/d' ./tmp.txt
+	  cat tmp.txt >> /var/www/add_on/Autohotspot/ssid.txt
+          rm tmp.txt
+      fi
+else
+      echo "Active Wireless Connection is ${output}"
+fi
+
+
+
