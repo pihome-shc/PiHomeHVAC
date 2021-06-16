@@ -58,9 +58,9 @@ check_installed()
         	if dpkg -s "dhcpcd5" | grep 'Status: install ok installed' >/dev/null 2>&1; then
                 	vdhcpcd5="Y"
         	fi
-		if dpkg -s "hostapd" | grep 'Status: install ok installed' >/dev/null 2>&1; then
-			vhostapd="Y"
-		fi
+  fi
+	if dpkg -s "hostapd" | grep 'Status: install ok installed' >/dev/null 2>&1; then
+		vhostapd="Y"
 	fi
 	if dpkg -s "dnsmasq" | grep 'Status: install ok installed' >/dev/null 2>&1; then
 		vdnsmasq="Y"
@@ -148,7 +148,23 @@ hostapd_config()
 {
 	echo "hostapd Config"
 	echo "Hostapd Status is " $vhostapd
-	if [ "$vhostapd" = "N" ]; then
+	if [ "$opt" = "AHNM" ] || [ "$opt" = "SHSNM" ] ;then
+		if [ "$vhostapd" = "Y" ]; then
+			echo "Hostapd installed- now un-installing"
+			apt -q purge hostapd
+			echo "Recheck install Status"
+			check_installed
+	                if [ "$vhostapd" = "N" ]; then
+        	                echo ""
+                	        echo ""
+                        	echo "Hostapd failed to un-install. Check there is internet access"
+	                        echo "and try again"
+        	                echo "Press a key to continue"
+                	        read
+                        	menu
+                	fi
+		fi
+	elif [ "$vhostapd" = "N" ]; then
 		echo "Hostapd not installed- now installing"
 		apt -q install hostapd
 		echo "Recheck install Status"
@@ -163,53 +179,57 @@ hostapd_config()
 			menu
 		fi
 	fi
-	echo "Hostapd is installed"
-	if ! grep -F "RaspberryConnect.com" "/etc/hostapd/hostapd.conf" ;then
-		#not a autohotspot file, create backup
-		mv "/etc/hostapd/hostapd.conf" "/etc/hostapd/hostapd-RCbackup.conf"
-	fi
-	cp "$cpath/config/hostapd.conf" /etc/hostapd/hostapd.conf
-	if [ "${osver[0]}" == "Raspbian" ]; then
-        	if [ "${osver[2]}" -lt 10 ]; then
-                	cp "$cpath/config/hostapd" /etc/default/hostapd
-        	fi
+	if [ "$vhostapd" = "Y" ]; then
+		echo "Hostapd is installed"
+		if ! grep -F "RaspberryConnect.com" "/etc/hostapd/hostapd.conf" ;then
+			#not a autohotspot file, create backup
+			mv "/etc/hostapd/hostapd.conf" "/etc/hostapd/hostapd-RCbackup.conf"
+		fi
+		cp "$cpath/config/hostapd.conf" /etc/hostapd/hostapd.conf
+		if [ "${osver[0]}" == "Raspbian" ]; then
+        		if [ "${osver[2]}" -lt 10 ]; then
+                		cp "$cpath/config/hostapd" /etc/default/hostapd
+	        	fi
+		else
+        		if [ "${osver[2]}" == "Jessie" ] || [ "${osver[2]}" == "Stretch" ] || [ "${osver[2]}" == "Buster" ]; then
+                		cp "$cpath/config/hostapd" /etc/default/hostapd
+	        	fi
+		fi
+		if [ "$opt" = "AHN" ] || [ "$opt" = "AHD" ]; then
+			#For Autohotspots
+			echo "Unmask & Disable Hostapd"
+			if systemctl -all list-unit-files hostapd.service | grep "hostapd.service masked" ;then
+				systemctl unmask hostapd.service >/dev/null 2>&1
+			fi
+			if systemctl -all list-unit-files hostapd.service | grep "hostapd.service enabled" ;then
+				systemctl disable hostapd.service >/dev/null 2>&1
+			fi
+	                if systemctl -all list-unit-files hostapd.service | grep "hostapd.service generated" ;then
+        	                systemctl disable hostapd.service >/dev/null 2>&1
+                	fi
+		elif [ "$opt" = "SHS" ]; then
+			#for Static Hotspot
+			echo "Unmask and enable hostapd"
+			if systemctl -all list-unit-files hostapd.service | grep "hostapd.service masked" ;then
+				systemctl unmask hostapd >/dev/null 2>&1
+			fi
+			if systemctl -all list-unit-files hostapd.service | grep "hostapd.service disabled" ;then
+				systemctl enable hostapd >/dev/null 2>&1
+			fi
+		elif [ "$opt" = "REM" ]; then
+			if [ -f "/etc/hostapd/hostapd-RCbackup.conf" ] ; then
+				mv "/etc/hostapd/hostapd-RCbackup.conf" "/etc/hostapd/hostapd.conf"
+			fi
+		fi
+		#check country code for hostapd.conf
+		wpa=($(cat "/etc/wpa_supplicant/wpa_supplicant.conf" | grep "country="))
+		hapd=($(cat "/etc/hostapd/hostapd.conf" | grep "country_code="))
+		if [[ ! ${wpa: -2} == ${hapd: -2} ]] ; then
+			echo "Changing Hostapd Wifi country to " ${wpa: -2} 
+			sed -i -e "/country_code=/c\country_code=${wpa: -2}" /etc/hostapd/hostapd.conf
+		fi
 	else
-        	if [ "${osver[2]}" == "Jessie" ] || [ "${osver[2]}" == "Stretch" ] || [ "${osver[2]}" == "Buster" ]; then
-                	cp "$cpath/config/hostapd" /etc/default/hostapd
-        	fi
-	fi
-	if [ "$opt" = "AHN" ] || [ "$opt" = "AHD" ]; then
-		#For Autohotspots
-		echo "Unmask & Disable Hostapd"
-		if systemctl -all list-unit-files hostapd.service | grep "hostapd.service masked" ;then
-			systemctl unmask hostapd.service >/dev/null 2>&1
-		fi
-		if systemctl -all list-unit-files hostapd.service | grep "hostapd.service enabled" ;then
-			systemctl disable hostapd.service >/dev/null 2>&1
-		fi
-                if systemctl -all list-unit-files hostapd.service | grep "hostapd.service generated" ;then
-                        systemctl disable hostapd.service >/dev/null 2>&1
-                fi
-	elif [ "$opt" = "SHS" ]; then
-		#for Static Hotspot
-		echo "Unmask and enable hostapd"
-		if systemctl -all list-unit-files hostapd.service | grep "hostapd.service masked" ;then
-			systemctl unmask hostapd >/dev/null 2>&1
-		fi
-		if systemctl -all list-unit-files hostapd.service | grep "hostapd.service disabled" ;then
-			systemctl enable hostapd >/dev/null 2>&1
-		fi
-	elif [ "$opt" = "REM" ]; then
-		if [ -f "/etc/hostapd/hostapd-RCbackup.conf" ] ; then
-			mv "/etc/hostapd/hostapd-RCbackup.conf" "/etc/hostapd/hostapd.conf"
-		fi
-	fi
-	#check country code for hostapd.conf
-	wpa=($(cat "/etc/wpa_supplicant/wpa_supplicant.conf" | grep "country="))
-	hapd=($(cat "/etc/hostapd/hostapd.conf" | grep "country_code="))
-	if [[ ! ${wpa: -2} == ${hapd: -2} ]] ; then
-		echo "Changing Hostapd Wifi country to " ${wpa: -2} 
-		sed -i -e "/country_code=/c\country_code=${wpa: -2}" /etc/hostapd/hostapd.conf
+		echo "Hostapd is un-installed"
 	fi
 }
 
@@ -258,8 +278,6 @@ dnsmasq_config()
 		cp "${cpath}/config/dnsmasqAHS.conf" "/etc/dnsmasq.conf"
 	elif [ "$opt" = "SHS" ] ;then
 		cp "${cpath}/config/dnsmasqSHS.conf" "/etc/dnsmasq.conf"
-        elif [ "$opt" = "AHNM" ] || [ "$opt" = "SHSNM" ] ;then
-                cp "${cpath}/config/dnsmasqAHNM.conf" "/etc/dnsmasq.conf"
 	fi
 	if [ "$opt" = "AHN" ] || [ "$opt" = "AHD" ]; then
 		#For Autohotspots
@@ -270,8 +288,8 @@ dnsmasq_config()
 		if systemctl -all list-unit-files dnsmasq.service | grep "dnsmasq.service enabled" ;then
 			systemctl disable dnsmasq >/dev/null 2>&1
 		fi
-	elif [ "$opt" = "SHS" ] || [ "$opt" = "AHNM" ] || [ "$opt" = "SHSNM" ]; then
-		#for Static Hotspot and NetworkManager Hotspots
+	elif [ "$opt" = "SHS" ]; then
+		#for Static Hotspot
 		echo "Unmask & Enable Dnsmasq"
 		if systemctl -all list-unit-files dnsmasq.service | grep "dnsmasq.service masked" ;then
 			systemctl unmask dnsmasq >/dev/null 2>&1
@@ -279,6 +297,12 @@ dnsmasq_config()
 		if systemctl -all list-unit-files dnsmasq.service | grep "dnsmasq.service disabled" ;then
 			systemctl enable dnsmasq >/dev/null 2>&1
 		fi
+        elif [ "$opt" = "AHNM" ] || [ "$opt" = "SHSNM" ] ;then
+                #for NetworkManager Hotspots
+                if systemctl -all list-unit-files dnsmasq.service | grep "dnsmasq.service enabled" ;then
+                        systemctl disable dnsmasq >/dev/null 2>&1
+                        systemctl stop dnsmasq >/dev/null 2>&1
+                fi
         elif [ "$opt" = "SHS" ]; then
                 #for Static Hotspot
                 echo "Unmask & Enable Dnsmasq"
@@ -743,11 +767,13 @@ go()
 	elif [ "$opt" = "HSS" ] ;then
 		Hotspotssid
         elif [ "$opt" = "AHNM" ] ;then
+                hostapd_config
                 dnsmasq_config
 		create_nm_hotspot
                 auto_service
                 auto_script
         elif [ "$opt" = "SHSNM" ] ;then
+                hostapd_config
                 dnsmasq_config
                 create_nm_static_hotspot
                 auto_service
