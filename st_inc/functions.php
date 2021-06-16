@@ -651,4 +651,30 @@ DELETE FROM holidays WHERE `purge`= 1;
 DELETE FROM schedule_daily_time WHERE `purge`= 1;";
 return $query;
 }
+
+function service_status($service_name) {
+	$rval=my_exec("/bin/systemctl status ".$service_name);
+	if($rval['stdout']=='') {
+        	$stat='Error';
+	} else {
+        	$stat='Status: Unknown';
+	        $rval['stdout']=explode(PHP_EOL,$rval['stdout']);
+        	foreach($rval['stdout'] as $line) {
+                	if(strstr($line,'Loaded:')) {
+                        	if(strstr($line,'disabled;')) {
+                                	$stat='Status: Disabled';
+	                        }
+        	        }
+                	if(strstr($line,'Active:')) {
+                        	if(strstr($line,'active (running)')) {
+                                	$stat=trim($line);
+        	                } else if(strstr($line,'(dead)')) {
+                	                $stat='Status: Dead';
+                        	}
+	                }
+        	}
+	}
+	return $stat;
+}
+
 ?>

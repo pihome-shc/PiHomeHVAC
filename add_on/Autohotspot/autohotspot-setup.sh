@@ -16,6 +16,7 @@
 
 #Force Hotspot or Network Wifi option will only work if either autohotspot is installed and active.
 
+#Modified for systems running NetworkManager, which use inbuilt HotSpot
 
 #Check for OS and version.
 osver=($(cat /etc/issue))
@@ -24,32 +25,42 @@ opt="X"
 vhostapd="N" vdnsmasq="N" autoH="N"
 autoserv="N" iptble="N" nftble="N"
 vdhcpcd5="N"
+netman="N"
 
-if [[ "${osver[0]}" != *"bian" ]]; then
-        echo "This AutoHotspot installer is only for the OS Raspbian or Armbian"
-        exit 1
-elif [ "${osver[0]}" == "Raspbian" ]; then
-	if [ "${osver[2]}" -ge 10 ]; then
-        	echo 'Raspbian Version' "${osver[2]}"
-	elif [ "${osver[2]}" -lt 8 ];then
+#check if system is running NetworkManager
+if systemctl -all list-unit-files NetworkManager.service | grep "NetworkManager.service enabled" ;then
+	netman="Y"
+fi
+
+if [ "$netman" = "N" ]; then
+	if [[ "${osver[0]}" != *"bian" ]]; then
+        	echo "This AutoHotspot installer is only for the OS Raspbian or Armbian"
+	        exit 1
+	elif [ "${osver[0]}" == "Raspbian" ]; then
+		if [ "${osver[2]}" -ge 10 ]; then
+        		echo 'Raspbian Version' "${osver[2]}"
+		elif [ "${osver[2]}" -lt 8 ];then
+        		echo "The version of Raspbian is too old for the Autohotspot script"
+        		echo "Version 8 'Jessie' is the minimum requirement"
+		fi
+	elif [ "${osver[2]}" == "Jessie" ] || [ "${osver[2]}" == "Stretch" ] || [ "${osver[2]}" == "Buster" ]; then
+		echo 'Armbian Version' "${osver[2]}"
+	else
         	echo "The version of Raspbian is too old for the Autohotspot script"
         	echo "Version 8 'Jessie' is the minimum requirement"
 	fi
-elif [ "${osver[2]}" == "Jessie" ] || [ "${osver[2]}" == "Stretch" ] || [ "${osver[2]}" == "Buster" ]; then
-	echo 'Armbian Version' "${osver[2]}"
-else
-        echo "The version of Raspbian is too old for the Autohotspot script"
-        echo "Version 8 'Jessie' is the minimum requirement"
 fi
 
 check_installed()
 {
 	#check if required software is already installed
-        if dpkg -s "dhcpcd5" | grep 'Status: install ok installed' >/dev/null 2>&1; then
-                vdhcpcd5="Y"
-        fi
-	if dpkg -s "hostapd" | grep 'Status: install ok installed' >/dev/null 2>&1; then
-		vhostapd="Y"
+	if [ "$netman" = "N" ]; then
+        	if dpkg -s "dhcpcd5" | grep 'Status: install ok installed' >/dev/null 2>&1; then
+                	vdhcpcd5="Y"
+        	fi
+		if dpkg -s "hostapd" | grep 'Status: install ok installed' >/dev/null 2>&1; then
+			vhostapd="Y"
+		fi
 	fi
 	if dpkg -s "dnsmasq" | grep 'Status: install ok installed' >/dev/null 2>&1; then
 		vdnsmasq="Y"
@@ -87,16 +98,6 @@ check_reqfiles()
         fi
 }
 
-check_NetworkManager()
-{
-        #echo "Checking for NetworkManager Service"
-                echo "Stop & Disable NetworkManager"
-                if systemctl -all list-unit-files NetworkManager.service | grep "NetworkManager.service enabled" ;then
-                        systemctl stop NetworkManager >/dev/null 2>&1
-                        systemctl disable NetworkManager >/dev/null 2>&1
-                fi
-}
-
 check_wificountry()
 {
 	#echo "Checking WiFi country"
@@ -120,8 +121,6 @@ check_wificountry()
                 cp "$cpath/config/MaxAir" /etc/sudoers.d
         fi
 }
-
-
 
 dhcpcd5_config()
 {
@@ -214,6 +213,22 @@ hostapd_config()
 	fi
 }
 
+create_nm_hotspot()
+{
+    FILE=HotSpot.nmconnection
+    if [ ! -f "$FILE" ]; then
+        IFNAME="wlan0" && CON_NAME="HotSpot" && SSID_NAME="MaxAir" && PASSWD="1234567890" && nmcli c add type wifi ifname $IFNAME con-name $CON_NAME autoconnect no ssid $SSID_NAME 802-11-wireless.mode ap 802-11-wireless.band bg ipv4.method shared wifi-sec.key-mgmt wpa-psk wifi-sec.psk "$PASSWD"    
+    fi
+}
+
+create_nm_static_hotspot()
+{
+    FILE=HotSpot.nmconnection
+    if [ ! -f "$FILE" ]; then
+        IFNAME="wlan0" && CON_NAME="HotSpot" && SSID_NAME="MaxAir" && PASSWD="1234567890" && nmcli c add type wifi ifname $IFNAME con-name $CON_NAME autoconnect yes ssid $SSID_NAME 802-11-wireless.mode ap 802-11-wireless.band bg ipv4.method shared wifi-sec.key-mgmt wpa-psk wifi-sec.psk "$PASSWD"
+    fi
+}
+
 dnsmasq_config()
 {
 	echo "Dnsmasq Config"
@@ -243,6 +258,8 @@ dnsmasq_config()
 		cp "${cpath}/config/dnsmasqAHS.conf" "/etc/dnsmasq.conf"
 	elif [ "$opt" = "SHS" ] ;then
 		cp "${cpath}/config/dnsmasqSHS.conf" "/etc/dnsmasq.conf"
+        elif [ "$opt" = "AHNM" ] || [ "$opt" = "SHSNM" ] ;then
+                cp "${cpath}/config/dnsmasqAHNM.conf" "/etc/dnsmasq.conf"
 	fi
 	if [ "$opt" = "AHN" ] || [ "$opt" = "AHD" ]; then
 		#For Autohotspots
@@ -253,8 +270,8 @@ dnsmasq_config()
 		if systemctl -all list-unit-files dnsmasq.service | grep "dnsmasq.service enabled" ;then
 			systemctl disable dnsmasq >/dev/null 2>&1
 		fi
-	elif [ "$opt" = "SHS" ]; then
-		#for Static Hotspot
+	elif [ "$opt" = "SHS" ] || [ "$opt" = "AHNM" ] || [ "$opt" = "SHSNM" ]; then
+		#for Static Hotspot and NetworkManager Hotspots
 		echo "Unmask & Enable Dnsmasq"
 		if systemctl -all list-unit-files dnsmasq.service | grep "dnsmasq.service masked" ;then
 			systemctl unmask dnsmasq >/dev/null 2>&1
@@ -262,14 +279,23 @@ dnsmasq_config()
 		if systemctl -all list-unit-files dnsmasq.service | grep "dnsmasq.service disabled" ;then
 			systemctl enable dnsmasq >/dev/null 2>&1
 		fi
+        elif [ "$opt" = "SHS" ]; then
+                #for Static Hotspot
+                echo "Unmask & Enable Dnsmasq"
+                if systemctl -all list-unit-files dnsmasq.service | grep "dnsmasq.service masked" ;then
+                        systemctl unmask dnsmasq >/dev/null 2>&1
+                fi
+                if systemctl -all list-unit-files dnsmasq.service | grep "dnsmasq.service disabled" ;then
+                        systemctl enable dnsmasq >/dev/null 2>&1
+                fi
 	fi
 	if [ "$opt" = "REM" ]; then
 		if [ -f "/etc/dnsmasq-RCbackup.conf" ] ; then
 			mv "/etc/dnsmasq-RCbackup.conf" "/etc/dnsmasq.conf"
 		fi
 	fi
-		
 }
+
 dhcpcd_config()
 {
 	#Make backup if not done
@@ -312,6 +338,10 @@ auto_service()
 		cp "${cpath}/config/autohotspot-direct.service" "/etc/systemd/system/autohotspot.service"
 		systemctl daemon-reload
 		systemctl enable autohotspot
+        elif [ "$opt" = "AHNM" ] ;then
+                cp "${cpath}/config/autohotspot-NM.service" "/etc/systemd/system/autohotspot.service"
+                systemctl daemon-reload
+                systemctl enable autohotspot
 	fi
 	if [ "$opt" = "REM" ] || [ "$opt" = "SHS" ]; then
 		if systemctl -all list-unit-files autohotspot.service | grep "autohotspot.service enabled" ;then
@@ -323,6 +353,7 @@ auto_service()
 	fi
 
 }
+
 hs_routing()
 {
 	if [ "$opt" = "SHS" ]  ;then
@@ -340,7 +371,7 @@ hs_routing()
 				cp "${cpath}/config/iptables-hs.txt" "/etc/iptables-hs"
 				chmod +x "/etc/iptables-hs"
 			fi
-			
+
 		elif [ "$nftble" = "Y" ] ; then
 			echo "future feature"
 		
@@ -366,13 +397,19 @@ auto_script()
 	elif [ "$opt" = "AHD" ] ;then
 		cp "${cpath}/config/autohotspot-direct" "/usr/bin/autohotspot"
 		chmod +x /usr/bin/autohotspot
+        elif [ "$opt" = "AHNM" ] ;then
+                cp "${cpath}/config/autohotspotNM" "/usr/bin/autohotspotNM"
+                chmod +x /usr/bin/autohotspotNM
 	elif [ "$opt" = "REM" ] || [ "$opt" = "SHS" ] ;then
 		if [ -f "/usr/bin/autohotspotN" ]; then
 			rm /usr/bin/autohotspotN
 		fi
 		if [ -f "/usr/bin/autohotspot" ]; then
 			rm /usr/bin/autohotspot
-		fi		
+		fi
+                if [ -f "/usr/bin/autohotspotNM" ]; then
+                        rm /usr/bin/autohotspotNM
+                fi
 	fi
 }
 
@@ -417,32 +454,52 @@ remove()
 Hotspotssid()
 {
 	#Change the Default Hotspot SSID and Password
-	if  [ ! -f "/etc/hostapd/hostapd.conf" ] ;then
-		echo "A hotspot is not installed. No Password to change"
-		echo "press enter to continue"
-		read
-		menu
+	if [ "$netman" = "N" ]; then
+		if  [ ! -f "/etc/hostapd/hostapd.conf" ] ;then
+			echo "A hotspot is not installed. No Password to change"
+			echo "press enter to continue"
+			read
+			menu
+		fi
+		HSssid=($(cat "/etc/hostapd/hostapd.conf" | grep '^ssid='))
+		HSpass=($(cat "/etc/hostapd/hostapd.conf" | grep '^wpa_passphrase='))
+		echo "Change the Hotspot's SSID and Password. press enter to keep existing settings"
+		echo "The current SSID is:" "${HSssid:5}"
+		echo "The current SSID Password is:" "${HSpass:15}"
+	else
+	        HSssid=($(cat "/etc/NetworkManager/system-connections/HotSpot.nmconnection" | grep '^ssid='))
+        	HSpass=($(cat "/etc/NetworkManager/system-connections/HotSpot.nmconnection" | grep '^psk='))
+                echo "Change the Hotspot's SSID and Password. press enter to keep existing settings"
+                echo "The current SSID is:" "${HSssid:5}"
+                echo "The current SSID Password is:" "${HSpass:4}"
 	fi
-	HSssid=($(cat "/etc/hostapd/hostapd.conf" | grep '^ssid='))
-	HSpass=($(cat "/etc/hostapd/hostapd.conf" | grep '^wpa_passphrase='))
-	echo "Change the Hotspot's SSID and Password. press enter to keep existing settings"
-	echo "The current SSID is:" "${HSssid:5}"
-	echo "The current SSID Password is:" "${HSpass:15}"
 	echo "Enter the new Hotspots SSID:"
 	read ssname
 	echo "Enter the hotspots new password. Minimum 8 characters"
 	read sspwd
 	if [ ! -z $ssname ] ;then
-		echo "Changing Hotspot SSID to:" "$ssname" 
-		sed -i -e "/^ssid=/c\ssid=$ssname" /etc/hostapd/hostapd.conf
+		echo "Changing Hotspot SSID to:" "$ssname"
+		if [ "$netman" = "N" ]; then
+			sed -i -e "/^ssid=/c\ssid=$ssname" /etc/hostapd/hostapd.conf
+		else
+                        sed -i -e "/^ssid=/c\ssid=$ssname" /etc/NetworkManager/system-connections/HotSpot.nmconnection
+		fi
 	else
 		echo "The Hotspot SSID is"  ${HSssid: 5}
 	fi
 	if [ ! -z $sspwd ] && [ ${#sspwd} -ge 8 ] ;then
 		echo "Changing Hotspot Password to:" "$sspwd"
-		sed -i -e "/^wpa_passphrase=/c\wpa_passphrase=$sspwd" /etc/hostapd/hostapd.conf
+		if [ "$netman" = "N" ]; then
+			sed -i -e "/^wpa_passphrase=/c\wpa_passphrase=$sspwd" /etc/hostapd/hostapd.conf
+		else
+                        sed -i -e "/^psk=/c\psk=$sspwd" /etc/NetworkManager/system-connections/HotSpot.nmconnection
+		fi
 	else
-		echo "The Hotspot Password is:"  ${HSpass: 15}
+		if [ "$netman" = "N" ]; then
+			echo "The Hotspot Password is:"  ${HSpass: 15}
+		else
+                        echo "The Hotspot Password is:"  ${HSpass: 4}
+		fi
 	fi
 	echo ""
 	echo "The new setup will be available next time the hotspot is started"
@@ -685,6 +742,22 @@ go()
 		forceswitch
 	elif [ "$opt" = "HSS" ] ;then
 		Hotspotssid
+        elif [ "$opt" = "AHNM" ] ;then
+                dnsmasq_config
+		create_nm_hotspot
+                auto_service
+                auto_script
+        elif [ "$opt" = "SHSNM" ] ;then
+                dnsmasq_config
+                create_nm_static_hotspot
+                auto_service
+                auto_script
+                echo ""
+                echo "The hotspot setup will be available after a reboot"
+                HSssid=($(cat "/etc/NetworkManager/system-connections/HotSpot.nmconnection" | grep '^ssid='))
+                HSpass=($(cat "/etc/NetworkManager/system-connections/HotSpot.nmconnection" | grep '^psk='))
+                echo "The Hotspots WiFi SSID name is: ${HSssid: 5}"
+                echo "The WiFi password is: ${HSpass: 4}"
 	else
 		hostapd_config
 		dnsmasq_config
@@ -704,50 +777,74 @@ go()
 	fi
 	echo "Press any key to continue"
 	read
-	
+
 }
 
 menu()
 {
 #selection menu
 clear
-until [ "$select" = "8" ]; do
-	echo "Raspberryconnect.com Autohotspot installation and setup"
-	echo "For installation or switching between hotspot types"
-	echo " or uninstall the hotspot back to standard Pi wifi"
-	echo ""
-	echo "Autohotspot Net = connects to a known wifi network in range,"
-	echo "otherwise creates a Raspberry Pi Hotspot with internet if an"
-	echo "Ethernet cable is connected, Wlan0, Eth0. Pi's 3,3+,4"
-	echo ""
-	echo "Autohotspot NO Net = as above but connected devices to the hotspot"
-	echo "will NOT get internet if an Ethernet cable is connected. Rpi Zero W"
-	echo ""
-	echo "Permanent Hotspot = permanent hotspot with net access for connected devices"
-	echo ""
-	echo " 1 = Install Autohotspot with Internet for Connected Devices"
-	echo " 2 = Install Autohotspot with No Internet for connected devices"
-	echo " 3 = Install a Permanent Hotspot with Internet for connected devices"
-	echo " 4 = Uninstall Autohotspot or Permanent Hotspot"
-	echo " 5 = Add or Change a WiFi network (SSID)"
-	echo " 6 = Autohotspot: Force to a Hotspot or Force to Network if SSID in Range"
-	echo " 7 = Change the Hotspots SSID and Password"
-	echo " 8 = Exit"
-	echo ""
-	echo -n "Select an Option:"
-	read select
-	case $select in
-	1) clear ; go "AHN" ;; #Autohospot Internet
-	2) clear ; go "AHD" ;; #Autohotspot Direct
-	3) clear ; go "SHS" ;; #Static Hotspot
-	4) clear ; go "REM" ;; #Remove Autohotspot or Static Hotspot
-	5) clear ; go "SSI" ;; #Change/Add Wifi Network
-	6) clear ; go "FOR" ;; #Force Hotspot <> Force Network
-	7) clear ; go "HSS" ;; #Change Hotspot SSID and Password
-	8) clear ; exit ;;
-	*) clear; echo "Please select again";;
-	esac
-done
+if [ "$netman" = "N" ]; then
+	until [ "$select" = "8" ]; do
+		echo "Raspberryconnect.com Autohotspot installation and setup"
+		echo "For installation or switching between hotspot types"
+		echo " or uninstall the hotspot back to standard Pi wifi"
+		echo ""
+		echo "Autohotspot Net = connects to a known wifi network in range,"
+		echo "otherwise creates a Raspberry Pi Hotspot with internet if an"
+		echo "Ethernet cable is connected, Wlan0, Eth0. Pi's 3,3+,4"
+		echo ""
+		echo "Autohotspot NO Net = as above but connected devices to the hotspot"
+		echo "will NOT get internet if an Ethernet cable is connected. Rpi Zero W"
+		echo ""
+		echo "Permanent Hotspot = permanent hotspot with net access for connected devices"
+		echo ""
+		echo " 1 = Install Autohotspot with Internet for Connected Devices"
+		echo " 2 = Install Autohotspot with No Internet for connected devices"
+		echo " 3 = Install a Permanent Hotspot with Internet for connected devices"
+		echo " 4 = Uninstall Autohotspot or Permanent Hotspot"
+		echo " 5 = Add or Change a WiFi network (SSID)"
+		echo " 6 = Autohotspot: Force to a Hotspot or Force to Network if SSID in Range"
+		echo " 7 = Change the Hotspots SSID and Password"
+		echo " 8 = Exit"
+		echo ""
+		echo -n "Select an Option:"
+		read select
+		case $select in
+		1) clear ; go "AHN" ;; #Autohospot Internet
+		2) clear ; go "AHD" ;; #Autohotspot Direct
+		3) clear ; go "SHS" ;; #Static Hotspot
+		4) clear ; go "REM" ;; #Remove Autohotspot or Static Hotspot
+		5) clear ; go "SSI" ;; #Change/Add Wifi Network
+		6) clear ; go "FOR" ;; #Force Hotspot <> Force Network
+		7) clear ; go "HSS" ;; #Change Hotspot SSID and Password
+		8) clear ; exit ;;
+		*) clear; echo "Please select again";;
+		esac
+	done
+else
+        until [ "$select" = "5" ]; do
+                echo "Autohotspot installation and setup for systems running NetworkManager"
+                echo ""
+                echo " 1 = Install Autohotspot"
+                echo " 2 = Install a Permanent Hotspot"
+                echo " 3 = Uninstall Autohotspot or Permanent Hotspot"
+                echo " 4 = Change the Hotspots SSID and Password"
+                echo " 5 = Exit"
+                echo ""
+                echo -n "Select an Option:"
+                read select
+                case $select in
+                1) clear ; go "AHNM" ;; #Autohospot Internet
+                2) clear ; go "SHSNM" ;; #Static Hotspot
+                3) clear ; go "REM" ;; #Remove Autohotspot or Static Hotspot
+                4) clear ; go "HSS" ;; #Change Hotspot SSID and Password
+                5) clear ; exit ;;
+                *) clear; echo "Please select again";;
+                esac
+        done
+
+fi
 }
 
 check_installed #check system and status
@@ -762,6 +859,7 @@ if [ $nftble = "Y" ]; then
 fi
 check_reqfiles
 check_installed
-check_NetworkManager
-check_wificountry
+if [ "$netman" = "N" ]; then
+	check_wificountry
+fi
 menu #show menu

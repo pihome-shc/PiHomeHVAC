@@ -37,6 +37,13 @@ require_once(__DIR__.'/st_inc/functions.php');
 //setcookie("PiHomeLanguage", $lang, time()+(3600*24*90));
 //require_once (__DIR__.'/languages/'.$_COOKIE['PiHomeLanguage'].'.php');
 
+//check if NetworkManager is running
+if(strpos(service_status("NetworkManager.service"), 'active (running)') !== false) {
+	$network_manager = 1;
+} else {
+        $network_manager = 0;
+}
+
 if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
 	$no_ap = 1;
 	//check id wlan0 interface is flagged as working in AP mode
@@ -49,11 +56,22 @@ if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
         	$ap_mode = 0;
 	}
 	//check is associated with a local wifi network
-	$localSSID = exec("/sbin/iwconfig wlan0 | grep 'ESSID'  ");
-	if(strpos($localSSID, 'ESSID:') !== false) {
-        	$wifi_connected = 1;
+        if ($network_manager == 0) {
+		//check using iwconfig
+		$localSSID = exec("/sbin/iwconfig wlan0 | grep 'ESSID'  ");
+		if(strpos($localSSID, 'ESSID:') !== false) {
+        		$wifi_connected = 1;
+		} else {
+        		$wifi_connected = 0;
+		}
 	} else {
-        	$wifi_connected = 0;
+		//check using NetworkManager
+		$localSSID = exec("nmcli con show --active | grep wlan0 | awk '{print $1}'");
+		if (strlen($localSSID) > 0 && strpos($localSSID, 'HotSpot') === false) {
+                        $wifi_connected = 1;
+                } else {
+                        $wifi_connected = 0;
+                }
 	}
 	//check if ethernet connection is available
 	$eth_found = exec("sudo /sbin/ifconfig eth0 | grep 'inet '");
@@ -210,35 +228,44 @@ if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
 				$ssid = mysqli_real_escape_string($conn, $_POST['ssid']);
 	                        $password = mysqli_real_escape_string($conn, $_POST['password']);
 
-				$wpa_conf='/etc/wpa_supplicant/wpa_supplicant.conf';
-				exec("sudo cat ".$wpa_conf.">myfile1.tmp");
-    				$reading = fopen('myfile1.tmp', 'r');
-    				$writing = fopen('myfile2.tmp', 'w');
-	    			$replaced = false;
-    				while (!feof($reading)) {
-      					$line = fgets($reading);
-      					if (stristr($line,'ssid="')) {
-        					$line = '    ssid="'.$ssid.'"';
-        					$line = $line."\n";
-	        				$replaced = true;
-      					}
-                	                if (stristr($line,'psk="')) {
-                        	                $line = '    psk="'.$password.'"';
-                                	        $line = $line."\n";
-                                        	$replaced = true;
-	                                }
-      					fputs($writing, $line);
-    				}
-    				fclose($reading); fclose($writing);
-	    			// might as well not overwrite the file if we didn't replace anything
-    				if ($replaced)
-    					{
-      						exec("sudo mv myfile2.tmp ".$wpa_conf);
-						exec("sudo rm myfile*.tmp");
-    					} else {
-      						exec("rm myfile*.tmp");
-	    				}
-        			exec("sudo reboot");
+				if ($network_manager == 0) { //not using NetworkManager
+					$wpa_conf='/etc/wpa_supplicant/wpa_supplicant.conf';
+					exec("sudo cat ".$wpa_conf.">myfile1.tmp");
+    					$reading = fopen('myfile1.tmp', 'r');
+    					$writing = fopen('myfile2.tmp', 'w');
+	    				$replaced = false;
+	    				while (!feof($reading)) {
+      						$line = fgets($reading);
+      						if (stristr($line,'ssid="')) {
+        						$line = '    ssid="'.$ssid.'"';
+        						$line = $line."\n";
+	        					$replaced = true;
+	      					}
+        	        	                if (stristr($line,'psk="')) {
+                	        	                $line = '    psk="'.$password.'"';
+                        	        	        $line = $line."\n";
+                                	        	$replaced = true;
+	                                	}
+	      					fputs($writing, $line);
+    					}
+    					fclose($reading); fclose($writing);
+	    				// might as well not overwrite the file if we didn't replace anything
+    					if ($replaced)
+    						{
+      							exec("sudo mv myfile2.tmp ".$wpa_conf);
+							exec("sudo rm myfile*.tmp");
+    						} else {
+      							exec("rm myfile*.tmp");
+	    					}
+        				exec("sudo reboot");
+				} else { //using NetworkManager
+					$profile = "/var/www/add_on/Autohotspot/profile.txt";
+					$writing = fopen($profile, "w");
+					$line = $ssid."\n".$password."\n";
+					fputs($writing, $line);
+					fclose($writing);
+					exec("sudo reboot");
+				}
 			} else {
 				//working in Ap mode set the ap_mode flag in the network settings table
 				$query = "SELECT ap_mode FROM network_settings WHERE interface_type = 'wlan0';";
@@ -354,16 +381,23 @@ html {
 											if(isset($_COOKIE["user_login"])) { echo $_COOKIE["user_login"]; }
 											echo '" autofocus>';
 										} else {
-											echo '<select class="form-control input-sm" type="text" id="ssid" name="ssid" >';
-											$command= "sudo /sbin/iwlist wlan0 scan | grep ESSID";
-											//$command= "sudo wifi scan";
 											$output = array();
+											echo '<select class="form-control input-sm" type="text" id="ssid" name="ssid" >';
+											if ($network_manager == 0) { //not using NetworkManager
+												$command= "sudo /sbin/iwlist wlan0 scan | grep ESSID";
+											} else {
+												$command= "cat /var/www/add_on/Autohotspot/ssid.txt";
+											}
 											exec("$command 2>&1 &", $output);
-        										$arrayLength = count($output);
+											$arrayLength = count($output);
         										$i = 0;
         										while ($i < $arrayLength) {
-                										preg_match('/"([^"]+)"/', trim($output[$i]), $result);
-												echo '<option value="'.$result[1].'">'.$result[1].'</option>';
+												if ($network_manager == 0) {
+                											preg_match('/"([^"]+)"/', trim($output[$i]), $result);
+													echo '<option value="'.$result[1].'">'.$result[1].'</option>';
+												} else {
+													echo '<option value="'.trim($output[$i]).'">'.trim($output[$i]).'</option>';
+												}
                 										$i++;
         										}
 											echo '</select>';
