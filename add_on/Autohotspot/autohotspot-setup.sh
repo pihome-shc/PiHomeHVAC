@@ -25,11 +25,11 @@ opt="X"
 vhostapd="N" vdnsmasq="N" autoH="N"
 autoserv="N" iptble="N" nftble="N"
 vdhcpcd5="N"
-netman="N"
-
-#check if system is running NetworkManager
-if systemctl -all list-unit-files NetworkManager.service | grep "NetworkManager.service enabled" ;then
-	netman="Y"
+#Check if running NetworkManager
+if ls /lib/systemd/system | grep "network-manager.service" >/dev/null 2>&1 ; then
+        netman="Y"
+else
+        netman="N"
 fi
 
 if [ "$netman" = "N" ]; then
@@ -55,10 +55,10 @@ check_installed()
 {
 	#check if required software is already installed
 	if [ "$netman" = "N" ]; then
-        	if dpkg -s "dhcpcd5" | grep 'Status: install ok installed' >/dev/null 2>&1; then
-                	vdhcpcd5="Y"
-        	fi
-  fi
+		if dpkg -s "dhcpcd5" | grep 'Status: install ok installed' >/dev/null 2>&1; then
+			vdhcpcd5="Y"
+		fi
+	fi
 	if dpkg -s "hostapd" | grep 'Status: install ok installed' >/dev/null 2>&1; then
 		vhostapd="Y"
 	fi
