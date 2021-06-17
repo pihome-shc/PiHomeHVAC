@@ -373,6 +373,7 @@ hs_routing()
 {
 	if [ "$opt" = "SHS" ] || [ "$opt" = "AHNM" ]; then
 		if [ "$iptble" = "Y" ] ; then
+			update-alternatives --set iptables /usr/sbin/iptables-legacy
 			if [ ! -f "/etc/systemd/system/hs-iptables.service" ];then
 				cp "${cpath}/config/hs-iptables.service" "/etc/systemd/system/hs-iptables.service"
 			fi
