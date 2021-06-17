@@ -58,9 +58,9 @@ check_installed()
 		if dpkg -s "dhcpcd5" | grep 'Status: install ok installed' >/dev/null 2>&1; then
 			vdhcpcd5="Y"
 		fi
-	fi
-	if dpkg -s "hostapd" | grep 'Status: install ok installed' >/dev/null 2>&1; then
-		vhostapd="Y"
+		if dpkg -s "hostapd" | grep 'Status: install ok installed' >/dev/null 2>&1; then
+			vhostapd="Y"
+		fi
 	fi
 	if dpkg -s "dnsmasq" | grep 'Status: install ok installed' >/dev/null 2>&1; then
 		vdnsmasq="Y"
@@ -148,7 +148,7 @@ hostapd_config()
 {
 	echo "hostapd Config"
 	echo "Hostapd Status is " $vhostapd
-	if [ "$opt" = "AHNM" ] || [ "$opt" = "SHSNM" ] ;then
+	if [ "$opt" = "AHNM" ] || [ "$opt" = "AHDNW" ] ;then
 		if [ "$vhostapd" = "Y" ]; then
 			echo "Hostapd installed- now un-installing"
 			apt -q purge hostapd
@@ -288,16 +288,7 @@ dnsmasq_config()
 		if systemctl -all list-unit-files dnsmasq.service | grep "dnsmasq.service enabled" ;then
 			systemctl disable dnsmasq >/dev/null 2>&1
 		fi
-	elif [ "$opt" = "SHS" ]; then
-		#for Static Hotspot
-		echo "Unmask & Enable Dnsmasq"
-		if systemctl -all list-unit-files dnsmasq.service | grep "dnsmasq.service masked" ;then
-			systemctl unmask dnsmasq >/dev/null 2>&1
-		fi
-		if systemctl -all list-unit-files dnsmasq.service | grep "dnsmasq.service disabled" ;then
-			systemctl enable dnsmasq >/dev/null 2>&1
-		fi
-        elif [ "$opt" = "AHNM" ] || [ "$opt" = "SHSNM" ] ;then
+        elif [ "$opt" = "AHNM" ] || [ "$opt" = "AHDNW" ] ;then
                 #for NetworkManager Hotspots
                 if systemctl -all list-unit-files dnsmasq.service | grep "dnsmasq.service enabled" ;then
                         systemctl disable dnsmasq >/dev/null 2>&1
@@ -380,7 +371,7 @@ auto_service()
 
 hs_routing()
 {
-	if [ "$opt" = "SHS" ]  ;then
+	if [ "$opt" = "SHS" ] || [ "$opt" = "AHNM" ]; then
 		if [ "$iptble" = "Y" ] ; then
 			if [ ! -f "/etc/systemd/system/hs-iptables.service" ];then
 				cp "${cpath}/config/hs-iptables.service" "/etc/systemd/system/hs-iptables.service"
@@ -770,9 +761,10 @@ go()
                 hostapd_config
                 dnsmasq_config
 		create_nm_hotspot
+                hs_routing
                 auto_service
                 auto_script
-        elif [ "$opt" = "SHSNM" ] ;then
+        elif [ "$opt" = "AHDNM" ] ;then
                 hostapd_config
                 dnsmasq_config
                 create_nm_static_hotspot
@@ -852,8 +844,8 @@ else
         until [ "$select" = "5" ]; do
                 echo "Autohotspot installation and setup for systems running NetworkManager"
                 echo ""
-                echo " 1 = Install Autohotspot"
-                echo " 2 = Install a Permanent Hotspot"
+                echo " 1 = Install Autohotspot with Internet for Connected Devices"
+                echo " 2 = Install Autohotspot with No Internet for connected devices"
                 echo " 3 = Uninstall Autohotspot or Permanent Hotspot"
                 echo " 4 = Change the Hotspots SSID and Password"
                 echo " 5 = Exit"
@@ -862,7 +854,7 @@ else
                 read select
                 case $select in
                 1) clear ; go "AHNM" ;; #Autohospot Internet
-                2) clear ; go "SHSNM" ;; #Static Hotspot
+                2) clear ; go "AHDNM" ;; #Autohotspot Direct
                 3) clear ; go "REM" ;; #Remove Autohotspot or Static Hotspot
                 4) clear ; go "HSS" ;; #Change Hotspot SSID and Password
                 5) clear ; exit ;;
