@@ -465,6 +465,9 @@ remove()
 	sysctl #remove port forwarding
 	interface #restore backup of interfaces fle
 	auto_service #remove autohotspot.service
+        if [ "$netman" = "Y" ]; then
+                nmcli c delete HotSpot
+        fi
 }
 
 Hotspotssid()
