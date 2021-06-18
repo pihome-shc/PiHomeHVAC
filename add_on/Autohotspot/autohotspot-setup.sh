@@ -237,7 +237,7 @@ create_nm_hotspot()
 {
     FILE=HotSpot.nmconnection
     if [ ! -f "$FILE" ]; then
-        IFNAME="wlan0" && CON_NAME="HotSpot" && SSID_NAME="MaxAir" && PASSWD="1234567890" && nmcli c add type wifi ifname $IFNAME con-name $CON_NAME autoconnect no ssid $SSID_NAME 802-11-wireless.mode ap 802-11-wireless.band bg ipv4.method shared wifi-sec.key-mgmt wpa-psk wifi-sec.psk "$PASSWD"    
+        IFNAME="wlan0" && CON_NAME="HotSpot" && SSID_NAME="MaxAir" && nmcli c add type wifi ifname $IFNAME con-name $CON_NAME autoconnect no ssid $SSID_NAME 802-11-wireless.mode ap 802-11-wireless.band bg ipv4.method shared
     fi
 }
 
@@ -245,7 +245,7 @@ create_nm_static_hotspot()
 {
     FILE=HotSpot.nmconnection
     if [ ! -f "$FILE" ]; then
-        IFNAME="wlan0" && CON_NAME="HotSpot" && SSID_NAME="MaxAir" && PASSWD="1234567890" && nmcli c add type wifi ifname $IFNAME con-name $CON_NAME autoconnect yes ssid $SSID_NAME 802-11-wireless.mode ap 802-11-wireless.band bg ipv4.method shared wifi-sec.key-mgmt wpa-psk wifi-sec.psk "$PASSWD"
+        IFNAME="wlan0" && CON_NAME="HotSpot" && SSID_NAME="MaxAir" && nmcli c add type wifi ifname $IFNAME con-name $CON_NAME autoconnect yes ssid $SSID_NAME 802-11-wireless.mode ap 802-11-wireless.band bg ipv4.method shared
     fi
 }
 
