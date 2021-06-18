@@ -46,12 +46,12 @@ The core requirements for the SBC are as stated above, MaxAir has been successfu
 * Orange Pi Zero
 * Orange Pi Zero LTS
 * Orange Pi Zero Plus
-* Orange Pi Zero Plus2 H5
+* Orange Pi Zero Plus2 H5 (with eMMC on-board storage)
 * Orange Pi Zero2
-* Rock Pi E
-* Pine H64 Model B
+* Rock Pi E (with optional eMMC on-board storage)
+* Pine H64 Model B (with optional eMMC on-board storage)
 * Bannana Pi BPI-M2 Zero
-* BeagleBone Black and Beagle Bone Green
+* BeagleBone Black and Beagle Bone Green (with eMMC on-board storage)
 
 ## How To Install
 * sudo rm -R /var/www
