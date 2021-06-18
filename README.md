@@ -30,12 +30,28 @@ The previous version, PiHome, was centered around the creation of zones, this ve
 ### The trusted boiler.php engine has been replaced by controller.php
 
 ## Requirements
-Basic knowledge of command line with following main components for MaxAir to function. 
+Basic knowledge of command line with following main components for MaxAir to function.
+* Either the Raspbian or Armbian Operating System
 * Apache Web Server
 * PHP 7.x
 * Python 3.x
 * MySQL/MariaDB
 * Adafruit Blinka
+
+## Supported Single Board Computers
+The core requirements for the SBC are as stated above, MaxAir has been successfully installed on the following SBCs :
+* Raspberry Pi Zero and Raspberry Zero W 
+* Raspberry Pi 3/3B
+* Raspberry Pi 4
+* Orange Pi Zero
+* Orange Pi Zero LTS
+* Orange Pi Zero Plus
+* Orange Pi Zero Plus2 H5 (with eMMC on-board storage)
+* Orange Pi Zero2
+* Rock Pi E (with optional eMMC on-board storage)
+* Pine H64 Model B (with optional eMMC on-board storage)
+* Bannana Pi BPI-M2 Zero
+* BeagleBone Black and Beagle Bone Green (with eMMC on-board storage)
 
 ## How To Install
 * sudo rm -R /var/www
