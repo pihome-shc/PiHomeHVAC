@@ -1973,7 +1973,7 @@ echo '
         </div>
     </div>
 </div>';
-
+/*
 //Pihome Update
 echo '
 <div class="modal fade" id="pihome_update" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -2012,7 +2012,7 @@ echo '</div></div>
         </div>
     </div>
 </div>';
-
+*/
 
 // backup_image
 echo '
