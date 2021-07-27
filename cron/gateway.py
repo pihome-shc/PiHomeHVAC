@@ -39,6 +39,7 @@ import requests
 import socket, re
 from Pin_Dict import pindict
 import board, digitalio
+import traceback
 
 # Debug print to screen configuration
 dbgLevel = 3  # 0-off, 1-info, 2-detailed, 3-all
@@ -1009,6 +1010,9 @@ except serial.SerialException as e:
     con.close()
 except EOFError as e:
     print("EOFError:", format(e))
+    con.close()
+except TypeError:
+    print(traceback.format_exc())
     con.close()
 except Exception as e:
     print(format(e))

@@ -1,31 +1,10 @@
 #!/usr/bin/python3
-class bc:
-	hed = '\033[95m'
-	dtm = '\033[0;36;40m'
-	ENDC = '\033[0m'
-	SUB = '\033[3;30;45m'
-	WARN = '\033[0;31;40m'
-	grn = '\033[0;32;40m'
-	wht = '\033[0;37;40m'
-	ylw = '\033[93m'
-	fail = '\033[91m'
-print(bc.hed + " ")
-print("    __  __                             _         ")
-print("   |  \/  |                    /\     (_)        ")
-print("   | \  / |   __ _  __  __    /  \     _   _ __  ")
-print("   | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| ")
-print("   | |  | | | (_| |  >  <   / ____ \  | | | |    ")
-print("   |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
-print(" ")
-print("             " +bc.SUB + "S M A R T   THERMOSTAT " + bc.ENDC)
-print(bc.WARN +" ")
-print("********************************************************")
-print("*   GPIO Pin Mapping Support for Adafruit Blinka       *")
-print("*    Build Date: 06/02/2021 Version 0.01               *")
-print("*    Last Modified: 06/02/2021                         *")
-print("*                                 Have Fun - PiHome.eu *")
-print("********************************************************")
-print(" " + bc.ENDC)
+# ********************************************************
+# *    GPIO Pin Mapping Support for Adafruit Blinka      *
+# *    Build Date: 06/02/2021 Version 0.01               *
+# *    Last Modified: 27/07/2021                         *
+# *                                 Have Fun - PiHome.eu *
+# ********************************************************
 
 # use Adafruit PlatformDetect to determine board type
 import board
