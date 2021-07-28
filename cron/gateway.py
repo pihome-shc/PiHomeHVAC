@@ -221,14 +221,13 @@ try:
             set_relays(
                 msg, node_type, out_id, out_child_id, out_payload, gatewayenableoutgoing
             )
-            ping_count = 0
+            ping_timer = time.time()
 
     while 1:
         ## Terminate gateway script if no route to network gateway
         if gatewaytype == "wifi":
-            ping_count = ping_count + 1
-            if ping_count == 3600 :
-                ping_count = 0
+            if time.time() - ping_timer > 3600 :
+                ping_timer = time.time()
                 gateway_up  = True if os.system("ping -c 1 " + gatewaylocation) is 0 else False
                 if not gateway_up:
                     break
