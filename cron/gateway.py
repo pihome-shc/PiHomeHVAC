@@ -221,13 +221,17 @@ try:
             set_relays(
                 msg, node_type, out_id, out_child_id, out_payload, gatewayenableoutgoing
             )
+            ping_count = 0
 
     while 1:
         ## Terminate gateway script if no route to network gateway
         if gatewaytype == "wifi":
-            gateway_up  = True if os.system("ping -c 1 " + gatewaylocation) is 0 else False
-            if not gateway_up:
-                break
+            ping_count = ping_count + 1
+            if ping_count == 60 :
+                ping_count = 0
+                gateway_up  = True if os.system("ping -c 1 " + gatewaylocation) is 0 else False
+                if not gateway_up:
+                    break
         ## Outgoing messages
         con.commit()
         cur.execute(
