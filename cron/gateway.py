@@ -26,7 +26,7 @@ print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
 print("* Script to communicate with MySensors Nodes, for more *")
 print("* info please check MySensors API.                     *")
 print("*      Build Date: 18/09/2017                          *")
-print("*      Version 0.11 - Last Modified 26/03/2020         *")
+print("*      Version 0.11 - Last Modified 28/07/2021         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -221,13 +221,16 @@ try:
             set_relays(
                 msg, node_type, out_id, out_child_id, out_payload, gatewayenableoutgoing
             )
+            ping_timer = time.time()
 
     while 1:
         ## Terminate gateway script if no route to network gateway
         if gatewaytype == "wifi":
-            gateway_up  = True if os.system("ping -c 1 " + gatewaylocation) is 0 else False
-            if not gateway_up:
-                break
+            if time.time() - ping_timer >= 3600 :
+                ping_timer = time.time()
+                gateway_up  = True if os.system("ping -c 1 " + gatewaylocation) is 0 else False
+                if not gateway_up:
+                    break
         ## Outgoing messages
         con.commit()
         cur.execute(
