@@ -2282,9 +2282,9 @@ $db_v_github = array_pop($pieces);
 
 echo '  <table class="table table-bordered">
     <tr>
-        <th class="col-xs-8"><small></small></th>
-        <th class="col-xs-2"><small>'.$lang['maxair_update_installed'].'</small></th>
-        <th class="col-xs-2"><small>'.$lang['maxair_update_github'].'</small></th>
+        <th class="col-xs-8"></th>
+        <th class="col-xs-2" "not_mapped_style" style="text-align:center">'.$lang['maxair_update_installed'].'</th>
+        <th class="col-xs-2" "not_mapped_style" style="text-align:center">'.$lang['maxair_update_github'].'</th>
     </tr>
 
     <tr>
