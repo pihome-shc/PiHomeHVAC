@@ -2251,46 +2251,65 @@ echo '
         </div>
     </div>
 </div>';
-/*
-//Pihome Update
+
+//MaxAir Update
 echo '
-<div class="modal fade" id="pihome_update" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="maxair_update" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['pihome_update'].'</h5>
+                <h5 class="modal-title">'.$lang['maxair_update'].'</h5>
             </div>
             <div class="modal-body">
-			<p class="text-muted"> '.$lang['pihome_update_text'].' </p>';
+			<p class="text-muted"> '.$lang['maxair_update_text'].' </p>';
 
-		
-echo '	<div class=\"list-group\">';
-echo "                            <a href=\"#\" class=\"list-group-item\">
-                                    <i class=\"fa fa-server fa-1x blueinfo\"></i> ".$lang['pihome_update_c_version']."
-                                    <span class=\"pull-right text-muted small\"><em>".settings($conn, 'version')."</em>
-                                    </span>
-                                </a>"; 
-ini_set('max_execution_time',90);
-$getVersions = file_get_contents(''.settings($conn, 'update_location').''.settings($conn, 'update_file').'');
-if ($getVersions != ''){
-$versionList = explode("\n", $getVersions);	
-	foreach ($versionList as $aV)
-	{
-		echo "<a href=\"settings.php?uid=10\"  class=\"list-group-item\">
-        <i class=\"fa fa-download fa-1x blueinfo\"></i> ".$lang['pihome_update_u_version']."
-        <span class=\"pull-right text-muted small\"><em>".$aV."</em></span>
-         </a>";
-	}
-}	
-echo '</div></div>
+$file1 = file('/var/www/st_inc/db_config.ini');
+$pieces =  explode(' ', $file1[count($file1) - 3]);
+$code_v_installed = array_pop($pieces);
+$pieces =  explode(' ', $file1[count($file1) - 2]);
+$code_b_installed = array_pop($pieces);
+$pieces =  explode(' ', $file1[count($file1) - 1]);
+$db_v_installed = array_pop($pieces);
+
+$file2 = file('https://raw.githubusercontent.com/pihome-shc/PiHomeHVAC/master/st_inc/db_config.ini');
+$pieces =  explode(' ', $file2[count($file2) - 3]);
+$code_v_github = array_pop($pieces);
+$pieces =  explode(' ', $file2[count($file2) - 2]);
+$code_b_github = array_pop($pieces);
+$pieces =  explode(' ', $file2[count($file2) - 1]);
+$db_v_github = array_pop($pieces);
+
+echo '  <table class="table table-bordered">
+    <tr>
+        <th class="col-xs-8"></th>
+        <th class="col-xs-2" "not_mapped_style" style="text-align:center">'.$lang['maxair_update_installed'].'</th>
+        <th class="col-xs-2" "not_mapped_style" style="text-align:center">'.$lang['maxair_update_github'].'</th>
+    </tr>
+
+    <tr>
+        <td style="font-weight:bold">'.$lang['maxair_update_code_v'].'</td>
+        <td style="text-align:center; vertical-align:middle;">'.$code_v_installed.'</td>
+        <td style="text-align:center; vertical-align:middle;">'.$code_v_github.'</td>
+    </tr>
+    <tr>
+        <td style="font-weight:bold">'.$lang['maxair_update_code_b'].'</td>
+        <td style="text-align:center; vertical-align:middle;">'.$code_b_installed.'</td>
+        <td style="text-align:center; vertical-align:middle;">'.$code_b_github.'</td>
+    </tr>
+    <tr>
+        <td style="font-weight:bold">'.$lang['maxair_update_db_v'].'</td>
+        <td style="text-align:center; vertical-align:middle;">'.$db_v_installed.'</td>
+        <td style="text-align:center; vertical-align:middle;">'.$db_v_github.'</td>
+    </tr>';
+
+echo '</table></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
             </div>
         </div>
     </div>
 </div>';
-*/
 
 // backup_image
 echo '
