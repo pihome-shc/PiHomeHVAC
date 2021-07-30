@@ -238,8 +238,8 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 				        	        <h3 class="status"></small></h3>
 			                		</button>
 
-	        		              		<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#pihome_update">
-        	        		               	<h3 class="buttontop"><small><?php echo $lang['pihome_update']; ?></small></h3>
+	        		              		<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#maxair_update">
+        	        		               	<h3 class="buttontop"><small><?php echo $lang['maxair_update']; ?></small></h3>
 		        			        <h3 class="degre" ><i class="fa fa-download fa-1x blueinfo"></i></h3>
         		        			<h3 class="status"></small></h3>
                 		       			</button>
