@@ -341,7 +341,7 @@ $lang['openweather_settings'] = "OpenWeather Settings";
 $lang['openweather_settings_text'] = "Refer to <a class=\"green\" target=\"_blank\" href=\"http://OpenWeatherMap.org\">OpenWeatherMap.org</a> for more information. <p>An account (free options) must be setup in order to use OpenWeather.";
 $lang['maxair_update'] = "MaxAir Update";
 $lang['maxair_versions'] = "MaxAir Versions";
-$lang['maxair_update_text'] = "MaxAir current software version and any available updates.";
+$lang['maxair_versions_text'] = "MaxAir current software version and any available updates.";
 $lang['maxair_update_installed'] = "Installed";
 $lang['maxair_update_github'] = "GitHub";
 $lang['maxair_update_code_v'] = "Code Version";
