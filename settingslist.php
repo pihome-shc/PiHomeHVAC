@@ -115,6 +115,12 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
         		        		        <h3 class="status"></small></h3>
                 		        		</button>
 
+	        		              		<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#maxair_versions">
+        	        		               	<h3 class="buttontop"><small><?php echo $lang['maxair_versions']; ?></small></h3>
+		        			        <h3 class="degre" ><i class="fa fa-code-fork fa-1x blueinfo"></i></h3>
+        		        			<h3 class="status"></small></h3>
+                		       			</button>
+
 				                        <?php
 	        				        $query = "select * from messages_in where node_id = 0 order by datetime desc limit 1";
         	        				$result = $conn->query($query);
@@ -237,12 +243,6 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                 	        			<h3 class="degre" ><?php echo $lang['mqtt']; ?></h3>
 				        	        <h3 class="status"></small></h3>
 			                		</button>
-
-	        		              		<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#maxair_update">
-        	        		               	<h3 class="buttontop"><small><?php echo $lang['maxair_update']; ?></small></h3>
-		        			        <h3 class="degre" ><i class="fa fa-download fa-1x blueinfo"></i></h3>
-        		        			<h3 class="status"></small></h3>
-                		       			</button>
 
 	                        		        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#backup_image">
 			                        	<h3 class="buttontop"><small><?php echo $lang['backup']; ?></small></h3>
