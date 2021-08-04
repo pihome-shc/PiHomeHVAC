@@ -154,6 +154,14 @@ require_once(__DIR__.'/st_inc/functions.php');
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>
+		    
+                <?php if (scan_dir('/var/www/code_updates')> 1) { ?>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="modal" href="#code_update_Modal" data-backdrop="static" data-keyboard="false">
+                                <i class="fa fa-download fa-lg"></i>
+                            </a>
+                        </li>
+                <?php } ?>
                 <!-- /.dropdown -->
             </ul>
         </nav>
