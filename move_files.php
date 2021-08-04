@@ -25,7 +25,7 @@ function moveFolderFiles($dir){
                         $conn->query($query);
                 }
                 // Move updated files propper locations
-                $cmd = 'mv '.$dir.'/'.$ff.' /var/www';
+                $cmd = 'cp -r '.$dir.'/'.$ff.' /var/www && rm -R '.$dir.'/'.$ff;
                 exec($cmd);
         }
         if(is_dir($dir.'/'.$ff)) moveFolderFiles($dir.'/'.$ff);
