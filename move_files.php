@@ -11,7 +11,7 @@ function moveFolderFiles($dir){
 
     foreach($ffs as $ff){
         if (strcmp($ff, 'updates.txt') !== 0) {
-                $cmd = 'mv '.$dir.'/'.$ff.' /var/www_test';
+                $cmd = 'mv '.$dir.'/'.$ff.' /var/www';
                 exec($cmd);
         }
         if(is_dir($dir.'/'.$ff)) moveFolderFiles($dir.'/'.$ff);
