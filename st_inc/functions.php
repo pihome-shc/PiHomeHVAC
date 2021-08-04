@@ -677,4 +677,14 @@ function service_status($service_name) {
 	return $stat;
 }
 
+function scan_dir($path){
+    $ite=new RecursiveDirectoryIterator($path);
+
+    $nbfiles=0;
+    foreach (new RecursiveIteratorIterator($ite) as $filename=>$cur) {
+        $nbfiles++;
+    }
+
+    return $nbfiles - 2;
+}
 ?>
