@@ -190,6 +190,86 @@ $fullname = $row['fullname'];
 </div>
 
 <?php
+function searchDir($path,&$data){
+        if(is_dir($path)){
+                $dp=dir($path);
+                // by http://www.manongjc.com/article/1317.html
+                while($file=$dp->read()){
+                        if($file!='.'&& $file!='..'){
+                                searchDir($path.'/'.$file,$data);
+                        }
+                }
+                $dp->close();
+        }
+        if(is_file($path)){
+                if (strcmp($path, '/var/www/code_updates/updates.txt') !== 0) {
+                        $data[]=str_replace('/code_updates', '', $path);
+                }
+        }
+}
+
+function getDir($dir){
+        $data=array();
+        searchDir($dir,$data);
+        return   $data;
+}
+
+$rval = getDir('/var/www/code_updates');
+?>
+
+<div id="code_update_Modal" class="modal fade">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                <h4 class="modal-title"><?php echo $lang['github_update']; ?></h4>
+                        </div>
+                        <div class="modal-body">
+                                <p><?php echo $lang['github_update_info']; ?></p>
+                                <ul class="list-group">
+                                <?php
+                                $rval = getDir('/var/www/code_updates');
+                                foreach($rval as $key => $value) {
+                                        echo '<li class="list-group-item" style="height: 25px; border: none">'.$value.'</li>';
+                                }
+                                ?>
+                                </ul>
+                        </div>
+                        <!-- /.modal-body -->
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#confirm_update_Modal"><?php echo $lang['update_code']; ?></button>
+                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal"><?php echo $lang['close']; ?></button>
+                        </div>
+                        <!-- /.modal-footer -->
+                </div>
+                <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+</div>
+
+<div id="confirm_update_Modal" class="modal fade">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                <h4 class="modal-title"><?php echo $lang['confirm_update']; ?></h4>
+                        </div>
+                        <div class="modal-body">
+                                <p><?php echo $lang['confirm_update_info']; ?></p>
+                        </div>
+                        <!-- /.modal-body -->
+                        <div class="modal-footer">
+                                <input type="button" name="submit" value="<?php echo $lang['yes'] ?>" class="btn btn-danger btn-sm" onclick="code_update()">
+                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal"><?php echo $lang['no']; ?></button>
+                        </div>
+                        <!-- /.modal-footer -->
+                </div>
+                <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+</div>
+
+<?php
 $query="select * from weather;";
 $result=$conn->query($query);
 $weather = mysqli_fetch_array($result);
