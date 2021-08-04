@@ -2252,17 +2252,17 @@ echo '
     </div>
 </div>';
 
-//MaxAir Update
+//MaxAir Versions
 echo '
-<div class="modal fade" id="maxair_update" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="maxair_versions" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['maxair_update'].'</h5>
+                <h5 class="modal-title">'.$lang['maxair_versions'].'</h5>
             </div>
             <div class="modal-body">
-			<p class="text-muted"> '.$lang['maxair_update_text'].' </p>';
+			<p class="text-muted"> '.$lang['maxair_versions_text'].' </p>';
 
 $file1 = file('/var/www/st_inc/db_config.ini');
 $pieces =  explode(' ', $file1[count($file1) - 3]);
