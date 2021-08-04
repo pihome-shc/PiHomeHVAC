@@ -267,6 +267,7 @@ $query_job_scheduling .= "('weather_update','/var/www/cron/weather_update.php',1
 $query_job_scheduling .= "('reboot_wifi','/var/www/cron/reboot_wifi.sh',1,0,'120',''),";
 $query_job_scheduling .= "('check_ds18b20','/var/www/cron/check_ds18b20.php',0,0,'60',''),";
 $query_job_scheduling .= "('sw_install','/var/www/cron/sw_install.py',1,0,'10','');";
+$query_job_scheduling .= "('update_code','/var/www/cron/update_code.py',1,0,'00:00','');";
 $results = $conn->query($query_job_scheduling);
 if ($results) {
                 echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Job Scheduling Records Added \033[41mJobs\033[0m Data  Succeeded \n";
