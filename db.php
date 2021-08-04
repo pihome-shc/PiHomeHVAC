@@ -977,7 +977,13 @@ if($what=="db_backup"){
 	$info_message = "Data Base Backup Request Started, This process may take some time complete..." ;
 }
 
-//Setup Backup e-mail
+//Code Update
+if($what=="code_update"){
+        shell_exec("nohup php move_files.php >/dev/null 2>&1");
+        $info_message = "Code Module Update Request Started, This process may take some time complete..." ;
+}
+
+///Setup Backup e-mail
 if($what=="backup_email_update"){
 	$backup_email = $_GET['backup_email'];
 	$query = "UPDATE system SET backup_email = '".$backup_email."';";
