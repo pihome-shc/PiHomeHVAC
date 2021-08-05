@@ -244,6 +244,12 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 				        	        <h3 class="status"></small></h3>
 			                		</button>
 
+                                                	<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#maxair_update">
+                                                        <h3 class="buttontop"><small><?php echo $lang['maxair_update']; ?></small></h3>
+                                                        <h3 class="degre" ><i class="fa fa-download fa-1x blueinfo"></i></h3>
+                                                        <h3 class="status"></small></h3>
+                                                        </button>
+
 	                        		        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#backup_image">
 			                        	<h3 class="buttontop"><small><?php echo $lang['backup']; ?></small></h3>
 				                       	<h3 class="degre" ><i class="fa fa-clone fa-1x blue"></i> </h3>

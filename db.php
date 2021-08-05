@@ -977,6 +977,17 @@ if($what=="db_backup"){
 	$info_message = "Data Base Backup Request Started, This process may take some time complete..." ;
 }
 
+//Code Update
+if($what=="code_update"){
+        shell_exec("nohup php move_files.php >/dev/null 2>&1");
+        $info_message = "Code Module Update Request Started, This process may take some time complete..." ;
+}
+
+//Check for Updates
+if($what=="check_updates"){
+        exec("python3 /var/www/cron/update_code.py > /dev/null 2>&1 &");
+}
+
 //Setup Backup e-mail
 if($what=="backup_email_update"){
 	$backup_email = $_GET['backup_email'];

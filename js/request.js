@@ -895,3 +895,16 @@ function install_software(wid){
         request('db.php', 'GET', quest, function(){ $("#add_install").modal('show'); } );
 }
 
+//start code update
+function code_update() {
+        var quest = "?w=code_update" + "&o=0" + "&frost_temp=0" + "&wid=0";
+        request('db.php', 'GET', quest, function(){ window.location="home.php"; });
+    //window.location="settings.php?status=reboot";
+}
+
+//check for code updates
+function check_updates() {
+        var quest = "?w=check_updates" + "&o=0" + "&frost_temp=0" + "&wid=0";
+        request('db.php', 'GET', quest, function(){ window.location="home.php"; });
+    //window.location="settings.php?status=reboot";
+}
