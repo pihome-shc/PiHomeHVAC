@@ -983,7 +983,12 @@ if($what=="code_update"){
         $info_message = "Code Module Update Request Started, This process may take some time complete..." ;
 }
 
-///Setup Backup e-mail
+//Check for Updates
+if($what=="check_updates"){
+        exec("python3 /var/www/cron/update_code.py > /dev/null 2>&1 &");
+}
+
+//Setup Backup e-mail
 if($what=="backup_email_update"){
 	$backup_email = $_GET['backup_email'];
 	$query = "UPDATE system SET backup_email = '".$backup_email."';";
