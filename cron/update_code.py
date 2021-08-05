@@ -97,7 +97,7 @@ for entry in listOfFiles:
             os.system(cmd)
 
 # download current repository to a tempory directory ready for compare
-os.system('sudo git clone ' + repository + ' ' + source_dir)
+os.system('git clone ' + repository + ' ' + source_dir)
 
 # do recursive comparison and store copies of any changed or new code modules
 c = filecmp.dircmp(source_dir, target_dir)
