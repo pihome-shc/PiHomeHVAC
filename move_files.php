@@ -19,7 +19,6 @@ function moveFolderFiles($dir){
                                 // Notice the double $$, this tells php to create a variable with the same name as key
                                 $$key = $setting;
                         }
-                        echo $version." ".$build."\n";
                         echo "\033[32mMake Sure you have correct MySQL/MariaDB credentials as following \033[0m\n";
                         echo "Hostname:     ".$hostname."\n";
                         echo "Database:     ".$dbname."\n";
