@@ -19,10 +19,29 @@ function moveFolderFiles($dir){
                                 // Notice the double $$, this tells php to create a variable with the same name as key
                                 $$key = $setting;
                         }
+                        echo $version." ".$build."\n";
+                        echo "\033[32mMake Sure you have correct MySQL/MariaDB credentials as following \033[0m\n";
+                        echo "Hostname:     ".$hostname."\n";
+                        echo "Database:     ".$dbname."\n";
+                        echo "User Name:    ".$dbusername."\n";
+                        echo "Password:     ".$dbpassword."\n";
+
+                        //Test Connection to MySQL Server with Given Username & Password
+                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Testing Connection to MySQL/MariaDB Server. \n";
                         $conn = new mysqli($hostname, $dbusername, $dbpassword);
-                        $db_selected = mysqli_select_db($conn, $dbname);
+                        if ($conn->connect_error){
+                                die('Database Connecction Failed with Error: '.$conn->connect_error);
+                        }else {
+                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Database Server Connection Successfull \n";
+                        }
+                        mysqli_select_db($conn, $dbname) or die('Error Selecting MySQL Database: ' . mysqli_error($conn));
                         $query = "UPDATE `system` SET `version`='".$version."',`build`='".$build."';";
-                        $conn->query($query);
+                        $results = $conn->query($query);
+                        if ($results) {
+                                echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Update \033[41mSystem\033[0m Data  Succeeded \n";
+                        } else {
+                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Update \033[41mSystem\033[0m Data Failed \n";
+                        }
                 }
                 // Move updated files propper locations
                 $cmd = 'cp -r '.$dir.'/'.$ff.' /var/www && rm -R '.$dir.'/'.$ff;
