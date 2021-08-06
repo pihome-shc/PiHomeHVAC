@@ -41,11 +41,16 @@ def report_recursive(dcmp):
         if name.endswith('.json') or name.endswith('.log'):
             continue
         if len(dcmp.left[18:]) > 0:
-            update_path = update_dir + '/' + dcmp.left[18:]
+            sub_dirs = dcmp.left[18:].split("/")
+            i = 0
+            update_path = update_dir
+            for x in sub_dirs:
+                update_path = update_path + '/' + sub_dirs[i]
+                if not os.path.exists(update_path):
+                    cmd = 'mkdir ' + update_path
+                    os.system(cmd)
+                i=i+1
             path = target_dir + '/' + dcmp.left[18:] + '/' + name
-            if not os.path.exists(update_path):
-                cmd = 'mkdir ' + update_path
-                os.system(cmd)
         else:
             update_path = update_dir
             path = target_dir + '/' + name
@@ -58,11 +63,16 @@ def report_recursive(dcmp):
         if name.endswith('.json') or name.endswith('.log'):
             continue
         if len(dcmp.left[18:]) > 0:
-            update_path = update_dir + '/' + dcmp.left[18:]
+            sub_dirs = dcmp.left[18:].split("/")
+            i = 0
+            update_path = update_dir
+            for x in sub_dirs:
+                update_path = update_path + '/' + sub_dirs[i]
+                if not os.path.exists(update_path):
+                    cmd = 'mkdir ' + update_path
+                    os.system(cmd)
+                i=i+1
             path = target_dir + '/' + dcmp.left[18:] + '/' + name
-            if not os.path.exists(update_path):
-                cmd = 'mkdir ' + update_path
-                os.system(cmd)
         else:
             update_path = update_dir
             path = target_dir + '/' + name
