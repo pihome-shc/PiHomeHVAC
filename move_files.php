@@ -63,7 +63,7 @@ function moveFolderFiles($dir){
                         }
                 }
                 // Move updated files propper locations
-                $cmd = 'cp -r '.$dir.'/'.$ff.' /var/www';
+                $cmd = 'cp -r '.$dir.'/'.$ff.' '.__DIR__;
                 exec($cmd);
         }
         if(is_dir($dir.'/'.$ff)) moveFolderFiles($dir.'/'.$ff);
@@ -71,7 +71,7 @@ function moveFolderFiles($dir){
 }
 
 // directory used to hold downloaded copies of files last updated
-$update_dir = '/var/www/code_updates';
+$update_dir = __DIR__.'/code_updates';
 
 // copy all updated files to propper locations
 moveFolderFiles($update_dir);
