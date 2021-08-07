@@ -63,12 +63,33 @@ function moveFolderFiles($dir){
                         }
                 }
                 // Move updated files propper locations
-                $cmd = 'cp -r '.$dir.'/'.$ff.' /var/www && rm -R '.$dir.'/'.$ff;
+                $cmd = 'cp -r '.$dir.'/'.$ff.' /var/www';
                 exec($cmd);
         }
         if(is_dir($dir.'/'.$ff)) moveFolderFiles($dir.'/'.$ff);
     }
 }
 
-moveFolderFiles('/var/www/code_updates');
+// directory used to hold downloaded copies of files last updated
+$update_dir = '/var/www/code_updates';
+
+// copy all updated files to propper locations
+moveFolderFiles($update_dir);
+
+// tidy up the update directory
+$ffs = scandir($update_dir);
+
+unset($ffs[array_search('.', $ffs, true)]);
+unset($ffs[array_search('..', $ffs, true)]);
+
+// prevent empty ordered elements
+if (count($ffs) > 0) {
+        foreach($ffs as $ff){
+                if (strcmp($ff, 'updates.txt') !== 0) {
+                        echo $ff."\n";
+                        if (is_dir($ff)) { $cmd = 'rm -R '.$update_dir.'/'.$ff; } else { $cmd = 'rm '.$update_dir.'/'.$ff; }
+                        exec($cmd);
+                }
+        }
+}
 ?>
