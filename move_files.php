@@ -86,7 +86,6 @@ unset($ffs[array_search('..', $ffs, true)]);
 if (count($ffs) > 0) {
         foreach($ffs as $ff){
                 if (strcmp($ff, 'updates.txt') !== 0) {
-                        echo $ff."\n";
                         if (is_dir($ff)) { $cmd = 'rm -R '.$update_dir.'/'.$ff; } else { $cmd = 'rm '.$update_dir.'/'.$ff; }
                         exec($cmd);
                 }
