@@ -2285,20 +2285,24 @@ echo '
 			<p class="text-muted"> '.$lang['maxair_versions_text'].' </p>';
 
 $file1 = file('/var/www/st_inc/db_config.ini');
-$pieces =  explode(' ', $file1[count($file1) - 3]);
+$pieces =  explode(' ', $file1[count($file1) - 4]);
 $code_v_installed = array_pop($pieces);
-$pieces =  explode(' ', $file1[count($file1) - 2]);
+$pieces =  explode(' ', $file1[count($file1) - 3]);
 $code_b_installed = array_pop($pieces);
-$pieces =  explode(' ', $file1[count($file1) - 1]);
+$pieces =  explode(' ', $file1[count($file1) - 2]);
 $db_v_installed = array_pop($pieces);
+$pieces =  explode(' ', $file1[count($file1) - 1]);
+$db_b_installed = array_pop($pieces);
 
 $file2 = file('https://raw.githubusercontent.com/pihome-shc/PiHomeHVAC/master/st_inc/db_config.ini');
-$pieces =  explode(' ', $file2[count($file2) - 3]);
+$pieces =  explode(' ', $file2[count($file2) - 4]);
 $code_v_github = array_pop($pieces);
-$pieces =  explode(' ', $file2[count($file2) - 2]);
+$pieces =  explode(' ', $file2[count($file2) - 3]);
 $code_b_github = array_pop($pieces);
-$pieces =  explode(' ', $file2[count($file2) - 1]);
+$pieces =  explode(' ', $file2[count($file2) - 2]);
 $db_v_github = array_pop($pieces);
+$pieces =  explode(' ', $file2[count($file2) - 1]);
+$db_b_github = array_pop($pieces);
 
 echo '  <table class="table table-bordered">
     <tr>
@@ -2321,6 +2325,11 @@ echo '  <table class="table table-bordered">
         <td style="font-weight:bold">'.$lang['maxair_update_db_v'].'</td>
         <td style="text-align:center; vertical-align:middle;">'.$db_v_installed.'</td>
         <td style="text-align:center; vertical-align:middle;">'.$db_v_github.'</td>
+    </tr>
+    <tr>
+        <td style="font-weight:bold">'.$lang['maxair_update_db_b'].'</td>
+        <td style="text-align:center; vertical-align:middle;">'.$db_b_installed.'</td>
+        <td style="text-align:center; vertical-align:middle;">'.$db_b_github.'</td>
     </tr>';
 
 echo '</table></div>
