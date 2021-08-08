@@ -908,3 +908,11 @@ function check_updates() {
         request('db.php', 'GET', quest, function(){ window.location="home.php"; });
     //window.location="settings.php?status=reboot";
 }
+
+//start database update
+function database_update() {
+        var quest = "?w=database_update" + "&o=0" + "&frost_temp=0" + "&wid=0";
+        request('db.php', 'GET', quest, function(){ window.location="home.php"; });
+    //window.location="settings.php?status=reboot";
+}
+
