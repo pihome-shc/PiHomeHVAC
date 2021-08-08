@@ -679,7 +679,7 @@ function service_status($service_name) {
 
 // scan directory and return array of files and folder names sorted by creation datetime descending
 function scan_dir($dir) {
-        $ignored = array('.', '..', 'updates.txt');
+        $ignored = array('.', '..', 'updates.txt', 'example.sql');
 
         $files = array();
         foreach (scandir($dir) as $file) {
