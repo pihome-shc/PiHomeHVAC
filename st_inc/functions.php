@@ -677,14 +677,19 @@ function service_status($service_name) {
 	return $stat;
 }
 
-function scan_dir($path){
-    $ite=new RecursiveDirectoryIterator($path);
+// scan directory and return array of files and folder names sorted by creation datetime descending
+function scan_dir($dir) {
+        $ignored = array('.', '..', 'updates.txt');
 
-    $nbfiles=0;
-    foreach (new RecursiveIteratorIterator($ite) as $filename=>$cur) {
-        $nbfiles++;
-    }
+        $files = array();
+        foreach (scandir($dir) as $file) {
+                if (in_array($file, $ignored)) continue;
+                $files[$file] = filemtime($dir . '/' . $file);
+        }
 
-    return $nbfiles - 2;
+        krsort($files);
+        $files = array_keys($files);
+
+        return ($files) ? $files : false;
 }
 ?>
