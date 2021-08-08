@@ -349,6 +349,7 @@ $lang['maxair_update_github'] = "GitHub";
 $lang['maxair_update_code_v'] = "Code Version";
 $lang['maxair_update_code_b'] = "Code Build";
 $lang['maxair_update_db_v'] = "DataBase Version";
+$lang['maxair_update_db_b'] = "DataBase Build";
 $lang['update_code'] = "Update Code";
 $lang['update_check'] = "Check for Updates";
 $lang['confirm_update'] = "Confirm Update Code";
