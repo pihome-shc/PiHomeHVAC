@@ -102,7 +102,7 @@ if ($db_selected) {
 
 	// Check for updates
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Starting Check for Updates.  \n";
-	$update_dir = __DIR__.'/database_updates';
+	$update_dir = __DIR__.'/MySQL_Database/database_updates';
 	$ffs = scan_dir($update_dir);
         if ($ffs) {
 		$zipfname = '';
@@ -123,7 +123,7 @@ if ($db_selected) {
 					        $command.= " > " . $dumpfname;
 					        system($command);
 					        // compress sql file and unlink (delete) sql file after creating zip file.
-					        $zipfname = "database_backups/".$dbname . "_mysql_" . date("Y-m-d_H-i-s").".zip";
+					        $zipfname = "MySQL_Database/database_backups/".$dbname . "_mysql_" . date("Y-m-d_H-i-s").".zip";
 				        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Compressing Database Dump File \033[41m".$dumpfname."\033[0m \n";
 					        $zip = new ZipArchive();
 					        if($zip->open($zipfname,ZIPARCHIVE::CREATE)){
@@ -144,7 +144,7 @@ if ($db_selected) {
         			// Apply the Update file
         			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Importing Update SQL to Database.  \n";
         			// Name of the file
-        			$updatefilename = __DIR__.'/database_updates/'.$ff;
+        			$updatefilename = __DIR__.'/MySQL_Database/database_updates/'.$ff;
 			        // Temporary variable, used to store current query
 			        $updatetempline = '';
 			        // Read in entire file
