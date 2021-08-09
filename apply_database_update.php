@@ -123,7 +123,7 @@ if ($db_selected) {
 					        $command.= " > " . $dumpfname;
 					        system($command);
 					        // compress sql file and unlink (delete) sql file after creating zip file.
-					        $zipfname = "MySQL_Database/database_backups/".$dbname . "_mysql_" . date("Y-m-d_H-i-s").".zip";
+					        $zipfname = $dbname . "_mysql_" . date("Y-m-d_H-i-s").".zip";
 				        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Compressing Database Dump File \033[41m".$dumpfname."\033[0m \n";
 					        $zip = new ZipArchive();
 					        if($zip->open($zipfname,ZIPARCHIVE::CREATE)){
@@ -135,7 +135,7 @@ if ($db_selected) {
 					}
 				}
 				// save the update info to the database_updates table
-        	                $query = "INSERT INTO `database_backup`(`sync`, `purge`, `status`, `backup_name`, `name`) VALUES ('0','0','0','".substr($zipfname, strpos($zipfname, "/") + 1)."','".$ff."');";
+        	                $query = "INSERT INTO `database_backup`(`sync`, `purge`, `status`, `backup_name`, `name`) VALUES ('0','0','0','".$zipfname."','".$ff."');";
  	                        if ($conn->query($query)) {
                 	        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Un-applied Update Information Added to Table. \n";
                         	} else {
