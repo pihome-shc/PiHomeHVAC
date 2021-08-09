@@ -64,12 +64,12 @@ if ($db_selected) {
         mysqli_select_db($conn, $dbname) or die('Error Selecting MySQL Database: ' . mysqli_error($conn));
 
 	//check if database_updates table already exist
-	$query = "SELECT * FROM information_schema.tables WHERE table_schema = 'maxair' AND table_name = 'database_updates' LIMIT 1;";
+	$query = "SELECT * FROM information_schema.tables WHERE table_schema = 'maxair' AND table_name = 'database_backup' LIMIT 1;";
 	$result = $conn->query($query);
 	$rowcount=mysqli_num_rows($result);
 	if ($rowcount == 0) {
-        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - database_updates Table Does Not Exist, Creating it.\n";
-		$query = "CREATE TABLE IF NOT EXISTS `database_updates` (
+        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - database_backup Table Does Not Exist, Creating it.\n";
+		$query = "CREATE TABLE IF NOT EXISTS `database_backup` (
 		  `id` int(11) NOT NULL AUTO_INCREMENT,
 		  `sync` tinyint(4) NOT NULL,
 		  `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
@@ -79,9 +79,9 @@ if ($db_selected) {
 		  PRIMARY KEY (`id`)
 		) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;";
 		if ($conn->query($query)) {
-			        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Update Table Created.  \n";
+			        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Backup Table Created.  \n";
 		} else {
-                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Failed to Create Update Table.  \n";
+                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Failed to Create Backup Table.  \n";
 		}
 	}
 
@@ -107,7 +107,7 @@ if ($db_selected) {
         if ($ffs) {
 		$zipfname = '';
                 foreach($ffs as $ff){
-                	$query = "SELECT * FROM `database_updates` WHERE name = '".$ff."';";
+                	$query = "SELECT * FROM `database_backup` WHERE name = '".$ff."';";
                        	$result = $conn->query($query);
                        	$rowcount=mysqli_num_rows($result);
                        	if ($rowcount == 0) {
@@ -135,7 +135,7 @@ if ($db_selected) {
 					}
 				}
 				// save the update info to the database_updates table
-        	                $query = "INSERT INTO `database_updates`(`sync`, `purge`, `status`, `backup_name`, `name`) VALUES ('0','0','0','".substr($zipfname, strpos($zipfname, "/") + 1)."','".$ff."');";
+        	                $query = "INSERT INTO `database_backup`(`sync`, `purge`, `status`, `backup_name`, `name`) VALUES ('0','0','0','".substr($zipfname, strpos($zipfname, "/") + 1)."','".$ff."');";
  	                        if ($conn->query($query)) {
                 	        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Un-applied Update Information Added to Table. \n";
                         	} else {
@@ -173,39 +173,6 @@ if ($db_selected) {
         } else {
 		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - database_updates directory is empty.\n";
 	}
-
- 	/* Apply the Migration Views file
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Importing Migration SQL View File to Database, This could take few minuts.  \n";
-	// Name of the file
-	$migratefilename = __DIR__.'/migrate_views.sql';
-	// Select database
-	mysqli_select_db($conn, $dbname) or die('Error Selecting MySQL Database: ' . mysqli_error($conn));
-	// Temporary variable, used to store current query
-	$migratetempline = '';
-	// Read in entire file
-	$migratelines = file($migratefilename);
-	// Loop through each line
-	foreach ($migratelines as $migrateline){
-	// Skip it if it's a comment
-		if (substr($migrateline, 0, 2) == '--' || $migrateline == '')
-			continue;
-			// Add this line to the current segment
-			$migratetempline .= $migrateline;
-			// If it has a semicolon at the end, it's the end of the query
-			if (substr(trim($migrateline), -1, 1) == ';'){
-				// Perform the query
-				$conn->query($migratetempline) or print("MySQL Database Error with Query ".$migratetempline.":". mysqli_error($conn)."\n");
-				//mysqli_query($migratetempline) or print("MySQL Database Error with Query ".$migratetempline.":". mysqli_error($conn)."\n");
-				// Reset temp variable to empty
-				$migratetempline = '';
-			}
-		}
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Views File \033[41m".$migratefilename."\033[0m Imported Successfully \n";
-
-	//Update Version and build number 
-	$query = "UPDATE system SET version = '{$version}', build = '{$build}' LIMIT 1;";
-	$conn->query($query); */
-
 }
 if(isset($conn)) { $conn->close(); }
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Updated Script Completed \n";
