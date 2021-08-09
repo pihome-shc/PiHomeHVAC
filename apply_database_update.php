@@ -123,7 +123,7 @@ if ($db_selected) {
 					        $command.= " > " . $dumpfname;
 					        system($command);
 					        // compress sql file and unlink (delete) sql file after creating zip file.
-					        $zipfname = "database_backups/".$dbname . "_" . date("Y-m-d_H-i-s").".zip";
+					        $zipfname = "database_backups/".$dbname . "_mysql_" . date("Y-m-d_H-i-s").".zip";
 				        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Compressing Database Dump File \033[41m".$dumpfname."\033[0m \n";
 					        $zip = new ZipArchive();
 					        if($zip->open($zipfname,ZIPARCHIVE::CREATE)){
