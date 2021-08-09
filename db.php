@@ -988,6 +988,12 @@ if($what=="check_updates"){
         exec("python3 /var/www/cron/update_code.py > /dev/null 2>&1 &");
 }
 
+//Database Update
+if($what=="database_update"){
+        shell_exec("nohup php apply_database_update.php >/dev/null 2>&1");
+        $info_message = "Database Update Request Started, This process may take some time complete..." ;
+}
+
 //Setup Backup e-mail
 if($what=="backup_email_update"){
 	$backup_email = $_GET['backup_email'];

@@ -1,17 +1,17 @@
 <?php
 /*
-   _____    _   _    _
-  |  __ \  (_) | |  | |
-  | |__) |  _  | |__| |   ___    _ __ ___     ___
-  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \
-  | |      | | | |  | | | (_) | | | | | | | |  __/
-  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|
+             __  __                             _
+            |  \/  |                    /\     (_)
+            | \  / |   __ _  __  __    /  \     _   _ __
+            | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+            | |  | | | (_| |  >  <   / ____ \  | | | |
+            |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 
-     S M A R T   H E A T I N G   C O N T R O L
+                   S M A R T   T H E R M O S T A T
 
 *************************************************************************"
-* PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
-* from web interface and it comes with ABSOLUTELY NO WARRANTY, to the   *"
+* MaxAir is a Linux based Central Heating Control systems. It runs from *"
+* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *"
 * extent permitted by applicable law. I take no responsibility for any  *"
 * loss or damage to you or your property.                               *"
 * DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTILL UNLESS YOU KNOW *"
@@ -677,14 +677,19 @@ function service_status($service_name) {
 	return $stat;
 }
 
-function scan_dir($path){
-    $ite=new RecursiveDirectoryIterator($path);
+// scan directory and return array of files and folder names sorted by creation datetime descending
+function scan_dir($dir) {
+        $ignored = array('.', '..', 'updates.txt', 'example.sql');
 
-    $nbfiles=0;
-    foreach (new RecursiveIteratorIterator($ite) as $filename=>$cur) {
-        $nbfiles++;
-    }
+        $files = array();
+        foreach (scandir($dir) as $file) {
+                if (in_array($file, $ignored)) continue;
+                $files[$file] = filemtime($dir . '/' . $file);
+        }
 
-    return $nbfiles - 2;
+        krsort($files);
+        $files = array_keys($files);
+
+        return ($files) ? $files : false;
 }
 ?>

@@ -21,10 +21,10 @@ print("        " +bc.SUB + "S M A R T   T H E R M O S T A T " + bc.ENDC)
 print(bc.WARN +" ")
 print("********************************************************")
 print("* Compare installed code against GITHUB repository and *")
-print("* download any changed files, for later update.        *")
+print("* download any new or changed files, for later update. *")
 print("*                                                      *")
 print("*      Build Date: 02/08/2021                          *")
-print("*      Version 0.01 - Last Modified 02/08/2021         *")
+print("*      Version 0.02 - Last Modified 09/08/2021         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -34,25 +34,30 @@ import os, time, shutil, fnmatch, filecmp
 def report_recursive(dcmp):
     global target_dir
     global source_dir
-    global update_dir
+    global code_update_dir
+    global database_update_dir
 
     # update existing code modules
     for name in dcmp.diff_files:
         if name.endswith('.json') or name.endswith('.log'):
             continue
         if len(dcmp.left[18:]) > 0:
-            sub_dirs = dcmp.left[18:].split("/")
-            i = 0
-            update_path = update_dir
-            for x in sub_dirs:
-                update_path = update_path + '/' + sub_dirs[i]
-                if not os.path.exists(update_path):
-                    cmd = 'mkdir ' + update_path
-                    os.system(cmd)
-                i=i+1
-            path = target_dir + '/' + dcmp.left[18:] + '/' + name
+            if dcmp.left[18:].endswith('database_updates'):
+                 update_path = db_update_dir
+                 path = target_dir + '/' + dcmp.left[18:] + '/' + name
+            else:
+                sub_dirs = dcmp.left[18:].split("/")
+                i = 0
+                update_path = code_update_dir
+                for x in sub_dirs:
+                    update_path = update_path + '/' + sub_dirs[i]
+                    if not os.path.exists(update_path):
+                        cmd = 'mkdir ' + update_path
+                        os.system(cmd)
+                    i=i+1
+                path = target_dir + '/' + dcmp.left[18:] + '/' + name
         else:
-            update_path = update_dir
+            update_path = code_update_dir
             path = target_dir + '/' + name
         cmd = 'cp ' + dcmp.left + '/' + name + ' ' + update_path
         os.system(cmd)
@@ -63,18 +68,22 @@ def report_recursive(dcmp):
         if name.endswith('.json') or name.endswith('.log'):
             continue
         if len(dcmp.left[18:]) > 0:
-            sub_dirs = dcmp.left[18:].split("/")
-            i = 0
-            update_path = update_dir
-            for x in sub_dirs:
-                update_path = update_path + '/' + sub_dirs[i]
-                if not os.path.exists(update_path):
-                    cmd = 'mkdir ' + update_path
-                    os.system(cmd)
-                i=i+1
-            path = target_dir + '/' + dcmp.left[18:] + '/' + name
+            if dcmp.left[18:].endswith('database_updates'):
+                 update_path = db_update_dir
+                 path = target_dir + '/' + dcmp.left[18:] + '/' + name
+            else:
+                sub_dirs = dcmp.left[18:].split("/")
+                i = 0
+                update_path = code_update_dir
+                for x in sub_dirs:
+                    update_path = update_path + '/' + sub_dirs[i]
+                    if not os.path.exists(update_path):
+                        cmd = 'mkdir ' + update_path
+                        os.system(cmd)
+                    i=i+1
+                path = target_dir + '/' + dcmp.left[18:] + '/' + name
         else:
-            update_path = update_dir
+            update_path = code_update_dir
             path = target_dir + '/' + name
         cmd = 'cp ' + dcmp.left + '/' + name + ' ' + update_path
         os.system(cmd)
@@ -89,21 +98,30 @@ print( "-" * 56)
 
 source_dir = '/var/www/temp_dir'
 target_dir = '/var/www'
-update_dir = '/var/www/code_updates'
+code_update_dir = '/var/www/code_updates'
+db_update_dir = '/var/www/database_updates'
 repository = 'https://github.com/pihome-shc/PiHomeHVAC.git'
 
 # remove any sub-directories and content from upgrade dir
-for it in os.scandir(update_dir):
+for it in os.scandir(code_update_dir):
     if it.is_dir():
         shutil.rmtree(it.path)
 
-# remove all files except place holder file from upgrade dir
+# remove all files except place holder file from code upgrade dir
 pattern = '*.*'
-listOfFiles = os.listdir('/var/www/code_updates')
+listOfFiles = os.listdir(code_update_dir)
 for entry in listOfFiles:
     if fnmatch.fnmatch(entry, pattern):
         if not entry.startswith('updates.txt'):
-            cmd = 'rm ' + update_dir + '/' + entry
+            cmd = 'rm ' + code_update_dir + '/' + entry
+            os.system(cmd)
+
+# remove all files except place holder file from database upgrade dir
+listOfFiles = os.listdir(db_update_dir)
+for entry in listOfFiles:
+    if fnmatch.fnmatch(entry, pattern):
+        if not entry.startswith('updates.txt'):
+            cmd = 'rm ' + db_update_dir + '/' + entry
             os.system(cmd)
 
 # download current repository to a tempory directory ready for compare

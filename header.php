@@ -154,11 +154,19 @@ require_once(__DIR__.'/st_inc/functions.php');
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>
-		    
-                <?php if (scan_dir('/var/www/code_updates')> 1) { ?>
+ 
+                <?php if (scan_dir('/var/www/code_updates')) { ?>
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="modal" href="#code_update_Modal" data-backdrop="static" data-keyboard="false">
                                 <i class="fa fa-download fa-lg"></i>
+                            </a>
+                        </li>
+                <?php } ?>
+
+                <?php if (scan_dir('/var/www/database_updates')) { ?>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="modal" href="#database_update_Modal" data-backdrop="static" data-keyboard="false">
+                                <i class="fa fa-database fa-lg"></i>
                             </a>
                         </li>
                 <?php } ?>
@@ -210,7 +218,7 @@ function searchDir($path,&$data){
                 $dp->close();
         }
         if(is_file($path)){
-                if (strcmp($path, '/var/www/code_updates/updates.txt') !== 0) {
+                if (strcmp($path, '/var/www/code_updates/updates.txt') !== 0 || strcmp($path, '/var/www/database_updates/updates.txt') !== 0) {
                         $data[]=str_replace('/code_updates', '', $path);
                 }
         }
@@ -269,6 +277,58 @@ $rval = getDir('/var/www/code_updates');
                         <div class="modal-footer">
                                 <input type="button" name="submit" value="<?php echo $lang['yes'] ?>" class="btn btn-danger btn-sm" onclick="code_update()">
                                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal"><?php echo $lang['no']; ?></button>
+                        </div>
+                        <!-- /.modal-footer -->
+                </div>
+                <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+</div>
+
+<div id="database_update_Modal" class="modal fade">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                <h4 class="modal-title"><?php echo $lang['github_db_update']; ?></h4>
+                        </div>
+                        <div class="modal-body">
+                                <p><?php echo $lang['github_db_update_info']; ?></p>
+                                <ul class="list-group">
+                                <?php
+                                $rval = scan_dir('/var/www/database_updates');
+                                foreach($rval as $key => $value) {
+                                        echo '<li class="list-group-item" style="height: 25px; border: none">/var/www/MySQL_Database/database_updates/'.$value.'</li>';
+                                }
+                                ?>
+                                </ul>
+                        </div>
+                        <!-- /.modal-body -->
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#confirm_db_update_Modal"><?php echo $lang['db_update_install']; ?></button>
+                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal"><?php echo $lang['close']; ?></button>
+                        </div>
+                        <!-- /.modal-footer -->
+                </div>
+                <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+</div>
+
+<div id="confirm_db_update_Modal" class="modal fade">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                <h4 class="modal-title"><?php echo $lang['confirm_db_update']; ?></h4>
+                        </div>
+                        <div class="modal-body">
+                                <p><?php echo $lang['confirm_db_update_info']; ?></p>
+                        </div>
+                        <!-- /.modal-body -->
+                        <div class="modal-footer">
+                                <input type="button" name="submit" value="<?php echo $lang['yes'] ?>" class="btn btn-danger btn-sm" onclick="database_update()">
+                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal"><?php echo $lang['no']; ?></button></span></p>
                         </div>
                         <!-- /.modal-footer -->
                 </div>
