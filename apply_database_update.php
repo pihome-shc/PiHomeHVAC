@@ -86,12 +86,12 @@ if ($db_selected) {
 	}
 
 	// Move any .sql files to their correct location
-	$update_dir = '/var/www/database_updates';
+	$update_dir = __DIR__.'/database_updates';
 	if (is_dir($update_dir)) {
 	        $ffs = scan_dir($update_dir);
         	if ($ffs) {
 			foreach($ffs as $ff){
-                		$cmd = 'cp -r '.$update_dir.'/'.$ff.' /var/www/MySQL_Database/database_updates';
+                		$cmd = 'cp -r '.$update_dir.'/'.$ff.' '__DIR__.'/MySQL_Database/database_updates';
 	                	exec($cmd);
 				// Remove the database update file from the code_updates directory
                                 $cmd = 'rm '.$update_dir.'/'.$ff;
