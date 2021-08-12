@@ -2332,8 +2332,16 @@ echo '
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title">'.$lang['maxair_update'].'</h5>
+                <div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=software_update_technical.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['maxair_update_process'].'</a></li>
+                        </ul>
+                </div>
             </div>
             <div class="modal-body">
                         <p class="text-muted"> '.$lang['maxair_update_text'].' </p>';
