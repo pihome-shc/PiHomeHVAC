@@ -65,8 +65,16 @@ echo '<div class="modal fade" id="show_frost" tabindex="-1" role="dialog" aria-l
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title">'.$lang['frost_protection'].'</h5>
+                <div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=frost_protection.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_frost_protection'].'</a></li>
+                         </ul>
+                </div>
             </div>
             <div class="modal-body">
                 <p class="text-muted">'.$lang['frost_ptotection_info'].'</p>';
@@ -202,8 +210,16 @@ echo '
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title">'.$lang['graph_settings'].'</h5>
+                <div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=displaying_temperature_sensors_graphs.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_graphs'].'</a></li>
+                        </ul>
+                </div>
             </div>
             <div class="modal-body">
 <p class="text-muted">'.$lang['graph_settings_text'].'</p>';
@@ -857,8 +873,16 @@ echo '
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title">'.$lang['zone_type'].'</h5>
+                <div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=zone_types.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_zone_type'].'</a></li>
+                         </ul>
+                </div>
             </div>
             <div class="modal-body">
 <p class="text-muted"> '.$lang['zone_type_text'].' </p>';
@@ -940,8 +964,18 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title">'.$lang['relay_settings'].'</h5>
+                <div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=configure_relay_devices.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_relays'].'</a></li>
+                                <li class="divider"></li>
+                                <li><a href="pdf_download.php?file=delete_zones_relays_sensors_nodes.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['delete_nodes_sensors_relays_zones'].'</a></li>
+                        </ul>
+                </div>
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['relay_settings_text'].'</p>';
@@ -1013,8 +1047,22 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title">'.$lang['sensor_settings'].'</h5>
+                <div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=humidity_sensors.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_humidity_sensors'].'</a></li>
+				<li class="divider"></li>
+                                <li><a href="pdf_download.php?file=ds18b20_temperature_sensor.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_ds18b20_sensors'].'</a></li>
+                                <li class="divider"></li>
+                                <li><a href="pdf_download.php?file=import_sensor_readings.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['import_sensors_readings'].'</a></li>
+                                <li class="divider"></li>
+                                <li><a href="pdf_download.php?file=delete_zones_relays_sensors_nodes.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['delete_nodes_sensors_relays_zones'].'</a></li>
+                    	</ul>
+                </div>
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['sensor_settings_text'].'</p>';
@@ -1414,7 +1462,15 @@ echo '
                 } else {
                         echo '<h5 class="modal-title">'.$lang['add_on_settings'].'</h5>';
                 }
-            echo '</div>
+                echo '<div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=setup_guide_tasmota_lamp_zone.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_add_on_device'].'</a></li>
+                        </ul>
+                </div>
+            </div>
             <div class="modal-body">';
 
 if ($zcount + $ncount > 0) {
@@ -1942,8 +1998,16 @@ echo '
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title">'.$lang['schedule_jobs'].'</h5>
+                <div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=task_scheduling.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_job_scheduling'].'</a></li>
+                         </ul>
+                </div>
             </div>
             <div class="modal-body">
 <p class="text-muted"> '.$lang['schedule_jobs_info'].' </p>';
@@ -2089,6 +2153,16 @@ echo '
                         <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                                 <h5 class="modal-title">'.$lang['install_software'].'</h5>
+		                <div class="dropdown pull-right">
+                		        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                		<i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+		                        </a>
+                		        <ul class="dropdown-menu">
+                                		<li><a href="pdf_download.php?file=software_install.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['install_software'].'</a></li>
+						<li class="divider"></li>
+						<li><a href="pdf_download.php?file=software_install_technical.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['install_software_technical'].'</a></li>
+                         		</ul>
+                		</div>
                         </div>
                         <div class="modal-body">
                                 <p class="text-muted">'.$lang['install_software_text'].'</p>
