@@ -633,4 +633,16 @@ $lang['confirm_del_controller_2'] = "You are about to DELETE ACTIVE Relay - ";
 $lang['confirm_del_controller_3'] = "Cannot DELETE Node, Relay attached to - ";
 $lang['confirm_del_relay_1'] = "DELETE Relay";
 $lang['confirm_del_relay_2'] = "Cannot DELETE Relay, attaced to - ";
+$lang['setup_frost_protection'] = "Setup Frost Protection";
+$lang['install_software_technical'] = "Install Software Technical";
+$lang['setup_zone_type'] = "Setup Zone Type";
+$lang['setup_relays'] = "Setup Relay Devices";
+$lang['setup_humidity_sensors'] = "Setup Humidity Sensors";
+$lang['setup_ds18b20_sensors'] = "Setup 1-Wire Sensors";
+$lang['import_sensors_readings'] = "Import Sensors Readings";
+$lang['delete_nodes_sensors_relays_zones'] = "Delete Nodes, Sensors, Relays and Zones";
+$lang['setup_job_scheduling'] = "Setup Job Scheduling";
+$lang['setup_add_on_device'] = "Setup Tasmota Add-On Device";
+$lang['setup_graphs'] = "Setup Sensor Graphs";
+$lang['maxair_update_process'] = "MaxAir Update Process";
 ?>
