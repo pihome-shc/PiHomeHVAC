@@ -644,4 +644,5 @@ $lang['delete_nodes_sensors_relays_zones'] = "Delete Nodes, Sensors, Relays and 
 $lang['setup_job_scheduling'] = "Setup Job Scheduling";
 $lang['setup_add_on_device'] = "Setup Tasmota Add-On Device";
 $lang['setup_graphs'] = "Setup Sensor Graphs";
+$lang['maxair_update_process'] = "MaxAir Update Process";
 ?>
