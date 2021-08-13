@@ -86,12 +86,13 @@ def insertDB(IDs, temperature):
                     bc.ENDC,
                 )
                 cur.execute(
-                    "INSERT INTO nodes(`sync`, `purge`, `type`, `node_id`, `max_child_id`, `name`, `last_seen`, `notice_interval`, `min_value`, `status`, `ms_version`, `sketch_version`, `repeater`) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                    "INSERT INTO nodes(`sync`, `purge`, `type`, `node_id`, `max_child_id`, `sub_type`, `name`, `last_seen`, `notice_interval`, `min_value`, `status`, `ms_version`, `sketch_version`, `repeater`) VALUES( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                     (
                         0,
                         0,
                         "GPIOSensor",
                         IDs[i],
+                        "0",
                         "0",
                         "Temperature Sensor",
                         time.strftime("%Y-%m-%d %H:%M:%S"),
@@ -104,6 +105,19 @@ def insertDB(IDs, temperature):
                     ),
                 )
                 con.commit()
+            # Check if this sensor has a correction factor
+            cur.execute(
+                "SELECT sensors.correction_factor FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) LIMIT 1;",
+                [IDs[i]],
+            )
+            results = cur.fetchone()
+            if cur.rowcount > 0:
+                sensor_to_index = dict(
+                    (d[0], i) for i, d in enumerate(cur.description)
+                )
+                correction_factor = float(results[sensor_to_index["correction_factor"]])
+            else :
+                correction_factor = 0
             # If DS18B20 Sensor record exist: Update Nodes Table with Last seen status.
             if row == 1:
                 cur.execute(
@@ -114,9 +128,21 @@ def insertDB(IDs, temperature):
                 bc.dtm + time.ctime() + bc.ENDC + " - Sensors ID" + bc.grn,
                 IDs[i],
                 bc.ENDC + "Temperature" + bc.grn,
-                temperature[i],
+                temperature[i] + correction_factor,
                 bc.ENDC,
             )
+            # Check if this sensor has a correction factor
+            cur.execute(
+                "SELECT sensors.correction_factor FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) LIMIT 1;",
+                [IDs[i]],
+            )
+            results = cur.fetchone()
+            if cur.rowcount > 0:
+                sensor_to_index = dict(
+                    (d[0], i) for i, d in enumerate(cur.description)
+                )
+                correction_factor = float(results[sensor_to_index["correction_factor"]])
+
             cur.execute(
                 "INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s)",
                 (
@@ -125,7 +151,7 @@ def insertDB(IDs, temperature):
                     IDs[i],
                     0,
                     0,
-                    round(temperature[i], 2),
+                    round(temperature[i] + correction_factor, 2),
                     time.strftime("%Y-%m-%d %H:%M:%S"),
                 ),
             )
@@ -153,7 +179,7 @@ def insertDB(IDs, temperature):
                         + " - Adding Temperature Reading to Graph Table From Node ID:",
                         IDs[i],
                         " PayLoad:",
-                        temperature[i],
+                        round(temperature[i] + correction_factor, 2),
                     )
                     if zone_id == 0:
                         category = 0
@@ -170,7 +196,7 @@ def insertDB(IDs, temperature):
                                 IDs[i],
                                 0,
                                 0,
-                                round(temperature[i], 2),
+                                round(temperature[i] + correction_factor, 2),
                                 time.strftime("%Y-%m-%d %H:%M:%S"),
                             ),
                         )
@@ -201,7 +227,7 @@ def insertDB(IDs, temperature):
                                         IDs[i],
                                         0,
                                         0,
-                                        round(temperature[i], 2),
+                                        round(temperature[i] + correction_factor, 2),
                                         time.strftime("%Y-%m-%d %H:%M:%S"),
                                     ),
                                 )

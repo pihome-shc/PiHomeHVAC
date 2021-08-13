@@ -1066,16 +1066,17 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['sensor_settings_text'].'</p>';
-		$query = "select sensors.id, sensors.name, sensors.sensor_child_id, sensors.zone_id, sensors.show_it, nodes.node_id, nodes.last_seen from sensors, nodes WHERE sensors.sensor_id = nodes.id order by name asc";
+		$query = "select sensors.id, sensors.name, sensors.sensor_child_id, sensors.correction_factor, sensors.zone_id, sensors.show_it, nodes.node_id, nodes.last_seen from sensors, nodes WHERE sensors.sensor_id = nodes.id order by name asc";
 		$results = $conn->query($query);
 		echo '<table class="table table-bordered">
     			<tr>
-        			<th class="col-xs-3"><small>'.$lang['sensor_name'].'</small></th>
-        			<th class="col-xs-1"><small>'.$lang['node_id'].'</small></th>
-        			<th class="col-xs-1"><small>'.$lang['sensor_child_id'].'</small></th>
-        			<th class="col-xs-2"><small>'.$lang['zone_name'].'</small></th>
-        			<th class="col-xs-1"><small>Show</small></th>
-        			<th class="col-xs-2"></th>
+                                <th class="col-md-2"><small>'.$lang['sensor_name'].'</small></th>
+                                <th class="col-md-2"><small>'.$lang['node_id'].'</small></th>
+                                <th class="col-md-1"><small>'.$lang['sensor_child_id'].'</small></th>
+                                <th class="col-md-2"><small>'.$lang['correction_factor'].'</small></th>
+                                <th class="col-md-2"><small>'.$lang['zone_name'].'</small></th>
+                                <th class="col-md-1"><small>'.$lang['show'].'</small></th>
+                                <th class="col-md-2"></th>
     			</tr>';
 			while ($row = mysqli_fetch_assoc($results)) {
     				if (!empty($row['zone_id'])) {
@@ -1092,10 +1093,12 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
 					$zone_name = "Not Allocated";
     				}
     				$check = ($row['show_it'] == 1) ? 'checked' : '';
-    				echo '<tr>
-            				<td>'.$row["name"].'<br> <small>('.$row["last_seen"].')</small></td>
-            				<td>'.$row["node_id"].'</td>
-            				<td>'.$row["sensor_child_id"].'</td>
+                                $cf = ($row['correction_factor'] == 0) ? '0' : $row['correction_factor'];
+                                echo '<tr>
+                                        <td>'.$row["name"].'<br> <small>('.$row["last_seen"].')</small></td>
+                                        <td>'.$row["node_id"].'</td>
+                                        <td>'.$row["sensor_child_id"].'</td>
+                                        <td>'.$cf.'</td>
             				<td>'.$zone_name.'</td>';
             				if (empty($row['zone_id'])) { 
 						echo '<td style="text-align:center; vertical-align:middle;">
