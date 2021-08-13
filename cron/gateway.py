@@ -563,6 +563,17 @@ try:
                     and message_type == 1
                     and sub_type == 0
                 ):
+                    # Check if this sensor has a correction factor
+                    cur.execute(
+                        "SELECT sensors.correction_factor FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) AND sensors.sensor_child_id = (%s) LIMIT 1;",
+                        (node_id, child_sensor_id),
+                    )
+                    results = cur.fetchone()
+                    if cur.rowcount > 0:
+                        sensor_to_index = dict(
+                            (d[0], i) for i, d in enumerate(cur.description)
+                        )
+                        payload = round(float(payload) + float(results[sensor_to_index["correction_factor"]]), 2)
                     if dbgLevel >= 2 and dbgMsgIn == 1:
                         print(
                             "5: Adding Temperature Reading From Node ID:",
