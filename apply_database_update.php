@@ -91,7 +91,7 @@ if ($db_selected) {
 	        $ffs = scan_dir($update_dir);
         	if ($ffs) {
 			foreach($ffs as $ff){
-                		$cmd = 'cp -r '.$update_dir.'/'.$ff.' '__DIR__.'/MySQL_Database/database_updates';
+                		$cmd = 'cp -r '.$update_dir.'/'.$ff.' '.__DIR__.'/MySQL_Database/database_updates';
 	                	exec($cmd);
 				// Remove the database update file from the code_updates directory
                                 $cmd = 'rm '.$update_dir.'/'.$ff;
