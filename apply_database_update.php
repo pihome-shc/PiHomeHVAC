@@ -91,7 +91,7 @@ if ($db_selected) {
 	        $ffs = scan_dir($update_dir);
         	if ($ffs) {
 			foreach($ffs as $ff){
-                		$cmd = 'cp -r '.$update_dir.'/'.$ff.' '__DIR__.'/MySQL_Database/database_updates';
+                		$cmd = 'cp -r '.$update_dir.'/'.$ff.' '.__DIR__.'/MySQL_Database/database_updates';
 	                	exec($cmd);
 				// Remove the database update file from the code_updates directory
                                 $cmd = 'rm '.$update_dir.'/'.$ff;
@@ -103,7 +103,7 @@ if ($db_selected) {
 	// Check for updates
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Starting Check for Updates.  \n";
 	$update_dir = __DIR__.'/MySQL_Database/database_updates';
-	$ffs = scan_dir($update_dir);
+	$ffs = scan_db_update_dir($update_dir);
         if ($ffs) {
 		$zipfname = '';
                 foreach($ffs as $ff){

@@ -677,19 +677,34 @@ function service_status($service_name) {
 	return $stat;
 }
 
-// scan directory and return array of files and folder names sorted by creation datetime descending
+// scan directory and return array of files and folder names
 function scan_dir($dir) {
-        $ignored = array('.', '..', 'updates.txt', 'example.sql');
+        $ignored = array('.', '..', 'updates.txt');
 
         $files = array();
         foreach (scandir($dir) as $file) {
                 if (in_array($file, $ignored)) continue;
                 $files[$file] = filemtime($dir . '/' . $file);
         }
-
-        krsort($files);
         $files = array_keys($files);
+        return ($files) ? $files : false;
+}
 
+// scan directory and return array of files sorted by name timestamp
+function scan_db_update_dir($dir) {
+        $ignored = array('.', '..', 'example.sql');
+
+        $files = array();
+        foreach (scandir($dir) as $file) {
+                if (in_array($file, $ignored)) continue;
+                // create a key value based on the first 6 characters of the filename
+                if (ctype_digit(substr($file,0,6))) {
+                        $x = intval(substr($file,0,2)) + (intval(substr($file,2,2)) * 31) + (intval(substr($file,4,2)) * 366);
+                        $files[$x] = $file;
+                }
+        }
+        // sort ascending by key value
+        ksort($files);
         return ($files) ? $files : false;
 }
 ?>
