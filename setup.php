@@ -13,7 +13,7 @@ echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
 echo "\033[31m";
 echo "***************************************************************\n";
 echo "*   MaxAir Datase Script Version 0.01 Build Date 20/12/2020   *\n";
-echo "*   Last Modified on 20/12/2020                               *\n";
+echo "*   Last Modified on 14/08/2021                               *\n";
 echo "*                                      Have Fun - PiHome.eu   *\n";
 echo "***************************************************************\n";
 echo "\033[0m";
@@ -499,6 +499,72 @@ if ($tzname == 1) {
 		}
 	}
 
+        //check if database_updates table already exist
+        $query = "SELECT * FROM information_schema.tables WHERE table_schema = 'maxair' AND table_name = 'database_backup' LIMIT 1;";
+        $result = $conn->query($query);
+        $rowcount=mysqli_num_rows($result);
+        if ($rowcount == 0) {
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - database_backup Table Does Not Exist, Creating it.\n";
+                $query = "CREATE TABLE IF NOT EXISTS `database_backup` (
+                  `id` int(11) NOT NULL AUTO_INCREMENT,
+                  `sync` tinyint(4) NOT NULL,
+                  `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
+                  `status` tinyint(4),
+                  `backup_name` char(50) COLLATE utf8_bin DEFAULT NULL,
+                  `name` char(50) COLLATE utf8_bin DEFAULT NULL,
+                  PRIMARY KEY (`id`)
+                ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;";
+                if ($conn->query($query)) {
+                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Backup Table Created.  \n";
+                } else {
+                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Failed to Create Backup Table.  \n";
+                }
+        }
+ 
+       // Check for database updates
+        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Starting Check for Database Updates.  \n";
+        $update_dir = __DIR__.'/MySQL_Database/database_updates';
+        $ffs = scan_db_update_dir($update_dir);
+        if ($ffs) {
+		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Database Updates Found. \n";
+                foreach($ffs as $ff){
+                	// save the update info to the database_updates table
+                        $query = "INSERT INTO `database_backup`(`sync`, `purge`, `status`, `backup_name`, `name`) VALUES ('0','0','0','".$ff."','".$ff."');";
+                        if ($conn->query($query)) {
+                        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Un-applied Update Information Added to Table. \n";
+                        } else {
+                        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Failed to Add Update to Table. \n";
+                        }
+                        // Apply the Update file
+                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Importing Update SQL to Database.  \n";
+                        // Name of the file
+                        $updatefilename = __DIR__.'/MySQL_Database/database_updates/'.$ff;
+                        // Temporary variable, used to store current query
+                        $updatetempline = '';
+                        // Read in entire file
+                        $updatelines = file($updatefilename);
+                        // Loop through each line
+                        foreach ($updatelines as $updateline){
+                        	// Skip it if it's a comment
+                                if (substr($updateline, 0, 2) == '--' || $updateline == '')
+                                        continue;
+                                // Add this line to the current segment
+                                $updatetempline .= $updateline;
+                                // If it has a semicolon at the end, it's the end of the query
+                                if (substr(trim($updateline), -1, 1) == ';'){
+                                	// Perform the query
+                                        $conn->query($updatetempline) or print("MySQL Database Error with Query ".$updatetempline.":". mysqli_error($conn)."\n");
+                                        //mysqli_query($updatetempline) or print("MySQL Database Error with Query ".$updatetempline.":". mysqli_error($conn)."\n");
+                                        // Reset temp variable to empty
+
+                                        $updatetempline = '';
+                                }
+                        }
+                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Update File \033[41m".$updatefilename."\033[0m Applied. \n";
+         	}
+	} else {
+       		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - There are No Database Updates to Apply.\n";
+        }
 }
 
 echo "---------------------------------------------------------------------------------------- \n";
