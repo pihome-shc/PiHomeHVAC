@@ -103,7 +103,7 @@ if ($db_selected) {
 	// Check for updates
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Starting Check for Updates.  \n";
 	$update_dir = __DIR__.'/MySQL_Database/database_updates';
-	$ffs = scan_dir($update_dir);
+	$ffs = scan_db_update_dir($update_dir);
         if ($ffs) {
 		$zipfname = '';
                 foreach($ffs as $ff){
