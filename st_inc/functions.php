@@ -699,7 +699,7 @@ function scan_db_update_dir($dir) {
                 if (in_array($file, $ignored)) continue;
                 // create a key value based on the first 6 characters of the filename
                 if (ctype_digit(substr($file,0,6))) {
-                        $x = intval(substr($file,0,2)) + (intval(substr($file,2,2)) * 31) + (intval(substr($file,4,2)) * 403);
+                        $x = intval(substr($file,0,2)) + (intval(substr($file,2,2)) * 31) + (intval(substr($file,4,2)) * 366);
                         $files[$x] = $file;
                 }
         }
