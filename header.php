@@ -209,11 +209,11 @@ $fullname = $row['fullname'];
 function searchDir($path,&$data){
         if(is_dir($path)){
                 $dp=dir($path);
+                $ignored = array('.', '..', 'updates.txt');
                 // by http://www.manongjc.com/article/1317.html
                 while($file=$dp->read()){
-                        if($file!='.'&& $file!='..'){
-                                searchDir($path.'/'.$file,$data);
-                        }
+                        if (in_array($file, $ignored)) continue;
+                        searchDir($path.'/'.$file,$data);
                 }
                 $dp->close();
         }
