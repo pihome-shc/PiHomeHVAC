@@ -71,11 +71,9 @@ def insertDB(IDs, temperature):
         con = mdb.connect(dbhost, dbuser, dbpass, dbname)
         cur = con.cursor()
         cur.execute("SELECT c_f FROM system limit 1")
+        # Check working in Centigrade or Fahrenheit
         row = cur.fetchone()
-        if int(row[0]) == 0 :
-            c_f = 0
-        else :
-            c_f = 1
+        c_f = int(row[0])
         for i in range(0, len(temperature)):
             # Check if Sensors Already Exit in Nodes Table, if no then add Sensors into Nodes Table otherwise just update Temperature Readings.
             cur.execute("SELECT COUNT(*) FROM `nodes` where node_id = (%s)", [IDs[i]])
