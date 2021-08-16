@@ -70,6 +70,12 @@ def insertDB(IDs, temperature):
     try:
         con = mdb.connect(dbhost, dbuser, dbpass, dbname)
         cur = con.cursor()
+        cur.execute("SELECT c_f FROM system limit 1")
+        row = cur.fetchone()
+        if int(row[0]) == 0 :
+            c_f = 0
+        else :
+            c_f = 1
         for i in range(0, len(temperature)):
             # Check if Sensors Already Exit in Nodes Table, if no then add Sensors into Nodes Table otherwise just update Temperature Readings.
             cur.execute("SELECT COUNT(*) FROM `nodes` where node_id = (%s)", [IDs[i]])
@@ -118,6 +124,12 @@ def insertDB(IDs, temperature):
                 correction_factor = float(results[sensor_to_index["correction_factor"]])
             else :
                 correction_factor = 0
+
+            if c_f == 0 :
+                temp = temperature[i]
+            else :
+                temp = ((temperature[i]/5)*9)+32
+            temp = temp + correction_factor
             # If DS18B20 Sensor record exist: Update Nodes Table with Last seen status.
             if row == 1:
                 cur.execute(
@@ -128,7 +140,7 @@ def insertDB(IDs, temperature):
                 bc.dtm + time.ctime() + bc.ENDC + " - Sensors ID" + bc.grn,
                 IDs[i],
                 bc.ENDC + "Temperature" + bc.grn,
-                temperature[i] + correction_factor,
+                temp,
                 bc.ENDC,
             )
             # Check if this sensor has a correction factor
@@ -151,7 +163,7 @@ def insertDB(IDs, temperature):
                     IDs[i],
                     0,
                     0,
-                    round(temperature[i] + correction_factor, 2),
+                    round(temp, 2),
                     time.strftime("%Y-%m-%d %H:%M:%S"),
                 ),
             )
@@ -179,7 +191,7 @@ def insertDB(IDs, temperature):
                         + " - Adding Temperature Reading to Graph Table From Node ID:",
                         IDs[i],
                         " PayLoad:",
-                        round(temperature[i] + correction_factor, 2),
+                        round(temp, 2),
                     )
                     if zone_id == 0:
                         category = 0
@@ -196,7 +208,7 @@ def insertDB(IDs, temperature):
                                 IDs[i],
                                 0,
                                 0,
-                                round(temperature[i] + correction_factor, 2),
+                                round(temp, 2),
                                 time.strftime("%Y-%m-%d %H:%M:%S"),
                             ),
                         )
@@ -227,7 +239,7 @@ def insertDB(IDs, temperature):
                                         IDs[i],
                                         0,
                                         0,
-                                        round(temperature[i] + correction_factor, 2),
+                                        round(temp, 2),
                                         time.strftime("%Y-%m-%d %H:%M:%S"),
                                     ),
                                 )
