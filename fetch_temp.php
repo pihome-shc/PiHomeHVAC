@@ -34,5 +34,5 @@ $query="SELECT payload FROM messages_in where node_id = '".$id."' AND child_id =
 $result = $conn->query($query);
 $row = mysqli_fetch_array($result);
 // return the temperature string to 1 decimal place
-echo "&nbsp".number_format((float)$row['payload'], 1, '.', '')."&deg";
+echo "&nbsp".number_format((float) DispTemp($conn,$row['payload']), 1, '.', '')."&deg";
 ?>
