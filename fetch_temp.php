@@ -30,7 +30,7 @@ $row = mysqli_fetch_array($result);
 $id = $row['sensors_id'];
 $child_id = $row['sensor_child_id'];
 // get the latest sensor temperature reading
-$query="SELECT payload FROM messages_in where node_id = ".$id." AND child_id = ".$child_id." ORDER BY id DESC LIMIT 1;";
+$query="SELECT payload FROM messages_in where node_id = '".$id."' AND child_id = ".$child_id." ORDER BY id DESC LIMIT 1;";
 $result = $conn->query($query);
 $row = mysqli_fetch_array($result);
 // return the temperature string to 1 decimal place
