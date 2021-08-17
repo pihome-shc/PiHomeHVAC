@@ -158,14 +158,14 @@ require_once(__DIR__.'/st_inc/functions.php');
 	                $row = mysqli_fetch_array($result);
         	        $zone_mode = $row['mode'];
                 	$zone_mode_main=floor($zone_mode/10)*10;
-	                if ($zone_mode == 0) {
-        	                $query = "SELECT default_c FROM zone_view WHERE id =  ".$livetemp_zone_id." LIMIT 1";
-                	        $zresult = $conn->query($query);
-                        	$zrow = mysqli_fetch_array($zresult);
-	                        $set_temp = $zrow['default_c'];
-        	        } else {
-                	        $set_temp = $row['temp_target'];
-	                }
+                        $query = "SELECT min_c, max_c, default_c FROM zone_view WHERE id =  ".$livetemp_zone_id." LIMIT 1";
+                        $zresult = $conn->query($query);
+                        $zrow = mysqli_fetch_array($zresult);
+                        if ($zone_mode == 0) {
+                                $set_temp = $zrow['default_c'];
+                        } else {
+                                $set_temp = $row['temp_target'];
+                        }
         	        switch ($zone_mode_main) {
                 	        case 0:
                         	        $current_mode = "";
@@ -188,7 +188,9 @@ require_once(__DIR__.'/st_inc/functions.php');
                 	        default:
                         	        $current_mode = "";
 	                }
-			echo '<input type="hidden" id="zone_id" name="zone_id" value="'.$livetemp_zone_id.'"/>';
+                        echo '<input type="hidden" id="zone_id" name="zone_id" value="'.$livetemp_zone_id.'"/>
+                        <input type="hidden" id="min_c" name="min_c" value="'.DispTemp($conn,$zrow['min_c']).'"/>
+                        <input type="hidden" id="max_c" name="max_c" value="'.DispTemp($conn,$zrow['max_c']).'"/>';
 		} // end if ($rowcount > 0)
 		echo '<div class="modal fade" id="livetemperature" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 			<div class="modal-dialog">
@@ -260,7 +262,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 $(function() {
    $(".dial").knob({
        'min':0,
-       'max':50,
+       'max':document.getElementById("max_c").value,
        "fgColor":"#000000",
        "skin":"tron",
        'step':0.5
