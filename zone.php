@@ -40,12 +40,12 @@ if (isset($_POST['submit'])) {
 	$type = $_POST['selected_zone_type'];
 	if($zone_category < 2) { 
                 $min_c = 0;
-		$max_c = $_POST['max_c'];
-                $default_c = $_POST['default_c'];
+                $max_c = TempToDB($conn,$_POST['max_c']);
+                $default_c = TempToDB($conn,$_POST['default_c']);
 	} elseif ($zone_category == 3) {
-                $min_c = $_POST['min_c'];
-                $max_c = $_POST['max_c'];
-                $default_c = $_POST['default_c'];
+                $min_c = TempToDB($conn,$_POST['min_c']);
+                $max_c = TempToDB($conn,$_POST['max_c']);
+                $default_c = TempToDB($conn,$_POST['default_c']);
 	} else {
                 $min_c = 0;
 		$max_c = 0;
@@ -631,17 +631,17 @@ function zone_category(value)
 
 <!-- Default Temperature -->
 <div class="form-group" class="control-label" id="default_c_label" style="display:block"><label><?php echo $lang['default_temperature']; ?></label> <small class="text-muted"><?php echo $lang['zone_default_temperature_info'];?></small>
-<input class="form-control" placeholder="<?php echo $lang['zone_default_temperature_help']; ?>" value="<?php if(isset($rowzonesensors['default_c'])) { echo $rowzonesensors['default_c']; } else {echo '25';}  ?>" id="default_c" name="default_c" data-error="<?php echo $lang['zone_default_temperature_error']; ?>"  autocomplete="off" required>
+<input class="form-control" placeholder="<?php echo $lang['zone_default_temperature_help']; ?>" value="<?php if(isset($rowzonesensors['default_c'])) { echo DispTemp($conn,$rowzonesensors['default_c']); } else {echo DispTemp($conn,'25');}  ?>" id="default_c" name="default_c" data-error="<?php echo $lang['zone_default_temperature_error']; ?>"  autocomplete="off" required>
 <div class="help-block with-errors"></div></div>
 
 <!-- Minimum Temperature -->
 <div class="form-group" class="control-label" id="min_c_label" style="display:block"><label><?php echo $lang['min_temperature']; ?></label> <small class="text-muted"><?php echo $lang['zone_min_temperature_info'];?></small>
-<input class="form-control" placeholder="<?php echo $lang['zone_min_temperature_help']; ?>" value="<?php if(isset($rowzonesensors['min_c'])) { echo $rowzonesensors['min_c']; } else {echo '15';}  ?>" id="min_c" name="min_c" data-error="<?php echo $lang['zone_min_temperature_error']; ?>"  autocomplete="off" required>
+<input class="form-control" placeholder="<?php echo $lang['zone_min_temperature_help']; ?>" value="<?php if(isset($rowzonesensors['min_c'])) { echo DispTemp($conn,$rowzonesensors['min_c']); } else {echo DispTemp($conn,'15');}  ?>" id="min_c" name="min_c" data-error="<?php echo $lang['zone_min_temperature_error']; ?>"  autocomplete="off" required>
 <div class="help-block with-errors"></div></div>
 
 <!-- Maximum Temperature -->
 <div class="form-group" class="control-label" id="max_c_label" style="display:block"><label><?php echo $lang['max_temperature']; ?></label> <small class="text-muted"><?php echo $lang['zone_max_temperature_info'];?></small>
-<input class="form-control" placeholder="<?php echo $lang['zone_max_temperature_help']; ?>" value="<?php if(isset($rowzonesensors['max_c'])) { echo $rowzonesensors['max_c']; } else {echo '25';}  ?>" id="max_c" name="max_c" data-error="<?php echo $lang['zone_max_temperature_error']; ?>"  autocomplete="off" required>
+<input class="form-control" placeholder="<?php echo $lang['zone_max_temperature_help']; ?>" value="<?php if(isset($rowzonesensors['max_c'])) { echo DispTemp($conn,$rowzonesensors['max_c']); } else {echo DispTemp($conn,'25');}  ?>" id="max_c" name="max_c" data-error="<?php echo $lang['zone_max_temperature_error']; ?>"  autocomplete="off" required>
 <div class="help-block with-errors"></div></div>
 
 <!-- Maximum Operation Time -->
