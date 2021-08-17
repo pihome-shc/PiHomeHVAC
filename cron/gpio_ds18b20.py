@@ -70,10 +70,6 @@ def insertDB(IDs, temperature):
     try:
         con = mdb.connect(dbhost, dbuser, dbpass, dbname)
         cur = con.cursor()
-        cur.execute("SELECT c_f FROM system limit 1")
-        # Check working in Centigrade or Fahrenheit
-        row = cur.fetchone()
-        c_f = int(row[0])
         for i in range(0, len(temperature)):
             # Check if Sensors Already Exit in Nodes Table, if no then add Sensors into Nodes Table otherwise just update Temperature Readings.
             cur.execute("SELECT COUNT(*) FROM `nodes` where node_id = (%s)", [IDs[i]])
@@ -122,12 +118,7 @@ def insertDB(IDs, temperature):
                 correction_factor = float(results[sensor_to_index["correction_factor"]])
             else :
                 correction_factor = 0
-
-            if c_f == 0 :
-                temp = temperature[i]
-            else :
-                temp = ((temperature[i]/5)*9)+32
-            temp = temp + correction_factor
+            temp = temperature[i] + correction_factor
             # If DS18B20 Sensor record exist: Update Nodes Table with Last seen status.
             if row == 1:
                 cur.execute(
@@ -141,18 +132,6 @@ def insertDB(IDs, temperature):
                 temp,
                 bc.ENDC,
             )
-            # Check if this sensor has a correction factor
-            cur.execute(
-                "SELECT sensors.correction_factor FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) LIMIT 1;",
-                [IDs[i]],
-            )
-            results = cur.fetchone()
-            if cur.rowcount > 0:
-                sensor_to_index = dict(
-                    (d[0], i) for i, d in enumerate(cur.description)
-                )
-                correction_factor = float(results[sensor_to_index["correction_factor"]])
-
             cur.execute(
                 "INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s)",
                 (
