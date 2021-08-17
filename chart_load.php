@@ -26,9 +26,9 @@ while ($row = mysqli_fetch_assoc($result)) {
         $datetime = $row['datetime'];
         $payload = $row['payload'];
         if ($row['node_id'] == 0) {
-                $system_c[] = array(strtotime($datetime) * 1000, $payload);
+                $system_c[] = array(strtotime($datetime) * 1000, DispTemp($conn,$payload));
         } elseif ($row['node_id'] == 1) {
-                $weather_c[] = array(strtotime($datetime) * 1000, $payload);
+                $weather_c[] = array(strtotime($datetime) * 1000, DispTemp($conn,$payload));
         }
 }
 
@@ -62,11 +62,11 @@ while ($row = mysqli_fetch_assoc($resulta)) {
         $graph3_temp = array();
         while ($rowb = mysqli_fetch_assoc($result)) {
                 if($graph_num == 1) {
-                        $graph1_temp[] = array(strtotime($rowb['datetime']) * 1000, $rowb['payload']);
+                        $graph1_temp[] = array(strtotime($rowb['datetime']) * 1000, DispTemp($conn,$rowb['payload']));
                 } elseif($graph_num == 2) {
-                        $graph2_temp[] = array(strtotime($rowb['datetime']) * 1000, $rowb['payload']);
+                        $graph2_temp[] = array(strtotime($rowb['datetime']) * 1000, DispTemp($conn,$rowb['payload']));
                 } elseif($graph_num == 3) {
-                        $graph3_temp[] = array(strtotime($rowb['datetime']) * 1000, $rowb['payload']);
+                        $graph3_temp[] = array(strtotime($rowb['datetime']) * 1000, DispTemp($conn,$rowb['payload']));
 		}
         }
         // create dataset entry using distinct color based on zone index(to have the same color everytime chart is opened)
