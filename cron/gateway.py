@@ -389,12 +389,13 @@ try:
                             )
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         cur.execute(
-                            "INSERT INTO `nodes`(`sync`, `purge`, `type`, `node_id`, `max_child_id`, `name`, `last_seen`, `notice_interval`, `min_value`, `status`, `ms_version`, `sketch_version`, `repeater`) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                            "INSERT INTO `nodes`(`sync`, `purge`, `type`, `node_id`, `max_child_id`, `sub_type`, `name`, `last_seen`, `notice_interval`, `min_value`, `status`, `ms_version`, `sketch_version`, `repeater`) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                             (
                                 0,
                                 0,
                                 "MySensor",
                                 node_id,
+                                0,
                                 0,
                                 null_value,
                                 timestamp,
@@ -444,12 +445,13 @@ try:
                             )
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         cur.execute(
-                            "INSERT INTO nodes(`sync`, `purge`, `type`, `node_id`, `max_child_id`, `name`, `last_seen`, `notice_interval`, `min_value`, `status`, `ms_version`, `sketch_version`, `repeater`) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                            "INSERT INTO nodes(`sync`, `purge`, `type`, `node_id`, `max_child_id`, `sub_type`, `name`, `last_seen`, `notice_interval`, `min_value`, `status`, `ms_version`, `sketch_version`, `repeater`) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                             (
                                 0,
                                 0,
                                 "MySensor",
                                 node_id,
+                                0,
                                 0,
                                 null_value,
                                 timestamp,
