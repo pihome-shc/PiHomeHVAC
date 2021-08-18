@@ -40,11 +40,12 @@ if (isset($_POST['submit'])) {
         $row = mysqli_fetch_array($result);
         $relay_id = $row['id'];
 	$relay_child_id = $_POST['relay_child_id'];
+	$on_trigger = $_POST['trigger'];
         $sync = '0';
         $purge= '0';
 
 	//Add or Edit relay record to relays Table
-	$query = "INSERT INTO `relays` (`id`, `sync`, `purge`, `relay_id`, `relay_child_id`, `name`, `type`) VALUES ('{$id}', '{$sync}', '{$purge}', '{$relay_id}', '{$relay_child_id}', '{$name}', '{$type}') ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), relay_id='{$relay_id}', relay_child_id='{$relay_child_id}', name=VALUES(name), type=VALUES(type);";
+	$query = "INSERT INTO `relays` (`id`, `sync`, `purge`, `relay_id`, `relay_child_id`, `name`, `type`, `on_trigger`) VALUES ('{$id}', '{$sync}', '{$purge}', '{$relay_id}', '{$relay_child_id}', '{$name}', '{$type}', '{$on_trigger}') ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), relay_id='{$relay_id}', relay_child_id='{$relay_child_id}', name=VALUES(name), type=VALUES(type), on_trigger=VALUES(on_trigger);";
 	$result = $conn->query($query);
         $temp_id = mysqli_insert_id($conn);
 	if ($result) {
@@ -220,6 +221,30 @@ function RelayChildList(value)
         </select>
 <div class="help-block with-errors"></div>
 </div>
+
+<!-- Relay On Trigger Level -->
+<div class="form-group" class="control-label"><label><?php echo $lang['relay_trigger']; ?></label> <small class="text-muted"><?php echo $lang['relay_trigger_info'];?></small>
+	<select class="form-control input-sm" type="text" id="on_trigger" name="on_trigger" onchange=OnTrigger(this.options[this.selectedIndex].value)>
+		<?php if(isset($row['on_trigger'])) {
+			if ($row['on_trigger'] == 0) { echo '<option selected >LOW</option>'; } else { echo '<option selected >HIGH</option>'; }
+		} ?>
+		<option value=0>LOW</option>
+                <option value=1>HIGH</option>
+        </select>
+	<div class="help-block with-errors"></div>
+</div>
+<input type="hidden" id="trigger" name="trigger" value="<?php if(isset($row['on_trigger'])) { echo $row['on_trigger']; } else { echo '0'; }?>"/>
+
+<script language="javascript" type="text/javascript">
+function OnTrigger(value)
+{
+        var valuetext = value;
+        var e = document.getElementById("on_trigger");
+        var selected_on_trigger = e.options[e.selectedIndex].value;
+
+        document.getElementById("trigger").value = selected_on_trigger;
+}
+</script>
 
 <!-- Buttons -->
 <input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn btn-default btn-sm">

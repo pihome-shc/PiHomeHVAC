@@ -979,7 +979,7 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['relay_settings_text'].'</p>';
-		$query = "SELECT relays.id, relays.relay_id, relays.relay_child_id, relays.name, relays.type, zr.zone_id, nd.node_id, nd.last_seen
+		$query = "SELECT relays.id, relays.relay_id, relays.relay_child_id, relays.on_trigger, relays.name, relays.type, zr.zone_id, nd.node_id, nd.last_seen
 		FROM relays
 		LEFT join zone_relays zr ON relays.id = zr.zone_relay_id
                 LEFT JOIN zone z ON zr.zone_id = z.id
@@ -988,11 +988,12 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
 		$results = $conn->query($query);
 		echo '<table class="table table-bordered">
     			<tr>
-        			<th class="col-xs-3"><small>'.$lang['relay_name'].'</small></th>
-        			<th class="col-xs-2"><small>'.$lang['type'].'</small></th>
-        			<th class="col-xs-2"><small>'.$lang['node_id'].'</small></th>
-        			<th class="col-xs-2"><small>'.$lang['relay_child_id'].'</small></th>
-        			<th class="col-xs-2"></th>
+        			<th class="col-sm-3"><small>'.$lang['relay_name'].'</small></th>
+        			<th class="col-sm-1"><small>'.$lang['type'].'</small></th>
+        			<th class="col-sm-2"><small>'.$lang['node_id'].'</small></th>
+        			<th class="col-sm-2"><small>'.$lang['relay_child_id'].'</small></th>
+        			<th class="col-sm-2">'.$lang['relay_trigger'].'</th>
+                                <th class="col-sm-2"></th>
     			</tr>';
 
 			while ($row = mysqli_fetch_assoc($results)) {
@@ -1018,11 +1019,13 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
                                                 $attached_to = "HVAC Fan Relay";
                 				break;
     				}
+				if ($row["on_trigger"] == 0) { $trigger = "LOW"; } else { $trigger = "HIGH"; }
     				echo '<tr>
             				<td>'.$row["name"].'<br> <small>('.$row["last_seen"].')</small></td>
             				<td>'.$relay_type.'</td>
             				<td>'.$row["node_id"].'</td>
             				<td>'.$row["relay_child_id"].'</td>
+                                        <td>'.$trigger.'</td>
             				<td><a href="relay.php?id='.$row["id"].'"><button class="btn btn-primary btn-xs"><span class="ionicons ion-edit"></span></button> </a>&nbsp;&nbsp';
             				if(isset($row['zone_id']) || $row['type'] == 1) {
 		 				echo '<button class="btn btn-danger btn-xs disabled" data-toggle="tooltip" title="'.$lang['confirm_del_relay_2'].$attached_to.'"><span class="glyphicon glyphicon-trash"></span></button></td>';

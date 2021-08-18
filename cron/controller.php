@@ -13,7 +13,7 @@ echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
 echo "\033[31m \n";
 echo "******************************************************************\n";
 echo "*   System Controller Script Version 0.01 Build Date 19/10/2020  *\n";
-echo "*   Update on 21/02/2021                                         *\n";
+echo "*   Update on 18/08/2021                                         *\n";
 echo "*                                        Have Fun - PiHome.eu    *\n";
 echo "******************************************************************\n";
 echo " \033[0m \n";
@@ -29,10 +29,6 @@ $date_time = date('Y-m-d H:i:s');
 
 //set to display debug messages if called with any parameter
 if(isset($argv[1])) { $debug_msg = 1; } else { $debug_msg = 0; }
-
-//GPIO Value for SainSmart Relay Board to turn on  or off
-$relay_on = '1'; //GPIO value to write to turn on attached relay
-$relay_off = '0'; // GPIO value to write to turn off attached relay
 
 //set to indicate controller condition
 $start_cause ='';
@@ -150,6 +146,14 @@ $result = $conn->query($query);
 $heat_relay = mysqli_fetch_array($result);
 $heat_relay_id = $heat_relay['relay_id'];
 $heat_relay_child_id = $heat_relay['relay_child_id'];
+$heat_relay_on_trigger = $heat_relay['on_trigger'];
+if ($heat_relay_on_trigger == 1) {
+	$heat_relay_on = '1'; //GPIO value to write to turn on attached relay
+        $heat_relay_off = '0'; // GPIO value to write to turn off attached relay
+} else {
+	$heat_relay_on = '0'; //GPIO value to write to turn on attached relay
+	$heat_relay_off = '1'; // GPIO value to write to turn off attached relay
+}
 
 //Get data from nodes table
 $query = "SELECT * FROM nodes WHERE id = ".$heat_relay_id." AND status IS NOT NULL LIMIT 1;";
@@ -175,6 +179,14 @@ if ($system_controller_mode == 1) {
         $cool_relay = mysqli_fetch_array($result);
         $cool_relay_id = $cool_relay['relay_id'];
         $cool_relay_child_id = $cool_relay['relay_child_id'];
+	$cool_relay_on_trigger = $cool_relay['on_trigger'];
+	if ($cool_relay_on_trigger == 1) {
+        	$cool_relay_on = '1'; //GPIO value to write to turn on attached relay
+        	$cool_relay_off = '0'; // GPIO value to write to turn off attached relay
+	} else {
+        	$cool_relay_on = '0'; //GPIO value to write to turn on attached relay
+        	$cool_relay_off = '1'; // GPIO value to write to turn off attached relay
+	}
 
         //Get data from nodes table
         $query = "SELECT * FROM nodes WHERE id = ".$cool_relay_id." AND status IS NOT NULL LIMIT 1;";
@@ -191,6 +203,14 @@ if ($system_controller_mode == 1) {
         $fan_relay = mysqli_fetch_array($result);
         $fan_relay_id = $fan_relay['relay_id'];
         $fan_relay_child_id = $fan_relay['relay_child_id'];
+        $fan_relay_on_trigger = $fan_relay['on_trigger'];
+        if ($cool_relay_on_trigger == 1) {
+                $fan_relay_on = '1'; //GPIO value to write to turn on attached relay
+                $fan_relay_off = '0'; // GPIO value to write to turn off attached relay
+        } else {
+                $fan_relay_on = '0'; //GPIO value to write to turn on attached relay
+                $fan_relay_off = '1'; // GPIO value to write to turn off attached relay
+        }
 
         //Get data from nodes table
         $query = "SELECT * FROM nodes WHERE id = ".$fan_relay_id." AND status IS NOT NULL LIMIT 1;";
@@ -303,7 +323,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         $zone_max_operation_time=$row['max_operation_time'];
 
         //get the zone controllers for this zone to array
-        $query = "SELECT zone_relays.id AS zc_id, cid.node_id as relay_id, zr.relay_child_id, zone_relays.zone_relay_id, zone_relays.state, zone_relays.current_state, ctype.`type` ";
+        $query = "SELECT zone_relays.id AS zc_id, cid.node_id as relay_id, zr.relay_child_id, zr.on_trigger, zone_relays.zone_relay_id, zone_relays.state, zone_relays.current_state, ctype.`type` ";
         $query = $query."FROM zone_relays ";
         $query = $query."join relays zr on zone_relay_id = zr.id ";
         $query = $query."join nodes ctype on zr.relay_id = ctype.id ";
@@ -313,7 +333,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         $index = 0;
         $zone_controllers=[];
         while ($crow = mysqli_fetch_assoc($cresult)) {
-                $zone_controllers[$index] = array('zc_id' =>$crow['zc_id'], 'controler_id' =>$crow['relay_id'], 'controler_child_id' =>$crow['relay_child_id'], 'controller_relay_id' =>$crow['zone_relay_id'], 'zone_controller_state' =>$crow['state'], 'zone_controller_current_state' =>$crow['current_state'], 'zone_controller_type' =>$crow['type'], 'manual_button_override' >=0);
+                $zone_controllers[$index] = array('zc_id' =>$crow['zc_id'], 'controler_id' =>$crow['relay_id'], 'controler_child_id' =>$crow['relay_child_id'], 'controler_on_trigger' =>$crow['on_trigger'], 'controller_relay_id' =>$crow['zone_relay_id'], 'zone_controller_state' =>$crow['state'], 'zone_controller_current_state' =>$crow['current_state'], 'zone_controller_type' =>$crow['type'], 'manual_button_override' >=0);
                 $index = $index + 1;
         }
 	//query to check if zone_current_state record exists tor the zone
@@ -1371,10 +1391,19 @@ for ($row = 0; $row < count($zone_commands); $row++){
 		$zc_id = $controllers[$crow]["zc_id"];
                 $zone_controler_id = $controllers[$crow]["controler_id"];
                 $zone_controler_child_id = $controllers[$crow]["controler_child_id"];
+                $zone_on_trigger = $controllers[$crow]["controler_on_trigger"];
                 $zone_controller_type = $controllers[$crow]["zone_controller_type"];
                 $manual_button_override = $controllers[$crow]["manual_button_override"];
 		$zone_controller_state = $controllers[$crow]["zone_controller_state"];
 		$zone_command = (($zone_controller_state == 1) || ($zone_overrun == 1)) ? 1:0 ;
+		if ($zone_on_trigger == 1) {
+			$relay_on = '1'; //GPIO value to write to turn on attached relay
+			$relay_off = '0'; // GPIO value to write to turn off attached relay
+		} else {
+                        $relay_on = '0'; //GPIO value to write to turn on attached relay
+                        $relay_off = '1'; // GPIO value to write to turn off attached relay
+		}
+
 		if ($debug_msg == 1) { 
 			echo $zone_controler_id."-".$zone_controler_child_id.", ".$zone_controller_state.", ".$manual_button_override."\n"; 
 			echo "zone_overrun - ".$zone_overrun.", manual_button_override - ".$manual_button_override.", zone_command - ".$zone_command.", zone_status_prev - ".$zone_status_prev."\n";
@@ -1464,24 +1493,36 @@ if (in_array("1", $system_controller)) {
 	        	        $on_relay_id = $cool_relay_id;
         	        	$on_relay_child_id = $cool_relay_child_id;
 	        	        $on_relay_type = $cool_relay_type;
+                                $on_relay_on = $cool_relay_on;
+                                $on_relay_off = $cool_relay_off;
         	        	$off_relay_id = $heat_relay_id;
 	                	$off_relay_child_id = $heat_relay_child_id;
 		                $off_relay_type = $heat_relay_type;
+                                $off_relay_on = $heat_relay_on;
+                                $off_relay_off = $heat_relay_off;
         		} else {
                 		$on_relay_id = $heat_relay_id;
 		                $on_relay_child_id = $heat_relay_child_id;
         		        $on_relay_type = $heat_relay_type;
+                                $on_relay_on = $heat_relay_on;
+                                $on_relay_off = $heat_relay_off;
                 		$off_relay_id = $cool_relay_id;
 	                	$off_relay_child_id = $cool_relay_child_id;
 	        	        $off_relay_type = $cool_relay_type;
+                                $off_relay_on = $cool_relay_on;
+                                $off_relay_off = $cool_relay_off;
 		        }
 		} else {
                 	$on_relay_id = $heat_relay_id;
                         $on_relay_child_id = $heat_relay_child_id;
                         $on_relay_type = $heat_relay_type;
+			$on_relay_on = $heat_relay_on;
+                        $on_relay_off = $heat_relay_off;
                         $off_relay_id = $heat_relay_id;
                         $off_relay_child_id = $heat_relay_child_id;
                         $off_relay_type = $heat_relay_type;
+                        $off_relay_on = $heat_relay_on;
+                        $off_relay_off = $heat_relay_off;
 		}
 
 		/**************************************************************************************************
@@ -1517,7 +1558,7 @@ if (in_array("1", $system_controller)) {
                                 $node_id = $nodes['node_id'];
                                 $query = "UPDATE messages_out SET sent = '0', payload = '0' WHERE node_id ='{$node_id}' AND child_id = '{$off_relay_child_id}' LIMIT 1;";
                                 $conn->query($query);
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$off_relay_child_id. "\033[0m Status: \033[41m".$relay_off."\033[0m (".$relay_on."=On, ".$relay_off."=Off) \n";
+				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$off_relay_child_id. "\033[0m Status: \033[41m".$off_relay_off."\033[0m (".$off_relay_on."=On, ".$off_relay_off."=Off) \n";
 			}
         		if ($on_relay_type == 'GPIO'){
                                 $query = "SELECT node_id FROM nodes WHERE id = '$on_relay_id' LIMIT 1;";
@@ -1526,7 +1567,7 @@ if (in_array("1", $system_controller)) {
                                 $node_id = $nodes['node_id'];
                 		$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$on_relay_child_id}' LIMIT 1;";
                                 $conn->query($query);
-	                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$on_relay_child_id. "\033[0m Status: \033[41m".$relay_on."\033[0m (".$relay_on."=On, ".$relay_off."=Off) \n";
+	                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$on_relay_child_id. "\033[0m Status: \033[41m".$on_relay_on."\033[0m (".$on_relay_on."=On, ".$on_relay_off."=Off) \n";
 	        	}
 		}
 	        if ($system_controller_mode == 1 && $fan_relay_type == 'GPIO'){
@@ -1536,7 +1577,7 @@ if (in_array("1", $system_controller)) {
                         $node_id = $nodes['node_id'];
                 	$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
                         $conn->query($query);
-                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$fan_relay_child_id. "\033[0m Status: \033[41m".$relay_on."\033[0m (".$relay_on."=On, ".$relay_off."=Off) \n";
+                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$fan_relay_child_id. "\033[0m Status: \033[41m".$fan_relay_on."\033[0m (".$fan_relay_on."=On, ".$fan_relay_off."=Off) \n";
 	        }
 
 		/******************************************************************************************
@@ -1655,7 +1696,7 @@ if (in_array("1", $system_controller)) {
                         $node_id = $nodes['node_id'];
         		$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$heat_relay_child_id}' LIMIT 1;";
                         $conn->query($query);
-			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$heat_relay_child_id. "\033[0m Status: \033[41m".$relay_off."\033[0m (".$relay_on."=On, ".$relay_off."=Off) \n";
+			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$heat_relay_child_id. "\033[0m Status: \033[41m".$heat_relay_off."\033[0m (".$heat_relay_on."=On, ".$heat_relay_off."=Off) \n";
 		}
 	        if ($system_controller_mode == 1){
         	        if ($cool_relay_type == 'GPIO') { // HVAC cool relay OFF
@@ -1665,7 +1706,7 @@ if (in_array("1", $system_controller)) {
                                 $node_id = $nodes['node_id'];
                                 $query = "UPDATE messages_out SET sent = '0', payload = '0' WHERE node_id ='{$node_id}' AND child_id = '{$cool_relay_child_id}' LIMIT 1;";
 				$conn->query($query);
-                		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$cool_relay_child_id. "\033[0m Status: \033[41m".$relay_off."\033[0m (".$relay_on."=On, ".$relay_off."=Off) \n";
+                		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$cool_relay_child_id. "\033[0m Status: \033[41m".$cool_relay_off."\033[0m (".$cool_relay_on."=On, ".$cool_relay_off."=Off) \n";
 			}
 			if ($fan_relay_type == 'GPIO') {
                                 $query = "SELECT node_id FROM nodes WHERE id = '$fan_relay_id' LIMIT 1;";
@@ -1678,7 +1719,7 @@ if (in_array("1", $system_controller)) {
                 			$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
 				}
 				$conn->query($query);
-	                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$fan_relay_child_id. "\033[0m Status: \033[41m".$relay_off."\033[0m (".$relay_on."=On, ".$relay_off."=Off) \n";
+	                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$fan_relay_child_id. "\033[0m Status: \033[41m".$fan_relay_off."\033[0m (".$fan_relay_on."=On, ".$fan_relay_off."=Off) \n";
 			}
         	}
 
