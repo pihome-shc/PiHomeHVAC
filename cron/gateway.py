@@ -26,7 +26,7 @@ print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
 print("* Script to communicate with MySensors Nodes, for more *")
 print("* info please check MySensors API.                     *")
 print("*      Build Date: 18/09/2017                          *")
-print("*      Version 0.11 - Last Modified 28/07/2021         *")
+print("*      Version 0.11 - Last Modified 18/08/2021         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -60,7 +60,7 @@ null_value = None
 relay_dict = {}
 
 
-def set_relays(msg, node_type, out_id, out_child_id, out_payload, enable_outgoing):
+def set_relays(msg, node_type, out_id, out_child_id, out_on_trigger, out_payload, enable_outgoing):
     # node-id ; child-sensor-id ; command ; ack ; type ; payload \n
     if node_type.find("MySensor") != -1 and enable_outgoing == 1:  # process normal node
         if gatewaytype == "serial":
@@ -89,10 +89,10 @@ def set_relays(msg, node_type, out_id, out_child_id, out_payload, enable_outgoin
                 out_child_id
             ]  # retrieve pin identification for this pin from dictionary
             # set pin state
-            if out_payload == "0":
-                relay_name.value = False
-            else:
+            if int(out_payload) == out_on_trigger:
                 relay_name.value = True
+            else:
+                relay_name.value = False
             cur.execute(
                 "UPDATE `messages_out` set sent=1 where id=%s", [out_id]
             )  # update DB so this message will not be processed in next loop
@@ -188,6 +188,7 @@ try:
         for x in relays:
             controler_id = x[relay_to_index["relay_id"]]
             out_child_id = x[relay_to_index["relay_child_id"]]
+            out_on_trigger = x[relay_to_index["on_trigger"]]
             cur.execute(
                 "SELECT `node_id`, `type` FROM `nodes` where id = (%s) LIMIT 1",
                 (controler_id,),
@@ -219,7 +220,7 @@ try:
             msg += str(out_payload)  # Payload from DB
             msg += " \n"  # New line
             set_relays(
-                msg, node_type, out_id, out_child_id, out_payload, gatewayenableoutgoing
+                msg, node_type, out_id, out_child_id, out_on_trigger, out_payload, gatewayenableoutgoing
             )
             ping_timer = time.time()
 
@@ -259,10 +260,15 @@ try:
             sent = msg[
                 msg_to_index["sent"]
             ]  # Status of message either its sent or not. (1 for sent, 0 for not sent yet)
-            cur.execute("SELECT type FROM `nodes` where node_id = (%s)", (out_node_id,))
+            cur.execute("SELECT id, type FROM `nodes` where node_id = (%s)", (out_node_id,))
             nd = cur.fetchone()
             node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+            relay_id = nd[node_to_index["id"]]
             node_type = nd[node_to_index["type"]]
+            cur.execute("SELECT on_trigger FROM `relays` where relay_id = (%s) AND relay_child_id = (%s) LIMIT 1", (relay_id, out_child_id,))
+            r = cur.fetchone()
+            relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+            out_on_trigger = r[relay_to_index["on_trigger"]]
             if gatewayenableoutgoing == 1 or (
                 node_type.find("GPIO") != -1 and gatewayenableoutgoing == 0
             ):
@@ -308,7 +314,7 @@ try:
 
             # node-id ; child-sensor-id ; command ; ack ; type ; payload \n
             set_relays(
-                msg, node_type, out_id, out_child_id, out_payload, gatewayenableoutgoing
+                msg, node_type, out_id, out_child_id, out_on_trigger, out_payload, gatewayenableoutgoing
             )
 
         ## Incoming messages
@@ -325,7 +331,10 @@ try:
             if time.strftime("%S", time.gmtime()) == "00" and msgcount != 0:
                 print(bc.hed + "\nMessages processed in last 60s:	", msgcount)
                 if gatewaytype == "serial":
-                    print("Bytes in outgoing buffer:	", gw.in_waiting)
+                    try:
+                        print("Bytes in outgoing buffer:	", gw.in_waiting)
+                    except Exception:
+                        pass
                 print("Date & Time:                 	", time.ctime(), bc.ENDC)
                 msgcount = 0
             if not sys.getsizeof(in_str) <= 22:
