@@ -50,13 +50,15 @@ require_once(__DIR__.'/st_inc/functions.php');
 
 		<?php
 		//query to check live temperature status
+                $c_f = settings($conn, 'c_f');
+                if ($c_f == 0) { $icon = 'thermostat_30_C.png'; } else { $icon = 'thermostat_30_F.png'; }
 		$query = "SELECT active FROM livetemp WHERE active = 1 LIMIT 1";
 		$result = $conn->query($query);
 		$lt_status=mysqli_num_rows($result);
 		if ($lt_status==1) {$lt_status='red';}else{$lt_status='blue';}
 		echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" href="#livetemperature" data-backdrop="static" data-keyboard="false">
 		<h3 class="text-info"><small>'.$lang['live_temp'].'</small></h3>
-		<h3 class="degre" style="margin-top:5px;"><img src="images/thermostat_30.png" border="0"></h3>
+		<h3 class="degre" style="margin-top:5px;"><img src="images/'.$icon.'" border="0"></h3>
 		<h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$lt_status.'"></i></small></h3>
 		</button>';
 
