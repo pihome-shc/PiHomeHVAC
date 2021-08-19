@@ -84,12 +84,14 @@ unset($ffs[array_search('..', $ffs, true)]);
 
 $gpio_ds18b20_found = 0;
 $gateway_found = 0;
+$jobs_schedule_found = 0;
 // prevent empty ordered elements
 if (count($ffs) > 0) {
         foreach($ffs as $ff){
                 if (strcmp($ff, 'updates.txt') !== 0) {
                         if (strcmp($ff, 'gateway.py') === 0) { $gateway_found = 1; }
                         if (strcmp($ff, 'gpio_ds18b20.py') === 0) { $gpio_ds18b20_found = 1; }
+                        if (strcmp($ff, 'jobs_schedule.py') === 0) { $jobs_schedule_found = 1; }
                         if (is_dir($ff)) { $cmd = 'rm -R '.$update_dir.'/'.$ff; } else { $cmd = 'rm '.$update_dir.'/'.$ff; }
                         exec($cmd);
                 }
@@ -118,6 +120,19 @@ if (count($ffs) > 0) {
                         exec("kill -9 '$out[0]'");
                 } else {
                         echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DS18b20 is DISABLED \n";
+                }
+        }
+        if ($jobs_schedule_found == 1) {
+                $script_txt = 'python3 /var/www/cron/jobs_schedule.py';
+                //Check if Porocess is running and get its PID
+                exec("ps aux | grep '$script_txt' | grep -v grep | awk '{ print $2 }' | head -1", $out);
+                if (count($out) > 0) {
+                        echo "\033[36m".date('Y-m-d H:i:s')."\033[0m - Jobs Schedule PID is: \033[41m".$out[0]."\033[0m \n";
+                        echo "\033[36m".date('Y-m-d H:i:s')."\033[0m - Stopping Python Jobs Schedule Script \n";
+                        //Kill DS18b20 Python Scrip PID
+                        exec("kill -9 '$out[0]'");
+                } else {
+                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Jobs Schedule is DISABLED \n";
                 }
         }
 }
