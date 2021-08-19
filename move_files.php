@@ -76,18 +76,48 @@ $update_dir = __DIR__.'/code_updates';
 // copy all updated files to propper locations
 moveFolderFiles($update_dir);
 
-// tidy up the update directory
+// tidy up the update directory and kill any long running scripts that have been updated, they should auto-restart
 $ffs = scandir($update_dir);
 
 unset($ffs[array_search('.', $ffs, true)]);
 unset($ffs[array_search('..', $ffs, true)]);
 
+$gpio_ds18b20_found = 0;
+$gateway_found = 0;
 // prevent empty ordered elements
 if (count($ffs) > 0) {
         foreach($ffs as $ff){
                 if (strcmp($ff, 'updates.txt') !== 0) {
+                        if (strcmp($ff, 'gateway.py') === 0) { $gateway_found = 1; }
+                        if (strcmp($ff, 'gpio_ds18b20.py') === 0) { $gpio_ds18b20_found = 1; }
                         if (is_dir($ff)) { $cmd = 'rm -R '.$update_dir.'/'.$ff; } else { $cmd = 'rm '.$update_dir.'/'.$ff; }
                         exec($cmd);
+                }
+        }
+        if ($gateway_found == 1) {
+                $script_txt = 'python3 /var/www/cron/gateway.py';
+                //Check if Porocess is running and get its PID
+                exec("ps aux | grep '$script_txt' | grep -v grep | awk '{ print $2 }' | head -1", $out);
+                if (count($out) > 0) {
+                        echo "\033[36m".date('Y-m-d H:i:s')."\033[0m - Gateway PID is: \033[41m".$out[0]."\033[0m \n";
+                        echo "\033[36m".date('Y-m-d H:i:s')."\033[0m - Stopping Python Gateway Script \n";
+                        //Kill Gateway Python Scrip PID
+                        exec("kill -9 '$out[0]'");
+                } else {
+                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Gateway is DISABLED \n";
+                }
+        }
+        if ($gpio_ds18b20_found == 1) {
+                $script_txt = 'python3 /var/www/cron/gpio_ds18b20.py';
+                //Check if Porocess is running and get its PID
+                exec("ps aux | grep '$script_txt' | grep -v grep | awk '{ print $2 }' | head -1", $out);
+                if (count($out) > 0) {
+                        echo "\033[36m".date('Y-m-d H:i:s')."\033[0m - DS18b20 PID is: \033[41m".$out[0]."\033[0m \n";
+                        echo "\033[36m".date('Y-m-d H:i:s')."\033[0m - Stopping Python DS18b20 Script \n";
+                        //Kill DS18b20 Python Scrip PID
+                        exec("kill -9 '$out[0]'");
+                } else {
+                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DS18b20 is DISABLED \n";
                 }
         }
 }
