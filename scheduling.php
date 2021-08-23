@@ -340,7 +340,7 @@ if (isset($_POST['submit'])) {
 									}elseif (($c_f==0 || $c_f=='0') AND ($row["type"]=='Water' OR $row["type"]=='Immersion')) {
 										$min = 10;
 									}
-									$max = $row['max_c'];
+									$max = DispTemp($conn,$row['max_c']);
         								if(!isset($_GET['nid'])) {
 										if (settings($conn, 'mode') == 0) {
 											//<!-- Zone Coop Enable Checkbox -->
