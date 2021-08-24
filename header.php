@@ -155,7 +155,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                     <!-- /.dropdown-user -->
                 </li>
  
-                <?php if (scan_dir('/var/www/code_updates')) { ?>
+                <?php if ($_SESSION['admin'] == 1 && scan_dir('/var/www/code_updates')) { ?>
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="modal" href="#code_update_Modal" data-backdrop="static" data-keyboard="false">
                                 <i class="fa fa-download fa-lg"></i>
@@ -163,7 +163,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                         </li>
                 <?php } ?>
 
-                <?php if (scan_dir('/var/www/database_updates')) { ?>
+                <?php if ($_SESSION['admin'] == 1 && scan_dir('/var/www/database_updates')) { ?>
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="modal" href="#database_update_Modal" data-backdrop="static" data-keyboard="false">
                                 <i class="fa fa-database fa-lg"></i>
