@@ -255,6 +255,14 @@ echo '
             		<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 		<h5 class="modal-title">'.$lang['system_controller_settings'].'</h5>
+                                <div class="dropdown pull-right">
+                                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                                        </a>
+                                        <ul class="dropdown-menu">
+                        		<li><a href="pdf_download.php?file=setup_guide_system_controller.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_system_controller'].'</a></li>
+                                        </ul>
+                                </div>
             		</div>
             		<div class="modal-body">';
 				$query = "SELECT * FROM nodes where name = 'System Controller' OR name = 'GPIO Controller' OR name = 'I2C Controller';";
