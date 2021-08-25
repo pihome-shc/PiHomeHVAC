@@ -672,4 +672,5 @@ $lang['setup_graphs'] = "Setup Sensor Graphs";
 $lang['maxair_update_process'] = "MaxAir Update Process";
 $lang['setup_system_controller'] = "Setup System Controller";
 $lang['setup_scheduling'] = "Setup Scheduling";
+$lang['setup_sensors'] = "Setup Sensors";
 ?>
