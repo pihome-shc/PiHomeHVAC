@@ -50,7 +50,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                                                 <ul class="dropdown-menu">
  							<li><a href="pdf_download.php?file=displaying_temperature_sensors_graphs.pdf" target="_blank"><i class="fa fa-file fa-fw"></i><?php echo $lang['setup_graphs']; ?></a></li>
                                                 </ul>
-                                                <div class="btn-group"><?php echo date("H:i"); ?></div>
+                                                <div class="btn-group"><?php echo '&nbsp;&nbsp;'.date("H:i"); ?></div>
                                         </div>
         	                </div>
                 	        <!-- /.panel-heading -->
