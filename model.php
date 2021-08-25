@@ -1065,6 +1065,8 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
                                 <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=setup_guide_sensors.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_sensors'].'</a></li>
+                                <li class="divider"></li>
                                 <li><a href="pdf_download.php?file=humidity_sensors.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_humidity_sensors'].'</a></li>
 				<li class="divider"></li>
                                 <li><a href="pdf_download.php?file=ds18b20_temperature_sensor.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_ds18b20_sensors'].'</a></li>
@@ -1072,8 +1074,6 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
                                 <li><a href="pdf_download.php?file=import_sensor_readings.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['import_sensors_readings'].'</a></li>
                                 <li class="divider"></li>
                                 <li><a href="pdf_download.php?file=delete_zones_relays_sensors_nodes.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['delete_nodes_sensors_relays_zones'].'</a></li>
-                                <li class="divider"></li>
-                                <li><a href="pdf_download.php?file=setup_guide_sensors.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_sensors'].'</a></li>
                     	</ul>
                 </div>
             </div>
