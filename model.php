@@ -255,6 +255,14 @@ echo '
             		<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 		<h5 class="modal-title">'.$lang['system_controller_settings'].'</h5>
+                                <div class="dropdown pull-right">
+                                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                                        </a>
+                                        <ul class="dropdown-menu">
+                        		<li><a href="pdf_download.php?file=setup_guide_system_controller.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_system_controller'].'</a></li>
+                                        </ul>
+                                </div>
             		</div>
             		<div class="modal-body">';
 				$query = "SELECT * FROM nodes where name = 'System Controller' OR name = 'GPIO Controller' OR name = 'I2C Controller';";
@@ -1057,6 +1065,8 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
                                 <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=setup_guide_sensors.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_sensors'].'</a></li>
+                                <li class="divider"></li>
                                 <li><a href="pdf_download.php?file=humidity_sensors.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_humidity_sensors'].'</a></li>
 				<li class="divider"></li>
                                 <li><a href="pdf_download.php?file=ds18b20_temperature_sensor.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_ds18b20_sensors'].'</a></li>
@@ -1243,6 +1253,14 @@ echo '
             <div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title">'.$lang['zone_settings'].'</h5>
+                <div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=setup_guide_zones.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_zones'].'</a></li>
+                        </ul>
+                </div>
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['zone_settings_text'].'</p>';

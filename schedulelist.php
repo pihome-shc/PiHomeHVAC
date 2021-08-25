@@ -1,17 +1,17 @@
 <?php
 /*
-   _____    _   _    _
-  |  __ \  (_) | |  | |
-  | |__) |  _  | |__| |   ___    _ __ ___     ___
-  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \
-  | |      | | | |  | | | (_) | | | | | | | |  __/
-  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|
+             __  __                             _
+            |  \/  |                    /\     (_)
+            | \  / |   __ _  __  __    /  \     _   _ __
+            | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+            | |  | | | (_| |  >  <   / ____ \  | | | |
+            |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 
-     S M A R T   H E A T I N G   C O N T R O L
+                    S M A R T   T H E R M O S T A T
 
 *************************************************************************"
-* PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
-* from web interface and it comes with ABSOLUTELY NO WARRANTY, to the   *"
+* MaxAir is a Linux based Central Heating Control systems. It runs from *"
+* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *"
 * extent permitted by applicable law. I take no responsibility for any  *"
 * loss or damage to you or your property.                               *"
 * DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTILL UNLESS YOU KNOW *"
@@ -26,9 +26,15 @@ require_once(__DIR__ . '/st_inc/functions.php');
 <div class="panel panel-primary">
        	<div class="panel-heading">
         	<i class="fa fa-clock-o fa-fw"></i> <?php echo $lang['schedule']; ?>
-           	<div class="pull-right">
-                	<div class="btn-group"><?php echo date("H:i"); ?></div>
-            	</div>
+                <div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                		<li><a href="pdf_download.php?file=setup_guide_scheduling.pdf" target="_blank"><i class="fa fa-file fa-fw"></i><?php echo $lang['setup_scheduling']; ?></a></li>
+                        </ul>
+                        <div class="btn-group"><?php echo '&nbsp;&nbsp;'.date("H:i"); ?></div>
+                </div>
         </div>
         <!-- /.panel-heading -->
         <div class="panel-body">

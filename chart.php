@@ -42,10 +42,16 @@ while ($row = mysqli_fetch_assoc($result)) {
         	<div class="col-lg-12">
 			<div class="panel panel-primary">
                         	<div class="panel-heading">
-                            		<i class="fa fa-bar-chart fa-fw"></i> <?php echo $lang['graph']; ?>
-						<div class="pull-right">
-							<div class="btn-group"><?php echo date("H:i"); ?></div>
-					</div>
+                                        <i class="fa fa-bar-chart fa-fw"></i> <?php echo $lang['graph']; ?>
+                                        <div class="dropdown pull-right">
+                                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                                        <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                                                </a>
+                                                <ul class="dropdown-menu">
+ 							<li><a href="pdf_download.php?file=displaying_temperature_sensors_graphs.pdf" target="_blank"><i class="fa fa-file fa-fw"></i><?php echo $lang['setup_graphs']; ?></a></li>
+                                                </ul>
+                                                <div class="btn-group"><?php echo '&nbsp;&nbsp;'.date("H:i"); ?></div>
+                                        </div>
         	                </div>
                 	        <!-- /.panel-heading -->
  				<div class="panel-body">
