@@ -674,4 +674,8 @@ $lang['setup_system_controller'] = "Setup System Controller";
 $lang['setup_scheduling'] = "Setup Scheduling";
 $lang['setup_sensors'] = "Setup Sensors";
 $lang['setup_zones'] = "Setup Zones";
+$lang['default_humidity'] = "Default Humidity";
+$lang['zone_default_humidity_info'] = "Default Humidity for this Zone, used when no scheduled Humidity is active.";
+$lang['max_humidity'] = "Maximum Humidity";
+$lang['zone_max_humidity_info'] = "Maximum Humidity this Zone can reach before Zone Relay will shut-off for safety";
 ?>
