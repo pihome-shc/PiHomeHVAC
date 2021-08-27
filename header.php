@@ -375,7 +375,7 @@ else
 			<?php //date_sun_info( int $weather['sunrise'], float $weather['lat'] , float $weather['lon']) ;?>
 			</div>
             <div class="col-xs-5 col-sm-6 col-md-6">
-                <span class="pull-right degrees"><?php echo DispTemp($conn,$weather['c']) . '&deg;&nbsp;' . $TUnit;?></span>
+                <span class="pull-right degrees"><?php echo DispSensor($conn,$weather['c'],1) . '&deg;&nbsp;' . $TUnit;?></span>
             </div>
         </div>
 		<br>
