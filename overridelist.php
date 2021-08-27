@@ -54,7 +54,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 		        		        			if ($category == 2) {
 										echo '<div class="circle '. $shactive.'"><p class="schdegree">'.$row["temperature"].'&deg;</p></div>';
 									} else {
-		        	                				echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispTemp($conn,$row["temperature"]),0).'&deg;</p></div>';
+		        	                				echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispSensor($conn,$row["temperature"],1),0).'&deg;</p></div>';
 									}
 	        			        		echo '</span>
 							</a>
@@ -91,7 +91,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 			                			        if ($hvac_mode == 3) {
                         				        		echo '<div class="circle '. $shactive.'"><p class="schdegree"></p></div>';
 						                        } else {
-        	        					                echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispTemp($conn,$row["temperature"]),0).'&deg;</p></div>';
+        	        					                echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispSensor($conn,$row["temperature"],1),0).'&deg;</p></div>';
 									}
                 	                			echo '</span>
 							</a>
