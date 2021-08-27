@@ -149,7 +149,6 @@ $lang['zone_boost_id_error'] = "Dacă aveți Consolă de Stimulare, atunci pute�
 $lang['zone_boost_child_id_error'] = "Child ID buton consola stimulare";
 $lang['zone_settings'] = "Setări zonă";
 $lang['zone_settings_text'] = "Histerezis (întârziere minimă între oprire și pornire) <br> Timp maxim de funcționare <br> Temperatură maximă a zonei.";
-$lang['zone_sp_deadband'] = "Temperatură de referință Deadband";
 $lang['zone_sp_deadband_help'] = "Deadband sub temperatura stabilită.";
 $lang['zone_sp_deadband_error'] = "Deadband sub temperatura de referință folosită pentru pornirea zonei, zona începe sub setpoint-deadband, setată la zero dacă doriți să începeți sub temperatura setpoint fără Deadband.";
 $lang['zone_enable_info'] = "Activați această zonă dacă doriți ca aceasta să fie controlată";
@@ -671,4 +670,5 @@ $lang['max_humidity'] = "Maximum Humidity";
 $lang['zone_max_humidity_info'] = "Maximum Humidity this Zone can reach before Zone Relay will shut-off for safety";
 $lang['min_humidity'] = "Minimum Humidity";
 $lang['humidity'] = "Humidity";
+$lang['humidity_sensor'] = "Humidity Sensor";
 ?>
