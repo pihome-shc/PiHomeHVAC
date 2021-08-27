@@ -396,7 +396,7 @@ function GetModal_System($conn)
     while ($row = mysqli_fetch_assoc($results)) {
         echo '<span class="list-group-item">
         <i class="fa fa-server fa-1x green"></i> '.$row['datetime'].' 
-        <span class="pull-right text-muted small"><em>'.number_format(DispTemp($conn,$row['payload']),1).'&deg;</em></span>
+        <span class="pull-right text-muted small"><em>'.number_format(DispSensor($conn,$row['payload'],1),1).'&deg;</em></span>
         </span>'; 
     }
     echo '</div>';      //close class="list-group">';
