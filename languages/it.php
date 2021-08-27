@@ -1,30 +1,28 @@
 <?php
 /*
-   _____    _   _    _                             
-  |  __ \  (_) | |  | |                            
-  | |__) |  _  | |__| |   ___    _ __ ___     ___  
-  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \ 
-  | |      | | | |  | | | (_) | | | | | | | |  __/ 
-  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___| 
-
-     S M A R T   H E A T I N G   C O N T R O L 
-
-
-****************************************************************
-* Italian Language File Version 0.1 Build Date 04/04/2020      *
-* 															   *
-*                                        Have Fun - PiHome.eu  *
-****************************************************************
-Created By: PiHome
-Last Modified by: eb
+             __  __                             _
+            |  \/  |                    /\     (_)
+            | \  / |   __ _  __  __    /  \     _   _ __
+            | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+            | |  | | | (_| |  >  <   / ____ \  | | | |
+            |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
+                    S M A R T   T H E R M O S T A T
+*************************************************************************"
+* MaxAir is a Linux based Central Heating Control systems. It runs from *"
+* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *"
+* extent permitted by applicable law. I take no responsibility for any  *"
+* loss or damage to you or your property.                               *"
+* DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTILL UNLESS YOU KNOW *"
+* WHAT YOU ARE DOING                                                    *"
+*************************************************************************"
 */
+//Italian Language File
 
-$lang['title'] = "PiHome - Smart Heating Control";
+$lang['title'] = "MaxAir - Termostato Intelligente";
 $lang['home'] = "Home";
 $lang['login'] = "Login";
 $lang['sign_in'] = "Esegui il login";
 $lang['build'] = "Build";
-$lang['powerd_by_rpi'] = "Powered By: Raspberry Pi";
 $lang['lang_en'] = "Inglese";
 $lang['lang_pt'] = "Portoghese";
 $lang['lang_fr'] = "Francese";
@@ -32,7 +30,6 @@ $lang['lang_ro'] = "Rumeno";
 $lang['lang_lv'] = "Lituano";
 $lang['lang_it'] = "Italiano";
 $lang['lang_de'] = "German";
-
 $lang['start_time'] = "Ora inizio";
 $lang['end_time'] = "Ora fine";
 $lang['close'] = "Chiudi";
@@ -50,12 +47,10 @@ $lang['save'] = "Salva";
 $lang['min_temperature'] = "Temperatura minima";
 $lang['max_temperature'] = "Temperatura massima";
 $lang['sch_name'] = "Nome programma";
-
 $lang['days'] = "Giorni";
 $lang['hours'] = "Ora";
 $lang['minutes'] = "Minuti";
 $lang['seconds'] = "Secondi";
-
 $lang['sun'] = "Dom";
 $lang['mon'] = "Lun";
 $lang['tue'] = "Mar";
@@ -63,7 +58,6 @@ $lang['wed'] = "Mer";
 $lang['thu'] = "Gio";
 $lang['fri'] = "Ven";
 $lang['sat'] = "Sab";
-
 $lang['jan'] = "Gen";
 $lang['feb'] = "Feb";
 $lang['mar'] = "Mar";
@@ -76,7 +70,6 @@ $lang['sep'] = "Set";
 $lang['oct'] = "Ott";
 $lang['nov'] = "Nov";
 $lang['dec'] = "Dic";
-
 $lang['user_accounts'] = "Account utente";
 $lang['user_pass_empty'] = "Nome utente e passord vuoti.";
 $lang['user_empty'] = "Nome utente vuoto";
@@ -84,34 +77,15 @@ $lang['pass_empty'] = "Password vuota";
 $lang['user_pass_error'] = "Nome utente/Password errato. Assicurarsi che il BLOC MAIUSC non sia attivito e riprovare.";
 $lang['user_logout'] = "Logout effettuato.";
 $lang['please_wait_text'] = "Attendere mentre il sistema recupera i dati dal database.";
-
 $lang['one_touch'] = "Opzioni";
 $lang['schedule_active_today'] = "Programma attivo per oggi.";
 $lang['schedule_not_found'] = "Nessun programa per ";
 $lang['schedule_disble'] = "Il programma può essere disabilitato premendo sulla temperatura.";
-
 $lang['boiler'] = "Caldaia";
-$lang['boiler_no_log'] = "Nessun record caldaia trovato.";
-$lang['boiler_last_records'] = "Ultimo record caldaia.";
-$lang['boiler_on_minuts'] = "Minuti ON";
-$lang['boiler_recent_logs'] = "Log Recenti";
-$lang['boiler_enable'] = "Abilita caldaia";
-$lang['boiler_name'] = "Nome visualizzato caldaia";
-$lang['boiler_node_id'] = "Node ID";
-$lang['boiler_node_id_info'] = "Controller Caldaia Node ID";
-$lang['boiler_node_child_id'] = "Node Child ID";
-$lang['boiler_relay_gpio'] = "GPIO Pin";
-$lang['boiler_relay_gpio_text'] = "Utilizzare la numerazione dei pin dell'intestazione fisica, ad esempio per l'uso GPIO18 12";
-$lang['boiler_hysteresis_time'] = "Tempo di isteresi";
-$lang['boiler_hysteresis_time_info'] = "Ritardo tra Stop e Start della caldaia in minuti, Default é 3 minuti.";
 $lang['max_operation_time'] = "Max Tempo Operativo";
 $lang['max_operation_time_info'] = "Tempo continuo Max di funzionamento della caldaia, in minuti.";
-$lang['boiler_info_text'] = "Impostazioni caldaia e come la caldaia comunica con PiHome es. Controller Wirelss o connessa ai Pin Raspberry Pi GPIO.";
 $lang['notice_interval'] = "Intervallo notifica";
 $lang['notice_interval_info'] = "Timeout per controller caldaia, in minuti, prima di essere segnalato malfunzionamento.";
-$lang['boiler_overrun'] = "Overrun";
-$lang['boiler_overrun_info'] = "Tempo impiegato dalla caldaia per far circolare l'acqua per dissipare il calore residuo.";
-
 $lang['override'] = "Override";
 $lang['boost'] = "Boost";
 $lang['away'] = "Via";
@@ -126,13 +100,11 @@ $lang['holidays_modify_error'] = "Modifica Vacanze fallita errore: ";
 $lang['holidays_departure'] = "Partenza";
 $lang['holidays_return'] = "Ritorno";
 $lang['holidays_edit'] = "Modifica vacanze";
-
 $lang['night_climate'] = "Clima Notte";
 $lang['night_climate_time_success'] = "Orario Clima Notte modificato correttamente.";
 $lang['night_climate_error'] = "Modifica Clima Notte fallita con errore: ";
 $lang['night_climate_temp_success'] = "Temp Clima notte modificata con successo.";
 $lang['night_climate_enable'] = "Abilita Clima Notte";
-
 $lang['add_boost'] = "Aggiungi Boost";
 $lang['boost_time_info'] = "Tempo Max. Boost, in minuti.";
 $lang['boost_time'] = "Tempo Boost";
@@ -144,12 +116,10 @@ $lang['boost_console_id_info'] = "Se è installata una Boost Console potete sele
 $lang['boost_button_child_id'] = "Pulsante Boost";
 $lang['boost_button_child_id_info'] = "Selezionare quale bottone della Boost Console abilita questo Boost.";
 $lang['boost_temp'] = "Boost Temp";
-
 $lang['zone'] = "Zona";
 $lang['zone_add'] = "Aggiungi Zona";
 $lang['zone_edit'] = "Modifica Zona";
 $lang['zone_enable'] = "Abilita Zona ";
-$lang['zone_record_success'] = "Record Zona aggiunto correttamente.";
 $lang['zone_record_fail'] = "Aggiunta Record Zona Falllito:";
 $lang['zone_Controller_success'] = "Record Controller Zona aggiunto correttamente.";
 $lang['zone_Controller_fail'] = "Record Controller Zona fallito.";
@@ -169,8 +139,6 @@ $lang['zone_type_heating'] = "Riscaldamento";
 $lang['zone_type_water'] = "Acqua";
 $lang['zone_type_electrical_immersion'] = "Immersion";
 $lang['hysteresis_time'] = "Tempo di isteresi";
-$lang['temp_sensor_id'] = "ID Sensore Temperatura";
-$lang['temp_sensor_child_id'] = "Child ID Sensore Temperatura";
 $lang['zone_controller_id'] = "ID Controller Zona";
 $lang['zone_controller_child_id'] = "Relay Controller Zona Child ID";
 $lang['zone_relay_gpio'] = "Relay Zona GPIO Pin";
@@ -232,10 +200,6 @@ $lang['zone_boost_button_info'] = "Boost button number if you have any";
 $lang['sensor_record_add_success'] = "Zone SensorRecord Added Successfully.";
 $lang['sensor_record_update_success'] = "Zone Sensor Record Updated Successfully.";
 $lang['sensor_record_fail'] = "Zone Sensor Record Add/Update Failed:";
-$lang['controller_record_add_success'] = "Zone ControllerRecord Added Successfully.";
-$lang['controller_record_update_success'] = "Zone Controller Record Updated Successfully.";
-$lang['controller_record_fail'] = "Zone Controller Record Add/Update Failed:";
-
 $lang['schedule'] = "Programma";
 $lang['schedule_add'] = "Aggiungi Programma";
 $lang['schedule_enable'] = "Abilita Programma";
@@ -247,14 +211,11 @@ $lang['schedule_edit'] = "Modifica Programma";
 $lang['schedule_coop_help'] = "Opzione per programma Zona con coop start. Programma Coop start non avvierà il riscaldamento di una zona se la caldaia non è già avviata. Nel caso in cui fosse avviata e la temperatura fosse inferiore al setpoint meno deadband il programma avvierà il riscaldamento della zona, dopo l'avvio funzionerà come qualsiasi altro programma fermando il riscaldamento una volta raggiunto il setpoint.";
 $lang['schedule_temp_modify_success'] = "Modifica Temperatura programma completato";
 $lang['schedule_temp_modify_error'] = "Modifica Temperatura programma fallito con errore: ";
-
 $lang['graph'] = "Grafico";
 $lang['graph_temperature'] = "PiHome Grafici Temperatura";
 $lang['graph_24h'] = "Grafici Temperatura per ultime 24 ore tutte le zone";
 $lang['graph_saving'] = "PiHome Risparmio";
 $lang['graph_saving_text'] = "Il risparmio è basato sull'avvio e l'arresto dei programmi. ";
-$lang['graph_boiler_usage'] = "PiHome utilizzo Caldaia";
-$lang['graph_boiler_usage_text'] = "Tempo di funzionamento programmato totale caldaia, tempo effettivo funzionamento totale e consumo gas salvato in PiHome. ";
 $lang['graph_outsie'] = "Esterno";
 $lang['graph_total_time'] = "Tempo Totale";
 $lang['graph_consumed_time'] = "Tempo utilizzo";
@@ -266,10 +227,8 @@ $lang['graph_battery_level_text'] = "Battery level reported by temperature senos
 $lang['battery_level'] = "Battery Level";
 $lang['battery_voltage'] = "Battery Voltage";
 $lang['battery_level_text'] = "Battery voltage reported by temperature sensors";
-
 $lang['user_change_password'] = "Cambia Password";
 $lang['user_logout'] = "Logout";
-
 $lang['weather'] = "Previsioni";
 $lang['sunrise'] = "Alba";
 $lang['sunset'] = "Tramonto";
@@ -291,10 +250,8 @@ $lang['mqtt'] = "MQTT";
 $lang['openweather'] = "OpenWeather";
 $lang['system'] = "Sistema";
 $lang['os_version'] = "OS Versione";
-$lang['pihome_update'] = "PiHome Update";
 $lang['update_etc'] = "Uptime, etc";
 $lang['backup'] = "Backup";
-
 $lang['wifi'] = "WiFi";
 $lang['wifi_settings'] = "Impostazioni WiFi";
 $lang['wifi_settings_text'] = "Stato WiFi e dati trasmessi totale da ultimo riavvio.";
@@ -305,7 +262,6 @@ $lang['upload'] = "Upload";
 $lang['speed'] = "Velocità";
 $lang['ethernet'] = "Ethernet";
 $lang['ethernet_settings'] = "Impostazioni Ethernet";
-
 $lang['big_thanks'] = "Ringraziamenti";
 $lang['reboot_pi'] = "Riavvia Pi";
 $lang['shutdown_pi'] = "Spegni Pi";
@@ -319,8 +275,6 @@ $lang['frost_protection_text'] = "Il sistema si proteggerà dal congelamento, Pe
 $lang['unit_change'] = "Cambia Unità";
 $lang['unit_celsius'] = "Celsius";
 $lang['unit_fahrenheit'] = "Fahrenheit";
-$lang['boiler_settings'] = "Impostazioni Caldaia";
-$lang['boiler_hysteresis_text'] = "Isteresi (Ritardo minimo tra accensione e spegnimento)";
 $lang['node'] = "Node";
 $lang['max_child'] = "Num. Max. di Child IDs";
 $lang['boost_settings'] = "Impostazioni Boost";
@@ -335,7 +289,6 @@ $lang['ctr'] = "Ctr";
 $lang['smart_home_gateway'] = "Smart Home Gateway";
 $lang['smart_home_gateway_text_wifi'] = " Smart Home Gateway è equipaggiato con nRF24L01 per comunicare con i nodi e WiFi per connettersi alla rete domestica a cui è connesso il controller.";
 $lang['smart_home_gateway_text_serial'] = " Smart Home Gateway è equipaggiato con nRF24L01 per comunicare con i nodi e Seriale per connettersi al sistema di controllo della casa.";
-
 $lang['smart_home_gateway_enable'] = "Abilita Gateway";
 $lang['smart_home_gateway_type'] = "Tipo Gateway";
 $lang['wifi'] = "WiFi";
@@ -356,10 +309,6 @@ $lang['cron_jobs_text'] = "Lista Crone Jobs e programmazione.";
 $lang['os_version'] = "OS Versione";
 $lang['openweather_settings'] = "Impostazioni OpenWeather";
 $lang['openweather_settings_text'] = "Riferirsi a <a class=\"green\" target=\"_blank\" href=\"http://OpenWeatherMap.org\">OpenWeatherMap.org</a> per maggiori informazioni. <p>Dovrà essere attivato un account (anche gratuito) in modo da poter utilizzare OpenWeather.";
-$lang['pihome_update'] = "PiHome Aggiornamento";
-$lang['pihome_update_text'] = "PiHome versione software installata e aggiornamenti disponibili.";
-$lang['pihome_update_c_version'] = "Versione Systema installato";
-$lang['pihome_update_u_version'] = "Versione aggiornata disponibile";
 $lang['pihome_backup'] = "Database Backup";
 $lang['pihome_backup_text'] = "Il backup completo del database backup potrebbe impiegare un po' di tempo. Una volta completato verrà inviata una e-mail al seguente indirizzo.";
 $lang['pihome_backup_email_info'] = "Nel caso in cui abbiate modificato l'indirizzo e-mail premete salva prima di proseguire";
@@ -384,7 +333,6 @@ $lang['add_conn'] = "Agg. Conn";
 $lang['services'] = "Servizi";
 $lang['system'] = "Sistema";
 $lang['more_language'] = "Più Lingue...";
-
 $lang['email'] = "E-Mail";
 $lang['email_enable'] = "Abilita E-Mail";
 $lang['email_settings'] = "Impostazioni E-Mail";
@@ -394,14 +342,12 @@ $lang['email_username'] = "Username";
 $lang['email_password'] = "Password";
 $lang['email_from_address'] = "Da e-mail";
 $lang['email_to_address'] = "A e-mail";
-
 $lang['node_alerts_edit'] = "Modifica impostazioni avviso Node";
 $lang['node_alerts_edit_info'] = "Errore Zona su Controller Temperatura node timeout. Il difetto sarà indicato nella schermata home. Il monitoraggio errori è disabilitato per il Node se l'intervallo di notifica è impostato su 0.";
 $lang['notice_interval'] = "Intervallo Notifica";
 $lang['notice_interval_info'] = "Imposta intervallo notifica, in minuti.";
 $lang['node_id'] = "Node ID";
 $lang['last_seen'] = "Ultimo rilevamento";
-
 $lang['node_setting'] = "Impostazioni Node";
 $lang['node_settings_text'] = "Possible aggiungere GPIO, I2C scheda relé come Node, i Wireless Node sono automaticamente rilevati. ";
 $lang['node_add'] = "Agg. Node";
@@ -413,30 +359,23 @@ $lang['node_child_id'] = "Numero di Child Devices connessi al Node";
 $lang['node_child_id_info'] = "Numero di Device connessi";
 $lang['node_id_info'] = "ID Scheda I2C o 0 nel caso si voglia utilizzare Raspberry Pi GPIO";
 $lang['node_name_info'] = "Nome Node rappresenta la funzione del Node che si sta aggiungendo";
-
 $lang['time_zone'] = "Fuso Orario";
 $lang['time_zone_text'] = "Molto importante impostare correttamente il proprio fuso orario altrimenti potrebbero esservi problemi con i programmi";
-
 $lang['time_zone'] = "Fuso Orario";
 $lang['time_zone_text'] = "Molto importante impostare correttamente il proprio fuso orario altrimenti potrebbero esservi problemi con i programmi";
-
 $lang['tooltip_1'] = "Visualizzazione Stato Sistema";
 $lang['tooltip_2'] = "Menù Configurazione Sistema";
 $lang['tooltip_3'] = "Menù Configurazione Caldaia";
 $lang['tooltip_4'] = "Configurazione Zona e Node";
 $lang['system_status'] = "Stato Sistema";
 $lang['system_configuration'] = "Configurazione Sistema";
-$lang['boiler_configuration'] = "Configurazione Caldaia";
 $lang['node_zone_configuration'] = "Configurazione Zona e Node";
-
-$lang['boiler_no_nodes'] = "*** NECESSARIO CONFIGURARE UN NODE UTILIZZABILE ***";
 $lang['schedule_night_climate_time_success'] = "Orario Clima Notte default aggiunto correttamente.";
 $lang['schedule_night_climate_time_fail'] = "Orario Clima Notte default fallito con errore: ";
 $lang['away_success'] = "Tabella Via default aggiunta correttamente.";
 $lang['away_fail'] = "Tabella Via Default fallita con errore: ";
 $lang['holidays_success'] = "Aggiunta tabella Vacanze correttamente.";
 $lang['holidays_fail'] = "Aggiunta tabella Vacanze fallita con errore: ";
-
 $lang['confirmation'] = "Conferma!";
 $lang['confirm_del_sensor'] = "Stai per eliminare questo sensore";
 $lang['confirm_del_controller'] = "Stai per eliminare un controller NESSUNO attivo!";
@@ -446,7 +385,9 @@ $lang['confirm_dell_active_zone_type'] = "Stai per eliminare un tipo di zona in 
 $lang['confirm_dell_de_active_zone_type'] = "Stai per eliminare un tipo di zona che NON è in uso";
 $lang['confirm_dell_active_zone'] = "Stai per eliminare una ZONA ATTIVA";
 $lang['confirm_dell_de_active_zone'] = "Stai per ELIMINARE UNA NESSUNA ZONA attiva";
-
+//***********************************************************************************************************************************
+//                                                        Requires Translation
+//***********************************************************************************************************************************
 $lang['add_on'] = "Add On";
 $lang['add_on_http'] = "HTTP";
 $lang['add_on_settings'] = "Add-On HTTP Messages";
@@ -466,8 +407,267 @@ $lang['http_parameter_info'] = "HTTP Parameter to be sent with command to Tasmot
 $lang['add_on_messages'] = "Add HTTP Messages";
 $lang['add_on_add_info_text'] = "HTTP Messages to be to Sent and Received from Tasmota Controller";
 $lang['no_tasmota'] = "No Tasmota Controllers";
-
 $lang['sunset_enable'] = "Enable Sunset & Set Offset in Minutes ";
 $lang['sunset_enable_info'] = "Enable Sunset Override for Start Time with an Offset in minutes eg -30 is 30 minutes before sunset";
 $lang['select_zone'] = "Select Zone/s";
+$lang['copyright'] = "BrainMax 2020. All Rights Reserved";
+$lang['powerd_by'] = "Powered By: Linux";
+$lang['wifi_connect'] = "Connect To WiFi";
+$lang['set_reboot'] = "Set and Restart";
+$lang['humid'] = "Humid";
+$lang['no'] = "No";
+$lang['fullname_empty'] = "Fullname is empty";
+$lang['email_empty'] = "Email Address is empty";
+$lang['ssid_empty'] = "SSID is empty";
+$lang['ssid_pass_empty'] = "SSID and Password is empty.";
+$lang['system_controller_no_log'] = "No System Controller log record found.";
+$lang['system_controller_last_records'] = "Last System Controller Log Records.";
+$lang['system_controller_on_minuts'] = "On Minutes";
+$lang['system_controller_recent_logs'] = "Recent Logs";
+$lang['system_controller_hysteresis_time'] = "Hysteresis Time";
+$lang['system_controller_hysteresis_time_info'] = "Delay Between Stop and Start of the System in minutes, Default is 3 minutes.";
+$lang['system_controller_overrun'] = "Overrun";
+$lang['system_controller_overrun_info'] = "Time for Boiler to circulate the water to dissipate residual heat.";
+$lang['zone_record_add_success'] = "Zone Record Added Successfully.";
+$lang['zone_record_update_success'] = "Zone Record Updated Successfully.";
+$lang['zone_type_text'] = "Add Zone Type";
+$lang['zone_type_add'] = "Add Type";
+$lang['zone_type_add_info_text'] = "You can Add New Zone Types.";
+$lang['category'] = "Category";
+$lang['zone_category0'] = "Sensor and System Control";
+$lang['zone_category1'] = "Sensor and NO System Control";
+$lang['zone_category2'] = "NO Sensor and NO System Control";
+$lang['zone_category3'] = "Sensor and System Control";
+$lang['zone_category_info'] = "Select Zone Type Category for Process Control";
+$lang['zone_min_temperature_help'] = "Minimum temperature for this Zone";
+$lang['zone_min_temperature_error'] = "Minimum temperature this Zone can reach before the system shuts down this Zone for safety.";
+$lang['zone_min_temperature_info'] = "Minimum temperature this Zone can reach before Zone cooling will shut-off for safety";
+$lang['zone_sensor_record_add_success'] = "Zone Sensor Record Added Successfully.";
+$lang['zone_sensor_record_update_success'] = "Zone Sensor Record Updated Successfully.";
+$lang['zone_sensor_record_fail'] = "Zone Sensor Record Add/Update Failed:";
+$lang['zone_relay_record_add_success'] = "Zone Relay Record Added Successfully.";
+$lang['zone_relay_record_update_success'] = "Zone Relay Record Updated Successfully.";
+$lang['zone_relay_record_fail'] = "Zone Relay Record Add/Update Failed:";
+$lang['messages_out_add_success'] = "Messages Out Added Successfully.";
+$lang['messages_out_update_success'] = "Messages Out Updated Successfully.";
+$lang['messages_out_fail'] = "Messages Out Add/Update failed with error: ";
+$lang['graph_humidity'] = "MaxAir Humidity Graphs";
+$lang['graph_humidity_24h'] = "Graphs for the last 24 hours for all Humidity Sensors";
+$lang['graph_system_controller_usage'] = "MaxAir System Controller Usage";
+$lang['graph_system_controller_usage_text'] = "Total time System Controller is scheduled to run, actual time System Controller ran, and System Controller gas consumption saved by MaxAir. ";
+$lang['min_battery_level'] = "Min Level";
+$lang['battery_level_info'] = "Minimum Battery level for temperature sensors";
+$lang['hvac_boost_settings_text'] = "Boost settings for each HVAC Function i.e. Maximum operating time, Maximum temperature.";
+$lang['min'] = "Min";
+$lang['controller'] = "Controller";
+$lang['maxair_update'] = "MaxAir Update";
+$lang['maxair_update_text'] = "The installed code modules will be checked against the versions installed in the GitHub Repository. The check will execute as a background task and may take a few minutes to complete. If any differences are found an 'Update' icon will be displayed on the header toolbar.";
+$lang['maxair_versions'] = "MaxAir Versions";
+$lang['maxair_versions_text'] = "MaxAir current software version and any available updates.";
+$lang['maxair_update_installed'] = "Installed";
+$lang['maxair_update_github'] = "GitHub";
+$lang['maxair_update_code_v'] = "Code Version";
+$lang['maxair_update_code_b'] = "Code Build";
+$lang['maxair_update_db_v'] = "DataBase Version";
+$lang['maxair_update_db_b'] = "DataBase Build";
+$lang['update_code'] = "Update Code";
+$lang['update_check'] = "Check for Updates";
+$lang['confirm_update'] = "Confirm Update Code";
+$lang['confirm_update_info'] = "SELECTING YES WILL OVERWRITE EXISTING CODE MODULES";
+$lang['github_update'] = "Code Modules Updated in GitHub Repository";
+$lang['github_update_info'] = "The follow list of code modules are different in the GitHub Repository. You can update your installed copy, but BEWARE THE INSTALLED COPY WILL BE OVERWRITTEN.";
+$lang['github_db_update'] = "Database Updates in GitHub Repository";
+$lang['github_db_update_info'] = "The follow list of database updates are available in the GitHub Repository. These need to be installed before they can be applied to the running database.";
+$lang['db_update_install'] = "Install Update";
+$lang['confirm_db_update'] = "Confirm Update Database";
+$lang['confirm_db_update_info'] = "SELECTING YES WILL:<br><br>1. INSTALL THE DATABASE UPDATE FILES<br>2. BACKUP THE EXISTING DATABASE<br>3. UPDATE THE DATABASE STRUCTURE";
+$lang['confirm_proceed'] = "PROCEED";
+$lang['network'] = "Network";
+$lang['network_settings'] = "Network Settings";
+$lang['network_text'] = "Controller Network Configuration Parameters. ";
+$lang['network_interface'] = "Controller Network Interface";
+$lang['network_mac_address'] = "Controller MAC Address";
+$lang['network_hostname'] = "Controller Hostname";
+$lang['network_ip_address'] = "Controller IP Address";
+$lang['network_gateway_address'] = "Controller Gateway Address";
+$lang['network_net_mask'] = "Controller Net Mask";
+$lang['network_dns1_address'] = "Controller DNS1 Address";
+$lang['network_dns2_address'] = "Controller DNS2 Address";
+$lang['network_primary'] = "Controller Primary Interface";
+$lang['network_ap_mode'] = "Operate as Access Point";
+$lang['sensor_settings'] = "Sensor Settings";
+$lang['sensor_settings_text'] = "Edit or Delete the Sensor's Configuration. <br> Sensors Allocated to a Zone Cannot be Deleted. <br> Last Seen Date/Time is shown with Sensor Name. ";
+$lang['sensor_id'] = "Sensor ID";
+$lang['sensor_id_info'] = "Node ID for the Sensor";
+$lang['sensor_id_error'] = "Sensor ID can not be empty.";
+$lang['sensor_child_id'] = "Sensor Child ID";
+$lang['sensor_child_id_info'] = "Node Child ID for the Sensor";
+$lang['sensor_child_id_error'] = "Sensor Child ID can not be empty.";
+$lang['sensor_add'] = "Add Sensor";
+$lang['sensor_edit'] = "Edit Sensor";
+$lang['temp_sensor_add'] = "Temperature Sensor Add";
+$lang['temp_sensor_add_text'] = "Add Temperature Sensor by Name Using Node ID and Child ID";
+$lang['sensor_name'] = "Sensor Name";
+$lang['show'] = "Show";
+$lang['correction_factor'] = "Correction Factor";
+$lang['sensor_correction_factor'] = "Sensor Correction Factor";
+$lang['sensor_correction_factor_info'] = "Posotive or Negative Correction Factor";
+$lang['sensor_correction_factor_help'] = "Sensor Correction Factor should contain numbers only! This number will be used as an offset for the returned temperature reading.";
+$lang['temp_sensor_index_number'] = "Index Number";
+$lang['temp_sensor_index_number_help'] = "Index Number should contain numbers only! This number will dertimin where icon will be placed on home screen.";
+$lang['temp_sensor_index_number_info'] = "In the List of sensors where you want to place this sensor on home screen";
+$lang['pre_sc_tile'] = "Before System Controller";
+$lang['pre_sc_tile_info'] = "When Sensor is NOT Allocated to a Zone, Locate Tile either Before or After the System Controller Tile on the Home Screen";
+$lang['relay_settings'] = "Controller Relay Settings";
+$lang['relay_settings_text'] = "Edit or Delete the Relay Configuration. <br> Allocated Relays Cannot be Deleted untill removed from the Zone or Controller. <br> Last Seen Date/Time is shown with Controller Relay Name. ";
+$lang['relays'] = "Relays";
+$lang['relay_add'] = "Add Relay";
+$lang['relay_edit'] = "Edit Relay";
+$lang['relay_name'] = "Relay Name";
+$lang['relay_name_info'] = "(Identify where the Relay is being used.)";
+$lang['relay_name_help'] = "Identify as Zone or Boiler or Heat or Chill or Fan";
+$lang['relay_id'] = "Relay ID";
+$lang['relay_id_info'] = "Node ID for the Relay";
+$lang['relay_id_error'] = "Telay ID can not be empty.";
+$lang['relay_child_id'] = "Relay Child ID";
+$lang['relay_child_id_info'] = "Node Child ID for the Relay";
+$lang['relay_child_id_error'] = "Relay Child ID can not be empty.";
+$lang['relay_record_add_success'] = "Controller Relay Record Added Successfully.";
+$lang['relay_record_update_success'] = "Controller Relay Record Updated Successfully.";
+$lang['relay_trigger'] = "Trigger Level";
+$lang['relay_trigger_info'] = "The logic Level to Turn Relay ON.";
+$lang['relay_trigger_help'] = "Set to either HIGH or LOW";
+$lang['relay_record_fail'] = "Controller Relay Record Add/Update Failed:";
+$lang['controller_type'] = "Controller Type";
+$lang['controller_type_info'] = "(Zone or Heat or Chill or Fan)";
+$lang['controller'] = "Controller";
+$lang['heat_relay_id'] = "HEATING Relay ID";
+$lang['heat_relay_id_info'] = "System Controller Heating Switching Relay";
+$lang['cool_relay_id'] = "COOLING Relay ID";
+$lang['cool_relay_id_info'] = "System Controller Cooling Switching Relay";
+$lang['fan_relay_id'] = "FAN Relay ID";
+$lang['fan_relay_id_info'] = "System Controller Fan Switching Relay";
+$lang['hvac'] = "HVAC";
+$lang['system_controller_mode'] = "System Controller Mode";
+$lang['system_mode'] = "Mode";
+$lang['system_controller_settings'] = "System Controller Settings";
+$lang['system_controller_configuration'] = "System Controller Configuration";
+$lang['system_controller_enable'] = "Enable System Controller";
+$lang['system_controller_name'] = "System Controller Display Name";
+$lang['system_controller_info_text'] = "System Controller Settings and how it interacts with the System, i.e. Wireless Controller or Connected to GPIO Pins.";
+$lang['system_controller_no_nodes'] = "*** YOU NEED TO CONFIGURE A SUITABLE NODE FIRST ***";
+$lang['mode_off'] = "OFF";
+$lang['mode_timer'] = "TIMER";
+$lang['mode_auto'] = "AUTO";
+$lang['mode_heat'] = "HEAT";
+$lang['mode_cool'] = "COOL";
+$lang['mode_fan'] = "FAN";
+$lang['mode_ce'] = "CE";
+$lang['mode_hw'] = "HW";
+$lang['mode_both'] = "BOTH";
+$lang['hvac_mode'] = "HVAC MODE";
+$lang['mode'] = "MODE";
+$lang['live_temperature'] = "Live Temperature";
+$lang['live_temp'] = "Live Temp";
+$lang['live_duration'] = "Duration in Minutes";
+$lang['default_temperature'] = "Default Temperature";
+$lang['zone_default_temperature_help'] = "Default temperature for this Zone";
+$lang['zone_default_temperature_error'] = "Default temperature this Zone, used when no scheduled temperature is active.";
+$lang['zone_default_temperature_info'] = "Default temperature this Zone, used when no scheduled temperature is active.";
+$lang['hvac_function'] = "HVAC Function";
+$lang['hvac_boost_info_text'] = "Create Boost Option for HVAC Function";
+$lang['system_controller'] = "System Controller";
+$lang['graph_num'] = "Graph Number";
+$lang['graph_addon_usage'] = "Daily Add-On Zone Controller Graphs";
+$lang['graph_addon_state_text'] = "State of Add-On Zone Controllers over the last 24 hours";
+$lang['livetemp_enable'] = "Enable Live Temperature";
+$lang['apply'] = "Apply";
+$lang['livetemp_success'] = "livetemp Table Default Added Successfully.";
+$lang['livetemp_fail'] = "livetemp Table Default failed with error: ";
+$lang['livetemp_no_control_zone'] = "Please Add Control Zone to enable this Feature";
+$lang['jobs'] = "Jobs";
+$lang['jobs_name'] = "Job Name";
+$lang['jobs_script'] = "Script Name";
+$lang['jobs_log'] = "Log Job";
+$lang['job_status'] = "Job Status";
+$lang['jobs_status_log'] = "Job Last Status Logs";
+$lang['last_job_log_info'] = "Select Job to display last Status Report.";
+$lang['jobs_time'] = "Run Every";
+$lang['schedule_jobs'] = "Schedule Jobs";
+$lang['schedule_jobs_info'] = "Configure Jobs to run every set interval and enable creation of a Log file if required. ";
+$lang['add_job'] = "Add Job";
+$lang['add_new_job'] = "Add New Scheduled Job";
+$lang['add_new_job_info_text'] = "Add New Job Name, Script Name, Log On/Off and run Interval. ";
+$lang['jobs_name_info'] = "Descriptive name for the Scheduled Job. ";
+$lang['jobs_script_info'] = "Full Path Name for the executable Job Script. ";
+$lang['jobs_time_info'] = "Run the Jobs Script Every x Seconds. ";
+$lang['frost_controller'] = "Frost Controller";
+$lang['frost_temparature'] = "Frost Temperature";
+$lang['frost_controller_text'] = "The zone controller to be activated when frost protection is triggered by this temperature sensor.";
+$lang['frost_ptotection_info'] = "Show Temperature Sensors used for Frost Protection, the Trigger Temperature and the associated Zone Controller. ";
+$lang['fullname'] = "Full Name";
+$lang['old_password'] = "Old Password";
+$lang['new_password'] = "New Password";
+$lang['confirm_password'] = "Confirm Password";
+$lang['add_user'] = "Add User";
+$lang['edit_user'] = "Edit User";
+$lang['change_password_text'] = "Edit Password Details below. ";
+$lang['edit_user_text'] = "Edit User Account Details below. ";
+$lang['add_user_text'] = "Add New User Account Details below. ";
+$lang['email_address'] = "Email Address";
+$lang['old_password_info'] = " (Leave Blank if not changing Password.)";
+$lang['account_enable'] = "Enable User Account";
+$lang['account_enable_info'] = "Disabling the account will prevent the user accessing the system.";
+$lang['admin_account'] = "Administrator Account";
+$lang['admin_account_info'] = "Account with full access to all systems features and settings. ";
+$lang['enabled'] = "Enabled";
+$lang['enable_outgoing'] = "Enable Outgoing Messages (GPIO Outputs Enabled by Default)";
+$lang['nodes'] = "Nodes";
+$lang['install'] = "Install";
+$lang['install_software'] = "Install Software";
+$lang['install_software_text'] = "Select Software to be Installed.";
+$lang['installing_sw'] = "Installing Software";
+$lang['installing_sw_info'] = "Please Be Patient Installing Software in the background, this could take some time.";
+$lang['last_sw_install'] = "Results of Last Software Install Action";
+$lang['documentation'] = "Documentation";
+$lang['documentation_info'] = "Select Documentation to be opened in a new Browser Tab";
+$lang['open'] = "Open";
+$lang['sensor_type'] = "Sensor Type";
+$lang['sensor_type_info'] = "Temperature, Humidity, etc";
+$lang['confirm_del_active_sensor_type'] = "You are about to DELETE a Sensor Type Which Is In Use";
+$lang['confirm_del_de_active_sensor_type'] = "You are about to DELETE a Sensor Type Which Is NOT In Use";
+$lang['sensor_type_add'] = "Add Type";
+$lang['sensor_type_add_info_text'] = "You can Add New Sensor Types.";
+$lang['confirm_del_sensor_1'] = "You are about to DELETE a Node with No Active Sensors";
+$lang['confirm_del_sensor_2'] = "You are about to DELETE ACTIVE Sensor - ";
+$lang['confirm_del_sensor_3'] = "Cannot DELETE Node, Sensor attached to Zone - ";
+$lang['confirm_del_sensor_4'] = "DELETE Sensor";;
+$lang['confirm_del_sensor_5'] = "Cannot DELETE Sensor attached to Zone - ";
+$lang['confirm_del_controller_1'] = "You are about to DELETE a Node with no active Relays";
+$lang['confirm_del_controller_2'] = "You are about to DELETE ACTIVE Relay - ";
+$lang['confirm_del_controller_3'] = "Cannot DELETE Node, Relay attached to - ";
+$lang['confirm_del_relay_1'] = "DELETE Relay";
+$lang['confirm_del_relay_2'] = "Cannot DELETE Relay, attaced to - ";
+$lang['setup_frost_protection'] = "Setup Frost Protection";
+$lang['install_software_technical'] = "Install Software Technical";
+$lang['setup_zone_type'] = "Setup Zone Type";
+$lang['setup_relays'] = "Setup Relay Devices";
+$lang['setup_humidity_sensors'] = "Setup Humidity Sensors";
+$lang['setup_ds18b20_sensors'] = "Setup 1-Wire Sensors";
+$lang['import_sensors_readings'] = "Import Sensors Readings";
+$lang['delete_nodes_sensors_relays_zones'] = "Delete Nodes, Sensors, Relays and Zones";
+$lang['setup_job_scheduling'] = "Setup Job Scheduling";
+$lang['setup_add_on_device'] = "Setup Tasmota Add-On Device";
+$lang['setup_graphs'] = "Setup Sensor Graphs";
+$lang['maxair_update_process'] = "MaxAir Update Process";
+$lang['setup_system_controller'] = "Setup System Controller";
+$lang['setup_scheduling'] = "Setup Scheduling";
+$lang['setup_sensors'] = "Setup Sensors";
+$lang['setup_zones'] = "Setup Zones";
+$lang['default_humidity'] = "Default Humidity";
+$lang['zone_default_humidity_info'] = "Default Humidity for this Zone, used when no scheduled Humidity is active.";
+$lang['max_humidity'] = "Maximum Humidity";
+$lang['zone_max_humidity_info'] = "Maximum Humidity this Zone can reach before Zone Relay will shut-off for safety";
+$lang['min_humidity'] = "Minimum Humidity";
+$lang['humidity'] = "Humidity";
 ?>
