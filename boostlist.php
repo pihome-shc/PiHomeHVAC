@@ -57,7 +57,7 @@ if (settings($conn, 'mode') == 0) { // Boiler Mode
 	                        <div class="chat-body clearfix">
         	                <div class="header">';
                 	} else {
-                        	echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispTemp($conn,$row["temperature"]),0).'&deg;</p></div>
+                        	echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispSensor($conn,$row["temperature"],1),0).'&deg;</p></div>
 	                        </span></a>
         	                <div class="chat-body clearfix">
                 	        <div class="header">';
@@ -101,7 +101,7 @@ if (settings($conn, 'mode') == 0) { // Boiler Mode
                                 <div class="chat-body clearfix">
                                 <div class="header">';
                         } else {
-                                echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispTemp($conn,$row["temperature"]),0).'&deg;</p></div>
+                                echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispSensor($conn,$row["temperature"],1),0).'&deg;</p></div>
                                 </span></a>
                                 <div class="chat-body clearfix">
                                 <div class="header">';
