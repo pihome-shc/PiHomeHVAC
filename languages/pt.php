@@ -159,7 +159,6 @@ $lang['zone_boost_id_error'] = "Se tiver consola de Boost, poderá selecionar ID
 $lang['zone_boost_child_id_error'] = "ID do Botão da Consola de Boost secundario para esta Zona";
 $lang['zone_settings'] = "Configuracoes de Zona";
 $lang['zone_settings_text'] = "Histerese (Diferenca de tempo entre ligar sistema e desligar) <br> Tempo de Operacao Maximo <br> Temperatura Maxima da Zona. ";
-$lang['zone_sp_deadband'] = "Temperature Setpoint Deadband";
 $lang['zone_sp_deadband_help'] = "Deadband below setpoint temperature.";
 $lang['zone_sp_deadband_error'] = "Deadband below setpoint temperature used for starting the zone, zone starts below setpoint-deadband, set to zero if you want to start below setpoint temperature without deadband.";
 $lang['zone_enable_info'] = "Enable this zone if you want this zone to be controlled";
@@ -670,4 +669,5 @@ $lang['max_humidity'] = "Maximum Humidity";
 $lang['zone_max_humidity_info'] = "Maximum Humidity this Zone can reach before Zone Relay will shut-off for safety";
 $lang['min_humidity'] = "Minimum Humidity";
 $lang['humidity'] = "Humidity";
+$lang['humidity_sensor'] = "Humidity Sensor";
 ?>
