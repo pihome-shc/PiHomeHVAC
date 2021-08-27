@@ -191,8 +191,8 @@ require_once(__DIR__.'/st_inc/functions.php');
                         	        $current_mode = "";
 	                }
                         echo '<input type="hidden" id="zone_id" name="zone_id" value="'.$livetemp_zone_id.'"/>
-                        <input type="hidden" id="min_c" name="min_c" value="'.DispTemp($conn,$zrow['min_c']).'"/>
-                        <input type="hidden" id="max_c" name="max_c" value="'.DispTemp($conn,$zrow['max_c']).'"/>';
+                        <input type="hidden" id="min_c" name="min_c" value="'.DispSensor($conn,$zrow['min_c'],1).'"/>
+                        <input type="hidden" id="max_c" name="max_c" value="'.DispSensor($conn,$zrow['max_c'],1).'"/>';
 		} // end if ($rowcount > 0)
 		echo '<div class="modal fade" id="livetemperature" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 			<div class="modal-dialog">
@@ -205,7 +205,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                                                 <div style="text-align:center;">';
                                                         if ($rowcount > 0) {
                                                                 echo '<h4><br><p>Heating Zone '.$current_mode.' Temperature Control</p></h4><br>
-                                                                <input type="text" value="'.DispTemp($conn, $set_temp).'" class="dial" id="livetemp_c" name="live_temp">
+                                                                <input type="text" value="'.DispSensor($conn, $set_temp, 1).'" class="dial" id="livetemp_c" name="live_temp">
                                                                 <div style="float:right;">
                                                                         <textarea id="load_temp" class="temperature-box" readonly="readonly" row="0" col="0" ></textarea>
                                                                 </div>
