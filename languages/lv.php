@@ -172,7 +172,7 @@ $lang['zone_boost_id_error'] = "Ja jums ir uzsildīšanas konsole, tad jūs vara
 $lang['zone_boost_child_id_error'] = "Uzsildīšanas konsoles pogas bērna ID šai zonai";
 $lang['zone_settings'] = "Zonas uzstādījumi";
 $lang['zone_settings_text'] = "Histerēze (minimālā kavēšanās starp izslēgšanu un ieslēgšanu) <br> Maksimālais darbības laiks <br> Maksimālā zonas temperatūra. ";
-$lang['zone_sp_deadband'] = "Temperatūras uzdotās vērtības intervāls";
+$lang['zone_sp_deadband'] = "Uzdotās vērtības intervāls";
 $lang['zone_sp_deadband_help'] = "Noteiktās temperatūras apakšējā vērtība.";
 $lang['zone_sp_deadband_error'] = "Nedrošības josla zem iestatītās temperatūras, kas tiek izmantota zonas sākšanai. Zona sākas zem apakšējās iestatītās vērtības. Iestatiet uz nulli, ja vēlaties sākt zem iestatītās temperatūras bez intervāla.";
 $lang['zone_enable_info'] = "Iespējojiet šo zonu, ja vēlaties, lai šī zona tiktu kontrolēta";
@@ -651,4 +651,5 @@ $lang['max_humidity'] = "Maximum Humidity";
 $lang['zone_max_humidity_info'] = "Maximum Humidity this Zone can reach before Zone Relay will shut-off for safety";
 $lang['min_humidity'] = "Minimum Humidity";
 $lang['humidity'] = "Humidity";
+$lang['humidity_sensor'] = "Humidity Sensor";
 ?>
