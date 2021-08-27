@@ -157,7 +157,6 @@ $lang['zone_gpio_pin_error'] = "Si la valve motorisée de la zone est connectée
 $lang['zone_boost_id_error'] = "Si vous avez la console de boost, vous pouvez sélectionner un identifiant de console de boost.";
 $lang['zone_settings'] = "Réglages de la zone";
 $lang['zone_settings_text'] = "Hystérésis (délai minimum entre l'extinction et la remise en route) <br> Durée maximale de fonctionnement <br> Température maximale de la zone.";
-$lang['zone_sp_deadband'] = "Temperature Setpoint Deadband";
 $lang['zone_sp_deadband_help'] = "Deadband below setpoint temperature.";
 $lang['zone_sp_deadband_error'] = "Deadband below setpoint temperature used for starting the zone, zone starts below setpoint-deadband, set to zero if you want to start below setpoint temperature without deadband.";
 $lang['zone_enable_info'] = "Enable this zone if you want this zone to be controlled";
@@ -669,4 +668,5 @@ $lang['max_humidity'] = "Maximum Humidity";
 $lang['zone_max_humidity_info'] = "Maximum Humidity this Zone can reach before Zone Relay will shut-off for safety";
 $lang['min_humidity'] = "Minimum Humidity";
 $lang['humidity'] = "Humidity";
+$lang['humidity_sensor'] = "Humidity Sensor";
 ?>
