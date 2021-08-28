@@ -1,4 +1,8 @@
-INSERT INTO `zone_type`(`sync`, `purge`, `type`, `category`) VALUES ('0','0','Humidity','1');
+INSERT INTO `zone_type`(`sync`, `purge`, `type`, `category`) 
+SELECT * FROM (SELECT '0' AS `sync`, '0' AS `purge`, 'Humidity' AS `type`, '1' AS `category`) AS tmp
+WHERE NOT EXISTS (
+    SELECT `type` FROM `zone_type` WHERE `type` = 'Humidity'
+) LIMIT 1;
 Drop View if exists zone_view;
 CREATE VIEW zone_view AS
 select zone.status, zone.zone_state, zone.sync, zone.id, zone.index_id, zone.name, ztype.type, ztype.category, ts.graph_num, zs.min_c, zs.max_c, zs.default_c, max_operation_time, zs.hysteresis_time,
