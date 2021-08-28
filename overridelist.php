@@ -51,10 +51,11 @@ require_once(__DIR__.'/st_inc/functions.php');
 							<a href="javascript:active_override('.$row["zone_id"].');">
 								<span class="chat-img pull-left override">';
 									if($row["status"]=="0"){ $shactive="bluesch"; $status="Off"; }else{ $shactive="orangesch"; $status="On"; }
+									if($row['sensor_type_id'] == 1) { $unit = '&deg;'; } elseif($row['sensor_type_id'] == 2) { $unit = '%'; } else { $unit = '';}
 		        		        			if ($category == 2) {
-										echo '<div class="circle '. $shactive.'"><p class="schdegree">'.$row["temperature"].'&deg;</p></div>';
+										echo '<div class="circle '. $shactive.'"><p class="schdegree">'.$row["temperature"].$unit.'</p></div>';
 									} else {
-		        	                				echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispSensor($conn,$row["temperature"],1),0).'&deg;</p></div>';
+		        	                				echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispSensor($conn,$row["temperature"],$row['sensor_type_id']),0).$unit.'</p></div>';
 									}
 	        			        		echo '</span>
 							</a>
@@ -88,10 +89,11 @@ require_once(__DIR__.'/st_inc/functions.php');
 		                        		<a href="javascript:active_boost('.$row["id"].');">
 	                		        		<span class="chat-img pull-left override">';
 			                        			if($row["status"]=="0"){ $shactive="bluesch"; $status="Off"; }else{ $shactive="redsch"; $status="On"; }
+									if($row['sensor_type_id'] == 1) { $unit = '&deg;'; } elseif($row['sensor_type_id'] == 2) { $unit = '%'; } else { $unit = '';}
 			                			        if ($hvac_mode == 3) {
                         				        		echo '<div class="circle '. $shactive.'"><p class="schdegree"></p></div>';
 						                        } else {
-        	        					                echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispSensor($conn,$row["temperature"],1),0).'&deg;</p></div>';
+        	        					                echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispSensor($conn,$row["temperature"],$row['sensor_type_id']),0).$unit.'</p></div>';
 									}
                 	                			echo '</span>
 							</a>
