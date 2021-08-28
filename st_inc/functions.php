@@ -310,8 +310,32 @@ function TempToDB($conn,$T){
     return round($T,1);
 }
 
+// Conversion functions as above but with sensor_type for none temperature sensors
+function DispSensor($conn,$C,$sensor_type)
+{
+        if($sensor_type==1 || $sensor_type=='1') {
+                $c_f = settings($conn, 'c_f');
+                if($c_f==1 || $c_f=='1')
+                {
+                        return round(($C*9/5)+32,1);
+                }
+                return round($C,1);
+        } else {
+                return round($C,1);
+        }
+}
 
-
+function SensorToDB($conn,$T,$sensor_type){
+        if($sensor_type==1 || $sensor_type=='1') {
+                $c_f = settings($conn, 'c_f');
+                if($c_f==1 || $c_f=='1'){
+                        return round(($T-32)*5/9,1);
+                }
+                return round($T,1);
+        } else {
+                return round($T,1);
+        }
+}
 
 function my_exec($cmd, $input='')
 {

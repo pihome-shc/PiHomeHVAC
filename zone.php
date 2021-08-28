@@ -33,6 +33,12 @@ if(isset($_GET['id'])) {
 }
 //Form submit
 if (isset($_POST['submit'])) {
+        $zone_sensor_id = $_POST['selected_sensor_id'];
+	$query = "SELECT sensor_type_id FROM sensors WHERE id = '{$zone_sensor_id}' LIMIT 1;";
+	$result = $conn->query($query);
+	$found_product = mysqli_fetch_array($result);
+	$sensor_type_id = $found_product['sensor_type_id'];
+
 	$zone_category = $_POST['selected_zone_category'];
 	$zone_status = isset($_POST['zone_status']) ? $_POST['zone_status'] : "0";
 	$index_id = $_POST['index_id'];
@@ -40,12 +46,12 @@ if (isset($_POST['submit'])) {
 	$type = $_POST['selected_zone_type'];
 	if($zone_category < 2) { 
                 $min_c = 0;
-                $max_c = TempToDB($conn,$_POST['max_c']);
-                $default_c = TempToDB($conn,$_POST['default_c']);
+	        $max_c = SensorToDB($conn,$_POST['max_c'],$sensor_type_id);
+        	$default_c = SensorToDB($conn,$_POST['default_c'],$sensor_type_id);
 	} elseif ($zone_category == 3) {
-                $min_c = TempToDB($conn,$_POST['min_c']);
-                $max_c = TempToDB($conn,$_POST['max_c']);
-                $default_c = TempToDB($conn,$_POST['default_c']);
+	        $min_c = SensorToDB($conn,$_POST['min_c'],$sensor_type_id);
+        	$max_c = SensorToDB($conn,$_POST['max_c'],$sensor_type_id);
+                $default_c = SensorToDB($conn,$_POST['default_c'],$sensor_type_id);
 	} else {
                 $min_c = 0;
 		$max_c = 0;
@@ -54,7 +60,6 @@ if (isset($_POST['submit'])) {
 	$max_operation_time = $_POST['max_operation_time'];
 	$hysteresis_time = $_POST['hysteresis_time'];
 	$sp_deadband = $_POST['sp_deadband'];
-        $zone_sensor_id = $_POST['selected_sensor_id'];
         $initial_sensor_id = $_POST['initial_sensor_id'];
 	$controllers = array();
         if($zone_category <> 3) {
@@ -412,7 +417,7 @@ if (isset($_POST['submit'])) {
         $result = $conn->query($query);
         $rowtempsensors = mysqli_fetch_assoc($result);
 
-        $query = "SELECT * FROM zone_sensors WHERE zone_id = '{$row['id']}' LIMIT 1;";
+        $query = "SELECT zone_sensors.*, sensors.sensor_type_id FROM zone_sensors, sensors WHERE (zone_sensors.zone_sensor_id = sensors.id) AND zone_sensors.zone_id = '{$row['id']}' LIMIT 1;";
         $result = $conn->query($query);
         $rowzonesensors = mysqli_fetch_assoc($result);
 
@@ -446,6 +451,14 @@ if (isset($_POST['submit'])) {
         $query = "SELECT id, relay_id, name FROM relays WHERE type > 0 LIMIT 1;";
 	$result = $conn->query($query);
 	$rowsystem_controller = mysqli_fetch_assoc($result);
+}
+
+// get the list of available sensors in to array
+$query = "SELECT id, name, sensor_type_id FROM sensors ORDER BY name ASC;";
+$result = $conn->query($query);
+$sensorArray = array();
+while($rowsensors = mysqli_fetch_assoc($result)) {
+   $sensorArray[] = $rowsensors;
 }
 ?>
 
@@ -490,7 +503,7 @@ $new_index_id = $found_product['index_id']+1;
 
 <!-- Zone Type -->
 <input type="hidden" id="selected_zone_category" name="selected_zone_category" value="<?php if(isset($row['category'])) { echo $row['category']; } ?>"/>
-<input type="hidden" id="selected_zone_type" name="selected_zone_type" value="<?php if(isset($row['type'])) { echo $row['type']; } ?>"/>
+<input type="hidden" id="selected_zone_type" name="selected_zone_type" value="<?php if(isset($row['type'])) { echo $row['type']; } else { echo 'Heating'; } ?>"/>
 <div class="form-group" class="control-label"><label><?php echo $lang['zone_type']; ?></label> <small class="text-muted"><?php echo $lang['zone_type_info'];?></small>
 <select id="type" onchange=zone_category(this.options[this.selectedIndex].value) name="type" class="form-control select2" autocomplete="off" required>
 <?php if(isset($row['type'])) { echo '<option selected >'.$row['type'].'</option>'; } ?>
@@ -505,6 +518,7 @@ while ($datarw=mysqli_fetch_array($result)) {
 <script language="javascript" type="text/javascript">
 function zone_category(value)
 {
+        var jArray = <?php echo json_encode($sensorArray); ?>;
         var valuetext = value;
 	document.getElementById("selected_zone_category").value = value;
         var e = document.getElementById("type");
@@ -512,12 +526,17 @@ function zone_category(value)
         document.getElementById("selected_zone_type").value = selected_type;
         switch (valuetext) {
                 case "0":
+			var sensor_type = 1;
+                        document.getElementById("default_c_label_1").style.visibility = 'visible';
+                        document.getElementById("default_c_label_1").innerHTML = document.getElementById("default_c_label_text").value;
+                        document.getElementById("default_c_label_2").innerHTML = document.getElementById("default_c_label_info").value;;
+                        document.getElementById("default_c").style.display = 'block';
                         document.getElementById("min_c").style.display = 'none';
                         document.getElementById("min_c_label").style.visibility = 'hidden';;
+                        document.getElementById("max_c_label_1").style.visibility = 'visible';
+                        document.getElementById("max_c_label_1").innerHTML = document.getElementById("max_c_label_text").value;
+                        document.getElementById("max_c_label_2").innerHTML = document.getElementById("max_c_label_info").value;;
                         document.getElementById("max_c").style.display = 'block';
-                        document.getElementById("max_c_label").style.visibility = 'visible';;
-                        document.getElementById("default_c").style.display = 'block';
-                        document.getElementById("default_c_label").style.visibility = 'visible';;
                         document.getElementById("hysteresis_time").style.display = 'block';
                         document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
                         document.getElementById("sp_deadband").style.display = 'block';
@@ -533,6 +552,7 @@ function zone_category(value)
                         document.getElementById("max_c").required = true;
                         document.getElementById("hysteresis_time").required = true;
                         document.getElementById("sp_deadband").required = true;
+			document.getElementById("sensor_id_label").innerHTML = document.getElementById("sensor_c_label_text").value;
                         document.getElementById("zone_sensor_id").required = true;
                         document.getElementById("controler_id_label").style.visibility = 'visible';;
                         document.getElementById("boost_button_id").required = true;
@@ -540,12 +560,28 @@ function zone_category(value)
                         document.getElementById("system_controller_id").required = true;
                         break;
                 case "1":
+                        document.getElementById("default_c_label_1").style.visibility = 'visible';
+                        if (document.getElementById("selected_zone_type").value === "Humidity") {
+	                        var sensor_type = 2;
+                                document.getElementById("default_c_label_1").innerHTML = document.getElementById("default_h_label_text").value;
+                                document.getElementById("default_c_label_2").innerHTML = document.getElementById("default_h_label_info").value;;
+                        } else {
+	                        var sensor_type = 1;
+                                document.getElementById("default_c_label_1").innerHTML = document.getElementById("default_c_label_text").value;
+                                document.getElementById("default_c_label_2").innerHTML = document.getElementById("default_c_label_info").value;;
+                        }
+                        document.getElementById("default_c").style.display = 'block';
                         document.getElementById("min_c").style.display = 'none';
                         document.getElementById("min_c_label").style.visibility = 'hidden';;
+                        document.getElementById("max_c_label_1").style.visibility = 'visible';
+                        if (document.getElementById("selected_zone_type").value === "Humidity") {
+                                document.getElementById("max_c_label_1").innerHTML = document.getElementById("max_h_label_text").value;
+                                document.getElementById("max_c_label_2").innerHTML = document.getElementById("max_h_label_info").value;;
+                        } else {
+                                document.getElementById("max_c_label_1").innerHTML = document.getElementById("max_c_label_text").value;
+                                document.getElementById("max_c_label_2").innerHTML = document.getElementById("max_c_label_info").value;;
+                        }
                         document.getElementById("max_c").style.display = 'block';
-                        document.getElementById("max_c_label").style.visibility = 'visible';;
-                        document.getElementById("default_c").style.display = 'block';
-                        document.getElementById("default_c_label").style.visibility = 'visible';;
                         document.getElementById("hysteresis_time").style.display = 'block';
                         document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
                         document.getElementById("sp_deadband").style.display = 'block';
@@ -561,6 +597,11 @@ function zone_category(value)
                         document.getElementById("max_c").required = true;
                         document.getElementById("hysteresis_time").required = true;
                         document.getElementById("sp_deadband").required = true;
+                        if (document.getElementById("selected_zone_type").value === "Humidity") {
+                                document.getElementById("sensor_id_label").innerHTML = document.getElementById("sensor_h_label_text").value;
+                        } else {
+                                document.getElementById("sensor_id_label").innerHTML = document.getElementById("sensor_c_label_text").value;
+                        }
                         document.getElementById("zone_sensor_id").required = true;
                         document.getElementById("controler_id_label").style.visibility = 'visible';;
                         document.getElementById("boost_button_id").required = true;
@@ -568,12 +609,13 @@ function zone_category(value)
                         document.getElementById("system_controller_id").required = false;
                         break;
                 case "2":
+                        var sensor_type = 1;
                         document.getElementById("min_c").style.display = 'none';
                         document.getElementById("min_c_label").style.visibility = 'hidden';;
                         document.getElementById("max_c").style.display = 'none';
-                        document.getElementById("max_c_label").style.visibility = 'hidden';;
+                        document.getElementById("max_c_label_1").style.visibility = 'hidden';;
                         document.getElementById("default_c").style.display = 'none';
-                        document.getElementById("default_c_label").style.visibility = 'hidden';;
+                        document.getElementById("default_c_label_1").style.visibility = 'hidden';;
                         document.getElementById("hysteresis_time").style.display = 'none';
                         document.getElementById("hysteresis_time_label").style.visibility = 'hidden';;
                         document.getElementById("sp_deadband").style.display = 'none';
@@ -590,6 +632,7 @@ function zone_category(value)
                         document.getElementById("max_c").required = false;
                         document.getElementById("hysteresis_time").required = false;
                         document.getElementById("sp_deadband").required = false;
+                        document.getElementById("sensor_id_label").innerHTML = document.getElementById("sensor_c_label_text").value;
                         document.getElementById("zone_sensor_id").required = false;
                         document.getElementById("controler_id_label").style.visibility = 'visible';;
                         document.getElementById("boost_button_id").required = false;
@@ -597,12 +640,17 @@ function zone_category(value)
                         document.getElementById("system_controller_id").required = false;
                         break;
                 case "3":
+                        var sensor_type = 1;
+                        document.getElementById("default_c_label_1").style.visibility = 'visible';
+                        document.getElementById("default_c_label_1").innerHTML = document.getElementById("default_c_label_text").value;
+                        document.getElementById("default_c_label_2").innerHTML = document.getElementById("default_c_label_info").value;;
+                        document.getElementById("default_c").style.display = 'block';
                         document.getElementById("min_c").style.display = 'block';
                         document.getElementById("min_c_label").style.visibility = 'visible';;
+                        document.getElementById("max_c_label_1").style.visibility = 'visible';
+                        document.getElementById("max_c_label_1").innerHTML = document.getElementById("max_c_label_text").value;
+                        document.getElementById("max_c_label_2").innerHTML = document.getElementById("max_c_label_info").value;;
                         document.getElementById("max_c").style.display = 'block';
-                        document.getElementById("max_c_label").style.visibility = 'visible';;
-                        document.getElementById("default_c").style.display = 'block';
-                        document.getElementById("default_c_label").style.visibility = 'visible';;
                         document.getElementById("hysteresis_time").style.display = 'block';
                         document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
                         document.getElementById("sp_deadband").style.display = 'block';
@@ -619,6 +667,7 @@ function zone_category(value)
                         document.getElementById("max_c").required = true;
                         document.getElementById("hysteresis_time").required = true;
                         document.getElementById("sp_deadband").required = true;
+                        document.getElementById("sensor_id_label").innerHTML = document.getElementById("sensor_c_label_text").value;
                         document.getElementById("zone_sensor_id").required = true;
                         document.getElementById("boost_button_id").required = true;
                         document.getElementById("boost_button_child_id").required = true;
@@ -626,22 +675,50 @@ function zone_category(value)
                         break;
                 default:
         }
+
+	// re-build the sensor list based on the zone type (1 = temperature, 2 = humidity)
+ 	var opt = document.getElementById("zone_sensor_id").getElementsByTagName("option");
+ 	for(j=opt.length-1;j>=0;j--)
+ 	{
+        	document.getElementById("zone_sensor_id").options.remove(j);
+ 	}
+
+        for(j=0;j<jArray.length-1;j++)
+        {
+                var optn = document.createElement("OPTION");
+		var stype = parseInt(jArray[j]['sensor_type_id']);
+                optn.text = jArray[j]['name'];
+                optn.value = jArray[j]['id'];
+		if(stype == sensor_type) {
+                	document.getElementById("zone_sensor_id").options.add(optn);
+		}
+        }
+	//set initial sensor
+	document.getElementById("zone_sensor_id").value = document.getElementById("selected_sensor_id").value;
 }
 </script>
 
 <!-- Default Temperature -->
-<div class="form-group" class="control-label" id="default_c_label" style="display:block"><label><?php echo $lang['default_temperature']; ?></label> <small class="text-muted"><?php echo $lang['zone_default_temperature_info'];?></small>
-<input class="form-control" placeholder="<?php echo $lang['zone_default_temperature_help']; ?>" value="<?php if(isset($rowzonesensors['default_c'])) { echo DispTemp($conn,$rowzonesensors['default_c']); } else {echo DispTemp($conn,'25');}  ?>" id="default_c" name="default_c" data-error="<?php echo $lang['zone_default_temperature_error']; ?>"  autocomplete="off" required>
+<input type="hidden" id="default_c_label_text" name="default_c_label_text" value="<?php echo $lang['default_temperature']; ?>"/>
+<input type="hidden" id="default_c_label_info" name="default_c_label_info" value="<?php echo $lang['zone_default_temperature_info']; ?>"/>
+<input type="hidden" id="default_h_label_text" name="default_h_label_text" value="<?php echo $lang['default_humidity']; ?>"/>
+<input type="hidden" id="default_h_label_info" name="default_h_label_info" value="<?php echo $lang['zone_default_humidity_info']; ?>"/>
+<div class="form-group" class="control-label" style="display:block"><label id="default_c_label_1"><?php echo $lang['default_temperature']; ?></label> <small class="text-muted" id="default_c_label_2"><?php echo $lang['zone_default_temperature_info'];?></small>
+<input class="form-control" placeholder="<?php echo $lang['zone_default_temperature_help']; ?>" value="<?php if(isset($rowzonesensors['default_c'])) { echo DispSensor($conn,$rowzonesensors['default_c'],$rowzonesensors['sensor_type_id']); } else {echo DispSensor($conn,'25',$rowzonesensors['sensor_type_id']);}  ?>" id="default_c" name="default_c" data-error="<?php echo $lang['zone_default_temperature_error']; ?>"  autocomplete="off" required>
 <div class="help-block with-errors"></div></div>
 
 <!-- Minimum Temperature -->
 <div class="form-group" class="control-label" id="min_c_label" style="display:block"><label><?php echo $lang['min_temperature']; ?></label> <small class="text-muted"><?php echo $lang['zone_min_temperature_info'];?></small>
-<input class="form-control" placeholder="<?php echo $lang['zone_min_temperature_help']; ?>" value="<?php if(isset($rowzonesensors['min_c'])) { echo DispTemp($conn,$rowzonesensors['min_c']); } else {echo DispTemp($conn,'15');}  ?>" id="min_c" name="min_c" data-error="<?php echo $lang['zone_min_temperature_error']; ?>"  autocomplete="off" required>
+<input class="form-control" placeholder="<?php echo $lang['zone_min_temperature_help']; ?>" value="<?php if(isset($rowzonesensors['min_c'])) { echo DispSensor($conn,$rowzonesensors['min_c'],$rowzonesensors['sensor_type_id']); } else {echo DispSensor($conn,'15',$rowzonesensors['sensor_type_id']);}  ?>" id="min_c" name="min_c" data-error="<?php echo $lang['zone_min_temperature_error']; ?>"  autocomplete="off" required>
 <div class="help-block with-errors"></div></div>
 
 <!-- Maximum Temperature -->
-<div class="form-group" class="control-label" id="max_c_label" style="display:block"><label><?php echo $lang['max_temperature']; ?></label> <small class="text-muted"><?php echo $lang['zone_max_temperature_info'];?></small>
-<input class="form-control" placeholder="<?php echo $lang['zone_max_temperature_help']; ?>" value="<?php if(isset($rowzonesensors['max_c'])) { echo DispTemp($conn,$rowzonesensors['max_c']); } else {echo DispTemp($conn,'25');}  ?>" id="max_c" name="max_c" data-error="<?php echo $lang['zone_max_temperature_error']; ?>"  autocomplete="off" required>
+<input type="hidden" id="max_c_label_text" name="max_c_label_text" value="<?php echo $lang['max_temperature']; ?>"/>
+<input type="hidden" id="max_c_label_info" name="max_c_label_info" value="<?php echo $lang['zone_max_temperature_info']; ?>"/>
+<input type="hidden" id="max_h_label_text" name="max_h_label_text" value="<?php echo $lang['max_humidity']; ?>"/>
+<input type="hidden" id="max_h_label_info" name="max_h_label_info" value="<?php echo $lang['zone_max_humidity_info']; ?>"/>
+<div class="form-group" class="control-label" style="display:block"><label id="max_c_label_1"><?php echo $lang['max_temperature']; ?></label> <small class="text-muted" id="max_c_label_2"><?php echo $lang['zone_max_temperature_info'];?></small>
+<input class="form-control" placeholder="<?php echo $lang['zone_max_temperature_help']; ?>" value="<?php if(isset($rowzonesensors['max_c'])) { echo DispSensor($conn,$rowzonesensors['max_c'],$rowzonesensors['sensor_type_id']); } else {echo DispSensor($conn,'25',$rowzonesensors['sensor_type_id']);}  ?>" id="max_c" name="max_c" data-error="<?php echo $lang['zone_max_temperature_error']; ?>"  autocomplete="off" required>
 <div class="help-block with-errors"></div></div>
 
 <!-- Maximum Operation Time -->
@@ -660,14 +737,14 @@ function zone_category(value)
 <div class="help-block with-errors"></div></div>
 
 <!-- Temperature Sensor ID -->
-<div class="form-group" class="control-label" id="sensor_id_label" style="display:block"><label><?php echo $lang['temperature_sensor']; ?></label> <small class="text-muted"><?php echo $lang['zone_sensor_id_info'];?></small>
+<input type="hidden" id="sensor_c_label_text" name="sensor_c_label_text" value="<?php echo $lang['temperature_sensor']; ?>"/>
+<input type="hidden" id="sensor_h_label_text" name="sensor_h_label_text" value="<?php echo $lang['humidity_sensor']; ?>"/>
+<div class="form-group" class="control-label" style="display:block"><label id="sensor_id_label"><?php echo $lang['temperature_sensor']; ?></label> <small class="text-muted"><?php echo $lang['zone_sensor_id_info'];?></small>
 <select id="zone_sensor_id" onchange=SensorIDList(this.options[this.selectedIndex].value) name="zone_sensor_id" class="form-control select2" data-error="<?php echo $lang['zone_temp_sensor_id_error']; ?>" autocomplete="off" required>
-<?php if(isset($rowtempsensors['name'])) { echo '<option selected >'.$rowtempsensors['name'].'</option>'; } ?>
-<?php  $query = "SELECT id, name FROM sensors ORDER BY name ASC;";
-$result = $conn->query($query);
-echo "<option></option>";
-while ($datarw=mysqli_fetch_array($result)) {
-	echo "<option value=".$datarw['id'].">".$datarw['name']."</option>"; } ?>
+<option></option>
+<?php for ($i = 0; $i < count($sensorArray); $i++) {
+	if($sensorArray[$i]['sensor_type_id'] == 1) { echo "<option value=".$sensorArray[$i]['id'].">".$sensorArray[$i]['name']."</option>"; }
+} ?>
 </select>
 <div class="help-block with-errors"></div></div>
 

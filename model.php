@@ -255,14 +255,14 @@ echo '
             		<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 		<h5 class="modal-title">'.$lang['system_controller_settings'].'</h5>
-                                <div class="dropdown pull-right">
-                                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
-                                        </a>
-                                        <ul class="dropdown-menu">
+                		<div class="dropdown pull-right">
+                        		<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                		<i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        		</a>
+                        		<ul class="dropdown-menu">
                         		<li><a href="pdf_download.php?file=setup_guide_system_controller.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_system_controller'].'</a></li>
-                                        </ul>
-                                </div>
+                        		</ul>
+                		</div>
             		</div>
             		<div class="modal-body">';
 				$query = "SELECT * FROM nodes where name = 'System Controller' OR name = 'GPIO Controller' OR name = 'I2C Controller';";
@@ -1065,15 +1065,15 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
                                 <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu">
-                                <li><a href="pdf_download.php?file=setup_guide_sensors.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_sensors'].'</a></li>
-                                <li class="divider"></li>
                                 <li><a href="pdf_download.php?file=humidity_sensors.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_humidity_sensors'].'</a></li>
 				<li class="divider"></li>
                                 <li><a href="pdf_download.php?file=ds18b20_temperature_sensor.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_ds18b20_sensors'].'</a></li>
                                 <li class="divider"></li>
                                 <li><a href="pdf_download.php?file=import_sensor_readings.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['import_sensors_readings'].'</a></li>
                                 <li class="divider"></li>
-                                <li><a href="pdf_download.php?file=delete_zones_relays_sensors_nodes.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['delete_nodes_sensors_relays_zones'].'</a></li>
+				<li><a href="pdf_download.php?file=delete_zones_relays_sensors_nodes.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['delete_nodes_sensors_relays_zones'].'</a></li>
+                                <li class="divider"></li>
+				<li><a href="pdf_download.php?file=setup_guide_sensors.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_sensors'].'</a></li>
                     	</ul>
                 </div>
             </div>
@@ -1278,12 +1278,13 @@ echo '
         				$query = "select * from zone_view WHERE id = '{$row['id']}'order by index_id asc";
         				$vresult = $conn->query($query);
         				while ($vrow = mysqli_fetch_assoc($vresult)) {
+						if($vrow['sensor_type_id'] == 1) { $unit = '&deg;'; } elseif($vrow['sensor_type_id'] == 2) { $unit = '%'; } else { $unit = '';}
                 				if ($vrow['category'] == 2) {
                         				echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['controller'].": ".$vrow['relay_type'].": ".$vrow['relay_id']."-".$vrow['relay_child_id']."</small></span><br>";
 						} elseif ($vrow['category'] == 3) {
-                        				echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['min']." ".DispTemp($conn,$vrow['min_c'])."&deg; </em>, ".$lang['max']." ".$vrow['max_c']."&deg; </em> - ".$lang['sensor'].": ".$vrow['sensors_id']."</small></span><br>";
+							echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['min']." ".DispSensor($conn,$vrow['min_c'],$vrow['sensor_type_id']).$unit." </em>, ".$lang['max']." ".$vrow['max_c'].$unit." </em> - ".$lang['sensor'].": ".$vrow['sensors_id']."</small></span><br>";
                 				} else {
-                        				echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['max']." ".DispTemp($conn,$vrow['max_c'])."&deg; </em> - ".$lang['sensor'].": ".$vrow['sensors_id']." - ".$vrow['relay_type'].": ".$vrow['relay_id']."-".$vrow['relay_child_id']."</small></span><br>";
+                        				echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['max']." ".DispSensor($conn,$vrow['max_c'],$vrow['sensor_type_id']).$unit." </em> - ".$lang['sensor'].": ".$vrow['sensors_id']." - ".$vrow['relay_type'].": ".$vrow['relay_id']."-".$vrow['relay_child_id']."</small></span><br>";
                 				}
         				}
         				echo "<span class=\"pull-right \"><small>

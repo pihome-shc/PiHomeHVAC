@@ -670,4 +670,5 @@ $lang['max_humidity'] = "Maximum Humidity";
 $lang['zone_max_humidity_info'] = "Maximum Humidity this Zone can reach before Zone Relay will shut-off for safety";
 $lang['min_humidity'] = "Minimum Humidity";
 $lang['humidity'] = "Humidity";
+$lang['humidity_sensor'] = "Humidity Sensor";
 ?>

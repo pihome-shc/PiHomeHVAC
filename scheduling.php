@@ -106,11 +106,12 @@ if (isset($_POST['submit'])) {
                 if ($zcount != 0) {
 	                foreach($_POST['id'] as $id){
         	                $id = $_POST['id'][$id];
+				$type = isset($_POST['ztype'][$id]) ? $_POST['ztype'][$id] : "1";
                 	        $status = isset($_POST['status'][$id]) ? $_POST['status'][$id] : "0";
                         	//$status = $_POST['status'][$id];
-	                        $min =TempToDB($conn,$_POST['min'][$id]);
-        	                $max =TempToDB($conn,$_POST['max'][$id]);
-                	        $query = "UPDATE schedule_night_climat_zone SET sync = '0', status='$status', min_temperature='".number_format(TempToDB($conn,$_POST['min_temp'][$id]),1)."', max_temperature='".number_format(TempToDB($conn,$_POST['max_temp'][$id]),1)."' WHERE id='$id'";
+	                        $min =SensorToDB($conn,$_POST['min'][$id],$type);
+        	                $max =SensorToDB($conn,$_POST['max'][$id],$type);
+                	        $query = "UPDATE schedule_night_climat_zone SET sync = '0', status='$status', min_temperature='".number_format(SensorToDB($conn,$_POST['min_temp'][$id],$type),1)."', max_temperature='".number_format(SensorToDB($conn,$_POST['max_temp'][$id],$type),1)."' WHERE id='$id'";
                         	$zoneresults = $conn->query($query);
 	                        if ($zoneresults) {
         	                        $message_success .= "<p>".$lang['night_climate_temp_success']."</p>";
@@ -135,6 +136,7 @@ if (isset($_POST['submit'])) {
 
 		foreach($_POST['id'] as $id){
 			$id = $_POST['id'][$id];
+			$type = isset($_POST['ztype'][$id]) ? $_POST['ztype'][$id] : "1";
 			if(isset($_GET['id'])) {
 				$tzid = $id;
 				$schedule_daily_time_id = $time_id;
@@ -145,7 +147,7 @@ if (isset($_POST['submit'])) {
 			}
 			$status = isset($_POST['status'][$id]) ? $_POST['status'][$id] : "0";
 			$coop = isset($_POST['coop'][$id]) ? $_POST['coop'][$id] : "0";
-			$temp=TempToDB($conn,$_POST['temp'][$id]);
+			$temp=SensorToDB($conn,$_POST['temp'][$id],$type);
                         $sunset = isset($_POST['sunset'][$id]) ? $_POST['sunset'][$id] : "0";
                         $sunset_offset = intval($_POST['sunset_offset'][$id]);
 
@@ -185,12 +187,14 @@ if (isset($_POST['submit'])) {
         $query = "select * from schedule_daily_time_zone_view where time_id = {$time_id}";
         $zoneresults = $conn->query($query);
 } else {
-        $query = "SELECT zone.id as tz_id, zone.name as zone_name, zone.status as tz_status, ztype.type, ztype.category, zs.min_c, zs.max_c
+        $query = "SELECT zone.id as tz_id, zone.name as zone_name, zone.status as tz_status, ztype.type, ztype.category, zs.min_c, zs.max_c, s.sensor_type_id, st.type as stype
                 FROM zone
                 JOIN zone_type ztype ON zone.type_id = ztype.id
                 LEFT JOIN zone_sensors zs ON zone.id = zs.zone_id
+		LEFT JOIN sensors s ON zs.zone_sensor_id = s.id
+		LEFT JOIN sensor_type st ON s.sensor_type_id = st.id
                 WHERE status = 1 AND zone.`purge`= 0
-                ORDER BY index_id asc;";
+                ORDER BY zone.index_id asc;";
 	$zoneresults = $conn->query($query);
 }
 ?>
@@ -291,13 +295,13 @@ if (isset($_POST['submit'])) {
                         			<input class="form-control input-sm" type="time" id="start_time" name="start_time" value="<?php echo $time_row["start"];?>" placeholder="Start Time" required>
                                                 <div class="help-block with-errors"></div>
                                         </div>
-						
+
 					<!-- End Time -->
 					<div class="form-group" class="control-label"><label><?php echo $lang['end_time']; ?></label>
 						<input class="form-control input-sm" type="time" id="end_time" name="end_time" value="<?php echo $time_row["end"];?>" placeholder="End Time" required>
 						<div class="help-block with-errors"></div>
 					</div>
-						
+
 					<label><?php echo $lang['select_zone']; ?></label>
 					<?php
 					// Zone List Loop
@@ -307,6 +311,7 @@ if (isset($_POST['submit'])) {
 						<!-- Zone ID (tz_id) -->
 						<input type="hidden" name="id[<?php echo $row["tz_id"];?>]" value="<?php echo $row["tz_id"];?>">
                                                 <input type="hidden" name="max_c" value="<?php echo $row["max_c"];?>">
+                                                <input type="hidden" name="ztype[<?php echo $row["tz_id"];?>]" value="<?php echo $row["sensor_type_id"]; ?>">
 						<?php if($time_id != 0){
 							echo '<input type="hidden" name="zoneid['.$row["tz_id"].']" value="'.$row["zone_id"].'">';
 						}?>
@@ -314,7 +319,7 @@ if (isset($_POST['submit'])) {
 						<div class="checkbox checkbox-default  checkbox-circle">
 							<input id="checkbox<?php echo $row["tz_id"];?>" class="styled" type="checkbox" name="status[<?php echo $row["tz_id"];?>]" value="1" <?php if($time_id != 0){ $check = ($row['tz_status'] == 1) ? 'checked' : ''; echo $check;} ?> onclick="$('#<?php echo $row["tz_id"];?>').toggle();">
     							<label for="checkbox<?php echo $row["tz_id"];?>"><?php echo $row["zone_name"];?></label>
-							
+
     							<div class="help-block with-errors"></div>
 						</div>
 
@@ -339,12 +344,14 @@ if (isset($_POST['submit'])) {
 										$min = 10;
 									}elseif (($c_f==0 || $c_f=='0') AND ($row["type"]=='Water' OR $row["type"]=='Immersion')) {
 										$min = 10;
+									} else {
+										$min = 20;
 									}
-									$max = DispTemp($conn,$row['max_c']);
+									$max = DispSensor($conn,$row['max_c'],$row['sensor_type_id']);
         								if(!isset($_GET['nid'])) {
-										if (settings($conn, 'mode') == 0) {
+										if (settings($conn, 'mode') == 0 && $row['sensor_type_id'] == 1) {
 											//<!-- Zone Coop Enable Checkbox -->
-									        	if($time_id != 0){ $check = ($row['coop'] == 1) ? 'checked' : ''; }
+										       	if($time_id != 0){ $check = ($row['coop'] == 1) ? 'checked' : ''; }
 										        echo '<div class="checkbox checkbox-default  checkbox-circle">
 												<input id="coop'.$row["tz_id"].'" class="styled" type="checkbox" name="coop['.$row["tz_id"].']" value="1" '.$check.'>
 											        <label for="coop'.$row["tz_id"].'">Coop Start</label> <i class="glyphicon glyphicon-leaf green"></i>
@@ -353,21 +360,22 @@ if (isset($_POST['submit'])) {
 											</div>';
 										}
 									        // <!-- Temperature and Slider -->
-									        if($time_id != 0){ $temp = DispTemp($conn, $row['temperature']);} else { $temp = '15.0';}
-									        echo '<div class="slidecontainer">
-											<h4>'.$lang['temperature'].': <span id="val'.$row["zone_id"].'" style="display: inline-flex !important; font-size:18px !important;"><output name="show_temp_val" id="temp'.$row["tz_id"].'" style="padding-top:0px !important; font-size:18px !important;">'.$temp.'</output></span>&deg;</h4><br>
-									        	<input type="range" min="'.$min.'" max="'.$max.'" step="0.5" value="'.$temp.'" class="slider" id="bb'.$row["tz_id"].'" name="temp['.$row["tz_id"].']" oninput=update_temp(this.value,"temp'.$row["tz_id"].'")>
+										if($time_id != 0){ $temp = DispSensor($conn, $row['temperature'],$row['sensor_type_id']);} else { $temp = '15.0';}
+										if($row['sensor_type_id'] == 1) { $unit = '&deg;'; } elseif($row['sensor_type_id'] == 2) { $unit = '%'; } else { $unit = ''; }
+										echo '<div class="slidecontainer">
+											<h4>'.$row['stype'].': <span id="val'.$row["zone_id"].'" style="display: inline-flex !important; font-size:18px !important;"><output name="show_temp_val" id="temp'.$row["tz_id"].'" style="padding-top:0px !important; font-size:18px !important;">'.$temp.'</output></span>'.$unit.'</h4><br>
+										        <input type="range" min="'.$min.'" max="'.$max.'" step="0.5" value="'.$temp.'" class="slider" id="bb'.$row["tz_id"].'" name="temp['.$row["tz_id"].']" oninput=update_temp(this.value,"temp'.$row["tz_id"].'")>
 	                							</div>';
-        								} else {
+									} else {
 										// <!-- Temperature and Slider -->
 									        echo '<div class="slidecontainer">
-										 	<h4>'.$lang['min_temperature'].': <span id="min_val'.$row["zone_id"].'" style="display: inline-flex !important; font-size:18px !important;"><output name="show_min_temp_val" id="min_temp'.$row["tz_id"].'" style="padding-top:0px !important; font-size:18px !important;">'.DispTemp($conn, $row['min_temperature']).'</output></span>&deg;</h4><br>
-										        <input type="range" min="'.$min.'" max="'.$max.'" step="0.5" value="'.DispTemp($conn, $row['min_temperature']).'" class="slider" id="min_bb'.$row["tz_id"].'" name="min_temp['.$row["tz_id"].']" oninput=update_temp(this.value,"min_temp'.$row["tz_id"].'")>
+										 	<h4>'.$lang['min_temperature'].': <span id="min_val'.$row["zone_id"].'" style="display: inline-flex !important; font-size:18px !important;"><output name="show_min_temp_val" id="min_temp'.$row["tz_id"].'" style="padding-top:0px !important; font-size:18px !important;">'.DispSensor($conn, $row['min_temperature'],1).'</output></span>&deg;</h4><br>
+										        <input type="range" min="'.$min.'" max="'.$max.'" step="0.5" value="'.DispSensor($conn, $row['min_temperature'],1).'" class="slider" id="min_bb'.$row["tz_id"].'" name="min_temp['.$row["tz_id"].']" oninput=update_temp(this.value,"min_temp'.$row["tz_id"].'")>
 									        </div>';
 
 									        echo '<div class="slidecontainer">
-										 	<h4>'.$lang['max_temperature'].': <span id="max_val'.$row["zone_id"].'" style="display: inline-flex !important; font-size:18px !important;"><output name="show_max_temp_val" id="max_temp'.$row["tz_id"].'" style="padding-top:0px !important; font-size:18px !important;">'.DispTemp($conn, $row['max_temperature']).'</output></span>&deg;</h4><br>
-										        <input type="range" min="'.$min.'" max="'.$max.'" step="0.5" value="'.DispTemp($conn, $row['max_temperature']).'" class="slider" id="max_bb'.$row["tz_id"].'" name="max_temp['.$row["tz_id"].']" oninput=update_temp(this.value,"max_temp'.$row["tz_id"].'")>
+										 	<h4>'.$lang['max_temperature'].': <span id="max_val'.$row["zone_id"].'" style="display: inline-flex !important; font-size:18px !important;"><output name="show_max_temp_val" id="max_temp'.$row["tz_id"].'" style="padding-top:0px !important; font-size:18px !important;">'.DispSensor($conn, $row['max_temperature'],1).'</output></span>&deg;</h4><br>
+										        <input type="range" min="'.$min.'" max="'.$max.'" step="0.5" value="'.DispSensor($conn, $row['max_temperature'],1).'" class="slider" id="max_bb'.$row["tz_id"].'" name="max_temp['.$row["tz_id"].']" oninput=update_temp(this.value,"max_temp'.$row["tz_id"].'")>
 									       	</div>'; 
 									}
         								?>

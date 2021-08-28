@@ -1,17 +1,17 @@
 <?php 
 /*
-   _____    _   _    _                             
-  |  __ \  (_) | |  | |                            
-  | |__) |  _  | |__| |   ___    _ __ ___     ___  
-  |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \ 
-  | |      | | | |  | | | (_) | | | | | | | |  __/ 
-  |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___| 
+             __  __                             _
+            |  \/  |                    /\     (_)
+            | \  / |   __ _  __  __    /  \     _   _ __
+            | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+            | |  | | | (_| |  >  <   / ____ \  | | | |
+            |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 
-     S M A R T   H E A T I N G   C O N T R O L 
+                    S M A R T   T H E R M O S T A T
 
 *************************************************************************"
-* PiHome is Raspberry Pi based Central Heating Control systems. It runs *"
-* from web interface and it comes with ABSOLUTELY NO WARRANTY, to the   *"
+* MaxAir is a Linux based Central Heating Control systems. It runs from *"
+* a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *"
 * extent permitted by applicable law. I take no responsibility for any  *"
 * loss or damage to you or your property.                               *"
 * DO NOT MAKE ANY CHANGES TO YOUR HEATING SYSTEM UNTILL UNLESS YOU KNOW *"
@@ -82,7 +82,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 			//following variable set to 0 on start for array index. 
 			$sch_time_index = '0';
 			//$query = "SELECT time_id, time_status, `start`, `end`, tz_id, tz_status, zone_id, index_id, zone_name, temperature, max(temperature) as max_c FROM schedule_daily_time_zone_view group by time_id ORDER BY start asc";
-			$query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, temperature, FORMAT(max(temperature),2) as max_c, sch_name FROM schedule_daily_time_zone_view WHERE holidays_id = {$hol_row["id"]} group by time_id ORDER BY start, sch_name asc";
+			$query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, temperature, FORMAT(max(temperature),2) as max_c, sch_name, sensor_type_id FROM schedule_daily_time_zone_view WHERE holidays_id = {$hol_row["id"]} group by time_id ORDER BY start, sch_name asc";
 			$results = $conn->query($query);
 			if ($rowcount=mysqli_num_rows($results) > 0) {
 				while ($row = mysqli_fetch_assoc($results)) {
@@ -101,10 +101,11 @@ require_once(__DIR__.'/st_inc/functions.php');
 					if($row["WeekDays"]  & (1 << idate('w'))){if ($time >$start_time && $time <$end_time && $row["time_status"]=="1"){$shactive="redsch";}}
 
 					//time shchedule listing
+					if($row['sensor_type_id'] == 1) { $unit = '&deg;'; } elseif($row['sensor_type_id'] == 2) { $unit = '%'; } else { $unit = ''; }
 					echo '
 					<div class="header">
 						<li class="left clearfix scheduleli animated fadeIn">
-						<a href="javascript:active_schedule('.$row["time_id"].');"><span class="chat-img pull-left"><div class="circle '. $shactive.'"><p class="schdegree">'.DispTemp($conn, number_format($row["max_c"]),1).'&deg;</p></div></span></a>
+						<a href="javascript:active_schedule('.$row["time_id"].');"><span class="chat-img pull-left"><div class="circle '. $shactive.'"><p class="schdegree">'.DispSensor($conn, number_format($row["max_c"], $row["sensor_type_id"]),1). $unit .'</p></div></span></a>
 
 						<a style="color: #333; cursor: pointer; text-decoration: none;" data-toggle="collapse" data-parent="#accordion" href="#collapse'.$row['tz_id'].'">
 						<div class="chat-body clearfix">
@@ -131,10 +132,11 @@ require_once(__DIR__.'/st_inc/functions.php');
 							$result = $conn->query($query);
 							while ($datarw=mysqli_fetch_array($result)) {
 								if($datarw["tz_status"]=="0"){ $status_icon="ion-close-circled"; $status_color="bluefa"; }else{ $status_icon="ion-checkmark-circled"; $status_color="orangefa"; }
+								if($datarw['sensor_type_id'] == 1) { $unit = '&deg;'; } elseif($datarw['sensor_type_id'] == 2) { $unit = '%'; } else { $unit = ''; }
 								echo '
 								<div class="list-group">
 									<div class="list-group-item">
-										<i class="ionicons '.$status_icon.' fa-lg '.$status_color.'"></i>  '.$datarw['zone_name'].'<span class="pull-right text-muted small"><em>'.number_format(DispTemp($conn,$datarw['temperature']),1).'&deg;</em></span>
+										<i class="ionicons '.$status_icon.' fa-lg '.$status_color.'"></i>  '.$datarw['zone_name'].'<span class="pull-right text-muted small"><em>'.number_format(DispSensor($conn,$datarw['temperature'],$datarw['sensor_type_id']),1). $unit .'</em></span>
 									</div>';
 								}
 

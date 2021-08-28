@@ -172,7 +172,7 @@ $lang['zone_boost_id_error'] = "Wenn Sie eine Boost-Konsole haben, können Sie d
 $lang['zone_boost_child_id_error'] = "Kinder-ID der Boost-Konsolentaste für diese Zone";
 $lang['zone_settings'] = "Zoneneinstellungen";
 $lang['zone_settings_text'] = "
-$lang['zone_sp_deadband'] = "Temperatursollwert Totband";
+$lang['zone_sp_deadband'] = "Sollwert Totband";
 $lang['zone_sp_deadband_help'] = "Totband unter Solltemperatur.";
 $lang['zone_sp_deadband_error'] = "Totzone unterhalb der zum Starten der Zone verwendeten Solltemperatur, Zone beginnt unterhalb der Solltot-Totzone, auf Null gesetzt, wenn Sie ohne Totzone unterhalb der Solltemperatur starten möchten.";
 $lang['zone_enable_info'] = "Aktivieren Sie diese Zone, wenn diese Zone gesteuert werden soll";
@@ -651,4 +651,5 @@ $lang['max_humidity'] = "Maximum Humidity";
 $lang['zone_max_humidity_info'] = "Maximum Humidity this Zone can reach before Zone Relay will shut-off for safety";
 $lang['min_humidity'] = "Minimum Humidity";
 $lang['humidity'] = "Humidity";
+$lang['humidity_sensor'] = "Humidity Sensor";
 ?>

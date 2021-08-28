@@ -719,7 +719,7 @@ if($what=="system_mode"){
 //update live temperature
 if($what=="live_temp"){
         if($opp=="update"){
-        $query = "UPDATE `livetemp` SET `temperature`=" . TempToDB($conn,$_GET['livetemp_c']) . ", `active`=" . $_GET['active'] . ";";
+        $query = "UPDATE `livetemp` SET `temperature`=" . SensorToDB($conn,$_GET['livetemp_c'],1) . ", `active`=" . $_GET['active'] . ";";
         if($conn->query($query)){
             header('Content-type: application/json');
             echo json_encode(array('Success'=>'Success','Query'=>$query));
