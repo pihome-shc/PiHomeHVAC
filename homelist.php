@@ -220,9 +220,13 @@ require_once(__DIR__.'/st_inc/functions.php');
 			7 - fan running*/
 
    			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#'.$zone_type.''.$zone_id.'" data-backdrop="static" data-keyboard="false">
-			<h3><small>'.$zone_name.'</small></h3>
-			<h3 class="degre">'.number_format(DispTemp($conn,$zone_c),1).'&deg;</h3>
-			<h3 class="status">';
+			<h3><small>'.$zone_name.'</small></h3>';
+			if (strpos($zone_type, 'Humidity') !== false) {
+                                echo '<h3 class="degre">'.number_format(DispSensor($conn,$zone_c,2),1).'%</h3>';
+			} else {
+				echo '<h3 class="degre">'.number_format(DispSensor($conn,$zone_c,1),1).'&deg;</h3>';
+			}
+			echo '<h3 class="status">';
 
                         $rval=getIndicators($conn, $zone_mode, $zone_temp_target);
                         //Left small circular icon/color status
@@ -336,9 +340,13 @@ require_once(__DIR__.'/st_inc/functions.php');
 										$end_time = strtotime($srow['end']);
 										if ($time >$start_time && $time <$end_time){$shactive="redsch_list";}
 											//this line to pass unique argument  "?w=schedule_list&o=active&wid=" href="javascript:delete_schedule('.$srow["id"].');"
-											echo '<a href="javascript:schedule_zone('.$srow['tz_id'].');" class="list-group-item">
-											<div class="circle_list '. $shactive.'"> <p class="schdegree">'.number_format(DispTemp($conn,$srow['temperature']),0).'&deg;</p></div>
-											<span class="label label-info sch_name"> '.$srow['sch_name'].'</span>
+											echo '<a href="javascript:schedule_zone('.$srow['tz_id'].');" class="list-group-item">';
+											if (strpos($zone_type, 'Humidity') !== false) {
+												echo '<div class="circle_list '. $shactive.'"> <p class="schdegree">'.number_format(DispSensor($conn,$srow['temperature'],2),0).'%</p></div>';
+											} else {
+												echo '<div class="circle_list '. $shactive.'"> <p class="schdegree">'.number_format(DispSensor($conn,$srow['temperature'],1),0).'&deg;</p></div>';
+											}
+											echo '<span class="label label-info sch_name"> '.$srow['sch_name'].'</span>
 											<span class="pull-right text-muted sch_list"><em>'. $srow['start'].' - ' .$srow['end'].'</em></span></a>';
 									}
 								echo '</div>';
@@ -383,9 +391,9 @@ require_once(__DIR__.'/st_inc/functions.php');
                         echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-backdrop="static" data-keyboard="false">
                         <h3><small>'.$sensor_name.'</small></h3>';
 			if ($sensor_type == 1) {
-                        	echo '<h3 class="degre">'.number_format(DispTemp($conn,$sensor_c),1).'&deg;</h3>';
+                        	echo '<h3 class="degre">'.number_format(DispSensor($conn,$sensor_c,$sensor_type),1).'&deg;</h3>';
 			} else {
-                                echo '<h3 class="degre">'.number_format(DispTemp($conn,$sensor_c),1).'</h3>';
+                                echo '<h3 class="degre">'.number_format(DispSensor($conn,$sensor_c,$sensor_type),1).'%</h3>';
 			}
                         echo '<h3 class="status">
                         <small class="statuscircle"><i class="fa fa-circle fa-fw '.$shcolor.'"></i></small>
@@ -519,9 +527,9 @@ require_once(__DIR__.'/st_inc/functions.php');
    			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-backdrop="static" data-keyboard="false">
                         <h3><small>'.$sensor_name.'</small></h3>';
                         if ($sensor_type == 1) {
-                                echo '<h3 class="degre">'.number_format(DispTemp($conn,$sensor_c),1).'&deg;</h3>';
+                                echo '<h3 class="degre">'.number_format(DispSensor($conn,$sensor_c,$sensor_type),1).'&deg;</h3>';
                         } else {
-                                echo '<h3 class="degre">'.number_format(DispTemp($conn,$sensor_c),1).'%</h3>';
+                                echo '<h3 class="degre">'.number_format(DispSensor($conn,$sensor_c,$sensor_type),1).'%</h3>';
                         }
                         echo '<h3 class="status">
                         <small class="statuscircle"><i class="fa fa-circle fa-fw '.$shcolor.'"></i></small>
