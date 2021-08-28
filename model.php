@@ -1278,20 +1278,13 @@ echo '
         				$query = "select * from zone_view WHERE id = '{$row['id']}'order by index_id asc";
         				$vresult = $conn->query($query);
         				while ($vrow = mysqli_fetch_assoc($vresult)) {
+						if($vrow['sensor_type_id'] == 1) { $unit = '&deg;'; } elseif($vrow['sensor_type_id'] == 2) { $unit = '%'; } else { $unit = '';}
                 				if ($vrow['category'] == 2) {
                         				echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['controller'].": ".$vrow['relay_type'].": ".$vrow['relay_id']."-".$vrow['relay_child_id']."</small></span><br>";
 						} elseif ($vrow['category'] == 3) {
-							if (strpos($vrow['type'], 'Humidity') !== false) {
-								echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['min']." ".DispSensor($conn,$vrow['min_c'],2)."% </em>, ".$lang['max']." ".$vrow['max_c']."% </em> - ".$lang['sensor'].": ".$vrow['sensors_id']."</small></span><br>";
-							} else {
-								echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['min']." ".DispSensor($conn,$vrow['min_c'],1)."&deg; </em>, ".$lang['max']." ".$vrow['max_c']."&deg; </em> - ".$lang['sensor'].": ".$vrow['sensors_id']."</small></span><br>";
-							}
+							echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['min']." ".DispSensor($conn,$vrow['min_c'],$vrow['sensor_type_id']).$unit." </em>, ".$lang['max']." ".$vrow['max_c'].$unit." </em> - ".$lang['sensor'].": ".$vrow['sensors_id']."</small></span><br>";
                 				} else {
-                                                        if (strpos($vrow['type'], 'Humidity') !== false) {
-                        					echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['max']." ".DispSensor($conn,$vrow['max_c'],2)."% </em> - ".$lang['sensor'].": ".$vrow['sensors_id']." - ".$vrow['relay_type'].": ".$vrow['relay_id']."-".$vrow['relay_child_id']."</small></span><br>";
-							} else {
-                                                                echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['max']." ".DispSensor($conn,$vrow['max_c'],1)."&deg; </em> - ".$lang['sensor'].": ".$vrow['sensors_id']." - ".$vrow['relay_type'].": ".$vrow['relay_id']."-".$vrow['relay_child_id']."</small></span><br>";
-							}
+                        				echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['max']." ".DispSensor($conn,$vrow['max_c'],$vrow['sensor_type_id']).$unit." </em> - ".$lang['sensor'].": ".$vrow['sensors_id']." - ".$vrow['relay_type'].": ".$vrow['relay_id']."-".$vrow['relay_child_id']."</small></span><br>";
                 				}
         				}
         				echo "<span class=\"pull-right \"><small>
