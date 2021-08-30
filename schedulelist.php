@@ -85,7 +85,7 @@ require_once(__DIR__ . '/st_inc/functions.php');
 			<span class="chat-img pull-left">
                         <div class="circle ' . $shactive . '">';
                                 if($row["category"] <> 2) {
-					if($row['sensor_type_id'] == 1) { $unit = '&deg;'; } elseif($row['sensor_type_id'] == 2) { $unit = '%'; } else { $unit = '';}
+					$unit = SensorUnits($conn,$row['sensor_type_id']);
 					echo '<p class="schdegree">' . DispSensor($conn, number_format($row["max_c"], 1), $row["sensor_type_id"]) . $unit . '</p>';
 				}
                         echo ' </div>
@@ -138,7 +138,7 @@ require_once(__DIR__ . '/st_inc/functions.php');
 					<div class="list-group">
 						<div class="list-group-item">';
                                                         if ($datarw["category"] <> 2) {
-                                        			if($datarw['sensor_type_id'] == 1) { $unit = '&deg;'; } elseif($datarw['sensor_type_id'] == 2) { $unit = '%'; } else { $unit = '';}
+                                        			$unit = SensorUnits($conn,$datarw['sensor_type_id']);
 								echo '<i class="ionicons ' . $status_icon . ' fa-lg ' . $status_color . '"></i>  ' . $datarw['zone_name'] . ' ' . $coop . '<span class="pull-right text-muted small"><em>' . number_format(DispSensor($conn, $datarw['temperature'],$datarw['sensor_type_id']), 1) . $unit .'</em></span>';
 							} else {
 								echo '<i class="ionicons ' . $status_icon . ' fa-lg ' . $status_color . '"></i>  ' . $datarw['zone_name'] . '<span class="pull-right text-muted small"></em></span>';
