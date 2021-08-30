@@ -57,7 +57,7 @@ if (settings($conn, 'mode') == 0) { // Boiler Mode
 	                        <div class="chat-body clearfix">
         	                <div class="header">';
                 	} else {
-				if($row['sensor_type_id'] == 1) { $unit = '&deg;'; } elseif($row['sensor_type_id'] == 2) { $unit = '%'; } else { $unit = '';}
+				$unit = SensorUnits($conn,$row['sensor_type_id']);
                         	echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispSensor($conn,$row["temperature"],$row["sensor_type_id"]),0).$unit.'</p></div>
 	                        </span></a>
         	                <div class="chat-body clearfix">
@@ -102,7 +102,7 @@ if (settings($conn, 'mode') == 0) { // Boiler Mode
                                 <div class="chat-body clearfix">
                                 <div class="header">';
                         } else {
-				if($row['sensor_type_id'] == 1) { $unit = '&deg;'; } elseif($row['sensor_type_id'] == 2) { $unit = '%'; } else { $unit = '';}
+				$unit = SensorUnits($conn,$row['sensor_type_id']);
                                 echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispSensor($conn,$row["temperature"],$row['sensor_type_id']),0).$unit.'</p></div>
                                 </span></a>
                                 <div class="chat-body clearfix">
