@@ -361,7 +361,7 @@ if (isset($_POST['submit'])) {
 										}
 									        // <!-- Temperature and Slider -->
 										if($time_id != 0){ $temp = DispSensor($conn, $row['temperature'],$row['sensor_type_id']);} else { $temp = '15.0';}
-										if($row['sensor_type_id'] == 1) { $unit = '&deg;'; } elseif($row['sensor_type_id'] == 2) { $unit = '%'; } else { $unit = ''; }
+										$unit = SensorUnits($conn,$row['sensor_type_id']);
 										echo '<div class="slidecontainer">
 											<h4>'.$row['stype'].': <span id="val'.$row["zone_id"].'" style="display: inline-flex !important; font-size:18px !important;"><output name="show_temp_val" id="temp'.$row["tz_id"].'" style="padding-top:0px !important; font-size:18px !important;">'.$temp.'</output></span>'.$unit.'</h4><br>
 										        <input type="range" min="'.$min.'" max="'.$max.'" step="0.5" value="'.$temp.'" class="slider" id="bb'.$row["tz_id"].'" name="temp['.$row["tz_id"].']" oninput=update_temp(this.value,"temp'.$row["tz_id"].'")>
