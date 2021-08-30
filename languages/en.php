@@ -681,4 +681,6 @@ $lang['zone_max_humidity_info'] = "Maximum Humidity this Zone can reach before Z
 $lang['min_humidity'] = "Minimum Humidity";
 $lang['humidity'] = "Humidity";
 $lang['humidity_sensor'] = "Humidity Sensor";
+$lang['units_character'] = "Units Character";
+$lang['units_character_info'] = "used to identify the units, eg for temperature - & followed by deg;  for humidity - %";
 ?>

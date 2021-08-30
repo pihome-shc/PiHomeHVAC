@@ -51,7 +51,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 							<a href="javascript:active_override('.$row["zone_id"].');">
 								<span class="chat-img pull-left override">';
 									if($row["status"]=="0"){ $shactive="bluesch"; $status="Off"; }else{ $shactive="orangesch"; $status="On"; }
-									if($row['sensor_type_id'] == 1) { $unit = '&deg;'; } elseif($row['sensor_type_id'] == 2) { $unit = '%'; } else { $unit = '';}
+									$unit = SensorUnits($conn,$row['sensor_type_id']);
 		        		        			if ($category == 2) {
 										echo '<div class="circle '. $shactive.'"><p class="schdegree">'.$row["temperature"].$unit.'</p></div>';
 									} else {
@@ -89,7 +89,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 		                        		<a href="javascript:active_boost('.$row["id"].');">
 	                		        		<span class="chat-img pull-left override">';
 			                        			if($row["status"]=="0"){ $shactive="bluesch"; $status="Off"; }else{ $shactive="redsch"; $status="On"; }
-									if($row['sensor_type_id'] == 1) { $unit = '&deg;'; } elseif($row['sensor_type_id'] == 2) { $unit = '%'; } else { $unit = '';}
+									$unit = SensorUnits($conn,$row['sensor_type_id']);
 			                			        if ($hvac_mode == 3) {
                         				        		echo '<div class="circle '. $shactive.'"><p class="schdegree"></p></div>';
 						                        } else {

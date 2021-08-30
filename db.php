@@ -542,8 +542,9 @@ if($what=="sensor_type"){
         }
         if($opp=="add"){
                 $sensor_type = $_GET['sensor_type'];
+                $sensor_units = $_GET['sensor_units'];
                 //Add record to sensor_type table
-                $query = "INSERT INTO `sensor_type`(`sync`, `purge`, `type`) VALUES ('0', '0', '{$sensor_type}')";
+                $query = "INSERT INTO `sensor_type`(`sync`, `purge`, `type`, `units`) VALUES ('0', '0', '{$sensor_type}', '{$sensor_units}')";
                 if($conn->query($query)){
                         header('Content-type: application/json');
                         echo json_encode(array('Success'=>'Success','Query'=>$query));

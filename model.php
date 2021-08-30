@@ -1190,8 +1190,9 @@ echo '
 
 echo '<table class="table table-bordered">
     <tr>
-        <th class="col-xs-11"><small>'.$lang['type'].'</small></th>
-        <th class="col-xs-1"></th>
+        <th class="col-xs-8"><small>'.$lang['type'].'</small></th>
+         <th class="col-xs-3"><small>'.$lang['units_character'].'</small></th>
+       <th class="col-xs-1"></th>
     </tr>';
 
 $query = "SELECT * FROM sensor_type where `purge`=0;";
@@ -1209,6 +1210,7 @@ while ($row = mysqli_fetch_assoc($results)) {
     echo '
         <tr>
             <td>'.$row["type"].'</td>
+            <td>'.$row["units"].'</td>
             <td><a href="javascript:delete_sensor_type('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>
         </tr>';
 }
@@ -1278,7 +1280,7 @@ echo '
         				$query = "select * from zone_view WHERE id = '{$row['id']}'order by index_id asc";
         				$vresult = $conn->query($query);
         				while ($vrow = mysqli_fetch_assoc($vresult)) {
-						if($vrow['sensor_type_id'] == 1) { $unit = '&deg;'; } elseif($vrow['sensor_type_id'] == 2) { $unit = '%'; } else { $unit = '';}
+						$unit = SensorUnits($conn,$vrow['sensor_type_id']);
                 				if ($vrow['category'] == 2) {
                         				echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['controller'].": ".$vrow['relay_type'].": ".$vrow['relay_id']."-".$vrow['relay_child_id']."</small></span><br>";
 						} elseif ($vrow['category'] == 3) {

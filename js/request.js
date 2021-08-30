@@ -395,6 +395,7 @@ var idata="w=zone_type&o=delete&wid="+wid;
 //Add Sensor Type
 function add_sensor_type(){
 var idata="w=sensor_type&o=add&sensor_type="+document.getElementById("sensor_type").value;
+    idata+="&sensor_units="+document.getElementById("sensor_units").value;
     idata+="&wid=0";
     $.get('db.php',idata)
     .done(function(odata){
