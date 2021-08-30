@@ -337,6 +337,15 @@ function SensorToDB($conn,$T,$sensor_type){
         }
 }
 
+// Get units character to be used with sensor readings
+function SensorUnits($conn, $sensor_type_id){
+        $rUnits = '';
+        $query="SELECT `units` FROM `sensor_type` WHERE `id` = '{$sensor_type_id}' limit 1;";
+        $result = $conn->query($query);
+        if ($row = mysqli_fetch_array($result)){ $rUnits = $row['units']; }
+        return $rUnits;
+}
+
 function my_exec($cmd, $input='')
 {
     $proc=proc_open($cmd, array(0=>array('pipe', 'r'), 1=>array('pipe', 'w'), 2=>array('pipe', 'w')), $pipes);
