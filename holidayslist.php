@@ -101,7 +101,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 					if($row["WeekDays"]  & (1 << idate('w'))){if ($time >$start_time && $time <$end_time && $row["time_status"]=="1"){$shactive="redsch";}}
 
 					//time shchedule listing
-					if($row['sensor_type_id'] == 1) { $unit = '&deg;'; } elseif($row['sensor_type_id'] == 2) { $unit = '%'; } else { $unit = ''; }
+					$unit = SensorUnits($conn,$row['sensor_type_id']);
 					echo '
 					<div class="header">
 						<li class="left clearfix scheduleli animated fadeIn">
@@ -132,7 +132,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 							$result = $conn->query($query);
 							while ($datarw=mysqli_fetch_array($result)) {
 								if($datarw["tz_status"]=="0"){ $status_icon="ion-close-circled"; $status_color="bluefa"; }else{ $status_icon="ion-checkmark-circled"; $status_color="orangefa"; }
-								if($datarw['sensor_type_id'] == 1) { $unit = '&deg;'; } elseif($datarw['sensor_type_id'] == 2) { $unit = '%'; } else { $unit = ''; }
+								$unit = SensorUnits($conn,$datarw['sensor_type_id']);
 								echo '
 								<div class="list-group">
 									<div class="list-group-item">
