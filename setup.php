@@ -20,6 +20,8 @@ echo "\033[0m";
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - MaxAir Install Script Started \n";
 $line = "--------------------------------------------------------------- \n";
 
+require_once(__DIR__.'/st_inc/functions.php');
+
 //Set php script execution time in seconds
 ini_set('max_execution_time', 400); 
 $date_time = date('Y-m-d H:i:s');
@@ -89,7 +91,10 @@ if (!$db_selected) {
 			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - MySQL DataBase Compressed Dump File \033[41m".$zipfname."\033[0m \n";
 		}
 }
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - MySQL DataBase Importing SQL File to Database \n";
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - MySQL DataBase Importing SQL File to Database, This could take few minuts. \n";
+	// Sop the jobs service
+	$output = shell_exec('sudo systemctl stop pihome_jobs_schedule.service');
+	echo $output;
 	// Name of the file
 	$filename = __DIR__.'/MySQL_Database/maxair_mysql_database.sql';
 	// Select database
@@ -99,7 +104,11 @@ if (!$db_selected) {
 	// Read in entire file
 	$lines = file($filename);
 	// Loop through each line
+	$x = 1;
+	$y = count($lines) - 1;
 	foreach ($lines as $line){
+		show_status($x, $y);
+		$x = $x + 1;
 	// Skip it if it's a comment
 		if (substr($line, 0, 2) == '--' || $line == '')
 			continue;
@@ -126,9 +135,13 @@ if (!$db_selected) {
 	$viewtempline = '';
 	// Read in entire file
 	$viewlines = file($tableviewfilename);
+	$x = 1;
+	$y = count($viewlines);
 	// Loop through each line
 	foreach ($viewlines as $viewline){
 	// Skip it if it's a comment
+                show_status($x, $y);
+                $x = $x + 1;
 		if (substr($viewline, 0, 2) == '--' || $viewline == '')
 			continue;
 			// Add this line to the current segment
@@ -258,16 +271,16 @@ if ($results) {
 
 //Adding job scheduling records
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Job Scheduling Records\n";
-$query_job_scheduling = "INSERT INTO `jobs`(`job_name`, `script`, `enabled`, `log_it`, `time`, `output`) ";
-$query_job_scheduling .= "VALUES ('controller','/var/www/cron/controller.php',1,0,'60',''),";
-$query_job_scheduling .= "('db_cleanup','/var/www/cron/db_cleanup.php',1,0,'02:00',''),";
-$query_job_scheduling .= "('check_gw','/var/www/cron/check_gw.php',1,0,'60',''),";
-$query_job_scheduling .= "('system_c','/var/www/cron/system_c.php',1,0,'300',''),";
-$query_job_scheduling .= "('weather_update','/var/www/cron/weather_update.php',1,0,'1800',''),";
-$query_job_scheduling .= "('reboot_wifi','/var/www/cron/reboot_wifi.sh',1,0,'120',''),";
-$query_job_scheduling .= "('check_ds18b20','/var/www/cron/check_ds18b20.php',0,0,'60',''),";
-$query_job_scheduling .= "('sw_install','/var/www/cron/sw_install.py',1,0,'10','');";
-$query_job_scheduling .= "('update_code','/var/www/cron/update_code.py',1,0,'00:00','');";
+$query_job_scheduling = "INSERT INTO `jobs`(`job_name`, `script`, `enabled`, `log_it`, `time`, `output`, `datetime`) ";
+$query_job_scheduling .= "VALUES ('controller','/var/www/cron/controller.php',1,0,'60','',now()),";
+$query_job_scheduling .= "('db_cleanup','/var/www/cron/db_cleanup.php',1,0,'02:00','',now()),";
+$query_job_scheduling .= "('check_gw','/var/www/cron/check_gw.php',1,0,'60','',now()),";
+$query_job_scheduling .= "('system_c','/var/www/cron/system_c.php',1,0,'300','',now()),";
+$query_job_scheduling .= "('weather_update','/var/www/cron/weather_update.php',1,0,'1800','',now()),";
+$query_job_scheduling .= "('reboot_wifi','/var/www/cron/reboot_wifi.sh',1,0,'120','',now()),";
+$query_job_scheduling .= "('check_ds18b20','/var/www/cron/check_ds18b20.php',0,0,'60','',now()),";
+$query_job_scheduling .= "('sw_install','/var/www/cron/sw_install.py',1,0,'10','',now()),";
+$query_job_scheduling .= "('update_code','/var/www/cron/update_code.py',1,0,'00:00','',now());";
 $results = $conn->query($query_job_scheduling);
 if ($results) {
                 echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Job Scheduling Records Added \033[41mJobs\033[0m Data  Succeeded \n";
@@ -285,6 +298,80 @@ if ($results) {
                 echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Sensor Type Records Added \033[41mSensor Types\033[0m Data  Succeeded \n";
 } else {
                 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Sensor Type Records \033[41mSensor Types\033[0m Data Failed \n";
+}
+
+//check if database_updates table already exist
+$query = "SELECT * FROM information_schema.tables WHERE table_schema = 'maxair' AND table_name = 'database_backup' LIMIT 1;";
+$result = $conn->query($query);
+$rowcount=mysqli_num_rows($result);
+if ($rowcount == 0) {
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - database_backup Table Does Not Exist, Creating it.\n";
+        $query = "CREATE TABLE IF NOT EXISTS `database_backup` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `sync` tinyint(4) NOT NULL,
+        `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
+        `status` tinyint(4),
+        `backup_name` char(50) COLLATE utf8_bin DEFAULT NULL,
+        `name` char(50) COLLATE utf8_bin DEFAULT NULL,
+         PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;";
+        if ($conn->query($query)) {
+        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Backup Table Created.  \n";
+        } else {
+        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Failed to Create Backup Table.  \n";
+        }
+}
+
+// Check for database updates
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Starting Check for Database Updates.  \n";
+$update_dir = __DIR__.'/MySQL_Database/database_updates';
+$ffs = scan_db_update_dir($update_dir);
+if ($ffs) {
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Database Updates Found. \n";
+        foreach($ffs as $ff){
+		$query = "SELECT * FROM `database_backup` where `name` = '".$ff."' LIMIT 1;";
+		$result = $conn->query($query);
+		$ucount=mysqli_num_rows($result);
+		if ($ucount == 0){
+               		// save the update info to the database_updates table
+                	$query = "INSERT INTO `database_backup`(`sync`, `purge`, `status`, `backup_name`, `name`) VALUES ('0','0','0','".$ff."','".$ff."');";
+                	if ($conn->query($query)) {
+                       		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Un-applied Update Information Added to Table. \n";
+                	} else {
+                       		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Failed to Add Update to Table. \n";
+                	}
+               		// Apply the Update file
+                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Importing Update SQL to Database.  \n";
+                	// Name of the file
+                	$updatefilename = __DIR__.'/MySQL_Database/database_updates/'.$ff;
+                	// Temporary variable, used to store current query
+                	$updatetempline = '';
+                	// Read in entire file
+                	$updatelines = file($updatefilename);
+                	// Loop through each line
+                	foreach ($updatelines as $updateline){
+                       		// Skip it if it's a comment
+                        	if (substr($updateline, 0, 2) == '--' || $updateline == '')
+                                	continue;
+                        	// Add this line to the current segment
+                        	$updatetempline .= $updateline;
+                        	// If it has a semicolon at the end, it's the end of the query
+                        	if (substr(trim($updateline), -1, 1) == ';'){
+                               		// Perform the query
+                                	$conn->query($updatetempline) or print("MySQL Database Error with Query ".$updatetempline.":". mysqli_error($conn)."\n");
+                                	//mysqli_query($updatetempline) or print("MySQL Database Error with Query ".$updatetempline.":". mysqli_error($conn)."\n");
+                                	// Reset temp variable to empty
+
+                                	$updatetempline = '';
+                        	}
+                	}
+                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Update File \033[41m".$updatefilename."\033[0m Applied. \n";
+         	} else {
+			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Update File \033[41m".$ff."\033[0m Has Already Applied. \n";
+		}
+	}
+} else {
+       	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - There are No Database Updates to Apply.\n";
 }
 
 //
@@ -498,73 +585,6 @@ if ($tzname == 1) {
 			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Temperature Unit !!!Wrong value, IDs 1 and 2!!!\n";
 		}
 	}
-
-        //check if database_updates table already exist
-        $query = "SELECT * FROM information_schema.tables WHERE table_schema = 'maxair' AND table_name = 'database_backup' LIMIT 1;";
-        $result = $conn->query($query);
-        $rowcount=mysqli_num_rows($result);
-        if ($rowcount == 0) {
-                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - database_backup Table Does Not Exist, Creating it.\n";
-                $query = "CREATE TABLE IF NOT EXISTS `database_backup` (
-                  `id` int(11) NOT NULL AUTO_INCREMENT,
-                  `sync` tinyint(4) NOT NULL,
-                  `purge` tinyint(4) NOT NULL COMMENT 'Mark For Deletion',
-                  `status` tinyint(4),
-                  `backup_name` char(50) COLLATE utf8_bin DEFAULT NULL,
-                  `name` char(50) COLLATE utf8_bin DEFAULT NULL,
-                  PRIMARY KEY (`id`)
-                ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;";
-                if ($conn->query($query)) {
-                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Backup Table Created.  \n";
-                } else {
-                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Failed to Create Backup Table.  \n";
-                }
-        }
- 
-       // Check for database updates
-        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Starting Check for Database Updates.  \n";
-        $update_dir = __DIR__.'/MySQL_Database/database_updates';
-        $ffs = scan_db_update_dir($update_dir);
-        if ($ffs) {
-		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Database Updates Found. \n";
-                foreach($ffs as $ff){
-                	// save the update info to the database_updates table
-                        $query = "INSERT INTO `database_backup`(`sync`, `purge`, `status`, `backup_name`, `name`) VALUES ('0','0','0','".$ff."','".$ff."');";
-                        if ($conn->query($query)) {
-                        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Un-applied Update Information Added to Table. \n";
-                        } else {
-                        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Failed to Add Update to Table. \n";
-                        }
-                        // Apply the Update file
-                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Importing Update SQL to Database.  \n";
-                        // Name of the file
-                        $updatefilename = __DIR__.'/MySQL_Database/database_updates/'.$ff;
-                        // Temporary variable, used to store current query
-                        $updatetempline = '';
-                        // Read in entire file
-                        $updatelines = file($updatefilename);
-                        // Loop through each line
-                        foreach ($updatelines as $updateline){
-                        	// Skip it if it's a comment
-                                if (substr($updateline, 0, 2) == '--' || $updateline == '')
-                                        continue;
-                                // Add this line to the current segment
-                                $updatetempline .= $updateline;
-                                // If it has a semicolon at the end, it's the end of the query
-                                if (substr(trim($updateline), -1, 1) == ';'){
-                                	// Perform the query
-                                        $conn->query($updatetempline) or print("MySQL Database Error with Query ".$updatetempline.":". mysqli_error($conn)."\n");
-                                        //mysqli_query($updatetempline) or print("MySQL Database Error with Query ".$updatetempline.":". mysqli_error($conn)."\n");
-                                        // Reset temp variable to empty
-
-                                        $updatetempline = '';
-                                }
-                        }
-                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Update File \033[41m".$updatefilename."\033[0m Applied. \n";
-         	}
-	} else {
-       		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - There are No Database Updates to Apply.\n";
-        }
 }
 
 echo "---------------------------------------------------------------------------------------- \n";
