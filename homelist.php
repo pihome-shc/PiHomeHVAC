@@ -222,7 +222,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 
    			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#'.$zone_type.''.$zone_id.'" data-backdrop="static" data-keyboard="false">
 			<h3><small>'.$zone_name.'</small></h3>';
-			if($sensor_type_id == 1) { $unit = '&deg;'; } elseif($sensor_type_id == 2) { $unit = '%'; } else { $unit = '';}
+			$unit = SensorUnits($conn,$sensor_type_id);
                         echo '<h3 class="degre">'.number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit.'</h3>';
 			echo '<h3 class="status">';
 
@@ -384,7 +384,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                         $sensor_c = $sensor['payload'];
                         echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-backdrop="static" data-keyboard="false">
                         <h3><small>'.$sensor_name.'</small></h3>';
-			if($sensor_type_id == 1) { $unit = '&deg;'; } elseif($sensor_type_id == 2) { $unit = '%'; } else { $unit = '';}
+			$unit = SensorUnits($conn,$sensor_type_id);
                         echo '<h3 class="degre">'.number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit.'</h3>';
                         echo '<h3 class="status">
                         <small class="statuscircle"><i class="fa fa-circle fa-fw '.$shcolor.'"></i></small>
@@ -517,7 +517,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                         $sensor_c = $sensor['payload'];
    			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-backdrop="static" data-keyboard="false">
                         <h3><small>'.$sensor_name.'</small></h3>';
-			if($sensor_type_id == 1) { $unit = '&deg;'; } elseif($sensor_type_id == 2) { $unit = '%'; } else { $unit = '';}
+			$unit = SensorUnits($conn,$sensor_type_id);
                         echo '<h3 class="degre">'.number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit.'</h3>';
                         echo '<h3 class="status">
                         <small class="statuscircle"><i class="fa fa-circle fa-fw '.$shcolor.'"></i></small>
