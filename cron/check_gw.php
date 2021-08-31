@@ -98,7 +98,7 @@ if ($gw_status == '0') {
 	if($gl_cnt > 0){
 		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Gateway Connection Lost in Last 10 minutes: ".$gl_cnt." \n";
 	}
-	if($gl_cnt > 9 && $gw_type == 'wifi') {
+	if($gl_cnt >= 8 && $gw_type == 'wifi') {
 		#echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Gateway Connection Lost in Last 10 minutes: ".$gl_cnt." \n";
 		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Checking Python Script Status to Find Smart Home Gateway \n";
 		//Check if Search Script already started 
