@@ -223,6 +223,8 @@ try:
                 msg, node_type, out_id, out_child_id, out_on_trigger, out_payload, gatewayenableoutgoing
             )
             ping_timer = time.time()
+    else:
+        ping_timer = time.time()
 
     while 1:
         ## Terminate gateway script if no route to network gateway
