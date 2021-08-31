@@ -309,7 +309,7 @@ echo '
                                                 $result = $conn->query($query);
                                                 if ($result){
                                                         while ($nrow=mysqli_fetch_array($result)) {
-                                                                echo '<option value="'.$nrow['id'].'">'.$nrow['name'].'</option>';
+                                                                echo '<option value="'.$nrow['id'].'" selected>'.$nrow['name'].'</option>';
                                                         }
                                                 }
                                                 echo '</select>
@@ -326,7 +326,7 @@ echo '
                                                 $result = $conn->query($query);
                                                 if ($result){
                                                         while ($nrow=mysqli_fetch_array($result)) {
-                                                                echo '<option value="'.$nrow['id'].'">'.$nrow['name'].'</option>';
+                                                                echo '<option value="'.$nrow['id'].'" selected>'.$nrow['name'].'</option>';
                                                         }
                                                 }
                                                 echo '</select>
@@ -342,7 +342,7 @@ echo '
                                                 $result = $conn->query($query);
                                                 if ($result){
                                                         while ($nrow=mysqli_fetch_array($result)) {
-                                                                echo '<option value="'.$nrow['id'].'">'.$nrow['name'].'</option>';
+                                                                echo '<option value="'.$nrow['id'].'" selected>'.$nrow['name'].'</option>';
                                                         }
                                                 }
                                                 echo '</select>
