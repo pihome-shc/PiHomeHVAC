@@ -683,7 +683,7 @@ function zone_category(value)
         	document.getElementById("zone_sensor_id").options.remove(j);
  	}
 
-        for(j=0;j<jArray.length-1;j++)
+        for(j=0;j<jArray.length;j++)
         {
                 var optn = document.createElement("OPTION");
 		var stype = parseInt(jArray[j]['sensor_type_id']);
