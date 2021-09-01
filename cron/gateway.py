@@ -181,7 +181,7 @@ try:
     count = count[0]
     # process any relays present
     if count > 0:
-        cur.execute("SELECT * FROM relays")
+        cur.execute("SELECT distinct relays.`relay_id`, relays.`relay_child_id` , relays.`on_trigger` FROM `relays`, system_controller, zone_relays WHERE (relays.id = zone_relays.zone_relay_id) OR (relays.id = system_controller.heat_relay_id) OR (relays.id = system_controller.cool_relay_id) OR (relays.id = system_controller.fan_relay_id);")
         relays = cur.fetchall()
         relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
         # get the last relay state from the messages_out table
