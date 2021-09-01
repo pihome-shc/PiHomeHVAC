@@ -217,7 +217,7 @@ echo '
                                 <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu">
-                                <li><a href="pdf_download.php?file=displaying_temperature_sensors_graphs.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_graphs'].'</a></li>
+                                <li><a href="pdf_download.php?file=displaying_temperature_sensors_graphs.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['displaying_temperature_sensors_graphs'].'</a></li>
                         </ul>
                 </div>
             </div>
@@ -260,7 +260,7 @@ echo '
                                 		<i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
                         		</a>
                         		<ul class="dropdown-menu">
-                        		<li><a href="pdf_download.php?file=setup_guide_system_controller.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_system_controller'].'</a></li>
+                        		<li><a href="pdf_download.php?file=setup_guide_system_controller.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_guide_system_controller'].'</a></li>
                         		</ul>
                 		</div>
             		</div>
@@ -888,7 +888,7 @@ echo '
                                 <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu">
-                                <li><a href="pdf_download.php?file=zone_types.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_zone_type'].'</a></li>
+                                <li><a href="pdf_download.php?file=zone_types.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['zone_types'].'</a></li>
                          </ul>
                 </div>
             </div>
@@ -979,9 +979,9 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
                                 <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu">
-                                <li><a href="pdf_download.php?file=configure_relay_devices.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_relays'].'</a></li>
+                                <li><a href="pdf_download.php?file=configure_relay_devices.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['configure_relay_devices'].'</a></li>
                                 <li class="divider"></li>
-                                <li><a href="pdf_download.php?file=delete_zones_relays_sensors_nodes.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['delete_nodes_sensors_relays_zones'].'</a></li>
+                                <li><a href="pdf_download.php?file=delete_zones_relays_sensors_nodes.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['delete_zones_relays_sensors_nodes'].'</a></li>
                         </ul>
                 </div>
             </div>
@@ -1065,15 +1065,15 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
                                 <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu">
-                                <li><a href="pdf_download.php?file=humidity_sensors.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_humidity_sensors'].'</a></li>
+                                <li><a href="pdf_download.php?file=humidity_sensors.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['humidity_sensors'].'</a></li>
 				<li class="divider"></li>
-                                <li><a href="pdf_download.php?file=ds18b20_temperature_sensor.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_ds18b20_sensors'].'</a></li>
+                                <li><a href="pdf_download.php?file=ds18b20_temperature_sensor.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['ds18b20_temperature_sensor'].'</a></li>
                                 <li class="divider"></li>
-                                <li><a href="pdf_download.php?file=import_sensor_readings.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['import_sensors_readings'].'</a></li>
+                                <li><a href="pdf_download.php?file=import_sensor_readings.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['import_sensor_readings'].'</a></li>
                                 <li class="divider"></li>
-				<li><a href="pdf_download.php?file=delete_zones_relays_sensors_nodes.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['delete_nodes_sensors_relays_zones'].'</a></li>
+				<li><a href="pdf_download.php?file=delete_zones_relays_sensors_nodes.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['delete_zones_relays_sensors_nodes'].'</a></li>
                                 <li class="divider"></li>
-				<li><a href="pdf_download.php?file=setup_guide_sensors.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_sensors'].'</a></li>
+				<li><a href="pdf_download.php?file=setup_guide_sensors.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_guide_sensors'].'</a></li>
                     	</ul>
                 </div>
             </div>
@@ -2032,7 +2032,7 @@ echo '
                                 <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu">
-                                <li><a href="pdf_download.php?file=task_scheduling.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_job_scheduling'].'</a></li>
+                                <li><a href="pdf_download.php?file=task_scheduling.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['task_scheduling'].'</a></li>
                          </ul>
                 </div>
             </div>
@@ -2179,15 +2179,15 @@ echo '
                 <div class="modal-content">
                         <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                                <h5 class="modal-title">'.$lang['install_software'].'</h5>
+                                <h5 class="modal-title">'.$lang['software_install'].'</h5>
 		                <div class="dropdown pull-right">
                 		        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                                 		<i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
 		                        </a>
                 		        <ul class="dropdown-menu">
-                                		<li><a href="pdf_download.php?file=software_install.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['install_software'].'</a></li>
+                                		<li><a href="pdf_download.php?file=software_install.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['software_install'].'</a></li>
 						<li class="divider"></li>
-						<li><a href="pdf_download.php?file=software_install_technical.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['install_software_technical'].'</a></li>
+						<li><a href="pdf_download.php?file=software_install_technical.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['software_install_technical'].'</a></li>
                          		</ul>
                 		</div>
                         </div>
@@ -2306,8 +2306,9 @@ echo '<div class="modal" id="documentation" tabindex="-1">
                 $path = '/var/www/documentation/pdf_format';
                 $allFiles = array_diff(scandir($path . "/"), [".", ".."]); // Use array_diff to remove both period values eg: ("." , "..")
                 foreach ($allFiles as $value) {
+			$title = substr($value, 0, -4);
                         echo '<span class="list-group-item">
-                        <i class="fa fa-file fa-2x orange"></i> '.$value.'<a href="pdf_download.php?file='.$value.'" target="_blank">
+                        <i class="fa fa-file fa-2x orange"></i> '.$lang[$title].'<a href="pdf_download.php?file='.$value.'" target="_blank">
                         <button type="button" class="pull-right btn btn-default login btn-sm" >'.$lang['open'].'</button></a></span>';
                 }
         echo '</div>
@@ -2366,7 +2367,7 @@ echo '
                                 <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu">
-                                <li><a href="pdf_download.php?file=software_update_technical.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['maxair_update_process'].'</a></li>
+                                <li><a href="pdf_download.php?file=software_update_technical.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['software_update_technical'].'</a></li>
                         </ul>
                 </div>
             </div>
