@@ -654,4 +654,5 @@ $lang['humidity'] = "Humidity";
 $lang['humidity_sensor'] = "Humidity Sensor";
 $lang['units_character'] = "Units Character";
 $lang['units_character_info'] = "used to identify the units, eg for temperature - & followed by deg;  for humidity - %";
+$lang['basic_fault_finding'] = "Basic Fault Finding";
 ?>
