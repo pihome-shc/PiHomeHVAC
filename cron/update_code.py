@@ -105,7 +105,8 @@ repository = 'https://github.com/pihome-shc/PiHomeHVAC.git'
 # remove any sub-directories and content from upgrade dir
 for it in os.scandir(code_update_dir):
     if it.is_dir():
-        shutil.rmtree(it.path)
+        cmd = 'rm -R ' + it.path
+        os.system(cmd)
 
 # remove all files except place holder file from code upgrade dir
 pattern = '*.*'
