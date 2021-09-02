@@ -1238,6 +1238,9 @@ echo '<p class="text-muted">'.$lang['sensor_type_add_info_text'].'</p>
         <div class="form-group" class="control-label"><label>'.$lang['sensor_type'].'</label> <small class="text-muted">'.$lang['sensor_type_info'].'</small>
         <input class="form-control input-sm" type="text" id="sensor_type" name="sensor_type" value="" placeholder="'.$lang['sensor_type'].'">
         <div class="help-block with-errors"></div></div>
+        <div class="form-group" class="control-label"><label>'.$lang['units_character'].'</label> <small class="text-muted">'.$lang['units_character_info'].'</small>
+        <input class="form-control input-sm" type="text" id="sensor_units" name="sensor_units" value="" placeholder="'.$lang['sensor_units'].'">
+        <div class="help-block with-errors"></div></div>
 </div>
             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
