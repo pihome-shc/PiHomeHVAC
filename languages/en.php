@@ -695,4 +695,5 @@ $lang['setup_guide_HVAC_mode'] = "Setup Guide HVAC Mode";
 $lang['setup_guide_scheduling'] = "Setup Guide Scheduling";
 $lang['setup_guide_tasmota_lamp_zone'] = "Setup Guide Tasmota Lamp Type Zone";
 $lang['switch_sensor'] = "Switch Sensor";
+$lang['sensor_types'] = "Sensor Types";
 ?>
