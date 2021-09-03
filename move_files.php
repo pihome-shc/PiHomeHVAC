@@ -63,7 +63,7 @@ function moveFolderFiles($dir){
                         }
                 }
                 // Move updated files propper locations
-                $cmd = 'cp -r '.$dir.'/'.$ff.' '.str_replace('/code_updates', '', $dir).'/'.$ff;
+                if (strlen($dir) > 21) { $cmd = 'cp -R '.$dir.' /var/www'; } else { $cmd = 'cp '.$dir.'/'.$ff.' /var/www'; }
                 exec($cmd);
         }
         if(is_dir($dir.'/'.$ff)) moveFolderFiles($dir.'/'.$ff);
