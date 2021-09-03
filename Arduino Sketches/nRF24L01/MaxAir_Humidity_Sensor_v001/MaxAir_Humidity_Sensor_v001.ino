@@ -95,7 +95,7 @@ static SI7021 sensor;
 
 #define COMPARE_TEMP 1 // Send temperature only if changed? 1 = Yes 0 = No, > 1 - force send if it value not sent that number of times and value is valid (keep lower than notice interval)
 #define COMPARE_HUM 1 //
-#define COMPARE_BVOLT 0 // Send battery voltage only if changed? 1 = Yes 0 = No, > 1 - force send if it value not sent that number of times
+#define COMPARE_BVOLT 1 // Send battery voltage only if changed? 1 = Yes 0 = No, > 1 - force send if it value not sent that number of times
 
 unsigned long SLEEP_TIME = 56000; // Sleep time between reads (in milliseconds)
 
@@ -169,9 +169,9 @@ void loop(){
   //float batteryV  = battSensorValue * 0.005083089; //R1 820k, R2 220k divider across battery and using internal ADC ref of 1.1v
   float batteryV  = battSensorValue * 0.011828;    //R1 1M, R2 100K divider across battery and using internal ADC ref of 1.1v
   
-  //int batteryPcnt = ((batteryV - 2.9) / (4.2 - 2.9) * 100); // for 18650 Battery Powred 
+  int batteryPcnt = ((batteryV - 2.9) / (4.2 - 2.9) * 100); // for 18650 Battery Powred 
   //int batteryPcnt = ((batteryV - 2.1) / (3.0 - 2.1) * 100); // for 2 x AAA Battery Powered
-  int batteryPcnt = ((batteryV - 2.5) / (4.5 - 2.5) * 100); // for 3 x AAA Battery Powered
+  //int batteryPcnt = ((batteryV - 2.5) / (4.5 - 2.5) * 100); // for 3 x AAA Battery Powered
     
   #ifdef MY_DEBUG
     Serial.print("Pin Reading: ");

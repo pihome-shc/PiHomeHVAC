@@ -1065,6 +1065,8 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
                                 <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=sensor_types.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['sensor_types'].'</a></li>
+                                <li class="divider"></li>
                                 <li><a href="pdf_download.php?file=humidity_sensors.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['humidity_sensors'].'</a></li>
 				<li class="divider"></li>
                                 <li><a href="pdf_download.php?file=ds18b20_temperature_sensor.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['ds18b20_temperature_sensor'].'</a></li>
@@ -1184,6 +1186,14 @@ echo '
             <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title">'.$lang['sensor_type'].'</h5>
+                <div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=sensor_types.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['sensor_types'].'</a></li>
+                        </ul>
+                </div>
             </div>
             <div class="modal-body">
 <p class="text-muted"> '.$lang['sensor_type_info'].' </p>';
