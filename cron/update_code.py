@@ -24,12 +24,12 @@ print("* Compare installed code against GITHUB repository and *")
 print("* download any new or changed files, for later update. *")
 print("*                                                      *")
 print("*      Build Date: 02/08/2021                          *")
-print("*      Version 0.02 - Last Modified 09/08/2021         *")
+print("*      Version 0.02 - Last Modified 03/09/2021         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
 
-import os, time, shutil, fnmatch, filecmp
+import os, time, fnmatch, filecmp
 
 def report_recursive(dcmp):
     global target_dir
@@ -133,7 +133,8 @@ c = filecmp.dircmp(source_dir, target_dir)
 report_recursive(c)
 
 # remove temporary copy of downloaded repository
-shutil.rmtree(source_dir)
+cmd = 'rm -R ' + source_dir
+os.system(cmd)
 print( "-" * 56)
 print(bc.dtm + time.ctime() + bc.ENDC + ' - Code Update Script Ended')
 print( "-" * 56)
