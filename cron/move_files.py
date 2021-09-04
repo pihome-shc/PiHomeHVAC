@@ -39,8 +39,6 @@ print( "-" * 56)
 print(bc.dtm + time.ctime() + bc.ENDC + ' - Move Files Script Started')
 print( "-" * 56)
 
-code_update_dir = '/var/www/code_updates'
-
 def getListOfFiles(dirName):
     # create a list of file and sub directories
     # names in the given directory
@@ -58,6 +56,10 @@ def getListOfFiles(dirName):
 
     return allFiles
 
+# directory which hold copies of the updated files
+code_update_dir = '/var/www/code_updates'
+
+# process the update directory
 listOfFiles = getListOfFiles(code_update_dir)
 for entry in listOfFiles:
     if not entry.endswith('updates.txt'):
