@@ -33,15 +33,7 @@ print(" " + bc.ENDC)
 
 import MySQLdb as mdb
 import configparser
-import os, time, fnmatch, filecmp
-
-# Initialise the database access variables
-config = configparser.ConfigParser()
-config.read("/var/www/st_inc/db_config.ini")
-dbhost = config.get("db", "hostname")
-dbuser = config.get("db", "dbusername")
-dbpass = config.get("db", "dbpassword")
-dbname = config.get("db", "dbname")
+import os, time
 
 print( "-" * 56)
 print(bc.dtm + time.ctime() + bc.ENDC + ' - Move Files Script Started')
@@ -111,8 +103,13 @@ if jobs_schedule_found:
 
 # update the system table if db_config.ini has been changed
 if db_config_found:
+    # Initialise the database access variables
     config = configparser.ConfigParser()
     config.read("/var/www/st_inc/db_config.ini")
+    dbhost = config.get("db", "hostname")
+    dbuser = config.get("db", "dbusername")
+    dbpass = config.get("db", "dbpassword")
+    dbname = config.get("db", "dbname")
     version = config.get("db", "version")
     build = config.get("db", "build")
     con = mdb.connect(dbhost, dbuser, dbpass, dbname)
