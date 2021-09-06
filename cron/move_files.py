@@ -1,0 +1,129 @@
+#!/usr/bin/python3
+class bc:
+        hed = '\033[95m'
+        dtm = '\033[0;36;40m'
+        ENDC = '\033[0m'
+        SUB = '\033[3;30;45m'
+        WARN = '\033[0;31;40m'
+        grn = '\033[0;32;40m'
+        wht = '\033[0;37;40m'
+        ylw = '\033[93m'
+        fail = '\033[91m'
+print(bc.hed + " ")
+print("    __  __                             _         ")
+print("   |  \/  |                    /\     (_)        ")
+print("   | \  / |   __ _  __  __    /  \     _   _ __  ")
+print("   | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| ")
+print("   | |  | | | (_| |  >  <   / ____ \  | | | |    ")
+print("   |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
+print(" ")
+print("        " +bc.SUB + "S M A R T   T H E R M O S T A T " + bc.ENDC)
+print(bc.WARN +" ")
+print("********************************************************")
+print("* Update files using source in code_updates directory, *")
+print("* remove files from update directory, kill any jobs  . *")
+print("* effected and update and update the 'systems' table   *")
+print("* if the contents of db_config.ini has changed.        *")
+print("*                                                      *")
+print("*      Build Date: 04/09/2021                          *")
+print("*      Version 0.01 - Last Modified 04/09/2021         *")
+print("*                                 Have Fun - PiHome.eu *")
+print("********************************************************")
+print(" " + bc.ENDC)
+
+import MySQLdb as mdb
+import configparser
+import os, time
+
+print( "-" * 56)
+print(bc.dtm + time.ctime() + bc.ENDC + ' - Move Files Script Started')
+print( "-" * 56)
+
+def getListOfFiles(dirName):
+    # create a list of file and sub directories
+    # names in the given directory
+    listOfFile = os.listdir(dirName)
+    allFiles = list()
+    # Iterate over all the entries
+    for entry in listOfFile:
+        # Create full path
+        fullPath = os.path.join(dirName, entry)
+        # If entry is a directory then get the list of files in this directory
+        if os.path.isdir(fullPath):
+            allFiles = allFiles + getListOfFiles(fullPath)
+        else:
+            allFiles.append(fullPath)
+
+    return allFiles
+
+# directory which hold copies of the updated files
+code_update_dir = '/var/www/code_updates'
+
+# process the update directory
+listOfFiles = getListOfFiles(code_update_dir)
+for entry in listOfFiles:
+    if not entry.endswith('updates.txt'):
+        # check for any jobs files
+        if entry.endswith('gateway.py'):
+            gateway_found = True
+        else:
+            gateway_found = False
+        if entry.endswith('gpio_ds18b20.py'):
+            gpio_ds18b20_found = True
+        else:
+            gpio_ds18b20_found = False
+        if entry.endswith('jobs_schedule.py'):
+            jobs_schedule_found = True
+        else:
+            jobs_schedule_found = False
+	# check if version or build have been updated
+        if entry.endswith('db_config.ini'):
+            db_config_found = True
+        else:
+            db_config_found = False
+
+        # copy the file to its correct location
+        cmd = 'cp ' + entry + ' ' + entry.replace('/code_updates', '')
+        os.system(cmd)
+        # remove the file from the update directory
+        cmd = 'rm -r ' + entry
+        os.system(cmd)
+
+# remove any sub-directories from upgrade dir
+for it in os.scandir(code_update_dir):
+    if it.is_dir():
+        cmd = 'rm -R ' + it.path
+        os.system(cmd)
+
+# kill any updated running jobs
+if gateway_found:
+    cmd = 'pkill -f gateway.py'
+if gpio_ds18b20_found:
+    cmd = 'pkill -f gpio_ds18b20.py'
+if jobs_schedule_found:
+    cmd = 'pkill -f jobs_schedule.py'
+
+# update the system table if db_config.ini has been changed
+if db_config_found:
+    # Initialise the database access variables
+    config = configparser.ConfigParser()
+    config.read("/var/www/st_inc/db_config.ini")
+    dbhost = config.get("db", "hostname")
+    dbuser = config.get("db", "dbusername")
+    dbpass = config.get("db", "dbpassword")
+    dbname = config.get("db", "dbname")
+    version = config.get("db", "version")
+    build = config.get("db", "build")
+    con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+    cur = con.cursor()
+    cur.execute(
+    "UPDATE system SET version = %s, build = %s",
+        (version, build),
+    )
+    con.commit()
+
+print( "-" * 56)
+print(bc.dtm + time.ctime() + bc.ENDC + ' - Move Files Script Ended')
+print( "-" * 56)
+
+
