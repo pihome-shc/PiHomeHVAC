@@ -980,7 +980,7 @@ if($what=="db_backup"){
 
 //Code Update
 if($what=="code_update"){
-        shell_exec("nohup php move_files.php >/dev/null 2>&1");
+        shell_exec("nohup python3 /var/www/cron/move_files.py > /dev/null 2>&1 &");
         $info_message = "Code Module Update Request Started, This process may take some time complete..." ;
 }
 
