@@ -84,7 +84,7 @@ require_once(__DIR__ . '/st_inc/functions.php');
 			<a href="javascript:active_schedule(' . $row["time_id"] . ');">
 			<span class="chat-img pull-left">
                         <div class="circle ' . $shactive . '">';
-                                if($row["category"] <> 2) {
+                                if($row["category"] <> 2 && $row["sensor_type_id"] <> 3) {
 					$unit = SensorUnits($conn,$row['sensor_type_id']);
 					echo '<p class="schdegree">' . DispSensor($conn, number_format($row["max_c"], 1), $row["sensor_type_id"]) . $unit . '</p>';
 				}
@@ -137,7 +137,7 @@ require_once(__DIR__ . '/st_inc/functions.php');
 					echo '
 					<div class="list-group">
 						<div class="list-group-item">';
-                                                        if ($datarw["category"] <> 2) {
+                                                        if ($datarw["category"] <> 2 && $datarw["sensor_type_id"] <> 3) {
                                         			$unit = SensorUnits($conn,$datarw['sensor_type_id']);
 								echo '<i class="ionicons ' . $status_icon . ' fa-lg ' . $status_color . '"></i>  ' . $datarw['zone_name'] . ' ' . $coop . '<span class="pull-right text-muted small"><em>' . number_format(DispSensor($conn, $datarw['temperature'],$datarw['sensor_type_id']), 1) . $unit .'</em></span>';
 							} else {

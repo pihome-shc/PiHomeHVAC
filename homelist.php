@@ -222,15 +222,19 @@ require_once(__DIR__.'/st_inc/functions.php');
 
    			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#'.$zone_type.''.$zone_id.'" data-backdrop="static" data-keyboard="false">
 			<h3><small>'.$zone_name.'</small></h3>';
-			$unit = SensorUnits($conn,$sensor_type_id);
-                        echo '<h3 class="degre">'.number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit.'</h3>';
+			if ($sensor_type_id == 3) {
+				if ($zone_c == 0) { echo '<h3 class="degre">OFF</h3>'; } else { echo '<h3 class="degre">ON</h3>'; }
+			} else {
+				$unit = SensorUnits($conn,$sensor_type_id);
+        	                echo '<h3 class="degre">'.number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit.'</h3>';
+			}
 			echo '<h3 class="status">';
 
                         $rval=getIndicators($conn, $zone_mode, $zone_temp_target);
                         //Left small circular icon/color status
                         echo '<small class="statuscircle"><i class="fa fa-circle fa-fw ' . $rval['status'] . '"></i></small>';
                         //Middle target temp
-                        echo '<small class="statusdegree">' . $rval['target'] .'</small>';
+                        if ($sensor_type_id != 3) { echo '<small class="statusdegree">' . $rval['target'] .'</small>'; }
                         //Right icon for what/why
                         echo '<small class="statuszoon"><i class="fa ' . $rval['shactive'] . ' ' . $rval['shcolor'] . ' fa-fw"></i></small>';
                         //Overrun Icon
@@ -311,14 +315,16 @@ require_once(__DIR__.'/st_inc/functions.php');
 									</li>
 								</ul>';
 							}else{
-								//if temperature control active display cut in and cut out levels
-								if (($zone_category <= 1) && (($zone_mode_main == 20 ) || ($zone_mode_main == 50 ) || ($zone_mode_main == 60 ) || ($zone_mode_main == 70 )||($zone_mode_main == 80 ))){
-									echo '<p>Cut In Temperature : '.$zone_temp_cut_in.'&degC</p>
-									<p>Cut Out Temperature : ' .$zone_temp_cut_out.'&degC</p>';
-								}
-								//display coop start info
-								if($zone_mode_sub == 3){
-									echo '<p>Coop Start Schedule - Waiting for System Controller start.</p>';
+								if ($sensor_type_id != 3) {
+									//if temperature control active display cut in and cut out levels
+									if (($zone_category <= 1) && (($zone_mode_main == 20 ) || ($zone_mode_main == 50 ) || ($zone_mode_main == 60 ) || ($zone_mode_main == 70 )||($zone_mode_main == 80 ))){
+										echo '<p>Cut In Temperature : '.$zone_temp_cut_in.'&degC</p>
+										<p>Cut Out Temperature : ' .$zone_temp_cut_out.'&degC</p>';
+									}
+									//display coop start info
+									if($zone_mode_sub == 3){
+										echo '<p>Coop Start Schedule - Waiting for System Controller start.</p>';
+									}
 								}
 								$squery = "SELECT * FROM schedule_daily_time_zone_view where zone_id ='{$zone_id}' AND tz_status = 1 AND time_status = '1' AND (WeekDays & (1 << {$dow})) > 0 ORDER BY start asc";
 								$sresults = $conn->query($squery);
@@ -384,8 +390,12 @@ require_once(__DIR__.'/st_inc/functions.php');
                         $sensor_c = $sensor['payload'];
                         echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-backdrop="static" data-keyboard="false">
                         <h3><small>'.$sensor_name.'</small></h3>';
-			$unit = SensorUnits($conn,$sensor_type_id);
-                        echo '<h3 class="degre">'.number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit.'</h3>';
+                        if ($sensor_type_id == 3) {
+                                if ($sensor_c == 0) { echo '<h3 class="degre">OFF</h3>'; } else { echo '<h3 class="degre">ON</h3>'; }
+			} else {
+				$unit = SensorUnits($conn,$sensor_type_id);
+        	                echo '<h3 class="degre">'.number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit.'</h3>';
+			}
                         echo '<h3 class="status">
                         <small class="statuscircle"><i class="fa fa-circle fa-fw '.$shcolor.'"></i></small>
                         </h3></button>';      //close out status and button
@@ -517,8 +527,12 @@ require_once(__DIR__.'/st_inc/functions.php');
                         $sensor_c = $sensor['payload'];
    			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-backdrop="static" data-keyboard="false">
                         <h3><small>'.$sensor_name.'</small></h3>';
-			$unit = SensorUnits($conn,$sensor_type_id);
-                        echo '<h3 class="degre">'.number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit.'</h3>';
+                        if ($sensor_type_id == 3) {
+                                if ($sensor_c == 0) { echo '<h3 class="degre">OFF</h3>'; } else { echo '<h3 class="degre">ON</h3>'; }
+			} else {
+				$unit = SensorUnits($conn,$sensor_type_id);
+        	                echo '<h3 class="degre">'.number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit.'</h3>';
+			}
                         echo '<h3 class="status">
                         <small class="statuscircle"><i class="fa fa-circle fa-fw '.$shcolor.'"></i></small>
                         </h3></button>';      //close out status and button

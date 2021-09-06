@@ -529,12 +529,14 @@ function zone_category(value)
 			var sensor_type = 1;
                         document.getElementById("default_c_label_1").style.visibility = 'visible';
                         document.getElementById("default_c_label_1").innerHTML = document.getElementById("default_c_label_text").value;
+                        document.getElementById("default_c_label_2").style.visibility = 'visible';;
                         document.getElementById("default_c_label_2").innerHTML = document.getElementById("default_c_label_info").value;;
                         document.getElementById("default_c").style.display = 'block';
                         document.getElementById("min_c").style.display = 'none';
                         document.getElementById("min_c_label").style.visibility = 'hidden';;
                         document.getElementById("max_c_label_1").style.visibility = 'visible';
                         document.getElementById("max_c_label_1").innerHTML = document.getElementById("max_c_label_text").value;
+                        document.getElementById("max_c_label_2").style.visibility = 'visible';
                         document.getElementById("max_c_label_2").innerHTML = document.getElementById("max_c_label_info").value;;
                         document.getElementById("max_c").style.display = 'block';
                         document.getElementById("hysteresis_time").style.display = 'block';
@@ -542,7 +544,8 @@ function zone_category(value)
                         document.getElementById("sp_deadband").style.display = 'block';
                         document.getElementById("sp_deadband_label").style.visibility = 'visible';;
                         document.getElementById("zone_sensor_id").style.display = 'block';
-                        document.getElementById("sensor_id_label").style.visibility = 'visible';;
+                        document.getElementById("sensor_id_label_1").style.visibility = 'visible';;
+                        document.getElementById("sensor_id_label_2").style.visibility = 'visible';;
                         document.getElementById("system_controller_id").style.display = 'block';
                         document.getElementById("system_controller_id_label").style.visibility = 'visible';;
                         document.getElementById("boost_button_id").style.display = 'block';
@@ -552,7 +555,7 @@ function zone_category(value)
                         document.getElementById("max_c").required = true;
                         document.getElementById("hysteresis_time").required = true;
                         document.getElementById("sp_deadband").required = true;
-			document.getElementById("sensor_id_label").innerHTML = document.getElementById("sensor_c_label_text").value;
+			document.getElementById("sensor_id_label_1").innerHTML = document.getElementById("sensor_c_label_text").value;
                         document.getElementById("zone_sensor_id").required = true;
                         document.getElementById("controler_id_label").style.visibility = 'visible';;
                         document.getElementById("boost_button_id").required = true;
@@ -560,20 +563,39 @@ function zone_category(value)
                         document.getElementById("system_controller_id").required = true;
                         break;
                 case "1":
-                        document.getElementById("default_c_label_1").style.visibility = 'visible';
-                        if (document.getElementById("selected_zone_type").value === "Humidity") {
-	                        var sensor_type = 2;
-                                document.getElementById("default_c_label_1").innerHTML = document.getElementById("default_h_label_text").value;
-                                document.getElementById("default_c_label_2").innerHTML = document.getElementById("default_h_label_info").value;;
-                        } else {
-	                        var sensor_type = 1;
-                                document.getElementById("default_c_label_1").innerHTML = document.getElementById("default_c_label_text").value;
-                                document.getElementById("default_c_label_2").innerHTML = document.getElementById("default_c_label_info").value;;
-                        }
-                        document.getElementById("default_c").style.display = 'block';
+                        if (document.getElementById("selected_zone_type").value === "Immersion") {
+	                        document.getElementById("default_c_label_1").style.visibility = 'visible';
+        	                document.getElementById("default_c_label_2").style.visibility = 'visible';;
+	                        document.getElementById("default_c").style.display = 'block';
+			} else {
+                                document.getElementById("default_c_label_1").style.visibility = 'hidden';
+                                document.getElementById("default_c_label_2").style.visibility = 'hidden';;
+	                        document.getElementById("default_c").style.display = 'none';
+			}
+                        if (document.getElementById("selected_zone_type").value === "Switch") {
+				var sensor_type = 3;
+			} else {
+	                        if (document.getElementById("selected_zone_type").value === "Humidity") {
+		                        var sensor_type = 2;
+                	                document.getElementById("default_c_label_1").innerHTML = document.getElementById("default_h_label_text").value;
+                        	        document.getElementById("default_c_label_2").innerHTML = document.getElementById("default_h_label_info").value;;
+	                        } else {
+		                        var sensor_type = 1;
+                	                document.getElementById("default_c_label_1").innerHTML = document.getElementById("default_c_label_text").value;
+                        	        document.getElementById("default_c_label_2").innerHTML = document.getElementById("default_c_label_info").value;;
+                        	}
+			}
                         document.getElementById("min_c").style.display = 'none';
                         document.getElementById("min_c_label").style.visibility = 'hidden';;
-                        document.getElementById("max_c_label_1").style.visibility = 'visible';
+                        if (document.getElementById("selected_zone_type").value === "Immersion") {
+	                        document.getElementById("max_c_label_1").style.visibility = 'visible';
+        	                document.getElementById("max_c_label_2").style.visibility = 'visible';
+	                        document.getElementById("max_c").style.display = 'block';
+			} else {
+                                document.getElementById("max_c_label_1").style.visibility = 'hidden';
+                                document.getElementById("max_c_label_2").style.visibility = 'hidden';
+	                        document.getElementById("max_c").style.display = 'none';
+			}
                         if (document.getElementById("selected_zone_type").value === "Humidity") {
                                 document.getElementById("max_c_label_1").innerHTML = document.getElementById("max_h_label_text").value;
                                 document.getElementById("max_c_label_2").innerHTML = document.getElementById("max_h_label_info").value;;
@@ -581,27 +603,48 @@ function zone_category(value)
                                 document.getElementById("max_c_label_1").innerHTML = document.getElementById("max_c_label_text").value;
                                 document.getElementById("max_c_label_2").innerHTML = document.getElementById("max_c_label_info").value;;
                         }
-                        document.getElementById("max_c").style.display = 'block';
-                        document.getElementById("hysteresis_time").style.display = 'block';
-                        document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
-                        document.getElementById("sp_deadband").style.display = 'block';
-                        document.getElementById("sp_deadband_label").style.visibility = 'visible';;
+                        if (document.getElementById("selected_zone_type").value === "Immersion") {
+	                        document.getElementById("hysteresis_time").style.display = 'block';
+        	                document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
+                	        document.getElementById("sp_deadband").style.display = 'block';
+                        	document.getElementById("sp_deadband_label").style.visibility = 'visible';;
+			} else {
+                                document.getElementById("hysteresis_time").style.display = 'none';
+                                document.getElementById("hysteresis_time_label").style.visibility = 'hidden';;
+                                document.getElementById("sp_deadband").style.display = 'none';
+                                document.getElementById("sp_deadband_label").style.visibility = 'hidden';;
+			}
                         document.getElementById("zone_sensor_id").style.display = 'block';
-                        document.getElementById("sensor_id_label").style.visibility = 'visible';;
+                        document.getElementById("sensor_id_label_1").style.visibility = 'visible';;
+                        document.getElementById("sensor_id_label_2").style.visibility = 'visible';;
                         document.getElementById("system_controller_id").style.display = 'none';
                         document.getElementById("system_controller_id_label").style.visibility = 'hidden';;
-                        document.getElementById("boost_button_id").style.display = 'block';
-                        document.getElementById("boost_button_id_label").style.visibility = 'visible';;
-                        document.getElementById("boost_button_child_id").style.display = 'block';
-                        document.getElementById("boost_button_child_id_label").style.visibility = 'visible';;
-                        document.getElementById("max_c").required = true;
-                        document.getElementById("hysteresis_time").required = true;
-                        document.getElementById("sp_deadband").required = true;
-                        if (document.getElementById("selected_zone_type").value === "Humidity") {
-                                document.getElementById("sensor_id_label").innerHTML = document.getElementById("sensor_h_label_text").value;
-                        } else {
-                                document.getElementById("sensor_id_label").innerHTML = document.getElementById("sensor_c_label_text").value;
-                        }
+                        if (document.getElementById("selected_zone_type").value === "Immersion") {
+	                        document.getElementById("boost_button_id").style.display = 'block';
+        	                document.getElementById("boost_button_id_label").style.visibility = 'visible';;
+                	        document.getElementById("boost_button_child_id").style.display = 'block';
+                        	document.getElementById("boost_button_child_id_label").style.visibility = 'visible';;
+	                        document.getElementById("max_c").required = true;
+        	                document.getElementById("hysteresis_time").required = true;
+                	        document.getElementById("sp_deadband").required = true;
+			} else {
+                                document.getElementById("boost_button_id").style.display = 'none';
+                                document.getElementById("boost_button_id_label").style.visibility = 'hidden';;
+                                document.getElementById("boost_button_child_id").style.display = 'none';
+                                document.getElementById("boost_button_child_id_label").style.visibility = 'hidden';;
+                                document.getElementById("max_c").required = false;
+                                document.getElementById("hysteresis_time").required = false;
+                                document.getElementById("sp_deadband").required = false;
+			}
+                        if (document.getElementById("selected_zone_type").value === "Switch") {
+                                document.getElementById("sensor_id_label_1").innerHTML = document.getElementById("sensor_s_label_text").value;
+			} else {
+                        	if (document.getElementById("selected_zone_type").value === "Humidity") {
+                                	document.getElementById("sensor_id_label_1").innerHTML = document.getElementById("sensor_h_label_text").value;
+                        	} else {
+                                	document.getElementById("sensor_id_label_1").innerHTML = document.getElementById("sensor_c_label_text").value;
+                        	}
+			}
                         document.getElementById("zone_sensor_id").required = true;
                         document.getElementById("controler_id_label").style.visibility = 'visible';;
                         document.getElementById("boost_button_id").required = true;
@@ -614,14 +657,17 @@ function zone_category(value)
                         document.getElementById("min_c_label").style.visibility = 'hidden';;
                         document.getElementById("max_c").style.display = 'none';
                         document.getElementById("max_c_label_1").style.visibility = 'hidden';;
+                        document.getElementById("max_c_label_2").style.visibility = 'hidden';
                         document.getElementById("default_c").style.display = 'none';
                         document.getElementById("default_c_label_1").style.visibility = 'hidden';;
+                        document.getElementById("default_c_label_2").style.visibility = 'hidden';;
                         document.getElementById("hysteresis_time").style.display = 'none';
                         document.getElementById("hysteresis_time_label").style.visibility = 'hidden';;
                         document.getElementById("sp_deadband").style.display = 'none';
                         document.getElementById("sp_deadband_label").style.visibility = 'hidden';;
                         document.getElementById("zone_sensor_id").style.display = 'none';
-                        document.getElementById("sensor_id_label").style.visibility = 'hidden';;
+                        document.getElementById("sensor_id_label_1").style.visibility = 'hidden';;
+                        document.getElementById("sensor_id_label_2").style.visibility = 'hidden';;
                         document.getElementById("controler_id_label").style.visibility = 'visible';;
                         document.getElementById("system_controller_id").style.display = 'none';
                         document.getElementById("system_controller_id_label").style.visibility = 'hidden';;
@@ -632,7 +678,7 @@ function zone_category(value)
                         document.getElementById("max_c").required = false;
                         document.getElementById("hysteresis_time").required = false;
                         document.getElementById("sp_deadband").required = false;
-                        document.getElementById("sensor_id_label").innerHTML = document.getElementById("sensor_c_label_text").value;
+                        document.getElementById("sensor_id_label_1").innerHTML = document.getElementById("sensor_c_label_text").value;
                         document.getElementById("zone_sensor_id").required = false;
                         document.getElementById("controler_id_label").style.visibility = 'visible';;
                         document.getElementById("boost_button_id").required = false;
@@ -643,12 +689,14 @@ function zone_category(value)
                         var sensor_type = 1;
                         document.getElementById("default_c_label_1").style.visibility = 'visible';
                         document.getElementById("default_c_label_1").innerHTML = document.getElementById("default_c_label_text").value;
+                        document.getElementById("default_c_label_2").style.visibility = 'visible';;
                         document.getElementById("default_c_label_2").innerHTML = document.getElementById("default_c_label_info").value;;
                         document.getElementById("default_c").style.display = 'block';
                         document.getElementById("min_c").style.display = 'block';
                         document.getElementById("min_c_label").style.visibility = 'visible';;
                         document.getElementById("max_c_label_1").style.visibility = 'visible';
                         document.getElementById("max_c_label_1").innerHTML = document.getElementById("max_c_label_text").value;
+                        document.getElementById("max_c_label_2").style.visibility = 'visible';
                         document.getElementById("max_c_label_2").innerHTML = document.getElementById("max_c_label_info").value;;
                         document.getElementById("max_c").style.display = 'block';
                         document.getElementById("hysteresis_time").style.display = 'block';
@@ -656,7 +704,8 @@ function zone_category(value)
                         document.getElementById("sp_deadband").style.display = 'block';
                         document.getElementById("sp_deadband_label").style.visibility = 'visible';;
                         document.getElementById("zone_sensor_id").style.display = 'block';
-                        document.getElementById("sensor_id_label").style.visibility = 'visible';;
+                        document.getElementById("sensor_id_label_1").style.visibility = 'visible';;
+                        document.getElementById("sensor_id_label_2").style.visibility = 'visible';;
                         document.getElementById("controler_id_label").style.visibility = 'hidden';;
                         document.getElementById("system_controller_id").style.display = 'block';
                         document.getElementById("system_controller_id_label").style.visibility = 'visible';;
@@ -667,7 +716,7 @@ function zone_category(value)
                         document.getElementById("max_c").required = true;
                         document.getElementById("hysteresis_time").required = true;
                         document.getElementById("sp_deadband").required = true;
-                        document.getElementById("sensor_id_label").innerHTML = document.getElementById("sensor_c_label_text").value;
+                        document.getElementById("sensor_id_label_1").innerHTML = document.getElementById("sensor_c_label_text").value;
                         document.getElementById("zone_sensor_id").required = true;
                         document.getElementById("boost_button_id").required = true;
                         document.getElementById("boost_button_child_id").required = true;
@@ -739,7 +788,8 @@ function zone_category(value)
 <!-- Temperature Sensor ID -->
 <input type="hidden" id="sensor_c_label_text" name="sensor_c_label_text" value="<?php echo $lang['temperature_sensor']; ?>"/>
 <input type="hidden" id="sensor_h_label_text" name="sensor_h_label_text" value="<?php echo $lang['humidity_sensor']; ?>"/>
-<div class="form-group" class="control-label" style="display:block"><label id="sensor_id_label"><?php echo $lang['temperature_sensor']; ?></label> <small class="text-muted"><?php echo $lang['zone_sensor_id_info'];?></small>
+<input type="hidden" id="sensor_s_label_text" name="sensor_s_label_text" value="<?php echo $lang['switch_sensor']; ?>"/>
+<div class="form-group" class="control-label" style="display:block"><label id="sensor_id_label_1"><?php echo $lang['temperature_sensor']; ?></label> <small class="text-muted" id="sensor_id_label_2"><?php echo $lang['zone_sensor_id_info'];?></small>
 <select id="zone_sensor_id" onchange=SensorIDList(this.options[this.selectedIndex].value) name="zone_sensor_id" class="form-control select2" data-error="<?php echo $lang['zone_temp_sensor_id_error']; ?>" autocomplete="off" required>
 <option></option>
 <?php for ($i = 0; $i < count($sensorArray); $i++) {

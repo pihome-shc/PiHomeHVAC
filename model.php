@@ -843,7 +843,7 @@ echo '
             </div>
             <div class="modal-body">';
 echo '<p class="text-muted">'.$lang['node_add_info_text'].'</p>
-	
+
 	<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
 
 	<div class="form-group" class="control-label"><label>'.$lang['node_type'].'</label> <small class="text-muted">'.$lang['node_type_info'].'</small>
@@ -853,6 +853,7 @@ echo '<p class="text-muted">'.$lang['node_add_info_text'].'</p>
 	<option value="GPIO">GPIO</option>
         <option value="Tasmota">Tasmota</option>
         <option value="Dummy">Dummy</option>
+        <option value="Switch">Switch</option>
 	</select>
     <div class="help-block with-errors"></div></div>
 
@@ -860,7 +861,7 @@ echo '<p class="text-muted">'.$lang['node_add_info_text'].'</p>
 	<div class="form-group" class="control-label"><label>'.$lang['node_id'].'</label> <small class="text-muted">'.$lang['node_id_info'].'</small>
 	<input class="form-control input-sm" type="text" id="add_node_id" name="add_node_id" value="" placeholder="'.$lang['node_id'].'">
 	<div class="help-block with-errors"></div></div>
-		
+
 	<div class="form-group" class="control-label" id="add_devices_label" style="display:block"><label>'.$lang['node_child_id'].'</label> <small class="text-muted">'.$lang['node_child_id_info'].'</small>
 	<input class="form-control input-sm" type="text" id="nodes_max_child_id" name="nodes_max_child_id" value="0" placeholder="'.$lang['node_max_child_id'].'">
 	<div class="help-block with-errors"></div></div>
@@ -869,7 +870,7 @@ echo '<p class="text-muted">'.$lang['node_add_info_text'].'</p>
             <div class="modal-footer">
 				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
 				<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="add_node()">
-				
+
             </div>
         </div>
     </div>
@@ -889,6 +890,8 @@ echo '
                         </a>
                         <ul class="dropdown-menu">
                                 <li><a href="pdf_download.php?file=zone_types.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['zone_types'].'</a></li>
+                                <li class="divider"></li>
+                                <li><a href="pdf_download.php?file=switch_zones.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['switch_zones'].'</a></li>
                          </ul>
                 </div>
             </div>
@@ -1273,7 +1276,9 @@ echo '
                                 <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu">
-                                <li><a href="pdf_download.php?file=setup_guide_zones.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_zones'].'</a></li>
+                                <li><a href="pdf_download.php?file=setup_guide_zones.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_guide_zones'].'</a></li>
+                                <li class="divider"></li>
+                                <li><a href="pdf_download.php?file=switch_zones.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['switch_zones'].'</a></li>
                         </ul>
                 </div>
             </div>
