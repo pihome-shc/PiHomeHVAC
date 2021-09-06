@@ -173,7 +173,7 @@ if (isset($_POST['submit'])) {
 							<select id="sensor_id" onchange=SensorChildList(this.options[this.selectedIndex].value) name="sensor_id" class="form-control select2" data-error="<?php echo $lang['sensor_id_error']; ?>" autocomplete="off" required>
                                                                 <?php if(isset($rownode['node_id'])) {
                                                                         echo '<option selected >'.$rownode['node_id'].' - '.$rownode['name'].'</option>';
-                                                			$query = "SELECT node_id, name, max_child_id FROM nodes where name LIKE '%Sensor' AND id <> ".$rownode['id']." ORDER BY node_id ASC;";
+                                                			$query = "SELECT node_id, name, max_child_id FROM nodes where (name LIKE '%Sensor' OR name LIKE 'Switch%')AND id <> ".$rownode['id']." ORDER BY node_id ASC;";
                                                                 } else {
                                                                         $query = "SELECT node_id, name, max_child_id FROM nodes where name LIKE '%Sensor' ORDER BY node_id ASC;";
                                                                 }
