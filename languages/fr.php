@@ -684,4 +684,5 @@ $lang['setup_guide_scheduling'] = "Setup Guide Scheduling";
 $lang['setup_guide_tasmota_lamp_zone'] = "Setup Guide Tasmota Lamp Type Zone";
 $lang['switch_sensor'] = "Switch Sensor";
 $lang['sensor_types'] = "Sensor Types";
+$lang['switch_zones'] = "Home Automation - Switching Zones";
 ?>

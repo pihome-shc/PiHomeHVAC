@@ -24,7 +24,7 @@ print("* Compare installed code against GITHUB repository and *")
 print("* download any new or changed files, for later update. *")
 print("*                                                      *")
 print("*      Build Date: 02/08/2021                          *")
-print("*      Version 0.02 - Last Modified 03/09/2021         *")
+print("*      Version 0.03 - Last Modified 06/09/2021         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -39,6 +39,7 @@ def report_recursive(dcmp):
 
     # update existing code modules
     for name in dcmp.diff_files:
+        copy_dir = False
         if name.endswith('.json') or name.endswith('.log'):
             continue
         if len(dcmp.left[18:]) > 0:
@@ -51,20 +52,30 @@ def report_recursive(dcmp):
                 update_path = code_update_dir
                 for x in sub_dirs:
                     update_path = update_path + '/' + sub_dirs[i]
-                    if not os.path.exists(update_path):
+                    if not os.path.isdir(update_path):
                         cmd = 'mkdir ' + update_path
                         os.system(cmd)
                     i=i+1
                 path = target_dir + '/' + dcmp.left[18:] + '/' + name
+                if os.path.isdir(source_dir + '/' + dcmp.left[18:] + '/' + name):
+                    cmd = 'mkdir ' + code_update_dir + '/' + dcmp.left[18:] + '/' + name
+                    os.system(cmd)
+                    copy_dir = True
         else:
             update_path = code_update_dir
             path = target_dir + '/' + name
-        cmd = 'cp ' + dcmp.left + '/' + name + ' ' + update_path
+            if os.path.isdir(source_dir + '/' + name):
+                copy_dir = True
+        if copy_dir :
+            cmd = 'cp -R ' + dcmp.left + '/' + name + ' ' + update_path
+        else :
+            cmd = 'cp ' + dcmp.left + '/' + name + ' ' + update_path
         os.system(cmd)
         print(path)
 
     # add new code modules
     for name in dcmp.left_only:
+        copy_dir = False
         if name.endswith('.json') or name.endswith('.log'):
             continue
         if len(dcmp.left[18:]) > 0:
@@ -77,15 +88,24 @@ def report_recursive(dcmp):
                 update_path = code_update_dir
                 for x in sub_dirs:
                     update_path = update_path + '/' + sub_dirs[i]
-                    if not os.path.exists(update_path):
+                    if not os.path.isdir(update_path):
                         cmd = 'mkdir ' + update_path
                         os.system(cmd)
                     i=i+1
                 path = target_dir + '/' + dcmp.left[18:] + '/' + name
+                if os.path.isdir(source_dir + '/' + dcmp.left[18:] + '/' + name):
+                    cmd = 'mkdir ' + code_update_dir + '/' + dcmp.left[18:] + '/' + name
+                    os.system(cmd)
+                    copy_dir = True
         else:
             update_path = code_update_dir
             path = target_dir + '/' + name
-        cmd = 'cp ' + dcmp.left + '/' + name + ' ' + update_path
+            if os.path.isdir(source_dir + '/' + name):
+                copy_dir = True
+        if copy_dir :
+            cmd = 'cp -R ' + dcmp.left + '/' + name + ' ' + update_path
+        else :
+            cmd = 'cp ' + dcmp.left + '/' + name + ' ' + update_path
         os.system(cmd)
         print(path)
 

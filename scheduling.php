@@ -325,7 +325,7 @@ if (isset($_POST['submit'])) {
 
 						<!-- Group Zone Settings -->
 						<?php
-						if ($row["category"] <> 2) {
+						if ($row["category"] <> 2 && $row["sensor_type_id"] <> 3) {
 							if($row['tz_status'] == 1 AND $time_id != 0){
 								//if($time_id != 0){
 								$style_text = "";
@@ -383,7 +383,7 @@ if (isset($_POST['submit'])) {
 								<!-- /.form-group -->
 							</div>
                                                         <!-- /.row -->
-                                                <?php } else {
+                                                <?php } elseif ($row["sensor_type_id"] <> 3) {
 
 
                                                         if($row['tz_status'] == 1 AND $time_id != 0){

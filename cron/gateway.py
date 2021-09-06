@@ -799,7 +799,37 @@ try:
                         )
                         con.commit()
 
-                    # ..::Step Seven::..
+
+                    # ..::Step Seven ::..
+                    # Add Switch Reading to database
+                if (
+                    node_id != 0
+                    and child_sensor_id != 255
+                    and message_type == 1
+                    and sub_type == 16
+                ):
+                    if dbgLevel >= 2 and dbgMsgIn == 1:
+                        print(
+                            "7: Adding Switch Reading From Node ID:",
+                            node_id,
+                            " Child Sensor ID:",
+                            child_sensor_id,
+                            " PayLoad:",
+                            payload,
+                        )
+                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    cur.execute(
+                        "INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s)",
+                        (0, 0, node_id, child_sensor_id, sub_type, payload, timestamp),
+                    )
+                    con.commit()
+                    cur.execute(
+                        "UPDATE `nodes` SET `last_seen`=now(), `sync`=0  WHERE node_id = %s",
+                        [node_id],
+                    )
+                    con.commit()
+
+                    # ..::Step Eight::..
                     # Add Battery Voltage Nodes Battery Table
                     # Example: 25;1;1;0;38;4.39
                 if (
@@ -810,7 +840,7 @@ try:
                 ):
                     if dbgLevel >= 2 and dbgMsgIn == 1:
                         print(
-                            "7: Battery Voltage for Node ID:",
+                            "8: Battery Voltage for Node ID:",
                             node_id,
                             " Battery Voltage:",
                             payload,
@@ -824,7 +854,7 @@ try:
                     ##cur.execute('UPDATE `nodes` SET `last_seen`=now() WHERE node_id = %s', [node_id])
                     con.commit()
 
-                    # ..::Step Eight::..
+                    # ..::Step Nine::..
                     # Add Battery Level Nodes Battery Table
                     # Example: 25;255;3;0;0;104
                 if (
@@ -835,7 +865,7 @@ try:
                 ):
                     if dbgLevel >= 2 and dbgMsgIn == 1:
                         print(
-                            "8: Adding Battery Level & Voltage for Node ID:",
+                            "9: Adding Battery Level & Voltage for Node ID:",
                             node_id,
                             "Battery Level:",
                             payload,
@@ -851,7 +881,7 @@ try:
                     )
                     con.commit()
 
-                    # ..::Step Nine::..
+                    # ..::Step Ten::..
                     # Add Boost Status Level to Database/Relay Last seen gets added here as well when ACK is set to 1 in messages_out table.
                 if (
                     node_id != 0
@@ -862,7 +892,7 @@ try:
                     # print "2 insert: ", node_id, " , ", child_sensor_id, "payload", payload
                     if dbgLevel >= 2 and dbgMsgIn == 1:
                         print(
-                            "9. Adding Database Record: Node ID:",
+                            "10. Adding Database Record: Node ID:",
                             node_id,
                             " Child Sensor ID:",
                             child_sensor_id,
@@ -878,7 +908,7 @@ try:
                     )
                     con.commit()
 
-                    # ..::Step Ten::..
+                    # ..::Step Eleven::..
                     # Add Away Status Level to Database
                 if (
                     node_id != 0
@@ -890,7 +920,7 @@ try:
                     # print "2 insert: ", node_id, " , ", child_sensor_id, "payload", payload
                     if dbgLevel >= 2 and dbgMsgIn == 1:
                         print(
-                            "10. Adding Database Record: Node ID:",
+                            "11. Adding Database Record: Node ID:",
                             node_id,
                             " Child Sensor ID:",
                             child_sensor_id,
@@ -908,7 +938,7 @@ try:
                     # else:
                     # print bc.WARN+ "No Action Defined Incomming Node Message Ignored \n\n" +bc.ENDC
 
-                    # ..::Step Eleven::..
+                    # ..::Step Twelve::..
                     # When Gateway Startup Completes
                 if (
                     node_id == 0
@@ -917,11 +947,11 @@ try:
                     and sub_type == 18
                 ):
                     if dbgLevel >= 2 and dbgMsgIn == 1:
-                        print("11: PiHome MySensors Gateway Version :", payload)
+                        print("12: PiHome MySensors Gateway Version :", payload)
                     cur.execute("UPDATE gateway SET version = %s", [payload])
                     con.commit()
 
-                    # ..::Step Twelve::.. 40;0;3;0;1;02:27
+                    # ..::Step Thirteen::.. 40;0;3;0;1;02:27
                     # When client is requesting time
                 if (
                     node_id != 0
@@ -930,19 +960,19 @@ try:
                     and sub_type == 1
                 ):
                     if dbgLevel >= 2 and dbgMsgIn == 1:
-                        print("12: Node ID: ", node_id, " Requested Time")
+                        print("13: Node ID: ", node_id, " Requested Time")
                         # nowtime = time.ctime()
                     nowtime = time.strftime("%H:%M")
                     ntime = "UPDATE messages_out SET payload=%s, sent=%s WHERE node_id=%s AND child_id = %s"
                     cur.execute(ntime, (nowtime, "0", node_id, child_sensor_id))
                     con.commit()
 
-                    # ..::Step Thirteen::.. 40;0;3;0;1;02:27
+                    # ..::Step Fourteen::.. 40;0;3;0;1;02:27
                     # When client is requesting text
                 if node_id != 0 and message_type == 2 and sub_type == 47:
                     if dbgLevel >= 2 and dbgMsgIn == 1:
                         print(
-                            "13: Node ID: ",
+                            "14: Node ID: ",
                             node_id,
                             "Child ID: ",
                             child_sensor_id,
@@ -953,14 +983,14 @@ try:
                     # cur.execute(ntime, (nowtime, '0', node_id, child_sensor_id,))
                     # con.commit()
 
-                    # ..::Step Fourteen::.. 255;18;3;0;3;
+                    # ..::Step Fiveteen::.. 255;18;3;0;3;
                     # When Node is requesting ID
                 if (
                     node_id != 0 and message_type == 3 and sub_type == 3
                 ):  # best is to check node_id is 255 but i can not get to work with that.
                     if dbgLevel >= 2 and dbgMsgIn == 1:
                         print(
-                            "14: Node ID: ",
+                            "15: Node ID: ",
                             node_id,
                             " Child ID: ",
                             child_sensor_id,

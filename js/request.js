@@ -281,7 +281,9 @@ var idata="w=node&o=add&node_type="+document.getElementById("node_type").value;
         idata+="&node_name="+document.getElementById("node_type").value;
         if(document.getElementById("node_type").value == "Dummy")
                 idata+=" Sensor";
-        else
+        else if(document.getElementById("node_type").value == "Switch")
+                idata+=" GPIO";
+	else 
                 idata+=" Controller";
         idata+="&notice_interval=0";
     idata+="&wid=0";

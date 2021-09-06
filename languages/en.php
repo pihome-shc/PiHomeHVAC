@@ -673,7 +673,7 @@ $lang['software_update_technical'] = "MaxAir Update Process";
 $lang['setup_guide_system_controller'] = "Setup System Controller";
 $lang['setup_scheduling'] = "Setup Scheduling";
 $lang['setup_guide_sensors'] = "Setup Sensors";
-$lang['setup_zones'] = "Setup Zones";
+$lang['setup_guide_zones'] = "Setup Zones";
 $lang['default_humidity'] = "Default Humidity";
 $lang['zone_default_humidity_info'] = "Default Humidity for this Zone, used when no scheduled Humidity is active.";
 $lang['max_humidity'] = "Maximum Humidity";
@@ -696,4 +696,5 @@ $lang['setup_guide_scheduling'] = "Setup Guide Scheduling";
 $lang['setup_guide_tasmota_lamp_zone'] = "Setup Guide Tasmota Lamp Type Zone";
 $lang['switch_sensor'] = "Switch Sensor";
 $lang['sensor_types'] = "Sensor Types";
+$lang['switch_zones'] = "Home Automation - Switching Zones";
 ?>

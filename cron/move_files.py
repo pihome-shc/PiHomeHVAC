@@ -72,6 +72,10 @@ for entry in listOfFiles:
             gpio_ds18b20_found = True
         else:
             gpio_ds18b20_found = False
+        if entry.endswith('gpio_switch.py'):
+            gpio_switch_found = True
+        else:
+            gpio_switch_found = False
         if entry.endswith('jobs_schedule.py'):
             jobs_schedule_found = True
         else:
@@ -100,6 +104,8 @@ if gateway_found:
     cmd = 'pkill -f gateway.py'
 if gpio_ds18b20_found:
     cmd = 'pkill -f gpio_ds18b20.py'
+if gpio_switch_found:
+    cmd = 'pkill -f gpio_switch.py'
 if jobs_schedule_found:
     cmd = 'pkill -f jobs_schedule.py'
 
