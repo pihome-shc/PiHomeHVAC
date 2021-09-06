@@ -64,6 +64,8 @@ def report_recursive(dcmp):
         else:
             update_path = code_update_dir
             path = target_dir + '/' + name
+            if os.path.isdir(source_dir + '/' + name):
+                copy_dir = True
         if copy_dir :
             cmd = 'cp -R ' + dcmp.left + '/' + name + ' ' + update_path
         else :
@@ -98,6 +100,8 @@ def report_recursive(dcmp):
         else:
             update_path = code_update_dir
             path = target_dir + '/' + name
+            if os.path.isdir(source_dir + '/' + name):
+                copy_dir = True
         if copy_dir :
             cmd = 'cp -R ' + dcmp.left + '/' + name + ' ' + update_path
         else :
