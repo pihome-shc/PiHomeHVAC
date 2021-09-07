@@ -86,6 +86,18 @@ for entry in listOfFiles:
         else:
             db_config_found = False
 
+        # make any missing sub-directories
+        if '/' in entry[22:]:
+            dirs = entry[22:].rsplit('/', 1)
+            dirs = dirs[0]
+            sub_dirs = dirs.split("/")
+            update_path = '/var/www'
+            for x in sub_dirs:
+                if not os.path.isdir(update_path + '/' + x):
+                    cmd = 'mkdir ' + update_path + '/' + x
+                    os.system(cmd)
+                update_path = update_path + '/' + x
+
         # copy the file to its correct location
         cmd = 'cp ' + entry + ' ' + entry.replace('/code_updates', '')
         os.system(cmd)
