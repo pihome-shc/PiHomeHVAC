@@ -114,12 +114,16 @@ for it in os.scandir(code_update_dir):
 # kill any updated running jobs
 if gateway_found:
     cmd = 'pkill -f gateway.py'
+    os.system(cmd)
 if gpio_ds18b20_found:
     cmd = 'pkill -f gpio_ds18b20.py'
+    os.system(cmd)
 if gpio_switch_found:
     cmd = 'pkill -f gpio_switch.py'
+    os.system(cmd)
 if jobs_schedule_found:
     cmd = 'pkill -f jobs_schedule.py'
+    os.system(cmd)
 
 # update the system table if db_config.ini has been changed
 if db_config_found:
