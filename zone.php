@@ -189,7 +189,7 @@ if (isset($_POST['submit'])) {
 		}
 	}
 
-        if ($zone_category <> 2) {
+        if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3) {
                 //Add or Edit Zone record to Zone_Sensor Table
                 if ($id==0){
                         $query = "INSERT INTO `zone_sensors` (`sync`, `purge`, `zone_id`, `min_c`, `max_c`, `default_c`, `hysteresis_time`, `sp_deadband`, `zone_sensor_id`) VALUES ('{$sync}', '{$purge}', '{$cnt_id}', '{$min_c}', '{$max_c}', '{$default_c}', '{$hysteresis_time}', '{$sp_deadband}', '{$zone_sensor_id}');";
@@ -322,7 +322,7 @@ if (isset($_POST['submit'])) {
 		}
 	}
 
-	if ($zone_category <> 2) {
+	if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3) {
 		//Add Zone to schedule_night_climat_zone table at same time
 		if ($id==0){
 			$query = "SELECT * FROM schedule_night_climate_time;";
@@ -652,6 +652,7 @@ function zone_category(value)
                         document.getElementById("system_controller_id").required = false;
                         break;
                 case "2":
+                case "4":
                         var sensor_type = 1;
                         document.getElementById("min_c").style.display = 'none';
                         document.getElementById("min_c_label").style.visibility = 'hidden';;
