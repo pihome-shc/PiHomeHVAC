@@ -16,6 +16,9 @@ make
 echo "Installing MySensor Gateway"
 make install
 
+echo "Enable log pipe. Use cat /tmp/mysgw.pipe to view the log"
+sed -i.bak "s/log_pipe=0.*/log_pipe=1/g" /etc/mysensors.conf
+
 echo "Enabeling and starting the service"
 systemctl enable mysgw.service
 systemctl start mysgw.service
