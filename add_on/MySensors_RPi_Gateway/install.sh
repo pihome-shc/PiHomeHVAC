@@ -26,3 +26,6 @@ systemctl start mysgw.service
 echo "Updating Gateway configuration in the database"
 cd ..
 python3 db_config.py
+
+echo "Restarting scheduler"
+systemctl restart pihome_jobs_schedule.service
