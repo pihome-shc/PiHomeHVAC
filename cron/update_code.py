@@ -48,14 +48,12 @@ def report_recursive(dcmp):
                  path = target_dir + '/' + dcmp.left[18:] + '/' + name
             else:
                 sub_dirs = dcmp.left[18:].split("/")
-                i = 0
                 update_path = code_update_dir
                 for x in sub_dirs:
-                    update_path = update_path + '/' + sub_dirs[i]
+                    update_path = update_path + '/' + x
                     if not os.path.isdir(update_path):
                         cmd = 'mkdir ' + update_path
                         os.system(cmd)
-                    i=i+1
                 path = target_dir + '/' + dcmp.left[18:] + '/' + name
                 if os.path.isdir(source_dir + '/' + dcmp.left[18:] + '/' + name):
                     cmd = 'mkdir ' + code_update_dir + '/' + dcmp.left[18:] + '/' + name
@@ -84,14 +82,12 @@ def report_recursive(dcmp):
                  path = target_dir + '/' + dcmp.left[18:] + '/' + name
             else:
                 sub_dirs = dcmp.left[18:].split("/")
-                i = 0
                 update_path = code_update_dir
                 for x in sub_dirs:
-                    update_path = update_path + '/' + sub_dirs[i]
+                    update_path = update_path + '/' + x
                     if not os.path.isdir(update_path):
                         cmd = 'mkdir ' + update_path
                         os.system(cmd)
-                    i=i+1
                 path = target_dir + '/' + dcmp.left[18:] + '/' + name
                 if os.path.isdir(source_dir + '/' + dcmp.left[18:] + '/' + name):
                     cmd = 'mkdir ' + code_update_dir + '/' + dcmp.left[18:] + '/' + name

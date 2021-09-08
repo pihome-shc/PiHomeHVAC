@@ -86,6 +86,18 @@ for entry in listOfFiles:
         else:
             db_config_found = False
 
+        # make any missing sub-directories
+        if '/' in entry[22:]:
+            dirs = entry[22:].rsplit('/', 1)
+            dirs = dirs[0]
+            sub_dirs = dirs.split("/")
+            update_path = '/var/www'
+            for x in sub_dirs:
+                if not os.path.isdir(update_path + '/' + x):
+                    cmd = 'mkdir ' + update_path + '/' + x
+                    os.system(cmd)
+                update_path = update_path + '/' + x
+
         # copy the file to its correct location
         cmd = 'cp ' + entry + ' ' + entry.replace('/code_updates', '')
         os.system(cmd)
@@ -102,12 +114,16 @@ for it in os.scandir(code_update_dir):
 # kill any updated running jobs
 if gateway_found:
     cmd = 'pkill -f gateway.py'
+    os.system(cmd)
 if gpio_ds18b20_found:
     cmd = 'pkill -f gpio_ds18b20.py'
+    os.system(cmd)
 if gpio_switch_found:
     cmd = 'pkill -f gpio_switch.py'
+    os.system(cmd)
 if jobs_schedule_found:
     cmd = 'pkill -f jobs_schedule.py'
+    os.system(cmd)
 
 # update the system table if db_config.ini has been changed
 if db_config_found:
