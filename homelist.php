@@ -138,7 +138,7 @@ require_once(__DIR__.'/st_inc/functions.php');
             	</button></a>';
 
 		//loop through zones
-		$query = "SELECT zone.*, zone_type.type, zone_type.category FROM `zone`, `zone_type`  WHERE (`zone_type`.id = `type_id`) AND `zone`.`purge` = 0 AND `category` <> 2 order by index_id asc;";
+		$query = "SELECT  * FROM zone_view WHERE `category` = 0  OR (`category` = 1 AND `sensor_type_id` <> 3) OR `category` = 3 order by index_id asc;";
 		$results = $conn->query($query);
 		while ($row = mysqli_fetch_assoc($results)) {
 			$zone_id=$row['id'];
@@ -501,7 +501,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 			</div>
 			<!-- /.modal fade -->
 			';
-		}	
+		}
 		// end if system controller button
 
 		// Temperature Sensors Post System Controller
@@ -539,18 +539,24 @@ require_once(__DIR__.'/st_inc/functions.php');
  		}
 
                 // Add-On buttons
-                $query = "SELECT zone.*, zone_type.category FROM zone, zone_type WHERE zone.type_id = zone_type.id AND zone.purge = 0 AND category = 2 ORDER BY index_id asc;";
+//                $query = "SELECT zone.*, zone_type.category FROM zone, zone_type WHERE zone.type_id = zone_type.id AND zone.purge = 0 AND (category = 2 OR category = 4) ORDER BY index_id asc;";
+                $query = "SELECT * FROM zone_view WHERE `category` = 2 OR `category` = 4 OR (`category` = 1 AND `sensor_type_id` = 3 ) ORDER BY index_id asc;";
                 $results = $conn->query($query);
                 while ($row = mysqli_fetch_assoc($results)) {
                         //get the schedule status for this zone
 			$zone_id = $row['id'];
-                        $query = "SELECT schedule_daily_time.start, schedule_daily_time_zone.sunset, schedule_daily_time_zone.sunset_offset FROM schedule_daily_time, schedule_daily_time_zone WHERE (schedule_daily_time_zone.schedule_daily_time_id = schedule_daily_time.id) AND zone_id = {$zone_id} LIMIT 1;";
+                        $zone_category = $row['category'];
+			$sensor_type_id = $row['sensor_type_id'];
+                        $query = "SELECT schedule_daily_time.start, schedule_daily_time_zone.sunset, schedule_daily_time_zone.sunset_offset, schedule_daily_time_zone.sunrise, schedule_daily_time_zone.sunrise_offset  FROM schedule_daily_time, schedule_daily_time_zone WHERE (schedule_daily_time_zone.schedule_daily_time_id = schedule_daily_time.id) AND zone_id = {$zone_id} LIMIT 1;";
                         $result = $conn->query($query);
                         $sch_row = mysqli_fetch_array($result);
                         $sunset = $sch_row['sunset'];
                         $start_time = $sch_row['start'];
                         $sunset_offset = $sch_row['sunset_offset'];
-                        if ($sunset == 1) {
+                        $sunrise = $sch_row['sunrise'];
+                        $end_time = $sch_row['end'];
+                        $sunrise_offset = $sch_row['sunrise_offset'];
+                        if ($sunset == 1 || $sunrise == 1) {
                                 $query = "SELECT * FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);";
                                 $result = $conn->query($query);
                                 $rowcount=mysqli_num_rows($result);
@@ -561,6 +567,12 @@ require_once(__DIR__.'/st_inc/functions.php');
                                                 $start_time = strtotime($sunset_time);
                                                 $start_time = $start_time + ($sunset_offset * 60); //set to start $sunset_offset minutes before sunset
                                                 $start_time = date('H:i:s', $start_time);
+						if($sunrise == 1) {
+                                                	$sunrise_time = date('H:i:s', $wrow['sunrise']);
+                                                	$end_time = strtotime($sunrise_time);
+                                                	$end_time = $end_time + ($sunrise_offset * 60); //set to start $sunset_offset minutes before sunset
+                                                	$end_time = date('H:i:s', $end_time);
+						}
                                          }
                                 }
                         }
@@ -568,7 +580,8 @@ require_once(__DIR__.'/st_inc/functions.php');
 				$query = "SELECT * FROM schedule_daily_time_zone_view WHERE ((`end`> CAST('{$start_time}' AS time) AND CURTIME() between CAST('{$start_time}' AS time) AND `end`) OR (`end` < CAST('{$start_time}' AS time) AND CURTIME() < `end`) OR (`end` < CAST('{$start_time}' AS time) AND CURTIME() > CAST('{$start_time}' AS time))) AND zone_id = {$zone_id} AND time_status = '1' AND (WeekDays & (1 << {$dow})) > 0 AND holidays_id = 0 LIMIT 1;";
                		}else{
                        		$query = "SELECT * FROM schedule_daily_time_zone_view WHERE ((`end`> CAST('{$start_time}' AS time) AND CURTIME() between CAST('{$start_time}' AS time) AND `end`) OR (`end` < CAST('{$start_time}' AS time) AND CURTIME() < `end`) OR (`end` < CAST('{$start_time}' AS time) AND CURTIME() > CAST('{$start_time}' AS time))) AND zone_id = {$zone_id} AND time_status = '1' AND (WeekDays & (1 << {$dow})) > 0 AND holidays_id > 0 LIMIT 1;";
-                	}                        $result = $conn->query($query);
+                	}
+                        $result = $conn->query($query);
                         if(mysqli_num_rows($result)<=0){
                                 $sch_status=0;
                         }else{
@@ -588,9 +601,13 @@ require_once(__DIR__.'/st_inc/functions.php');
                         if ($add_on_active=='1'){$add_on_colour="orange";} elseif ($add_on_active=='0'){$add_on_colour="black";}
                         echo '<a href="javascript:update_add_on('.$row['id'].');">
                         <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
-                        <h3 class="buttontop"><small>'.$row['name'].'</small></h3>
-                        <h3 class="degre" ><i class="fa fa-lightbulb-o fa-1x '.$add_on_colour.'"></i></h3>
-                        <h3 class="status">';
+                        <h3 class="buttontop"><small>'.$row['name'].'</small></h3>';
+			if ($zone_category == 4 || ($zone_category == 1 && $sensor_type_id == 3)) {
+				if ($add_on_active == 0) { echo '<h3 class="degre">OFF</h3>'; } else { echo '<h3 class="degre">ON</h3>'; }
+			} else {
+                        	echo '<h3 class="degre" ><i class="fa fa-lightbulb-o fa-1x '.$add_on_colour.'"></i></h3>';
+			}
+                        echo '<h3 class="status">';
 
                         if ($sch_status =='1' && $add_on_active == 0) {
                                 $add_on_mode = 74;
