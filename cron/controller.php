@@ -1164,7 +1164,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 								if ($sch_status =='1') {
 									$sensor_state = intval($zone_c);
 									$zone_status="1";
-									$zone_mode = 81;
+									$zone_mode = 111;
 									$add_on_start_cause="Schedule Started";
 									$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
 									$zone_state = $sensor_state;
@@ -1235,7 +1235,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         			} elseif ($sch_status =='1') {
 					if ($zone_override_status=='0') {
 					  	$zone_status="1";
-						$zone_mode = 114;
+						$zone_mode = 111;
           					$zone_state = 1;
 						$add_on_start_cause="Schedule Started";
 						$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
@@ -1352,7 +1352,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 		if ($zone_category == 0 || $zone_category == 3) {
 			if ($zone_status=='1') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Start Cause: ".$start_cause." - Target C:\033[41m".$target_c."\033[0m Zone C:\033[31m".$zone_c."\033[0m \n";}
 			if ($zone_status=='0') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Stop Cause: ".$stop_cause." - Target C:\033[41m".$target_c."\033[0m Zone C:\033[31m".$zone_c."\033[0m \n";}
-                } elseif ($zone_category == 1) {
+                } elseif ($zone_category == 1 && strpos($zone_type, 'Switch') === false) {
                         if ($zone_status=='1') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Start Cause: ".$start_cause."\033[0m \n";}
                         if ($zone_status=='0') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Stop Cause: ".$stop_cause."\033[0m \n";}
 		} else {
