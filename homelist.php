@@ -599,8 +599,10 @@ require_once(__DIR__.'/st_inc/functions.php');
                         $add_on_mode = $zone_current_state['mode'];
 
                         if ($add_on_active=='1'){$add_on_colour="orange";} elseif ($add_on_active=='0'){$add_on_colour="black";}
-                        echo '<a href="javascript:update_add_on('.$row['id'].');">
-                        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+			if ($zone_category == 2) {
+                        	echo '<a href="javascript:update_add_on('.$row['id'].');">';
+			}
+                        echo '<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
                         <h3 class="buttontop"><small>'.$row['name'].'</small></h3>';
 			if ($zone_category == 4 || ($zone_category == 1 && $sensor_type_id == 3)) {
 				if ($add_on_active == 0) { echo '<h3 class="degre">OFF</h3>'; } else { echo '<h3 class="degre">ON</h3>'; }
