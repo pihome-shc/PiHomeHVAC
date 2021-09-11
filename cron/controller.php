@@ -358,7 +358,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         }
 
 	// process if a sensor is attached to this zone
-	if ($zone_category <> 2) {
+	if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3) {
                 $query = "SELECT zone_sensors.*, sensors.sensor_id, sensors.sensor_child_id FROM  zone_sensors, sensors WHERE (zone_sensors.zone_sensor_id = sensors.id) AND zone_sensors.zone_id = '{$zone_id}' LIMIT 1;";
                 $result = $conn->query($query);
                 $sensor = mysqli_fetch_array($result);
@@ -370,15 +370,23 @@ while ($row = mysqli_fetch_assoc($results)) {
         	$zone_sensor_child_id=$sensor['sensor_child_id'];
 		$default_c =$sensor['default_c'];
 
-                $query = "SELECT node_id FROM nodes WHERE id = '{$zone_sensor_id}' LIMIT 1;";
+                $query = "SELECT node_id, name FROM nodes WHERE id = '{$zone_sensor_id}' LIMIT 1;";
                 $result = $conn->query($query);
                 $nodes = mysqli_fetch_array($result);
                 $zone_node_id=$nodes['node_id'];
-
+		$node_name=$nodes['name'];
 
 		//query to get temperature from messages_in_view_24h table view
 		$query = "SELECT * FROM messages_in_view_24h WHERE node_id = '{$zone_node_id}' AND child_id = {$zone_sensor_child_id} ORDER BY datetime desc LIMIT 1;";
 		$result = $conn->query($query);
+		$rowcount=mysqli_num_rows($result);
+                if ($rowcount == 0) {
+			// catch GPIO switch sensor not changed in last 24 hours, so get previous value
+			if (strpos($node_name, 'Switch') !== false) {
+		                $query = "SELECT * FROM messages_in  WHERE node_id = '{$zone_node_id}' AND child_id = {$zone_sensor_child_id} ORDER BY datetime desc LIMIT 1;";
+                		$result = $conn->query($query);
+			}
+		}
 		$msg_out = mysqli_fetch_array($result);
 		$zone_c = $msg_out['payload'];
 		$temp_reading_time = $msg_out['datetime'];
@@ -492,7 +500,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         	                }
 
 				// if add-on controller then process state change from GUI
-				if ($zone_category == 2) {
+				if ($zone_category == 2 || $zone_category == 4) {
 					$current_state = $zone_controllers[$crow]["zone_controller_current_state"];
         	                        $add_on_state = $zone_controllers[$crow]["zone_controller_state"];
                                         $zone_controler_child_id = $zone_controllers[$crow]["controler_child_id"];
@@ -579,7 +587,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 		}
 
 		//Check Zones with sensor associated
-		if ($zone_category <> 2) {
+		if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3) {
 			//query to check night climate status and get temperature from night climate table
 			//$query = "select * from schedule_night_climat_zone_view WHERE zone_id = {$zone_id} LIMIT 1;";
 			$query = "SELECT * from schedule_night_climat_zone_view WHERE ((`end`>`start` AND CURTIME() between `start` AND `end`) OR (`end`<`start` AND CURTIME()<`end`) OR (`end`<`start` AND CURTIME()>`start`)) AND zone_id = {$zone_id} AND time_status = '1' AND tz_status = '1' AND (WeekDays & (1 << {$dow})) > 0 LIMIT 1;";
@@ -1145,61 +1153,61 @@ while ($row = mysqli_fetch_assoc($results)) {
                                        		if ($zone_c == 1) {
                                 	        	$zone_status="1";
        	                	                        $zone_mode = 141;
-               		                                $start_cause="Manual Start";
+               		                                $add_on_start_cause="Manual Start";
                	               	                        $zone_state = 1;
        	                               	        }
 					} elseif ($away_status=='0') {
 						if (($holidays_status=='0') || ($sch_holidays=='1')) {
 							if($boost_status=='0'){
 								$zone_status="0";
-								$stop_cause="Boost Finished";
+								$add_on_stop_cause="Boost Finished";
 								if ($sch_status =='1') {
 									$sensor_state = intval($zone_c);
-									$zone_status=strval($sensor_state);
+									$zone_status="1";
 									$zone_mode = 81;
-									$start_cause="Schedule Started";
+									$add_on_start_cause="Schedule Started";
 									$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
 									$zone_state = $sensor_state;
 								}
 								if (($sch_status =='1') && ($zone_override_status=='1') && ($zone_c == 0)){
 									$zone_status="1";
 									$zone_mode = 71;
-									$start_cause="Schedule Override Started";
+									$add_on_start_cause="Schedule Override Started";
 									$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
 									$zone_state = 1;
 								}
 								if (($sch_status =='0') &&($sch_holidays=='1')){
 									$zone_status="0";
 									$zone_mode = 40;
-									$stop_cause="Holidays - No Schedule";
+									$add_on_stop_cause="Holidays - No Schedule";
 									$zone_state = 0;
 								}
 								if (($sch_status =='0') && ($sch_holidays=='0')) {
 									$zone_status="0";
 									$zone_mode = 0;
-									$stop_cause="No Schedule";
+									$add_on_stop_cause="No Schedule";
 									$zone_state = 0;
 								}
 							}
 						}elseif(($holidays_status=='1') && ($sch_holidays=='0')){
 							$zone_status="0";
 							$zone_mode = 40;
-							$stop_cause="Holiday Active";
+							$add_on_stop_cause="Holiday Active";
 							$zone_state = 0;
 						}
 					}elseif($away_status=='1'){
 						$zone_status="0";
 						$zone_mode = 90;
-						$stop_cause="Away Active";
+						$add_on_stop_cause="Away Active";
 						$zone_state = 0;
 						}
 				} else {
 					$zone_status="0";
 					$zone_mode = 0;
-					$stop_cause="System is OFF";
+					$add_on_stop_cause="System is OFF";
 					$zone_state = 0;
 				}
-			} else { // process Zone Category 2 zone
+			} else { // process Zone Category 2 or 4 zone
 				if ($away_status=='1'){
 					$zone_status="0";
 					$zone_mode = 90;
@@ -1312,15 +1320,17 @@ while ($row = mysqli_fetch_assoc($results)) {
 		if ($debug_msg == 1) { echo "zone_status - ".$zone_status."\n"; }
                 if ($zone_category == 3) {
 			$query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', temp_target = {$target_c},temp_cut_in = {$temp_cut_out_rising}, temp_cut_out = {$temp_cut_out}, controler_fault = {$zone_ctr_fault}, sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
-                } elseif ($zone_category == 2) {
+                } elseif ($zone_category == 2 || $zone_category == 4) {
                         $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}' WHERE zone_id ={$zone_id} LIMIT 1;";
+                } elseif ($zone_category == 1 && strpos($zone_type, 'Switch') !== false) {
+                        $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}', sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
 		} else {
 	                $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', temp_target = {$target_c},temp_cut_in = {$temp_cut_in}, temp_cut_out = {$temp_cut_out}, controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}', sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
 		}
 
                 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Type     \033[41m".$zone_type."\033[0m \n";
 		$conn->query($query);
-		if ($zone_category <> 2) {
+		if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3) {
 			if (strpos($zone_type, 'Switch') !== false) {
                                 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Sensor Reading     \033[41m".intval($zone_c)."\033[0m \n";
                                 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Mode       \033[41m".$zone_mode."\033[0m \n";
@@ -1361,7 +1371,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 			$zone_log[$zone_id] = $zone_status;
 			//process Zone Cat 1 and 2 logs
 		} else {
-			// Process Logs Category 1 and 2 logs if zone status has changed
+			// Process Logs Category 1, 2 and 4 logs if zone status has changed
 			// zone switching ON
 			if($zone_status_prev == '0' &&  ($zone_status == '1' || $zone_state  == '1')) {
 				if($zone_mode == '111' || $zone_mode == '21' ||  $zone_mode == '10') {
