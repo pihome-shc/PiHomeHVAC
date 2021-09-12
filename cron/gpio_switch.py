@@ -118,7 +118,7 @@ while True:
                             in_id,
                             in_child_id,
                             0,
-                            pin.value,
+                            int(pin.value),
                             time.strftime("%Y-%m-%d %H:%M:%S"),
                         ),
                     )
