@@ -697,4 +697,8 @@ $lang['setup_guide_tasmota_lamp_zone'] = "Setup Guide Tasmota Lamp Type Zone";
 $lang['switch_sensor'] = "Switch Sensor";
 $lang['sensor_types'] = "Sensor Types";
 $lang['switch_zones'] = "Home Automation - Switching Zones";
+$lang['schedule_daily_time_zone_insert_success'] = "Schedule Daily Time Zone Inserted Successfully";
+$lang['schedule_daily_time_zone_insert_error'] = "Schedule Daily Time Zone Insert failed with error: ";
+$lang['schedule_daily_time_zone_update_success'] = "Schedule Daily Time Zone Updated Successfully";
+$lang['schedule_daily_time_zone_update_error'] = "Schedule Daily Time Zone Update failed with error: ";
 ?>
