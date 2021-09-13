@@ -437,6 +437,8 @@ function GetModal_MQTT($conn)
         echo '<br/><span class="text-muted small">Type:&nbsp;';
         if($row['type']==0) echo 'Default, monitor.';
         else if($row['type']==1) echo 'Sonoff Tasmota.';
+        else if($row['type']==2) echo 'MQTT Node.';
+        else if($row['type']==3) echo 'Home Assistant.';
         else echo 'Unknown.';
         echo '</span>';
         echo '<span class="pull-right text-muted small" style="width:200px;text-align:right;">Password:&nbsp;' . $row['password'] . '</span>';
@@ -517,6 +519,8 @@ function GetModal_MQTTAddEdit($conn)
                 <select class="form-control" id="sel_Type" name="sel_Type" >
                     <option value="0" ' . ($IsAdd ? '' : ($row['type'] ? 'selected' : '')) . '>Default - view all</option>
                     <option value="1" ' . ($IsAdd ? '' : ($row['type'] ? 'selected' : '')) . '>Sonoff - Tasmota</option>
+                    <option value="2" ' . ($IsAdd ? '' : ($row['type'] ? 'selected' : '')) . '>MQTT Node</option>
+                    <option value="3" ' . ($IsAdd ? '' : ($row['type'] ? 'selected' : '')) . '>Home Assistant integration</option>
                 </select>
             </div>
             </form>';
