@@ -148,18 +148,34 @@ if (isset($_POST['submit'])) {
 			$status = isset($_POST['status'][$id]) ? $_POST['status'][$id] : "0";
 			$coop = isset($_POST['coop'][$id]) ? $_POST['coop'][$id] : "0";
 			$temp=SensorToDB($conn,$_POST['temp'][$id],$type);
+                        $ftemp = number_format($temp,1);
                         $sunset = isset($_POST['sunset'][$id]) ? $_POST['sunset'][$id] : "0";
                         $sunset_offset = intval($_POST['sunset_offset'][$id]);
+                        $sunrise = 0;
+                        $sunrise_offset = 0;
 
-			$query = "INSERT INTO `schedule_daily_time_zone`(`id`, `sync`, `purge`, `status`, `schedule_daily_time_id`, `zone_id`, `temperature`, `holidays_id`, `coop`, `sunset`, `sunset_offset`) VALUES ('{$tzid}', '0', '0', '{$status}', '{$schedule_daily_time_id}','{$zoneid}','".number_format($temp,1)."',{$holidays_id},{$coop},{$sunset},{$sunset_offset}) ON DUPLICATE KEY UPDATE sync = VALUES(sync), status = VALUES(status), temperature = VALUES(temperature), coop = VALUES(coop), sunset = VALUES(sunset), sunset_offset = VALUES(sunset_offset);";
-			$zoneresults = $conn->query($query);
+                        $query = "SELECT * FROM `schedule_daily_time_zone` WHERE id = {$tzid};";
+                        $result = $conn->query($query);
+                        $sdtzcount = $result->num_rows;
+                        if ($sdtzcount == 0) {
+                                $query = "INSERT INTO `schedule_daily_time_zone`(`id`, `sync`, `purge`, `status`, `schedule_daily_time_id`, `zone_id`, `temperature`, `holidays_id`, `coop`, `sunset`, `sunset_offset`, `sunrise`, `sunrise_offset`) VALUES ('{$tzid}', '0', '0', '{$status}', '{$schedule_daily_time_id}','{$zoneid}','".number_format($temp,1)."',{$holidays_id},{$coop},{$sunset},{$sunset_offset},{$sunrise},{$sunrise_offset});";
+                                $zoneresults = $conn->query($query);
 
-			if ($zoneresults) {
-				#$message_success = "<p>".$lang['zone_record_success']."</p>";
-			} else {
-				#$error = "<p>".$lang['zone_record_fail']." </p> <p>" .mysqli_error($conn). "</p>"."  schedule_daily_time_id: ".$schedule_daily_time_id."  id: ".$id."  tzid: ".$tzid."  zone id: ".$zoneid."  holid: ".$holidays_id;
-				$error = "<p>".$lang['zone_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
-			}
+                                if ($zoneresults) {
+                                        $message_success = "<p>".$lang['schedule_daily_time_zone_insert_success']."</p>";
+                                } else {
+                                        $error = "<p>".$lang['schedule_daily_time_zone_insert_error']." </p> <p>" .mysqli_error($conn). "</p>"."  schedule_daily_time_id: ".$schedule_daily_time_id."  id: ".$id."  tzid: ".$tzid."  zone id: ".$zoneid."  holid: ".$holidays_id;
+                                }
+                        } else {
+                                $query = "UPDATE schedule_daily_time_zone SET sync = '0', status = '{$status}', temperature = '{$ftemp}', coop = '{$coop}', sunset = '{$sunset}', sunset_offset = '{$sunset_offset}', sunrise = '{$sunrise}', sunrise_offset = '{$sunrise_offset}' WHERE id = '{$id}';";
+                                $zoneresults = $conn->query($query);
+
+                                if ($zoneresults) {
+                                        $message_success = "<p>".$lang['schedule_daily_time_zone_update_success']."</p>";
+                                } else {
+                                        $error = "<p>".$lang['schedule_daily_time_zone_insert_error']." </p> <p>" .mysqli_error($conn). "</p>"."  schedule_daily_time_id: ".$schedule_daily_time_id."  id: ".$id."  tzid: ".$tzid."  zone id: ".$zoneid."  holid: ".$holidays_id;
+                                }
+                        }
 		}
 	}
 }
