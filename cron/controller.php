@@ -1254,14 +1254,14 @@ while ($row = mysqli_fetch_assoc($results)) {
 					$expected_end_date_time=date('Y-m-d H:i:s', $boost_time);
 					$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
 				} elseif ($zone_state == 1) {
-					if ($zone_current_mode == 114) {
+					if ($zone_current_mode == 111) {
 	                                        $zone_status="0";
         	                                $zone_mode = 0;
 	                                        $zone_state = 0;
                 	                        $add_on_stop_cause="Schedule Finished";
 					} else {
                                         	$zone_status="1";
-                                        	$zone_mode = 111;
+                                        	$zone_mode = 114;
 	                                        $zone_state = 1;
                                         	$add_on_start_cause="Manual Start";
 					}
