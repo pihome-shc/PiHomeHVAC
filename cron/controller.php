@@ -774,7 +774,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 		$zone_mode = 0;
 		$hvac_state = 0; // 0 = COOL, 1 = HEAT
 		if ($zone_fault == '0'){
-			if ($zone_category < 2 && strpos($zone_type, 'Switch') === false) {
+			if ($zone_category == 0) {
 	                        //check system controller not in OFF mode
         	                if ($sc_mode != 0) {
 					if ($frost_active == 1){
@@ -1145,6 +1145,134 @@ while ($row = mysqli_fetch_assoc($results)) {
                                         $stop_cause="Zone Reached its Min Temperature ".$zone_min_c;
                                         $zone_state = 0;
                                 }
+			//process Immersion Zone Type
+			} elseif ($zone_category == 1 && strpos($zone_type, 'Switch') === false) {
+				if ($frost_active == 1){
+					$zone_status="1";
+					$zone_mode = 21;
+					$add_on_start_cause="Frost Protection";
+					$zone_state= 1;
+				} elseif ($frost_active == 2) {
+					$zone_status=$zone_status_prev;
+					$zone_mode = 22 - $zone_status_prev;
+					$add_on_start_cause="Frost Protection Deadband";
+					$add_on_stop_cause="Frost Protection Deadband";
+					$zone_state = $zone_status_prev;
+				} elseif ($frost_active == 0 && $zone_c < $zone_max_c) {
+					if ($away_status=='0') {
+						if (($holidays_status=='0') || ($sch_holidays=='1')) {
+							if($boost_status=='0'){
+								$zone_status="0";
+								$add_on_stop_cause="Boost Finished";
+								if ($night_climate_status =='0') {
+									if (($sch_status =='1' && $zone_c < $temp_cut_out_rising)){
+										$zone_status="1";
+										$zone_mode = 111;
+										$add_on_start_cause="Schedule Started";
+										$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
+										$zone_state = 1;
+									}
+									if (($sch_status =='1') && ($zone_c >= $temp_cut_out_rising) && ($zone_c < $temp_cut_out)){
+										$zone_status=$zone_status_prev;
+										$zone_mode = 82 - $zone_status_prev;
+										$add_on_start_cause="Schedule Target Deadband";
+										$add_on_stop_cause="Schedule Target Deadband";
+										$zone_state = $zone_status_prev;
+									}
+									if (($sch_status =='1') && ($zone_c >= $temp_cut_out)){
+										$zone_status="0";
+										$zone_mode = 80;
+										$add_on_stop_cause="Schedule Target C Achieved";
+										$zone_state = 0;
+									}
+									if (($sch_status =='1') && ($zone_override_status=='1') && ($zone_c < $temp_cut_out_rising)){
+										$zone_status="1";
+										$zone_mode = 71;
+										$add_on_start_cause="Schedule Override Started";
+										$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
+										$zone_state = 1;
+									}
+									if (($sch_status =='1') && ($zone_override_status=='1') && ($zone_c >= $temp_cut_out_rising && ($zone_c < $temp_cut_out))){
+										$zone_status=$zone_status_prev;
+										$zone_mode = 72 - $zone_status_prev;
+										$add_on_start_cause="Schedule Override Target Deadband";
+										$add_on_stop_cause="Schedule Override Target Deadband";
+										$zone_state = $zone_status_prev;
+									}
+									if (($sch_status =='1') && ($zone_override_status=='1') && ($zone_c >= $temp_cut_out)){
+										$zone_status="0";
+										$zone_mode = 70;
+										$add_on_stop_cause="Schedule Override Target C Achieved";
+										$zone_state = 0;
+									}
+									if (($sch_status =='0') &&($sch_holidays=='1')){
+										$zone_status="0";
+										$zone_mode = 40;
+										$add_on_stop_cause="Holidays - No Schedule";
+										$zone_state = 0;
+									}
+									if (($sch_status =='0') && ($sch_holidays=='0')) {
+										$zone_status="0";
+										$zone_mode = 0;
+										$add_on_stop_cause="No Schedule";
+										$zone_state = 0;
+									}
+								}elseif(($night_climate_status=='1') && ($zone_c < $temp_cut_out_rising)){
+									$zone_status="1";
+									$zone_mode = 51;
+									$add_on_start_cause="Night Climate";
+									$expected_end_date_time=date('Y-m-d '.$nc_end_time_rc.'');
+									$zone_state = 1;
+								}elseif(($night_climate_status=='1') && ($zone_c >= $temp_cut_out_rising) && ($zone_c < $temp_cut_out)){
+									$zone_status=$zone_status_prev;
+									$zone_mode = 52 - $zone_status_prev;
+									$add_on_start_cause="Night Climate Deadband";
+									$add_on_stop_cause="Night Climate Deadband";
+									$expected_end_date_time=date('Y-m-d '.$nc_end_time_rc.'');
+									$zone_state = $zone_status_prev;
+								}elseif(($night_climate_status=='1') && ($zone_c >= $temp_cut_out)){
+									$zone_status="0";
+									$zone_mode = 50;
+									$add_on_stop_cause="Night Climate C Reached";
+									$expected_end_date_time=date('Y-m-d '.$nc_end_time_rc.'');
+									$zone_state = 0;
+								}
+							}elseif (($boost_status=='1') && ($zone_c < $temp_cut_out_rising)) {
+								$zone_status="1";
+								$zone_mode = 61;
+								$add_on_start_cause="Boost Active";
+								$expected_end_date_time=date('Y-m-d H:i:s', $boost_time);
+								$zone_state = 1;
+							}elseif (($boost_status=='1') && ($zone_c >= $temp_cut_out_rising) && ($zone_c < $temp_cut_out)) {
+								$zone_status=$zone_status_prev;
+								$zone_mode = 62 - $zone_status_prev;
+								$add_on_start_cause="Boost Target Deadband";
+								$add_on_stop_cause="Boost Target Deadband";
+								$zone_state = $zone_status_prev;
+							}elseif (($boost_status=='1') && ($zone_c >= $temp_cut_out)) {
+								$zone_status="0";
+								$zone_mode = 60;
+								$add_on_stop_cause="Boost Target C Achived";
+								$zone_state = 0;
+							}
+						}elseif(($holidays_status=='1') && ($sch_holidays=='0')){
+							$zone_status="0";
+							$zone_mode = 40;
+							$add_on_stop_cause="Holiday Active";
+							$zone_state = 0;
+						}
+					}elseif($away_status=='1'){
+						$zone_status="0";
+						$zone_mode = 90;
+						$add_on_stop_cause="Away Active";
+						$zone_state = 0;
+					}
+				}elseif($zone_c >= $zone_max_c){
+					$zone_status="0";
+					$zone_mode = 30;
+					$add_on_stop_cause="Zone Reached its Max Temperature ".$zone_max_c;
+					$zone_state = 0;
+				}
 			// process switch type zone
 			} elseif ($zone_category == 1 && strpos($zone_type, 'Switch') !== false) {
 	                        //check system controller not in OFF mode
@@ -1322,7 +1450,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 			$query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', temp_target = {$target_c},temp_cut_in = {$temp_cut_out_rising}, temp_cut_out = {$temp_cut_out}, controler_fault = {$zone_ctr_fault}, sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
                 } elseif ($zone_category == 2 || $zone_category == 4) {
                         $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}' WHERE zone_id ={$zone_id} LIMIT 1;";
-                } elseif ($zone_category == 1 && strpos($zone_type, 'Switch') !== false) {
+                } elseif ($zone_category == 1) {
                         $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}', sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
 		} else {
 	                $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', temp_target = {$target_c},temp_cut_in = {$temp_cut_in}, temp_cut_out = {$temp_cut_out}, controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}', sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
@@ -1352,9 +1480,6 @@ while ($row = mysqli_fetch_assoc($results)) {
 		if ($zone_category == 0 || $zone_category == 3) {
 			if ($zone_status=='1') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Start Cause: ".$start_cause." - Target C:\033[41m".$target_c."\033[0m Zone C:\033[31m".$zone_c."\033[0m \n";}
 			if ($zone_status=='0') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Stop Cause: ".$stop_cause." - Target C:\033[41m".$target_c."\033[0m Zone C:\033[31m".$zone_c."\033[0m \n";}
-                } elseif ($zone_category == 1 && strpos($zone_type, 'Switch') === false) {
-                        if ($zone_status=='1') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Start Cause: ".$start_cause."\033[0m \n";}
-                        if ($zone_status=='0') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Stop Cause: ".$stop_cause."\033[0m \n";}
 		} else {
 			if ($zone_status=='1') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Start Cause: ".$add_on_start_cause."\033[0m \n";}
 			if ($zone_status=='0') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Stop Cause: ".$add_on_stop_cause."\033[0m \n";}

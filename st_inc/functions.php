@@ -556,7 +556,7 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
 	}
         //Add-On
         else if($zone_mode_main == 110){
-                if($zone_mode_sub == 4){
+                if($zone_mode_sub == 1){
                         $shactive='ion-ios-clock-outline';
                 } else {
                         $shactive='fa fa-power-off';
