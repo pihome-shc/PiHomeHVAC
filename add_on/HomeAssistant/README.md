@@ -45,8 +45,14 @@ When MaxAir is operating in HVAC mode the Home Assistant operations are mapped a
 
 ## Quick Start
 
-1. Ensure your database is updated (i.e. the *mqtt* table includes the *topic* column)
+1. From Settings > System Configuration > MQTT add a new MQTT connection
+   * Enter a name for the connection (e.g. Home Assistant)
+   * Enter the IP address and the port of the MQTT broker to be used (this should be the same broker to which Home Assistant is connected)
+   * Enter the unsername and password to connect to the MQTT broker
+   * Select "Home Assistant Integration" as connection type. Please note you should have only one MQTT connection of this type enabled in the system.
 2. Execute bash install.sh this will:
    * Install the Phyton moudles needed
    * Create and enable a service for autostart
    * Start service that was created
+  
+![MQTT](https://user-images.githubusercontent.com/62815008/133248709-a2dbf4a1-ee71-47bc-bf5d-61790ba98c2d.png)
