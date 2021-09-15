@@ -1982,7 +1982,8 @@ if (TimeIsBetweenTwoTimes($current_time, $start_time, $end_time)) {
 	$email = $user_row['email'];
 	echo "------------------------------------------------------------------------------------------------------- \n";
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Calling Home \n";
-	$external_ip = file_get_contents('http://www.pihome.eu/piconnect/myip.php');
+	//$external_ip = file_get_contents('http://www.pihome.eu/piconnect/myip.php');
+	$external_ip = exec ("curl -s checkip.amazonaws.com");
 	$pi_serial = exec ("cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2");
 	$cpu_model = exec ("cat /proc/cpuinfo | grep 'model name' | cut -d ' ' -f 3-");
 	$cpu_model = urlencode($cpu_model);
@@ -1999,7 +2000,7 @@ if (TimeIsBetweenTwoTimes($current_time, $start_time, $end_time)) {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - PiHome Version: " .$ph_version."\n";
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - PiHome Build: " .$ph_build."\n";
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Raspberry Pi UID: " .$uid."\n";
-	$url="http://www.pihome.eu/piconnect/callhome.php?ip=${external_ip}&serial=${uid}&cpu_model=${cpu_model}&hardware=${hardware}&revision=${revision}&ph_version=${ph_version}&ph_build=${ph_build}&email=${email}";
+	$url="https://www.pihome.eu/piconnect/callhome.php?ip=${external_ip}&serial=${uid}&cpu_model=${cpu_model}&hardware=${hardware}&revision=${revision}&ph_version=${ph_version}&ph_build=${ph_build}&email=${email}";
 	//echo $url."\n";
 	$result = url_get_contents($url);
 	$result = file_get_contents($url);
