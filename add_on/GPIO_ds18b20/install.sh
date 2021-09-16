@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#app_name:Install GPIO 1-Wire Sensor
+#app_description:Install Support for DS18b20 1-Wire Temperature Sensor
+
 echo "Updating the Jobs in the database"
 python3 db_config.py
 

@@ -1,6 +1,8 @@
 #!/bin/bash
 
-#service_name pihome_amazon_echo.service
+#service_name:pihome_amazon_echo.service
+#app_name:Amazon Echo Integration
+#app_description:Integrate Amazon Echo Device to Enable Voice Control
 
 bash /var/www/api/enable_rewrite.sh
 

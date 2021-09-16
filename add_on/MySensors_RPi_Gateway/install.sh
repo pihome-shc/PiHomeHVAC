@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#app_name:Install Install MySensor Gateway
+#app_description:Install MySensor Gateway Service
+
 cd /var/www/add_on/MySensors_RPi_Gateway
 source ./config.conf
 
