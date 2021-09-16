@@ -24,6 +24,7 @@ confirm_logged_in();
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 ?>
+<script language="javascript" type="text/javascript"></script>
 <div class="panel panel-primary">
         <div class="panel-heading">
                 <div class="Light"><i class="fa fa-home fa-fw"></i> <?php echo $lang['home']; ?>
@@ -138,7 +139,7 @@ require_once(__DIR__.'/st_inc/functions.php');
             	</button></a>';
 
 		//loop through zones
-		$query = "SELECT  * FROM zone_view WHERE `category` = 0  OR (`category` = 1 AND `sensor_type_id` <> 3) OR `category` = 3 order by index_id asc;";
+		$query = "SELECT  * FROM zone_view WHERE `category` = 0  OR `category` = 3 order by index_id asc;";
 		$results = $conn->query($query);
 		while ($row = mysqli_fetch_assoc($results)) {
 			$zone_id=$row['id'];
@@ -220,7 +221,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                         6 - cooling running 
 			7 - fan running*/
 
-   			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#'.$zone_type.''.$zone_id.'" data-backdrop="static" data-keyboard="false">
+ 			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#'.$zone_type.''.$zone_id.'" data-backdrop="static" data-keyboard="false">
 			<h3><small>'.$zone_name.'</small></h3>';
 			if ($sensor_type_id == 3) {
 				if ($zone_c == 0) { echo '<h3 class="degre">OFF</h3>'; } else { echo '<h3 class="degre">ON</h3>'; }
@@ -539,13 +540,14 @@ require_once(__DIR__.'/st_inc/functions.php');
  		}
 
                 // Add-On buttons
-//                $query = "SELECT zone.*, zone_type.category FROM zone, zone_type WHERE zone.type_id = zone_type.id AND zone.purge = 0 AND (category = 2 OR category = 4) ORDER BY index_id asc;";
-                $query = "SELECT * FROM zone_view WHERE `category` = 2 OR `category` = 4 OR (`category` = 1 AND `sensor_type_id` = 3 ) ORDER BY index_id asc;";
+                $query = "SELECT * FROM zone_view WHERE `category` = 1 OR `category` = 2 OR `category` = 4  ORDER BY index_id asc;";
                 $results = $conn->query($query);
                 while ($row = mysqli_fetch_assoc($results)) {
                         //get the schedule status for this zone
 			$zone_id = $row['id'];
-                        $zone_category = $row['category'];
+                        $zone_name=$row['name'];
+                        $zone_type=$row['type'];
+                        $zone_category=$row['category'];
 			$sensor_type_id = $row['sensor_type_id'];
                         $query = "SELECT schedule_daily_time.start, schedule_daily_time_zone.sunset, schedule_daily_time_zone.sunset_offset, schedule_daily_time_zone.sunrise, schedule_daily_time_zone.sunrise_offset  FROM schedule_daily_time, schedule_daily_time_zone WHERE (schedule_daily_time_zone.schedule_daily_time_id = schedule_daily_time.id) AND zone_id = {$zone_id} LIMIT 1;";
                         $result = $conn->query($query);
@@ -589,36 +591,39 @@ require_once(__DIR__.'/st_inc/functions.php');
                                 $sch_status = $schedule['tz_status'];
                         }
 
-                        //set current zone state
-                        $add_on_active = $row['zone_state'];
-
                         //query to get zone current state
                         $query = "SELECT * FROM zone_current_state WHERE zone_id =  '{$row['id']}' LIMIT 1;";
                         $result = $conn->query($query);
                         $zone_current_state = mysqli_fetch_array($result);
                         $add_on_mode = $zone_current_state['mode'];
+                        if ($add_on_mode == 0) { $add_on_active = 0; } else { $add_on_active = 1; }
 
-                        if ($add_on_active=='1'){$add_on_colour="orange";} elseif ($add_on_active=='0'){$add_on_colour="black";}
-			if ($zone_category == 2) {
-                        	echo '<a href="javascript:update_add_on('.$row['id'].');">';
+                        if ($add_on_active == 1){$add_on_colour = "green";} elseif ($add_on_active == 0){$add_on_colour = "black";}
+                        if ($zone_category == 2) {
+				echo '<a href="javascript:update_add_on('.$row['id'].');">
+                        	<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">';
+			} else {
+	   			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#'.$zone_type.''.$zone_id.'" data-backdrop="static" data-keyboard="false">';
 			}
-                        echo '<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
-                        <h3 class="buttontop"><small>'.$row['name'].'</small></h3>';
-			if ($zone_category == 4 || ($zone_category == 1 && $sensor_type_id == 3)) {
+                        echo '<h3 class="buttontop"><small>'.$row['name'].'</small></h3>';
+                        if (($zone_category == 1 && $sensor_type_id != 3)) {
+                                $unit = SensorUnits($conn,$sensor_type_id);
+                                echo '<h3 class="degre">'.number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit.'</h3>';
+                        } elseif ($zone_category == 4 || ($zone_category == 1 && $sensor_type_id == 3)) {
 				if ($add_on_active == 0) { echo '<h3 class="degre">OFF</h3>'; } else { echo '<h3 class="degre">ON</h3>'; }
 			} else {
-                        	echo '<h3 class="degre" ><i class="fa fa-lightbulb-o fa-1x '.$add_on_colour.'"></i></h3>';
+                        	echo '<h3 class="degre" ><i class="fa fa-power-off fa-1x '.$add_on_colour.'"></i></h3>';
 			}
                         echo '<h3 class="status">';
 
                         if ($sch_status =='1' && $add_on_active == 0) {
                                 $add_on_mode = 74;
                         } elseif ($sch_status =='1' && $add_on_active == 1) {
-                                $add_on_mode = 114;
+                                $add_on_mode = 111;
                         } elseif ($sch_status =='0' && $add_on_active == 0) {
                                 $add_on_mode = 0;
                         } elseif ($sch_status =='0' && $add_on_active == 1) {
-                                $add_on_mode = 111;
+                                $add_on_mode = 114;
                         }
                         $rval=getIndicators($conn, $add_on_mode, $zone_temp_target);
                         //Left small circular icon/color status
@@ -629,6 +634,101 @@ require_once(__DIR__.'/st_inc/functions.php');
                         echo '<small class="statuszoon"><i class="fa ' . $rval['shactive'] . ' ' . $rval['shcolor'] . ' fa-fw"></i></small>';
                         echo '</h3></button></a>';      //close out status and button
 
+			//Add-On Zone Schedule listing model
+			echo '<div class="modal fade" id="'.$zone_type.''.$zone_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+							<h5 class="modal-title">'.$zone_name.'</h5>
+						</div>
+						<div class="modal-body">';
+							//report zone_controller fault 
+  							if ($zone_ctr_fault == '1') {
+								$date_time = date('Y-m-d H:i:s');
+								$datetime1 = strtotime("$date_time");
+								$datetime2 = strtotime("$controler_seen");
+								$interval  = abs($datetime2 - $datetime1);
+								$ctr_minutes   = round($interval / 60);
+								echo '
+								<ul class="chat">
+									<li class="left clearfix">
+										<div class="header">
+											<strong class="primary-font red">Controller Fault!!!</strong>
+											<small class="pull-right text-muted">
+											<i class="fa fa-clock-o fa-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
+											</small>
+											<br><br>
+											<p>Controller ID '.$zone_relay_id.' last seen at '.$controler_seen.' </p>
+											<p class="text-info">'.$zone_name.' zone will resume its normal operation once this issue is fixed. </p>
+										</div>
+									</li>
+								</ul>';
+							//report zone_sensor fault
+							}elseif ($zone_sensor_fault == '1'){
+								$date_time = date('Y-m-d H:i:s');
+								$datetime1 = strtotime("$date_time");
+								$datetime2 = strtotime("$sensor_seen");
+								$interval  = abs($datetime2 - $datetime1);
+								$sensor_minutes   = round($interval / 60);
+								echo '
+								<ul class="chat">
+									<li class="left clearfix">
+										<div class="header">
+											<strong class="primary-font red">Sensor Fault!!!</strong>
+											<small class="pull-right text-muted">
+											<i class="fa fa-clock-o fa-fw"></i> '.secondsToWords(($sensor_minutes)*60).' ago
+											</small>
+											<br><br>
+											<p>Sensor ID '.$zone_node_id.' last seen at '.$sensor_seen.' <br>Last Temperature reading received at '.$temp_reading_time.' </p>
+											<p class="text-info">'.$zone_name.' zone will resume its normal operation once this issue is fixed. </p>
+										</div>
+									</li>
+								</ul>';
+							}else{
+								$squery = "SELECT * FROM schedule_daily_time_zone_view where zone_id ='{$zone_id}' AND tz_status = 1 AND time_status = '1' AND (WeekDays & (1 << {$dow})) > 0 ORDER BY start asc";
+								$sresults = $conn->query($squery);
+								if (mysqli_num_rows($sresults) == 0){
+									echo '<div class=\"list-group\">
+									<a href="#" class="list-group-item"><i class="fa fa-exclamation-triangle red"></i>&nbsp;&nbsp;'.$lang['schedule_active_today'].' '.$zone_name.'!!! </a>
+							</div>';
+							} else {
+								//echo '<h4>'.mysqli_num_rows($sresults).' Schedule Records found.</h4>';
+								echo '<p>'.$lang['schedule_disble'].'</p>
+								<br>
+								<div class=\"list-group\">' ;
+									while ($srow = mysqli_fetch_assoc($sresults)) {
+										$shactive="orangesch_list";
+										$time = strtotime(date("G:i:s"));
+										$start_time = strtotime($srow['start']);
+										$end_time = strtotime($srow['end']);
+										if ($time >$start_time && $time <$end_time){$shactive="redsch_list";}
+											//this line to pass unique argument  "?w=schedule_list&o=active&wid=" href="javascript:delete_schedule('.$srow["id"].');"
+											echo '<a href="javascript:schedule_zone('.$srow['tz_id'].');" class="list-group-item">';
+											if ($zone_category == 4 || ($zone_category == 1 && $sensor_type_id == 3)) {
+								                                if ($add_on_active == 0) { echo '<div class="circle_list '. $shactive.'"> <p class="schdegree">OFF</p></div>'; } else { echo '<div class="circle_list '. $shactive.'"> <p class="schdegree">ON</p></div>'; }
+											} else {
+												echo '<div class="circle_list '. $shactive.'"> <p class="schdegree">'.number_format(DispSensor($conn,$srow['temperature'],$sensor_type_id),0).$unit.'</p></div>';
+											}
+											echo '<span class="label label-info sch_name"> '.$srow['sch_name'].'</span>
+											<span class="pull-right text-muted sch_list"><em>'. $srow['start'].' - ' .$srow['end'].'</em></span></a>';
+									}
+								echo '</div>';
+							}
+						}
+						echo '
+						</div>
+						<!-- /.modal-body -->
+						<div class="modal-footer"><button type="button" class="btn btn-default btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+						</div>
+						<!-- /.modal-footer -->
+					</div>
+					<!-- /.modal-content -->
+				</div>
+				<!-- /.modal-dialog -->
+			</div>
+			<!-- /.modal fade -->
+			';
                 }
                 echo '<input type="hidden" id="sch_active" name="sch_active" value="'.$sch_status.'"/>';
                 ?>
@@ -661,4 +761,3 @@ require_once(__DIR__.'/st_inc/functions.php');
 	</div>
 	<!-- /.panel-primary -->
 <?php if(isset($conn)) { $conn->close();} ?>
-
