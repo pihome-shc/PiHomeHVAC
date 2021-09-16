@@ -60,7 +60,7 @@ deviceName = None
 _underVoltage = None
 
 # Get Zones info
-MA_Sensor_ID = []
+MA_Zone_Sensor_ID = []
 MA_Frost_Protection = []
 MA_Zone_ID = []
 MA_Zone_Name = []
@@ -77,12 +77,31 @@ ZONES = cur.rowcount
 results = cur.fetchall()
 for row in results:
     MA_Zone_ID.append(row[0])
-    MA_Sensor_ID.append(row[1])
+    MA_Zone_Sensor_ID.append(row[1])
     MA_Zone_Name.append(row[2])
     HA_Zone_Name.append(row[2].lower().replace(" ", ""))
     # Get frost protection temperature
     cur.execute('SELECT `frost_temp` FROM `sensors` WHERE `zone_id` = (%s)', [row[0]])
     MA_Frost_Protection.append(cur.fetchone()[0])
+
+# Get stand alone sensors info
+MA_Sensor_Node_ID = []
+MA_Sensor_Child_ID = []
+MA_Sensor_Type = []
+MA_Sensor_Name = []
+HA_Sensor_Name = []
+# Get Zone info
+cur.execute('SELECT `sensor_id`, `sensor_child_id`, `sensor_type_id`, `name` FROM `sensors` WHERE `zone_id` = "0" AND (`sensor_type_id` = "1" OR `sensor_type_id` = "2");')
+SENSORS = cur.rowcount
+results = cur.fetchall()
+for row in results:
+    MA_Sensor_Child_ID.append(row[1])
+    MA_Sensor_Type.append(row[2])
+    MA_Sensor_Name.append(row[3])
+    HA_Sensor_Name.append(row[3].lower().replace(" ", ""))
+    # Get Node ID for the sensor
+    cur.execute('SELECT `node_id` FROM `nodes` WHERE `id` = (%s)', [row[0]])
+    MA_Sensor_Node_ID.append(cur.fetchone()[0])
 con.close()
 
 class ProgramKilled(Exception):
@@ -188,6 +207,25 @@ def updateSensors():
         qos=1,
         retain=False,
     )
+
+    # Stand-alone status
+    for sensor in range(SENSORS):
+        if MA_Sensor_Type[sensor] == 1: #Temperature sensor
+            payload_str = ( '{'
+                + f'"temperature": "{get_sensor(MA_Sensor_Node_ID[sensor], MA_Sensor_Child_ID[sensor])}"'
+                + ' }'
+            )
+        elif MA_Sensor_Type[sensor] == 2: #Humidity sensor
+            payload_str = ( '{'
+                + f'"humidity": "{get_sensor(MA_Sensor_Node_ID[sensor], MA_Sensor_Child_ID[sensor])}"'
+                + ' }'
+            )
+        mqttClient.publish(
+            topic=f"{MQTT_TOPIC}{HA_Sensor_Name[sensor]}/state",
+            payload=payload_str,
+            qos=1,
+            retain=False,
+        )
 
     # Zones status
     for zone in range(ZONES):
@@ -363,7 +401,18 @@ def get_SC_mode():
     results =cur.fetchone()
     con.close()
     return results[0]
-    
+
+def get_sensor(sensor_id, sensor_child_id):
+    con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+    cur = con.cursor()
+    cur.execute('SELECT `payload` FROM `messages_in` WHERE `node_id` = (%s) AND `child_id` = (%s) ORDER BY `id` desc LIMIT 1;', [sensor_id, sensor_child_id] )
+    results =cur.fetchone()
+    con.close()
+    if results[0] is None:
+        return "NA"
+    else:
+        return results[0]
+
 # [0 - Zone Status, 1 - Traget Temp, 2 - Current Temp, 3 - Boost Status, 4 - Batt Level, 5 - Batt Voltage]
 def get_zone(zone, SC_Mode):
     zone_status = [] 
@@ -412,7 +461,7 @@ def get_zone(zone, SC_Mode):
         zone_status.append("ON") 
     # [4] - Batt Level & [5] - Batt Voltage
     if MA_Zone_Type[zone] == "MySensor":
-            cur.execute('SELECT `bat_level`, `bat_voltage`  FROM `nodes_battery` WHERE `node_id` = (%s) ORDER BY `id` desc LIMIT 1', [MA_Sensor_ID[zone]])
+            cur.execute('SELECT `bat_level`, `bat_voltage`  FROM `nodes_battery` WHERE `node_id` = (%s) ORDER BY `id` desc LIMIT 1', [MA_Zone_Sensor_ID[zone]])
             if cur.rowcount > 0:
                 results = cur.fetchone()
                 if results[0] is None:
@@ -787,10 +836,44 @@ def send_config_message(mqttClient):
             retain=True,
         )
 
+    for sensor in range(SENSORS):
+        if MA_Sensor_Type[sensor] == 1:     #Temperature sensor
+            payload_str = ('{"device_class":"temperature",'
+                        + '"unit_of_measurement":"°C",'
+                        + '"value_template":"{{ value_json.temperature }}",'
+                        + '"icon":"mdi:thermometer",'
+                        + f"\"name\":\"{deviceNameDisplay} {MA_Sensor_Name[sensor]} Temperature\","
+                        + f"\"unique_id\":\"{deviceName}_{HA_Sensor_Name[sensor]}_temperature\","
+                        + f"\"device\":{{\"identifiers\":[\"{deviceName}_sensor\"],"
+                        + f"\"name\":\"{deviceNameDisplay} {MA_Sensor_Name[sensor]}\",\"model\":\"Stand-alone Temperature sensor\", \"manufacturer\":\"PiHome\"}},"
+                        )
+        elif MA_Sensor_Type[sensor] == 2:     #Humidity sensor
+            payload_str = ('{"device_class":"humidity",'
+                        + '"unit_of_measurement":"%",'
+                        + '"value_template":"{{ value_json.humidity }}",'
+                        + '"icon":"mdi:water-percent",'
+                        + f"\"name\":\"{deviceNameDisplay} {MA_Sensor_Name[sensor]} Humidity\","
+                        + f"\"unique_id\":\"{deviceName}_{HA_Sensor_Name[sensor]}_humidity\","
+                        + f"\"device\":{{\"identifiers\":[\"{deviceName}_sensor\"],"
+                        + f"\"name\":\"{deviceNameDisplay} {MA_Sensor_Name[sensor]}\",\"model\":\"Stand-alone Humidity sensor\", \"manufacturer\":\"PiHome\"}},"
+                        )
+        payload_str = ( payload_str
+                    + f"\"state_topic\":\"{MQTT_TOPIC}{HA_Sensor_Name[sensor]}/state\","
+                    + f"\"availability_topic\":\"{MQTT_TOPIC}availability\","
+                    + f"\"device\":{{\"identifiers\":[\"{deviceName}_{HA_Sensor_Name[sensor]}\"]"
+                    + '}}'
+                    )
+        mqttClient.publish(
+            topic=f"homeassistant/sensor/{deviceName}/{HA_Sensor_Name[sensor]}/config",
+            payload= payload_str,
+            qos=1,
+            retain=True,
+        )
+
     for zone in range(ZONES):
         con = mdb.connect(dbhost, dbuser, dbpass, dbname)
         cur = con.cursor()
-        cur.execute('SELECT `node_id`, `type` FROM `nodes` where `node_id`= (%s)', [MA_Sensor_ID[zone]])
+        cur.execute('SELECT `node_id`, `type` FROM `nodes` where `node_id`= (%s)', [MA_Zone_Sensor_ID[zone]])
         results = cur.fetchone()
         con.close()
         MA_Zone_Type.append(results[1])
