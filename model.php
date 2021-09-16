@@ -2213,7 +2213,7 @@ echo '
                                 <p class="text-muted">'.$lang['install_software_text'].'</p>
                                 <div class=\"list-group\">';
                                         $installpath = "/var/www/api/enable_rewrite.sh";
-                                        $installname = "enable_rewrite";
+                                        $installname = "Install Apache ReWrite";
                                         if (file_exists("/etc/apache2/mods-available/rewrite.load")) {
                                                 $prompt = "Re-Install";
                                         } else {
@@ -2223,36 +2223,55 @@ echo '
                                         <i class="fa fa-terminal fa-2x green"></i> '.$installname.'
                                         <span class="pull-right text-muted small"><button type="button" class="btn btn-default login btn-sm"
                                         onclick="install_software(`'.$installpath.'`)">'.$prompt.'</button></span>
-                                        </span>';
+                                        <p class="text-muted">Install ReWrite for Apache Web Server</p></span>';
                                         $path = '/var/www/add_on';
                                         $dir = new DirectoryIterator($path);
-                                        $searchfor = 'service_name';
                                         foreach ($dir as $fileinfo) {
                                                 if ($fileinfo->isDir() && !$fileinfo->isDot()) {
                                                         $installpath = $path."/".$fileinfo->getFilename()."/install.sh";
                                                         if (file_exists($installpath)) {
                                                                 $contents = file_get_contents($installpath);
+                                                                $searchfor = 'app_name';
                                                                 $pattern = preg_quote($searchfor, '/');
                                                                 $pattern = "/^.*$pattern.*\$/m";
                                                                 if(preg_match_all($pattern, $contents, $matches)){
                                                                         $str = implode("\n", $matches[0]);
-                                                                        $service_name = explode(' ',$str);
+                                                                        $name = explode(':',$str)[1];
+                                                                } else {
+                                                                        $name = $fileinfo->getFilename();
+                                                                }
+                                                                $searchfor = 'app_description';
+                                                                $pattern = preg_quote($searchfor, '/');
+                                                                $pattern = "/^.*$pattern.*\$/m";
+                                                                if(preg_match_all($pattern, $contents, $matches)){
+                                                                        $str = implode("\n", $matches[0]);
+                                                                        $description = explode(':',$str)[1];
+                                                                } else {
+                                                                        $description = '';
+                                                                }
+                                                                $searchfor = 'service_name';
+                                                                $pattern = preg_quote($searchfor, '/');
+                                                                $pattern = "/^.*$pattern.*\$/m";
+                                                                if(preg_match_all($pattern, $contents, $matches)){
+                                                                        $str = implode("\n", $matches[0]);
+                                                                        $service_name = explode(':',$str);
                                                                         $rval=my_exec("/bin/systemctl status " . $service_name[1]);
                                                                         if ($rval['stdout']=='') { $installed = 0; } else { $installed = 1; }
                                                                 } else {
                                                                         $instaleed = 2;
                                                                 }
                                                                 echo '<span class="list-group-item">
-                                                                <i class="fa fa-terminal fa-2x green"></i> '.$fileinfo->getFilename();
+                                                                <i class="fa fa-terminal fa-2x green"></i> '.$name;
                                                                 if ($installed == 0) {
                                                                         echo '<span class="pull-right text-muted small"><button type="button" class="btn btn-default login btn-sm"
-                                                                        onclick="install_software(`'.$installpath.'`)">'.$lang['install'].'</button></span></span>';
+                                                                        onclick="install_software(`'.$installpath.'`)">'.$lang['install'].'</button></span>';
 
                                                                 } elseif ($installed == 1) {
-                                                                        echo '<span class="pull-right text"><p> Already Installed</p></span></span>';
+                                                                        echo '<span class="pull-right text"><p> Already Installed</p></span>';
                                                                 } else {
-                                                                        echo '<span class="pull-right text"><p> NO Installer</p></span></span>';
+                                                                        echo '<span class="pull-right text"><p> NO Installer</p></span>';
                                                                 }
+                                                                echo '<p class="text-muted">'.$description.'</p></span>';
                                                         }
                                                 }
                                         }
