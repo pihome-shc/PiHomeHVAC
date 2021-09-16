@@ -21,6 +21,8 @@ For monitoring and controlling MaxAir from Home Assistant via MQTT. MaxAir will 
   * Zone Live Temperature (for each zone)
   * Zone sensor battery percentage (for each zone using a MySensor sensor)
   * Zone sensor battery voltage (for each zone using a MySensor sensor)
+* Temperature sensor for each stand-alone temperature sensor in MaxAir
+* Humidity sensor for each stand-alone humidity sensor in MaxAir
 
 The climate entites allow to trigger the MaxAir Boost function (Aux Heat in Home Assistant) for each zone, adjust the Live Temperature for each zone (Temperature in Home Assistant), enable or disable the MaxAir Away status (Preset in Home Assistant) and change the MaxAir Mode (Operation in Home Assistant).
 
@@ -56,3 +58,5 @@ When MaxAir is operating in HVAC mode the Home Assistant operations are mapped a
    * Start service that was created
   
 ![MQTT](https://user-images.githubusercontent.com/62815008/133248709-a2dbf4a1-ee71-47bc-bf5d-61790ba98c2d.png)
+
+Please note that this integration will search for new zones and sensors only at start up. If new sensors or zones are added to the system reboot the system or restart the integration using 'systemctl restart HA_integration.service'.
