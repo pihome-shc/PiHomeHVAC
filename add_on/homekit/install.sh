@@ -1,6 +1,8 @@
 #!/bin/bash
 
-#service_name homebridge.service
+#service_name:homebridge.service
+#app_name:Apple HomeKit Integration
+#app_description:Integrate Apple HomeKit to Enable Siri Voice Control
 
 bash /var/www/api/enable_rewrite.sh
 
