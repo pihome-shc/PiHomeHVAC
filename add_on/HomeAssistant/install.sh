@@ -1,4 +1,6 @@
 #!/bin/bash
+#app_name:Install Install HomeAssistant Service
+#app_description:Install HomeAssistant Service to Link to MaxAir
 
 echo "Installing Phyton modules"
 REQUIREMENTS=requirements.txt
