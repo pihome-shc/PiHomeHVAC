@@ -102,7 +102,7 @@ if (isset($_POST['submit'])) {
 
 	//Add or Edit Zone record to Zones Table
 //	$query = "INSERT INTO `zone` (`id`, `sync`, `purge`, `status`, `zone_state`, `index_id`, `name`, `type_id`, `max_operation_time`) VALUES ('{$id}', '{$sync}', '{$purge}', '{$zone_status}', '0', '{$index_id}', '{$name}', '{$type_id}', '{$max_operation_time}') ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), status=VALUES(status), index_id=VALUES(index_id), name=VALUES(name), type_id=VALUES(type_id), max_operation_time=VALUES(max_operation_time);";
-	$query = "INSERT INTO `zone`(`id`, `sync`, `purge`, `status`, `zone_state`, `index_id`, `name`, `type_id`, `max_operation_time`) VALUES ('{$id}','{$sync}', '{$purge}','{$zone_status}', '0', '{$zone_status}','{$name}','{$type_id}','{$max_operation_time}') ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), status=VALUES(status), index_id=VALUES(index_id), name=VALUES(name), type_id=VALUES(type_id), max_operation_time=VALUES(max_operation_time);";
+	$query = "INSERT INTO `zone`(`id`, `sync`, `purge`, `status`, `zone_state`, `index_id`, `name`, `type_id`, `max_operation_time`) VALUES ('{$id}','{$sync}', '{$purge}','{$zone_status}', '0', '{$index_id}','{$name}','{$type_id}','{$max_operation_time}') ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), status=VALUES(status), index_id=VALUES(index_id), name=VALUES(name), type_id=VALUES(type_id), max_operation_time=VALUES(max_operation_time);";
 	$result = $conn->query($query);
 	$zone_id = mysqli_insert_id($conn);
 	if ($result) {
