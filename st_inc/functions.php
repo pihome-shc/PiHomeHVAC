@@ -823,6 +823,16 @@ function get_schedule_status($conn,$zone_id,$holidays_status){
                 $time_status = $row['time_status'];
                 // use sunrise/sunset if any flags set
                 if ($start_sr == 1 || $start_ss == 1 || $end_sr == 1 || $end_ss == 1) {
+                        // get the sunrise and sunset times
+                        $query = "SELECT * FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);";
+                        $result = $conn->query($query);
+                        $rowcount=mysqli_num_rows($result);
+                        if ($rowcount > 0) {
+                                $wrow = mysqli_fetch_array($result);
+                                $sunrise_time = date('H:i:s', $wrow['sunrise']);
+                                $sunset_time = date('H:i:s', $wrow['sunset']);
+                                if ($start_sr == 1 || $start_ss == 1) {
+                                        if ($start_sr == 1) { $start_time = strtotime($sunrise_time); } else { $start_time = strtotime($sunset_time); }
                                         $start_time = $start_time + ($start_offset * 60);
                                 }
                                 if ($end_sr == 1 || $end_ss == 1) {
