@@ -841,10 +841,10 @@ function get_schedule_status($conn,$zone_id,$holidays_status){
                                 }
                         }
                 }
-                        if (($end_time > $start_time && $time > $start_time && $time < $end_time && ($WeekDays  & (1 << $dow)) > 0) || ($end_time < $start_time && $time < $end_time && ($WeekDays  & (1 << $prev_dow)) > 0) || ($end_time < $start_time && $time > $start_time && ($WeekDays  & (1 << $dow)) > 0) && $time_status == "1") {
-                                 $sch_status = 1;
-                        } else {
-                                 $sch_status = 0;
+                if (($end_time > $start_time && $time > $start_time && $time < $end_time && ($WeekDays  & (1 << $dow)) > 0) || ($end_time < $start_time && $time < $end_time && ($WeekDays  & (1 << $prev_dow)) > 0) || ($end_time < $start_time && $time > $start_time && ($WeekDays  & (1 << $dow)) > 0) && $time_status == "1") {
+                	$sch_status = 1;
+                } else {
+                	$sch_status = 0;
                 }
         } else {
                 $sch_status = 0;
