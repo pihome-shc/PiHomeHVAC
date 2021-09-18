@@ -5,8 +5,8 @@ ALTER TABLE `schedule_daily_time` ADD COLUMN IF NOT EXISTS `end_sr` TINYINT(1) N
 ALTER TABLE `schedule_daily_time` ADD COLUMN IF NOT EXISTS `end_ss` TINYINT(1) NOT NULL AFTER `end_sr`;
 ALTER TABLE `schedule_daily_time` ADD COLUMN IF NOT EXISTS `end_offset` INT(11) NOT NULL AFTER `end_ss`;
 UPDATE `schedule_daily_time` SET `start_sr`='0';
-UPDATE `schedule_daily_time` SET `start_ss`='0';
-UPDATE `schedule_daily_time` SET `start_offset`='0';
+UPDATE `schedule_daily_time` SET `start_ss`=`sunset`;
+UPDATE `schedule_daily_time` SET `start_offset`=`sunset_offset`;
 UPDATE `schedule_daily_time` SET `end_sr`='0';
 UPDATE `schedule_daily_time` SET `end_ss`='0';
 UPDATE `schedule_daily_time` SET `end_offset`='0';
