@@ -1,3 +1,5 @@
+UPDATE `zone_type` SET `type`='Binary' WHERE `type`='Switch';
+UPDATE `zone_type` SET `type`='Switch' WHERE `type`='Lamp';
 ALTER TABLE `schedule_daily_time` ADD COLUMN IF NOT EXISTS `start_sr` TINYINT(1) NOT NULL AFTER `start`;
 ALTER TABLE `schedule_daily_time` ADD COLUMN IF NOT EXISTS `start_ss` TINYINT(1) NOT NULL AFTER `start_sr`;
 ALTER TABLE `schedule_daily_time` ADD COLUMN IF NOT EXISTS `start_offset` INT(11) NOT NULL AFTER `start_ss`;
