@@ -5,6 +5,7 @@
 The previous version, PiHome, was centered around the creation of zones, this version is more centered around devices.
 
 Version 1.1 introduces the 'Switch' zone category. These zones uses a binary switch sensor to control a zone relay and can be used to perform Home Automation tasks.
+
 Version 1.2 Introduces the ability the control schedules based on local Sunset and Sunrise times.
 
 ## Setup:
