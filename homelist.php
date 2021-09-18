@@ -54,6 +54,17 @@ require_once(__DIR__.'/st_inc/functions.php');
 		//Mode 0 is EU Boiler Mode, Mode 1 is US HVAC Mode
 		$system_controller_mode = settings($conn, 'mode');
 
+                //query to check holidays status
+                $query = "SELECT * FROM holidays WHERE NOW() between start_date_time AND end_date_time AND status = '1' LIMIT 1";
+                $result = $conn->query($query);
+                $rowcount=mysqli_num_rows($result);
+                if ($rowcount > 0) {
+                        $holidays = mysqli_fetch_array($result);
+                        $holidays_status = $holidays['status'];
+                }else {
+                        $holidays_status = 0;
+                }
+
 		//GET BOILER DATA AND FAIL ZONES IF SYSTEM CONTROLLER COMMS TIMEOUT
 		//query to get last system_controller operation time and hysteresis time
 		$query = "SELECT * FROM system_controller LIMIT 1";
@@ -549,47 +560,10 @@ require_once(__DIR__.'/st_inc/functions.php');
                         $zone_type=$row['type'];
                         $zone_category=$row['category'];
 			$sensor_type_id = $row['sensor_type_id'];
-                        $query = "SELECT schedule_daily_time.start, schedule_daily_time_zone.sunset, schedule_daily_time_zone.sunset_offset, schedule_daily_time_zone.sunrise, schedule_daily_time_zone.sunrise_offset  FROM schedule_daily_time, schedule_daily_time_zone WHERE (schedule_daily_time_zone.schedule_daily_time_id = schedule_daily_time.id) AND zone_id = {$zone_id} LIMIT 1;";
-                        $result = $conn->query($query);
-                        $sch_row = mysqli_fetch_array($result);
-                        $sunset = $sch_row['sunset'];
-                        $start_time = $sch_row['start'];
-                        $sunset_offset = $sch_row['sunset_offset'];
-                        $sunrise = $sch_row['sunrise'];
-                        $end_time = $sch_row['end'];
-                        $sunrise_offset = $sch_row['sunrise_offset'];
-                        if ($sunset == 1 || $sunrise == 1) {
-                                $query = "SELECT * FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);";
-                                $result = $conn->query($query);
-                                $rowcount=mysqli_num_rows($result);
-                                if ($rowcount > 0) {
-                                        $wrow = mysqli_fetch_array($result);
-                                        if (date('H:i:s', $wrow['sunset']) < $start_time) {
-                                                $sunset_time = date('H:i:s', $wrow['sunset']);
-                                                $start_time = strtotime($sunset_time);
-                                                $start_time = $start_time + ($sunset_offset * 60); //set to start $sunset_offset minutes before sunset
-                                                $start_time = date('H:i:s', $start_time);
-						if($sunrise == 1) {
-                                                	$sunrise_time = date('H:i:s', $wrow['sunrise']);
-                                                	$end_time = strtotime($sunrise_time);
-                                                	$end_time = $end_time + ($sunrise_offset * 60); //set to start $sunset_offset minutes before sunset
-                                                	$end_time = date('H:i:s', $end_time);
-						}
-                                         }
-                                }
-                        }
-	                if($holidays_status == 0) {
-				$query = "SELECT * FROM schedule_daily_time_zone_view WHERE ((`end`> CAST('{$start_time}' AS time) AND CURTIME() between CAST('{$start_time}' AS time) AND `end`) OR (`end` < CAST('{$start_time}' AS time) AND CURTIME() < `end`) OR (`end` < CAST('{$start_time}' AS time) AND CURTIME() > CAST('{$start_time}' AS time))) AND zone_id = {$zone_id} AND time_status = '1' AND (WeekDays & (1 << {$dow})) > 0 AND holidays_id = 0 LIMIT 1;";
-               		}else{
-                       		$query = "SELECT * FROM schedule_daily_time_zone_view WHERE ((`end`> CAST('{$start_time}' AS time) AND CURTIME() between CAST('{$start_time}' AS time) AND `end`) OR (`end` < CAST('{$start_time}' AS time) AND CURTIME() < `end`) OR (`end` < CAST('{$start_time}' AS time) AND CURTIME() > CAST('{$start_time}' AS time))) AND zone_id = {$zone_id} AND time_status = '1' AND (WeekDays & (1 << {$dow})) > 0 AND holidays_id > 0 LIMIT 1;";
-                	}
-                        $result = $conn->query($query);
-                        if(mysqli_num_rows($result)<=0){
-                                $sch_status=0;
-                        }else{
-                                $schedule = mysqli_fetch_array($result);
-                                $sch_status = $schedule['tz_status'];
-                        }
+
+			//get the current zone schedule status
+			$rval=get_schedule_status($conn, $zone_id,$holidays_status);
+                        $sch_status = $rval['sch_status'];
 
                         //query to get zone current state
                         $query = "SELECT * FROM zone_current_state WHERE zone_id =  '{$row['id']}' LIMIT 1;";

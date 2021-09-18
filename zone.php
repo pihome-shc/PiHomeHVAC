@@ -572,7 +572,7 @@ function zone_category(value)
                                 document.getElementById("default_c_label_2").style.visibility = 'hidden';;
 	                        document.getElementById("default_c").style.display = 'none';
 			}
-                        if (document.getElementById("selected_zone_type").value === "Switch") {
+                        if (document.getElementById("selected_zone_type").value === "Binary") {
 				var sensor_type = 3;
 			} else {
 	                        if (document.getElementById("selected_zone_type").value === "Humidity") {
@@ -636,7 +636,7 @@ function zone_category(value)
                                 document.getElementById("hysteresis_time").required = false;
                                 document.getElementById("sp_deadband").required = false;
 			}
-                        if (document.getElementById("selected_zone_type").value === "Switch") {
+                        if (document.getElementById("selected_zone_type").value === "Binary") {
                                 document.getElementById("sensor_id_label_1").innerHTML = document.getElementById("sensor_s_label_text").value;
 			} else {
                         	if (document.getElementById("selected_zone_type").value === "Humidity") {

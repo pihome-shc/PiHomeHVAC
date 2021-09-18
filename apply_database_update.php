@@ -126,7 +126,7 @@ if ($db_selected) {
 					        $zipfname = $dbname . "_mysql_" . date("Y-m-d_H-i-s").".zip";
 				        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Compressing Database Dump File \033[41m".$dumpfname."\033[0m \n";
 					        $zip = new ZipArchive();
-					        if($zip->open(__DIR__."MySQL_Database/database_backups/".$zipfname,ZIPARCHIVE::CREATE)){
+					        if($zip->open(__DIR__."/MySQL_Database/database_backups/".$zipfname,ZIPARCHIVE::CREATE)){
 					        	$zip->addFile($dumpfname,$dumpfname);
 					                $zip->close();
 					                unlink($dumpfname);

@@ -691,4 +691,6 @@ $lang['schedule_daily_time_zone_insert_success'] = "Schedule Daily Time Zone Ins
 $lang['schedule_daily_time_zone_insert_error'] = "Schedule Daily Time Zone Insert failed with error: ";
 $lang['schedule_daily_time_zone_update_success'] = "Schedule Daily Time Zone Updated Successfully";
 $lang['schedule_daily_time_zone_update_error'] = "Schedule Daily Time Zone Update failed with error: ";
+$lang['start_time_enable_info'] = "Enable Sunrise/Sunset Override for Start Time with an Offset in minutes eg -30 is 30 minutes before sunrise/sunset";
+$lang['end_time_enable_info'] = "Enable Sunrise/Sunset Override for End Time with an Offset in minutes eg -30 is 30 minutes before sunrise/sunset";
 ?>

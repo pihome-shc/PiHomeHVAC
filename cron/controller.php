@@ -406,60 +406,28 @@ while ($row = mysqli_fetch_assoc($results)) {
 	}
         // only process active zones
         if ($zone_status == 1) {
-                //Have to account for midnight rollover conditions
-                if ($zone_category == 2) { //Check if using sunset for schedule start time
-                        $query = "SELECT schedule_daily_time.start, schedule_daily_time_zone.sunset, schedule_daily_time_zone.sunset_offset FROM schedule_daily_time, schedule_daily_time_zone WHERE (schedule_daily_time_zone.schedule_daily_time_id = schedule_daily_time.id) AND zone_id = {$zone_id} LIMIT 1;";
+                $rval=get_schedule_status($conn, $zone_id,$holidays_status);
+                $sch_status = $rval['sch_status'];
+                if($rval['sch_count'] == 0){
+                        $sch_status = 0;
+                        $sch_c = 0;
+                        $sch_holidays = '0';
+                }else{
+                        $sch_end_time = date('H:i:s', $rval['end_time']);
+                        $sch_status = $rval['sch_status'];
+                        $time_id = $rval['time_id'];
+                        $query = "SELECT temperature, coop, holidays_id FROM schedule_daily_time_zone WHERE schedule_daily_time_id = {$time_id} LIMIT 1;";
                         $result = $conn->query($query);
-                        $sch_row = mysqli_fetch_array($result);
-                        $sunset = $sch_row['sunset'];
-                        $start_time = $sch_row['start'];
-                        $sunset_offset = $sch_row['sunset_offset'];
-                        if ($sunset == 1) {
-                                $query = "SELECT * FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);";
-                                $result = $conn->query($query);
-                                $rowcount=mysqli_num_rows($result);
-                                if ($rowcount > 0) {
-                                        $wrow = mysqli_fetch_array($result);
-                                        if (date('H:i:s', $wrow['sunset']) < $start_time) {
-                                                $sunset_time = date('H:i:s', $wrow['sunset']);
-                                                $start_time = strtotime($sunset_time);
-                                                $start_time = $start_time + ($sunset_offset * 60); //set to start $sunset_offset minutes before sunset
-                                                $start_time = date('H:i:s', $start_time);
-                                         }
-                                }
-                        }
-	                if($holidays_status == 0) {
-				$query = "SELECT * FROM schedule_daily_time_zone_view WHERE ((`end`> CAST('{$start_time}' AS time) AND CURTIME() between CAST('{$start_time}' AS time) AND `end`) OR (`end` < CAST('{$start_time}' AS time) AND CURTIME() < `end`) OR (`end` < CAST('{$start_time}' AS time) AND CURTIME() > CAST('{$start_time}' AS time))) AND zone_id = {$zone_id} AND time_status = '1' AND (WeekDays & (1 << {$dow})) > 0 AND holidays_id = 0 LIMIT 1;";
-               		}else{
-                       		$query = "SELECT * FROM schedule_daily_time_zone_view WHERE ((`end`> CAST('{$start_time}' AS time) AND CURTIME() between CAST('{$start_time}' AS time) AND `end`) OR (`end` < CAST('{$start_time}' AS time) AND CURTIME() < `end`) OR (`end` < CAST('{$start_time}' AS time) AND CURTIME() > CAST('{$start_time}' AS time))) AND zone_id = {$zone_id} AND time_status = '1' AND (WeekDays & (1 << {$dow})) > 0 AND holidays_id > 0 LIMIT 1;";
-                	}
-		} else { //not cat2 zone
-			if($holidays_status == 0) {
-				$query = "SELECT * FROM schedule_daily_time_zone_view WHERE ((`end`>`start` AND CURTIME() between `start` AND `end`) OR (`end`<`start` AND CURTIME()<`end`) OR (`end`<`start` AND CURTIME()>`start`)) AND zone_id = {$zone_id} AND time_status = '1' AND (WeekDays & (1 << {$dow})) > 0 AND holidays_id = 0 LIMIT 1;";
-			}else{
-				$query = "SELECT * FROM schedule_daily_time_zone_view WHERE ((`end`>`start` AND CURTIME() between `start` AND `end`) OR (`end`<`start` AND CURTIME()<`end`) OR (`end`<`start` AND CURTIME()>`start`)) AND zone_id = {$zone_id} AND time_status = '1' AND (WeekDays & (1 << {$dow})) > 0 AND holidays_id > 0 LIMIT 1;";
-			}
-		}
-		//echo $query . PHP_EOL;
-		$result = $conn->query($query);
-		if(mysqli_num_rows($result)<=0){
-			$sch_status=0;
-			$sch_c=0;
-			$sch_holidays = '0';
-		}else{
-			$schedule = mysqli_fetch_array($result);
-			$sch_status = $schedule['tz_status'];
-			$sch_start_time = $schedule['start'];
-			$sch_end_time = $schedule['end'];
-			$sch_c = $schedule['temperature'];
-			$sch_coop = $schedule['coop'];
+                        $schedule = mysqli_fetch_array($result);
+                        $sch_c = $schedule['temperature'];
+                        $sch_coop = $schedule['coop'];
 
-			if ($schedule['holidays_id']>0) {
-				$sch_holidays = '1';
-			}else{
-				$sch_holidays = '0';
-			}
-		}
+                        if ($schedule['holidays_id']>0) {
+                                $sch_holidays = '1';
+                        }else{
+                                $sch_holidays = '0';
+                        }
+                }
 
                 //query to check override status and get temperature from override table
                 $query = "SELECT * FROM override WHERE zone_id = {$zone_id} LIMIT 1;";

@@ -60,9 +60,12 @@ require_once(__DIR__ . '/st_inc/functions.php');
 		//following variable set to 0 on start for array index.
 		$sch_time_index = '0';
 		//$query = "SELECT time_id, time_status, `start`, `end`, tz_id, tz_status, zone_id, index_id, zone_name, temperature, max(temperature) as max_c FROM schedule_daily_time_zone_view group by time_id ORDER BY start asc";
-		$query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, type, `category`, temperature, FORMAT(max(temperature),2) as max_c, sch_name, max(sunset) AS sunset, sensor_type_id, stype FROM schedule_daily_time_zone_view WHERE holidays_id = 0 AND tz_status = 1 group by time_id ORDER BY start, sch_name asc";
+		//$query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, type, `category`, temperature, FORMAT(max(temperature),2) as max_c, sch_name, max(sunset) AS sunset, sensor_type_id, stype FROM schedule_daily_time_zone_view WHERE holidays_id = 0 AND tz_status = 1 group by time_id ORDER BY start, sch_name asc";
+               	$query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, type, `category`, temperature, FORMAT(max(temperature),2) as max_c, sch_name, start_sr, start_ss, end_sr, end_ss, sensor_type_id, stype FROM schedule_daily_time_zone_view WHERE holidays_id = 0 AND tz_status = 1 group by time_id ORDER BY start, sch_name asc";
 		$results = $conn->query($query);
 		while ($row = mysqli_fetch_assoc($results)) {
+                        $dow = idate('w');
+                        $prev_dow = $dow - 1;
                         if($row["sunset"] == 1) { $sunset = 1; } else { $sunset = 0; }
 			if($row["WeekDays"]  & (1 << 0)){ $Sunday_status_icon="ion-checkmark-circled"; $Sunday_status_color="orangefa"; }else{ $Sunday_status_icon="ion-close-circled"; $Sunday_status_color="bluefa"; }
 			if($row["WeekDays"]  & (1 << 1)){ $Monday_status_icon="ion-checkmark-circled"; $Monday_status_color="orangefa"; }else{ $Monday_status_icon="ion-close-circled"; $Monday_status_color="bluefa"; }
@@ -72,11 +75,37 @@ require_once(__DIR__ . '/st_inc/functions.php');
 			if($row["WeekDays"]  & (1 << 5)){ $Friday_status_icon="ion-checkmark-circled"; $Friday_status_color="orangefa"; }else{ $Friday_status_icon="ion-close-circled"; $Friday_status_color="bluefa"; }
 			if($row["WeekDays"]  & (1 << 6)){ $Saturday_status_icon="ion-checkmark-circled"; $Saturday_status_color="orangefa"; }else{ $Saturday_status_icon="ion-close-circled"; $Saturday_status_color="bluefa"; }
 
-			if($row["time_status"]=="0"){ $shactive="bluesch"; }else{ $shactive="orangesch"; }
-			$time = strtotime(date("G:i:s"));
-			$start_time = strtotime($row['start']);
-			$end_time = strtotime($row['end']);
-			if($row["WeekDays"]  & (1 << idate('w'))){if ($time >$start_time && $time <$end_time && $row["time_status"]=="1"){$shactive="redsch";}}
+                        if($row["time_status"]=="0"){ $shactive="bluesch"; }else{ $shactive="orangesch"; }
+                        $time = strtotime(date("G:i:s"));
+                        $start_time = strtotime($row['start']);
+                        $end_time = strtotime($row['end']);
+                        $start_sr = $row['start_sr'];
+                        $start_ss = $row['start_ss'];
+                        $start_offset = $row['start_offset'];
+                        $end_sr = $row['end_sr'];
+                        $end_ss = $row['end_ss'];
+                        $end_offset = $row['end_offset'];
+                        if ($start_sr == 1 || $start_ss == 1 || $end_sr == 1 || $end_ss == 1) {
+                                $query = "SELECT * FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);";
+                                $result = $conn->query($query);
+                                $rowcount=mysqli_num_rows($result);
+                                if ($rowcount > 0) {
+                                        $wrow = mysqli_fetch_array($result);
+                                        $sunrise_time = date('H:i:s', $wrow['sunrise']);
+                                        $sunset_time = date('H:i:s', $wrow['sunset']);
+                                        if ($start_sr == 1 || $start_ss == 1) {
+                                                if ($start_sr == 1) { $start_time = strtotime($sunrise_time); } else { $start_time = strtotime($sunset_time); }
+                                                $start_time = $start_time + ($start_offset * 60);
+                                        }
+                                        if ($end_sr == 1 || $end_ss == 1) {
+                                                if ($end_sr == 1) { $end_time = strtotime($sunrise_time); } else { $end_time = strtotime($sunset_time); }
+                                                $end_time = $end_time + ($end_offset * 60);
+                                        }
+                                }
+                        }
+                        if (($end_time > $start_time && $time > $start_time && $time < $end_time && ($row["WeekDays"]  & (1 << $dow)) > 0) || ($end_time < $start_time && $time < $end_time && ($row["WeekDays"]  & (1 << $prev_dow)) > 0) || ($end_time < $start_time && $time > $start_time && ($row["WeekDays"]  & (1 << $dow)) > 0) && $row["time_status"]=="1") {
+                                $shactive="redsch";
+                        }
 
 			//time shchedule listing
 			echo '
