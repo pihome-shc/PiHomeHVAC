@@ -6,9 +6,9 @@ The previous version, PiHome, was centered around the creation of zones, this ve
 
 Version 1.1 introduces the 'Switch' zone category. These zones uses a binary switch sensor to control a zone relay and can be used to perform Home Automation tasks.
 
-Version 1.2 Introduces the ability the control schedules based on local Sunset and Sunrise times. The 'Switch' zone category has been refined and the binary switch sensor is now classed the same as the Immersion and Humidity zone types.
+Version 1.2 Introduces the ability the control schedules based on local Sunset and Sunrise times. The existing 'Switch' zone category has been refined and the binary switch sensor is now classed the same as the Immersion and Humidity zone types.
 
-The 'Switch' zone is used when no sensor or system controller are used, examples are:
+The new 'Switch' zone category is used when no sensor or system controller are used, examples are:
 * A lamp which switches on and off at set times
 * A lamp which switches on a sunset and off at some set time
 * A security light which switches on at sunset and off at sunrise on the following day
