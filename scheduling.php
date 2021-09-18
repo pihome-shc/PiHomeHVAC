@@ -40,6 +40,11 @@ if(isset($_GET['id'])) {
 $query = "SELECT * FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);";
 $result = $conn->query($query);
 $w_count=mysqli_num_rows($result);
+if ($w_count > 0) {
+	$wrow = mysqli_fetch_array($result);
+	$sunset_time = $wrow['sunset'];
+	$sunrise_time = $wrow['sunrise'];
+}
 
 //Form submit
 if (isset($_POST['submit'])) {
@@ -123,7 +128,62 @@ if (isset($_POST['submit'])) {
 		}
         } else {
                 $sch_name = $_POST['sch_name'];
-                $query = "INSERT INTO `schedule_daily_time`(`id`, `sync`, `purge`, `status`, `start`, `end`, `WeekDays`, `sch_name`) VALUES ('{$time_id}','0', '0', '{$sc_en}', '{$start_time}','{$end_time}','{$mask}', '{$sch_name}') ON DUPLICATE KEY UPDATE sync = VALUES(sync),  status = VALUES(status), start = VALUES(start), end = VALUES(end), WeekDays = VALUES(WeekDays), sch_name=VALUES(sch_name);";
+		if (isset($_POST['start_time_state'])) {
+			switch ($_POST['start_time_state']) {
+				case 0:
+		                        $start_sr = 0;
+                		        $start_ss = 0;
+                        		$start_offset = 0;
+        				break;
+    				case 1:
+                                        $start_sr = 1;
+                                        $start_ss = 0;
+                                        $start_offset = isset($_POST['start_time_offset']) ? $_POST['start_time_offset'] : "0";
+        				break;
+    				case 2:
+                                        $start_sr = 0;
+                                        $start_ss = 1;
+                                        $start_offset = isset($_POST['start_time_offset']) ? $_POST['start_time_offset'] : "0";
+        				break;
+			}
+		} else {
+			$start_sr = 0;
+                        $start_ss = 0;
+                        $start_offset = 0;
+		}
+
+                if (isset($_POST['end_time_state'])) {
+                        switch ($_POST['end_time_state']) {
+                                case 0:
+                                        $end_sr = 0;
+                                        $end_ss = 0;
+                                        $end_offset = 0;
+                                        break;
+                                case 1:
+                                        $end_sr = 1;
+                                        $end_ss = 0;
+                                        $end_offset = isset($_POST['end_time_offset']) ? $_POST['end_time_offset'] : "0";
+                                        break;
+                                case 2:
+                                        $end_sr = 0;
+                                        $end_ss = 1;
+                                        $end_offset = isset($_POST['end_time_offset']) ? $_POST['end_time_offset'] : "0";
+                                	break;
+                        }
+                } else {
+                        $end_sr = 0;
+                        $end_ss = 0;
+                        $end_offset = 0;
+                }
+
+                $query = "SELECT * FROM `schedule_daily_time` WHERE id = {$time_id};";
+                $result = $conn->query($query);
+                $sdt_count = $result->num_rows;
+               	if ($sdt_count == 0) {
+	                $query = "INSERT INTO `schedule_daily_time`(`id`, `sync`, `purge`, `status`, `start`, `start_sr`, `start_ss`, `start_offset`, `end`, `end_sr`, `end_ss`, `end_offset`, `WeekDays`, `sch_name`) VALUES ('{$time_id}','0', '0', '{$sc_en}', '{$start_time}', '{$start_sr}', '{$start_ss}', '{$start_offset}','{$end_time}', '{$end_sr}', '{$end_ss}', '{$end_offset}','{$mask}', '{$sch_name}');";
+		} else {
+			$query = "UPDATE schedule_daily_time SET sync = '0', status = '{$sc_en}', start = '{$start_time}', start_sr = '{$start_sr}', start_ss = '{$start_ss}', start_offset = '{$start_offset}', end = '{$end_time}', end_sr = '{$end_sr}', end_ss = '{$end_ss}', end_offset = '{$end_offset}', WeekDays = '{$mask}', sch_name = '{$sch_name}' WHERE id = '{$time_id}';";
+		}
 		$result = $conn->query($query);
 		$schedule_daily_time_id = mysqli_insert_id($conn);
 
@@ -149,16 +209,12 @@ if (isset($_POST['submit'])) {
 			$coop = isset($_POST['coop'][$id]) ? $_POST['coop'][$id] : "0";
 			$temp=SensorToDB($conn,$_POST['temp'][$id],$type);
                         $ftemp = number_format($temp,1);
-                        $sunset = isset($_POST['sunset'][$id]) ? $_POST['sunset'][$id] : "0";
-                        $sunset_offset = intval($_POST['sunset_offset'][$id]);
-                        $sunrise = 0;
-                        $sunrise_offset = 0;
 
                         $query = "SELECT * FROM `schedule_daily_time_zone` WHERE id = {$tzid};";
                         $result = $conn->query($query);
                         $sdtzcount = $result->num_rows;
                         if ($sdtzcount == 0) {
-                                $query = "INSERT INTO `schedule_daily_time_zone`(`id`, `sync`, `purge`, `status`, `schedule_daily_time_id`, `zone_id`, `temperature`, `holidays_id`, `coop`, `sunset`, `sunset_offset`, `sunrise`, `sunrise_offset`) VALUES ('{$tzid}', '0', '0', '{$status}', '{$schedule_daily_time_id}','{$zoneid}','".number_format($temp,1)."',{$holidays_id},{$coop},{$sunset},{$sunset_offset},{$sunrise},{$sunrise_offset});";
+                                $query = "INSERT INTO `schedule_daily_time_zone`(`id`, `sync`, `purge`, `status`, `schedule_daily_time_id`, `zone_id`, `temperature`, `holidays_id`, `coop`) VALUES ('{$tzid}', '0', '0', '{$status}', '{$schedule_daily_time_id}','{$zoneid}','".number_format($temp,1)."',{$holidays_id},{$coop});";
                                 $zoneresults = $conn->query($query);
 
                                 if ($zoneresults) {
@@ -167,7 +223,7 @@ if (isset($_POST['submit'])) {
                                         $error = "<p>".$lang['schedule_daily_time_zone_insert_error']." </p> <p>" .mysqli_error($conn). "</p>"."  schedule_daily_time_id: ".$schedule_daily_time_id."  id: ".$id."  tzid: ".$tzid."  zone id: ".$zoneid."  holid: ".$holidays_id;
                                 }
                         } else {
-                                $query = "UPDATE schedule_daily_time_zone SET sync = '0', status = '{$status}', temperature = '{$ftemp}', coop = '{$coop}', sunset = '{$sunset}', sunset_offset = '{$sunset_offset}', sunrise = '{$sunrise}', sunrise_offset = '{$sunrise_offset}' WHERE id = '{$id}';";
+                                $query = "UPDATE schedule_daily_time_zone SET sync = '0', status = '{$status}', temperature = '{$ftemp}', coop = '{$coop}' WHERE id = '{$id}';";
                                 $zoneresults = $conn->query($query);
 
                                 if ($zoneresults) {
@@ -307,16 +363,101 @@ if (isset($_POST['submit'])) {
                         		</div>'; } ?>
 
 					<!-- Start Time -->
+					<?php
+					if($time_id != 0){
+						if ($time_row['start_sr'] == '1') {
+							$start_sr_check = 'checked';
+							$start_ss_check = '';
+							$start_n_check = '';
+							$start_mode = 1;
+							$start_offset = $time_row['start_offset'];
+						} elseif ($time_row['start_ss'] == '1') {
+                                                	$start_sr_check = '';
+                                                        $start_ss_check = 'checked';
+                                                        $start_n_check = '';
+                                                        $start_mode = 2;
+                                                        $start_offset = $time_row['start_offset'];
+						} else {
+							$start_sr_check = '';
+							$start_sr_check = '';
+							$start_n_check = 'checked';
+							$start_mode = 0;
+							$start_offset = 0;
+						}
+					} else {
+                                               	$start_sr_check = '';
+                                                $start_sr_check = '';
+                                                $start_n_check = 'checked';
+                                                $start_mode = 0;
+                                                $start_offset = 0;
+					}
+					?>
+                                        <input type="hidden" id="start_time_state" name="start_time_state" value="<?php echo $start_mode; ?>">
                                         <div class="form-group" class="control-label"><label><?php echo $lang['start_time']; ?></label>
                         			<input class="form-control input-sm" type="time" id="start_time" name="start_time" value="<?php echo $time_row["start"];?>" placeholder="Start Time" required>
-                                                <div class="help-block with-errors"></div>
-                                        </div>
-
-					<!-- End Time -->
-					<div class="form-group" class="control-label"><label><?php echo $lang['end_time']; ?></label>
-						<input class="form-control input-sm" type="time" id="end_time" name="end_time" value="<?php echo $time_row["end"];?>" placeholder="End Time" required>
+		                                <br>
+                                                &nbsp;<img src="./images/sunset.png">
+						<i class="fa fa-info-circle fa-lg text-info" data-container="body" data-toggle="popover" data-placement="right" data-content="<?php echo $lang['start_time_enable_info']; ?>"></i>
+						<label class="radio-inline">
+							<input type="radio" name="radioGroup1" id="radio1" value="option1" <?php echo $start_n_check; ?>  onchange="update_start_time('00:00', '0')" > Normal
+						</label>
+						<label class="radio-inline">
+							<input type="radio" name="radioGroup1" id="radio2" value="option2" <?php echo $start_sr_check; ?> onchange="update_start_time(<?php echo $sunrise_time; ?>, '1')" > Sunrise
+						</label>
+						<label class="radio-inline">
+							<input type="radio" name="radioGroup1" id="radio3" value="option3"  <?php echo $start_ss_check; ?>  onchange="update_start_time(<?php echo $sunset_time; ?>, '2')" > Sunset
+						</label>
+                                                <input class="styled" type="text" id="start_time_offset" name="start_time_offset" style="width: 40px" value="<?php echo $start_offset; ?>"/>
 						<div class="help-block with-errors"></div>
 					</div>
+					<!-- End Time -->
+                                         <?php
+                                         if($time_id != 0){
+                                         	if ($time_row['end_sr'] == '1') {
+                                                	$end_sr_check = 'checked';
+                                                        $end_ss_check = '';
+                                                        $end_n_check = '';
+                                                        $end_mode = 1;
+                                                        $end_offset = $time_row['end_offset'];
+                                              	} elseif ($time_row['end_ss'] == '1') {
+                                                        $end_sr_check = '';
+                                                        $end_ss_check = 'checked';
+                                                        $end_n_check = '';
+                                                        $end_mode = 2;
+                                                        $end_offset = $time_row['end_offset'];
+                                                } else {
+                                                        $end_sr_check = '';
+                                                        $end_sr_check = '';
+                                                        $end_n_check = 'checked';
+                                                        $end_mode = 0;
+							$end_offset = 0;
+                                                }
+                                      	} else {
+                                               	$end_sr_check = '';
+                                                $end_sr_check = '';
+                                                $end_n_check = 'checked';
+                                                $end_mode = 0;
+                                                $end_offset = 0;
+					}
+                                        ?>
+                                        <input type="hidden" id="end_time_state" name="end_time_state" value="<?php echo $end_mode; ?>">
+					<div class="form-group" class="control-label"><label><?php echo $lang['end_time']; ?></label>
+						<input class="form-control input-sm" type="time" id="end_time" name="end_time" value="<?php echo $time_row["end"];?>" placeholder="End Time" required>
+                                                <br>
+                                                &nbsp;<img src="./images/sunset.png">
+						 <i class="fa fa-info-circle fa-lg text-info" data-container="body" data-toggle="popover" data-placement="right" data-content="<?php echo $lang['end_time_enable_info']; ?>"></i>
+                                                <label class="radio-inline">
+                                                        <input type="radio" name="radioGroup2" id="radio3" value="option1" <?php echo $end_n_check; ?>  onchange="update_end_time('00:00', '0')" > Normal
+                                                </label>
+                                                <label class="radio-inline">
+							<input type="radio" name="radioGroup2" id="radio4" value="option2"  <?php echo $end_sr_check; ?>  onchange="update_end_time(<?php echo $sunrise_time; ?>, '1')" > Sunrise
+                                                </label>
+                                                <label class="radio-inline">
+							<input type="radio" name="radioGroup2" id="radio5" value="option3"  <?php echo $end_ss_check; ?>  onchange="update_end_time(<?php echo $sunset_time; ?>, '2')" > Sunset
+                                                </label>
+                                                <input class="styled" type="text" id="end_time_offset" name="end_time_offset" style="width: 40px" value="<?php echo $end_offset; ?>"/>
+                                                <div class="help-block with-errors"></div>
+                                        </div>
 
 					<label><?php echo $lang['select_zone']; ?></label>
 					<?php
@@ -399,34 +540,6 @@ if (isset($_POST['submit'])) {
 								<!-- /.form-group -->
 							</div>
                                                         <!-- /.row -->
-                                                <?php } elseif ($row["sensor_type_id"] <> 3) {
-
-
-                                                        if($row['tz_status'] == 1 AND $time_id != 0){
-                                                                //if($time_id != 0){
-                                                                $style_text = "";
-                                                        }else{
-                                                                $style_text = "display:none !important;";
-                                                        }
-                                                         echo '<div id="'.$row["tz_id"].'" style="'.$style_text.'">
-                                                                <div class="form-group" class="control-label">';
-                                                                        if(!isset($_GET['nid'])) {
-                                                                                //<!-- Zone Sunset Enable Checkbox -->
-                                                                                if($time_id != 0){ $check = ($row['sunset'] == 1) ? 'checked' : ''; }
-                                                                                echo '<div class="checkbox checkbox-default  checkbox-circle">
-                                                                			<input id="sunset'.$row["tz_id"].'" class="styled" type="checkbox" name="sunset['.$row["tz_id"].']" value="1" '.$check.'>
-                                                                			<label for="sunset'.$row["tz_id"].'">'.$lang['sunset_enable'].'</label>
-											&nbsp;&nbsp;<input class="styled" type="text" id="sunset_offset['.$row["tz_id"].']" name="sunset_offset['.$row["tz_id"].']" style="width: 40px" value="'.$row["sunset_offset"].'"/>
-                                                                                        &nbsp;&nbsp;<img src="./images/sunset.png">
-                									<i class="fa fa-info-circle fa-lg text-info" data-container="body" data-toggle="popover" data-placement="right" data-content="'.$lang['sunset_enable_info'].'"></i>
-                                                                                        <div class="help-block with-errors"></div>
-                                                                                </div>';
-                                                                        }
-                                                                        ?>
-                                                                </div>
-                                                                <!-- /.form-group -->
-                                                        </div>
-                                                        <!-- /.row -->
                                                 <?php }
 
                                         }?> <!-- End of Zone List Loop  -->
@@ -462,5 +575,45 @@ function update_temp(value, id)
  document.getElementById(id).innerTex = parseFloat(value);
  document.getElementById(id).value = parseFloat(value);
 }
+
+function update_start_time(stime, mode)
+{
+let start_unix_timestamp = stime
+// Create a new JavaScript Date object based on the timestamp
+// multiplied by 1000 so that the argument is in milliseconds, not seconds.
+var sdate = new Date(start_unix_timestamp * 1000);
+// Hours part from the timestamp
+var shours = sdate.getHours();
+if (shours < 10) { shours = "0" + shours; }
+// Minutes part from the timestamp
+var sminutes = "0" + sdate.getMinutes();
+
+// Will display time in 10:30 format
+var StartTime = shours + ':' + sminutes.substr(-2);
+ document.getElementById('start_time').value = StartTime;
+
+ document.getElementById('start_time_state').value = mode;
+}
+
+function update_end_time(etime, mode)
+{
+let end_unix_timestamp = etime
+// Create a new JavaScript Date object based on the timestamp
+// multiplied by 1000 so that the argument is in milliseconds, not seconds.
+var edate = new Date(end_unix_timestamp * 1000);
+// Hours part from the timestamp
+var ehours = edate.getHours();
+if (ehours < 10) { ehours = "0" + ehours; }
+// Minutes part from the timestamp
+var eminutes = "0" + edate.getMinutes();
+
+// Will display time in 10:30 format
+var EndTime = ehours + ':' + eminutes.substr(-2);
+ document.getElementById('end_time').value = EndTime;
+
+ document.getElementById('end_time_state').value = mode;
+
+}
+
 </script>
 
