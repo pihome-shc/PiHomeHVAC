@@ -8,15 +8,15 @@ ALTER TABLE `schedule_daily_time` ADD COLUMN IF NOT EXISTS `end_sr` TINYINT(1) N
 ALTER TABLE `schedule_daily_time` ADD COLUMN IF NOT EXISTS `end_ss` TINYINT(1) NOT NULL AFTER `end_sr`;
 ALTER TABLE `schedule_daily_time` ADD COLUMN IF NOT EXISTS `end_offset` INT(11) NOT NULL AFTER `end_ss`;
 UPDATE `schedule_daily_time` SET `start_sr`='0';
-UPDATE `schedule_daily_time` SET `start_ss`=`sunset`;
-UPDATE `schedule_daily_time` SET `start_offset`=`sunset_offset`;
+UPDATE `schedule_daily_time` SET `start_ss`='0';
+UPDATE `schedule_daily_time` SET `start_offset`='0';
 UPDATE `schedule_daily_time` SET `end_sr`='0';
 UPDATE `schedule_daily_time` SET `end_ss`='0';
 UPDATE `schedule_daily_time` SET `end_offset`='0';
-ALTER TABLE `schedule_daily_time_zone` DELETE COLUMN IF EXISTS `sunrise`;
-ALTER TABLE `schedule_daily_time_zone` DELETE COLUMN IF EXISTS `sunrise_offset`;
-ALTER TABLE `schedule_daily_time_zone` DELETE COLUMN IF EXISTS `sunset`;
-ALTER TABLE `schedule_daily_time_zone` DELETE COLUMN IF EXISTS `sunset_offset`;
+ALTER TABLE `schedule_daily_time_zone` DROP COLUMN IF EXISTS `sunrise`;
+ALTER TABLE `schedule_daily_time_zone` DROP COLUMN IF EXISTS `sunrise_offset`;
+ALTER TABLE `schedule_daily_time_zone` DROP COLUMN IF EXISTS `sunset`;
+ALTER TABLE `schedule_daily_time_zone` DROP COLUMN IF EXISTS `sunset_offset`;
 Drop View if exists schedule_daily_time_zone_view;
 CREATE VIEW schedule_daily_time_zone_view AS
 select ss.id as time_id, ss.status as time_status, sstart.start, sstart_sr.start_sr, sstart_ss.start_ss, sstart_offset.start_offset, send.end, send_sr.end_sr, send_ss.end_ss, send_offset.end_offset, sWeekDays.WeekDays,
