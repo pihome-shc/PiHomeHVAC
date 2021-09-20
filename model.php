@@ -1443,8 +1443,22 @@ echo '
                                 <!-- /.form-group -->
 
 				<div class="form-group" class="control-label"><label>'.$lang['timeout'].' </label>
-					<input class="form-control input-sm" type="text" id="gw_timout" name="gw_timout" value="'.$grow['timout'].'" placeholder="Gateway Timeout">
-					<div class="help-block with-errors">
+                                        <select class="form-control input-sm" type="text" id="gw_timout" name="gw_timout">
+                                        <option selected>'.$grow['timout'].'</option>
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3" selected>3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="15">15</option>
+                                        </select>
+                                        <div class="help-block with-errors"></div>
 					</div>
 				</div>
                                 <!-- /.form-group -->
