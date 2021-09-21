@@ -416,7 +416,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                         $sch_end_time = date('H:i:s', $rval['end_time']);
                         $sch_status = $rval['sch_status'];
                         $time_id = $rval['time_id'];
-                        $query = "SELECT temperature, coop, holidays_id FROM schedule_daily_time_zone WHERE schedule_daily_time_id = {$time_id} LIMIT 1;";
+                        $query = "SELECT temperature, coop, holidays_id FROM schedule_daily_time_zone WHERE schedule_daily_time_id = {$time_id} AND zone_id = {$zone_id} LIMIT 1;";
                         $result = $conn->query($query);
                         $schedule = mysqli_fetch_array($result);
                         $sch_c = $schedule['temperature'];
