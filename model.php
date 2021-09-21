@@ -1459,7 +1459,6 @@ echo '
                                         <option value="15">15</option>
                                         </select>
                                         <div class="help-block with-errors"></div>
-					</div>
 				</div>
                                 <!-- /.form-group -->
 

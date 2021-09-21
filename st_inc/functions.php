@@ -794,11 +794,13 @@ function get_schedule_status($conn,$zone_id,$holidays_status){
         $dow = idate('w');
         // get previous day number, used when end time is less than start time
         $prev_dow = $dow - 1;
+	
+	$end_time = strtotime(date("G:i:s"));
 
         // get raw data
         $query = "SELECT time_id, start, start_sr, Start_ss, Start_offset, end, end_sr, end_ss, end_offset, WeekDays, time_status
                 FROM schedule_daily_time_zone_view
-                WHERE tz_status = '1' AND zone_id = {$zone_id}";
+                WHERE tz_status = '1' AND `time_status` = '1' AND zone_id = {$zone_id}";
         if ($holidays_status == 0) {
                 $query = $query." AND holidays_id = 0 LIMIT 1;";
         } else {

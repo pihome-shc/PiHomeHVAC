@@ -150,7 +150,7 @@ require_once(__DIR__ . '/st_inc/functions.php');
 				$query = "SELECT * FROM  schedule_daily_time_zone_view WHERE holidays_id = 0 AND time_id = {$row['time_id']} order by index_id;";
 				$result = $conn->query($query);
 				while ($datarw = mysqli_fetch_array($result)) {
-					if ($datarw["tz_status"] == "0") {
+					if ($datarw["time_status"] == "0") {
 						$status_icon = "ion-close-circled";
 						$status_color = "bluefa";
 					} else {
