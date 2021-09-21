@@ -163,7 +163,6 @@ $heat_relay_node_id = $heat_relay_node['node_id'];
 $heat_relay_seen = $heat_relay_node['last_seen'];
 $heat_relay_notice = $heat_relay_node['notice_interval'];
 $heat_relay_type = $heat_relay_node['type'];
-
 //system operating in HVAC Mode
 if ($system_controller_mode == 1) {
         //Relay Control
@@ -1598,9 +1597,9 @@ for ($row = 0; $row < count($zone_commands); $row++){
 			}
 
 			/***************************************************************************************
-			Zone Valve Wireless Section: MySensors Wireless Relay module for your Zone Valve control.
+			Zone Valve Wireless Section: MySensors Wireless or MQTT Relay module for your Zone Valve control.
 			****************************************************************************************/
-			if ($zone_controller_type == 'MySensor'){
+			if ($zone_controller_type == 'MySensor' || $zone_controller_type == 'MQTT'){
 				//update messages_out table with sent status to 0 and payload to as zone status.
 				$query = "UPDATE messages_out SET sent = '0', payload = '{$zone_command}' WHERE node_id ='$zone_controler_id' AND child_id = '$zone_controler_child_id' LIMIT 1;";
 				$conn->query($query);
@@ -1695,37 +1694,25 @@ if (in_array("1", $system_controller)) {
 		}
 
 		/**************************************************************************************************
-		System Controller Wirelss Section:	MySensors Wireless Relay module for your System Controller
+		System Controller Wirelss Section:	MySensors Wireless or MQTT Relay module for your System Controller
 		***************************************************************************************************/
 		//update messages_out table with sent status to 0 and payload to as system controller status.
                 if ($sc_mode != 3) { //process if NOT  HVAC fan only mode
-	        	if ($system_controller_mode == 1 && $off_relay_type == 'MySensor'){
-                                $query = "SELECT node_id FROM nodes WHERE id = '$off_relay_id' LIMIT 1;";
-                                $result = $conn->query($query);
-                                $nodes = mysqli_fetch_array($result);
-                                $node_id = $nodes['node_id'];
-        	        	$query = "UPDATE messages_out SET sent = '0', payload = '0' WHERE node_id ='{$node_id}' AND child_id = '{$off_relay_child_id}' LIMIT 1;";
+	        	if ($system_controller_mode == 1 && ($off_relay_type == 'MySensor' || $off_relay_type == 'MQTT')){
+        	        	$query = "UPDATE messages_out SET sent = '0', payload = '0' WHERE node_id ='{$off_relay_id}' AND child_id = '{$off_relay_child_id}' LIMIT 1;";
 	        	        $conn->query($query);
-        	        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$node_id."\033[0m Child ID: \033[41m".$off_relay_child_id."\033[0m \n";
+        	        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$off_relay_id."\033[0m Child ID: \033[41m".$off_relay_child_id."\033[0m \n";
 		        }
-			if ($on_relay_type == 'MySensor'){
-                                $query = "SELECT node_id FROM nodes WHERE id = '$on_relay_id' LIMIT 1;";
-                                $result = $conn->query($query);
-                                $nodes = mysqli_fetch_array($result);
-                                $node_id = $nodes['node_id'];
-				$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$on_relay_child_id}' LIMIT 1;";
+			if ($on_relay_type == 'MySensor' || $on_relay_type == 'MQTT'){
+				$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$on_relay_id}' AND child_id = '{$on_relay_child_id}' LIMIT 1;";
 				$conn->query($query);
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$node_id."\033[0m Child ID: \033[41m".$on_relay_child_id."\033[0m \n";
+				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$on_relay_id."\033[0m Child ID: \033[41m".$on_relay_child_id."\033[0m \n";
 			}
 		}
-        	if ($system_controller_mode == 1 && $fan_relay_type == 'MySensor'){
-                        $query = "SELECT node_id FROM nodes WHERE id = '$fan_relay_id' LIMIT 1;";
-                        $result = $conn->query($query);
-                        $nodes = mysqli_fetch_array($result);
-                        $node_id = $nodes['node_id'];
-        		$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
+        	if ($system_controller_mode == 1 && ($fan_relay_type == 'MySensor' || $fan_relay_type == 'MQTT')){
+        		$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$fan_relay_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
 	                $conn->query($query);
-        	        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$node_id."\033[0m Child ID: \033[41m".$fan_relay_child_id."\033[0m \n";
+        	        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$fan_relay_id."\033[0m Child ID: \033[41m".$fan_relay_child_id."\033[0m \n";
 	        }
 
 		/*****************************************************
@@ -1842,40 +1829,28 @@ if (in_array("1", $system_controller)) {
 		$conn->query($query);
 
 		/****************************************************************************************************
-		System Controller Wirelss Section:	MySensors Wireless Relay module for your System Controller
+		System Controller Wirelss Section:	MySensors Wireless or MQTT Relay module for your System Controller
 		*****************************************************************************************************/
-		if ($heat_relay_type == 'MySensor'){
+		if ($heat_relay_type == 'MySensor' || $heat_relay_type == 'MQTT'){
 			//update messages_out table with sent status to 0 and payload to as system controller status.
-                        $query = "SELECT node_id FROM nodes WHERE id = '$heat_relay_id' LIMIT 1;";
-                        $result = $conn->query($query);
-                        $nodes = mysqli_fetch_array($result);
-                        $node_id = $nodes['node_id'];
-			$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$heat_relay_child_id}' LIMIT 1;";
+			$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$heat_relay_id}' AND child_id = '{$heat_relay_child_id}' LIMIT 1;";
 			$conn->query($query);
-			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$node_id."\033[0m Child ID: \033[41m".$heat_relay_child_id."\033[0m \n";
+			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$relay_id."\033[0m Child ID: \033[41m".$relay_child_id."\033[0m \n";
 		}
         	if ($system_controller_mode == 1){
                 	//update messages_out table with sent status to 0 and payload to as system controller status.
-			if ($cool_relay_type == 'MySensor') { // HVAC cool relay OFF
-                                $query = "SELECT node_id FROM nodes WHERE id = '$cool_relay_id' LIMIT 1;";
-                                $result = $conn->query($query);
-                                $nodes = mysqli_fetch_array($result);
-                                $node_id = $nodes['node_id'];
-        	                $query = "UPDATE messages_out SET sent = '0', payload = '0' WHERE node_id ='{$node_id}' AND child_id = '{$cool_relay_child_id}' LIMIT 1;";
+			if ($cool_relay_type == 'MySensor' || $cool_relay_type == 'MQTT') { // HVAC cool relay OFF
+        	                $query = "UPDATE messages_out SET sent = '0', payload = '0' WHERE node_id ='{$cool_relay_id}' AND child_id = '{$cool_relay_child_id}' LIMIT 1;";
 				$conn->query($query);
 			}
-	                if ($fan_relay_type == 'MySensor') {
-                                $query = "SELECT node_id FROM nodes WHERE id = '$fan_relay_id' LIMIT 1;";
-                                $result = $conn->query($query);
-                                $nodes = mysqli_fetch_array($result);
-                                $node_id = $nodes['node_id'];
+	                if ($fan_relay_type == 'MySensor' || $fan_relay_type == 'MQTT') {
 				if ($sc_mode == 3) { // HVAC fan ON if set to fan mode, else turn OFF
-	        	                $query = "UPDATE messages_out SET sent = '0', payload = '1' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
+	        	                $query = "UPDATE messages_out SET sent = '0', payload = '1' WHERE node_id ='{$fan_relay_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
 				} else {
-        				$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
+        				$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$fan_relay_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
 				}
         		        $conn->query($query);
-                		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$node_id."\033[0m Child ID: \033[41m".$fan_relay_child_id."\033[0m \n";
+                		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$fan_relay_id."\033[0m Child ID: \033[41m".$fan_relay_child_id."\033[0m \n";
 			}
         	}
 
