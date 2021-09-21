@@ -794,6 +794,8 @@ function get_schedule_status($conn,$zone_id,$holidays_status){
         $dow = idate('w');
         // get previous day number, used when end time is less than start time
         $prev_dow = $dow - 1;
+	
+	$end_time = strtotime(date("G:i:s"));
 
         // get raw data
         $query = "SELECT time_id, start, start_sr, Start_ss, Start_offset, end, end_sr, end_ss, end_offset, WeekDays, time_status
