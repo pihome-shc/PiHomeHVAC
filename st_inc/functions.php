@@ -800,7 +800,7 @@ function get_schedule_status($conn,$zone_id,$holidays_status){
         // get raw data
         $query = "SELECT time_id, start, start_sr, Start_ss, Start_offset, end, end_sr, end_ss, end_offset, WeekDays, time_status
                 FROM schedule_daily_time_zone_view
-                WHERE tz_status = '1' AND `time_status` = '1' AND zone_id = {$zone_id}";
+                WHERE ((`end`>`start` AND CURTIME() between `start` AND `end`) OR (`end`<`start` AND CURTIME()<`end`) OR (`end`<`start` AND CURTIME()>`start`)) AND zone_id = {$zone_id} AND tz_status = '1' AND (WeekDays & (1 << {$dow})) > 0";
         if ($holidays_status == 0) {
                 $query = $query." AND holidays_id = 0 LIMIT 1;";
         } else {
