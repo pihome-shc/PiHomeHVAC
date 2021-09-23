@@ -1577,7 +1577,7 @@ for ($row = 0; $row < count($zone_commands); $row++){
 			echo "zone_overrun - ".$zone_overrun.", manual_button_override - ".$manual_button_override.", zone_command - ".$zone_command.", zone_status_prev - ".$zone_status_prev."\n";
 		}
 //		if (($manual_button_override == 0) || ($manual_button_override == 1 && $zone_command == 0)) {
-		if ((($manual_button_override == 0) || ($manual_button_override == 1 && $zone_command == 0)) && ($zone_command != $zone_status_prev)) {
+		if ((($manual_button_override == 0) || ($manual_button_override == 1 && $zone_command == 0)) && ($zone_command != $zone_status_prev || $zone_controller_type == 'MySensor')) {
 			/***************************************************************************************
 			Zone Valve Wired to Raspberry Pi GPIO Section: Zone Valve Connected Raspberry Pi GPIO.
 			****************************************************************************************/
@@ -1649,49 +1649,49 @@ if (isset($expected_end_date_time)){
 /***********************************/
 //Search inside array if any value is set to 1 then we need to update db with system controller status
 if (in_array("1", $system_controller)) {
-	$new_system_controller_status='1';
-	//change relay states on change
-	if (($system_controller_active_status != $new_system_controller_status) || ($sc_mode != $sc_mode_prev)){
-		//update system controller active status to 1
-		$query = "UPDATE system_controller SET sync = '0', active_status = '{$new_system_controller_status}', sc_mode_prev = '{$sc_mode}' WHERE id ='1' LIMIT 1";
-		$conn->query($query);
-        	//when it HVAC mode determine if cool or heat relay is to be switched
-	        if ($system_controller_mode == 1) {
-			if  ($hvac_state == 0){
-	        	        $on_relay_id = $cool_relay_id;
-        	        	$on_relay_child_id = $cool_relay_child_id;
-	        	        $on_relay_type = $cool_relay_type;
-                                $on_relay_on = $cool_relay_on;
-                                $on_relay_off = $cool_relay_off;
-        	        	$off_relay_id = $heat_relay_id;
-	                	$off_relay_child_id = $heat_relay_child_id;
-		                $off_relay_type = $heat_relay_type;
-                                $off_relay_on = $heat_relay_on;
-                                $off_relay_off = $heat_relay_off;
-        		} else {
-                		$on_relay_id = $heat_relay_id;
-		                $on_relay_child_id = $heat_relay_child_id;
-        		        $on_relay_type = $heat_relay_type;
-                                $on_relay_on = $heat_relay_on;
-                                $on_relay_off = $heat_relay_off;
-                		$off_relay_id = $cool_relay_id;
-	                	$off_relay_child_id = $cool_relay_child_id;
-	        	        $off_relay_type = $cool_relay_type;
-                                $off_relay_on = $cool_relay_on;
-                                $off_relay_off = $cool_relay_off;
-		        }
-		} else {
-                	$on_relay_id = $heat_relay_id;
-                        $on_relay_child_id = $heat_relay_child_id;
-                        $on_relay_type = $heat_relay_type;
-			$on_relay_on = $heat_relay_on;
-                        $on_relay_off = $heat_relay_off;
+        if ($system_controller_mode == 1) {
+                if  ($hvac_state == 0){
+                        $on_relay_id = $cool_relay_id;
+                        $on_relay_child_id = $cool_relay_child_id;
+                        $on_relay_type = $cool_relay_type;
+                        $on_relay_on = $cool_relay_on;
+                        $on_relay_off = $cool_relay_off;
                         $off_relay_id = $heat_relay_id;
                         $off_relay_child_id = $heat_relay_child_id;
                         $off_relay_type = $heat_relay_type;
                         $off_relay_on = $heat_relay_on;
                         $off_relay_off = $heat_relay_off;
-		}
+                } else {
+                        $on_relay_id = $heat_relay_id;
+                        $on_relay_child_id = $heat_relay_child_id;
+                        $on_relay_type = $heat_relay_type;
+                        $on_relay_on = $heat_relay_on;
+                        $on_relay_off = $heat_relay_off;
+                        $off_relay_id = $cool_relay_id;
+                        $off_relay_child_id = $cool_relay_child_id;
+                        $off_relay_type = $cool_relay_type;
+                        $off_relay_on = $cool_relay_on;
+                        $off_relay_off = $cool_relay_off;
+                }
+        } else {
+                $on_relay_id = $heat_relay_id;
+                $on_relay_child_id = $heat_relay_child_id;
+                $on_relay_type = $heat_relay_type;
+                $on_relay_on = $heat_relay_on;
+                $on_relay_off = $heat_relay_off;
+                $off_relay_id = $heat_relay_id;
+                $off_relay_child_id = $heat_relay_child_id;
+                $off_relay_type = $heat_relay_type;
+                $off_relay_on = $heat_relay_on;
+                $off_relay_off = $heat_relay_off;
+        }
+
+	$new_system_controller_status='1';
+	//change relay states on change
+	if (($system_controller_active_status != $new_system_controller_status) || ($sc_mode != $sc_mode_prev) || ($off_relay_type == 'MySensor') || ($on_relay_type == 'MySensor')){
+		//update system controller active status to 1
+		$query = "UPDATE system_controller SET sync = '0', active_status = '{$new_system_controller_status}', sc_mode_prev = '{$sc_mode}' WHERE id ='1' LIMIT 1";
+		$conn->query($query);
 
 		/**************************************************************************************************
 		System Controller Wirelss Section:	MySensors Wireless or MQTT Relay module for your System Controller
@@ -1835,7 +1835,7 @@ if (in_array("1", $system_controller)) {
 }else{
 	$new_system_controller_status='0';
         //change relay states on change
-        if (($system_controller_active_status != $new_system_controller_status) || ($sc_mode != $sc_mode_prev) || ($zone_current_mode != $zone_mode)){
+        if (($system_controller_active_status != $new_system_controller_status) || ($sc_mode != $sc_mode_prev) || ($zone_current_mode != $zone_mode) || ($zone_current_mode != $zone_mode) || ($heat_relay_type == 'MySensor') || ($cool_relay_type == 'MySensor') || ($fan_relay_type == 'MySensor')){
 		//update system controller active status to 0
 		$query = "UPDATE system_controller SET sync = '0', active_status = '{$new_system_controller_status}', sc_mode_prev = '{$sc_mode}' WHERE id ='1' LIMIT 1";
 		$conn->query($query);
