@@ -794,60 +794,61 @@ function get_schedule_status($conn,$zone_id,$holidays_status){
         $dow = idate('w');
         // get previous day number, used when end time is less than start time
         $prev_dow = $dow - 1;
-	
+
 	$end_time = strtotime(date("G:i:s"));
 
         // get raw data
         $query = "SELECT time_id, start, start_sr, Start_ss, Start_offset, end, end_sr, end_ss, end_offset, WeekDays, time_status
                 FROM schedule_daily_time_zone_view
-                WHERE ((`end`>`start` AND CURTIME() between `start` AND `end`) OR (`end`<`start` AND CURTIME()<`end`) OR (`end`<`start` AND CURTIME()>`start`)) AND zone_id = {$zone_id} AND tz_status = '1' AND (WeekDays & (1 << {$dow})) > 0";
+                WHERE tz_status = '1' AND `time_status` = '1' AND zone_id = {$zone_id}";
         if ($holidays_status == 0) {
-                $query = $query." AND holidays_id = 0 LIMIT 1;";
+                $query = $query." AND holidays_id = 0;";
         } else {
-                $query = $query." AND holidays_id > 0 LIMIT 1;";
+                $query = $query." AND holidays_id > 0;";
         }
-        $result = $conn->query($query);
-        $sch_count=mysqli_num_rows($result);
+        $results = $conn->query($query);
+        $sch_count=mysqli_num_rows($results);
         if ($sch_count > 0) {
-                // get the active schedule data
-                $row = mysqli_fetch_array($result);
-                $time = strtotime(date("G:i:s"));
-                $time_id = $row['time_id'];
-                $start_time = strtotime($row['start']);
-                $start_sr = $row['start_sr'];
-                $start_ss = $row['start_ss'];
-                $start_offset = $row['start_offset'];
-                $end_time = strtotime($row['end']);
-                $end_sr = $row['end_sr'];
-                $end_ss = $row['end_ss'];
-                $end_offset = $row['end_offset'];
-                $WeekDays = $row['WeekDays'];
-                $time_status = $row['time_status'];
-                // use sunrise/sunset if any flags set
-                if ($start_sr == 1 || $start_ss == 1 || $end_sr == 1 || $end_ss == 1) {
-                        // get the sunrise and sunset times
-                        $query = "SELECT * FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);";
-                        $result = $conn->query($query);
-                        $rowcount=mysqli_num_rows($result);
-                        if ($rowcount > 0) {
-                                $wrow = mysqli_fetch_array($result);
-                                $sunrise_time = date('H:i:s', $wrow['sunrise']);
-                                $sunset_time = date('H:i:s', $wrow['sunset']);
-                                if ($start_sr == 1 || $start_ss == 1) {
-                                        if ($start_sr == 1) { $start_time = strtotime($sunrise_time); } else { $start_time = strtotime($sunset_time); }
-                                        $start_time = $start_time + ($start_offset * 60);
-                                }
-                                if ($end_sr == 1 || $end_ss == 1) {
-                                        if ($end_sr == 1) { $end_time = strtotime($sunrise_time); } else { $end_time = strtotime($sunset_time); }
-                                        $end_time = $end_time + ($end_offset * 60);
-                                }
-                        }
-                }
-                if (($end_time > $start_time && $time > $start_time && $time < $end_time && ($WeekDays  & (1 << $dow)) > 0) || ($end_time < $start_time && $time < $end_time && ($WeekDays  & (1 << $prev_dow)) > 0) || ($end_time < $start_time && $time > $start_time && ($WeekDays  & (1 << $dow)) > 0) && $time_status == "1") {
-                	$sch_status = 1;
-                } else {
-                	$sch_status = 0;
-                }
+		$sch_status = 0;
+		while ($row = mysqli_fetch_assoc($results)) {
+	                // check each schedule for this zone
+        	        $time = strtotime(date("G:i:s"));
+                	$time_id = $row['time_id'];
+	                $start_time = strtotime($row['start']);
+        	        $start_sr = $row['start_sr'];
+                	$start_ss = $row['start_ss'];
+	                $start_offset = $row['start_offset'];
+        	        $end_time = strtotime($row['end']);
+                	$end_sr = $row['end_sr'];
+	                $end_ss = $row['end_ss'];
+        	        $end_offset = $row['end_offset'];
+                	$WeekDays = $row['WeekDays'];
+	                $time_status = $row['time_status'];
+        	        // use sunrise/sunset if any flags set
+                	if ($start_sr == 1 || $start_ss == 1 || $end_sr == 1 || $end_ss == 1) {
+                        	// get the sunrise and sunset times
+	                        $query = "SELECT * FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);";
+        	                $result = $conn->query($query);
+                	        $rowcount=mysqli_num_rows($result);
+                        	if ($rowcount > 0) {
+                                	$wrow = mysqli_fetch_array($result);
+	                                $sunrise_time = date('H:i:s', $wrow['sunrise']);
+        	                        $sunset_time = date('H:i:s', $wrow['sunset']);
+                	                if ($start_sr == 1 || $start_ss == 1) {
+                        	                if ($start_sr == 1) { $start_time = strtotime($sunrise_time); } else { $start_time = strtotime($sunset_time); }
+                                	        $start_time = $start_time + ($start_offset * 60);
+	                                }
+        	                        if ($end_sr == 1 || $end_ss == 1) {
+                	                        if ($end_sr == 1) { $end_time = strtotime($sunrise_time); } else { $end_time = strtotime($sunset_time); }
+                        	                $end_time = $end_time + ($end_offset * 60);
+                                	}
+	                        }
+        	        }
+                	if (($end_time > $start_time && $time > $start_time && $time < $end_time && ($WeekDays  & (1 << $dow)) > 0) || ($end_time < $start_time && $time < $end_time && ($WeekDays  & (1 << $prev_dow)) > 0) || ($end_time < $start_time && $time > $start_time && ($WeekDays  & (1 << $dow)) > 0) && $time_status == "1") {
+	                	$sch_status = 1;
+				break; // exit the loop if an active schedule found
+        	        }
+		} // end of while loop
         } else {
                 $sch_status = 0;
                 $time_id = 0;
