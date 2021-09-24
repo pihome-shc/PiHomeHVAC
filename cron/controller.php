@@ -1648,6 +1648,9 @@ if (isset($expected_end_date_time)){
       System Controller On section
 /***********************************/
 //Search inside array if any value is set to 1 then we need to update db with system controller status
+$heat_relay_type = '';
+$cool_relay_type = '';
+$fan_relay_type = '';
 if (in_array("1", $system_controller)) {
         if ($system_controller_mode == 1) {
                 if  ($hvac_state == 0){
