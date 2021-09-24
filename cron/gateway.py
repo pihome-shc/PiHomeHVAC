@@ -71,7 +71,7 @@ def set_relays(msg, node_type, out_id, out_child_id, out_on_trigger, out_payload
             print("write")
             gw.write(msg.encode("utf-8"))
         cur.execute(
-            "   UPDATE `messages_out` set sent=1 where id=%s", [out_id]
+            "UPDATE `messages_out` set sent=1 where id=%s", [out_id]
         )  # update DB so this message will not be processed in next loop
         con.commit()  # commit above
     elif node_type.find("GPIO") != -1:  # process GPIO mode
