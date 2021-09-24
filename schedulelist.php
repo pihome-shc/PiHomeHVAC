@@ -105,8 +105,6 @@ require_once(__DIR__ . '/st_inc/functions.php');
                         }
                         if ((($end_time > $start_time && $time > $start_time && $time < $end_time && ($row["WeekDays"]  & (1 << $dow)) > 0) || ($end_time < $start_time && $time < $end_time && ($row["WeekDays"]  & (1 << $prev_dow)) > 0) || ($end_time < $start_time && $time > $start_time && ($row["WeekDays"]  & (1 << $dow)) > 0)) && $row["time_status"]=="1") {
                                 $shactive="redsch";
-                        } else {
-                                $shactive="bluesch";
                         }
 
 			//time shchedule listing
