@@ -60,7 +60,7 @@ null_value = None
 relay_dict = {}
 
 
-def set_relays(msg, node_type, out_id, out_child_id, out_on_trigger, out_payload, enable_outgoing, out_node_id):
+def set_relays(msg, node_id, node_type, out_id, out_child_id, out_on_trigger, out_payload, enable_outgoing):
     # node-id ; child-sensor-id ; command ; ack ; type ; payload \n
     if node_type.find("MySensor") != -1 and enable_outgoing == 1:  # process normal node
         if gatewaytype == "serial":
@@ -111,7 +111,7 @@ def set_relays(msg, node_type, out_id, out_child_id, out_on_trigger, out_payload
                 cur.execute("UPDATE `messages_out` set sent=1 where id=%s", [out_id])
                 con.commit()  # commit above
     elif node_type.find("MQTT") != -1 and MQTT_CONNECTED == 1:  # process MQTT mode
-        cur.execute('SELECT `mqtt_topic`, `on_payload`, `off_payload`  FROM `mqtt_node_child` WHERE `type` = "1" AND `node_id` = (%s) AND `child_id` = (%s) LIMIT 1', [out_node_id, out_child_id])
+        cur.execute('SELECT `mqtt_topic`, `on_payload`, `off_payload`  FROM `mqtt_node_child` WHERE `type` = "1" AND `node_id` = (%s) AND `child_id` = (%s) LIMIT 1', [node_id, out_child_id])
         results_mqtt_r = cur.fetchone()
         mqtt_topic = results_mqtt_r[0]
         if out_payload == "1":
@@ -379,34 +379,35 @@ try:
             )
             nd = cur.fetchone()
             node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-            out_node_id = nd[node_to_index["node_id"]]
+            node_id = nd[node_to_index["node_id"]]
             node_type = nd[node_to_index["type"]]
             cur.execute(
                 "SELECT `sub_type`, `ack`, `type`, `payload`, `id` FROM `messages_out` where node_id = (%s) AND child_id = (%s) ORDER BY id DESC LIMIT 1",
-                (out_node_id, out_child_id),
+                (node_id, out_child_id),
             )
-            msg = cur.fetchone()
-            msg_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-            out_id = int(msg[msg_to_index["id"]])
-            out_sub_type = msg[msg_to_index["sub_type"]]
-            out_ack = msg[msg_to_index["ack"]]
-            out_type = msg[msg_to_index["type"]]
-            out_payload = msg[msg_to_index["payload"]]
-            msg = str(out_node_id)  # Node ID
-            msg += ";"  # Separator
-            msg += str(out_child_id)  # Child ID of the Node.
-            msg += ";"  # Separator
-            msg += str(out_sub_type)
-            msg += ";"  # Separator
-            msg += str(out_ack)
-            msg += ";"  # Separator
-            msg += str(out_type)
-            msg += ";"  # Separator
-            msg += str(out_payload)  # Payload from DB
-            msg += " \n"  # New line
-            set_relays(
-                msg, node_type, out_id, out_child_id, out_on_trigger, out_payload, gatewayenableoutgoing, out_node_id
-            )
+            if cur.rowcount > 0:
+                msg = cur.fetchone()
+                msg_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                out_id = int(msg[msg_to_index["id"]])
+                out_sub_type = msg[msg_to_index["sub_type"]]
+                out_ack = msg[msg_to_index["ack"]]
+                out_type = msg[msg_to_index["type"]]
+                out_payload = msg[msg_to_index["payload"]]
+                msg = str(node_id)  # Node ID
+                msg += ";"  # Separator
+                msg += str(out_child_id)  # Child ID of the Node.
+                msg += ";"  # Separator
+                msg += str(out_sub_type)
+                msg += ";"  # Separator
+                msg += str(out_ack)
+                msg += ";"  # Separator
+                msg += str(out_type)
+                msg += ";"  # Separator
+                msg += str(out_payload)  # Payload from DB
+                msg += " \n"  # New line
+                set_relays(
+                    msg, node_id, node_type, out_id, out_child_id, out_on_trigger, out_payload, gatewayenableoutgoing
+                )
         ping_timer = time.time()
     else:
         ping_timer = time.time()
@@ -436,7 +437,7 @@ try:
             # Grab first record and build a message: if you change table fields order you need to change following lines as well.
             msg_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
             out_id = int(msg[msg_to_index["id"]])  # Record ID - only DB info,
-            out_node_id = msg[msg_to_index["node_id"]]  # Node ID
+            node_id = msg[msg_to_index["node_id"]]  # Node ID
             out_child_id = msg[
                 msg_to_index["child_id"]
             ]  # Child ID of the node where sensor/relay is attached.
@@ -447,7 +448,7 @@ try:
             sent = msg[
                 msg_to_index["sent"]
             ]  # Status of message either its sent or not. (1 for sent, 0 for not sent yet)
-            cur.execute("SELECT id, type FROM `nodes` where node_id = (%s)", (out_node_id,))
+            cur.execute("SELECT id, type FROM `nodes` where node_id = (%s)", (node_id,))
             nd = cur.fetchone()
             node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
             relay_id = nd[node_to_index["id"]]
@@ -467,7 +468,7 @@ try:
                     print(
                         "Message From Database:       ",
                         out_id,
-                        out_node_id,
+                        node_id,
                         out_child_id,
                         out_sub_type,
                         out_ack,
@@ -475,7 +476,7 @@ try:
                         out_payload,
                         sent,
                     )  # Print what will be sent including record id and sent status.
-                msg = str(out_node_id)  # Node ID
+                msg = str(node_id)  # Node ID
                 msg += ";"  # Separator
                 msg += str(out_child_id)  # Child ID of the Node.
                 msg += ";"  # Separator
@@ -491,7 +492,7 @@ try:
                     print(
                         "Full Message to Send:        ", msg.replace("\n", "\\n")
                     )  # Print Full Message
-                    print("Node ID:                     ", out_node_id)
+                    print("Node ID:                     ", node_id)
                     print("Child Sensor ID:             ", out_child_id)
                     print("Command Type:                ", out_sub_type)
                     print("Ack Req/Resp:                ", out_ack)
@@ -501,7 +502,7 @@ try:
 
             # node-id ; child-sensor-id ; command ; ack ; type ; payload \n
             set_relays(
-                msg, node_type, out_id, out_child_id, out_on_trigger, out_payload, gatewayenableoutgoing, out_node_id 
+                msg, node_id, node_type, out_id, out_child_id, out_on_trigger, out_payload, gatewayenableoutgoing
             )
 
         ## Incoming messages
