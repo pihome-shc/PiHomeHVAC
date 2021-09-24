@@ -71,7 +71,7 @@ def set_relays(msg, node_type, out_id, out_child_id, out_on_trigger, out_payload
             print("write")
             gw.write(msg.encode("utf-8"))
         cur.execute(
-            "UPDATE `messages_out` set sent=1 where id=%s", [out_id]
+            "   UPDATE `messages_out` set sent=1 where id=%s", [out_id]
         )  # update DB so this message will not be processed in next loop
         con.commit()  # commit above
     elif node_type.find("GPIO") != -1:  # process GPIO mode
@@ -379,20 +379,20 @@ try:
             )
             nd = cur.fetchone()
             node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-            out_id = nd[node_to_index["node_id"]]
             out_node_id = nd[node_to_index["node_id"]]
             node_type = nd[node_to_index["type"]]
             cur.execute(
-                "SELECT `sub_type`, `ack`, `type`, `payload` FROM `messages_out` where node_id = (%s) AND child_id = (%s) ORDER BY id DESC LIMIT 1",
-                (out_id, out_child_id),
+                "SELECT `sub_type`, `ack`, `type`, `payload`, `id` FROM `messages_out` where node_id = (%s) AND child_id = (%s) ORDER BY id DESC LIMIT 1",
+                (out_node_id, out_child_id),
             )
             msg = cur.fetchone()
             msg_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+            out_id = int(msg[msg_to_index["id"]])
             out_sub_type = msg[msg_to_index["sub_type"]]
             out_ack = msg[msg_to_index["ack"]]
             out_type = msg[msg_to_index["type"]]
             out_payload = msg[msg_to_index["payload"]]
-            msg = str(out_id)  # Node ID
+            msg = str(out_node_id)  # Node ID
             msg += ";"  # Separator
             msg += str(out_child_id)  # Child ID of the Node.
             msg += ";"  # Separator
