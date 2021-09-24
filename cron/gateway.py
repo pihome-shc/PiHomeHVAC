@@ -60,7 +60,7 @@ null_value = None
 relay_dict = {}
 
 
-def set_relays(msg, node_type, out_id, out_child_id, out_on_trigger, out_payload, enable_outgoing):
+def set_relays(msg, node_type, out_id, out_child_id, out_on_trigger, out_payload, enable_outgoing, out_node_id):
     # node-id ; child-sensor-id ; command ; ack ; type ; payload \n
     if node_type.find("MySensor") != -1 and enable_outgoing == 1:  # process normal node
         if gatewaytype == "serial":
@@ -110,7 +110,151 @@ def set_relays(msg, node_type, out_id, out_child_id, out_on_trigger, out_payload
             if x.json().get(cmd) == param:  # clear send if response is okay
                 cur.execute("UPDATE `messages_out` set sent=1 where id=%s", [out_id])
                 con.commit()  # commit above
+    elif node_type.find("MQTT") != -1 and MQTT_CONNECTED == 1:  # process MQTT mode
+        cur.execute('SELECT `mqtt_topic`, `on_payload`, `off_payload`  FROM `mqtt_node_child` WHERE `type` = "1" AND `node_id` = (%s) AND `child_id` = (%s) LIMIT 1', [out_node_id, out_child_id])
+        results_mqtt_r = cur.fetchone()
+        mqtt_topic = results_mqtt_r[0]
+        if out_payload == "1":
+            payload_str = results_mqtt_r[1]
+        else:
+            payload_str = results_mqtt_r[2]
+        print("\nSending the following MQTT Message:")
+        print("Topic: %s" % mqtt_topic)
+        print("Message: %s" % payload_str)
+        mqttClient.publish(
+            topic=mqtt_topic,
+            payload=payload_str,
+            qos=1,
+            retain=False,
+        )
+        cur.execute(
+            "UPDATE `messages_out` set sent=1 where id=%s", [out_id]
+        )  # update DB so this message will not be processed in next loop
+        con.commit()  # commit above
 
+#MQTT specific functions
+#Function run when the MQTT client connect to the brooker
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        MQTT_CONNECTED = 1
+        print("\nConnected to broker")
+        subscribe_topics = []
+        cur_mqtt.execute('SELECT DISTINCT `mqtt_topic` FROM `mqtt_node_child` WHERE `type` = "0"')
+        for node in cur_mqtt.fetchall():
+            subscribe_topics.append((f"{node[0]}", 0))
+        client.subscribe(subscribe_topics)
+        print("Subscribed to the followint MQTT topics:")
+        print(subscribe_topics)
+    else:
+        print("\nConnection failed\n")
+        MQTT_CONNECTED = 0
+
+#Function run when the MQTT client disconnects to the brooker
+def on_disconnect(client, userdata, rc):
+    MQTT_CONNECTED = 0
+    con_mqtt.close()
+    if rc != 0:
+        print("\nUnexpected disconnection.\n")
+    else:
+        print("\nSuccessfully disconnected from the brooker\n")
+
+#To be run when an MQTT message is received to write the sensor value into messages_in
+def on_message(client, userdata, message):
+    print("\nMQTT messaged received.")
+    print("Topic: %s" % message.topic)
+    print("Message: %s" % message.payload.decode())
+    cur_mqtt.execute('SELECT `node_id`, `child_id`, `attribute`  FROM `mqtt_node_child` WHERE `mqtt_topic` = (%s)', [message.topic])
+    for child in cur_mqtt.fetchall():    
+        mqtt_node_id = child[0]   
+        mqtt_child_sensor_id = child[1]
+        if child[2] is None:
+            mqtt_payload = message.payload.decode()
+        else:
+            json_data = json.loads(message.payload.decode())
+            mqtt_payload = json_data[child[2]]
+        print(
+                "5: Adding Temperature Reading From Node ID:",
+                mqtt_node_id,
+                " Child Sensor ID:",
+                mqtt_child_sensor_id,
+                " PayLoad:",
+                mqtt_payload,
+            )
+        cur_mqtt.execute('INSERT INTO `messages_in`(`node_id`, `sync`, `purge`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES (%s, 0, 0, %s, 0, %s, NOW())', [mqtt_node_id, mqtt_child_sensor_id, mqtt_payload])
+        con_mqtt.commit()
+        cur_mqtt.execute('UPDATE `nodes` SET `last_seen`= NOW() WHERE `node_id`= "%s"', [mqtt_node_id])
+        con_mqtt.commit() 
+        # Check is sensor is attached to a zone which is being graphed
+        cur_mqtt.execute('SELECT sensors.id, sensors.zone_id, nodes.node_id, sensors.sensor_child_id, sensors.name, sensors.graph_num FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = "%s" AND sensors.sensor_child_id = (%s) AND sensors.graph_num > 0 LIMIT 1;', [mqtt_node_id, mqtt_child_sensor_id])
+        results = cur_mqtt.fetchone()
+        if cur_mqtt.rowcount > 0:
+            mqtt_sensor_to_index = dict((d[0], i) for i, d in enumerate(cur_mqtt.description))
+            mqtt_sensor_id = int(results[mqtt_sensor_to_index["id"]])
+            mqtt_sensor_name = results[mqtt_sensor_to_index["name"]]
+            mqtt_zone_id = results[mqtt_sensor_to_index["zone_id"]]
+            # type = results[zone_view_to_index['type']]
+            # category = int(results[zone_view_to_index['category']])
+            mqtt_graph_num = int(results[mqtt_sensor_to_index["graph_num"]])
+            if mqtt_graph_num > 0:
+                if dbgLevel >= 2 and dbgMsgIn == 1:
+                    print(
+                        "5a: Adding Temperature Reading to Graph Table From Node ID:",
+                        mqtt_node_id,
+                        " Child Sensor ID:",
+                        mqtt_child_sensor_id,
+                        " PayLoad:",
+                        mqtt_payload,
+                    )
+                if mqtt_zone_id == 0:
+                    cur_mqtt.execute(
+                        'INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,"%s",%s,%s,%s,NOW())',
+                        (
+                            0,
+                            0,
+                            mqtt_sensor_id,
+                            mqtt_sensor_name,
+                            "Sensor",
+                            0,
+                            mqtt_node_id,
+                            mqtt_child_sensor_id,
+                            0,
+                            mqtt_payload,
+                        ),
+                    )
+                    con_mqtt.commit()
+                else:
+                    cur_mqtt.execute('SELECT * FROM `zone_view` where id = "%s" LIMIT 1;', [mqtt_zone_id])
+                    results = cur_mqtt.fetchone()
+                    if cur_mqtt.rowcount > 0:
+                        mqtt_zone_view_to_index = dict((d[0], i) for i, d in enumerate(cur_mqtt.description))
+                        mqtt_zone_name = results[mqtt_zone_view_to_index["name"]]
+                        mqtt_type = results[mqtt_zone_view_to_index["type"]]
+                        mqtt_category = int(results[mqtt_zone_view_to_index["category"]])
+                        if mqtt_category < 2:
+                            cur_mqtt.execute(
+                                'INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,"%s",%s,%s,%s,NOW())',
+                                (
+                                    0,
+                                    0,
+                                    mqtt_sensor_id,
+                                    mqtt_zone_name,
+                                    mqtt_type,
+                                    mqtt_category,
+                                    mqtt_node_id,
+                                    mqtt_child_sensor_id,
+                                    0,
+                                    mqtt_payload,
+                                ),
+                            )
+                            con_mqtt.commit()
+                cur_mqtt.execute('DELETE FROM zone_graphs WHERE node_id = "%s" AND child_id = (%s) AND datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR;', [mqtt_node_id, mqtt_child_sensor_id])
+                con_mqtt.commit()
+
+class ProgramKilled(Exception):
+    pass
+
+def signal_handler(signum, frame):
+    raise ProgramKilled
 
 try:
     # Initialise the database access variables
@@ -175,6 +319,46 @@ try:
     else:
         network_found = 0
 
+    # Check if the MQTT option is enabled
+    cur.execute('SELECT * FROM `mqtt` where `type` = 2 AND `enabled` = 1;')
+    if cur.rowcount > 0:
+        if (cur.rowcount > 1):
+            # If more than one MQTT connection has been defined do not connect
+            print("More than one MQTT connection defined in MaxAir for MQTT Nodes, please remove the unused ones.")
+            MQTT_CONNECTED = 0
+        else:
+            try:
+                import paho.mqtt.client as mqtt
+                import json
+                import signal
+            except ImportError:
+                    print("Missing MQTT dependencies, MQTT nodes cannot be enabled. Please install the required dependencies using /add_on/MQTT_dependencies/install.sh")
+                    MQTT_CONNECTED = 0
+            else:
+                print("Setting up MQTT")
+                con_mqtt = mdb.connect(dbhost, dbuser, dbpass, dbname)
+                cur_mqtt = con_mqtt.cursor()
+                MQTT_CLIENT_ID = "Gateway_MaxAir" #MQTT Client ID
+                MQTT_CONNECTED = 1
+                results_mqtt =cur.fetchone()
+                MQTT_HOSTNAME = results_mqtt[2]
+                MQTT_PORT = results_mqtt[3]
+                MQTT_USERNAME = results_mqtt[4]
+                MQTT_PASSWORD = results_mqtt[5]
+                mqttClient = mqtt.Client(MQTT_CLIENT_ID)
+                mqttClient.on_connect = on_connect                      #attach function to callback
+                mqttClient.on_disconnect = on_disconnect
+                mqttClient.on_message = on_message
+                mqttClient.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
+                signal.signal(signal.SIGTERM, signal_handler)
+                signal.signal(signal.SIGINT, signal_handler)
+                mqttClient.connect(MQTT_HOSTNAME, MQTT_PORT)
+                mqttClient.loop_start()          
+    else:
+        # If no MQTT connection has been defined do not connect
+        print("MQTT nodes are disabled. To enable MQTT nodes enter the connection details under Settings > System Configuration > MQTT.")
+        MQTT_CONNECTED = 0
+
     # re-sync any setup relays
     cur.execute("SELECT COUNT(*) FROM `relays`")
     count = cur.fetchone()
@@ -196,6 +380,7 @@ try:
             nd = cur.fetchone()
             node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
             out_id = nd[node_to_index["node_id"]]
+            out_node_id = nd[node_to_index["node_id"]]
             node_type = nd[node_to_index["type"]]
             cur.execute(
                 "SELECT `sub_type`, `ack`, `type`, `payload` FROM `messages_out` where node_id = (%s) AND child_id = (%s) ORDER BY id DESC LIMIT 1",
@@ -220,7 +405,7 @@ try:
             msg += str(out_payload)  # Payload from DB
             msg += " \n"  # New line
             set_relays(
-                msg, node_type, out_id, out_child_id, out_on_trigger, out_payload, gatewayenableoutgoing
+                msg, node_type, out_id, out_child_id, out_on_trigger, out_payload, gatewayenableoutgoing, out_node_id
             )
         ping_timer = time.time()
     else:
@@ -316,7 +501,7 @@ try:
 
             # node-id ; child-sensor-id ; command ; ack ; type ; payload \n
             set_relays(
-                msg, node_type, out_id, out_child_id, out_on_trigger, out_payload, gatewayenableoutgoing
+                msg, node_type, out_id, out_child_id, out_on_trigger, out_payload, gatewayenableoutgoing, out_node_id 
             )
 
         ## Incoming messages
@@ -1059,23 +1244,48 @@ try:
 except configparser.Error as e:
     print("ConfigParser:", format(e))
     con.close()
+    if MQTT_CONNECTED == 1:
+        mqttClient.disconnect()
+        mqttClient.loop_stop()
 except mdb.Error as e:
     print("DB Error %d: %s" % (e.args[0], e.args[1]))
     con.close()
+    if MQTT_CONNECTED == 1:
+        mqttClient.disconnect()
+        mqttClient.loop_stop()
 except serial.SerialException as e:
     print("SerialException:", format(e))
     con.close()
+    if MQTT_CONNECTED == 1:
+        mqttClient.disconnect()
+        mqttClient.loop_stop()
 except EOFError as e:
     print("EOFError:", format(e))
     con.close()
+    if MQTT_CONNECTED == 1:
+        mqttClient.disconnect()
+        mqttClient.loop_stop()
 except TypeError:
     print(traceback.format_exc())
     con.close()
+    if MQTT_CONNECTED == 1:
+        mqttClient.disconnect()
+        mqttClient.loop_stop()
 except Exception as e:
     print(format(e))
     con.close()
+    if MQTT_CONNECTED == 1:
+        mqttClient.disconnect()
+        mqttClient.loop_stop()
+except ProgramKilled:
+    write_message_to_console("Program killed: running cleanup code")
+    con.close()
+    if MQTT_CONNECTED == 1:
+        mqttClient.disconnect()
+        mqttClient.loop_stop()
 finally:
     print(infomsg)
     logging.exception(Exception)
     sys.exit(1)
+    
 
