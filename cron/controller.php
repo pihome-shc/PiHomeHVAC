@@ -36,6 +36,10 @@ $stop_cause = '';
 $add_on_start_cause ='';
 $add_on_stop_cause = '';
 
+//initialise for when used as test variables in none HVAC system
+$cool_relay_type = '';
+$fan_relay_type = '';
+
 //Function to recursively check homebridge config.json
 function scanArrayRecursively($arr, $index) {
 	if ($arr) {
