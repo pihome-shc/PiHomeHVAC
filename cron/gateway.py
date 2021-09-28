@@ -113,11 +113,12 @@ def set_relays(msg, node_id, node_type, out_id, out_child_id, out_on_trigger, ou
     elif node_type.find("MQTT") != -1 and MQTT_CONNECTED == 1:  # process MQTT mode
         cur.execute('SELECT `mqtt_topic`, `on_payload`, `off_payload`  FROM `mqtt_node_child` WHERE `type` = "1" AND `node_id` = (%s) AND `child_id` = (%s) LIMIT 1', [node_id, out_child_id])
         results_mqtt_r = cur.fetchone()
-        mqtt_topic = results_mqtt_r[0]
+        description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+        mqtt_topic = results_mqtt_r[description_to_index["mqtt_topic"]]
         if out_payload == "1":
-            payload_str = results_mqtt_r[1]
+            payload_str = results_mqtt_r[description_to_index["on_payload"]]
         else:
-            payload_str = results_mqtt_r[2]
+            payload_str = results_mqtt_r[description_to_index["off_payload"]]
         print("\nSending the following MQTT Message:")
         print("Topic: %s" % mqtt_topic)
         print("Message: %s" % payload_str)
@@ -164,14 +165,15 @@ def on_message(client, userdata, message):
     print("Topic: %s" % message.topic)
     print("Message: %s" % message.payload.decode())
     cur_mqtt.execute('SELECT `node_id`, `child_id`, `attribute`  FROM `mqtt_node_child` WHERE `mqtt_topic` = (%s)', [message.topic])
+    on_msg_description_to_index = dict((d[0], i) for i, d in enumerate(cur_mqtt.description))
     for child in cur_mqtt.fetchall():    
-        mqtt_node_id = child[0]   
-        mqtt_child_sensor_id = child[1]
-        if child[2] is None:
+        mqtt_node_id = child[on_msg_description_to_index["node_id"]]   
+        mqtt_child_sensor_id = int(child[on_msg_description_to_index["child_id"]])
+        if child[on_msg_description_to_index["attribute"]] is None:
             mqtt_payload = message.payload.decode()
         else:
             json_data = json.loads(message.payload.decode())
-            mqtt_payload = json_data[child[2]]
+            mqtt_payload = json_data[child[on_msg_description_to_index["attribute"]]]
         print(
                 "5: Adding Temperature Reading From Node ID:",
                 mqtt_node_id,
@@ -341,10 +343,11 @@ try:
                 MQTT_CLIENT_ID = "Gateway_MaxAir" #MQTT Client ID
                 MQTT_CONNECTED = 1
                 results_mqtt =cur.fetchone()
-                MQTT_HOSTNAME = results_mqtt[2]
-                MQTT_PORT = results_mqtt[3]
-                MQTT_USERNAME = results_mqtt[4]
-                MQTT_PASSWORD = results_mqtt[5]
+                description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                MQTT_HOSTNAME = results_mqtt[description_to_index["ip"]]
+                MQTT_PORT = results_mqtt[description_to_index["port"]]
+                MQTT_USERNAME = results_mqtt[description_to_index["username"]]
+                MQTT_PASSWORD = results_mqtt[description_to_index["password"]]
                 mqttClient = mqtt.Client(MQTT_CLIENT_ID)
                 mqttClient.on_connect = on_connect                      #attach function to callback
                 mqttClient.on_disconnect = on_disconnect
