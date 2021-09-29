@@ -216,7 +216,7 @@ def on_message(client, userdata, message):
         con_mqtt.commit()
         # Check is sensor is attached to a zone which is being graphed
         cur_mqtt.execute(
-            'SELECT sensors.id, sensors.zone_id, nodes.node_id, sensors.sensor_child_id, sensors.name, sensors.graph_num FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = "%s" AND sensors.sensor_child_id = (%s) AND sensors.graph_num > 0 LIMIT 1;',
+            'SELECT sensors.id, sensors.zone_id, nodes.node_id, sensors.sensor_child_id, sensors.name, sensors.graph_num FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = %s AND sensors.sensor_child_id = %s AND sensors.graph_num > 0 LIMIT 1;',
             [mqtt_node_id, mqtt_child_sensor_id],
         )
         results = cur_mqtt.fetchone()
@@ -242,7 +242,7 @@ def on_message(client, userdata, message):
                     )
                 if mqtt_zone_id == 0:
                     cur_mqtt.execute(
-                        'INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,"%s",%s,%s,%s,NOW())',
+                        'INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())',
                         (
                             0,
                             0,
@@ -259,7 +259,7 @@ def on_message(client, userdata, message):
                     con_mqtt.commit()
                 else:
                     cur_mqtt.execute(
-                        'SELECT * FROM `zone_view` where id = "%s" LIMIT 1;',
+                        'SELECT * FROM `zone_view` where id = %s LIMIT 1;',
                         [mqtt_zone_id],
                     )
                     results = cur_mqtt.fetchone()
@@ -274,7 +274,7 @@ def on_message(client, userdata, message):
                         )
                         if mqtt_category < 2:
                             cur_mqtt.execute(
-                                'INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,"%s",%s,%s,%s,NOW())',
+                                'INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())',
                                 (
                                     0,
                                     0,
@@ -290,7 +290,7 @@ def on_message(client, userdata, message):
                             )
                             con_mqtt.commit()
                 cur_mqtt.execute(
-                    'DELETE FROM zone_graphs WHERE node_id = "%s" AND child_id = (%s) AND datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR;',
+                    'DELETE FROM zone_graphs WHERE node_id = %s AND child_id = %s AND datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR;',
                     [mqtt_node_id, mqtt_child_sensor_id],
                 )
                 con_mqtt.commit()
