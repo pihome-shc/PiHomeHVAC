@@ -482,7 +482,7 @@ try:
     while 1:
         ## Terminate gateway script if no route to network gateway
         if gatewaytype == "wifi":
-            if time.time() - ping_timer >= 3600:
+            if time.time() - ping_timer >= 60:
                 ping_timer = time.time()
                 gateway_up = (
                     True if os.system("ping -c 1 " + gatewaylocation) is 0 else False
