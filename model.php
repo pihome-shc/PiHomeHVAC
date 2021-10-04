@@ -847,25 +847,33 @@ echo '<p class="text-muted">'.$lang['node_add_info_text'].'</p>
 	<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
 
 	<div class="form-group" class="control-label"><label>'.$lang['node_type'].'</label> <small class="text-muted">'.$lang['node_type_info'].'</small>
-
 	<select class="form-control input-sm" type="text" id="node_type" onchange=show_hide_devices() name="node_type">
 	<option value="I2C" selected="selected">I2C</option>
 	<option value="GPIO">GPIO</option>
         <option value="Tasmota">Tasmota</option>
         <option value="Dummy">Dummy</option>
         <option value="Switch">Switch</option>
+        <option value="MQTT">MQTT</option>
 	</select>
     <div class="help-block with-errors"></div></div>
 
 
 	<div class="form-group" class="control-label"><label>'.$lang['node_id'].'</label> <small class="text-muted">'.$lang['node_id_info'].'</small>
-	<input class="form-control input-sm" type="text" id="add_node_id" name="add_node_id" value="" placeholder="'.$lang['node_id'].'">
+		<input class="form-control input-sm" type="text" id="add_node_id" name="add_node_id" value="" placeholder="'.$lang['node_id'].'">
 	<div class="help-block with-errors"></div></div>
+
+        <div class="form-group" class="control-label" id="mqtt_type_label" style="display:none"><label>'.$lang['node_name'].'</label> <smallclass="text-muted">'.$lang['mqtt_node_info'].'</small>
+                <select class="form-control input-sm" type="text" id="mqtt_type" name="mqtt_type">
+                        <option value="Sensor" selected="selected">MQTT Sensor</option>
+                        <option value="Controller">MQTT Controller</option>
+                </select>
+                <div class="help-block with-errors"></div>
+        </div>
 
 	<div class="form-group" class="control-label" id="add_devices_label" style="display:block"><label>'.$lang['node_child_id'].'</label> <small class="text-muted">'.$lang['node_child_id_info'].'</small>
-	<input class="form-control input-sm" type="text" id="nodes_max_child_id" name="nodes_max_child_id" value="0" placeholder="'.$lang['node_max_child_id'].'">
-	<div class="help-block with-errors"></div></div>
-
+		<input class="form-control input-sm" type="text" id="nodes_max_child_id" name="nodes_max_child_id" value="0" placeholder="'.$lang['node_max_child_id'].'">
+		<div class="help-block with-errors"></div>
+	</div>
 </div>
             <div class="modal-footer">
 				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
@@ -1652,6 +1660,52 @@ echo '<p class="text-muted">'.$lang['add_on_add_info_text'].'</p>
             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
                                 <input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="add_node_http_msg()">
+            </div>
+        </div>
+    </div>
+</div>';
+
+//MQTT Devices
+echo '<div class="modal fade" id="mqtt_devices" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['mqtt_device'].'</h5>
+            </div>
+            <div class="modal-body">
+		<p class="text-muted">'.$lang['mqtt_device_text'].'</p>';
+		$query = "SELECT `mqtt_devices`.`id`, `nodes`.`name` AS `node`, `nodes`.`node_id` AS `node_id`, `mqtt_devices`.`child_id` AS `child`, `mqtt_devices`.`name` AS `name`, `mqtt_devices`.`mqtt_topic`, `mqtt_devices`.`on_payload`, `mqtt_devices`.`off_payload`, `mqtt_devices`.`attribute` FROM `mqtt_devices`, `nodes` WHERE `mqtt_devices`.`nodes_id` = `nodes`.`id` ORDER BY `mqtt_devices`.`nodes_id`, `mqtt_devices`.`child_id`;";
+		$results = $conn->query($query);
+		echo '<table class="table table-bordered">
+    			<tr>
+                                <th class="col-md-2"><small>'.$lang['node'].'</small></th>
+                                <th class="col-md-2"><small>'.$lang['mqtt_child_id'].'</small></th>
+                                <th class="col-md-2"><small>'.$lang['mqtt_child_name'].'</small></th>
+                                <th class="col-md-2"><small>'.$lang['mqtt_topic'].'</small></th>
+                                <th class="col-md-1"><small>'.$lang['mqtt_on_payload'].'</small></th>
+                                <th class="col-md-1"><small>'.$lang['mqtt_off_payload'].'</small></th>
+                                <th class="col-md-2"><small>'.$lang['mqtt_attribute'].'</small></th>
+                                <th class="col-md-1"></th>
+    			</tr>';
+			while ($row = mysqli_fetch_assoc($results)) {
+                                echo '<tr>
+                                        <td><small>'.$row["node_id"].' - '.$row["node"].'</small></td>
+                                        <td><small>'.$row["child"].'</small></td>
+                                        <td><small>'.$row["name"].'</small></td>
+                                        <td><small>'.$row["mqtt_topic"].'</small></td>
+                                        <td><small>'.$row["on_payload"].'</small></td>
+            				            <td><small>'.$row["off_payload"].'</small></td>
+                                        <td><small>'.$row["attribute"].'</small></td>
+	    				<td><a href="mqtt_device.php?id='.$row["id"].'"><button class="btn btn-primary btn-xs"><span class="ionicons ion-edit"></span></button> </a>&nbsp
+					<a href="javascript:delete_mqtt_device('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$lang['confirm_del_mqtt_child'].'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>
+        			</tr>';
+			}
+		echo '</table>
+	    </div>
+		<div class="modal-footer">
+                	<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                	<a class="btn btn-default login btn-sm" href="mqtt_device.php">'.$lang['mqtt_add_device'].'</a>
             </div>
         </div>
     </div>
@@ -2782,12 +2836,18 @@ function show_hide_devices()
 {
  var e = document.getElementById("node_type");
  var selected_node_type = e.options[e.selectedIndex].text;
- if(selected_node_type.includes("GPIO")) {
+ if(selected_node_type.includes("GPIO") || selected_node_type.includes("MQTT")) {
         document.getElementById("nodes_max_child_id").style.visibility = 'hidden';;
         document.getElementById("add_devices_label").style.visibility = 'hidden';;
+        if(selected_node_type.includes("MQTT")) {
+                document.getElementById("mqtt_type_label").style.display = 'block';;
+        } else {
+                document.getElementById("mqtt_type_label").style.display = 'none';;
+        }
  } else {
         document.getElementById("nodes_max_child_id").style.visibility = 'visible';;
         document.getElementById("add_devices_label").style.visibility = 'visible';;
+        document.getElementById("mqtt_type_label").style.display = 'none';;
  }
 }
 function gw_location()
