@@ -340,14 +340,21 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 				        	        <h3 class="status"></small></h3>
                 					</button>
 
-                                                	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#add_on_http">
+                                               		<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#add_on_http">
                                                         <h3 class="buttontop"><small><?php echo $lang['add_on']; ?></small></h3>
                                                         <h3 class="degre" ><?php echo $lang['add_on_http']; ?></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
-			                	</div>
+
+							<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#mqtt_devices">
+                                                        <h3 class="buttontop"><small><?php echo $lang['mqtt_device']; ?></small></h3>
+														<h3 class="degre" ><?php echo $lang['mqtt']; ?></h3>
+                                                        <h3 class="status"></small></h3>
+                                                        </button>
+                                                </div>
 					</div>
 					 <!-- /.panel -->
+
 				</div>
 				 <!-- /.accordion -->
 

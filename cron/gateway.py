@@ -121,7 +121,7 @@ def set_relays(
                 con.commit()  # commit above
     elif node_type.find("MQTT") != -1 and MQTT_CONNECTED == 1:  # process MQTT mode
         cur.execute(
-            'SELECT `mqtt_topic`, `on_payload`, `off_payload`  FROM `mqtt_node_child` WHERE `type` = "1" AND `nodes_id` = (%s) AND `child_id` = (%s) LIMIT 1',
+            'SELECT `mqtt_topic`, `on_payload`, `off_payload`  FROM `mqtt_devices` WHERE `type` = "1" AND `nodes_id` = (%s) AND `child_id` = (%s) LIMIT 1',
             [n_id, out_child_id],
         )
         results_mqtt_r = cur.fetchone()
@@ -154,7 +154,7 @@ def on_connect(client, userdata, flags, rc):
         print("\nConnected to broker")
         subscribe_topics = []
         cur_mqtt.execute(
-            'SELECT DISTINCT `mqtt_topic` FROM `mqtt_node_child` WHERE `type` = "0"'
+            'SELECT DISTINCT `mqtt_topic` FROM `mqtt_devices` WHERE `type` = "0"'
         )
         for node in cur_mqtt.fetchall():
             subscribe_topics.append((f"{node[0]}", 0))
@@ -182,7 +182,7 @@ def on_message(client, userdata, message):
     print("Topic: %s" % message.topic)
     print("Message: %s" % message.payload.decode())
     cur_mqtt.execute(
-        "SELECT `nodes`.node_id, `mqtt_node_child`.child_id, `mqtt_node_child`.attribute  FROM `mqtt_node_child`, `nodes` WHERE `mqtt_node_child`.nodes_id = `nodes`.id AND `mqtt_node_child`.type = 0 AND `mqtt_node_child`.mqtt_topic = (%s)",
+        "SELECT `nodes`.node_id, `mqtt_devices`.child_id, `mqtt_devices`.attribute  FROM `mqtt_devices`, `nodes` WHERE `mqtt_devices`.nodes_id = `nodes`.id AND `mqtt_devices`.type = 0 AND `mqtt_devices`.mqtt_topic = (%s)",
         [message.topic],
     )
     on_msg_description_to_index = dict(
