@@ -94,6 +94,25 @@ function active_sc_mode(){
         request('db.php', 'GET', quest, function(){ $('#homelist').load('homelist.php'); } );
 }
 
+//set system controller mode
+function set_sc_mode(wid){
+    var idata="w=sc_mode&o=update";
+    idata+="&wid=" + wid;
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            reload_page();
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("update_sc_mode: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
 //update add_on
 function update_add_on(wid){
     var idata="w=add_on&o=update";

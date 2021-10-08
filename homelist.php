@@ -52,7 +52,10 @@ require_once(__DIR__.'/st_inc/functions.php');
 		$dow = idate('w');
 
 		//Mode 0 is EU Boiler Mode, Mode 1 is US HVAC Mode
-		$system_controller_mode = settings($conn, 'mode');
+		$system_controller_mode = settings($conn, 'mode') & 0b1;
+
+		//determine if using cyclic mode selection
+		$mode_select = settings($conn, 'mode') >> 0b1;
 
                 //query to check holidays status
                 $query = "SELECT * FROM holidays WHERE NOW() between start_date_time AND end_date_time AND status = '1' LIMIT 1";
@@ -142,12 +145,22 @@ require_once(__DIR__.'/st_inc/functions.php');
 			}
 
                 }
-	        echo '<a href="javascript:active_sc_mode();">
-                <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
-                <h3 class="buttontop"><small>'.$lang['mode'].'</small></h3>
-                <h3 class="degre" >'.$current_sc_mode.'</h3>
-                <h3 class="status"></small></h3>
-            	</button></a>';
+
+		if ($mode_select == 0 ) {
+		        echo '<a href="javascript:active_sc_mode();">
+        	        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+                	<h3 class="buttontop"><small>'.$lang['mode'].'</small></h3>
+	                <h3 class="degre" >'.$current_sc_mode.'</h3>
+        	        <h3 class="status"></small></h3>
+            		</button></a>';
+		} else {
+	                echo '<a style="color: #777; cursor: pointer; text-decoration: none;" href="home.php?page_name=mode">
+        	        <button class="btn btn-default btn-circle black-background btn-xxl mainbtn animated fadeIn">
+                	<h3><small>'.$current_sc_mode.'</small></h3>
+	                <h3 class="degre" >'.$lang['mode'].'</h3>
+        	        <h3 class="status"></h3>
+            		</button></a>';
+		}
 
 		//loop through zones
 		$query = "SELECT  * FROM zone_view WHERE `category` = 0  OR `category` = 3 order by index_id asc;";
