@@ -1,10 +1,26 @@
 #!/bin/bash
 #service_name:HA_integration.service
-#app_name:Install Install HomeAssistant Service
-#app_description:Install HomeAssistant Service to Link to MaxAir
+#app_name:Install Home Assistant Integration
+#app_description:This add-on requires Home Assistant with Mosquito Broker running on a separate device.
+
+MODEL=$(tr -d '\0' </proc/device-tree/model)
+if [[ $MODEL == *"Raspberry"* ]]; then
+  echo "Model: Raspberry"
+  REQUIREMENTS=requirements_RPi.txt
+else
+  echo "Model: generic SBC"
+  REQUIREMENTS=requirements.txt
+fi
+
+PYTHON3DEV=$( apt-cache pkgnames python3-dev )
+if [[ $PYTHON3DEV == *"python3-dev"* ]]; then
+  echo "Python3-dev is already installed"
+else
+  echo "Installing Python3-dev"
+  apt-get install -y python3-dev
+fi
 
 echo "Installing Phyton modules"
-REQUIREMENTS=requirements.txt
 pip3 install -r $REQUIREMENTS
 
 echo "Creating service for auto start"
