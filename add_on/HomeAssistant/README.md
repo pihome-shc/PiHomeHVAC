@@ -1,5 +1,7 @@
 # Home Assistant integration
-For monitoring and controlling MaxAir from Home Assistant via MQTT. MaxAir will automatically broadcast over MQTT all the entity definitions needed to setup and then update the following HA entities:
+For monitoring and controlling MaxAir from Home Assistant via MQTT. This integration requires Home Assistant with the Mosquito Broker add-on running on a separete device. Please see [Home Assistant Add-on: Mosquitto broker](https://github.com/home-assistant/addons/blob/master/mosquitto/DOCS.md) for details.
+
+MaxAir will automatically broadcast over MQTT all the entity definitions needed to setup and then update the following HA entities:
 * MaxAir CPU Usage - sensor
 * MaxAir CPU Load (1m, 5m and 15m) - sensors
 * MaxAir CPU temperature - sensor
@@ -10,6 +12,7 @@ For monitoring and controlling MaxAir from Home Assistant via MQTT. MaxAir will 
 * MaxAir Last Boot - sensor
 * MaxAir Network throughput (up & down) - sensors
 * MaxAir Wifi Strength - sensor
+* MaxAir updates - sensor
 * Boiler or HVAC Status - binary sensor
 * Climate entity for each zone with the following attributes
   * Away Status (this is the same for all zones)
@@ -19,10 +22,19 @@ For monitoring and controlling MaxAir from Home Assistant via MQTT. MaxAir will 
   * Zone Current Status (for each zone)
   * Zone Boost (for each zone)
   * Zone Live Temperature (for each zone)
+  * Zone sensor Last Seen time and date (for each zone)
   * Zone sensor battery percentage (for each zone using a MySensor sensor)
   * Zone sensor battery voltage (for each zone using a MySensor sensor)
-* Temperature sensor for each stand-alone temperature sensor in MaxAir
-* Humidity sensor for each stand-alone humidity sensor in MaxAir
+* Temperature sensor for each stand-alone temperature sensor in MaxAir with the following attributes
+  * Sensor Current Temperature (for each zone)
+  * Sensor Last Seen time and date (for each zone)
+  * Sensor battery percentage (for each zone using a MySensor sensor)
+  * Sensor battery voltage (for each zone using a MySensor sensor)
+* Humidity sensor for each stand-alone humidity sensor in MaxAir with the following attributes
+  * Sensor Current Humidity (for each zone)
+  * Sensor Last Seen time and date (for each zone)
+  * Sensor battery percentage (for each zone using a MySensor sensor)
+  * Sensor battery voltage (for each zone using a MySensor sensor)
 
 The climate entites allow to trigger the MaxAir Boost function (Aux Heat in Home Assistant) for each zone, adjust the Live Temperature for each zone (Temperature in Home Assistant), enable or disable the MaxAir Away status (Preset in Home Assistant) and change the MaxAir Mode (Operation in Home Assistant).
 
