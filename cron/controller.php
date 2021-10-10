@@ -121,7 +121,7 @@ if ($debug_msg == 1) {
 }
 
 //Mode 0 is EU Boiler Mode, Mode 1 is US HVAC Mode
-$system_controller_mode = settings($conn, 'mode');
+$system_controller_mode = settings($conn, 'mode') & 0b1;
 
 //query to check system controller status
 $query = "SELECT * FROM system_controller LIMIT 1;";

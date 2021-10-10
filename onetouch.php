@@ -37,7 +37,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 	<div class="panel-body">
 		<?php
 		//Mode 0 is EU Boiler Mode, Mode 1 is US HVAC Mode
-		$system_controller_mode = settings($conn, 'mode');
+		$system_controller_mode = settings($conn, 'mode') & 0b1;
 
 		?>
 		<!-- One touch buttons -->

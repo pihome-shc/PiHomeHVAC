@@ -129,8 +129,10 @@ echo '
                                 <form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
                                 <div class="form-group" class="control-label"><label>'.$lang['system_mode'].'</label>
                                 <select class="form-control input-sm" type="text" id="new_mode" name="new_mode">
-                                <option value="0" ' . ($system_mode==0 || $system_mode=='0' ? 'selected' : '') . '>'.$lang['boiler'].'</option>
-                                <option value="1" ' . ($system_mode==1 || $system_mode=='1' ? 'selected' : '') . '>'.$lang['hvac'].'</option>
+                                <option value="0" ' . ($system_mode==0 || $system_mode=='0' ? 'selected' : '') . '>'.$lang['boiler'].' ('.$lang['cyclic'].' control)</option>
+                                <option value="1" ' . ($system_mode==1 || $system_mode=='1' ? 'selected' : '') . '>'.$lang['hvac'].' ('.$lang['cyclic'].' control)</option>
+                                <option value="2" ' . ($system_mode==0 || $system_mode=='0' ? 'selected' : '') . '>'.$lang['boiler'].' ('.$lang['button'].' control)</option>
+                                <option value="3" ' . ($system_mode==1 || $system_mode=='1' ? 'selected' : '') . '>'.$lang['hvac'].' ('.$lang['button'].' control)</option>
                                 </select>
                 <div class="help-block with-errors"></div></div>
             </div>

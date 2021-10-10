@@ -740,4 +740,6 @@ $lang['mqtt_child_name'] = "Child Name";
 $lang['mqtt_add'] = "Add MQTT Dev.";
 $lang['mqtt_gateway_reboot_success'] = "Scheduled gateway reboot";
 $lang['mqtt_gateway_reboot_fail'] = "Scheduled gateway reboot failed";
+$lang['cyclic'] = "Cyclic";
+$lang['button'] = "Button";
 ?>
