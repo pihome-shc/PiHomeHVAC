@@ -163,7 +163,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 		}
 
 		//loop through zones
-		$query = "SELECT  * FROM zone_view WHERE `category` = 0  OR `category` = 3 order by index_id asc;";
+		$query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 0 OR `zone_type`.`category` = 3) ORDER BY `zone`.`index_id` ASC;";
 		$results = $conn->query($query);
 		while ($row = mysqli_fetch_assoc($results)) {
 			$zone_id=$row['id'];
@@ -301,20 +301,28 @@ require_once(__DIR__.'/st_inc/functions.php');
   							}elseif ($zone_ctr_fault == '1') {
 								$date_time = date('Y-m-d H:i:s');
 								$datetime1 = strtotime("$date_time");
-								$datetime2 = strtotime("$controler_seen");
-								$interval  = abs($datetime2 - $datetime1);
-								$ctr_minutes   = round($interval / 60);
 								echo '
 								<ul class="chat">
 									<li class="left clearfix">
 										<div class="header">
-											<strong class="primary-font red">Controller Fault!!!</strong>
-											<small class="pull-right text-muted">
-											<i class="fa fa-clock-o fa-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
-											</small>
-											<br><br>
-											<p>Controller ID '.$zone_relay_id.' last seen at '.$controler_seen.' </p>
-											<p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
+											<strong class="primary-font red">Controller Fault!!!</strong>';
+												$cquery = "SELECT `zone_relays`.`zone_id`, `zone_relays`.`zone_relay_id`, n.`last_seen`, n.`notice_interval` FROM `zone_relays`
+												LEFT JOIN `relays` r on `zone_relays`.`zone_relay_id` = r.`id`
+												LEFT JOIN `nodes` n ON r.`relay_id` = n.`id`
+												WHERE `zone_relays`.`zone_id` = ".$zone_id.";";
+											$cresults = $conn->query($cquery);
+											while ($crow = mysqli_fetch_assoc($cresults)) {
+												$datetime2 = strtotime($crow['last_seen']);
+												$interval  = abs($datetime2 - $datetime1);
+												$ctr_minutes   = round($interval / 60);
+												$zone_relay_id = $crow['zone_relay_id'];
+												echo '<small class="pull-right text-muted">
+												<i class="fa fa-clock-o fa-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
+												</small>
+												<br><br>
+												<p>Controller ID '.$zone_relay_id.' last seen at '.$crow['last_seen'].' </p>';
+											}
+											echo '<p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
 										</div>
 									</li>
 								</ul>';
@@ -564,7 +572,8 @@ require_once(__DIR__.'/st_inc/functions.php');
  		}
 
                 // Add-On buttons
-                $query = "SELECT * FROM zone_view WHERE `category` = 1 OR `category` = 2 OR `category` = 4  ORDER BY index_id asc;";
+                $query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 1 OR `zone_type`.`category` = 2 OR `zone_type`.`category` = 4) ORDER BY `zone`.`index_id` ASC;";
+
                 $results = $conn->query($query);
                 while ($row = mysqli_fetch_assoc($results)) {
                         //get the schedule status for this zone
@@ -572,7 +581,12 @@ require_once(__DIR__.'/st_inc/functions.php');
                         $zone_name=$row['name'];
                         $zone_type=$row['type'];
                         $zone_category=$row['category'];
-			$sensor_type_id = $row['sensor_type_id'];
+
+                        //get the sensor id
+                        $query = "SELECT * FROM sensors WHERE zone_id = '{$zone_id}' LIMIT 1;";
+                        $result = $conn->query($query);
+                        $sensor = mysqli_fetch_array($result);
+                        $sensor_type_id=$sensor['sensor_type_id'];
 
 			//get the current zone schedule status
 			$rval=get_schedule_status($conn, $zone_id,$holidays_status);
@@ -632,22 +646,30 @@ require_once(__DIR__.'/st_inc/functions.php');
 						<div class="modal-body">';
 							//report zone_controller fault 
   							if ($zone_ctr_fault == '1') {
-								$date_time = date('Y-m-d H:i:s');
-								$datetime1 = strtotime("$date_time");
-								$datetime2 = strtotime("$controler_seen");
-								$interval  = abs($datetime2 - $datetime1);
-								$ctr_minutes   = round($interval / 60);
-								echo '
-								<ul class="chat">
-									<li class="left clearfix">
-										<div class="header">
-											<strong class="primary-font red">Controller Fault!!!</strong>
-											<small class="pull-right text-muted">
-											<i class="fa fa-clock-o fa-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
-											</small>
-											<br><br>
-											<p>Controller ID '.$zone_relay_id.' last seen at '.$controler_seen.' </p>
-											<p class="text-info">'.$zone_name.' zone will resume its normal operation once this issue is fixed. </p>
+                                                                $date_time = date('Y-m-d H:i:s');
+                                                                $datetime1 = strtotime("$date_time");
+                                                                echo '
+                                                                <ul class="chat">
+                                                                        <li class="left clearfix">
+                                                                                <div class="header">
+                                                                                        <strong class="primary-font red">Controller Fault!!!</strong>';
+                                                        					$cquery = "SELECT `zone_relays`.`zone_id`, `zone_relays`.`zone_relay_id`, n.`last_seen`, n.`notice_interval` FROM `zone_relays`
+                                                                                                LEFT JOIN `relays` r on `zone_relays`.`zone_relay_id` = r.`id`
+                                                                                                LEFT JOIN `nodes` n ON r.`relay_id` = n.`id`
+                                                                                                WHERE `zone_relays`.`zone_id` = ".$zone_id.";";
+                                                                                        $cresults = $conn->query($cquery);
+                                                                                        while ($crow = mysqli_fetch_assoc($cresults)) {
+                                                                                                $datetime2 = strtotime($crow['last_seen']);
+                                                                                                $interval  = abs($datetime2 - $datetime1);
+                                                                                                $ctr_minutes   = round($interval / 60);
+                                                                                                $zone_relay_id = $crow['zone_relay_id'];
+                                                                                                echo '<small class="pull-right text-muted">
+                                                                                                <i class="fa fa-clock-o fa-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
+                                                                                                </small>
+                                                                                                <br><br>
+                                                                                                <p>Controller ID '.$zone_relay_id.' last seen at '.$crow['last_seen'].' </p>';
+                                                                                        }
+											echo '<p class="text-info">'.$zone_name.' zone will resume its normal operation once this issue is fixed. </p>
 										</div>
 									</li>
 								</ul>';
