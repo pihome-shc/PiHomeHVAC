@@ -150,22 +150,13 @@ require_once(__DIR__.'/st_inc/functions.php');
             	</button></a>';
 
 		//loop through zones
-		$query = "SELECT  * FROM zone_view WHERE `category` = 0  OR `category` = 3 order by index_id asc;";
+		$query = "SELECT zone.id, zone.name, zone_type.type, zone_type.category FROM zone, zone_type WHERE (zone.type_id = zone_type.id) AND (zone_type.category = 0 OR zone_type.category = 3) ORDER BY zone.index_id ASC;";
 		$results = $conn->query($query);
 		while ($row = mysqli_fetch_assoc($results)) {
 			$zone_id=$row['id'];
 			$zone_name=$row['name'];
 			$zone_type=$row['type'];
-                        $zone_category=$row['category'];
-
-                        //query to get the zone controller info
-			if ($zone_category <> 3) {
-	                        $query = "SELECT relays.relay_id, relays.relay_child_id FROM zone_relays, relays WHERE (zone_relays.zone_relay_id = relays.id) AND zone_id = '{$zone_id}' LIMIT 1;";
-        	                $result = $conn->query($query);
-                	        $zone_relays = mysqli_fetch_array($result);
-                        	$zone_relay_id=$zone_relays['relay_id'];
-	                        $zone_relay_child_id=$zone_relays['relay_child_id'];
-			}
+            $zone_category=$row['category'];
 
 			//query to get zone current state
 			$query = "SELECT * FROM zone_current_state WHERE zone_id = '{$zone_id}' LIMIT 1;";
@@ -300,7 +291,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 											<i class="fa fa-clock-o fa-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
 											</small>
 											<br><br>
-											<p>Controller ID '.$zone_relay_id.' last seen at '.$controler_seen.' </p>
+											<p>Zone Controller ID last seen at '.$controler_seen.' </p>
 											<p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
 										</div>
 									</li>
@@ -633,7 +624,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 											<i class="fa fa-clock-o fa-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
 											</small>
 											<br><br>
-											<p>Controller ID '.$zone_relay_id.' last seen at '.$controler_seen.' </p>
+											<p>Zone controller last seen at '.$controler_seen.' </p>
 											<p class="text-info">'.$zone_name.' zone will resume its normal operation once this issue is fixed. </p>
 										</div>
 									</li>
