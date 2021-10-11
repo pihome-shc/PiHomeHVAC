@@ -713,4 +713,5 @@ $lang['mqtt_gateway_reboot_success'] = "Scheduled gateway reboot";
 $lang['mqtt_gateway_reboot_fail'] = "Scheduled gateway reboot failed";
 $lang['cyclic'] = "Cyclic";
 $lang['button'] = "Button";
+$lang['changelog'] = "ChangeLog";
 ?>
