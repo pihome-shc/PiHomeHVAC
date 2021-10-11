@@ -103,34 +103,33 @@ if (isset($_POST['submit'])) {
 <?php if (!(isset($_POST['submit']))) { ?>
 
 <!-- If the request is to EDIT, retrieve selected items from DB   -->
+<!-- If the request is to ADD, find the new child ID   -->
 <?php if ($id != 0) {
-        $query = "SELECT * FROM `mqtt_devices` WHERE `id` = {$id} limit 1;";
+    $query = "SELECT * FROM `mqtt_devices` WHERE `id` = {$id} limit 1;";
 	$result = $conn->query($query);
 	$row = mysqli_fetch_assoc($result);
 
 	$query = "SELECT * FROM nodes WHERE id = '{$row['nodes_id']}' LIMIT 1;";
 	$result = $conn->query($query);
 	$rownode = mysqli_fetch_assoc($result);
-}
-?>
-
-<?php
-$query = "SELECT child_id FROM mqtt_devices WHERE type = '0' ORDER BY child_id ASC;";
-$results = $conn->query($query);
-$row = mysqli_fetch_assoc($results);
-$new_child_id_sensor =  $row["child_id"] + 1;
-while ($row = mysqli_fetch_assoc($results)) {
-	if ($row["child_id"] == $new_child_id_sensor) {
-		$new_child_id_sensor = $new_child_id_sensor +1;
+} else {
+	$query = "SELECT child_id FROM mqtt_devices WHERE type = '0' ORDER BY child_id ASC;";
+	$results = $conn->query($query);
+	$new_child_row = mysqli_fetch_assoc($results);
+	$new_child_id_sensor =  $new_child_row["child_id"] + 1;
+	while ($new_child_row = mysqli_fetch_assoc($results)) {
+		if ($new_child_row["child_id"] == $new_child_id_sensor) {
+			$new_child_id_sensor = $new_child_id_sensor +1;
+		}
 	}
-}
-$query = "SELECT child_id FROM mqtt_devices WHERE type = '1' ORDER BY child_id ASC;";
-$results = $conn->query($query);
-$row = mysqli_fetch_assoc($results);
-$new_child_id_controller =  $row["child_id"] + 1;
-while ($row = mysqli_fetch_assoc($results)) {
-	if ($row["child_id"] == $new_child_id_controller) {
-		$new_child_id_controller = $new_child_id_controller +1;
+	$query = "SELECT child_id FROM mqtt_devices WHERE type = '1' ORDER BY child_id ASC;";
+	$results = $conn->query($query);
+	$new_child_row = mysqli_fetch_assoc($results);
+	$new_child_id_controller =  $new_child_row["child_id"] + 1;
+	while ($new_child_row = mysqli_fetch_assoc($results)) {
+		if ($new_child_row["child_id"] == $new_child_id_controller) {
+			$new_child_id_controller = $new_child_id_controller +1;
+		}
 	}
 }
 ?>
@@ -176,7 +175,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                                                                 document.getElementById("off_message_label").style.visibility = 'hidden';
                                                                 document.getElementById("json_attribute").style.display = 'block';
                                                                 document.getElementById("json_attribute_label").style.visibility = 'visible';
-								document.getElementById("child_id").value = "<?php echo $new_child_id_sensor; ?>";
+																document.getElementById("child_id").value = "<?php if ($id != 0) { echo $row["child_id"]; } else { echo $new_child_id_sensor; } ?>";
                                                         } else {
                                                                 document.getElementById("on_message").style.display = 'block';
                                                                 document.getElementById("on_message_label").style.visibility = 'visible';
@@ -184,7 +183,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                                                                 document.getElementById("off_message_label").style.visibility = 'visible';
                                                                 document.getElementById("json_attribute").style.display = 'none';
                                                                 document.getElementById("json_attribute_label").style.visibility = 'hidden';
-								document.getElementById("child_id").value = "<?php echo $new_child_id_controller; ?>";
+																document.getElementById("child_id").value = "<?php if ($id != 0) { echo $row["child_id"]; } else { echo $new_child_id_controller; } ?>";
                                                         }
                                                 }
                                                 </script>
@@ -209,7 +208,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 
                                                 <!-- JSON Attribute -->
 							<div class="form-group" class="control-label" id="json_attribute_label" style="display:block"><label><?php echo $lang['mqtt_json_attribute']; ?></label> <small class="text-muted"><?php echo $lang['mqtt_json_attribute_info'];?></small>
-                                                        <input class="form-control" placeholder="eg. local_temperature" value="<?php if(isset($row['attribute'])) { echo $row['attribute']; } ?>" id="json_attribute" name="json_attribute" data-error="<?php echo $lang['mqtt_json_attribute_help']; ?>" autocomplete="off" required>
+                                                        <input class="form-control" placeholder="eg. local_temperature" value="<?php if(isset($row['attribute'])) { echo $row['attribute']; } ?>" id="json_attribute" name="json_attribute" data-error="<?php echo $lang['mqtt_json_attribute_help']; ?>" autocomplete="off">
                                                         <div class="help-block with-errors"></div>
                                                 </div>
 

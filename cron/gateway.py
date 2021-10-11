@@ -160,7 +160,8 @@ def on_connect(client, userdata, flags, rc):
             subscribe_topics.append((f"{node[0]}", 0))
         client.subscribe(subscribe_topics)
         print("Subscribed to the followint MQTT topics:")
-        print(subscribe_topics)
+        for topic in subscribe_topics:
+            print(topic[0])
     else:
         print("\nConnection failed\n")
         MQTT_CONNECTED = 0
@@ -191,7 +192,7 @@ def on_message(client, userdata, message):
     for child in cur_mqtt.fetchall():
         mqtt_node_id = child[on_msg_description_to_index["node_id"]]
         mqtt_child_sensor_id = int(child[on_msg_description_to_index["child_id"]])
-        if child[on_msg_description_to_index["attribute"]] is None:
+        if child[on_msg_description_to_index["attribute"]] == "":
             mqtt_payload = message.payload.decode()
         else:
             json_data = json.loads(message.payload.decode())
