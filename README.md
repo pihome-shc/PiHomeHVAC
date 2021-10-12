@@ -13,7 +13,7 @@ The new 'Switch' zone category is used when no sensor or system controller are u
 * A lamp which switches on a sunset and off at some set time
 * A security light which switches on at sunset and off at sunrise on the following day
 
-Version 1.3 Introduces support for MQTT Devices, together with Home Assistant
+Version 1.3 Introduces support for MQTT Devices, together with Home Assistant Integration.
 
 ## Setup:
 
