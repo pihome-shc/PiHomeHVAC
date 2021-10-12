@@ -82,9 +82,22 @@ for entry in listOfFiles:
             jobs_schedule_found = False
 	# check if version or build have been updated
         if entry.endswith('db_config.ini'):
-            db_config_found = True
-        else:
-            db_config_found = False
+            # Initialise the database access variables
+            config = configparser.ConfigParser()
+            config.read("/var/www/code_updates/st_inc/db_config.ini")
+            dbhost = config.get("db", "hostname")
+            dbuser = config.get("db", "dbusername")
+            dbpass = config.get("db", "dbpassword")
+            dbname = config.get("db", "dbname")
+            version = config.get("db", "version")
+            build = config.get("db", "build")
+            con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+            cur = con.cursor()
+            cur.execute(
+            "UPDATE system SET version = %s, build = %s",
+                (version, build),
+            )
+            con.commit()
 
         # make any missing sub-directories
         if '/' in entry[22:]:
@@ -113,39 +126,18 @@ for it in os.scandir(code_update_dir):
 
 # kill any updated running jobs
 if gateway_found:
-    cmd = 'pkill -f gateway.py'
+    cmd = 'sudo pkill -f gateway.py'
     os.system(cmd)
 if gpio_ds18b20_found:
-    cmd = 'pkill -f gpio_ds18b20.py'
+    cmd = 'sudo pkill -f gpio_ds18b20.py'
     os.system(cmd)
 if gpio_switch_found:
-    cmd = 'pkill -f gpio_switch.py'
+    cmd = 'sudo pkill -f gpio_switch.py'
     os.system(cmd)
 if jobs_schedule_found:
-    cmd = 'pkill -f jobs_schedule.py'
+    cmd = 'sudo pkill -f jobs_schedule.py'
     os.system(cmd)
-
-# update the system table if db_config.ini has been changed
-if db_config_found:
-    # Initialise the database access variables
-    config = configparser.ConfigParser()
-    config.read("/var/www/st_inc/db_config.ini")
-    dbhost = config.get("db", "hostname")
-    dbuser = config.get("db", "dbusername")
-    dbpass = config.get("db", "dbpassword")
-    dbname = config.get("db", "dbname")
-    version = config.get("db", "version")
-    build = config.get("db", "build")
-    con = mdb.connect(dbhost, dbuser, dbpass, dbname)
-    cur = con.cursor()
-    cur.execute(
-    "UPDATE system SET version = %s, build = %s",
-        (version, build),
-    )
-    con.commit()
 
 print( "-" * 56)
 print(bc.dtm + time.ctime() + bc.ENDC + ' - Move Files Script Ended')
 print( "-" * 56)
-
-
