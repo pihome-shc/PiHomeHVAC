@@ -1,6 +1,6 @@
 # MaxAir - Smart Thermostat
 
-### Note: Now at Version 1.2.
+### Note: Now at Version 1.3.
 
 The previous version, PiHome, was centered around the creation of zones, this version is more centered around devices.
 
@@ -12,6 +12,8 @@ The new 'Switch' zone category is used when no sensor or system controller are u
 * A lamp which switches on and off at set times
 * A lamp which switches on a sunset and off at some set time
 * A security light which switches on at sunset and off at sunrise on the following day
+
+Version 1.3 Introduces support for MQTT Devices, together with Home Assistant Integration.
 
 ## Setup:
 
