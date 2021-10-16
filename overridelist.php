@@ -33,7 +33,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 	<div class="panel-body">
 		<ul class="chat">
 			<?php
-			if (settings($conn, 'mode') == 0) { // Boiler Mode
+			if ((settings($conn, 'mode') & 0b1) == 0) { // Boiler Mode
 				$query = "SELECT override.id, override.status, override.zone_id, zone.index_id, override.time, override.temperature FROM override join zone on override.zone_id = zone.id WHERE override.`purge` = '0' order by zone.index_id, override.temperature;";
 				$results = $conn->query($query);
 				while ($row = mysqli_fetch_assoc($results)) {
@@ -45,6 +45,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 					$type = $pi_device['type'];
 			        	$category = $pi_device['category'];
 					$zone_status = $pi_device['status'];
+                			$sensor_type_id = $pi_device["sensor_type_id"];
 					if ($zone_status != 0) {
 						echo '
 						<li class="left clearfix animated fadeIn">
@@ -55,7 +56,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 		        		        			if ($category == 2) {
 										echo '<div class="circle '. $shactive.'"><p class="schdegree">'.$row["temperature"].$unit.'</p></div>';
 									} else {
-		        	                				echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispSensor($conn,$row["temperature"],$row['sensor_type_id']),0).$unit.'</p></div>';
+		        	                				echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispSensor($conn,$row["temperature"],$sensor_type_id),0).$unit.'</p></div>';
 									}
 	        			        		echo '</span>
 							</a>
@@ -83,6 +84,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 		                	$result = $conn->query($query);
 	                		$pi_device = mysqli_fetch_array($result);
 			                $zone_status = $pi_device['status'];
+                			$sensor_type_id = $pi_device["sensor_type_id"];
                 			if ($zone_status != 0) {
 		        	                echo '
                 			        <li class="left clearfix animated fadeIn">
@@ -93,7 +95,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 			                			        if ($hvac_mode == 3) {
                         				        		echo '<div class="circle '. $shactive.'"><p class="schdegree"></p></div>';
 						                        } else {
-        	        					                echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispSensor($conn,$row["temperature"],$row['sensor_type_id']),0).$unit.'</p></div>';
+        	        					                echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispSensor($conn,$row["temperature"],$sensor_type_id),0).$unit.'</p></div>';
 									}
                 	                			echo '</span>
 							</a>
