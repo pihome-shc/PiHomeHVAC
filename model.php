@@ -460,11 +460,14 @@ if (settings($conn, 'mode') == 0) {
 }
 
 if (settings($conn, 'mode') == 0) {
-	$query = "SELECT boost.id, boost.`status`, boost.sync, boost.zone_id, zone_idx.index_id, zone_type.category, zone.name, boost.temperature, boost.minute, boost_button_id, boost_button_child_id, hvac_mode
-	FROM boost
-	JOIN zone ON boost.zone_id = zone.id
-	JOIN zone zone_idx ON boost.zone_id = zone_idx.id
-	JOIN zone_type ON zone_type.id = zone.type_id
+	$query = "SELECT boost.id, boost.`status`, boost.sync, boost.zone_id, zone_idx.index_id, zone_type.category, zone.name, 
+        boost.temperature, boost.minute, boost_button_id, boost_button_child_id, hvac_mode, ts.sensor_type_id
+        FROM boost
+        JOIN zone ON boost.zone_id = zone.id
+        JOIN zone zone_idx ON boost.zone_id = zone_idx.id
+        JOIN zone_type ON zone_type.id = zone.type_id
+        JOIN zone_sensors zs ON zone.id = zs.zone_id
+        JOIN sensors ts ON zs.zone_sensor_id = ts.id
 	ORDER BY index_id ASC, minute ASC;";
 	$results = $conn->query($query);
 	echo '<table class="table table-bordered">
@@ -477,7 +480,11 @@ if (settings($conn, 'mode') == 0) {
         	<th class="col-xs-1"></th>
     	</tr>';
 } else {
-        $query = "SELECT * FROM boost ORDER BY hvac_mode ASC;";
+        $query = "SELECT boost.*, ts.sensor_type_id 
+	FROM boost
+	JOIN zone_sensors zs ON boost.zone_id = zs.zone_id
+        JOIN sensors ts ON zs.zone_sensor_id = ts.id
+	ORDER BY hvac_mode ASC;";
         $results = $conn->query($query);
         echo '<table class="table table-bordered">
             <tr>
@@ -490,7 +497,6 @@ if (settings($conn, 'mode') == 0) {
 
 while ($row = mysqli_fetch_assoc($results)) {
     $minute = $row["minute"];
-    $temperature = $row["temperature"];
     if (settings($conn, 'mode') == 0) {
     	$boost_button_id = $row["boost_button_id"];
     	$boost_button_child_id = $row["boost_button_child_id"];
@@ -499,16 +505,17 @@ while ($row = mysqli_fetch_assoc($results)) {
             	<th scope="row"><small>'.$row['name'].'</small></th>
             	<td><input id="minute'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="minute" size="3" value="'.$minute.'" placeholder="Minutes" required></td>';
 	    	if($row["category"] < 2) {
-            		echo '<td><input id="temperature'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="temperature" size="3" value="'.$temperature.'" placeholder="Temperature" required></td>
+            		echo '<td><input id="temperature'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="temperature" size="3" value="'.DispSensor($conn,$row["temperature"],$row["sensor_type_id"]).'" placeholder="Temperature" required></td>
             		<td><input id="boost_button_id'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="button_id"  size="3" value="'.$boost_button_id.'" placeholder="Button ID" required></td>
             		<td><input id="boost_button_child_id'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="button_child_id" size="3" value="'.$boost_button_child_id.'" placeholder="Child ID" required></td>';
 	    	} else {
-            		echo '<td><input id="temperature'.$row["id"].'" type="hidden" class="pull-left text" style="border: none" name="temperature" size="3" value="'.$temperature.'" placeholder="Temperature" required></td>
+            		echo '<td><input id="temperature'.$row["id"].'" type="hidden" class="pull-left text" style="border: none" name="temperature" size="3" value="'.DispSensor($conn,$row["temperature"],$row["sensor_type_id"]).'" placeholder="Temperature" required></td>
             		<td><input id="boost_button_id'.$row["id"].'" type="hidden" class="pull-left text" style="border: none" name="button_id"  size="3" value="'.$boost_button_id.'" placeholder="Button ID" required></td>
             		<td><input id="boost_button_child_id'.$row["id"].'" type="hidden" class="pull-left text" style="border: none" name="button_child_id" size="3" value="'.$boost_button_child_id.'" placeholder="Child ID" required></td>';
 	    	}
 	     	echo '<input type="hidden" id="zone_id'.$row["id"].'" name="zone_id" value="'.$row["zone_id"].'">
 		<input type="hidden" id="hvac_mode'.$row["id"].'" name="hvac_mode" value="'.$row["hvac_mode"].'">
+                <input type="hidden" id="sensor_type'.$row["id"].'" name="sensor_type" value="'.$row["sensor_type_id"].'">
             	<td><a href="javascript:delete_boost('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="You are about to DELETE this BOOST Setting"><span class="glyphicon glyphicon-trash"></span></button> </a></td>
             </tr>';
     } else {
@@ -525,12 +532,13 @@ while ($row = mysqli_fetch_assoc($results)) {
             	<th scope="row"><small>'.$mode.'</small></th>
             	<td><input id="minute'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="minute" size="3" value="'.$minute.'" placeholder="Minutes" required></td>';
 	    	if($hvac_mode > 3) {
-            		echo '<td><input id="temperature'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="temperature" size="3" value="'.$temperature.'" placeholder="Temperature" required></td>';
+            		echo '<td><input id="temperature'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="temperature" size="3" value="'.DispSensor($conn,$row["temperature"],$row["sensor_type_id"]).'" placeholder="Temperature" required></td>';
 	    	} else {
-            		echo '<td><input id="temperature'.$row["id"].'" type="hidden" class="pull-left text" style="border: none" name="temperature" size="3" value="'.$temperature.'" placeholder="Temperature" required></td>';
+            		echo '<td><input id="temperature'.$row["id"].'" type="hidden" class="pull-left text" style="border: none" name="temperature" size="3" value="'.DispSensor($conn,$row["temperature"],$row["sensor_type_id"]).'" placeholder="Temperature" required></td>';
 	    	}
 	     	echo '<input type="hidden" id="zone_id'.$row["id"].'" name="zone_id" value="'.$row["zone_id"].'">
 		<input type="hidden" id="hvac_mode'.$row["id"].'" name="hvac_mode" value="'.$row["hvac_mode"].'">
+                <input type="hidden" id="sensor_type'.$row["id"].'" name="sensor_type" value="'.$row["sensor_type_id"].'">
             	<td><a href="javascript:delete_boost('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="You are about to DELETE this BOOST Setting"><span class="glyphicon glyphicon-trash"></span></button> </a></td>
             </tr>';
     }
@@ -681,15 +689,22 @@ echo '
             <div class="modal-body">
 <p class="text-muted"> '.$lang['override_settings_text'].'</p>';
 if (settings($conn, 'mode') == 0) { //boiler mode
-	$query = "SELECT override.`status`, override.sync, override.purge, override.zone_id, zone_idx.index_id, zone_type.category, zone.name, override.time, override.temperature, override.hvac_mode
+	$query = "SELECT override.`status`, override.sync, override.purge, override.zone_id, zone_idx.index_id, zone_type.category, zone.name,
+	override.time, override.temperature, override.hvac_mode, ts.sensor_type_id
 	FROM override
 	JOIN zone ON override.zone_id = zone.id
 	JOIN zone zone_idx ON override.zone_id = zone_idx.id
 	JOIN zone_type ON zone_type.id = zone.type_id
+        JOIN zone_sensors zs ON zone.id = zs.zone_id
+        JOIN sensors ts ON zs.zone_sensor_id = ts.id
 	WHERE category < 2
         ORDER BY index_id ASC;";
 } else {
-        $query = "SELECT * FROM override ORDER BY hvac_mode asc";
+        $query = "SELECT override.*, ts.sensor_type_id
+        FROM override
+        JOIN zone_sensors zs ON override.zone_id = zs.zone_id
+        JOIN sensors ts ON zs.zone_sensor_id = ts.id
+        ORDER BY hvac_mode ASC;";
 }
 $results = $conn->query($query);
 echo '	<div class=\"list-group\">';
@@ -701,7 +716,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 	}
 	echo "<a href=\"#\" class=\"list-group-item\">
 	<i class=\"fa fa-refresh fa-1x blue\"></i> ".$name." 
-    <span class=\"pull-right text-muted small\"><em>".$row['temperature']."&deg; </em></span></a>";
+    <span class=\"pull-right text-muted small\"><em>".DispSensor($conn,$row["temperature"],$row["sensor_type_id"])."&deg; </em></span></a>";
 }
 echo '</div></div>
             <div class="modal-footer">

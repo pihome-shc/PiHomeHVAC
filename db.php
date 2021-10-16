@@ -261,12 +261,14 @@ if($what=="boost"){
 				$input4 = 'boost_button_child_id'.$id;
 	                        $input5 = 'id'.$id;
         	                $input6 = 'hvac_mode'.$id;
+				$input7 = 'sensor_type'.$id;
 	                        $minute = $_GET[$input1];
         	                $temperature = $_GET[$input2];
 	                        $boost_button_id = $_GET[$input3];
         	                $boost_button_child_id = $_GET[$input4];
 	                        $zone_id = $_GET[$input5];
         	                $hvac_mode = $_GET[$input6];
+				$sensor_type = $_GET[$input7];
                                 if ($row['boost_button_id'] != 0) {
                                         //Delete all boost console records from messages_out
                                         $query = "DELETE FROM messages_out WHERE node_id = '{$boost_button_id}';";
@@ -277,15 +279,17 @@ if($what=="boost"){
                                 $input2 = 'temperature'.$id;
                                 $input3 = 'zone_id'.$id;
                                 $input4 = 'hvac_mode'.$id;
+                                $input5 = 'sensor_type'.$id;
                                 $minute = $_GET[$input1];
                                 $temperature = $_GET[$input2];
                                 $boost_button_id = 0;
                                 $boost_button_child_id = 0;
                                 $zone_id = $_GET[$input3];
                                 $hvac_mode = $_GET[$input4];
+                                $sensor_type = $_GET[$input5];
 			}
 			//Update Boost table
-			$upd_query = "UPDATE boost SET minute = '".$minute."', temperature = '".$temperature."', boost_button_id = '".$boost_button_id."', boost_button_child_id = '".$boost_button_child_id."', hvac_mode = '".$hvac_mode."' WHERE id='".$row['id']."' LIMIT 1;";
+			$upd_query = "UPDATE boost SET minute = '".$minute."', temperature = '".SensorToDB($conn, $temperature, $sensor_type)."', boost_button_id = '".$boost_button_id."', boost_button_child_id = '".$boost_button_child_id."', hvac_mode = '".$hvac_mode."' WHERE id='".$row['id']."' LIMIT 1;";
 			$conn->query($upd_query);
 			$update_error=0;
 			if(!$conn->query($upd_query)){

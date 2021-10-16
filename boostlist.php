@@ -33,7 +33,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 <div class="panel-body">
 <ul class="chat">
 <?php
-if (settings($conn, 'mode') == 0) { // Boiler Mode
+if ((settings($conn, 'mode') & 0b1) == 0) { // Boiler Mode
 	$query = "SELECT boost.id, boost.status, boost.zone_id, zone.index_id, boost.time, boost.temperature, boost.minute FROM boost join zone on boost.zone_id = zone.id WHERE boost.`purge` = '0' order by zone.index_id, boost.temperature;";
 	$results = $conn->query($query);
 	while ($row = mysqli_fetch_assoc($results)) {
@@ -45,6 +45,7 @@ if (settings($conn, 'mode') == 0) { // Boiler Mode
 		$type = $pi_device['type'];
         	$category = $pi_device['category'];
 		$zone_status = $pi_device['status'];
+		$sensor_type_id = $pi_device["sensor_type_id"];
 		if ($zone_status != 0) {
 			echo '
 			<li class="left clearfix animated fadeIn">
@@ -58,7 +59,7 @@ if (settings($conn, 'mode') == 0) { // Boiler Mode
         	                <div class="header">';
                 	} else {
 				$unit = SensorUnits($conn,$row['sensor_type_id']);
-                        	echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispSensor($conn,$row["temperature"],$row["sensor_type_id"]),0).$unit.'</p></div>
+                        	echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispSensor($conn,$row["temperature"],$sensor_type_id),0).$unit.'</p></div>
 	                        </span></a>
         	                <div class="chat-body clearfix">
                 	        <div class="header">';
@@ -90,6 +91,7 @@ if (settings($conn, 'mode') == 0) { // Boiler Mode
                 $result = $conn->query($query);
                 $pi_device = mysqli_fetch_array($result);
                 $zone_status = $pi_device['status'];
+                $sensor_type_id = $pi_device["sensor_type_id"];
                 if ($zone_status != 0) {
                         echo '
                         <li class="left clearfix animated fadeIn">
@@ -103,7 +105,7 @@ if (settings($conn, 'mode') == 0) { // Boiler Mode
                                 <div class="header">';
                         } else {
 				$unit = SensorUnits($conn,$row['sensor_type_id']);
-                                echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispSensor($conn,$row["temperature"],$row['sensor_type_id']),0).$unit.'</p></div>
+                                echo '<div class="circle '. $shactive.'"><p class="schdegree">'.number_format(DispSensor($conn,$row["temperature"],$sensor_type_id),0).$unit.'</p></div>
                                 </span></a>
                                 <div class="chat-body clearfix">
                                 <div class="header">';
