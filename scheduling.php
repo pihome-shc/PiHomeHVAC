@@ -44,6 +44,9 @@ if ($w_count > 0) {
 	$wrow = mysqli_fetch_array($result);
 	$sunset_time = $wrow['sunset'];
 	$sunrise_time = $wrow['sunrise'];
+	$sun_enabled = 1;
+} else {
+        $sun_enabled = 0;
 }
 
 //Form submit
@@ -364,98 +367,112 @@ if (isset($_POST['submit'])) {
 
 					<!-- Start Time -->
 					<?php
-					if($time_id != 0){
-						if ($time_row['start_sr'] == '1') {
-							$start_sr_check = 'checked';
-							$start_ss_check = '';
-							$start_n_check = '';
-							$start_mode = 1;
-							$start_offset = $time_row['start_offset'];
-						} elseif ($time_row['start_ss'] == '1') {
-                                                	$start_sr_check = '';
-                                                        $start_ss_check = 'checked';
-                                                        $start_n_check = '';
-                                                        $start_mode = 2;
-                                                        $start_offset = $time_row['start_offset'];
+					if ($sun_enabled) {
+						if($time_id != 0){
+							if ($time_row['start_sr'] == '1') {
+								$start_sr_check = 'checked';
+								$start_ss_check = '';
+								$start_n_check = '';
+								$start_mode = 1;
+								$start_offset = $time_row['start_offset'];
+							} elseif ($time_row['start_ss'] == '1') {
+        	                                        	$start_sr_check = '';
+                	                                        $start_ss_check = 'checked';
+                        	                                $start_n_check = '';
+                                	                        $start_mode = 2;
+                                        	                $start_offset = $time_row['start_offset'];
+							} else {
+								$start_sr_check = '';
+								$start_sr_check = '';
+								$start_n_check = 'checked';
+								$start_mode = 0;
+								$start_offset = 0;
+							}
 						} else {
-							$start_sr_check = '';
-							$start_sr_check = '';
-							$start_n_check = 'checked';
-							$start_mode = 0;
-							$start_offset = 0;
+                                               		$start_sr_check = '';
+	                                                $start_sr_check = '';
+        	                                        $start_n_check = 'checked';
+                	                                $start_mode = 0;
+                        	                        $start_offset = 0;
 						}
 					} else {
-                                               	$start_sr_check = '';
-                                                $start_sr_check = '';
-                                                $start_n_check = 'checked';
-                                                $start_mode = 0;
+                                        	$start_mode = 0;
                                                 $start_offset = 0;
 					}
 					?>
                                         <input type="hidden" id="start_time_state" name="start_time_state" value="<?php echo $start_mode; ?>">
                                         <div class="form-group" class="control-label"><label><?php echo $lang['start_time']; ?></label>
                         			<input class="form-control input-sm" type="time" id="start_time" name="start_time" value="<?php echo $time_row["start"];?>" placeholder="Start Time" required>
-		                                <br>
-                                                &nbsp;<img src="./images/sunset.png">
-						<i class="fa fa-info-circle fa-lg text-info" data-container="body" data-toggle="popover" data-placement="right" data-content="<?php echo $lang['start_time_enable_info']; ?>"></i>
-						<label class="radio-inline">
-							<input type="radio" name="radioGroup1" id="radio1" value="option1" <?php echo $start_n_check; ?>  onchange="update_start_time('00:00', '0')" > Normal
-						</label>
-						<label class="radio-inline">
-							<input type="radio" name="radioGroup1" id="radio2" value="option2" <?php echo $start_sr_check; ?> onchange="update_start_time(<?php echo $sunrise_time; ?>, '1')" > Sunrise
-						</label>
-						<label class="radio-inline">
-							<input type="radio" name="radioGroup1" id="radio3" value="option3"  <?php echo $start_ss_check; ?>  onchange="update_start_time(<?php echo $sunset_time; ?>, '2')" > Sunset
-						</label>
-                                                <input class="styled" type="text" id="start_time_offset" name="start_time_offset" style="width: 40px" value="<?php echo $start_offset; ?>"/>
+						<?php if ($sun_enabled) { ?>
+			                                <br>
+        	                                        &nbsp;<img src="./images/sunset.png">
+							<i class="fa fa-info-circle fa-lg text-info" data-container="body" data-toggle="popover" data-placement="right" data-content="<?php echo $lang['start_time_enable_info']; ?>"></i>
+							<label class="radio-inline">
+								<input type="radio" name="radioGroup1" id="radio1" value="option1" <?php echo $start_n_check; ?>  onchange="update_start_time('00:00', '0')" > Normal
+							</label>
+							<label class="radio-inline">
+								<input type="radio" name="radioGroup1" id="radio2" value="option2" <?php echo $start_sr_check; ?> onchange="update_start_time(<?php echo $sunrise_time; ?>, '1')" > Sunrise
+							</label>
+							<label class="radio-inline">
+								<input type="radio" name="radioGroup1" id="radio3" value="option3"  <?php echo $start_ss_check; ?>  onchange="update_start_time(<?php echo $sunset_time; ?>, '2')" > Sunset
+							</label>
+                                	                <input class="styled" type="text" id="start_time_offset" name="start_time_offset" style="width: 40px" value="<?php echo $start_offset; ?>"/>
+						 <?php } ?>
 						<div class="help-block with-errors"></div>
 					</div>
 					<!-- End Time -->
                                          <?php
-                                         if($time_id != 0){
-                                         	if ($time_row['end_sr'] == '1') {
-                                                	$end_sr_check = 'checked';
-                                                        $end_ss_check = '';
-                                                        $end_n_check = '';
-                                                        $end_mode = 1;
-                                                        $end_offset = $time_row['end_offset'];
-                                              	} elseif ($time_row['end_ss'] == '1') {
-                                                        $end_sr_check = '';
-                                                        $end_ss_check = 'checked';
-                                                        $end_n_check = '';
-                                                        $end_mode = 2;
-                                                        $end_offset = $time_row['end_offset'];
-                                                } else {
-                                                        $end_sr_check = '';
-                                                        $end_sr_check = '';
-                                                        $end_n_check = 'checked';
-                                                        $end_mode = 0;
-							$end_offset = 0;
-                                                }
-                                      	} else {
-                                               	$end_sr_check = '';
-                                                $end_sr_check = '';
-                                                $end_n_check = 'checked';
-                                                $end_mode = 0;
+					if ($sun_enabled) {
+                                         	if($time_id != 0){
+                                         		if ($time_row['end_sr'] == '1') {
+                                                		$end_sr_check = 'checked';
+	                                                        $end_ss_check = '';
+        	                                                $end_n_check = '';
+                	                                        $end_mode = 1;
+                        	                                $end_offset = $time_row['end_offset'];
+                                	              	} elseif ($time_row['end_ss'] == '1') {
+                                        	                $end_sr_check = '';
+                                                	        $end_ss_check = 'checked';
+                                                        	$end_n_check = '';
+	                                                        $end_mode = 2;
+        	                                                $end_offset = $time_row['end_offset'];
+                	                                } else {
+                        	                                $end_sr_check = '';
+                                	                        $end_sr_check = '';
+                                        	                $end_n_check = 'checked';
+                                                	        $end_mode = 0;
+								$end_offset = 0;
+	                                                }
+        	                              	} else {
+                	                               	$end_sr_check = '';
+                        	                        $end_sr_check = '';
+                                	                $end_n_check = 'checked';
+                                        	        $end_mode = 0;
+                                                	$end_offset = 0;
+						}
+					} else {
+                                       		$end_mode = 0;
                                                 $end_offset = 0;
 					}
                                         ?>
                                         <input type="hidden" id="end_time_state" name="end_time_state" value="<?php echo $end_mode; ?>">
 					<div class="form-group" class="control-label"><label><?php echo $lang['end_time']; ?></label>
 						<input class="form-control input-sm" type="time" id="end_time" name="end_time" value="<?php echo $time_row["end"];?>" placeholder="End Time" required>
-                                                <br>
-                                                &nbsp;<img src="./images/sunset.png">
-						 <i class="fa fa-info-circle fa-lg text-info" data-container="body" data-toggle="popover" data-placement="right" data-content="<?php echo $lang['end_time_enable_info']; ?>"></i>
-                                                <label class="radio-inline">
-                                                        <input type="radio" name="radioGroup2" id="radio3" value="option1" <?php echo $end_n_check; ?>  onchange="update_end_time('00:00', '0')" > Normal
-                                                </label>
-                                                <label class="radio-inline">
-							<input type="radio" name="radioGroup2" id="radio4" value="option2"  <?php echo $end_sr_check; ?>  onchange="update_end_time(<?php echo $sunrise_time; ?>, '1')" > Sunrise
-                                                </label>
-                                                <label class="radio-inline">
-							<input type="radio" name="radioGroup2" id="radio5" value="option3"  <?php echo $end_ss_check; ?>  onchange="update_end_time(<?php echo $sunset_time; ?>, '2')" > Sunset
-                                                </label>
-                                                <input class="styled" type="text" id="end_time_offset" name="end_time_offset" style="width: 40px" value="<?php echo $end_offset; ?>"/>
+						<?php if ($sun_enabled) { ?>
+                                                	<br>
+	                                                &nbsp;<img src="./images/sunset.png">
+							 <i class="fa fa-info-circle fa-lg text-info" data-container="body" data-toggle="popover" data-placement="right" data-content="<?php echo $lang['end_time_enable_info']; ?>"></i>
+                	                                <label class="radio-inline">
+                        	                                <input type="radio" name="radioGroup2" id="radio3" value="option1" <?php echo $end_n_check; ?>  onchange="update_end_time('00:00', '0')" > Normal
+                                	                </label>
+                                        	        <label class="radio-inline">
+								<input type="radio" name="radioGroup2" id="radio4" value="option2"  <?php echo $end_sr_check; ?>  onchange="update_end_time(<?php echo $sunrise_time; ?>, '1')" > Sunrise
+	                                                </label>
+        	                                        <label class="radio-inline">
+								<input type="radio" name="radioGroup2" id="radio5" value="option3"  <?php echo $end_ss_check; ?>  onchange="update_end_time(<?php echo $sunset_time; ?>, '2')" > Sunset
+                        	                        </label>
+                                	                <input class="styled" type="text" id="end_time_offset" name="end_time_offset" style="width: 40px" value="<?php echo $end_offset; ?>"/>
+						<?php } ?>
                                                 <div class="help-block with-errors"></div>
                                         </div>
 
