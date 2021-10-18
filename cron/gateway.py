@@ -195,8 +195,9 @@ def on_message(client, userdata, message):
         if child[on_msg_description_to_index["attribute"]] == "":
             mqtt_payload = message.payload.decode()
         else:
-            json_data = json.loads(message.payload.decode())
-            mqtt_payload = json_data[child[on_msg_description_to_index["attribute"]]]
+            mqtt_payload = json.loads(message.payload.decode())
+            for attribute in child[on_msg_description_to_index["attribute"]].split("."):
+                mqtt_payload = mqtt_payload.get(attribute)
         print(
             "5: Adding Temperature Reading From Node ID:",
             mqtt_node_id,
