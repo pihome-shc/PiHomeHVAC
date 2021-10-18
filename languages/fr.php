@@ -30,6 +30,8 @@ $lang['lang_ro'] = "Română";
 $lang['lang_lv'] = "Latviešu";
 $lang['lang_it'] = "Italien";
 $lang['lang_de'] = "German";
+$lang['lang_sk'] = "Slovenčina";
+
 $lang['start_time'] = "Instant de début";
 $lang['end_time'] = "Instant de fin";
 $lang['close'] = "Fermer";
