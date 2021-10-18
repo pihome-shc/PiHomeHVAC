@@ -306,7 +306,7 @@ echo '
                         		<div class="form-group" class="control-label"><label>'.$lang['heat_relay_id'].'</label> <small class="text-muted">'.$lang['heat_relay_id_info'].'</small>
                                                 <select class="form-control input-sm" type="text" id="heat_relay_id" name="heat_relay_id" >';
                                                 //get list of heat relays to display
-                                                if (settings($conn, 'mode') == 0) { $heat_relay_type = 1; } else { $heat_relay_type = 2; }
+                                                if ((settings($conn, 'mode') & 0b1) == 0) { $heat_relay_type = 1; } else { $heat_relay_type = 2; }
                                                 $query = "SELECT id, name FROM relays WHERE type = {$heat_relay_type};";
                                                 $result = $conn->query($query);
                                                 if ($result){
@@ -320,7 +320,7 @@ echo '
                                         </div>
 					<!-- /.form-group -->';
 
-					if (settings($conn, 'mode') == 1) {
+					if ((settings($conn, 'mode') & 0b1) == 1) {
                                         echo '<div class="form-group" class="control-label"><label>'.$lang['cool_relay_id'].'</label> <small class="text-muted">'.$lang['cool_relay_id_info'].'</small>
                                                 <select class="form-control input-sm" type="text" id="cool_relay_id" name="cool_relay_id" >';
                                                 //get list of heat relays to display
@@ -402,7 +402,7 @@ echo '
                                         <!-- /.form-group -->
 					';
 
-                                        if (settings($conn, 'mode') == 0) {
+                                        if ((settings($conn, 'mode') & 0b1) == 0) {
 						echo '<div class="form-group" class="control-label"><label>'.$lang['system_controller_overrun'].'</label> <small class="text-muted">'.$lang['system_controller_overrun_info'].'</small>
 							<select class="form-control input-sm" type="text" id="overrun" name="overrun">
 							<option selected>'.$brow['overrun'].'</option>
@@ -431,7 +431,7 @@ echo '
 			<!-- /.modal-body -->
         	   	<div class="modal-footer">
 				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>';
-				if ($ncount > 0) { echo '<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="system_controller_settings('.settings($conn, 'mode').')">'; }
+				if ($ncount > 0) { echo '<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="system_controller_settings('.(settings($conn, 'mode') & 0b1).')">'; }
 
             		echo '</div>
 			<!-- /.modal-footer -->
@@ -453,13 +453,13 @@ echo '
                 <h5 class="modal-title">'.$lang['boost_settings'].'</h5>
             </div>
             <div class="modal-body">';
-if (settings($conn, 'mode') == 0) {
+if ((settings($conn, 'mode') & 0b1) == 0) {
 	echo '<p class="text-muted"> '.$lang['boost_settings_text'].' </p>';
 } else {
         echo '<p class="text-muted"> '.$lang['hvac_boost_settings_text'].' </p>';
 }
 
-if (settings($conn, 'mode') == 0) {
+if ((settings($conn, 'mode') & 0b1) == 0) {
 	$query = "SELECT boost.id, boost.`status`, boost.sync, boost.zone_id, zone_idx.index_id, zone_type.category, zone.name, 
         boost.temperature, boost.minute, boost_button_id, boost_button_child_id, hvac_mode, ts.sensor_type_id
         FROM boost
@@ -497,7 +497,7 @@ if (settings($conn, 'mode') == 0) {
 
 while ($row = mysqli_fetch_assoc($results)) {
     $minute = $row["minute"];
-    if (settings($conn, 'mode') == 0) {
+    if ((settings($conn, 'mode') & 0b1) == 0) {
     	$boost_button_id = $row["boost_button_id"];
     	$boost_button_child_id = $row["boost_button_child_id"];
     	echo '
@@ -555,7 +555,7 @@ echo '</table></div>
 </div>';
 
 //Add Boost
-if (settings($conn, 'mode') == 0) { $info_text = $lang['boost_info_text']; $zone_hvac = $lang['zone']; } else { $info_text = $lang['hvac_boost_info_text']; $zone_hvac = $lang['hvac_function']; }
+if ((settings($conn, 'mode') & 0b1) == 0) { $info_text = $lang['boost_info_text']; $zone_hvac = $lang['zone']; } else { $info_text = $lang['hvac_boost_info_text']; $zone_hvac = $lang['hvac_function']; }
 echo '
 <div class="modal fade" id="add_boost" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -570,7 +570,7 @@ echo '<p class="text-muted">'.$info_text.'</p>
 	
 	<div class="form-group" class="control-label"><label>'.$zone_hvac.'</label> 
 	<select class="form-control input-sm" type="text" id="zone_id" name="zone_id">';
-	if (settings($conn, 'mode') == 0) {
+	if ((settings($conn, 'mode') & 0b1) == 0) {
 		//Get Zone List
 		$query = "SELECT * FROM zone where status = 1;";
 		$result = $conn->query($query);
@@ -634,7 +634,7 @@ echo '<p class="text-muted">'.$info_text.'</p>
 	<option value="120">120</option>
 	</select>
     <div class="help-block with-errors"></div></div>';
-	if (settings($conn, 'mode') == 0) {
+	if ((settings($conn, 'mode') & 0b1) == 0) {
 		echo '<div class="form-group" class="control-label"><label>'.$lang['boost_console_id'].'</label> <small class="text-muted">'.$lang['boost_console_id_info'].'</small>
 		<select class="form-control input-sm" type="text" id="boost_console_id" name="boost_console_id">';
 		//get list from nodes table to display 
@@ -666,7 +666,7 @@ echo '<p class="text-muted">'.$info_text.'</p>
 echo '</div>
             <div class="modal-footer">
 				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>';
-				if (settings($conn, 'mode') == 0) {
+				if ((settings($conn, 'mode') & 0b1) == 0) {
 					echo '<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="add_boost(0)">';
 				} else {
                                         echo '<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="add_boost(1)">';
@@ -688,7 +688,7 @@ echo '
             </div>
             <div class="modal-body">
 <p class="text-muted"> '.$lang['override_settings_text'].'</p>';
-if (settings($conn, 'mode') == 0) { //boiler mode
+if ((settings($conn, 'mode') & 0b1) == 0) { //boiler mode
 	$query = "SELECT override.`status`, override.sync, override.purge, override.zone_id, zone_idx.index_id, zone_type.category, zone.name,
 	override.time, override.temperature, override.hvac_mode, ts.sensor_type_id
 	FROM override
@@ -709,7 +709,7 @@ if (settings($conn, 'mode') == 0) { //boiler mode
 $results = $conn->query($query);
 echo '	<div class=\"list-group\">';
 while ($row = mysqli_fetch_assoc($results)) {
-	if (settings($conn, 'mode') == 0) {
+	if ((settings($conn, 'mode') & 0b1) == 0) {
 		$name = $row['name'];
 	} else {
 		if ($row['hvac_mode']  == 4) { $name = 'HEAT'; } else { $name = 'COOL'; };
