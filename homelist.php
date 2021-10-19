@@ -740,7 +740,17 @@ require_once(__DIR__.'/st_inc/functions.php');
 			';
                 }
                 echo '<input type="hidden" id="sch_active" name="sch_active" value="'.$sch_status.'"/>';
-                ?>
+
+		//select addional onetouch buttons
+                $query = "SELECT * FROM button_page WHERE page = 1 ORDER BY index_id ASC";
+                $results = $conn->query($query);
+                if (mysqli_num_rows($results) > 0) {
+                        while ($row = mysqli_fetch_assoc($results)) {
+                                $var = $row['function'];
+                                $var($conn, $lang[$var]);
+                        }
+                }
+		?>
 		</div>
                 <!-- /.panel-body -->
 		<div class="panel-footer">
