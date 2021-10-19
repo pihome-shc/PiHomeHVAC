@@ -859,4 +859,70 @@ function get_schedule_status($conn,$zone_id,$holidays_status){
                 'sch_count'=>$sch_count
         );
 }
+
+function boost($conn,$button) {
+        $query = "SELECT status FROM boost WHERE status = '1' LIMIT 1";
+        $result = $conn->query($query);
+        $boost_status=mysqli_num_rows($result);
+        if ($boost_status ==1) {$boost_status='red';}else{$boost_status='blue';}
+        echo '<a style="color: #777; cursor: pointer; text-decoration: none;" href="boost.php">
+        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+        <h3 class="buttontop"><small>'.$button.'</small></h3>
+        <h3 class="degre" ><i class="fa fa-rocket fa-1x"></i></h3>
+        <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$boost_status.'"></i></small>
+        </h3></button></a>';
+
+}
+
+function override($conn,$button) {
+        $query = "SELECT status FROM override WHERE status = '1' LIMIT 1";
+        $result = $conn->query($query);
+        $override_status=mysqli_num_rows($result);
+        if ($override_status==1) {$override_status='red';}else{$override_status='blue';}
+        echo '<a style="color: #777; cursor: pointer; text-decoration: none;" href="override.php">
+        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+        <h3 class="buttontop"><small>'.$button.'</small></h3>
+        <h3 class="degre" ><i class="fa fa-refresh fa-1x"></i></h3>
+        <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$override_status.'"></i></small>
+        </h3></button></a>';
+}
+
+function night_climate($conn,$button) {
+        $query = "SELECT * FROM schedule_night_climate_time WHERE id = 1";
+        $results = $conn->query($query);
+        $row = mysqli_fetch_assoc($results);
+        if ($row['status'] == 1) {$night_status='red';}else{$night_status='blue';}
+        echo '<a style="color: #777; cursor: pointer; text-decoration: none;" href="scheduling.php?nid=0">
+        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+        <h3 class="buttontop"><small>'.$button.'</small></h3>
+        <h3 class="degre" ><i class="fa fa-bed fa-1x"></i></h3>
+        <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$night_status.'"></i></small>
+        </h3></button>';
+}
+
+function away($conn,$button) {
+        $query = "SELECT * FROM away LIMIT 1";
+        $result = $conn->query($query);
+        $away = mysqli_fetch_array($result);
+        if ($away['status']=='1'){$awaystatus="red";}elseif ($away['status']=='0'){$awaystatus="blue";}
+        echo '<a href="javascript:active_away();">
+        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+        <h3 class="buttontop"><small>'.$button.'</small></h3>
+        <h3 class="degre" ><i class="fa fa-sign-out fa-1x"></i></h3>
+        <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$awaystatus.'"></i></small>
+        </h3></button></a>';
+}
+
+function holidays($conn,$button) {
+        $query = "SELECT status FROM holidays WHERE NOW() between start_date_time AND end_date_time AND status = '1' LIMIT 1";
+        $result = $conn->query($query);
+        $holidays_status=mysqli_num_rows($result);
+        if ($holidays_status=='1'){$holidaystatus="red";}elseif ($holidays_status=='0'){$holidaystatus="blue";}
+        echo '<a style="color: #777; cursor: pointer; text-decoration: none;" href="holidays.php">
+        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+        <h3 class="buttontop"><small>'.$button.'</small></h3>
+        <h3 class="degre" ><i class="fa fa-paper-plane fa-1x"></i></h3>
+        <h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-circle fa-fw '.$holidaystatus.'"></i></small>
+        </h3></button></a>';
+}
 ?>
