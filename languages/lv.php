@@ -30,6 +30,7 @@ $lang['lang_ro'] = "Română";
 $lang['lang_lv'] = "Latviešu";
 $lang['lang_it'] = "Italų";
 $lang['lang_de'] = "German";
+$lang['lang_sk'] = "Slovenčina";
 $lang['start_time'] = "Sākuma laiks";
 $lang['end_time'] = "Beigu laiks";
 $lang['close'] = "Aizvērt";
