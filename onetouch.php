@@ -72,7 +72,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                         }
                 }
 
-                <?php if($_SESSION['admin'] == 1) { ?>
+                if($_SESSION['admin'] == 1) { ?>
                         <a style="color: #777; cursor: pointer; text-decoration: none;" href="relay.php">
                         <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
                         <h3 class="buttontop"><small><?php echo $lang['relay_add']; ?></small></h3>
