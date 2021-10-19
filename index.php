@@ -360,7 +360,7 @@ html {
 	<div class="container">
         	<div class="row">
 			<br><br>
-			<h6 class="text-center"><img src="images/brain_max_logo.png" height="64"> <br><br><?php  echo settings($conn, 'name') ;?></h6>
+			<h6 class="text-center"><img src="images/maxair_logo.png" height="28"> <br></h6>
             		<div class="col-md-4 col-md-offset-4">
                 		<div class="login-panel panel panel-primary">
                     			<?php 
@@ -427,17 +427,7 @@ html {
                                                                                 <input type="submit" name="submit" value="'.$lang['set_reboot'].'" class="btn btn-block btn-default btn-block login"/>';
 									}
                             					echo '</fieldset>
-                        				</form>
-							<br>
-							<h3 class="text-right">
-								<small>';
-									$languages = ListLanguages(settings($conn, 'language'));
-									for ($x = 0; $x <= count($languages) - 1; $x++) {
-										echo '<a class="text-info" style="text-decoration: none;" href="languages.php?lang='.$languages[$x][0].'" title="'.$languages[$x][1].'">'.$languages[$x][1].'</a>';
-										if ($x <= count($languages) - 2) { echo ' - '; }
-							 		} ?>
-								</small>
-							</h3>
+                        				</form><br>'; ?>
                     				</div>
 					</div>
 					<!--<div class="panel-footer">	
@@ -447,6 +437,16 @@ html {
     		</div>
 		<div class="col-md-8 col-md-offset-2">
 			<div class="login-panel-foother">
+			<?php 
+				echo '<h3>
+						<small>';
+							$languages = ListLanguages(settings($conn, 'language'));
+							for ($x = 0; $x <= count($languages) - 1; $x++) {
+								echo '<a class="text-info" style="text-decoration: none;" href="languages.php?lang='.$languages[$x][0].'" title="'.$languages[$x][1].'">'.$languages[$x][1].'</a>';
+								if ($x <= count($languages) - 2) { echo '&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;&nbsp;'; }
+							} ?>
+						</small>
+						</h3><br><br>
 				<h6><?php echo settings($conn, 'name').' '.settings($conn, 'version')."&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;".$lang['build']." ".settings($conn, 'build'); ?></h6>
 				<br><br>
                                 <h6><?php echo "&copy;&nbsp;".$lang['copyright']; ?></h6>
