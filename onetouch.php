@@ -62,65 +62,15 @@ require_once(__DIR__.'/st_inc/functions.php');
 		<h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$lt_status.'"></i></small></h3>
 		</button>';
 
-		//query to check override status
-		$query = "SELECT status FROM override WHERE status = '1' LIMIT 1";
-		$result = $conn->query($query);
-		$override_status=mysqli_num_rows($result);
-		if ($override_status==1) {$override_status='red';}else{$override_status='blue';}
-		echo '<a style="color: #777; cursor: pointer; text-decoration: none;" href="override.php">
-		<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
-		<h3 class="buttontop"><small>'.$lang['override'].'</small></h3>
-		<h3 class="degre" ><i class="fa fa-refresh fa-1x"></i></h3>
-		<h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$override_status.'"></i></small>
-		</h3></button></a>';
-
-		//query to check boost status
-		$query = "SELECT status FROM boost WHERE status = '1' LIMIT 1";
-		$result = $conn->query($query);
-		$boost_status=mysqli_num_rows($result);
-		if ($boost_status ==1) {$boost_status='red';}else{$boost_status='blue';}
-		echo '<a style="color: #777; cursor: pointer; text-decoration: none;" href="boost.php">
-		<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
-		<h3 class="buttontop"><small>'.$lang['boost'].'</small></h3>
-		<h3 class="degre" ><i class="fa fa-rocket fa-1x"></i></h3>
-		<h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$boost_status.'"></i></small>
-		</h3></button></a>';
-		//query to check night climate
-		$query = "SELECT * FROM schedule_night_climate_time WHERE id = 1";
-		$results = $conn->query($query);
-		$row = mysqli_fetch_assoc($results);
-		if ($row['status'] == 1) {$night_status='red';}else{$night_status='blue';}
-		echo '<a style="color: #777; cursor: pointer; text-decoration: none;" href="scheduling.php?nid=0">
-		<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
-		<h3 class="buttontop"><small>'.$lang['night_climate'].'</small></h3>
-		<h3 class="degre" ><i class="fa fa-bed fa-1x"></i></h3>
-		<h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$night_status.'"></i></small>
-		</h3></button>';
-
-		//query to check away status
-		$query = "SELECT * FROM away LIMIT 1";
-		$result = $conn->query($query);
-		$away = mysqli_fetch_array($result);
-		if ($away['status']=='1'){$awaystatus="red";}elseif ($away['status']=='0'){$awaystatus="blue";}
-		echo '<a href="javascript:active_away();">
-		<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
-		<h3 class="buttontop"><small>'.$lang['away'].'</small></h3>
-		<h3 class="degre" ><i class="fa fa-sign-out fa-1x"></i></h3>
-		<h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$awaystatus.'"></i></small>
-		</h3></button></a>';
-
-		//query to check holidays status
-		$query = "SELECT status FROM holidays WHERE NOW() between start_date_time AND end_date_time AND status = '1' LIMIT 1";
-		$result = $conn->query($query);
-		$holidays_status=mysqli_num_rows($result);
-		if ($holidays_status=='1'){$holidaystatus="red";}elseif ($holidays_status=='0'){$holidaystatus="blue";}
-		?>
-		<a style="color: #777; cursor: pointer; text-decoration: none;" href="holidays.php">
-		<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
-		<h3 class="buttontop"><small><?php echo $lang['holidays']; ?></small></h3>
-		<h3 class="degre" ><i class="fa fa-paper-plane fa-1x"></i></h3>
-		<h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-circle fa-fw <?php echo $holidaystatus; ?>"></i></small>
-		</h3></button></a>
+                //select addional onetouch buttons
+                $query = "SELECT * FROM button_page WHERE page = 2 ORDER BY index_id ASC";
+                $results = $conn->query($query);
+                if (mysqli_num_rows($results) > 0) {
+                        while ($row = mysqli_fetch_assoc($results)) {
+                                $var = $row['function'];
+                                $var($conn, $lang[$var]);
+                        }
+                }
 
                 <?php if($_SESSION['admin'] == 1) { ?>
                         <a style="color: #777; cursor: pointer; text-decoration: none;" href="relay.php">
