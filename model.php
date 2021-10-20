@@ -2797,6 +2797,45 @@ echo '</div></div>
         </div>
     </div>
 </div>';
+
+//Set Buttons model
+echo '<div class="modal fade" id="set_buttons" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['set_buttons'].'</h5>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">'.$lang['set_buttons_text'].'</p>
+                <input type="hidden" id="button_page_1" name="button_page_1" value="'.$lang['home_page'].'">
+                <input type="hidden" id="button_page_2" name="button_page_2" value="'.$lang['onetouch_page'].'">';
+                echo '<table class="table table-bordered">
+                        <tr>
+                                <th class="col-md-3 text-center"><small>'.$lang['button_name'].'</small></th>
+                                <th class="col-md-2 text-center"><small>'.$lang['toggle_page'].'</small></th>
+                                <th class="col-md-1 text-center"><small>'.$lang['index_number'].'</small></th>
+                        </tr>';
+                        $query = "SELECT * FROM button_page ORDER BY index_id ASC;";
+                        $results = $conn->query($query);
+                        while ($row = mysqli_fetch_assoc($results)) {
+                                if ($row["page"] == 1) { $button_text = $lang['home_page']; } else { $button_text = $lang['onetouch_page']; }
+                                echo '<tr>
+                                        <td>'.$row["name"].'</td>
+                                        <td><input type="button" id="page_button'.$row["id"].'" value="'.$button_text.'" class="btn btn-info btn-block" onclick="set_button_text('.$row["id"].')"></td>
+                                        <td><input id="index'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="index_id"  size="3" value="'.$row["index_id"].'" placeholder="Index ID" required></td>
+                                        <input type="hidden" id="page_type'.$row["id"].'" name="page_type" value="'.$row["page"].'">
+                                </tr>';
+                        }
+                echo '</table>
+            </div>
+                <div class="modal-footer">
+                        <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                        <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="set_buttons()">
+            </div>
+        </div>
+    </div>
+</div>';
 ?>
 
 <script>
@@ -2892,6 +2931,19 @@ function sw_install_close()
 {
         $('#sw_install').modal('hide');
         $('#add_install').modal('hide');
+}
+
+function set_button_text(id)
+{
+ var id_text = id;
+ var e = document.getElementById("page_type" + id_text);
+ if (e.value == 1) {
+        document.getElementById("page_button" + id_text).value = document.getElementById("button_page_2").value;
+        document.getElementById("page_type" + id_text).value = 2;
+ } else {
+        document.getElementById("page_button" + id_text).value = document.getElementById("button_page_1").value;
+        document.getElementById("page_type" + id_text).value = 1;
+ }
 }
 </script>
 
