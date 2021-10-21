@@ -25,8 +25,16 @@ require_once(__DIR__.'../../st_inc/functions.php');
 ini_set('max_execution_time', 300); 
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Database Cleanup Script Started \n"; 
 
+//Get the delete intervals
+$query = "SELECT * FROM db_cleanup LIMIT 1;";
+$result = $conn->query($query);
+$row = mysqli_fetch_array($result);
+$interval_1 = $row['messages_in'];
+$interval_2 = $row['nodes_battery'];
+$interval_3 = $row['gateway_logs'];
+
 //Delete Temperature Reocrds older then 3 Days.
-$query = "DELETE FROM messages_in WHERE datetime < DATE_SUB(curdate(), INTERVAL 3 DAY);";
+$query = "DELETE FROM messages_in WHERE datetime < DATE_SUB(curdate(), INTERVAL ".$interval_1.");";
 $result = $conn->query($query);
 if (isset($result)) {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Temperature Records Deleted from Tables \n"; 
@@ -36,7 +44,7 @@ if (isset($result)) {
 }
 
 //Delete Node Battery status older then 3 months. 
-$query = "DELETE FROM nodes_battery WHERE `update` < DATE_SUB(CURDATE(), INTERVAL 3 MONTH);";
+$query = "DELETE FROM nodes_battery WHERE `update` < DATE_SUB(CURDATE(), INTERVAL ".$interval_2.");";
 $result = $conn->query($query);
 if (isset($result)) {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Node Battery Records Deleted from Tables \n"; 
@@ -56,7 +64,7 @@ if (isset($result)) {
 }
 
 //Delete Gateway Logs data older then 3 days. 
-$query = "DELETE FROM gateway_logs WHERE pid_datetime < DATE_SUB(curdate(), INTERVAL 3 DAY);";
+$query = "DELETE FROM gateway_logs WHERE pid_datetime < DATE_SUB(curdate(), INTERVAL ".$interval_3.");";
 $result = $conn->query($query);
 if (isset($result)) {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Gateway Logs Records Deleted from Tables \n"; 
