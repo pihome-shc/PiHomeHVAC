@@ -1442,5 +1442,28 @@ if($what=="job"){
         }
 }
 
+//Set Buttons
+if($what=="set_buttons"){
+        $sel_query = "SELECT * FROM button_page ORDER BY id asc;";
+        $results = $conn->query($sel_query);
+        while ($row = mysqli_fetch_assoc($results)) {
+                $page =  $_GET['page_type'.$row['id']];
+                $index =  $_GET['index'.$row['id']];
+                $query = "UPDATE button_page SET page = ".$page.", index_id = ".$index." WHERE id = '".$row['id']."' LIMIT 1;";
+                $update_error=0;
+                if(!$conn->query($query)){
+                        $update_error=1;
+                }
+        }
+        if($update_error==0){
+                header('Content-type: application/json');
+                echo json_encode(array('Success'=>'Success','Query'=>$query));
+                return;
+        }else{
+                header('Content-type: application/json');
+                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                return;
+        }
+}
 ?>
 <?php if(isset($conn)) { $conn->close();} ?>

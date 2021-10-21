@@ -267,6 +267,12 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                                                         <h3 class="degre" ><i class="fa fa-terminal"></i></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
+									  
+                            				<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#set_buttons">
+                                                        <h3 class="buttontop"><small><?php echo $lang['set_buttons']; ?></small></h3>
+                                                        <h3 class="degre" ><i class="fa fa-th-large"></i></h3>
+                                                        <h3 class="status"></small></h3>
+                                                        </button>									  
         	        	        	</div>
 
 			        	        <div id="collapse_system_controller" class="panel-collapse collapse animated fadeIn">

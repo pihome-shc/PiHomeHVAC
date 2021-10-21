@@ -733,4 +733,11 @@ $lang['mqtt_gateway_reboot_fail'] = "Scheduled gateway reboot failed";
 $lang['cyclic'] = "Cyclic";
 $lang['button'] = "Button";
 $lang['changelog'] = "ChangeLog";
+$lang['set_buttons'] = "Set Buttons";
+$lang['button_name'] = "Button Name";
+$lang['home_page'] = "Home";
+$lang['onetouch_page'] = "OneTouch";
+$lang['toggle_page'] = "Toggle Page";
+$lang['index_number'] = "Index Number";
+$lang['set_buttons_text'] = "Place Buttons on Home or OneTouch Screen and set display ordering.";
 ?>
