@@ -23,6 +23,8 @@ confirm_logged_in();
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 
+$close = $lang['close'];
+
 if(!isset($_GET['Ajax'])){
     //Check this once, instead of everytime. Should be more efficient.
     //if($DEBUG==true)
@@ -382,6 +384,7 @@ if($_GET['Ajax']=='GetModal_OpenWeather')
 
 function GetModal_System($conn)
 {
+        global $close;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
     //System temperature
     echo '<div class="modal-header">
@@ -402,7 +405,7 @@ function GetModal_System($conn)
     echo '</div>';      //close class="list-group">';
     echo '</div>';      //close class="modal-body">
     echo '<div class="modal-footer" id="ajaxModalFooter">
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Close</button>            
+            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$close.'</button>            
         </div>';      //close class="modal-footer">
     return;
 }
@@ -416,6 +419,7 @@ if($_GET['Ajax']=='GetModal_System')
 
 function GetModal_MQTT($conn)
 {
+        global $close;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
 
     echo '<div class="modal-header">
@@ -454,7 +458,7 @@ function GetModal_MQTT($conn)
     echo '</div>';      //close class="list-group">';
     echo '</div>';      //close class="modal-body">
     echo '<div class="modal-footer" id="ajaxModalFooter">
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Close</button>            
+            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$close.'</button>            
         </div>';      //close class="modal-footer">
     echo '<script language="javascript" type="text/javascript">
         mqtt_AddEdit=function(ithis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(ithis)); }).modal("hide");};
@@ -468,6 +472,7 @@ if($_GET['Ajax']=='GetModal_MQTT')
 }
 function GetModal_MQTTAddEdit($conn)
 {
+        global $close;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
 
     $IsAdd=true;
@@ -528,7 +533,7 @@ function GetModal_MQTTAddEdit($conn)
     echo '<div class="modal-footer" id="ajaxModalFooter">' . ($IsAdd ?
             '<button type="button" class="btn btn-warning btn-sm" data-dismiss="modal" onclick="mqtt_add()">Add Conn</button>'
             : '<button type="button" class="btn btn-warning btn-sm" data-dismiss="modal" onclick="mqtt_edit()">Edit Conn</button>') . '
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Close</button>            
+            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$close.'</button>            
         </div>';      //close class="modal-footer">
     echo '<script language="javascript" type="text/javascript">
         mqtt_add=function(){
@@ -578,6 +583,7 @@ if($_GET['Ajax']=='GetModal_MQTTEdit' || $_GET['Ajax']=='GetModal_MQTTAdd')
 
 function GetModal_Services($conn)
 {
+	global $close;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
 
     echo '<div class="modal-header">
@@ -633,7 +639,7 @@ function GetModal_Services($conn)
     echo '</div>';      //close class="list-group">';
     echo '</div>';      //close class="modal-body">
     echo '<div class="modal-footer" id="ajaxModalFooter">
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Close</button>            
+            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$close.'</button>            
         </div>';      //close class="modal-footer">
     echo '<script language="javascript" type="text/javascript">
         services_Info=function(ithis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(ithis)); }).modal("hide");};
@@ -647,6 +653,7 @@ if($_GET['Ajax']=='GetModal_Services')
 }
 function GetModal_ServicesInfo($conn)
 {
+        global $close;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
 
     echo '<div class="modal-header">
@@ -787,7 +794,7 @@ Refer to: <a href="www.freedesktop.org/software/systemd/man/journald.conf.html">
     echo '</div>';      //close class="list-group">';
     echo '</div>';      //close class="modal-body">
     echo '<div class="modal-footer" id="ajaxModalFooter">
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Close</button>            
+            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$close.'</button>            
         </div>';      //close class="modal-footer">
     echo '<script language="javascript" type="text/javascript">
         services_Info=function(ithis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(ithis)); }).modal("hide");};
@@ -804,6 +811,7 @@ if($_GET['Ajax']=='GetModal_ServicesInfo')
 
 function GetModal_Uptime($conn)
 {
+        global $close;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
 
     echo '<div class="modal-header">
@@ -851,7 +859,7 @@ function GetModal_Uptime($conn)
     echo '</div>';      //close class="list-group">';
     echo '</div>';      //close class="modal-body">
     echo '<div class="modal-footer" id="ajaxModalFooter">
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Close</button>            
+            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$close.'</button>            
         </div>';      //close class="modal-footer">
     return;
 }

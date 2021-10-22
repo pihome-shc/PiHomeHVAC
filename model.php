@@ -2260,7 +2260,7 @@ echo '
                                 echo '<textarea id="job_status_text" style="background-color: black;color:#fff;height: 500px; min-width: 100%"><pre>'.$row['output'].'</pre></textarea>
                         </div>
                         <div class="modal-footer" id="ajaxModalFooter_1">
-                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
                         </div>
                 </div>
         </div>
@@ -2379,7 +2379,7 @@ echo '<div class="modal" id="add_install">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">'.$lang['close'].'</span></button>
           <h4 class="modal-title">'.$lang['installing_sw'].'</h4>
       </div>
       <div class="modal-body">
@@ -2399,7 +2399,7 @@ echo '<div class="modal" id="last_sw_install" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">'.$lang['close'].'</span></button>
           <h4 class="modal-title">'.$lang['last_sw_install'].'</h4>
       </div>
       <div class="modal-body">';
@@ -2418,7 +2418,7 @@ echo '<div class="modal" id="documentation" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">'.$lang['close'].'</span></button>
           <h4 class="modal-title">'.$lang['documentation'].'</h4>
       </div>
       <div class="modal-body">
