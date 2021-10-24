@@ -493,16 +493,20 @@ def get_sensor(sensor):
         "SELECT `payload`, `datetime` FROM `messages_in` WHERE `node_id` = (%s) AND `child_id` = (%s) ORDER BY `id` desc LIMIT 1;",
         [MA_Sensor_Node_ID[sensor], MA_Sensor_Child_ID[sensor]],
     )
-    description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-    results = cur.fetchone()
-    if results[description_to_index["payload"]] is None:
+    if cur.rowcount > 0:
+        description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+        results = cur.fetchone()
+        if results[description_to_index["payload"]] is None:
+            sensor_status.append("NA")  # [0] - Value
+            sensor_status.append("NA")  # [1] - Last seen
+        else:
+            sensor_status.append(results[description_to_index["payload"]])  # [0] - Value
+            sensor_status.append(
+                results[description_to_index["datetime"]]
+            )  # [1] - Last seen
+    else:  # In case the database does not have yet a line for this sensor report NA
         sensor_status.append("NA")  # [0] - Value
         sensor_status.append("NA")  # [1] - Last seen
-    else:
-        sensor_status.append(results[description_to_index["payload"]])  # [0] - Value
-        sensor_status.append(
-            results[description_to_index["datetime"]]
-        )  # [1] - Last seen
     if MA_Sensor_Type[sensor] == "MySensor":
         cur.execute(
             "SELECT `bat_level`, `bat_voltage`  FROM `nodes_battery` WHERE `node_id` = (%s) ORDER BY `id` desc LIMIT 1",
