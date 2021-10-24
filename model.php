@@ -243,7 +243,7 @@ echo '
 </table></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                <input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="setup_graph()">
+                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="setup_graph()">
             </div>
         </div>
     </div>
@@ -431,7 +431,7 @@ echo '
 			<!-- /.modal-body -->
         	   	<div class="modal-footer">
 				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>';
-				if ($ncount > 0) { echo '<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="system_controller_settings('.(settings($conn, 'mode') & 0b1).')">'; }
+				if ($ncount > 0) { echo '<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="system_controller_settings('.(settings($conn, 'mode') & 0b1).')">'; }
 
             		echo '</div>
 			<!-- /.modal-footer -->
@@ -547,7 +547,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 echo '</table></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                <input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="update_boost()">
+                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="update_boost()">
                 <button type="button" class="btn btn-default login btn-sm" data-href="#" data-toggle="modal" data-target="#add_boost">'.$lang['add_boost'].'</button>
             </div>
         </div>
@@ -667,9 +667,9 @@ echo '</div>
             <div class="modal-footer">
 				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>';
 				if ((settings($conn, 'mode') & 0b1) == 0) {
-					echo '<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="add_boost(0)">';
+					echo '<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="add_boost(0)">';
 				} else {
-                                        echo '<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="add_boost(1)">';
+                                        echo '<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="add_boost(1)">';
 				}
 
             echo '</div>
@@ -894,7 +894,7 @@ echo '<p class="text-muted">'.$lang['node_add_info_text'].'</p>
 </div>
             <div class="modal-footer">
 				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-				<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="add_node()">
+				<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="add_node()">
 
             </div>
         </div>
@@ -988,7 +988,7 @@ echo '<p class="text-muted">'.$lang['zone_type_add_info_text'].'</p>
 </div>
             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                                <input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="add_zone_type()">
+                                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="add_zone_type()">
 
             </div>
         </div>
@@ -1282,7 +1282,7 @@ echo '<p class="text-muted">'.$lang['sensor_type_add_info_text'].'</p>
 </div>
             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                                <input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="add_sensor_type()">
+                                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="add_sensor_type()">
             </div>
         </div>
     </div>
@@ -1515,7 +1515,7 @@ echo '
             		<div class="modal-footer">
 				<a href="javascript:resetgw('.$grow['pid'].')" class="btn btn-default login btn-sm btn-edit">Reset GW</a>
 				<a href="javascript:find_gw()" class="btn btn-default login btn-sm btn-edit">Search GW</a>
-				<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="setup_gateway()">
+				<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="setup_gateway()">
 				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
             		</div>
 			<!-- /.modal-footer -->
@@ -1633,7 +1633,7 @@ echo '<p class="text-muted">'.$lang['add_on_add_info_text'].'</p>
 </div>
             <div class="modal-footer">
 				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                                <input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="add_zone_http_msg()">
+                                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="add_zone_http_msg()">
             </div>
         </div>
     </div>
@@ -1676,7 +1676,7 @@ echo '<p class="text-muted">'.$lang['add_on_add_info_text'].'</p>
 </div>
             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                                <input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="add_node_http_msg()">
+                                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="add_node_http_msg()">
             </div>
         </div>
     </div>
@@ -1820,7 +1820,7 @@ echo '
 
             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                                <input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="setup_network()">
+                                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="setup_network()">
             </div>
             <!-- /.modal-footer -->
         </div>
@@ -1914,7 +1914,7 @@ echo '
 echo '</div>
             <div class="modal-footer">
 				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-				<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="setup_email()">
+				<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="setup_email()">
 				
             </div>
         </div>
@@ -1967,7 +1967,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 echo '</table></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                <input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="node_alerts()">
+                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="node_alerts()">
             </div>
         </div>
     </div>
@@ -2223,7 +2223,7 @@ echo '<p class="text-muted">'.$lang['add_new_job_info_text'].'</p>
 </div>
             <div class="modal-footer">
 				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-				<input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="add_job()">
+				<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="add_job()">
 
             </div>
         </div>
@@ -2260,7 +2260,7 @@ echo '
                                 echo '<textarea id="job_status_text" style="background-color: black;color:#fff;height: 500px; min-width: 100%"><pre>'.$row['output'].'</pre></textarea>
                         </div>
                         <div class="modal-footer" id="ajaxModalFooter_1">
-                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
                         </div>
                 </div>
         </div>
@@ -2379,7 +2379,7 @@ echo '<div class="modal" id="add_install">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">'.$lang['close'].'</span></button>
           <h4 class="modal-title">'.$lang['installing_sw'].'</h4>
       </div>
       <div class="modal-body">
@@ -2399,7 +2399,7 @@ echo '<div class="modal" id="last_sw_install" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">'.$lang['close'].'</span></button>
           <h4 class="modal-title">'.$lang['last_sw_install'].'</h4>
       </div>
       <div class="modal-body">';
@@ -2418,7 +2418,7 @@ echo '<div class="modal" id="documentation" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">'.$lang['close'].'</span></button>
           <h4 class="modal-title">'.$lang['documentation'].'</h4>
       </div>
       <div class="modal-body">
