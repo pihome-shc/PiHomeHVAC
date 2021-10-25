@@ -442,10 +442,12 @@ $lang['time_zone_text'] = "It is very important to select your correct time zone
 
 $lang['tooltip_1'] = "System Status Displays";
 $lang['tooltip_2'] = "System Configuration Menus";
-$lang['tooltip_3'] = "Boiler Configuration Menus";
-$lang['tooltip_4'] = "Node and Zone Configuration";
+$lang['tooltip_3'] = "System Maintenance Menus";
+$lang['tooltip_4'] = "Boiler Configuration Menus";
+$lang['tooltip_5'] = "Node and Zone Configuration";
 $lang['system_status'] = "System Status";
 $lang['system_configuration'] = "System Configuration";
+$lang['system_maintenance'] = "System Maintenance";
 $lang['node_zone_configuration'] = "Node and Zone Configuration";
 
 $lang['schedule_night_climate_time_success'] = "Night Climate Time Default Added Successfully.";
@@ -751,4 +753,22 @@ $lang['onetouch_page'] = "OneTouch";
 $lang['toggle_page'] = "Toggle Page";
 $lang['index_number'] = "Index Number";
 $lang['set_buttons_text'] = "Place Buttons on Home or OneTouch Screen and set display ordering.";
+$lang['button_name'] = "Button Name";
+$lang['home_page'] = "Home";
+$lang['onetouch_page'] = "OneTouch";
+$lang['toggle_page'] = "Toggle Page";
+$lang['index_number'] = "Index Number";
+$lang['set_buttons_text'] = "Place Buttons on Home or OneTouch Screen and set display ordering.";
+$lang['db_cleanup'] = "DB Cleanup";
+$lang['db_cleanup_text'] = "Set the Interval Value and Period (as HOUR, DAY, WEEK or MONTH)";
+$lang['db_cleanup_value'] = "Value";
+$lang['db_cleanup_period'] = "Period";
+$lang['table_name'] = "Table Name";
+$lang['HOUR'] = "HOUR";
+$lang['DAY'] = "DAY";
+$lang['WEEK'] = "WEEK";
+$lang['MONTH'] = "MONTH";
+$lang['select'] = "Select Graphs";
+$lang['enable_graphs'] = "Enable Graphs";
+$lang['enable_graphs_text'] = "Graphs Categories to be Enabled for selection.";
 ?>

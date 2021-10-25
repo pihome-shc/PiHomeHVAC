@@ -982,3 +982,52 @@ var idata="w=set_buttons&o=update";
     .always(function() {
     });
 }
+
+//set db cleanup
+function set_db_cleanup(){
+var x = document.getElementsByTagName("input");
+var i;
+var idata="w=set_db_cleanup&o=update";
+    for (i = 0; i < x.length; i++) {
+        idata+="&"+x[i].id+"="+x[i].value;
+    }
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            reload_page();
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("set_buttons: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//enable graphs to display
+function enable_graphs(){
+var x = document.getElementsByTagName("input");
+var i;
+var idata="w=enable_graphs&o=update";
+    for (i = 0; i < x.length; i++) {
+        idata+="&"+x[i].id+"="+x[i].checked;
+    }
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            reload_page();
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("enable_graphs: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
