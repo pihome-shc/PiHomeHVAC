@@ -23,8 +23,6 @@ confirm_logged_in();
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 
-$close = $lang['close'];
-
 if(!isset($_GET['Ajax'])){
     //Check this once, instead of everytime. Should be more efficient.
     //if($DEBUG==true)
@@ -37,15 +35,16 @@ if(!isset($_GET['Ajax'])){
 }
 
 function GetModal_OpenWeather($conn){
+	global $lang;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
 
     echo '<div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-            <h5 class="modal-title" id="ajaxModalLabel">OpenWeather Settings</h5>
+            <h5 class="modal-title" id="ajaxModalLabel">'.$lang['openweather_settings'].'</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">
-            <p class="text-muted">Refer to <a class="green" target="_blank" href="http://OpenWeatherMap.org">OpenWeatherMap.org</a> for more information.
-            <p>An account (free options) must be setup in order to use OpenWeather.
+            <p class="text-muted">'.$lang['openweather_text1'].' <a class="green" target="_blank" href="http://OpenWeatherMap.org">'.$lang['openweather_text2'].'</a> for more information.
+            <p>'.$lang['openweather_text3'].'
 
             <form name="form-openweather" id="form-openweather" role="form" onSubmit="return false;" action="javascript:return false;" >
             <div class="form-group">
@@ -316,7 +315,7 @@ function GetModal_OpenWeather($conn){
             <div class="form-group CityZip City">
                 <label>City:</label>
                 <input type="text" class="form-control" name="inp_City" id="inp_City">
-            </div>               
+            </div>
             <div class="form-group CityZip Zip">
                 <label>Zip:</label>
                 <input type="text" class="form-control" name="inp_Zip" id="inp_Zip">
@@ -324,12 +323,12 @@ function GetModal_OpenWeather($conn){
             <div class="form-group">
                 <label>API Key:</label>
                 <input type="text" class="form-control" name="inp_APIKEY" id="inp_APIKEY">
-            </div>               
+            </div>
             </form>';
     echo '</div>';      //close class="modal-body">
     echo '<div class="modal-footer" id="ajaxModalFooter">
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Cancel</button>
-            <input type="button" name="submit" value="Save" class="btn btn-default login btn-sm" onclick="update_openweather()">
+            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['cancel'].'</button>
+            <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="update_openweather()">
         </div>';      //close class="modal-footer">
 
     echo '<script language="javascript" type="text/javascript">
@@ -384,28 +383,28 @@ if($_GET['Ajax']=='GetModal_OpenWeather')
 
 function GetModal_System($conn)
 {
-        global $close;
+        global $lang;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
     //System temperature
     echo '<div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-            <h5 class="modal-title" id="ajaxModalLabel">CPU Temperature</h5>
+            <h5 class="modal-title" id="ajaxModalLabel">'.$lang['cpu_temperature'].'</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">
-    <p class="text-muted"> Last 5 CPU in-built temperature sensor reading. </p>';
+    <p class="text-muted"> '.$lang['cpu_temperature_text'].' </p>';
     $query = "select * from messages_in where node_id = 0 order by datetime desc limit 5";
     $results = $conn->query($query);
     echo '<div class="list-group">';
     while ($row = mysqli_fetch_assoc($results)) {
         echo '<span class="list-group-item">
-        <i class="fa fa-server fa-1x green"></i> '.$row['datetime'].' 
+        <i class="fa fa-server fa-1x green"></i> '.$row['datetime'].'
         <span class="pull-right text-muted small"><em>'.number_format(DispSensor($conn,$row['payload'],1),1).'&deg;</em></span>
-        </span>'; 
+        </span>';
     }
     echo '</div>';      //close class="list-group">';
     echo '</div>';      //close class="modal-body">
     echo '<div class="modal-footer" id="ajaxModalFooter">
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$close.'</button>            
+            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
     return;
 }
@@ -419,12 +418,12 @@ if($_GET['Ajax']=='GetModal_System')
 
 function GetModal_MQTT($conn)
 {
-        global $close;
+        global $lang;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
 
     echo '<div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-            <h5 class="modal-title" id="ajaxModalLabel">MQTT Connections</h5>
+            <h5 class="modal-title" id="ajaxModalLabel">'.$lang['mqtt_connections'].'</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">';
     $query = "SELECT * FROM `mqtt` ORDER BY `name`;";
@@ -432,7 +431,7 @@ function GetModal_MQTT($conn)
     echo '<div class="list-group">';
     echo '<span class="list-group-item" style="height:40px;">&nbsp;';
     echo '<span class="pull-right text-muted small"><button type="button" class="btn btn-primary btn-sm" 
-             data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_MQTTAdd" onclick="mqtt_AddEdit(this);">Add</button></span>';
+             data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_MQTTAdd" onclick="mqtt_AddEdit(this);">'.$lang['add'].'</button></span>';
     echo '</span>';
     while ($row = mysqli_fetch_assoc($results)) {
         echo '<span class="list-group-item">';
@@ -458,7 +457,7 @@ function GetModal_MQTT($conn)
     echo '</div>';      //close class="list-group">';
     echo '</div>';      //close class="modal-body">
     echo '<div class="modal-footer" id="ajaxModalFooter">
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$close.'</button>            
+            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
     echo '<script language="javascript" type="text/javascript">
         mqtt_AddEdit=function(ithis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(ithis)); }).modal("hide");};
@@ -472,7 +471,7 @@ if($_GET['Ajax']=='GetModal_MQTT')
 }
 function GetModal_MQTTAddEdit($conn)
 {
-        global $close;
+        global $lang;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
 
     $IsAdd=true;
@@ -485,38 +484,38 @@ function GetModal_MQTTAddEdit($conn)
 
     echo '<div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-            <h5 class="modal-title" id="ajaxModalLabel">' . ($IsAdd ? 'Add MQTT Connection' : 'Edit MQTT Connection') . '</h5>
+            <h5 class="modal-title" id="ajaxModalLabel">' . ($IsAdd ? $lang['add_mqtt_connection'] : $lang['edit_mqtt_connection']) . '</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">';
-    
-    
+
+
     echo '<form name="form-mqtt" id="form-mqtt" role="form" onSubmit="return false;" action="javascript:return false;" >
             ' . ($IsAdd ? '' : '<input type="hidden" name="inp_id" id="inp_id" value="' . $row['id'] . '">') . '
             <div class="form-group">
                 <label>Name</label>
                 <input type="text" class="form-control" name="inp_Name" id="inp_Name" value="' . ($IsAdd ? '' : $row['name']) . '">
-            </div>               
+            </div>
             <div class="form-group">
                 <label>IP</label>
                 <input type="text" class="form-control" name="inp_IP" id="inp_IP" value="' . ($IsAdd ? '' : $row['ip']) . '">
-            </div>               
+            </div>
             <div class="form-group">
                 <label>Port</label>
                 <input type="text" class="form-control" name="inp_Port" id="inp_Port" value="' . ($IsAdd ? '' : $row['port']) . '">
-            </div>               
+            </div>
             <div class="form-group">
                 <label>Username</label>
                 <input type="text" class="form-control" name="inp_Username" id="inp_Username" value="' . ($IsAdd ? '' : $row['username']) . '">
-            </div>               
+            </div>
             <div class="form-group">
                 <label>Password</label>
                 <input type="text" class="form-control" name="inp_Password" id="inp_Password" value="' . ($IsAdd ? '' : $row['password']) . '">
-            </div>               
+            </div>
             <div class="form-group">
                 <label>Enabled</label>
                 <select class="form-control" id="sel_Enabled" name="sel_Enabled" >
-                    <option value="0" ' . ($IsAdd ? '' : ($row['enabled'] ? 'selected' : '')) . '>Disabled</option>
-                    <option value="1" ' . ($IsAdd ? '' : ($row['enabled'] ? 'selected' : '')) . '>Enabled</option>
+                    <option value="0" ' . ($IsAdd ? '' : ($row['enabled'] ? 'selected' : '')) . '>'.$lang['disabled'].'</option>
+                    <option value="1" ' . ($IsAdd ? '' : ($row['enabled'] ? 'selected' : '')) . '>'.$lang['enabled'].'</option>
                 </select>
             </div>
             <div class="form-group">
@@ -531,9 +530,9 @@ function GetModal_MQTTAddEdit($conn)
             </form>';
     echo '</div>';      //close class="modal-body">
     echo '<div class="modal-footer" id="ajaxModalFooter">' . ($IsAdd ?
-            '<button type="button" class="btn btn-warning btn-sm" data-dismiss="modal" onclick="mqtt_add()">Add Conn</button>'
-            : '<button type="button" class="btn btn-warning btn-sm" data-dismiss="modal" onclick="mqtt_edit()">Edit Conn</button>') . '
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$close.'</button>            
+            '<button type="button" class="btn btn-warning btn-sm" data-dismiss="modal" onclick="mqtt_add()">'.$lang['add_conn'].'</button>'
+            : '<button type="button" class="btn btn-warning btn-sm" data-dismiss="modal" onclick="mqtt_edit()">'.$lang['edit_conn'].'</button>') . '
+            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
     echo '<script language="javascript" type="text/javascript">
         mqtt_add=function(){
@@ -583,12 +582,12 @@ if($_GET['Ajax']=='GetModal_MQTTEdit' || $_GET['Ajax']=='GetModal_MQTTAdd')
 
 function GetModal_Services($conn)
 {
-	global $close;
+	global $lang;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
 
     echo '<div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-            <h5 class="modal-title" id="ajaxModalLabel">Services</h5>
+            <h5 class="modal-title" id="ajaxModalLabel">'.$lang['services'].'</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">';
     $SArr=[['name'=>'Apache','service'=>'apache2.service'],
@@ -620,7 +619,7 @@ function GetModal_Services($conn)
                 if(strstr($line,'Active:')) {
                     if(strstr($line,'active (running)')) {
                         $stat=trim($line);
-                        break;                        
+                        break;
                     } else if(strstr($line,'(dead)')) {
                         $stat='Status: Dead';
                         break;
@@ -639,7 +638,7 @@ function GetModal_Services($conn)
     echo '</div>';      //close class="list-group">';
     echo '</div>';      //close class="modal-body">
     echo '<div class="modal-footer" id="ajaxModalFooter">
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$close.'</button>            
+            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
     echo '<script language="javascript" type="text/javascript">
         services_Info=function(ithis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(ithis)); }).modal("hide");};
@@ -653,12 +652,12 @@ if($_GET['Ajax']=='GetModal_Services')
 }
 function GetModal_ServicesInfo($conn)
 {
-        global $close;
+        global $lang;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
 
     echo '<div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-            <h5 class="modal-title" id="ajaxModalLabel">Services Info</h5>
+            <h5 class="modal-title" id="ajaxModalLabel">'.$lang['services_info'].'</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">';
     echo '<div class="list-group">';
@@ -688,7 +687,7 @@ function GetModal_ServicesInfo($conn)
             echo '<p class="text-muted">systemctl ' . $_GET['Action'] . ' ' . $_GET['id'] . '<br/>stdout: ' . $rval['stdout'] . '<br/>stderr: ' . $rval['stderr'] . '</p>';
         }
     }
-    
+
     $rval=my_exec("/bin/systemctl status " . $_GET['id']);
     echo '<span class="list-group-item">' . $_GET['id'] . '<br/>';
     echo '<span class="text-muted small">';
@@ -707,7 +706,7 @@ function GetModal_ServicesInfo($conn)
             if(strstr($line,'Active:')) {
                 if(strstr($line,'active (running)')) {
                     $stat=trim($line);
-                    break;                        
+                    break;
                 } else if(strstr($line,'(dead)')) {
                     $stat='Status: Dead';
                     break;
@@ -715,10 +714,10 @@ function GetModal_ServicesInfo($conn)
             }
         }
         echo $stat . '<br/>';
-    }    
+    }
     echo '</span>';
     echo '</span>';
-    
+
     if(substr($_GET['id'],0,7)=='pihome.' or substr($_GET['id'],0,7)=='pihome_' or substr($_GET['id'],0,10)=='homebridge' or substr($_GET['id'],0,11)=='autohotspot') {
         echo '<span class="list-group-item" style="height:40px;">&nbsp;';
         echo '<span class="pull-right text-muted small">
@@ -746,7 +745,7 @@ function GetModal_ServicesInfo($conn)
     echo '<span class="text-muted small">';
     echo Convert_CRLF($rval['stdout'],'<br/>');
     echo '</span></span>';
-    
+
     if($_GET['id']=='pihome.mqtt.service' or $_GET['id']=='pihome_amazon_echo.service') {
         echo '<span class="list-group-item" style="overflow:hidden;">Install Service:';
         echo '<span class="pull-right text-muted small">Edit /lib/systemd/system/' . $_GET['id'] . '<br/>
@@ -794,7 +793,7 @@ Refer to: <a href="www.freedesktop.org/software/systemd/man/journald.conf.html">
     echo '</div>';      //close class="list-group">';
     echo '</div>';      //close class="modal-body">
     echo '<div class="modal-footer" id="ajaxModalFooter">
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$close.'</button>            
+            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
     echo '<script language="javascript" type="text/javascript">
         services_Info=function(ithis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(ithis)); }).modal("hide");};
@@ -811,15 +810,15 @@ if($_GET['Ajax']=='GetModal_ServicesInfo')
 
 function GetModal_Uptime($conn)
 {
-        global $close;
+        global $lang;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
 
     echo '<div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-            <h5 class="modal-title" id="ajaxModalLabel">System Uptime</h5>
+            <h5 class="modal-title" id="ajaxModalLabel">'.$lang['system_uptime'].'</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">
-			<p class="text-muted"> System up time since last reboot. </p>
+			<p class="text-muted"> '.$lang['system_uptime_text'].' </p>
 			<i class="fa fa-clock-o fa-1x red"></i>';
     $uptime = (exec ("cat /proc/uptime"));
     $uptime=substr($uptime, 0, strrpos($uptime, ' '));
@@ -835,7 +834,7 @@ function GetModal_Uptime($conn)
     $rval=my_exec("free -h");
     echo $rval['stdout'];
     echo '</pre></span>';
-    
+
 
 /*    while ($row = mysqli_fetch_assoc($results)) {
         echo '<span class="list-group-item">';
@@ -859,7 +858,7 @@ function GetModal_Uptime($conn)
     echo '</div>';      //close class="list-group">';
     echo '</div>';      //close class="modal-body">
     echo '<div class="modal-footer" id="ajaxModalFooter">
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$close.'</button>            
+            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
     return;
 }
