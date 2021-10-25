@@ -43,8 +43,8 @@ function GetModal_OpenWeather($conn){
             <h5 class="modal-title" id="ajaxModalLabel">'.$lang['openweather_settings'].'</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">
-            <p class="text-muted">'.$lang['openweather_text1'].' <a class="green" target="_blank" href="http://OpenWeatherMap.org">'.$lang['openweather_text2'].'</a> for more information.
-            <p>'.$lang['openweather_text3'].'
+            <p class="text-muted">'.$lang['openweather_text1'].' <a class="green" target="_blank" href="http://OpenWeatherMap.org">'.$lang['openweather_text2'].'</a> '.$lang['openweather_text3'].'
+            <p>'.$lang['openweather_text4'].'
 
             <form name="form-openweather" id="form-openweather" role="form" onSubmit="return false;" action="javascript:return false;" >
             <div class="form-group">
