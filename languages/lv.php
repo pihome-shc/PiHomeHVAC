@@ -758,7 +758,7 @@ $lang['edit_conn'] = "Edit Conn";
 $lang['services_info'] = "Services Info";
 $lang['system_uptime'] = "System Uptime";
 $lang['system_uptime_text'] = "System up time since last reboot.";
-$lang['re-install'] = "Re-Install";
+$lang['re_install'] = "Re-Install";
 $lang['already_installed'] = "Already Installed";
 $lang['no_installer'] = "No Installer";
 ?>
