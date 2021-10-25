@@ -2583,7 +2583,7 @@ echo '
             <div class="modal-body">
 			<p class="text-muted"> '.$lang['pihome_backup_text'].' </p>
 			<form data-toggle="validator" role="form" method="post" action="#" id="form-join">
-			<div class="form-group" class="control-label"><label>E-Mail Address</label> <small class="text-muted">'.$lang['pihome_backup_email_info'].'</small>
+			<div class="form-group" class="control-label"><label>'.$lang['email_address'].'</label> <small class="text-muted">'.$lang['pihome_backup_email_info'].'</small>
 			<input class="form-control input-sm" type="text" id="backup_email" name="backup_email" value="'.settings($conn, backup_email).'" placeholder="Email Address to Receive your Backup file">
 			<div class="help-block with-errors"></div>
 			</div>
