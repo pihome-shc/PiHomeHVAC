@@ -2299,9 +2299,9 @@ echo '
                                         $installpath = "/var/www/api/enable_rewrite.sh";
                                         $installname = "Install Apache ReWrite";
                                         if (file_exists("/etc/apache2/mods-available/rewrite.load")) {
-                                                $prompt = "Re-Install";
+                                                $prompt = $lang['re_install'];
                                         } else {
-                                                $prompt = "Install";
+                                                $prompt = $lang['install'];
                                         }
                                         echo '<span class="list-group-item">
                                         <i class="fa fa-terminal fa-2x green"></i> '.$installname.'
@@ -2351,9 +2351,9 @@ echo '
                                                                         onclick="install_software(`'.$installpath.'`)">'.$lang['install'].'</button></span>';
 
                                                                 } elseif ($installed == 1) {
-                                                                        echo '<span class="pull-right text"><p> Already Installed</p></span>';
+                                                                        echo '<span class="pull-right text"><p> '.$lang['already_installed'].'</p></span>';
                                                                 } else {
-                                                                        echo '<span class="pull-right text"><p> NO Installer</p></span>';
+                                                                        echo '<span class="pull-right text"><p> '.$lang['no_installer'].'</p></span>';
                                                                 }
                                                                 echo '<p class="text-muted">'.$description.'</p></span>';
                                                         }
