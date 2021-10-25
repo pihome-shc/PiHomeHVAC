@@ -39,12 +39,12 @@ $api_key = $row['api_key'];
 		<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
 		<div class="form-group" class="control-label">
 		<div class="checkbox checkbox-default checkbox-circle">';
-		if ($row['status'] == '1'){ 
+		if ($row['status'] == '1'){
 			echo '<input id="checkbox0" class="styled" type="checkbox" value="1" name="status" checked>';
 		}else {
 			echo '<input id="checkbox0" class="styled" type="checkbox" value="1" name="status">';
 		}
-	echo' 
+	echo'
 		<label for="checkbox0"> Enable PiConnect</label></div>
 		<div class="form-group" class="control-label"><label>API Key</label>
 		<input class="form-control input-sm" type="text" id="api_key" name="api_key" value="'.$row["api_key"].'" placeholder="PiConnect API Key">
@@ -187,14 +187,14 @@ echo '
                 <h5 class="modal-title">'.$lang['language'].'</h5>
             </div>
             <div class="modal-body">
-				
+
 				<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
 				<div class="form-group" class="control-label"><label>'.$lang['language'].'</label>
 				<select class="form-control input-sm" type="text" id="new_lang" name="new_lang">';
 				$languages = ListLanguages($language);
 				for ($x = 0; $x <=  count($languages) - 1; $x++) {
 					echo '<option value="'.$languages[$x][0].'" ' . ($language==$languages[$x][0] ? 'selected' : '') . '>'.$languages[$x][1].'</option>';
-				}	
+				}
 				echo '</select>
                 <div class="help-block with-errors"></div></div>
             </div>
@@ -567,7 +567,7 @@ echo '
             <div class="modal-body">';
 echo '<p class="text-muted">'.$info_text.'</p>
 	<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
-	
+
 	<div class="form-group" class="control-label"><label>'.$zone_hvac.'</label> 
 	<select class="form-control input-sm" type="text" id="zone_id" name="zone_id">';
 	if ((settings($conn, 'mode') & 0b1) == 0) {
@@ -587,7 +587,7 @@ echo '<p class="text-muted">'.$info_text.'</p>
 	echo '
 	</select>
     <div class="help-block with-errors"></div></div>
-	
+
 	<div class="form-group" class="control-label"><label>'.$lang['boost_temperature'].'</label> <small class="text-muted">'.$lang['boost_temperature_info'].'</small>
 	<select class="form-control input-sm" type="text" id="boost_temperature" name="boost_temperature">
 	<option value="20">20</option>
@@ -1879,7 +1879,7 @@ $erow = mysqli_fetch_array($gresult);
 echo '<p class="text-muted">'.$lang['email_text'].'</p>';
 echo '
 	<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
-	
+
 	<div class="form-group" class="control-label">
 	<div class="checkbox checkbox-default checkbox-circle">';
 	if ($erow['status'] == '1'){
@@ -1887,14 +1887,14 @@ echo '
 	}else {
 		echo '<input id="checkbox3" class="styled" type="checkbox" value="1" name="status">';
 	}
-echo ' 
+echo '
 
 	<label for="checkbox3"> '.$lang['email_enable'].'</label></div></div>
-	
+
 	<div class="form-group" class="control-label"><label>'.$lang['email_smtp_server'].'</label>
 	<input class="form-control input-sm" type="text" id="e_smtp" name="e_smtp" value="'.$erow['smtp'].'" placeholder="e-mail SMTP Server Address ">
 	<div class="help-block with-errors"></div></div>
-	
+
 	<div class="form-group" class="control-label"><label>'.$lang['email_username'].' </label>
 	<input class="form-control input-sm" type="text" id="e_username" name="e_username" value="'.$erow['username'].'" placeholder="Username for e-mail Server">
 	<div class="help-block with-errors"></div></div>
@@ -1915,7 +1915,7 @@ echo '</div>
             <div class="modal-footer">
 				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
 				<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="setup_email()">
-				
+
             </div>
         </div>
     </div>
@@ -1988,7 +1988,7 @@ echo '
 				<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
 				<div class="form-group" class="control-label"><label>'.$lang['time_zone'].'</label>
 				<select class="form-control input-sm" type="number" id="new_time_zone" name="new_time_zone" >
-				
+
 				<option selected >'.settings($conn, 'timezone').'</option>';
 $timezones = array(
     'Pacific/Midway'       => "(GMT-11:00) Midway Island",
@@ -2260,7 +2260,7 @@ echo '
                                 echo '<textarea id="job_status_text" style="background-color: black;color:#fff;height: 500px; min-width: 100%"><pre>'.$row['output'].'</pre></textarea>
                         </div>
                         <div class="modal-footer" id="ajaxModalFooter_1">
-                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Close</button>
                         </div>
                 </div>
         </div>
@@ -2299,9 +2299,9 @@ echo '
                                         $installpath = "/var/www/api/enable_rewrite.sh";
                                         $installname = "Install Apache ReWrite";
                                         if (file_exists("/etc/apache2/mods-available/rewrite.load")) {
-                                                $prompt = "Re-Install";
+                                                $prompt = $lang['re_install'];
                                         } else {
-                                                $prompt = "Install";
+                                                $prompt = $lang['install'];
                                         }
                                         echo '<span class="list-group-item">
                                         <i class="fa fa-terminal fa-2x green"></i> '.$installname.'
@@ -2351,9 +2351,9 @@ echo '
                                                                         onclick="install_software(`'.$installpath.'`)">'.$lang['install'].'</button></span>';
 
                                                                 } elseif ($installed == 1) {
-                                                                        echo '<span class="pull-right text"><p> Already Installed</p></span>';
+                                                                        echo '<span class="pull-right text"><p> '.$lang['already_installed'].'</p></span>';
                                                                 } else {
-                                                                        echo '<span class="pull-right text"><p> NO Installer</p></span>';
+                                                                        echo '<span class="pull-right text"><p> '.$lang['no_installer'].'</p></span>';
                                                                 }
                                                                 echo '<p class="text-muted">'.$description.'</p></span>';
                                                         }
@@ -2466,7 +2466,7 @@ echo '
 			   <div class="list-group">
 				<a href="#" class="list-group-item"><i class="fa fa-linux"></i> '.$lines[1].'</a>
 				<a href="#" class="list-group-item"><i class="fa fa-linux"></i> '.$lines[3].'</a>
-				</div>				
+				</div>
            </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
@@ -2583,7 +2583,7 @@ echo '
             <div class="modal-body">
 			<p class="text-muted"> '.$lang['pihome_backup_text'].' </p>
 			<form data-toggle="validator" role="form" method="post" action="#" id="form-join">
-			<div class="form-group" class="control-label"><label>E-Mail Address</label> <small class="text-muted">'.$lang['pihome_backup_email_info'].'</small>
+			<div class="form-group" class="control-label"><label>'.$lang['email_address'].'</label> <small class="text-muted">'.$lang['pihome_backup_email_info'].'</small>
 			<input class="form-control input-sm" type="text" id="backup_email" name="backup_email" value="'.settings($conn, backup_email).'" placeholder="Email Address to Receive your Backup file">
 			<div class="help-block with-errors"></div>
 			</div>
@@ -2723,7 +2723,7 @@ echo '
     </div>
 </div>';
 
-//user accounts model 
+//user accounts model
 echo '
 <div class="modal fade" id="user_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -2766,7 +2766,7 @@ echo '</div></div>
     </div>
 </div>';
 
-//Big Thank you 	
+//Big Thank you
 echo '
 <div class="modal fade" id="big_thanks" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -2803,35 +2803,130 @@ echo '<div class="modal fade" id="set_buttons" tabindex="-1" role="dialog" aria-
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title">'.$lang['set_buttons'].'</h5>
             </div>
             <div class="modal-body">
-                <p class="text-muted">'.$lang['set_buttons_text'].'</p>
-                <input type="hidden" id="button_page_1" name="button_page_1" value="'.$lang['home_page'].'">
+		<p class="text-muted">'.$lang['set_buttons_text'].'</p>
+		<input type="hidden" id="button_page_1" name="button_page_1" value="'.$lang['home_page'].'">
                 <input type="hidden" id="button_page_2" name="button_page_2" value="'.$lang['onetouch_page'].'">';
-                echo '<table class="table table-bordered">
-                        <tr>
+		echo '<table class="table table-bordered">
+    			<tr>
                                 <th class="col-md-3 text-center"><small>'.$lang['button_name'].'</small></th>
                                 <th class="col-md-2 text-center"><small>'.$lang['toggle_page'].'</small></th>
                                 <th class="col-md-1 text-center"><small>'.$lang['index_number'].'</small></th>
-                        </tr>';
-                        $query = "SELECT * FROM button_page ORDER BY index_id ASC;";
-                        $results = $conn->query($query);
-                        while ($row = mysqli_fetch_assoc($results)) {
-                                if ($row["page"] == 1) { $button_text = $lang['home_page']; } else { $button_text = $lang['onetouch_page']; }
+    			</tr>';
+	                $query = "SELECT * FROM button_page ORDER BY index_id ASC;";
+        	        $results = $conn->query($query);
+			while ($row = mysqli_fetch_assoc($results)) {
+				if ($row["page"] == 1) { $button_text = $lang['home_page']; } else { $button_text = $lang['onetouch_page']; }
                                 echo '<tr>
                                         <td>'.$row["name"].'</td>
-                                        <td><input type="button" id="page_button'.$row["id"].'" value="'.$button_text.'" class="btn btn-info btn-block" onclick="set_button_text('.$row["id"].')"></td>
-                                        <td><input id="index'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="index_id"  size="3" value="'.$row["index_id"].'" placeholder="Index ID" required></td>
-                                        <input type="hidden" id="page_type'.$row["id"].'" name="page_type" value="'.$row["page"].'">
+					<td><input type="button" id="page_button'.$row["id"].'" value="'.$button_text.'" class="btn btn-info btn-block" onclick="set_button_text('.$row["id"].')"></td>
+           		                <td><input id="index'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="index_id"  size="3" value="'.$row["index_id"].'" placeholder="Index ID" required></td>
+					<input type="hidden" id="page_type'.$row["id"].'" name="page_type" value="'.$row["page"].'">
+        			</tr>';
+			}
+            	echo '</table>
+	    </div>
+		<div class="modal-footer">
+                	<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                	<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="set_buttons()">
+            </div>
+        </div>
+    </div>
+</div>';
+
+//Setup Database Cleanup intervals
+echo '<div class="modal fade" id="db_cleanup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['db_cleanup'].'</h5>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">'.$lang['db_cleanup_text'].'</p>
+                <table class="table table-bordered">
+                        <tr>
+                                <th class="col-md-2 text-center"><small>'.$lang['table_name'].'</small></th>
+                                <th class="col-md-1 text-center"><small>'.$lang['db_cleanup_value'].'</small></th>
+                                <th class="col-md-1 text-center"><small>'.$lang['db_cleanup_period'].'</small></th>
+                        </tr>';
+			$query = "SELECT * FROM db_cleanup LIMIT 1;";
+			$result = $conn->query($query);
+			$db_row = mysqli_fetch_assoc($result);
+                        $query = "SELECT column_name
+				FROM INFORMATION_SCHEMA.COLUMNS
+				WHERE TABLE_SCHEMA = 'maxair' AND table_name = 'db_cleanup' AND ordinal_position > 3
+				ORDER BY ordinal_position;";
+			$results = $conn->query($query);
+			$x = 0;
+                        while ($row = mysqli_fetch_assoc($results)) {
+                                $col_name = $row["column_name"];
+				$per_int = $db_row[$col_name];
+				$pieces = explode(" ", $per_int);
+				$period = $pieces[0];
+                                $interval = $pieces[1];
+                                echo '<tr>
+                                        <td>'.$row["column_name"].'</td>
+                                        <td><input id="period'.$x.'" type="text" class="pull-left text" style="border: none" name="period'.$x.'"  size="3" value="'.$period.'" placeholder="Period" required></td>
+                                        <td><select class="form-control input-sm" type="text" id="ival'.$x.'" name="ival'.$x.'" onchange=set_interval('.$x.')>
+                                                <option value="HOUR" ' . ($interval=='HOUR' ? 'selected' : '') . '>'.$lang['HOUR'].'</option>
+                                                <option value="DAY" ' . ($interval=='DAY' ? 'selected' : '') . '>'.$lang['DAY'].'</option>
+                                                <option value="WEEK" ' . ($interval=='WEEK' ? 'selected' : '') . '>'.$lang['WEEK'].'</option>
+                                                <option value="MONTH" ' . ($interval=='MONTH' ? 'selected' : '') . '>'.$lang['MONTH'].'</option>
+                                        </select></td>
+					<input type="hidden" id="set_interval'.$x.'" name="set_interval_type" value="'.$interval.'">
                                 </tr>';
+				$x = $x + 1;
                         }
                 echo '</table>
             </div>
                 <div class="modal-footer">
                         <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                        <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="set_buttons()">
+                        <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="set_db_cleanup()">
+            </div>
+        </div>
+    </div>
+</div>';
+
+//Set Graph Categories to display
+echo '<div class="modal fade" id="display_graphs" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['enable_graphs'].'</h5>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">'.$lang['enable_graphs_text'].'</p>
+                <table class="table table-bordered">
+                        <tr>
+                                <th class="col-md-2 text-center"><small>'.$lang['graph'].'</small></th>
+                                <th class="col-md-1 text-center"><small>'.$lang['enabled'].'</small></th>
+                        </tr>';
+			$myArr = [];
+			array_push($myArr, $lang['graph_temperature'], $lang['graph_humidity'], $lang['graph_addon_usage'], $lang['graph_saving'], $lang['graph_system_controller_usage'], $lang['graph_battery_usage']);
+                        $query = "SELECT mask FROM graphs LIMIT 1;";
+                        $result = $conn->query($query);
+			$row = mysqli_fetch_assoc($result);
+			$m = 1;
+                        for ($x = 0; $x <=  5; $x++) {
+                        	if ($row['mask'] & $m) { $enabled_check = 'checked'; } else { $enabled_check = ''; }
+                                echo '<tr>
+                                        <td>'.$myArr[$x].'</td>
+            				<td style="text-align:center; vertical-align:middle;">
+               					<input type="checkbox" id="checkbox_graph'.$x.'" name="enabled" value="1" '.$enabled_check.'>
+            				</td>
+                                </tr>';
+				$m = $m << 1;
+                        }
+                echo '</table>
+            </div>
+                <div class="modal-footer">
+                        <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                        <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="enable_graphs()">
             </div>
         </div>
     </div>
@@ -2938,12 +3033,22 @@ function set_button_text(id)
  var id_text = id;
  var e = document.getElementById("page_type" + id_text);
  if (e.value == 1) {
-        document.getElementById("page_button" + id_text).value = document.getElementById("button_page_2").value;
+ 	document.getElementById("page_button" + id_text).value = document.getElementById("button_page_2").value;
         document.getElementById("page_type" + id_text).value = 2;
  } else {
         document.getElementById("page_button" + id_text).value = document.getElementById("button_page_1").value;
         document.getElementById("page_type" + id_text).value = 1;
  }
+}
+
+function set_interval(id)
+{
+ var id_text = id;
+
+ var e = document.getElementById("ival" + id_text);
+ var f = document.getElementById("set_interval" + id_text);
+
+ f.value = e.value;
 }
 </script>
 

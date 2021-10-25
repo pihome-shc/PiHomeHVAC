@@ -1465,5 +1465,60 @@ if($what=="set_buttons"){
                 return;
         }
 }
+
+//Set DB Cleanup
+if($what=="set_db_cleanup"){
+        $query = "SELECT column_name
+                FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = 'maxair' AND table_name = 'db_cleanup' AND ordinal_position > 3
+                ORDER BY ordinal_position;";
+        $results = $conn->query($query);
+	$x = 0;
+        while ($row = mysqli_fetch_assoc($results)) {
+                $column_name = $row['column_name'];
+                $period = $_GET["period".$x];
+                $interval = $_GET["set_interval".$x];
+                $query = "UPDATE db_cleanup SET ".$column_name." = '".$period." ".$interval."' WHERE id = 1 LIMIT 1;";
+                $update_error=0;
+                if(!$conn->query($query)){
+                        $update_error=1;
+                }
+		$x = $x + 1;
+        }
+        if($update_error==0){
+                header('Content-type: application/json');
+                echo json_encode(array('Success'=>'Success','Query'=>$query));
+                return;
+        }else{
+                header('Content-type: application/json');
+                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                return;
+        }
+}
+
+//enable graph categories to be displayed
+if($what=="enable_graphs"){
+        $mask = 0;
+        for ($x = 0; $x <=  5; $x++) {
+                $checkbox = 'checkbox_graph'.$x;
+                $enabled =  $_GET[$checkbox];
+                if ($enabled=='true'){$enabled = 1;} else {$enabled = 0;}
+                $mask = $mask + ($enabled << $x);
+	}
+        $query = "UPDATE graphs SET mask = '".$mask."' LIMIT 1;";
+        $update_error=0;
+        if(!$conn->query($query)){
+        	$update_error=1;
+        }
+        if($update_error==0){
+                header('Content-type: application/json');
+                echo json_encode(array('Success'=>'Success','Query'=>$query));
+                return;
+        }else{
+                header('Content-type: application/json');
+                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                return;
+        }
+}
 ?>
 <?php if(isset($conn)) { $conn->close();} ?>

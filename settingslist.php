@@ -64,8 +64,9 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                       	        		<ul class="nav nav-pills">
 							<button class="btn-lg btn-default btn-circle" href="#collapse_status" data-toggle="collapse" data-parent="#accordion" data-toggle="tooltip" title="<?php echo $lang['tooltip_1']; ?>"><i class="fa fa-tachometer orange"></i></button>
 							<button class="btn-lg btn-default btn-circle" href="#collapse_system" data-toggle="collapse" data-parent="#accordion" data-toggle="tooltip" title="<?php echo $lang['tooltip_2']; ?>"><i class="fa fa-cogs green"></i></button>
-                                                        <button class="btn-lg btn-default btn-circle" href="#collapse_system_controller" data-toggle="collapse" data-parent="#accordion" data-toggle="tooltip" title="<?php echo $lang['tooltip_3']; ?>"><i class="degre" ><?php echo "SC"; ?></i></button>
-							<button class="btn-lg btn-default btn-circle" href="#collapse_nodes" data-toggle="collapse" data-parent="#accordion"" data-toggle="tooltip" title="<?php echo $lang['tooltip_4']; ?>"><i class="fa fa-sitemap blue"></i></button>
+							<button class="btn-lg btn-default btn-circle" href="#collapse_maintenance" data-toggle="collapse" data-parent="#accordion" data-toggle="tooltip" title="<?php echo $lang['tooltip_3']; ?>"><i class="fa fa-wrench red"></i></button>
+                                                        <button class="btn-lg btn-default btn-circle" href="#collapse_system_controller" data-toggle="collapse" data-parent="#accordion" data-toggle="tooltip" title="<?php echo $lang['tooltip_4']; ?>"><i class="degre" ><?php echo "SC"; ?></i></button>
+							<button class="btn-lg btn-default btn-circle" href="#collapse_nodes" data-toggle="collapse" data-parent="#accordion"" data-toggle="tooltip" title="<?php echo $lang['tooltip_5']; ?>"><i class="fa fa-sitemap blue"></i></button>
 							<br><br>
 						</ul>
 
@@ -177,23 +178,11 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
         	        	        		<h3 class="status"></small></h3>
 	                	        	        </button>
 
-		        		        	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Services">
-        		        		        <h3 class="buttontop"><small><?php echo $lang['services']; ?></small></h3>
-                		        		<h3 class="degre" ><i class="ionicons ion-ios-cog-outline"></i></h3>
-		                        		<h3 class="status"></small></h3>
-			                                </button>
-
                                                 	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#network_setting">
                                                         <h3 class="buttontop"><small><?php echo $lang['network']; ?></small></h3>
                                                         <h3 class="degre" ><i class="ionicons ion-network blue"></i></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
-
-							<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_piconnect.php" data-toggle="modal" data-target="#piconnect">
-        	                		        <h3 class="buttontop"><small>PiConnect</small></h3>
-			                		<h3 class="degre" ><i class="fa fa-plug green"></i></h3>
-	                			      	<h3 class="status"></small></h3>
-        	                        		</button>
 
 				                       	<?php
 				                        $c_f = settings($conn, 'c_f');
@@ -226,9 +215,15 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 		                	       		<h3 class="status"></small></h3>
 	        		                	</button>
 
-		                		      	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#zone_graph">
-        		                		<h3 class="buttontop"><small><?php echo $lang['graph']; ?></small></h3>
-	                		        	<h3 class="degre" ><i class="fa fa-bar-chart fa-1x blueinfo"></i></h3>
+                                                 	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#display_graphs">
+                                                        <h3 class="buttontop"><small><?php echo $lang['enable_graphs']; ?></small></h3>
+                                                        <h3 class="degre" ><i class="fa fa-bar-chart fa-1x blueinfo"></i></h3>
+                                                        <h3 class="status"></small></h3>
+                                                        </button>
+
+		                		  	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#zone_graph">
+        		                		<h3 class="buttontop"><small><?php echo $lang['select']; ?></small></h3>
+	                		        	<h3 class="degre" ><i class="fa fa-bar-chart fa-1x"></i></h3>
 		                		       	<h3 class="status"></small></h3>
         		                		</button>
 
@@ -243,6 +238,28 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                 	        			<h3 class="degre" ><?php echo $lang['mqtt']; ?></h3>
 				        	        <h3 class="status"></small></h3>
 			                		</button>
+
+                                                        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#set_buttons">
+                                                        <h3 class="buttontop"><small><?php echo $lang['set_buttons']; ?></small></h3>
+                                                        <h3 class="degre" ><i class="fa fa-th-large orange"></i></h3>
+                                                        <h3 class="status"></small></h3>
+                                                        </button>
+        	        	        	</div>
+
+				             	<div id="collapse_maintenance" class="panel-collapse collapse animated fadeIn">
+							<h4 class="pull-left"><?php echo $lang['system_maintenance']; ?></h4><br>
+
+							<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_piconnect.php" data-toggle="modal" data-target="#piconnect">
+        	                		        <h3 class="buttontop"><small>PiConnect</small></h3>
+			                		<h3 class="degre" ><i class="fa fa-plug green"></i></h3>
+	                			      	<h3 class="status"></small></h3>
+        	                        		</button>
+
+		        		        	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Services">
+        		        		        <h3 class="buttontop"><small><?php echo $lang['services']; ?></small></h3>
+                		        		<h3 class="degre" ><i class="ionicons ion-ios-cog-outline"></i></h3>
+		                        		<h3 class="status"></small></h3>
+			                                </button>
 
                                                 	<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#maxair_update">
                                                         <h3 class="buttontop"><small><?php echo $lang['maxair_update']; ?></small></h3>
@@ -267,12 +284,12 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                                                         <h3 class="degre" ><i class="fa fa-terminal"></i></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
-									  
-                            				<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#set_buttons">
-                                                        <h3 class="buttontop"><small><?php echo $lang['set_buttons']; ?></small></h3>
-                                                        <h3 class="degre" ><i class="fa fa-th-large"></i></h3>
+
+                                        		<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#db_cleanup">
+                                                        <h3 class="buttontop"><small><?php echo $lang['db_cleanup']; ?></small></h3>
+                                                        <h3 class="degre" ><i class="fa fa-database orange"></i></h3>
                                                         <h3 class="status"></small></h3>
-                                                        </button>									  
+                                                        </button>
         	        	        	</div>
 
 			        	        <div id="collapse_system_controller" class="panel-collapse collapse animated fadeIn">
