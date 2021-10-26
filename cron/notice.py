@@ -356,6 +356,7 @@ try:
         0]  # Parse first and the only one part of data table named "count" - there is number of records grabbed in SELECT above
     if count > 0:  # If greater then 0 then we have something to send out.
         message = "Over 50c CPU Temperature Recorded in last one Hour"
+        query = ("SELECT * FROM notice WHERE message = '" + message + "'")
         cursorsel = con.cursor()
         cursorsel.execute(query)
         name_to_index = dict(
