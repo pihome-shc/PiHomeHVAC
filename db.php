@@ -1008,7 +1008,7 @@ if($what=="setup_piconnect"){
 
 //Database Backup
 if($what=="db_backup"){
-	shell_exec("nohup php start_backup.php >/dev/null 2>&1"); 
+        shell_exec("nohup python3 start_backup.py >/dev/null 2>&1");
 	$info_message = "Data Base Backup Request Started, This process may take some time complete..." ;
 }
 
