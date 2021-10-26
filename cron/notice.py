@@ -60,7 +60,7 @@ try:
         HOST = results[name_to_index['smtp']]
         TO = results[name_to_index['to']]
         FROM = results[name_to_index['from']]
-        SUBJECT = "MaxAir Status"
+        SUBJECT = "PiHome Status"
         MESSAGE = ""
         send_status = results[name_to_index['status']]
     else:
@@ -185,14 +185,14 @@ try:
                 cursordelete.close()
                 con.commit()
 
-            if min_value is not None:  # This is a Battery Powered Node, so check battery status
+            if min_value > 0:  # This is a Battery Powered Node, so check battery status
                 print(bc.blu + (datetime.datetime.now().strftime(
-                    "%Y-%m-%d %H:%M:%S")) + bc.wht + " - Checking Battery Node - " + node_id + " Communication")
+                    "%Y-%m-%d %H:%M:%S")) + bc.wht + " - Checking Battery Node - " + str(node_id) + " Communication")
                 try:
                     cnx = mdb.connect(dbhost, dbuser, dbpass, dbname)
                     cursorselect = cnx.cursor()
                     query = (
-                            "SELECT * FROM `nodes_battery` WHERE `node_id` = " + node_id + " ORDER BY `update` DESC LIMIT 1;")
+                            "SELECT * FROM `nodes_battery` WHERE `node_id` = '" + str(node_id) + "' ORDER BY `update` DESC LIMIT 1;")
                     cursorselect.execute(query)
                     bat_node_to_index = dict(
                         (d[0], i)
@@ -209,7 +209,7 @@ try:
                             bat_level = int(results[bat_node_to_index['bat_level']])
                         timeDifference = (datetime.datetime.now() - update)
                         time_difference_in_minutes = (timeDifference.days * 24 * 60) + (timeDifference.seconds / 60)
-                        message = "Battery Node " + node_id + " last reported on " + str(update)
+                        message = "Battery Node " + str(node_id) + " last reported on " + str(update)
                         # select any records in the notice table which match the current message
                         query = ("SELECT * FROM notice WHERE message = '" + message + "'")
                         cursorsel = con.cursor()
@@ -233,7 +233,7 @@ try:
                                     'INSERT INTO notice (sync, `purge`, datetime, message, status) VALUES(%s,%s,%s,%s,%s)',
                                     (0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message, 1))
                                 print(bc.blu + (datetime.datetime.now().strftime(
-                                    "%Y-%m-%d %H:%M:%S")) + bc.wht + " - Battery Node - " + node_id + " Reported - " + str(
+                                    "%Y-%m-%d %H:%M:%S")) + bc.wht + " - Battery Node - " + str(node_id) + " Reported - " + str(
                                     2) + " Minutes Ago.")
 
                             cursorupdate.close()
@@ -248,7 +248,7 @@ try:
 
                         # Check latest Battery Level
                         # ----------------------------
-                        message = "Battery Node " + node_id + " Level < " + str(min_value) + " %"
+                        message = "Battery Node " + str(node_id) + " Level < " + str(min_value) + " %"
                         # select any records in the notice table which match the current message
                         query = ("SELECT * FROM notice WHERE message = '" + message + "'")
                         cursorsel = con.cursor()
@@ -272,7 +272,7 @@ try:
                                     'INSERT INTO notice (sync, `purge`, datetime, message, status) VALUES(%s,%s,%s,%s,%s)',
                                     (0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message, 1))
                                 print(bc.blu + (datetime.datetime.now().strftime(
-                                    "%Y-%m-%d %H:%M:%S")) + bc.wht + " - Battery Node - " + node_id + " Level < " + str(
+                                    "%Y-%m-%d %H:%M:%S")) + bc.wht + " - Battery Node - " + str(node_id) + " Level < " + str(
                                     min_value) + " %.")
 
                             cursorupdate.close()
@@ -293,7 +293,7 @@ try:
                         con.commit()
 
                     else:  # no battery records found
-                        message = "Battery Node " + node_id + " No Level Records Found"
+                        message = "Battery Node " + str(node_id) + " No Level Records Found"
                         # select any records in the notice table which match the current message
                         query = ("SELECT * FROM notice WHERE message = '" + message + "'")
                         cursorsel = con.cursor()
@@ -316,7 +316,7 @@ try:
                                 'INSERT INTO notice (sync, `purge`, datetime, message, status) VALUES(%s,%s,%s,%s,%s)',
                                 (0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message, 1))
                             print(bc.blu + (datetime.datetime.now().strftime(
-                                "%Y-%m-%d %H:%M:%S")) + bc.wht + " - Battery Node - " + node_id + " No Level Records Found.")
+                                "%Y-%m-%d %H:%M:%S")) + bc.wht + " - Battery Node - " + str(node_id) + " No Level Records Found.")
 
                         cursorupdate.close()
                         con.commit()
@@ -431,7 +431,7 @@ if send_status:
 
         try:
             server = smtplib.SMTP(HOST)
-            #               	server.set_debuglevel(1)
+            #server.set_debuglevel(1)
             server.login(USER, PASS)
             server.sendmail(FROM, TO, BODY)
             server.quit()
