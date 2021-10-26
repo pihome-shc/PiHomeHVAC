@@ -60,7 +60,7 @@ try:
         HOST = results[name_to_index['smtp']]
         TO = results[name_to_index['to']]
         FROM = results[name_to_index['from']]
-        SUBJECT = "PiHome Status"
+        SUBJECT = "MaxAir Status"
         MESSAGE = ""
         send_status = results[name_to_index['status']]
     else:
@@ -371,7 +371,7 @@ try:
             else:
                 cursorupdate.execute(
                     'INSERT INTO notice (sync, `purge`, datetime, message, status) VALUES(%s,%s,%s,%s,%s)',
-                    (0, 0, datetime.datetime.now().strftime("%Y-%m-%d$-%m-%d %H:%M:%S"), message, 1))
+                    (0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message, 1))
             print(bc.blu + (
                 datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - CPU Temperature is very high")
 
