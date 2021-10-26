@@ -357,23 +357,22 @@ try:
     if count > 0:  # If greater then 0 then we have something to send out.
         message = "Over 50c CPU Temperature Recorded in last one Hour"
         query = ("SELECT * FROM notice WHERE message = '" + message + "'")
-        cursorsel = con.cursor()
-        cursorsel.execute(query)
+        cursorselect.execute(query)
         name_to_index = dict(
             (d[0], i)
             for i, d
-            in enumerate(cursorsel.description)
+            in enumerate(cursorselect.description)
         )
-        messages = cursorsel.fetchone()  # Grab all notices with the same message content.
-        cursorsel.close()
+        messages = cursorselect.fetchone()  # Grab all notices with the same message content.
+        cursorselect.close()
         cursorupdate = con.cursor()
-        if cursorsel.rowcount > 0:
+        if cursorselect.rowcount > 0:
             if messages[name_to_index['status']] == 1:
                 cursorupdate.execute("UPDATE notice SET status = '0'")
-            else:
-                cursorupdate.execute(
-                    'INSERT INTO notice (sync, `purge`, datetime, message, status) VALUES(%s,%s,%s,%s,%s)',
-                    (0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message, 1))
+        else:
+            cursorupdate.execute(
+                'INSERT INTO notice (sync, `purge`, datetime, message, status) VALUES(%s,%s,%s,%s,%s)',
+                (0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message, 1))
             print(bc.blu + (
                 datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - CPU Temperature is very high")
 
