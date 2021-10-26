@@ -1173,23 +1173,24 @@ if($what=="setup_network"){
 if($what=="setup_email"){
 	$status = $_GET['status'];
 	$e_smtp = $_GET['e_smtp'];
+        $e_port = $_GET['e_port'];
 	$e_username = $_GET['e_username'];
 	$e_password = $_GET['e_password'];
 	$e_from_address = $_GET['e_from_address'];
 	$e_to_address = $_GET['e_to_address'];
 	if ($status=='true'){$status = '1';} else {$status = '0';}
-	
+
 	//search for exiting record
 	$query = "SELECT * FROM email LIMIT 1;";
 	$result = $conn->query($query);
 	if (mysqli_num_rows($result)==0){
 		//Inset New Record
-		$query = "INSERT INTO email (`sync`, `purge`, smtp, username, password, `from`, `to`, status) VALUES (0, 0, '".$e_smtp."', '".$e_username."', '".$e_password."', '".$e_from_address."', '".$e_to_address."', '".$status."');";
+		$query = "INSERT INTO email (`sync`, `purge`, smtp, port, username, password, `from`, `to`, status) VALUES (0, 0, '".$e_smtp."', '".$e_port."', '".$e_username."', '".$e_password."', '".$e_from_address."', '".$e_to_address."', '".$status."');";
 	} else {
 		//Update Exiting Record
 		$row = mysqli_fetch_assoc($result);
 		$e_id= $row['id'];
-		$query = "Update email SET smtp = '".$e_smtp."', username = '".$e_username."', password = '".$e_password."', `from` = '".$e_from_address."', `to` = '".$e_to_address."', status = '".$status."' where ID = '".$e_id."';";
+		$query = "Update email SET smtp = '".$e_smtp."',port = '".$e_port."', username = '".$e_username."', password = '".$e_password."', `from` = '".$e_from_address."', `to` = '".$e_to_address."', status = '".$status."' where ID = '".$e_id."';";
 	}
 	if($conn->query($query)){
 		header('Content-type: application/json');

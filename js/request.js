@@ -603,7 +603,8 @@ var idata="w=setup_network&o=update&n_primary="+document.getElementById("n_prima
 //update email 
 function setup_email(){
 var idata="w=setup_email&o=update&status="+document.getElementById("checkbox3").checked;
-    idata+="&e_smtp="+document.getElementById("e_smtp").value;
+    idata+="&e_port="+document.getElementById("e_port").value;
+	idata+="&e_smtp="+document.getElementById("e_smtp").value;
 	idata+="&e_username="+document.getElementById("e_username").value;
 	idata+="&e_password="+document.getElementById("e_password").value;
 	idata+="&e_from_address="+document.getElementById("e_from_address").value;

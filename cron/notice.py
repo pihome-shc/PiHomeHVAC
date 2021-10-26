@@ -23,8 +23,8 @@ print(" ")
 print("             " +bc.SUB + "S M A R T   THERMOSTAT " + bc.ENDC)
 print("********************************************************")
 print("*          Script to send status Email messages        *")
-print("*                Build Date: 19/06/2019                *")
-print("*      Version 0.04 - Last Modified 12/05/2020         *")
+print("*                Build Date: 26/10/2021                *")
+print("*      Version 0.04 - Last Modified 26/10/2021         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" ")
@@ -58,9 +58,10 @@ try:
         USER = results[name_to_index['username']]
         PASS = results[name_to_index['password']]
         HOST = results[name_to_index['smtp']]
+        PORT = results[name_to_index['port']]
         TO = results[name_to_index['to']]
         FROM = results[name_to_index['from']]
-        SUBJECT = "PiHome Status"
+        SUBJECT = "MaxAir Status"
         MESSAGE = ""
         send_status = results[name_to_index['status']]
     else:
@@ -430,7 +431,10 @@ if send_status:
             ))
 
         try:
-            server = smtplib.SMTP(HOST)
+            if PORT == 465 :
+                server = smtplib.SMTP_SSL(HOST, PORT)
+            else :
+                server = smtplib.SMTP(HOST, PORT)
             #server.set_debuglevel(1)
             server.login(USER, PASS)
             server.sendmail(FROM, TO, BODY)

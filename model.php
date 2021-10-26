@@ -1895,6 +1895,10 @@ echo '
 	<input class="form-control input-sm" type="text" id="e_smtp" name="e_smtp" value="'.$erow['smtp'].'" placeholder="e-mail SMTP Server Address ">
 	<div class="help-block with-errors"></div></div>
 
+        <div class="form-group" class="control-label"><label>'.$lang['port'].'</label>
+        <input class="form-control input-sm" type="text" id="e_port" name="e_port" value="'.$erow['port'].'" placeholder="e-mail SMTP PORT ">
+        <div class="help-block with-errors"></div></div>
+
 	<div class="form-group" class="control-label"><label>'.$lang['email_username'].' </label>
 	<input class="form-control input-sm" type="text" id="e_username" name="e_username" value="'.$erow['username'].'" placeholder="Username for e-mail Server">
 	<div class="help-block with-errors"></div></div>
