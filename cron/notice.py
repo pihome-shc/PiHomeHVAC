@@ -174,7 +174,7 @@ try:
                         'INSERT INTO notice (sync, `purge`, datetime, message, status) VALUES(%s,%s,%s,%s,%s)',
                         (0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message, 1))
                     print(bc.blu + (
-                        datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - " + name + " - " + str(
+                        datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - " + name + " " + node_id + " - Last Reported " + str(
                         notice_interval) + " Minutes Ago.")
 
                 cursorupdate.close()
