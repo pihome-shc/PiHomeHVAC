@@ -1896,7 +1896,10 @@ echo '
 	<div class="help-block with-errors"></div></div>
 
         <div class="form-group" class="control-label"><label>'.$lang['port'].'</label>
-        <input class="form-control input-sm" type="text" id="e_port" name="e_port" value="'.$erow['port'].'" placeholder="e-mail SMTP PORT ">
+        <select class="form-control input-sm" type="text" id="e_port" name="e_port" >
+                <option value="25" ' . ($erow['port']==25 ? 'selected' : '') . '>25</option>
+                <option value="465" ' . ($erow['port']==465 ? 'selected' : '') . '>465</option>
+        </select>
         <div class="help-block with-errors"></div></div>
 
 	<div class="form-group" class="control-label"><label>'.$lang['email_username'].' </label>
