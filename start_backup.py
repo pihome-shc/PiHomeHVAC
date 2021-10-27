@@ -111,8 +111,8 @@ print("------------------------------------------------------------------")
 # Send Email Message
 msg = MIMEMultipart()
 msg['Subject'] = 'MaxAir Database Backup'
-me = 'maxair@overkillsystems.com'
-to = ['terry.adams@overkillsystems.com']
+me = FROM
+to = [TO]
 Body = 'Database Backup.'
 msg['From'] = me
 msg['To'] =  ', '.join(to)
