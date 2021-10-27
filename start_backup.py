@@ -77,6 +77,22 @@ try:
         print("Error - No Email Account Found in Database.")
         sys.exit(1)
 
+    cursorselect = con.cursor()
+    query = ("SELECT backup_email FROM system;")
+    cursorselect.execute(query)
+    name_to_index = dict(
+        (d[0], i)
+        for i, d
+        in enumerate(cursorselect.description)
+    )
+    results = cursorselect.fetchone()
+    cursorselect.close()
+    if cursorselect.rowcount > 0:
+        TO = results[name_to_index['backup_email']]
+    else:
+        print("Error - No Backup Email Account Found in Database.")
+        sys.exit(1)       
+        
 except mdb.Error as e:
     print("Error %d: %s" % (e.args[0], e.args[1]))
     sys.exit(1)
@@ -137,31 +153,6 @@ except:
     print(bc.fail + (
         datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - ERROR Sending Email Message")
 
-try:
-    con = mdb.connect(dbhost, dbuser, dbpass, dbname)
-    cursorselect = con.cursor()
-    query = ("SELECT backup_email FROM system;")
-    cursorselect.execute(query)
-    name_to_index = dict(
-        (d[0], i)
-        for i, d
-        in enumerate(cursorselect.description)
-    )
-    results = cursorselect.fetchone()
-    cursorselect.close()
-    if cursorselect.rowcount > 0:
-        TO = results[name_to_index['backup_email']]
-    else:
-        print("Error - No Backup Email Account Found in Database.")
-        sys.exit(1)
-
-except mdb.Error as e:
-    print("Error %d: %s" % (e.args[0], e.args[1]))
-    sys.exit(1)
-finally:
-    if con:
-        con.close()    
-    
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Email Sent")
 print("------------------------------------------------------------------")
 
