@@ -1,0 +1,2 @@
+ALTER TABLE `email` ADD COLUMN IF NOT EXISTS `port` INT(11) NOT NULL AFTER `smtp`;
+UPDATE `email` SET `port`= 465;

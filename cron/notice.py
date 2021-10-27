@@ -23,8 +23,8 @@ print(" ")
 print("             " +bc.SUB + "S M A R T   THERMOSTAT " + bc.ENDC)
 print("********************************************************")
 print("*          Script to send status Email messages        *")
-print("*                Build Date: 19/06/2019                *")
-print("*      Version 0.04 - Last Modified 12/05/2020         *")
+print("*                Build Date: 26/10/2021                *")
+print("*      Version 0.04 - Last Modified 26/10/2021         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" ")
@@ -58,9 +58,10 @@ try:
         USER = results[name_to_index['username']]
         PASS = results[name_to_index['password']]
         HOST = results[name_to_index['smtp']]
+        PORT = results[name_to_index['port']]
         TO = results[name_to_index['to']]
         FROM = results[name_to_index['from']]
-        SUBJECT = "PiHome Status"
+        SUBJECT = "MaxAir Status"
         MESSAGE = ""
         send_status = results[name_to_index['status']]
     else:
@@ -173,7 +174,7 @@ try:
                         'INSERT INTO notice (sync, `purge`, datetime, message, status) VALUES(%s,%s,%s,%s,%s)',
                         (0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message, 1))
                     print(bc.blu + (
-                        datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - " + name + " - " + str(
+                        datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - " + name + " " + node_id + " - Last Reported " + str(
                         notice_interval) + " Minutes Ago.")
 
                 cursorupdate.close()
@@ -355,23 +356,23 @@ try:
         0]  # Parse first and the only one part of data table named "count" - there is number of records grabbed in SELECT above
     if count > 0:  # If greater then 0 then we have something to send out.
         message = "Over 50c CPU Temperature Recorded in last one Hour"
-        cursorsel = con.cursor()
-        cursorsel.execute(query)
+        query = ("SELECT * FROM notice WHERE message = '" + message + "'")
+        cursorselect.execute(query)
         name_to_index = dict(
             (d[0], i)
             for i, d
-            in enumerate(cursorsel.description)
+            in enumerate(cursorselect.description)
         )
-        messages = cursorsel.fetchone()  # Grab all notices with the same message content.
-        cursorsel.close()
+        messages = cursorselect.fetchone()  # Grab all notices with the same message content.
+        cursorselect.close()
         cursorupdate = con.cursor()
-        if cursorsel.rowcount > 0:
+        if cursorselect.rowcount > 0:
             if messages[name_to_index['status']] == 1:
                 cursorupdate.execute("UPDATE notice SET status = '0'")
-            else:
-                cursorupdate.execute(
-                    'INSERT INTO notice (sync, `purge`, datetime, message, status) VALUES(%s,%s,%s,%s,%s)',
-                    (0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message, 1))
+        else:
+            cursorupdate.execute(
+                'INSERT INTO notice (sync, `purge`, datetime, message, status) VALUES(%s,%s,%s,%s,%s)',
+                (0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message, 1))
             print(bc.blu + (
                 datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - CPU Temperature is very high")
 
@@ -430,7 +431,10 @@ if send_status:
             ))
 
         try:
-            server = smtplib.SMTP(HOST)
+            if PORT == 465 :
+                server = smtplib.SMTP_SSL(HOST, PORT)
+            else :
+                server = smtplib.SMTP(HOST, PORT)
             #server.set_debuglevel(1)
             server.login(USER, PASS)
             server.sendmail(FROM, TO, BODY)

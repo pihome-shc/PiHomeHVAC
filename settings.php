@@ -49,8 +49,8 @@ if(isset($_GET["find_gw"])) {
 
 //backup process start
  if(isset($_GET['db_backup'])) {
-$info_message = "Data Base Backup Request Started, This process may take some time complete..." ;
-include("start_backup.php");
+	$info_message = "Data Base Backup Request Started, This process may take some time complete..." ;
+//	include("start_backup.php");
  }
 //query to frost protection temperature 
 $query = "SELECT * FROM frost_protection LIMIT 1 ";
