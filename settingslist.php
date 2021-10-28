@@ -248,13 +248,13 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 
 				             	<div id="collapse_maintenance" class="panel-collapse collapse animated fadeIn">
 							<h4 class="pull-left"><?php echo $lang['system_maintenance']; ?></h4><br>
-
+<?php /*
 							<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_piconnect.php" data-toggle="modal" data-target="#piconnect">
         	                		        <h3 class="buttontop"><small>PiConnect</small></h3>
 			                		<h3 class="degre" ><i class="fa fa-plug green"></i></h3>
 	                			      	<h3 class="status"></small></h3>
         	                        		</button>
-
+*/ ?>
 		        		        	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Services">
         		        		        <h3 class="buttontop"><small><?php echo $lang['services']; ?></small></h3>
                 		        		<h3 class="degre" ><i class="ionicons ion-ios-cog-outline"></i></h3>
@@ -288,6 +288,12 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                                         		<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#db_cleanup">
                                                         <h3 class="buttontop"><small><?php echo $lang['db_cleanup']; ?></small></h3>
                                                         <h3 class="degre" ><i class="fa fa-database orange"></i></h3>
+                                                        <h3 class="status"></small></h3>
+                                                        </button>
+
+                                 			<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#set_repository">
+                                                        <h3 class="buttontop"><small><?php echo $lang['repository']; ?></small></h3>
+                                                        <h3 class="degre" ><i class="fa fa-github"></i></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
         	        	        	</div>
