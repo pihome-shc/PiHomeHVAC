@@ -261,7 +261,13 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 		                        		<h3 class="status"></small></h3>
 			                                </button>
 
-                                                	<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#maxair_update">
+                                 			<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#set_repository">
+                                                        <h3 class="buttontop"><small><?php echo $lang['repository']; ?></small></h3>
+                                                        <h3 class="degre" ><i class="fa fa-github"></i></h3>
+                                                        <h3 class="status"></small></h3>
+                                                        </button>
+
+							<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#maxair_update">
                                                         <h3 class="buttontop"><small><?php echo $lang['maxair_update']; ?></small></h3>
                                                         <h3 class="degre" ><i class="fa fa-download fa-1x blueinfo"></i></h3>
                                                         <h3 class="status"></small></h3>
@@ -288,12 +294,6 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                                         		<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#db_cleanup">
                                                         <h3 class="buttontop"><small><?php echo $lang['db_cleanup']; ?></small></h3>
                                                         <h3 class="degre" ><i class="fa fa-database orange"></i></h3>
-                                                        <h3 class="status"></small></h3>
-                                                        </button>
-
-                                 			<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#set_repository">
-                                                        <h3 class="buttontop"><small><?php echo $lang['repository']; ?></small></h3>
-                                                        <h3 class="degre" ><i class="fa fa-github"></i></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
         	        	        	</div>
