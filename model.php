@@ -2938,6 +2938,32 @@ echo '<div class="modal fade" id="display_graphs" tabindex="-1" role="dialog" ar
         </div>
     </div>
 </div>';
+
+//set GitHub Repository location
+echo '<div class="modal fade" id="set_repository" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['github_repository'].'</h5>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">'.$lang['github_repository_text'].'</p>';
+                $query = "SELECT repository FROM system LIMIT 1;";
+                $result = $conn->query($query);
+                $row = mysqli_fetch_assoc($result);
+                echo '<div class="form-group" class="control-label"><label>'.$lang['repository_url'].'</label> <small class="text-muted"></small>
+                        <input class="form-control input-sm" type="text" id="rep_url" name="rep_url" value="'.$row['repository'].'" placeholder="'.$lang['repository_url'].'">
+                        <div class="help-block with-errors"></div>
+                </div>
+            </div>
+                <div class="modal-footer">
+                        <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                        <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="set_repository()">
+            </div>
+        </div>
+    </div>
+</div>';
 ?>
 
 <script>
