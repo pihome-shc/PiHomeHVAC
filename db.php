@@ -1521,5 +1521,24 @@ if($what=="enable_graphs"){
                 return;
         }
 }
+
+//update GitHub Repository URL
+if($what=="set_repository"){
+        $repository_url =  $_GET['repository_url'];
+        $query = "UPDATE system SET repository = '".$repository_url."' LIMIT 1;";
+        $update_error=0;
+        if(!$conn->query($query)){
+                $update_error=1;
+        }
+        if($update_error==0){
+                header('Content-type: application/json');
+                echo json_encode(array('Success'=>'Success','Query'=>$query));
+                return;
+        }else{
+                header('Content-type: application/json');
+                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                return;
+        }
+}
 ?>
 <?php if(isset($conn)) { $conn->close();} ?>

@@ -756,4 +756,9 @@ $lang['system_uptime_text'] = "System up time since last reboot.";
 $lang['re_install'] = "Re-Install";
 $lang['already_installed'] = "Already Installed";
 $lang['no_installer'] = "No Installer";
+$lang['repository'] = "Repository";
+$lang['repository_url'] = "Repository URL";
+$lang['github_repository'] = "MaxAir GitHub Repository";
+$lang['github_repository_text'] = "URL for the MaxAir GitHub Repository to be used for Updates";
+$lang['default_repository'] = "https://github.com/pihome-shc/PiHomeHVAC.git";
 ?>

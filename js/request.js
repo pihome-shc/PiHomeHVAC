@@ -1032,3 +1032,22 @@ var idata="w=enable_graphs&o=update";
     });
 }
 
+//update GitHub Repository location
+function set_repository(){
+var idata="w=set_repository&o=update";
+    idata+="&repository_url="+document.getElementById("rep_url").value;
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            reload_page();
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("set_repository_job: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
