@@ -1961,11 +1961,11 @@ while ($row = mysqli_fetch_assoc($results)) {
             <td>'.$row['node_id'].'</td>
             <td>'.$row['name'].'</td>
             <td>'.$row['last_seen'].'</td>
-            <td><input id="interval'.$row["node_id"].'" type="value" class="form-control pull-right" style="border: none" name="notice_interval" value="'.$row["notice_interval"].'" placeholder="Notice Interval" required></td>';
+            <td><input id="interval'.$row["node_id"].'" type="value" class="form-control pull-right" style="border: none" name="interval'.$row["node_id"].'" value="'.$row["notice_interval"].'" placeholder="Notice Interval" required></td>';
 	    if($count == 0) {
-	            echo '<td><input id="min_value'.$row["node_id"].'" type="value" class="form-control pull-right" style="border: none" name="min_value" value="N/A" readonly="readonly" placeholder="Min Value"></td>';
+	            echo '<td><input id="min_value'.$row["node_id"].'" type="value" class="form-control pull-right" style="border: none" name="min_value'.$row["node_id"].'" value="N/A" readonly="readonly" placeholder="Min Value"></td>';
 	    } else {
-                    echo '<td><input id="min_value'.$row["node_id"].'" type="value" class="form-control pull-right" style="border: none" name="min_value" value="'.$row["min_value"].'" placeholder="Min Value"></td>';
+                    echo '<td><input id="min_value'.$row["node_id"].'" type="value" class="form-control pull-right" style="border: none" name="min_value'.$row["node_id"].'" value="'.$row["min_value"].'" placeholder="Min Value"></td>';
 	    }
         echo '</tr>';
 
