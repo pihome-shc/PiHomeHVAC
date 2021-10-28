@@ -205,7 +205,7 @@ try:
                     if cursorselect.rowcount > 0:  # Battery Record Found
                         update = results[bat_node_to_index['update']]
                         if results[bat_node_to_index['bat_level']] is None :
-                            bat_level = 0
+                            bat_level = 100
                         else :
                             bat_level = int(results[bat_node_to_index['bat_level']])
                         timeDifference = (datetime.datetime.now() - update)
