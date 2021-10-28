@@ -261,6 +261,9 @@ try:
                         )
                         messages = cursorsel.fetchone()
                         cursorsel.close()
+                        print(bc.blu + (datetime.datetime.now().strftime(
+                            "%Y-%m-%d %H:%M:%S")) + bc.wht + " - Measured Battery Level - " + str(bat_level) + "%, Threshold Level " + str(
+                            min_value) + "%.")
                         if bat_level < min_value:  # Active Sensor found where level is less than minimum
                             cursorupdate = con.cursor()
                             if cursorsel.rowcount > 0:  # This message already exists
