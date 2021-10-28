@@ -803,4 +803,5 @@ $lang['repository'] = "Repository";
 $lang['repository_url'] = "Repository URL";
 $lang['github_repository'] = "MaxAir GitHub Repository";
 $lang['github_repository_text'] = "URL for the MaxAir GitHub Repository to be used for Updates";
+$lang['default_repository'] = "https://github.com/pihome-shc/PiHomeHVAC.git";
 ?>
