@@ -2952,7 +2952,7 @@ echo '<div class="modal fade" id="set_repository" tabindex="-1" role="dialog" ar
                 $query = "SELECT repository FROM system LIMIT 1;";
                 $result = $conn->query($query);
                 $row = mysqli_fetch_assoc($result);
-                echo '<div class="form-group" class="control-label"><label>'.$lang['repository_url'].'</label> <small class="text-muted"></small>
+                echo '<div class="form-group" class="control-label"><label>'.$lang['repository_url'].'</label> <small class="text-muted"> (Default Repository is - '.$lang['default_repository'].')</small>
                         <input class="form-control input-sm" type="text" id="rep_url" name="rep_url" value="'.$row['repository'].'" placeholder="'.$lang['repository_url'].'">
                         <div class="help-block with-errors"></div>
                 </div>
