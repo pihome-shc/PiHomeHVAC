@@ -1074,7 +1074,6 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
 	    </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="show_sensors()">
                 <a class="btn btn-default login btn-sm" href="relay.php">'.$lang['relay_add'].'</a>
             </div>
         </div>
