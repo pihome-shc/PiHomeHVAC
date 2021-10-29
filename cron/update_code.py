@@ -30,6 +30,16 @@ print("********************************************************")
 print(" " + bc.ENDC)
 
 import os, time, fnmatch, filecmp
+import MySQLdb as mdb
+import configparser
+
+# Initialise the database access varables
+config = configparser.ConfigParser()
+config.read('/var/www/st_inc/db_config.ini')
+dbhost = config.get('db', 'hostname')
+dbuser = config.get('db', 'dbusername')
+dbpass = config.get('db', 'dbpassword')
+dbname = config.get('db', 'dbname')
 
 def report_recursive(dcmp):
     global target_dir
@@ -110,7 +120,30 @@ source_dir = '/var/www/temp_dir'
 target_dir = '/var/www'
 code_update_dir = '/var/www/code_updates'
 db_update_dir = '/var/www/database_updates'
-repository = 'https://github.com/pihome-shc/PiHomeHVAC.git'
+try:
+    con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+    cursorselect = con.cursor()
+    query = ("SELECT repository FROM system LIMIT 1;")
+    cursorselect.execute(query)
+    name_to_index = dict(
+        (d[0], i)
+        for i, d
+        in enumerate(cursorselect.description)
+    )
+    result = cursorselect.fetchone()
+    cursorselect.close()
+    if cursorselect.rowcount > 0:
+        repository = result[name_to_index['repository']]
+    else:
+        print("Error - Unable to retrieve the GitHub Repository URL.")
+        sys.exit(1)
+
+except mdb.Error as e:
+    print("Error %d: %s" % (e.args[0], e.args[1]))
+    sys.exit(1)
+finally:
+    if con:
+        con.close()
 
 # remove any sub-directories and content from upgrade dir
 for it in os.scandir(code_update_dir):

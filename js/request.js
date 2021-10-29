@@ -270,7 +270,8 @@ var idata="w=boost&o=delete&wid="+wid;
 
 //update boost settings
 function update_boost(){
-var x = document.getElementsByTagName("input");
+//var x = document.getElementsByTagName("input");
+var x = document.getElementById("boost_setup").querySelectorAll("input");
 var i;
 var idata="w=boost&o=update";
     for (i = 0; i < x.length; i++) {
@@ -627,7 +628,8 @@ var idata="w=setup_email&o=update&status="+document.getElementById("checkbox3").
 
 //update graph
 function setup_graph(){
-var x = document.getElementsByTagName("input");
+//var x = document.getElementsByTagName("input");
+var x = document.getElementById("zone_graph").querySelectorAll("input");
 var i;
 var idata="w=setup_graph&o=update";
     for (i = 0; i < x.length; i++) {
@@ -651,7 +653,8 @@ var idata="w=setup_graph&o=update";
 
 //update temperture sensors to display
 function show_sensors(){
-var x = document.getElementsByTagName("input");
+//var x = document.getElementsByTagName("input");
+var x = document.getElementById("sensor_setup").querySelectorAll("input");
 var i;
 var idata="w=show_sensors&o=update";
     for (i = 0; i < x.length; i++) {
@@ -675,7 +678,8 @@ var idata="w=show_sensors&o=update";
 
 //update notice interval
 function node_alerts(){
-var x = document.getElementsByTagName("input");
+//var x = document.getElementsByTagName("input");
+var x = document.getElementById("node_alerts").querySelectorAll("input");
 var i;
 var idata="w=node_alerts&o=update";
     for (i = 0; i < x.length; i++) {
@@ -866,7 +870,8 @@ function update_email(){
 
 //update scheduled jobs
 function schedule_jobs(){
-var x = document.getElementsByTagName("input");
+//var x = document.getElementsByTagName("input");
+var x = document.getElementById("jobs_schedule").querySelectorAll("input");
 var i;
 var idata="w=job&o=update";
     for (i = 0; i < x.length; i++) {
@@ -962,7 +967,8 @@ function database_update() {
 
 //set buttons
 function set_buttons(){
-var x = document.getElementsByTagName("input");
+//var x = document.getElementsByTagName("input");
+var x = document.getElementById("set_buttons").querySelectorAll("input");
 var i;
 var idata="w=set_buttons&o=update";
     for (i = 0; i < x.length; i++) {
@@ -986,7 +992,8 @@ var idata="w=set_buttons&o=update";
 
 //set db cleanup
 function set_db_cleanup(){
-var x = document.getElementsByTagName("input");
+//var x = document.getElementsByTagName("input");
+var x = document.getElementById("db_cleanup").querySelectorAll("input"); 
 var i;
 var idata="w=set_db_cleanup&o=update";
     for (i = 0; i < x.length; i++) {
@@ -1010,7 +1017,8 @@ var idata="w=set_db_cleanup&o=update";
 
 //enable graphs to display
 function enable_graphs(){
-var x = document.getElementsByTagName("input");
+//var x = document.getElementsByTagName("input");
+var x = document.getElementById("display_graphs").querySelectorAll("input");
 var i;
 var idata="w=enable_graphs&o=update";
     for (i = 0; i < x.length; i++) {
