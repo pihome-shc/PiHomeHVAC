@@ -2948,21 +2948,16 @@ echo '<div class="modal fade" id="set_repository" tabindex="-1" role="dialog" ar
             </div>
             <div class="modal-body">
                 <p class="text-muted">'.$lang['github_repository_text'].'</p>';
-                $query = "SELECT repository FROM system LIMIT 1;";
-                $result = $conn->query($query);
-                $row = mysqli_fetch_assoc($result);
-                $pieces = explode("/", $row['repository']);
-                $fork = $pieces[3];
-                $query = "SELECT name FROM fork;";
+                $query = "SELECT id, status, name FROM repository;";
                 $results = $conn->query($query);
                 echo '<div class="form-group" class="control-label"><label>'.$lang['repository_url'].'</label> <small class="text-muted"> (Default Repository is - '.$lang['default_repository'].')</small>
-                	<select class="form-control input-sm" type="text" id="rep_url" name="rep_url" >';
-                	if ($results){
-                        	while ($frow=mysqli_fetch_array($results)) {
-                                	echo '<option value="https://github.com/'.$frow['name'].'/PiHomeHVAC.git" ' . ($frow['name']==$fork ? 'selected' : '') . '>https://github.com/'.$frow['name'].'/PiHomeHVAC.git</option>';
-                        	}
-                	}
-                	echo '</select>
+                <select class="form-control input-sm" type="text" id="rep_id" name="rep_id" >';
+                if ($results){
+                        while ($frow=mysqli_fetch_array($results)) {
+                                echo '<option value="'.$frow['id'].'" ' . ($frow['status']==1 ? 'selected' : '') . '>https://github.com/'.$frow['name'].'/PiHomeHVAC.git</option>';
+                        }
+                }
+                echo '</select>
                 	<div class="help-block with-errors"></div>
                 </div>
             </div>
@@ -3096,7 +3091,7 @@ function set_interval(id)
 
 function set_default()
 {
- document.getElementById("rep_url").value = "https://github.com/pihome-shc/PiHomeHVAC.git";
+ document.getElementById("rep_id").value = 1;
 }
 </script>
 
