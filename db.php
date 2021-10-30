@@ -1524,8 +1524,8 @@ if($what=="enable_graphs"){
 
 //update GitHub Repository URL
 if($what=="set_repository"){
-        $repository_url =  $_GET['repository_url'];
-        $query = "UPDATE system SET repository = '".$repository_url."' LIMIT 1;";
+        $repository_id =  $_GET['repository_id'];
+        $query = "UPDATE repository SET status = IF(id=".$repository_id.", 1, 0);";
         $update_error=0;
         if(!$conn->query($query)){
                 $update_error=1;
