@@ -2512,72 +2512,72 @@ echo '
 //MaxAir Versions
 echo '
 <div class="modal fade" id="maxair_versions" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['maxair_versions'].'</h5>
-            </div>
-            <div class="modal-body">
-			<p class="text-muted"> '.$lang['maxair_versions_text'].' </p>';
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                                <h5 class="modal-title">'.$lang['maxair_versions'].'</h5>
+                        </div>
+                        <div class="modal-body">';
+                                $file1 = file('/var/www/st_inc/db_config.ini');
+                                $pieces =  explode(' ', $file1[count($file1) - 4]);
+                                $code_v_installed = array_pop($pieces);
+                                $pieces =  explode(' ', $file1[count($file1) - 3]);
+                                $code_b_installed = array_pop($pieces);
+                                $pieces =  explode(' ', $file1[count($file1) - 2]);
+                                $db_v_installed = array_pop($pieces);
+                                $pieces =  explode(' ', $file1[count($file1) - 1]);
+                                $db_b_installed = array_pop($pieces);
 
-$file1 = file('/var/www/st_inc/db_config.ini');
-$pieces =  explode(' ', $file1[count($file1) - 4]);
-$code_v_installed = array_pop($pieces);
-$pieces =  explode(' ', $file1[count($file1) - 3]);
-$code_b_installed = array_pop($pieces);
-$pieces =  explode(' ', $file1[count($file1) - 2]);
-$db_v_installed = array_pop($pieces);
-$pieces =  explode(' ', $file1[count($file1) - 1]);
-$db_b_installed = array_pop($pieces);
+                                $query = "SELECT name FROM repository WHERE status = 1 LIMIT 1;";
+                                $result = $conn->query($query);
+                                $row = mysqli_fetch_assoc($result);
+                                $file2 = file('https://raw.githubusercontent.com/'.$row['name'].'/PiHomeHVAC/master/st_inc/db_config.ini');
+                                $pieces =  explode(' ', $file2[count($file2) - 4]);
+                                $code_v_github = array_pop($pieces);
+                                $pieces =  explode(' ', $file2[count($file2) - 3]);
+                                $code_b_github = array_pop($pieces);
+                                $pieces =  explode(' ', $file2[count($file2) - 2]);
+                                $db_v_github = array_pop($pieces);
+                                $pieces =  explode(' ', $file2[count($file2) - 1]);
+                                $db_b_github = array_pop($pieces);
 
-$query = "SELECT name FROM repository WHERE status = 1 LIMIT 1;";
-$result = $conn->query($query);
-$row = mysqli_fetch_assoc($result);
-$file2 = file('https://raw.githubusercontent.com/'.$row['name'].'/PiHomeHVAC/master/st_inc/db_config.ini');
-$pieces =  explode(' ', $file2[count($file2) - 4]);
-$code_v_github = array_pop($pieces);
-$pieces =  explode(' ', $file2[count($file2) - 3]);
-$code_b_github = array_pop($pieces);
-$pieces =  explode(' ', $file2[count($file2) - 2]);
-$db_v_github = array_pop($pieces);
-$pieces =  explode(' ', $file2[count($file2) - 1]);
-$db_b_github = array_pop($pieces);
+                                echo '<p class="text-muted"> '.$lang['maxair_versions_text'].' <br>'.$lang['repository'].' - https://github.com/'.$row['name'].'/PiHomeHVAC.git</p>
+                                <table class="table table-bordered">
+                                        <tr>
+                                                <th class="col-xs-8"></th>
+                                                <th class="col-xs-2" "not_mapped_style" style="text-align:center">'.$lang['maxair_update_installed'].'</th>
+                                                <th class="col-xs-2" "not_mapped_style" style="text-align:center">'.$lang['maxair_update_github'].'</th>
+                                        </tr>
 
-echo '  <table class="table table-bordered">
-    <tr>
-        <th class="col-xs-8"></th>
-        <th class="col-xs-2" "not_mapped_style" style="text-align:center">'.$lang['maxair_update_installed'].'</th>
-        <th class="col-xs-2" "not_mapped_style" style="text-align:center">'.$lang['maxair_update_github'].'</th>
-    </tr>
+                                        <tr>
+                                                <td style="font-weight:bold">'.$lang['maxair_update_code_v'].'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$code_v_installed.'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$code_v_github.'</td>
+                                        </tr>
+                                        <tr>
+                                                <td style="font-weight:bold">'.$lang['maxair_update_code_b'].'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$code_b_installed.'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$code_b_github.'</td>
+                                        </tr>
+                                        <tr>
+                                                <td style="font-weight:bold">'.$lang['maxair_update_db_v'].'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$db_v_installed.'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$db_v_github.'</td>
+                                        </tr>
+                                        <tr>
+                                                <td style="font-weight:bold">'.$lang['maxair_update_db_b'].'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$db_b_installed.'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$db_b_github.'</td>
+                                        </tr>';
 
-    <tr>
-        <td style="font-weight:bold">'.$lang['maxair_update_code_v'].'</td>
-        <td style="text-align:center; vertical-align:middle;">'.$code_v_installed.'</td>
-        <td style="text-align:center; vertical-align:middle;">'.$code_v_github.'</td>
-    </tr>
-    <tr>
-        <td style="font-weight:bold">'.$lang['maxair_update_code_b'].'</td>
-        <td style="text-align:center; vertical-align:middle;">'.$code_b_installed.'</td>
-        <td style="text-align:center; vertical-align:middle;">'.$code_b_github.'</td>
-    </tr>
-    <tr>
-        <td style="font-weight:bold">'.$lang['maxair_update_db_v'].'</td>
-        <td style="text-align:center; vertical-align:middle;">'.$db_v_installed.'</td>
-        <td style="text-align:center; vertical-align:middle;">'.$db_v_github.'</td>
-     </tr>
-    <tr>
-        <td style="font-weight:bold">'.$lang['maxair_update_db_b'].'</td>
-        <td style="text-align:center; vertical-align:middle;">'.$db_b_installed.'</td>
-        <td style="text-align:center; vertical-align:middle;">'.$db_b_github.'</td>
-    </tr>';
-
-echo '</table></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-            </div>
+                                echo '</table>
+                        </div>
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                        </div>
+                </div>
         </div>
-    </div>
 </div>';
 
 // backup_image
