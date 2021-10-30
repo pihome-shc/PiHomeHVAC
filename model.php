@@ -2531,7 +2531,10 @@ $db_v_installed = array_pop($pieces);
 $pieces =  explode(' ', $file1[count($file1) - 1]);
 $db_b_installed = array_pop($pieces);
 
-$file2 = file('https://raw.githubusercontent.com/pihome-shc/PiHomeHVAC/master/st_inc/db_config.ini');
+$query = "SELECT name FROM repository WHERE status = 1 LIMIT 1;";
+$result = $conn->query($query);
+$row = mysqli_fetch_assoc($result);
+$file2 = file('https://raw.githubusercontent.com/'.$row['name'].'/PiHomeHVAC/master/st_inc/db_config.ini');
 $pieces =  explode(' ', $file2[count($file2) - 4]);
 $code_v_github = array_pop($pieces);
 $pieces =  explode(' ', $file2[count($file2) - 3]);
