@@ -2951,13 +2951,24 @@ echo '<div class="modal fade" id="set_repository" tabindex="-1" role="dialog" ar
                 $query = "SELECT repository FROM system LIMIT 1;";
                 $result = $conn->query($query);
                 $row = mysqli_fetch_assoc($result);
+                $pieces = explode("/", $row['repository']);
+                $fork = $pieces[3];
+                $query = "SELECT name FROM fork;";
+                $results = $conn->query($query);
                 echo '<div class="form-group" class="control-label"><label>'.$lang['repository_url'].'</label> <small class="text-muted"> (Default Repository is - '.$lang['default_repository'].')</small>
-                        <input class="form-control input-sm" type="text" id="rep_url" name="rep_url" value="'.$row['repository'].'" placeholder="'.$lang['repository_url'].'">
-                        <div class="help-block with-errors"></div>
+                	<select class="form-control input-sm" type="text" id="rep_url" name="rep_url" >';
+                	if ($results){
+                        	while ($frow=mysqli_fetch_array($results)) {
+                                	echo '<option value="https://github.com/'.$frow['name'].'/PiHomeHVAC.git" ' . ($frow['name']==$fork ? 'selected' : '') . '>https://github.com/'.$frow['name'].'/PiHomeHVAC.git</option>';
+                        	}
+                	}
+                	echo '</select>
+                	<div class="help-block with-errors"></div>
                 </div>
             </div>
                 <div class="modal-footer">
                         <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                        <input type="button" name="submit" value="'.$lang['set_default'].'" class="btn btn-default login btn-sm" onclick="set_default()">
                         <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="set_repository()">
             </div>
         </div>
@@ -3081,6 +3092,11 @@ function set_interval(id)
  var f = document.getElementById("set_interval" + id_text);
 
  f.value = e.value;
+}
+
+function set_default()
+{
+ document.getElementById("rep_url").value = "https://github.com/pihome-shc/PiHomeHVAC.git";
 }
 </script>
 
