@@ -2968,6 +2968,7 @@ echo '<div class="modal fade" id="set_repository" tabindex="-1" role="dialog" ar
             </div>
                 <div class="modal-footer">
                         <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                        <input type="button" name="submit" value="'.$lang['set_default'].'" class="btn btn-default login btn-sm" onclick="set_default()">
                         <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="set_repository()">
             </div>
         </div>
@@ -3091,6 +3092,11 @@ function set_interval(id)
  var f = document.getElementById("set_interval" + id_text);
 
  f.value = e.value;
+}
+
+function set_default()
+{
+ document.getElementById("rep_url").value = "https://github.com/pihome-shc/PiHomeHVAC.git";
 }
 </script>
 
