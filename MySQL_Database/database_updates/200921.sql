@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS `mqtt_node_child` (
   `type` tinyint(4) NOT NULL COMMENT '0 - Sensor, 1 - Relay',
   `purge` tinyint(4) NOT NULL DEFAULT '0' COMMENT 'Mark For Deletion',
   `name` char(50) COLLATE utf8_bin DEFAULT NULL,
-  `mqtt_topic` CHAR(50) NOT NULL COLLATE utf8_bin DEFAULT NULL COMMENT 'Relay payload for on command',
+  `mqtt_topic` CHAR(50) NOT NULL COLLATE utf8_bin COMMENT 'Relay payload for on command',
   `on_payload` char(50) COLLATE utf8_bin DEFAULT NULL COMMENT 'Relay payload for on command',
   `off_payload` char(50) COLLATE utf8_bin DEFAULT NULL COMMENT 'Relay payload for on command',
   `attribute` char(50) COLLATE utf8_bin DEFAULT NULL COMMENT 'Sensor JSON attribute',

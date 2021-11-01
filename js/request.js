@@ -1043,7 +1043,7 @@ var idata="w=enable_graphs&o=update";
 //update GitHub Repository location
 function set_repository(){
 var idata="w=set_repository&o=update";
-    idata+="&repository_url="+document.getElementById("rep_url").value;
+    idata+="&repository_id="+document.getElementById("rep_id").value;
     idata+="&wid=0";
     $.get('db.php',idata)
     .done(function(odata){

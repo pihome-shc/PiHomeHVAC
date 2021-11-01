@@ -2512,69 +2512,72 @@ echo '
 //MaxAir Versions
 echo '
 <div class="modal fade" id="maxair_versions" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['maxair_versions'].'</h5>
-            </div>
-            <div class="modal-body">
-			<p class="text-muted"> '.$lang['maxair_versions_text'].' </p>';
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                                <h5 class="modal-title">'.$lang['maxair_versions'].'</h5>
+                        </div>
+                        <div class="modal-body">';
+                                $file1 = file('/var/www/st_inc/db_config.ini');
+                                $pieces =  explode(' ', $file1[count($file1) - 4]);
+                                $code_v_installed = array_pop($pieces);
+                                $pieces =  explode(' ', $file1[count($file1) - 3]);
+                                $code_b_installed = array_pop($pieces);
+                                $pieces =  explode(' ', $file1[count($file1) - 2]);
+                                $db_v_installed = array_pop($pieces);
+                                $pieces =  explode(' ', $file1[count($file1) - 1]);
+                                $db_b_installed = array_pop($pieces);
 
-$file1 = file('/var/www/st_inc/db_config.ini');
-$pieces =  explode(' ', $file1[count($file1) - 4]);
-$code_v_installed = array_pop($pieces);
-$pieces =  explode(' ', $file1[count($file1) - 3]);
-$code_b_installed = array_pop($pieces);
-$pieces =  explode(' ', $file1[count($file1) - 2]);
-$db_v_installed = array_pop($pieces);
-$pieces =  explode(' ', $file1[count($file1) - 1]);
-$db_b_installed = array_pop($pieces);
+                                $query = "SELECT name FROM repository WHERE status = 1 LIMIT 1;";
+                                $result = $conn->query($query);
+                                $row = mysqli_fetch_assoc($result);
+                                $file2 = file('https://raw.githubusercontent.com/'.$row['name'].'/PiHomeHVAC/master/st_inc/db_config.ini');
+                                $pieces =  explode(' ', $file2[count($file2) - 4]);
+                                $code_v_github = array_pop($pieces);
+                                $pieces =  explode(' ', $file2[count($file2) - 3]);
+                                $code_b_github = array_pop($pieces);
+                                $pieces =  explode(' ', $file2[count($file2) - 2]);
+                                $db_v_github = array_pop($pieces);
+                                $pieces =  explode(' ', $file2[count($file2) - 1]);
+                                $db_b_github = array_pop($pieces);
 
-$file2 = file('https://raw.githubusercontent.com/pihome-shc/PiHomeHVAC/master/st_inc/db_config.ini');
-$pieces =  explode(' ', $file2[count($file2) - 4]);
-$code_v_github = array_pop($pieces);
-$pieces =  explode(' ', $file2[count($file2) - 3]);
-$code_b_github = array_pop($pieces);
-$pieces =  explode(' ', $file2[count($file2) - 2]);
-$db_v_github = array_pop($pieces);
-$pieces =  explode(' ', $file2[count($file2) - 1]);
-$db_b_github = array_pop($pieces);
+                                echo '<p class="text-muted"> '.$lang['maxair_versions_text'].' <br>'.$lang['repository'].' - https://github.com/'.$row['name'].'/PiHomeHVAC.git</p>
+                                <table class="table table-bordered">
+                                        <tr>
+                                                <th class="col-xs-8"></th>
+                                                <th class="col-xs-2" "not_mapped_style" style="text-align:center">'.$lang['maxair_update_installed'].'</th>
+                                                <th class="col-xs-2" "not_mapped_style" style="text-align:center">'.$lang['maxair_update_github'].'</th>
+                                        </tr>
 
-echo '  <table class="table table-bordered">
-    <tr>
-        <th class="col-xs-8"></th>
-        <th class="col-xs-2" "not_mapped_style" style="text-align:center">'.$lang['maxair_update_installed'].'</th>
-        <th class="col-xs-2" "not_mapped_style" style="text-align:center">'.$lang['maxair_update_github'].'</th>
-    </tr>
+                                        <tr>
+                                                <td style="font-weight:bold">'.$lang['maxair_update_code_v'].'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$code_v_installed.'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$code_v_github.'</td>
+                                        </tr>
+                                        <tr>
+                                                <td style="font-weight:bold">'.$lang['maxair_update_code_b'].'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$code_b_installed.'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$code_b_github.'</td>
+                                        </tr>
+                                        <tr>
+                                                <td style="font-weight:bold">'.$lang['maxair_update_db_v'].'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$db_v_installed.'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$db_v_github.'</td>
+                                        </tr>
+                                        <tr>
+                                                <td style="font-weight:bold">'.$lang['maxair_update_db_b'].'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$db_b_installed.'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$db_b_github.'</td>
+                                        </tr>';
 
-    <tr>
-        <td style="font-weight:bold">'.$lang['maxair_update_code_v'].'</td>
-        <td style="text-align:center; vertical-align:middle;">'.$code_v_installed.'</td>
-        <td style="text-align:center; vertical-align:middle;">'.$code_v_github.'</td>
-    </tr>
-    <tr>
-        <td style="font-weight:bold">'.$lang['maxair_update_code_b'].'</td>
-        <td style="text-align:center; vertical-align:middle;">'.$code_b_installed.'</td>
-        <td style="text-align:center; vertical-align:middle;">'.$code_b_github.'</td>
-    </tr>
-    <tr>
-        <td style="font-weight:bold">'.$lang['maxair_update_db_v'].'</td>
-        <td style="text-align:center; vertical-align:middle;">'.$db_v_installed.'</td>
-        <td style="text-align:center; vertical-align:middle;">'.$db_v_github.'</td>
-     </tr>
-    <tr>
-        <td style="font-weight:bold">'.$lang['maxair_update_db_b'].'</td>
-        <td style="text-align:center; vertical-align:middle;">'.$db_b_installed.'</td>
-        <td style="text-align:center; vertical-align:middle;">'.$db_b_github.'</td>
-    </tr>';
-
-echo '</table></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-            </div>
+                                echo '</table>
+                        </div>
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                        </div>
+                </div>
         </div>
-    </div>
 </div>';
 
 // backup_image
@@ -2948,21 +2951,16 @@ echo '<div class="modal fade" id="set_repository" tabindex="-1" role="dialog" ar
             </div>
             <div class="modal-body">
                 <p class="text-muted">'.$lang['github_repository_text'].'</p>';
-                $query = "SELECT repository FROM system LIMIT 1;";
-                $result = $conn->query($query);
-                $row = mysqli_fetch_assoc($result);
-                $pieces = explode("/", $row['repository']);
-                $fork = $pieces[3];
-                $query = "SELECT name FROM fork;";
+                $query = "SELECT id, status, name FROM repository;";
                 $results = $conn->query($query);
                 echo '<div class="form-group" class="control-label"><label>'.$lang['repository_url'].'</label> <small class="text-muted"> (Default Repository is - '.$lang['default_repository'].')</small>
-                	<select class="form-control input-sm" type="text" id="rep_url" name="rep_url" >';
-                	if ($results){
-                        	while ($frow=mysqli_fetch_array($results)) {
-                                	echo '<option value="https://github.com/'.$frow['name'].'/PiHomeHVAC.git" ' . ($frow['name']==$fork ? 'selected' : '') . '>https://github.com/'.$frow['name'].'/PiHomeHVAC.git</option>';
-                        	}
-                	}
-                	echo '</select>
+                <select class="form-control input-sm" type="text" id="rep_id" name="rep_id" >';
+                if ($results){
+                        while ($frow=mysqli_fetch_array($results)) {
+                                echo '<option value="'.$frow['id'].'" ' . ($frow['status']==1 ? 'selected' : '') . '>https://github.com/'.$frow['name'].'/PiHomeHVAC.git</option>';
+                        }
+                }
+                echo '</select>
                 	<div class="help-block with-errors"></div>
                 </div>
             </div>
@@ -3096,7 +3094,7 @@ function set_interval(id)
 
 function set_default()
 {
- document.getElementById("rep_url").value = "https://github.com/pihome-shc/PiHomeHVAC.git";
+ document.getElementById("rep_id").value = 1;
 }
 </script>
 

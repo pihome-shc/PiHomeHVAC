@@ -123,7 +123,7 @@ db_update_dir = '/var/www/database_updates'
 try:
     con = mdb.connect(dbhost, dbuser, dbpass, dbname)
     cursorselect = con.cursor()
-    query = ("SELECT repository FROM system LIMIT 1;")
+    query = ("SELECT name FROM repository WHERE status = 1 LIMIT 1;")
     cursorselect.execute(query)
     name_to_index = dict(
         (d[0], i)
@@ -133,7 +133,7 @@ try:
     result = cursorselect.fetchone()
     cursorselect.close()
     if cursorselect.rowcount > 0:
-        repository = result[name_to_index['repository']]
+        repository = "https://github.com/" + result[name_to_index['name']] + "/PiHomeHVAC.git"
     else:
         print("Error - Unable to retrieve the GitHub Repository URL.")
         sys.exit(1)
