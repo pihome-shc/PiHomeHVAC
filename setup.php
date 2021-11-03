@@ -20,8 +20,6 @@ echo "\033[0m";
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - MaxAir Install Script Started \n";
 $line = "--------------------------------------------------------------- \n";
 
-require_once(__DIR__.'/st_inc/functions.php');
-
 //Set php script execution time in seconds
 ini_set('max_execution_time', 400); 
 $date_time = date('Y-m-d H:i:s');
@@ -620,4 +618,81 @@ if ($tzname == 1) {
 echo "---------------------------------------------------------------------------------------- \n";
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - MaxAir Install Script Ended \n"; 
 echo "\033[32m****************************************************************************************\033[0m  \n";
+
+// scan directory and return array of files and folder names
+function scan_dir($dir) {
+        $ignored = array('.', '..', 'updates.txt');
+
+        $files = array();
+        foreach (scandir($dir) as $file) {
+                if (in_array($file, $ignored)) continue;
+                $files[$file] = filemtime($dir . '/' . $file);
+        }
+        $files = array_keys($files);
+        return ($files) ? $files : false;
+}
+
+// scan directory and return array of files sorted by name timestamp
+function scan_db_update_dir($dir) {
+        $ignored = array('.', '..', 'example.sql');
+
+        $files = array();
+        foreach (scandir($dir) as $file) {
+                if (in_array($file, $ignored)) continue;
+                // create a key value based on the first 6 characters of the filename
+                if (ctype_digit(substr($file,0,6))) {
+                        $x = intval(substr($file,0,2)) + (intval(substr($file,2,2)) * 31) + (intval(substr($file,4,2)) * 366);
+                        $files[$x] = $file;
+                }
+        }
+        // sort ascending by key value
+        ksort($files);
+        return ($files) ? $files : false;
+}
+
+// command line spinner function
+function show_status($done, $total, $size=30) {
+
+    static $start_time;
+
+    // if we go over our bound, just ignore it
+    if($done > $total) return;
+
+    if(empty($start_time)) $start_time=time();
+    $now = time();
+
+    $perc=(double)($done/$total);
+
+    $bar=floor($perc*$size);
+
+    $status_bar="\r[";
+    $status_bar.=str_repeat("=", $bar);
+    if($bar<$size){
+        $status_bar.=">";
+        $status_bar.=str_repeat(" ", $size-$bar);
+    } else {
+        $status_bar.="=";
+    }
+
+    $disp=number_format($perc*100, 0);
+
+    $status_bar.="] $disp%  $done/$total";
+
+    $rate = ($now-$start_time)/$done;
+    $left = $total - $done;
+    $eta = round($rate * $left, 2);
+
+    $elapsed = $now - $start_time;
+
+    $status_bar.= " remaining: ".number_format($eta)." sec.  elapsed: ".number_format($elapsed)." sec.";
+
+    echo "$status_bar  ";
+
+    flush();
+
+    // when done, send a newline
+    if($done == $total) {
+        echo "\n";
+    }
+}
 ?>
