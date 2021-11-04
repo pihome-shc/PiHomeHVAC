@@ -23,6 +23,8 @@ require_once(__DIR__.'/st_inc/session.php');
 confirm_logged_in();
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
+
+if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") { $button_style = "btn-xxl-wide"; } else { $button_style = "btn-xxl"; }
 ?>
 <script language="javascript" type="text/javascript"></script>
 <div class="panel panel-primary">
@@ -37,7 +39,7 @@ require_once(__DIR__.'/st_inc/functions.php');
         <!-- /.panel-heading -->
         <div class="panel-body">
                 <a style="color: #777; cursor: pointer; text-decoration: none;" href="home.php?page_name=onetouch">
-                <button class="btn btn-default btn-circle black-background btn-xxl mainbtn animated fadeIn">
+                <button class="btn btn-default btn-circle black-background <?php echo $button_style; ?> mainbtn animated fadeIn">
                 <h3><small><?php echo $lang['one_touch']; ?></small></h3>
                 <h3 class="degre" style="margin-top:0px;"><i class="fa fa-bullseye fa-2x"></i></h3>
                 <h3 class="status"></h3>
@@ -148,14 +150,14 @@ require_once(__DIR__.'/st_inc/functions.php');
 
 		if ($mode_select == 0 ) {
 		        echo '<a href="javascript:active_sc_mode();">
-        	        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+        	        <button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">
                 	<h3 class="buttontop"><small>'.$lang['mode'].'</small></h3>
 	                <h3 class="degre" >'.$current_sc_mode.'</h3>
         	        <h3 class="status"></small></h3>
             		</button></a>';
 		} else {
 	                echo '<a style="color: #777; cursor: pointer; text-decoration: none;" href="home.php?page_name=mode">
-        	        <button class="btn btn-default btn-circle black-background btn-xxl mainbtn animated fadeIn">
+        	        <button class="btn btn-default btn-circle black-background '.$button_style.' mainbtn animated fadeIn">
                 	<h3><small>'.$current_sc_mode.'</small></h3>
 	                <h3 class="degre" >'.$lang['mode'].'</h3>
         	        <h3 class="status"></h3>
@@ -245,7 +247,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                         6 - cooling running 
 			7 - fan running*/
 
- 			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#'.$zone_type.''.$zone_id.'" data-backdrop="static" data-keyboard="false">
+ 			echo '<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#'.$zone_type.''.$zone_id.'" data-backdrop="static" data-keyboard="false">
 			<h3><small>'.$zone_name.'</small></h3>';
 			if ($sensor_type_id == 3) {
 				if ($zone_c == 0) { echo '<h3 class="degre">OFF</h3>'; } else { echo '<h3 class="degre">ON</h3>'; }
@@ -423,7 +425,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                         $result = $conn->query($query);
                         $sensor = mysqli_fetch_array($result);
                         $sensor_c = $sensor['payload'];
-                        echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-backdrop="static" data-keyboard="false">
+                        echo '<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-backdrop="static" data-keyboard="false">
                         <h3><small>'.$sensor_name.'</small></h3>';
                         if ($sensor_type_id == 3) {
                                 if ($sensor_c == 0) { echo '<h3 class="degre">OFF</h3>'; } else { echo '<h3 class="degre">ON</h3>'; }
@@ -455,7 +457,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 				$hysteresis='0';
 			}
 
-			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" href="#system_controller" data-backdrop="static" data-keyboard="false">
+			echo '<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-toggle="modal" href="#system_controller" data-backdrop="static" data-keyboard="false">
 			<h3 class="text-info"><small>'.$system_controller_name.'</small></h3>';
 			if($zone_mode == 127 || $zone_mode == 87 || $zone_mode == 67){
 				echo '<h3 class="degre" ><img src="images/hvac_fan_30.png" border="0"></h3>';
@@ -560,7 +562,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                         $result = $conn->query($query);
                         $sensor = mysqli_fetch_array($result);
                         $sensor_c = $sensor['payload'];
-   			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-backdrop="static" data-keyboard="false">
+   			echo '<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-backdrop="static" data-keyboard="false">
                         <h3><small>'.$sensor_name.'</small></h3>';
                         if ($sensor_type_id == 3) {
                                 if ($sensor_c == 0) { echo '<h3 class="degre">OFF</h3>'; } else { echo '<h3 class="degre">ON</h3>'; }
@@ -604,9 +606,9 @@ require_once(__DIR__.'/st_inc/functions.php');
                         if ($add_on_active == 1){$add_on_colour = "green";} elseif ($add_on_active == 0){$add_on_colour = "black";}
                         if ($zone_category == 2) {
 				echo '<a href="javascript:update_add_on('.$row['id'].');">
-                        	<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">';
+                        	<button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">';
 			} else {
-	   			echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#'.$zone_type.''.$zone_id.'" data-backdrop="static" data-keyboard="false">';
+	   			echo '<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#'.$zone_type.''.$zone_id.'" data-backdrop="static" data-keyboard="false">';
 			}
                         echo '<h3 class="buttontop"><small>'.$row['name'].'</small></h3>';
                         if (($zone_category == 1 && $sensor_type_id != 3)) {

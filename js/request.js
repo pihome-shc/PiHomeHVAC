@@ -303,7 +303,7 @@ var idata="w=node&o=add&node_type="+document.getElementById("node_type").value;
         idata+=" "+document.getElementById("mqtt_type").value;
     else
         if(document.getElementById("node_type").value == "Dummy")
-                idata+=" Sensor";
+                idata+=" "+document.getElementById("dummy_type").value;
         else if(document.getElementById("node_type").value == "Switch")
                 idata+=" GPIO";
 	    else 

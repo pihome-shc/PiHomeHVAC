@@ -23,6 +23,8 @@ require_once(__DIR__.'/st_inc/session.php');
 confirm_logged_in();
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
+
+if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") { $button_style = "btn-xxl-wide"; } else { $button_style = "btn-xxl"; }
 ?>
 <div class="panel panel-primary">
 	<div class="panel-heading">
@@ -42,7 +44,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 		?>
 		<!-- One touch buttons -->
 		<a style="color: #777; cursor: pointer; text-decoration: none;" href="home.php?page_name=homelist">
-		<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+		<button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn">
 		<h3 class="buttontop"><small><?php echo $lang['one_touch']; ?></small></h3>
 		<h3 class="degre" style="margin-top:0px;"><i class="fa fa-bullseye fa-2x"></i></h3>
 		<h3 class="status"></h3>
@@ -56,7 +58,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 		$result = $conn->query($query);
 		$lt_status=mysqli_num_rows($result);
 		if ($lt_status==1) {$lt_status='red';}else{$lt_status='blue';}
-		echo '<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" href="#livetemperature" data-backdrop="static" data-keyboard="false">
+		echo '<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-toggle="modal" href="#livetemperature" data-backdrop="static" data-keyboard="false">
 		<h3 class="text-info"><small>'.$lang['live_temp'].'</small></h3>
 		<h3 class="degre" style="margin-top:5px;"><img src="images/'.$icon.'" border="0"></h3>
 		<h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$lt_status.'"></i></small></h3>
@@ -74,28 +76,28 @@ require_once(__DIR__.'/st_inc/functions.php');
 
                 if($_SESSION['admin'] == 1) { ?>
                         <a style="color: #777; cursor: pointer; text-decoration: none;" href="relay.php">
-                        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+                        <button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn">
                         <h3 class="buttontop"><small><?php echo $lang['relay_add']; ?></small></h3>
                         <h3 class="degre" ><i class="fa fa-plus fa-1x orange"></i></h3>
                         <h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-fw"></i></small>
                         </h3></button></a>
 
                         <a style="color: #777; cursor: pointer; text-decoration: none;" href="sensor.php">
-                        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+                        <button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn">
                         <h3 class="buttontop"><small><?php echo $lang['sensor_add']; ?></small></h3>
                         <h3 class="degre" ><i class="fa fa-plus fa-1x green"></i></h3>
                         <h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-fw"></i></small>
                         </h3></button></a>
 
                         <a style="color: #777; cursor: pointer; text-decoration: none;" href="mqtt_device.php">
-                        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+                        <button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn">
                         <h3 class="buttontop"><small><?php echo $lang['mqtt_add']; ?></small></h3>
                         <h3 class="degre" ><i class="fa fa-plus fa-1x blue"></i></h3>
                         <h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-fw"></i></small>
                         </h3></button></a>
 
                         <a style="color: #777; cursor: pointer; text-decoration: none;" href="zone.php">
-                        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+                        <button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn">
                         <h3 class="buttontop"><small><?php echo $lang['zone_add']; ?></small></h3>
                         <h3 class="degre" ><i class="fa fa-plus fa-1x"></i></h3>
                         <h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-fw"></i></small>

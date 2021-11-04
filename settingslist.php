@@ -23,6 +23,8 @@ require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 //query to frost protection temperature 
 $fcolor = "blue";
+if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") { $button_style = "btn-xxl-wide"; } else { $button_style = "btn-xxl"; }
+
 $query = "SELECT sensor_id, sensor_child_id, frost_temp FROM sensors WHERE frost_temp <> 0;";
 $results = $conn->query($query);
 while ($row = mysqli_fetch_assoc($results)) {
@@ -72,7 +74,7 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 
 			                	<div id="collapse_status" class="panel-collapse collapse animated fadeIn">
 							<h4 class="pull-left"><?php echo $lang['system_status']; ?></h4><br>
-                                                        <button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#show_frost">
+                                                        <button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-target="#show_frost">
                                                         <h3 class="buttontop"><small><?php echo $lang['frost']; ?> </small></h3>
                                                         <h3 class="degre" ><i class="ionicons ion-ios-snowy blue"></i></h3>
                                                         <h3 class="status">
@@ -80,43 +82,43 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                                                         <small class="statuszoon"><i class="fa"></i></small></h3>
                                                         </button>
 
-		        			        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#wifi_setup">
+		        			        <button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-target="#wifi_setup">
         		        		        <h3 class="buttontop"><small><?php echo $lang['wifi']; ?></small></h3>
                 		        	        <h3 class="degre" ><i class="fa fa-signal green"></i></h3>
                         		        	<h3 class="status"></small></h3>
 		                	               	</button>
 
-		        	        	     	<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#eth_setup">
+		        	        	     	<button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-target="#eth_setup">
         		        	        	<h3 class="buttontop"><small><?php echo $lang['ethernet']; ?></small></h3>
 		                		        <h3 class="degre" ><i class="ionicons ion-network orange"></i></h3>
 		                        		<h3 class="status"></small></h3>
 			                        	</button>
 
-                                                	<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#status_job">
+                                                	<button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-target="#status_job">
                                                         <h3 class="buttontop"><small><?php echo $lang['job_status']; ?></small></h3>
                                                         <h3 class="degre" ><i class="ionicons ion-ios-timer-outline blue"></i></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
 
-                       					<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_sensors.php" data-toggle="modal" data-target="#temperature_sensor">
+                       					<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="edit_sensors.php" data-toggle="modal" data-target="#temperature_sensor">
                                                         <h3 class="buttontop"><small><?php echo $lang['sensors']; ?></small></h3>
                                                         <h3 class="degre" ><i class="ionicons ion-thermometer red"></i></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
 
-			        		        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Uptime">
+			        		        <button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Uptime">
 				        	        <h3 class="buttontop"><small><?php echo $lang['update_etc']; ?></small></h3>
                 					<h3 class="degre" ><i class="ionicons ion-clock red"></i></h3>
                         				<h3 class="status"></small></h3>
                                 			</button>
 
-		                                	<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#os_version">
+		                                	<button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-target="#os_version">
 			        	                <h3 class="buttontop"><small><?php echo $lang['os_version']; ?></small></h3>
 		        		        	<h3 class="degre" ><i class="fa fa-linux"></i></h3>
         		        		        <h3 class="status"></small></h3>
                 		        		</button>
 
-	        		              		<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#maxair_versions">
+	        		              		<button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-target="#maxair_versions">
         	        		               	<h3 class="buttontop"><small><?php echo $lang['maxair_versions']; ?></small></h3>
 		        			        <h3 class="degre" ><i class="fa fa-code-fork fa-1x blueinfo"></i></h3>
         		        			<h3 class="status"></small></h3>
@@ -129,7 +131,7 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                         	        		$system_cc = $result['payload'];
 			                        	if ($system_cc < 40){$system_cc="#0bb71b"; $fan=" ";}elseif ($system_cc < 50){$system_cc="#F0AD4E"; $fan="fa-pulse";}elseif ($system_cc > 50){$system_cc="#ff0000"; $fan="fa-pulse";}
 			        	                ?>
-				                	<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-remote="false"  data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_System">
+				                	<button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-remote="false"  data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_System">
         				               	<h3 class="buttontop"><small><?php echo $lang['system']; ?> &deg;</small></h3>
                 				        <h3 class="degre" ><i class="fa fa-server fa-1x green"></i></h3>
 	                				<h3 class="status">
@@ -138,19 +140,19 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 				                       	<small class="statuszoon"><i class="fa fa-asterisk <?php echo $fan;?>"></i></small></h3>
         				                </button>
 
-                		                   	<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#big_thanks">
+                		                   	<button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#big_thanks">
                         		                <h3 class="buttontop"><small><?php echo $lang['big_thanks']; ?></small></h3>
                                 		        <h3 class="degre" ><i class="ionicons ion-help-buoy blueinfo"></i></h3>
                                         		<h3 class="status"></small></h3>
 	                                              	</button>
 
-							<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#last_sw_install">
+							<button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#last_sw_install">
                                                         <h3 class="buttontop"><small><?php echo $lang['software_install']; ?></small></h3>
                                                         <h3 class="degre" ><i class="fa fa-terminal"></i></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
 
-                                			<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#documentation">
+                                			<button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#documentation">
                                                         <h3 class="buttontop"><small><?php echo $lang['documentation']; ?></small></h3>
                                                         <h3 class="degre" ><i class="fa fa-file"></i></h3>
                                                         <h3 class="status"></small></h3>
@@ -160,7 +162,7 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 				             	<div id="collapse_system" class="panel-collapse collapse animated fadeIn">
 							<h4 class="pull-left"><?php echo $lang['system_configuration']; ?></h4><br>
 
-                                                        <button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#change_system_mode">
+                                                        <button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-target="#change_system_mode">
                                                         <h3 class="buttontop"><small><?php echo $lang['system_mode']; ?></small></h3>
                                                         <?php 
 							if (settings($conn, 'mode') == 1) {
@@ -172,13 +174,13 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                                                         <h3 class="status"></small></h3>
                                                         </button>
 
-							<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_gpio.php" data-toggle="modal" data-target="#jobs_schedule">
+							<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="edit_gpio.php" data-toggle="modal" data-target="#jobs_schedule">
                                                         <h3 class="buttontop"><small><?php echo $lang['jobs']; ?></small></h3>
 	        	        			<h3 class="degre" ><i class="ionicons ion-ios-timer-outline blue"></i></h3>
         	        	        		<h3 class="status"></small></h3>
 	                	        	        </button>
 
-                                                	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#network_setting">
+                                                	<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#network_setting">
                                                         <h3 class="buttontop"><small><?php echo $lang['network']; ?></small></h3>
                                                         <h3 class="degre" ><i class="ionicons ion-network blue"></i></h3>
                                                         <h3 class="status"></small></h3>
@@ -191,55 +193,55 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                 	     				else
 	                        	      			$TUnit='C';
 			                	       	?>
-        			                	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#change_units">
+        			                	<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-target="#change_units">
 	                			        <h3 class="buttontop"><small><?php echo $lang['units']; ?></small></h3>
 		                	        	<h3 class="degre" ><?php echo $TUnit;?></h3>
         		                	        <h3 class="status"></small></h3>
 	        		                	</button>
 
-	         	        		        <button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#language">
+	         	        		        <button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#language">
 		                			<h3 class="buttontop"><small><?php echo $lang['language']; ?></small></h3>
         		                		<h3 class="degre" ><i class="fa fa-language fa-1x blueinfo"></i></h3>
                 		                	<h3 class="status"></small></h3>
 		                	        	</button>
 
-			                	      	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_gpio.php" data-toggle="modal" data-target="#time_zone">
+			                	      	<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="edit_gpio.php" data-toggle="modal" data-target="#time_zone">
         			                	<h3 class="buttontop"><small><?php echo $lang['time_zone']; ?></small></h3>
 		                			<h3 class="degre" ><i class="fa fa-globe green"></i></h3>
         		                		<h3 class="status"></small></h3>
                 		                	</button>
 
-		        	        	       	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_OpenWeather">
+		        	        	       	<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_OpenWeather">
         		        	        	<h3 class="buttontop"><small><?php echo $lang['openweather']; ?></small></h3>
 	                			        <h3 class="degre" ><i class="fa fa-sun-o"></i></h3>
 		                	       		<h3 class="status"></small></h3>
 	        		                	</button>
 
-                                                 	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#display_graphs">
+                                                 	<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#display_graphs">
                                                         <h3 class="buttontop"><small><?php echo $lang['enable_graphs']; ?></small></h3>
                                                         <h3 class="degre" ><i class="fa fa-bar-chart fa-1x blueinfo"></i></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
 
-		                		  	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#zone_graph">
+		                		  	<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#zone_graph">
         		                		<h3 class="buttontop"><small><?php echo $lang['select']; ?></small></h3>
 	                		        	<h3 class="degre" ><i class="fa fa-bar-chart fa-1x"></i></h3>
 		                		       	<h3 class="status"></small></h3>
         		                		</button>
 
-	                		        	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#email_setting">
+	                		        	<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#email_setting">
 			                        	<h3 class="buttontop"><small><?php echo $lang['email']; ?></small></h3>
         			                        <h3 class="degre" ><i class="fa fa-envelope blueinfo"></i></h3>
 	        			                <h3 class="status"></small></h3>
 	        		        		</button>
 
-	        	        	        	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_MQTT">
+	        	        	        	<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_MQTT">
 		        	        	    	<h3 class="buttontop"><small><?php echo $lang['mqtt']; ?></small></h3>
                 	        			<h3 class="degre" ><?php echo $lang['mqtt']; ?></h3>
 				        	        <h3 class="status"></small></h3>
 			                		</button>
 
-                                                        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#set_buttons">
+                                                        <button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#set_buttons">
                                                         <h3 class="buttontop"><small><?php echo $lang['set_buttons']; ?></small></h3>
                                                         <h3 class="degre" ><i class="fa fa-th-large orange"></i></h3>
                                                         <h3 class="status"></small></h3>
@@ -249,49 +251,49 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 				             	<div id="collapse_maintenance" class="panel-collapse collapse animated fadeIn">
 							<h4 class="pull-left"><?php echo $lang['system_maintenance']; ?></h4><br>
 <?php /*
-							<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_piconnect.php" data-toggle="modal" data-target="#piconnect">
+							<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="edit_piconnect.php" data-toggle="modal" data-target="#piconnect">
         	                		        <h3 class="buttontop"><small>PiConnect</small></h3>
 			                		<h3 class="degre" ><i class="fa fa-plug green"></i></h3>
 	                			      	<h3 class="status"></small></h3>
         	                        		</button>
 */ ?>
-		        		        	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Services">
+		        		        	<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Services">
         		        		        <h3 class="buttontop"><small><?php echo $lang['services']; ?></small></h3>
                 		        		<h3 class="degre" ><i class="ionicons ion-ios-cog-outline"></i></h3>
 		                        		<h3 class="status"></small></h3>
 			                                </button>
 
-                                 			<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#set_repository">
+                                 			<button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#set_repository">
                                                         <h3 class="buttontop"><small><?php echo $lang['repository']; ?></small></h3>
                                                         <h3 class="degre" ><i class="fa fa-github"></i></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
 
-							<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#maxair_update">
+							<button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-target="#maxair_update">
                                                         <h3 class="buttontop"><small><?php echo $lang['maxair_update']; ?></small></h3>
                                                         <h3 class="degre" ><i class="fa fa-download fa-1x blueinfo"></i></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
 
-	                        		        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#backup_image">
+	                        		        <button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-target="#backup_image">
 			                        	<h3 class="buttontop"><small><?php echo $lang['backup']; ?></small></h3>
 				                       	<h3 class="degre" ><i class="fa fa-clone fa-1x blue"></i> </h3>
         				                <h3 class="status"></small></h3>
 	                				</button>
 
-        	                			<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#user_setup">
+        	                			<button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#user_setup">
                 	                		<h3 class="buttontop"><small><?php echo $lang['user_accounts']; ?></small></h3>
 			        	               	<h3 class="degre" ><i class="ionicons ion-person blue"></i></h3>
         			        	        <h3 class="status"></small></h3>
 	        	        		       	</button>
 
-							<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#sw_install">
+							<button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#sw_install">
                                                         <h3 class="buttontop"><small><?php echo $lang['software_install']; ?></small></h3>
                                                         <h3 class="degre" ><i class="fa fa-terminal"></i></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
 
-                                        		<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#db_cleanup">
+                                        		<button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" udata-href="#" data-toggle="modal" data-target="#db_cleanup">
                                                         <h3 class="buttontop"><small><?php echo $lang['db_cleanup']; ?></small></h3>
                                                         <h3 class="degre" ><i class="fa fa-database orange"></i></h3>
                                                         <h3 class="status"></small></h3>
@@ -300,19 +302,19 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 
 			        	        <div id="collapse_system_controller" class="panel-collapse collapse animated fadeIn">
 							<h4 class="pull-left"><?php echo $lang['system_controller_configuration']; ?></h4><br>
-				        	       	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_system_controller.php" data-toggle="modal" data-target="#system_controller">
+				        	       	<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="edit_system_controller.php" data-toggle="modal" data-target="#system_controller">
                                                         <h3 class="buttontop"><small><?php echo $lang['controller']; ?></small></h3>
                                                         <h3 class="degre" ><?php echo "SC"; ?></h3>
 		        		                <h3 class="status"></small></h3>
 	                				</button>
 
-        	                        		<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_gpio.php" data-toggle="modal" data-target="#boost_setup">
+        	                        		<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="edit_gpio.php" data-toggle="modal" data-target="#boost_setup">
 			                        	<h3 class="buttontop"><small><?php echo $lang['boost']; ?></small></h3>
 		                			<h3 class="degre" ><i class="fa fa-rocket fa-1x blueinfo"></i></h3>
         		                	        <h3 class="status"></small></h3>
 				                	</button>
 
-	                				<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_override.php" data-toggle="modal" data-target="#override_setup">
+	                				<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="edit_override.php" data-toggle="modal" data-target="#override_setup">
         	                	        	<h3 class="buttontop"><small><?php echo $lang['override']; ?></small></h3>
 			                	       	<h3 class="degre" ><i class="fa fa-refresh fa-1x blue"></i></h3>
                 			        	<h3 class="status"></small></h3>
@@ -321,61 +323,61 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 
 			                       	<div id="collapse_nodes" class="panel-collapse collapse animated fadeIn">
 							<h4 class="pull-left"><?php echo $lang['node_zone_configuration']; ?></h4><br>
-		                			<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_gpio.php" data-toggle="modal" data-target="#zone_setup">
+		                			<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="edit_gpio.php" data-toggle="modal" data-target="#zone_setup">
         		                	        <h3 class="buttontop"><small><?php echo $lang['zone']; ?></small></h3>
 				                	<h3 class="degre" ><i class="glyphicon glyphicon-th-large orange"></i> </h3>
 	                				<h3 class="status"></small></h3>
         	                        		</button>
 
-                                			<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_override.php" data-toggle="modal" data-target="#zone_types">
+                                			<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="edit_override.php" data-toggle="modal" data-target="#zone_types">
                                                         <h3 class="buttontop"><small><?php echo $lang['zone_type']; ?></small></h3>
                                                         <h3 class="degre" ><i class="fa fa-list-ol orange"></i></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
 
-			        	        	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="edit_override.php" data-toggle="modal" data-target="#nodes">
+			        	        	<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="edit_override.php" data-toggle="modal" data-target="#nodes">
         	        			       	<h3 class="buttontop"><small><?php echo $lang['nodes']; ?></small></h3>
                 	                		<h3 class="degre" ><i class="fa fa-sitemap fa-1x green"></i></h3>
 				                        <h3 class="status"></small></h3>
 		                	 		</button>
 
-                                               		<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#node_alerts">
+                                               		<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#node_alerts">
                                                         <h3 class="buttontop"><small><?php echo $lang['node_alerts']; ?></small></h3>
                                                         <h3 class="degre" ><i class="ion-android-notifications-none blueinfo"></i></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
 
-                                     			<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#relay_setup">
+                                     			<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#relay_setup">
                                                         <h3 class="buttontop"><small><?php echo $lang['relays']; ?></small></h3>
                                                         <h3 class="degre" ><i class="ionicons ion-shuffle"></i></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
 
-                                                	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#sensor_setup">
+                                                	<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#sensor_setup">
                                                         <h3 class="buttontop"><small><?php echo $lang['sensors']; ?></small></h3>
                                                         <h3 class="degre" ><i class="ionicons ion-thermometer red"></i></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
 
-                                                	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#sensor_types">
+                                                	<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#sensor_types">
                                                         <h3 class="buttontop"><small><?php echo $lang['sensor_type']; ?></small></h3>
                                                         <h3 class="degre" ><i class="fa fa-list-ol red"></i></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
 
-				                       	<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#sensor_gateway">
+				                       	<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#sensor_gateway">
         	        			        <h3 class="buttontop"><small><?php echo $lang['gateway']; ?></small></h3>
 	        	        	                <h3 class="degre" ><i class="fa fa-heartbeat red"></i></h3>
 				        	        <h3 class="status"></small></h3>
                 					</button>
 
-                                               		<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#add_on_http">
+                                               		<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#add_on_http">
                                                         <h3 class="buttontop"><small><?php echo $lang['add_on']; ?></small></h3>
                                                         <h3 class="degre" ><?php echo $lang['add_on_http']; ?></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
 
-							<button class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#mqtt_devices">
+							<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#mqtt_devices">
                                                         <h3 class="buttontop"><small><?php echo $lang['mqtt_device']; ?></small></h3>
 														<h3 class="degre" ><?php echo $lang['mqtt']; ?></h3>
                                                         <h3 class="status"></small></h3>
@@ -409,13 +411,13 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 			</div>
 			<!-- /.panel-body -->
 			<div class="panel-body">
-                        	<button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#reboot_system">
+                        	<button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-target="#reboot_system">
 	                        <h3 class="buttontop"><small><?php echo $lang['reboot_pi']; ?></small></h3>
         	                <h3 class="degre" ><i class="ion-ios-refresh-outline orange"></i></h3>
                 	        <h3 class="status"></small></h3>
                         	</button>
 
-	                        <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn animated fadeIn" data-toggle="modal" data-target="#shutdown_system">
+	                        <button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-target="#shutdown_system">
         	                <h3 class="buttontop"><small><?php echo $lang['shutdown_pi']; ?></small></h3>
                 	        <h3 class="degre" ><i class="fa fa-power-off fa-1x red"></i></h3>
                         	<h3 class="status"></small></h3>

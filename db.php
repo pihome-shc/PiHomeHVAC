@@ -1062,7 +1062,7 @@ if($what=="reboot"){
 	//systemctl stop mysql.service
 	//exec("systemctl stop mysql.service"); 
 	
-	exec("python /var/www/reboot.py"); 
+	exec("python3 /var/www/reboot.py"); 
 	$info_message = "Server is rebooting <small> Please Do not Refresh... </small>";
 }
 
@@ -1086,7 +1086,7 @@ if($what=="shutdown"){
 	exec("systemctl stop mysql.service"); 
 	*/
 	//Shutdown System
-	exec("python /var/www/shutdown.py"); 
+	exec("python3 /var/www/shutdown.py"); 
 	$info_message = "Server is Shutting down <small> Please Do not Refresh... </small>";
 }
 
