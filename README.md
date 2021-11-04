@@ -69,7 +69,8 @@ The core requirements for the SBC are as stated above, MaxAir has been successfu
 * sudo apt -y install git
 * sudo git clone https://github.com/pihome-shc/PiHomeHVAC.git "/var/www"
 * sudo chown -R www-data:www-data /var/www
-* sudo php /var/www/setup.php
+* sudo cd /var/www
+* sudo php ./setup.php
 
 ### For more detailed instructiosn vist [PiHome](http://www.pihome.eu "PiHome - Smart Heating Control") website 
 
