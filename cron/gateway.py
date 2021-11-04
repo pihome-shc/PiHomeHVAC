@@ -144,7 +144,11 @@ def set_relays(
             "UPDATE `messages_out` set sent=1 where id=%s", [out_id]
         )  # update DB so this message will not be processed in next loop
         con.commit()  # commit above
-
+    elif node_type.find("Dummy") != -1 :  # process Dummy mode
+        cur.execute(
+            "UPDATE `messages_out` set sent=1 where id=%s", [out_id]
+        )  # update DB so this message will not be processed in next loop
+        con.commit()  # commit above
 
 # MQTT specific functions
 # Function run when the MQTT client connect to the brooker

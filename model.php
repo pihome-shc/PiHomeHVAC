@@ -879,7 +879,15 @@ echo '<p class="text-muted">'.$lang['node_add_info_text'].'</p>
 		<input class="form-control input-sm" type="text" id="add_node_id" name="add_node_id" value="" placeholder="'.$lang['node_id'].'">
 	<div class="help-block with-errors"></div></div>
 
-        <div class="form-group" class="control-label" id="mqtt_type_label" style="display:none"><label>'.$lang['node_name'].'</label> <smallclass="text-muted">'.$lang['mqtt_node_info'].'</small>
+        <div class="form-group" class="control-label" id="dummy_type_label" style="display:none"><label>'.$lang['node_name'].'</label> <smallclass="text-muted">'.$lang['dummy_name_info'].'</small>
+                <select class="form-control input-sm" type="text" id="dummy_type" name="dummy_type">
+                        <option value="Sensor" selected="selected">Dummy Sensor</option>
+                        <option value="Controller">Dummy Controller</option>
+                </select>
+                <div class="help-block with-errors"></div>
+        </div>
+
+        <div class="form-group" class="control-label" id="mqtt_type_label" style="display:none"><label>'.$lang['node_name'].'</label> <smallclass="text-muted">'.$lang['mqtt_name_info'].'</small>
                 <select class="form-control input-sm" type="text" id="mqtt_type" name="mqtt_type">
                         <option value="Sensor" selected="selected">MQTT Sensor</option>
                         <option value="Controller">MQTT Controller</option>
@@ -3028,18 +3036,26 @@ function show_hide_devices()
 {
  var e = document.getElementById("node_type");
  var selected_node_type = e.options[e.selectedIndex].text;
- if(selected_node_type.includes("GPIO") || selected_node_type.includes("MQTT")) {
-        document.getElementById("nodes_max_child_id").style.visibility = 'hidden';;
+ if(selected_node_type.includes("GPIO") || selected_node_type.includes("MQTT") || selected_node_type.includes("Dummy")) {
         document.getElementById("add_devices_label").style.visibility = 'hidden';;
         if(selected_node_type.includes("MQTT")) {
                 document.getElementById("mqtt_type_label").style.display = 'block';;
+		document.getElementById("nodes_max_child_id").style.visibility = 'hidden';;
         } else {
                 document.getElementById("mqtt_type_label").style.display = 'none';;
+        }
+        if(selected_node_type.includes("Dummy")) {
+                document.getElementById("dummy_type_label").style.display = 'block';;
+		document.getElementById("nodes_max_child_id").style.visibility = 'visible';;
+		document.getElementById("add_devices_label").style.visibility = 'visible';;
+        } else {
+                document.getElementById("dummy_type_label").style.display = 'none';;
         }
  } else {
         document.getElementById("nodes_max_child_id").style.visibility = 'visible';;
         document.getElementById("add_devices_label").style.visibility = 'visible';;
         document.getElementById("mqtt_type_label").style.display = 'none';;
+        document.getElementById("dummy_type_label").style.display = 'none';;
  }
 }
 function gw_location()
