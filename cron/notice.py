@@ -368,7 +368,7 @@ try:
     count = count[
         0]  # Parse first and the only one part of data table named "count" - there is number of records grabbed in SELECT above
     if count > 0:  # If greater then 0 then we have something to send out.
-        message = "Over " + max_cpu_temp + "c CPU Temperature Recorded in last one Hour"
+        message = "Over CPU Max Temperature Recorded in last one Hour"
         query = ("SELECT * FROM notice WHERE message = '" + message + "'")
         cursorselect.execute(query)
         name_to_index = dict(
@@ -392,7 +392,7 @@ try:
         cursorupdate.close()
         con.commit()
     elif count == 0:  # no CPU temperature errors in the last hour so clear any existing messages to allow new ones
-        query = ("DELETE FROM notice WHERE message LIKE 'Over " + max_cpu_temp + "c CPU Temperature Recorded in last one Hour'")
+        query = ("DELETE FROM notice WHERE message LIKE 'Over CPU Max Temperature Recorded in last one Hour'")
         cursordelete = con.cursor()
         cursordelete.execute(query)
         cursordelete.close()
