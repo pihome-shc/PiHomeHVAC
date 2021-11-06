@@ -763,4 +763,6 @@ $lang['github_repository_text'] = "URL for the MaxAir GitHub Repository to be us
 $lang['default_repository'] = "https://github.com/pihome-shc/PiHomeHVAC.git";
 $lang['set_default'] = "Set Default";
 $lang['dummy_name_info'] = "Identification for the Dummy Device";
+$lang['max_cpu_temp'] = "Max CPU Temp";
+$lang['max_cpu_temp_text'] = "Set the temperature at which notification messages will be sent. ";
 ?>
