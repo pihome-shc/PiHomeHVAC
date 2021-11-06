@@ -2980,6 +2980,36 @@ echo '<div class="modal fade" id="set_repository" tabindex="-1" role="dialog" ar
         </div>
     </div>
 </div>';
+
+//set max cpu temperature
+echo '<div class="modal fade" id="max_cpu_temp" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['max_cpu_temp'].'</h5>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">'.$lang['max_cpu_temp_text'].'</p>';
+                $query = "SELECT max_cpu_temp FROM system LIMIT 1;";
+                $result = $conn->query($query);
+                $row = mysqli_fetch_array($result);
+                echo '<div class="form-group" class="control-label"><label>'.$lang['temperature'].'</label> <small class="text-muted"> </small>
+                <select class="form-control input-sm" type="text" id="max_cpu_temp" name="max_cpu_temp" >';
+                for ($x = 40; $x <=  70; $x = $x + 5) {
+                        echo '<option value="'.$x.'" ' . ($x==$row['max_cpu_temp'] ? 'selected' : '') . '>'.$x.'&deg;</option>';
+                }
+                echo '</select>
+                        <div class="help-block with-errors"></div>
+                </div>
+            </div>
+                <div class="modal-footer">
+                        <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                        <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="set_max_cpu_temp()">
+            </div>
+        </div>
+    </div>
+</div>';
 ?>
 
 <script>
