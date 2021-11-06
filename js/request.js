@@ -1063,7 +1063,7 @@ var idata="w=set_repository&o=update";
 //update max cpu temperature
 function set_max_cpu_temp(){
 var idata="w=set_max_cpu_temp&o=update";
-    idata+="&max_cpu_temp="+document.getElementById("max_cpu_temp").value;
+    idata+="&max_cpu_temp="+document.getElementById("m_cpu_temp").value;
     idata+="&wid=0";
     $.get('db.php',idata)
     .done(function(odata){
