@@ -76,7 +76,7 @@ def set_relays(
             gw.write(
                 msg.encode("utf-8")
             )  # !!!! send it to serial (arduino attached to rPI by USB port)
-        else:
+        elif gatewaytype == "wifi":
             print("write")
             gw.write(msg.encode("utf-8"))
         cur.execute(
