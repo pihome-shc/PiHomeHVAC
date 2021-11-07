@@ -352,13 +352,23 @@ print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht 
 try:
     con = mdb.connect(dbhost, dbuser, dbpass, dbname)
     cursorselect = con.cursor()
+    query = ("SELECT max_cpu_temp FROM system LIMIT 1")
+    cursorselect.execute(query)
+    name_to_index = dict(
+        (d[0], i)
+        for i, d
+        in enumerate(cursorselect.description)
+    )
+    system = cursorselect.fetchone()
+    max_cpu_temp = str(system[name_to_index['max_cpu_temp']])
+
     cursorselect.execute(
-        "SELECT COUNT(*) FROM messages_in_view_24h WHERE node_id = '0' AND payload > 50 AND DATETIME >= DATE_SUB(NOW(),INTERVAL 60 MINUTE);")
+        "SELECT COUNT(*) FROM messages_in_view_24h WHERE node_id = '0' AND payload > " + max_cpu_temp +" AND DATETIME >= DATE_SUB(NOW(),INTERVAL 60 MINUTE);")
     count = cursorselect.fetchone()  # Grab all messages from database for CPU temperature.
     count = count[
         0]  # Parse first and the only one part of data table named "count" - there is number of records grabbed in SELECT above
     if count > 0:  # If greater then 0 then we have something to send out.
-        message = "Over 50c CPU Temperature Recorded in last one Hour"
+        message = "Over CPU Max Temperature Recorded in last one Hour"
         query = ("SELECT * FROM notice WHERE message = '" + message + "'")
         cursorselect.execute(query)
         name_to_index = dict(
@@ -382,7 +392,7 @@ try:
         cursorupdate.close()
         con.commit()
     elif count == 0:  # no CPU temperature errors in the last hour so clear any existing messages to allow new ones
-        query = ("DELETE FROM notice WHERE message LIKE 'Over 50c CPU Temperature Recorded in last one Hour'")
+        query = ("DELETE FROM notice WHERE message LIKE 'Over CPU Max Temperature Recorded in last one Hour'")
         cursordelete = con.cursor()
         cursordelete.execute(query)
         cursordelete.close()

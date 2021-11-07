@@ -125,11 +125,12 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                 		       			</button>
 
 				                        <?php
+                                                        $max_cpu_temp = settings($conn, 'max_cpu_temp');
 	        				        $query = "select * from messages_in where node_id = 0 order by datetime desc limit 1";
         	        				$result = $conn->query($query);
                 	        			$result = mysqli_fetch_array($result);
                         	        		$system_cc = $result['payload'];
-			                        	if ($system_cc < 40){$system_cc="#0bb71b"; $fan=" ";}elseif ($system_cc < 50){$system_cc="#F0AD4E"; $fan="fa-pulse";}elseif ($system_cc > 50){$system_cc="#ff0000"; $fan="fa-pulse";}
+			                        	if ($system_cc < $max_cpu_temp - 10){$system_cc="#0bb71b"; $fan=" ";}elseif ($system_cc < $max_cpu_temp){$system_cc="#F0AD4E"; $fan="fa-pulse";}elseif ($system_cc > $max_cpu_temp){$system_cc="#ff0000"; $fan="fa-pulse";}
 			        	                ?>
 				                	<button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-remote="false"  data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_System">
         				               	<h3 class="buttontop"><small><?php echo $lang['system']; ?> &deg;</small></h3>
@@ -296,6 +297,12 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                                         		<button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" udata-href="#" data-toggle="modal" data-target="#db_cleanup">
                                                         <h3 class="buttontop"><small><?php echo $lang['db_cleanup']; ?></small></h3>
                                                         <h3 class="degre" ><i class="fa fa-database orange"></i></h3>
+                                                        <h3 class="status"></small></h3>
+                                                        </button>
+
+        						<button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" udata-href="#" data-toggle="modal" data-target="#max_cpu_temp">
+                                                        <h3 class="buttontop"><small><?php echo $lang['max_cpu_temp']; ?></small></h3>
+                                                        <h3 class="degre" ><i class="ionicons ion-thermometer red"></i></h3>
                                                         <h3 class="status"></small></h3>
                                                         </button>
         	        	        	</div>

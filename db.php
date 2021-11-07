@@ -1540,5 +1540,24 @@ if($what=="set_repository"){
                 return;
         }
 }
+
+//set max cpu temperature
+if($what=="set_max_cpu_temp"){
+        $max_cpu_temp =  $_GET['max_cpu_temp'];
+        $query = "UPDATE system SET max_cpu_temp = ".$max_cpu_temp.";";
+        $update_error=0;
+        if(!$conn->query($query)){
+                $update_error=1;
+        }
+        if($update_error==0){
+                header('Content-type: application/json');
+                echo json_encode(array('Success'=>'Success','Query'=>$query));
+                return;
+        }else{
+                header('Content-type: application/json');
+                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                return;
+        }
+}
 ?>
 <?php if(isset($conn)) { $conn->close();} ?>

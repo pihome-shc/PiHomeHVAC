@@ -1059,3 +1059,23 @@ var idata="w=set_repository&o=update";
     .always(function() {
     });
 }
+
+//update max cpu temperature
+function set_max_cpu_temp(){
+var idata="w=set_max_cpu_temp&o=update";
+    idata+="&max_cpu_temp="+document.getElementById("m_cpu_temp").value;
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            reload_page();
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("set_max_cpu_temp: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
