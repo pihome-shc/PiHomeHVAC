@@ -1382,10 +1382,17 @@ echo '
                                                 echo $lang['smart_home_gateway_text_wifi'];
                                                 $display_wifi = "display:block";
                                                 $display_serial = "display:none";
+                                                $display_timeout = "display:block";
                                         } elseif ($gateway_type=='serial') {
                                                 echo $lang['smart_home_gateway_text_serial'];
                                                 $display_wifi = "display:none";
                                                 $display_serial = "display:block";
+                                                $display_timeout = "display:block";
+                                        } elseif ($gateway_type=='gpio') {
+                                                echo $lang['smart_home_gateway_text_gpio'];
+                                                $display_wifi = "display:none";
+                                                $display_serial = "display:none";
+                                                $display_timeout = "display:none";
                                         }
                                 }
 				echo '</p>';
@@ -1421,6 +1428,7 @@ echo '
                                         <select class="form-control input-sm" type="text" id="gw_type" name="gw_type" onchange=gw_location()>
                                         <option value="wifi" ' . ($gateway_type=='wifi' ? 'selected' : '') . '>'.$lang['wifi'].'</option>
                                         <option value="serial" ' . ($gateway_type=='serial' ? 'selected' : '') . '>'.$lang['serial'].'</option>
+                                        <option value="gpio" ' . ($gateway_type=='gpio' ? 'selected' : '') . '>'.$lang['gpio'].'</option>
                                         </select>
                                         <div class="help-block with-errors">
                                         </div>
@@ -1474,7 +1482,7 @@ echo '
                                 </div>
                                 <!-- /.form-group -->
 
-				<div class="form-group" class="control-label"><label>'.$lang['timeout'].' </label>
+				<div class="form-group" class="control-label" id="gw_timout_label" style="'.$display_timeout.'"><label>'.$lang['timeout'].' </label>
                                         <select class="form-control input-sm" type="text" id="gw_timout" name="gw_timout">
                                         <option selected>'.$grow['timout'].'</option>
                                         <option value="0">0</option>
@@ -2993,11 +3001,11 @@ echo '<div class="modal fade" id="max_cpu_temp" tabindex="-1" role="dialog" aria
                 <p class="text-muted">'.$lang['max_cpu_temp_text'].'</p>';
                 $query = "SELECT max_cpu_temp FROM system LIMIT 1;";
                 $result = $conn->query($query);
-                $row = mysqli_fetch_array($result);
+		$row = mysqli_fetch_array($result);
                 echo '<div class="form-group" class="control-label"><label>'.$lang['temperature'].'</label> <small class="text-muted"> </small>
                 <select class="form-control input-sm" type="text" id="m_cpu_temp" name="m_cpu_temp" >';
                 for ($x = 40; $x <=  70; $x = $x + 5) {
-                        echo '<option value="'.$x.'" ' . ($x==$row['max_cpu_temp'] ? 'selected' : '') . '>'.$x.'&deg;</option>';
+                	echo '<option value="'.$x.'" ' . ($x==$row['max_cpu_temp'] ? 'selected' : '') . '>'.$x.'&deg;</option>';
                 }
                 echo '</select>
                         <div class="help-block with-errors"></div>
@@ -3010,6 +3018,7 @@ echo '<div class="modal fade" id="max_cpu_temp" tabindex="-1" role="dialog" aria
         </div>
     </div>
 </div>';
+
 ?>
 
 <script>
@@ -3092,11 +3101,22 @@ function gw_location()
 {
  var e = document.getElementById("gw_type");
  var selected_gw_type = e.value;
- if(selected_gw_type.includes("wifi")) {
+ if(selected_gw_type.includes("gpio")) {
+        document.getElementById("serial_gw").style.display = 'none';
+        document.getElementById("wifi_gw").style.display = 'none';
+        document.getElementById("serial_port").style.display = 'none';
+        document.getElementById("wifi_port").style.display = 'none';
+        document.getElementById("gw_timout_label").style.visibility = 'hidden';
+        document.getElementById("gw_timout").style.display = 'none';
+        document.getElementById("wifi_location").value = "";
+        document.getElementById("wifi_port_num").value = "";
+ } else if(selected_gw_type.includes("wifi")) {
         document.getElementById("serial_gw").style.display = 'none';
         document.getElementById("wifi_gw").style.display = 'block';
         document.getElementById("serial_port").style.display = 'none';
         document.getElementById("wifi_port").style.display = 'block';
+        document.getElementById("gw_timout_label").style.visibility = 'visible';
+        document.getElementById("gw_timout").style.display = 'block';
         document.getElementById("wifi_location").value = "192.168.0.100";
         document.getElementById("wifi_port_num").value = "5003";
  } else {
@@ -3104,6 +3124,8 @@ function gw_location()
         document.getElementById("serial_gw").style.display = 'block';
         document.getElementById("wifi_port").style.display = 'none';
         document.getElementById("serial_port").style.display = 'block';
+        document.getElementById("gw_timout_label").style.visibility = 'visible';
+        document.getElementById("gw_timout").style.display = 'block';
         document.getElementById("serial_location").value = "/dev/ttyAMA0";
         document.getElementById("serial_port_speed").value = "115200";
  }
