@@ -590,7 +590,21 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                         $query = "SELECT * FROM sensors WHERE zone_id = '{$zone_id}' LIMIT 1;";
                         $result = $conn->query($query);
                         $sensor = mysqli_fetch_array($result);
+                        $temperature_sensor_id=$sensor['sensor_id'];
+                        $temperature_sensor_child_id=$sensor['sensor_child_id'];
                         $sensor_type_id=$sensor['sensor_type_id'];
+
+                        //get the node id
+                        $query = "SELECT node_id FROM nodes WHERE id = '{$temperature_sensor_id}' LIMIT 1;";
+                        $result = $conn->query($query);
+                        $nodes = mysqli_fetch_array($result);
+                        $zone_node_id=$nodes['node_id'];
+
+                        //query to get temperature from messages_in_view_24h table view
+                        $query = "SELECT * FROM messages_in WHERE node_id = '{$zone_node_id}' AND child_id = '{$temperature_sensor_child_id}' ORDER BY id desc LIMIT 1;";
+                        $result = $conn->query($query);
+                        $sensor = mysqli_fetch_array($result);
+                        $zone_c = $sensor['payload'];
 
 			//get the current zone schedule status
 			$rval=get_schedule_status($conn, $zone_id,$holidays_status);
@@ -613,7 +627,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                         echo '<h3 class="buttontop"><small>'.$row['name'].'</small></h3>';
                         if (($zone_category == 1 && $sensor_type_id != 3)) {
                                 $unit = SensorUnits($conn,$sensor_type_id);
-                                echo '<h3 class="degre">'.number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit.'</h3>';
+                                echo '<h3 class="degre">'.number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit.'</h3>';
                         } elseif ($zone_category == 4 || ($zone_category == 1 && $sensor_type_id == 3)) {
 				if ($add_on_active == 0) { echo '<h3 class="degre">OFF</h3>'; } else { echo '<h3 class="degre">ON</h3>'; }
 			} else {
