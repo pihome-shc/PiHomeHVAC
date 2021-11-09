@@ -784,4 +784,5 @@ $lang['max_cpu_temp'] = "Max CPU Temp";
 $lang['max_cpu_temp_text'] = "Set the temperature at which notification messages will be sent. ";
 $lang['gpio'] = "GPIO Output";
 $lang['smart_home_gateway_text_gpio'] = " Smart Home Gateway is communicating directly with the GPIO Outputs of your home automation controller.";
+$lang['setup_guide_gateway'] = "Setup Guide Gateway";
 ?>
