@@ -311,7 +311,7 @@ echo '
                                                 $result = $conn->query($query);
                                                 if ($result){
                                                         while ($nrow=mysqli_fetch_array($result)) {
-                                                                echo '<option value="'.$nrow['id'].'" selected>'.$nrow['name'].'</option>';
+                                                        	echo '<option value="'.$nrow['id'].'" ' . ($nrow['id']==$brow['heat_relay_id'] ? 'selected' : '') . '>'.$nrow['name'].'</option>';
                                                         }
                                                 }
                                                 echo '</select>
@@ -328,7 +328,7 @@ echo '
                                                 $result = $conn->query($query);
                                                 if ($result){
                                                         while ($nrow=mysqli_fetch_array($result)) {
-                                                                echo '<option value="'.$nrow['id'].'" selected>'.$nrow['name'].'</option>';
+                                                        	echo '<option value="'.$nrow['id'].'" ' . ($nrow['id']==$brow['cool_relay_id'] ? 'selected' : '') . '>'.$nrow['name'].'</option>';
                                                         }
                                                 }
                                                 echo '</select>
@@ -344,7 +344,7 @@ echo '
                                                 $result = $conn->query($query);
                                                 if ($result){
                                                         while ($nrow=mysqli_fetch_array($result)) {
-                                                                echo '<option value="'.$nrow['id'].'" selected>'.$nrow['name'].'</option>';
+                                                        	echo '<option value="'.$nrow['id'].'" ' . ($nrow['id']==$brow['fan_relay_id'] ? 'selected' : '') . '>'.$nrow['name'].'</option>';
                                                         }
                                                 }
                                                 echo '</select>
