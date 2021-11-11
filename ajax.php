@@ -593,8 +593,8 @@ function GetModal_Services($conn)
     $SArr=[['name'=>'Apache','service'=>'apache2.service'],
            ['name'=>'MySQL','service'=>'mysql.service'],
            ['name'=>'MariaDB','service'=>'mariadb.service'],
-           ['name'=>'PiHome MQTT','service'=>'pihome.mqtt.service'],
            ['name'=>'PiHome JOBS','service'=>'pihome_jobs_schedule.service'],
+           ['name'=>'HomeAssistant Integration','service'=>'HA_integration.service'],
 	   ['name'=>'Amazon Echo','service'=>'pihome_amazon_echo.service'],
            ['name'=>'Homebridge','service'=>'homebridge.service'],
            ['name'=>'Autohotspot','service'=>'autohotspot.service']];
@@ -718,7 +718,7 @@ function GetModal_ServicesInfo($conn)
     echo '</span>';
     echo '</span>';
 
-    if(substr($_GET['id'],0,7)=='pihome.' or substr($_GET['id'],0,7)=='pihome_' or substr($_GET['id'],0,10)=='homebridge' or substr($_GET['id'],0,11)=='autohotspot') {
+    if(substr($_GET['id'],0,7)=='pihome.' or substr($_GET['id'],0,7)=='pihome_' or substr($_GET['id'],0,10)=='homebridge' or substr($_GET['id'],0,11)=='autohotspot' or substr($_GET['id'],0,14)=='HA_integration') {
         echo '<span class="list-group-item" style="height:40px;">&nbsp;';
         echo '<span class="pull-right text-muted small">
               <button class="btn btn-warning btn-xs" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_ServicesInfo&id=' . $_GET['id'] . '&Action=start" onclick="services_Info(this);">
@@ -746,7 +746,7 @@ function GetModal_ServicesInfo($conn)
     echo Convert_CRLF($rval['stdout'],'<br/>');
     echo '</span></span>';
 
-    if($_GET['id']=='pihome.mqtt.service' or $_GET['id']=='pihome_amazon_echo.service') {
+    if($_GET['id']=='pihome_amazon_echo.service') {
         echo '<span class="list-group-item" style="overflow:hidden;">Install Service:';
         echo '<span class="pull-right text-muted small">Edit /lib/systemd/system/' . $_GET['id'] . '<br/>
 <code>sudo nano /lib/systemd/system/' . $_GET['id'] . '</code><br/>
@@ -754,18 +754,14 @@ Put the following contents in the file:<br/>
 (make sure the -u is supplied to python<br/>
 to ensure the output is not buffered and delayed)<br/>
 <code>[Unit]<br/>';
-if($_GET['id']=='pihome.mqtt.service') {
-        echo 'Description=PiHome MQTT Service<br/>';
-} elseif($_GET['id']=='pihome_amazon_echo.service') {
+if($_GET['id']=='pihome_amazon_echo.service') {
         echo 'Description=Amazon Echo Service<br/>';
 }
 echo 'After=multi-user.target<br/>
 <br/>
 [Service]<br/>
 Type=simple<br/>';
-if($_GET['id']=='pihome.mqtt.service') {
-        echo 'ExecStart=/usr/bin/python -u /var/www/cron/mqtt.py<br/>';
-} elseif($_GET['id']=='pihome_amazon_echo.service') {
+if($_GET['id']=='pihome_amazon_echo.service') {
         echo 'ExecStart=/usr/bin/python -u /var/www/add_on/amazon_echo/echo_pihome.py<br/>';
 }
 echo 'Restart=on-abort<br/>
