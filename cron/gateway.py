@@ -216,7 +216,7 @@ def on_message(client, userdata, message):
         )
         con_mqtt.commit()
         cur_mqtt.execute(
-            'UPDATE `nodes` SET `last_seen`= NOW() WHERE `node_id`= "%s"',
+            'UPDATE `nodes` SET `last_seen`= NOW() WHERE `node_id`= %s',
             [mqtt_node_id],
         )
         con_mqtt.commit()
