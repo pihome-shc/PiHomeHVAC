@@ -521,10 +521,10 @@ function GetModal_MQTTAddEdit($conn)
             <div class="form-group">
                 <label>Type</label>
                 <select class="form-control" id="sel_Type" name="sel_Type" >
-                    <option value="0" ' . ($IsAdd ? '' : ($row['type'] ? 'selected' : '')) . '>Default - view all</option>
-                    <option value="1" ' . ($IsAdd ? '' : ($row['type'] ? 'selected' : '')) . '>Sonoff - Tasmota</option>
-                    <option value="2" ' . ($IsAdd ? '' : ($row['type'] ? 'selected' : '')) . '>MQTT Node</option>
-                    <option value="3" ' . ($IsAdd ? '' : ($row['type'] ? 'selected' : '')) . '>Home Assistant integration</option>
+                    <option value="0" ' . ($IsAdd ? '' : ($row['type'] == "0" ? 'selected' : '')) . '>Default - view all</option>
+                    <option value="1" ' . ($IsAdd ? '' : ($row['type'] == "1" ? 'selected' : '')) . '>Sonoff - Tasmota</option>
+                    <option value="2" ' . ($IsAdd ? '' : ($row['type'] == "2" ? 'selected' : '')) . '>MQTT Node</option>
+                    <option value="3" ' . ($IsAdd ? '' : ($row['type'] == "3" ? 'selected' : '')) . '>Home Assistant integration</option>
                 </select>
             </div>
             </form>';
