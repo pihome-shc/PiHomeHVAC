@@ -790,4 +790,5 @@ $lang['github_repository'] = "MaxAir GitHub Repository";
 $lang['github_repository_text'] = "URL for the MaxAir GitHub Repository to be used for Update$
 $lang['default_repository'] = "https://github.com/pihome-shc/PiHomeHVAC.git";
 $lang['set_default'] = "Set Default";
+$lang['setup_guide_mqtt'] = "Setup Guide MQTT Devices";
 ?>
