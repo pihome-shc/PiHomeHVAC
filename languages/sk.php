@@ -790,5 +790,11 @@ $lang['github_repository'] = "MaxAir GitHub Repository";
 $lang['github_repository_text'] = "URL for the MaxAir GitHub Repository to be used for Update$
 $lang['default_repository'] = "https://github.com/pihome-shc/PiHomeHVAC.git";
 $lang['set_default'] = "Set Default";
-$lang['setup_guide_mqtt'] = "Setup Guide MQTT Devices";
+$lang['dummy_name_info'] = "Identification for the Dummy Device";
+$lang['max_cpu_temp'] = "Max CPU Temp";
+$lang['max_cpu_temp_text'] = "Set the temperature at which notification messages will be sent. ";
+$lang['virtual'] = "Virtual";
+$lang['smart_home_gateway_text_gpio'] = " Smart Home Gateway is communicating directly with the GPIO Outputs of your home automation controller.";
+$lang['setup_guide_gateway'] = "Setup Guide Gateway";
+$lang['setup_guide_mqtt'] = "Setup Guide MQTT Connections";
 ?>
