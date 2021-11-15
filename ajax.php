@@ -424,6 +424,14 @@ function GetModal_MQTT($conn)
     echo '<div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
             <h5 class="modal-title" id="ajaxModalLabel">'.$lang['mqtt_connections'].'</h5>
+            <div class="dropdown pull-right">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu">
+                        <li><a href="pdf_download.php?file=setup_guide_mqtt.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_guide_mqtt'].'</a></li>
+                </ul>
+             </div>
         </div>
         <div class="modal-body" id="ajaxModalBody">';
     $query = "SELECT * FROM `mqtt` ORDER BY `name`;";
