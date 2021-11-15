@@ -359,7 +359,7 @@ try:
         print(bc.grn + "IP Address:    ", gatewaylocation, bc.ENDC)
         print(bc.grn + "UDP Port:      ", gatewayport, bc.ENDC)
     else:
-        print(bc.grn + "Gateway Type:  GPIO Output", bc.ENDC)
+        print(bc.grn + "Gateway Type:  Virtual", bc.ENDC)
 
     msgcount = 0  # Defining variable for counting messages processed
 
@@ -596,7 +596,7 @@ try:
             )
 
         ## Incoming messages
-        if gatewaytype != "gpio":
+        if gatewaytype != "virtual":
             if gatewaytype == "serial":
                 in_str = gw.readline()  # Here is receiving part of the code for serial GW
                 in_str = in_str.decode("utf-8")
