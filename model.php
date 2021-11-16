@@ -1397,7 +1397,7 @@ echo '
                                                 $display_serial = "display:block";
                                                 $display_timeout = "display:block";
                                         } elseif ($gateway_type=='virtual') {
-                                                echo $lang['smart_home_gateway_text_gpio'];
+                                                echo $lang['smart_home_gateway_text_virtual'];
                                                 $display_wifi = "display:none";
                                                 $display_serial = "display:none";
                                                 $display_timeout = "display:none";
