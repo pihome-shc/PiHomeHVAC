@@ -1396,8 +1396,8 @@ echo '
                                                 $display_wifi = "display:none";
                                                 $display_serial = "display:block";
                                                 $display_timeout = "display:block";
-                                        } elseif ($gateway_type=='gpio') {
-                                                echo $lang['smart_home_gateway_text_gpio'];
+                                        } elseif ($gateway_type=='virtual') {
+                                                echo $lang['smart_home_gateway_text_virtual'];
                                                 $display_wifi = "display:none";
                                                 $display_serial = "display:none";
                                                 $display_timeout = "display:none";
@@ -1436,7 +1436,7 @@ echo '
                                         <select class="form-control input-sm" type="text" id="gw_type" name="gw_type" onchange=gw_location()>
                                         <option value="wifi" ' . ($gateway_type=='wifi' ? 'selected' : '') . '>'.$lang['wifi'].'</option>
                                         <option value="serial" ' . ($gateway_type=='serial' ? 'selected' : '') . '>'.$lang['serial'].'</option>
-                                        <option value="gpio" ' . ($gateway_type=='gpio' ? 'selected' : '') . '>'.$lang['gpio'].'</option>
+                                        <option value="virtual" ' . ($gateway_type=='virtual' ? 'selected' : '') . '>'.$lang['virtual'].'</option>
                                         </select>
                                         <div class="help-block with-errors">
                                         </div>
@@ -3117,7 +3117,7 @@ function gw_location()
 {
  var e = document.getElementById("gw_type");
  var selected_gw_type = e.value;
- if(selected_gw_type.includes("gpio")) {
+ if(selected_gw_type.includes("virtual")) {
         document.getElementById("serial_gw").style.display = 'none';
         document.getElementById("wifi_gw").style.display = 'none';
         document.getElementById("serial_port").style.display = 'none';
