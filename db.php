@@ -689,6 +689,17 @@ if($what=="add_on"){
                         }else{
                                 $update_error=1;
                         }
+
+			//if switch type zone then force GUI status update
+                        if ($category == 2) {
+                                if ($set == 0) { $mode = 0; } else { $mode = 114; }
+                                $query = "UPDATE zone_current_state SET mode  = '{$mode}', status = '{$set}' WHERE id = '{$wid}';";
+                                if($conn->query($query)){
+                                        $update_error=0;
+                                }else{
+                                        $update_error=1;
+                                }
+                        }
                 }
 
                 $query = "UPDATE zone SET zone_state = '{$set}' WHERE id = '{$wid}' LIMIT 1;";
