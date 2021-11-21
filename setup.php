@@ -271,8 +271,8 @@ if ($results) {
 //Adding Virtual Gateway Record
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Virtual Gateway Record\n";
 $datetime = date('Y-m-d H:i:s');
-$query_system = "INSERT INTO `gateway`(`id`, `status`, `sync`, `purge`, `type`, `location`, `port`, `timout`, `pid`, `pid_running_since`, `reboot`, `find_gw`, `version`, `enable_outgoing`) VALUES (1,1,0,0,'virtual','','','','','',0,'0','1.0',1);";
-$results = $conn->query($query_system);
+$query_gateway = "INSERT INTO `gateway`(`id`, `status`, `sync`, `purge`, `type`, `location`, `port`, `timout`, `pid`, `pid_running_since`, `reboot`, `find_gw`, `version`, `enable_outgoing`) VALUES (1,1,0,0,'virtual','','','','','',0,'0','1.0',1);";
+$results = $conn->query($query_gateway);
 if ($results) {
         echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Virtual Gateway Record Added \033[41mVirtual Gateway\033[0m Data  Succeeded \n";
 } else {
