@@ -645,7 +645,9 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
 	return array('status'=>$status,
  		'shactive'=>$shactive,
        		'shcolor'=>$shcolor,
-       		'target'=>$target
+       		'target'=>$target,
+                'scactive'=>$scactive,
+                'sccolor'=>$sccolor
        	);
 }
 
