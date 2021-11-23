@@ -508,19 +508,23 @@ if (isset($_POST['submit'])) {
 							}
 							 echo '<div id="'.$row["tz_id"].'" style="'.$style_text.'">
 								<div class="form-group" class="control-label">';
-									//0=C, 1=F
-									$c_f = settings($conn, 'c_f');
-    									if(($c_f==1 || $c_f=='1') AND ($row["type"]=='Heating')) {
-										$min = 50;
-									}elseif (($c_f==1 || $c_f=='1') AND ($row["type"]=='Water' OR $row["type"]=='Immersion')) {
-										$min = 50;
-									}elseif (($c_f==0 || $c_f=='0') AND ($row["type"]=='Heating')) {
-										$min = 10;
-									}elseif (($c_f==0 || $c_f=='0') AND ($row["type"]=='Water' OR $row["type"]=='Immersion')) {
-										$min = 10;
-									} else {
-										$min = 20;
-									}
+                                                                        if($row["type"]=='HVAC') {
+                                                                                $min = DispSensor($conn,$row['min_c'],$row['sensor_type_id']);
+                                                                        } else {
+                                                                                //0=C, 1=F
+                                                                                $c_f = settings($conn, 'c_f');
+                                                                                if(($c_f==1 || $c_f=='1') AND ($row["type"]=='Heating')) {
+                                                                                        $min = 50;
+                                                                                }elseif (($c_f==1 || $c_f=='1') AND ($row["type"]=='Water' OR $row["type"]=='Immersion')) {
+                                                                                        $min = 50;
+                                                                                }elseif (($c_f==0 || $c_f=='0') AND ($row["type"]=='Heating')) {
+                                                                                        $min = 10;
+                                                                                }elseif (($c_f==0 || $c_f=='0') AND ($row["type"]=='Water' OR $row["type"]=='Immersion')) {
+                                                                                        $min = 10;
+                                                                                } else {
+                                                                                        $min = 20;
+                                                                                }
+                                                                        }
 									$max = DispSensor($conn,$row['max_c'],$row['sensor_type_id']);
         								if(!isset($_GET['nid'])) {
 										if (settings($conn, 'mode') == 0 && $row['sensor_type_id'] == 1) {

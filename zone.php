@@ -119,6 +119,10 @@ if (isset($_POST['submit'])) {
         if ($zone_id == 0) { $cnt_id = $id; } else { $cnt_id = $zone_id; }
 
 	if($zone_category == 3) {
+                if ($id!=0){ //if in edit mode delete existing zone controller records for the current zone
+                        $query = "DELETE FROM `zone_relays` WHERE `zone_id` = '{$cnt_id}';";
+                        $result = $conn->query($query);
+                }
         	$query = "INSERT INTO `zone_relays` (`sync`, `purge`, `state`, `current_state`, `zone_id`, `zone_relay_id`) VALUES ('{$sync}', '{$purge}', '0', '0', '{$cnt_id}', '0');";
                 $result = $conn->query($query);
                 if ($result) {
@@ -366,7 +370,7 @@ if (isset($_POST['submit'])) {
 	}
 
         //query to check if default livetemp record exist when creating a Heating zone
-        if(strpos($type, 'Heating') !== false) {
+        if(strpos($type, 'Heating') !== false || strpos($type, 'HVAC') !== false) {
                 $query = "SELECT * FROM livetemp LIMIT 1;";
                 $result = $conn->query($query);
                 $ltcount = $result->num_rows;
@@ -794,7 +798,7 @@ function zone_category(value)
 <select id="zone_sensor_id" onchange=SensorIDList(this.options[this.selectedIndex].value) name="zone_sensor_id" class="form-control select2" data-error="<?php echo $lang['zone_temp_sensor_id_error']; ?>" autocomplete="off" required>
 <option></option>
 <?php for ($i = 0; $i < count($sensorArray); $i++) {
-	if($sensorArray[$i]['sensor_type_id'] == 1) { echo "<option value=".$sensorArray[$i]['id'].">".$sensorArray[$i]['name']."</option>"; }
+        echo '<option value="'.$sensorArray[$i]['id'].'" ' . ($sensorArray[$i]['id']==$rowzonesensors['zone_sensor_id'] ? 'selected' : '') . '>'.$sensorArray[$i]['name'].'</option>';
 } ?>
 </select>
 <div class="help-block with-errors"></div></div>
@@ -888,7 +892,7 @@ function ControllerIDList(value, ind)
 <div class="form-group" class="control-label" id="system_controller_id_label" style="display:block"><label><?php echo $lang['system_controller']; ?></label>
 <select id="system_controller_id" name="system_controller_id" class="form-control select2" data-error="System Controller ID can not be empty!" autocomplete="off" required>
 <?php if(isset($rowsystem_controller['id'])) { echo '<option selected >'.$rowsystem_controller['id'].'-'.$rowsystem_controller['name'].' Controller Relay Node ID: '.$rowsystem_controller['relay_id'].'</option>'; } ?>
-<?php  $query = "SELECT id, relay_id, name FROM relays WHERE type = 1;";
+<?php  $query = "SELECT id, relay_id, name FROM relays WHERE type = 1 OR type = 2;";
 $result = $conn->query($query);
 while ($datarw=mysqli_fetch_array($result)) {
 $system_controller_id=$datarw["id"].'-'.$datarw["name"].' Controller Relay Node ID: '.$datarw["relay_id"];

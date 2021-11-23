@@ -177,6 +177,8 @@ def on_disconnect(client, userdata, rc):
     con_mqtt.close()
     if rc != 0:
         print("\nUnexpected disconnection.\n")
+        cmd = 'sudo pkill -f gateway.py'
+        os.system(cmd)
     else:
         print("\nSuccessfully disconnected from the brooker\n")
 
