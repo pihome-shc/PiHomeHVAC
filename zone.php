@@ -119,6 +119,10 @@ if (isset($_POST['submit'])) {
         if ($zone_id == 0) { $cnt_id = $id; } else { $cnt_id = $zone_id; }
 
 	if($zone_category == 3) {
+                if ($id!=0){ //if in edit mode delete existing zone controller records for the current zone
+                        $query = "DELETE FROM `zone_relays` WHERE `zone_id` = '{$cnt_id}';";
+                        $result = $conn->query($query);
+                }
         	$query = "INSERT INTO `zone_relays` (`sync`, `purge`, `state`, `current_state`, `zone_id`, `zone_relay_id`) VALUES ('{$sync}', '{$purge}', '0', '0', '{$cnt_id}', '0');";
                 $result = $conn->query($query);
                 if ($result) {
