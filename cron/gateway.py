@@ -949,7 +949,7 @@ try:
                                         category = int(
                                             results[zone_view_to_index["category"]]
                                         )
-                                        if category < 2:
+                                        if category < 2 or category == 3:
                                             cur.execute(
                                                 "INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                                                 (
