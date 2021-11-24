@@ -276,16 +276,20 @@ if ($rowcount > 0) {
 //query to get last system controller statues change time
 $query = "SELECT * FROM controller_zone_logs WHERE zone_id = '".$system_controller_id."' ORDER BY id desc LIMIT 1;";
 $result = $conn->query($query);
-$row = mysqli_fetch_array($result);
-$system_controller_start_datetime = $row['start_datetime'];
-$system_controller_stop_datetime = $row['stop_datetime'];
-$system_controller_expoff_datetime = $row['expected_end_date_time'];
+if (mysqli_num_rows($result) > 0){
+	$row = mysqli_fetch_array($result);
+	$system_controller_start_datetime = $row['start_datetime'];
+	$system_controller_stop_datetime = $row['stop_datetime'];
+	$system_controller_expoff_datetime = $row['expected_end_date_time'];
+}
 
 //query to get last system controller OFF time
+/*
 $query = "SELECT * FROM controller_zone_logs WHERE zone_id = '".$system_controller_id."' AND stop_datetime IS NOT NULL ORDER BY id desc LIMIT 1;";
 $result = $conn->query($query);
 $row = mysqli_fetch_array($result);
-//$system_controller_stop_datetime = $row['stop_datetime'];
+$system_controller_stop_datetime = $row['stop_datetime'];
+*/
 
 //query to active network gateway address
 $query = "SELECT gateway_address FROM network_settings WHERE primary_interface = 1 LIMIT 1;";
@@ -390,11 +394,17 @@ while ($row = mysqli_fetch_assoc($results)) {
 			if (strpos($node_name, 'Switch') !== false) {
 		                $query = "SELECT * FROM messages_in  WHERE node_id = '{$zone_node_id}' AND child_id = {$zone_sensor_child_id} ORDER BY datetime desc LIMIT 1;";
                 		$result = $conn->query($query);
+                                $rowcount=mysqli_num_rows($result);
 			}
 		}
-		$msg_out = mysqli_fetch_array($result);
-		$zone_c = $msg_out['payload'];
-		$temp_reading_time = $msg_out['datetime'];
+                if ($rowcount > 0) {
+                        $msg_out = mysqli_fetch_array($result);
+                        $zone_c = $msg_out['payload'];
+                        $temp_reading_time = $msg_out['datetime'];
+                } else {
+                        $zone_c = "";
+                        $temp_reading_time = "";
+                }
 		// check if webhooks plugin installed and if a sensor is configured for this zone
 		if ($platform == 1 and in_array($row['id'], $sensors)) {
 			// get current temperature vale
@@ -616,17 +626,20 @@ while ($row = mysqli_fetch_assoc($results)) {
 			}
 
 			//Get Weather Temperature
+                        $weather_fact = 0;
 			$query = "SELECT * FROM messages_in WHERE node_id = '1' ORDER BY id desc LIMIT 1";
 			$result = $conn->query($query);
-			$weather_temp = mysqli_fetch_array($result);
-			$weather_c = $weather_temp['payload'];
-			//    1    00-05    0.3
-			//    2    06-10    0.4
-			//    3    11-15    0.5
-			//    4    16-20    0.6
-			//    5    21-30    0.7
-			$weather_fact = 0;
-			if ($weather_c <= 5 ) {$weather_fact = 0.3;} elseif ($weather_c <= 10 ) {$weather_fact = 0.4;} elseif ($weather_c <= 15 ) {$weather_fact = 0.5;} elseif ($weather_c <= 20 ) {$weather_fact = 0.6;} elseif ($weather_c <= 30 ) {$weather_fact = 0.7;}
+                        $rowcount=mysqli_num_rows($result);
+                        if($rowcount > 0) {
+				$weather_temp = mysqli_fetch_array($result);
+				$weather_c = $weather_temp['payload'];
+				//    1    00-05    0.3
+				//    2    06-10    0.4
+				//    3    11-15    0.5
+				//    4    16-20    0.6
+				//    5    21-30    0.7
+				if ($weather_c <= 5 ) {$weather_fact = 0.3;} elseif ($weather_c <= 10 ) {$weather_fact = 0.4;} elseif ($weather_c <= 15 ) {$weather_fact = 0.5;} elseif ($weather_c <= 20 ) {$weather_fact = 0.6;} elseif ($weather_c <= 30 ) {$weather_fact = 0.7;}
+			}
 
 			//Following to decide which temperature is target temperature
                         if ($livetemp_active=='1' && $livetemp_zone_id == $zone_id) {
