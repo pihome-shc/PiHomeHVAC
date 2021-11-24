@@ -280,7 +280,7 @@ def on_message(client, userdata, message):
                         mqtt_category = int(
                             results[mqtt_zone_view_to_index["category"]]
                         )
-                        if mqtt_category < 2:
+                        if mqtt_category < 2 or mqtt_category == 3:
                             cur_mqtt.execute(
                                 'INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())',
                                 (
