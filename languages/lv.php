@@ -768,4 +768,5 @@ $lang['virtual'] = "Virtual";
 $lang['smart_home_gateway_text_virtual'] = " Smart Home Gateway is communicating directly with GPIO Controllers and/or I2c Conrtollers and/or MQTT Connected Devices.";
 $lang['setup_guide_gateway'] = "Setup Guide Gateway";
 $lang['setup_guide_mqtt'] = "Setup Guide MQTT Devices";
+$lang['zone_category3'] = "NO Controller, Sensor and System Control";
 ?>
