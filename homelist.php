@@ -82,7 +82,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 		$system_controller_hysteresis_time = $row['hysteresis_time'];
 		$sc_mode  = $row['sc_mode'];
                 $sc_active_status  = $row['active_status'];
-                $hvac_relays = $row['hvac_relays'];
+                $hvac_relays_state = $row['hvac_relays_state'];
 
 		//Get data from nodes table
 		$query = "SELECT * FROM nodes WHERE id = {$row['node_id']} AND status IS NOT NULL LIMIT 1";
@@ -467,11 +467,11 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                                                 break;
                                         case 1:
                                         case 2:
-                                                if ($hvac_relays == 0b000) {
+                                                if ($hvac_relays_state == 0b000) {
                                                         echo '<h3 class="degre" ><i class="fa fa-circle-o-notch fa-1x green"></i></h3>';
-                                                } elseif ($hvac_relays & 0b100) {
+                                                } elseif ($hvac_relays_state & 0b100) {
                                                         echo '<h3 class="degre" ><i class="ionicons ion-flame fa-1x red"></i></h3>';
-                                                } elseif ($hvac_relays & 0b010) {
+                                                } elseif ($hvac_relays_state & 0b010) {
                                                         echo '<h3 class="degre" ><i class="fa fa-snowflake-o fa-1x blueinfo"></i></h3>';
                                                 }
                                                 break;
@@ -479,11 +479,11 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                                                 echo '<h3 class="degre" ><img src="images/hvac_fan_30.png" border="0"></h3>';
                                                 break;
                                         case 4:
-                                                if ($hvac_relays & 0b100) { $system_controller_colour = "red"; } else { $system_controller_colour = "blue"; }
+                                                if ($hvac_relays_state & 0b100) { $system_controller_colour = "red"; } else { $system_controller_colour = "blue"; }
                                                 echo '<h3 class="degre" ><i class="ionicons ion-flame fa-1x '.$system_controller_colour.'"></i></h3>';
                                                 break;
                                         case 5:
-                                                if ($hvac_relays & 0b010) { $system_controller_colour = "blueinfo"; } else { $system_controller_colour = ""; }
+                                                if ($hvac_relays_state & 0b010) { $system_controller_colour = "blueinfo"; } else { $system_controller_colour = ""; }
                                                 echo '<h3 class="degre" ><i class="fa fa-snowflake-o fa-1x '.$system_controller_colour.'"></i></h3>';
                                                 break;
                                         default:
