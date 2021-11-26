@@ -468,7 +468,12 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                                         case 1:
                                         case 2:
                                                 if ($hvac_relays_state == 0b000) {
-                                                        echo '<h3 class="degre" ><i class="fa fa-circle-o-notch fa-1x green"></i></h3>';
+                                                        if ($sc_active_status==1) {
+                                                                $system_controller_colour="green";
+                                                        } elseif ($sc_active_status==0) {
+                                                                $system_controller_colour="";
+                                                        }
+                                                        echo '<h3 class="degre" ><i class="fa fa-circle-o-notch fa-1x '.$system_controller_colour.'"></i></h3>';
                                                 } elseif ($hvac_relays_state & 0b100) {
                                                         echo '<h3 class="degre" ><i class="ionicons ion-flame fa-1x red"></i></h3>';
                                                 } elseif ($hvac_relays_state & 0b010) {
