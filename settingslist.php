@@ -166,7 +166,7 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                                                         <button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-target="#change_system_mode">
                                                         <h3 class="buttontop"><small><?php echo $lang['system_mode']; ?></small></h3>
                                                         <?php 
-							if (settings($conn, 'mode') == 1) {
+							if (settings($conn, 'mode') & 0b1 == 1) {
 								echo '<h3 class="degre" >'.$lang['hvac'].'</h3>'; 
 							} else {
 								echo '<h3 class="degre" ><i class="ionicons ion-flame fa-1x red"></i></h3>';
