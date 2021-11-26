@@ -82,6 +82,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 		$system_controller_hysteresis_time = $row['hysteresis_time'];
 		$sc_mode  = $row['sc_mode'];
                 $sc_active_status  = $row['active_status'];
+                $hvac_relays = $row['hvac_relays'];
 
 		//Get data from nodes table
 		$query = "SELECT * FROM nodes WHERE id = {$row['node_id']} AND status IS NOT NULL LIMIT 1";
@@ -459,23 +460,46 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 
 			echo '<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-toggle="modal" href="#system_controller" data-backdrop="static" data-keyboard="false">
 			<h3 class="text-info"><small>'.$system_controller_name.'</small></h3>';
-			if($zone_mode == 127 || $zone_mode == 87 || $zone_mode == 67){
-				echo '<h3 class="degre" ><img src="images/hvac_fan_30.png" border="0"></h3>';
-			} else {
-				if ($system_controller_mode == 1) {
-					echo '<h3 class="degre" ><i class="'.$rval['scactive'].' fa-1x '.$rval['sccolor'].'"></i></h3>';
-				} else {
-                        		if ($sc_active_status==1) {
-						$system_controller_colour="red";
-					} elseif ($sc_active_status==0) {
-						$system_controller_colour="blue";
-					}
-					if ($sc_mode==0) {
-                                                $system_controller_colour="";
-                                        }
-                                        echo '<h3 class="degre" ><i class="ionicons ion-flame fa-1x '.$system_controller_colour.'"></i></h3>';
-				}
-			}
+                        if ($system_controller_mode == 1) {
+                                switch ($sc_mode) {
+                                        case 0:
+                                                echo '<h3 class="degre" ><i class="fa fa-circle-o-notch"></i></h3>';
+                                                break;
+                                        case 1:
+                                        case 2:
+                                                if ($hvac_relays == 0b000) {
+                                                        echo '<h3 class="degre" ><i class="fa fa-circle-o-notch fa-1x green"></i></h3>';
+                                                } elseif ($hvac_relays & 0b100) {
+                                                        echo '<h3 class="degre" ><i class="ionicons ion-flame fa-1x red"></i></h3>';
+                                                } elseif ($hvac_relays & 0b010) {
+                                                        echo '<h3 class="degre" ><i class="fa fa-snowflake-o fa-1x blueinfo"></i></h3>';
+                                                }
+                                                break;
+                                        case 3:
+                                                echo '<h3 class="degre" ><img src="images/hvac_fan_30.png" border="0"></h3>';
+                                                break;
+                                        case 4:
+                                                if ($hvac_relays & 0b100) { $system_controller_colour = "red"; } else { $system_controller_colour = "blue"; }
+                                                echo '<h3 class="degre" ><i class="ionicons ion-flame fa-1x '.$system_controller_colour.'"></i></h3>';
+                                                break;
+                                        case 5:
+                                                if ($hvac_relays & 0b010) { $system_controller_colour = "blueinfo"; } else { $system_controller_colour = ""; }
+                                                echo '<h3 class="degre" ><i class="fa fa-snowflake-o fa-1x '.$system_controller_colour.'"></i></h3>';
+                                                break;
+                                        default:
+                                                echo '<h3 class="degre" ><i class="fa fa-circle-o-notch"></i></h3>';
+                                }
+                        } else {
+                                if ($sc_active_status==1) {
+                                        $system_controller_colour="red";
+                                } elseif ($sc_active_status==0) {
+                                        $system_controller_colour="blue";
+                                }
+                                if ($sc_mode==0) {
+                                        $system_controller_colour="";
+                                }
+                                echo '<h3 class="degre" ><i class="ionicons ion-flame fa-1x '.$system_controller_colour.'"></i></h3>';
+                        }
 			if($system_controller_fault=='1') {echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 70px;" class="statuszoon"><i class="fa ion-android-cancel fa-1x red"></i> </small>';}
 			elseif($hysteresis=='1') {echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 70px;" class="statuszoon"><i class="fa fa-hourglass fa-1x orange"></i> </small>';}
 			else { echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 48px;" class="statuszoon"></small>';}
