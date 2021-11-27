@@ -311,19 +311,19 @@ require_once(__DIR__.'/st_inc/functions.php');
 	                        <?php if ($system_controller_mode == 1) {
         	                        switch ($x) {
                 	                        case 1: ?>
-                        	                        <h4 class="degre2"><?php echo $lang['mode_heat'] ?></h4>
-                                	                <?php break;
-                                        	case 2: ?>
-                                                	<h4 class="degre2"><?php echo $lang['mode_cool'] ?></h4>
-	                                                <?php break;
-        	                                case 3: ?>
-                	                                <h4 class="degre2"><?php echo $lang['mode_auto'] ?></h4>
-                        	                        <?php break;
-                                	        default: ?>
-                                        	        <h4 class="degre2">&nbsp</h4>
-                                	<?php }
-	                        } else { ?>
-        	                        <h4 class="degre2">&nbsp</h4>
+                                                        <h3 class="statuszoon pull-left text-dark"><small><?php echo $lang['mode_heat']; ?></small></h3>
+                                                        <?php break;
+                                                case 2: ?>
+                                                        <h3 class="statuszoon pull-left text-dark"><small><?php echo $lang['mode_cool']; ?></small></h3>
+                                                        <?php break;
+                                                case 3: ?>
+                                                        <h3 class="statuszoon pull-left text-dark"><small><?php echo $lang['mode_auto']; ?></small></h3>
+                                                        <?php break;
+                                                default: ?>
+                                                        <h3 class="statuszoon pull-left text-dark"><small>&nbsp</small></h3>
+                                        <?php }
+                                } else { ?>
+                                        <h3 class="statuszoon pull-left text-dark"><small>&nbsp</small></h3>
                 	        <?php } ?>
                         	</button></a>
                 <?php }
