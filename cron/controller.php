@@ -37,6 +37,7 @@ $add_on_start_cause ='';
 $add_on_stop_cause = '';
 
 //initialise for when used as test variables in none HVAC system
+$hvac_state = 0; // 0 = COOL, 1 = HEAT
 $cool_relay_type = '';
 $fan_relay_type = '';
 
@@ -242,18 +243,30 @@ if ($system_controller_mode == 0) {
 } else {
         if ($sc_mode == 0) {
                 $current_sc_mode = "OFF";
+                $timer_mode = "";
         } elseif ($sc_mode == 1) {
                 $current_sc_mode = "TIMER";
+                $timer_mode = "(HEAT)";
         } elseif ($sc_mode == 2) {
-                $current_sc_mode = "AUTO";
+                $current_sc_mode = "TIMER";
+                $timer_mode = "(COOL)";
         } elseif ($sc_mode == 3) {
-                $current_sc_mode = "FAN ONLY";
+                $current_sc_mode = "TIMER";
+                $timer_mode = "(AUTO)";
         } elseif ($sc_mode == 4) {
-                $current_sc_mode = "HEAT";
+                $current_sc_mode = "AUTO";
+                $timer_mode = "";
         } elseif ($sc_mode == 5) {
+                $current_sc_mode = "FAN ONLY";
+                $timer_mode = "";
+        } elseif ($sc_mode == 6) {
+                $current_sc_mode = "HEAT";
+                $timer_mode = "";
+        } elseif ($sc_mode == 7) {
                 $current_sc_mode = "COOL";
+                $timer_mode = "";
         }
-        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Operating in HVAC Mode - ".$current_sc_mode."\n";
+        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Operating in HVAC Mode - ".$current_sc_mode.$timer_mode."\n";
 }
 
 //query to check away status
@@ -276,8 +289,8 @@ if ($rowcount > 0) {
 //query to get last system controller statues change time
 $query = "SELECT * FROM controller_zone_logs WHERE zone_id = '".$system_controller_id."' ORDER BY id desc LIMIT 1;";
 $result = $conn->query($query);
+$row = mysqli_fetch_array($result);
 if (mysqli_num_rows($result) > 0){
-	$row = mysqli_fetch_array($result);
 	$system_controller_start_datetime = $row['start_datetime'];
 	$system_controller_stop_datetime = $row['stop_datetime'];
 	$system_controller_expoff_datetime = $row['expected_end_date_time'];
@@ -327,7 +340,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         $zone_id=$row['id'];
         $zone_name=$row['name'];
         $zone_type=$row['type'];
-        $zone_category=$row['category'];
+	$zone_category = $row['category'];
         $zone_max_operation_time=$row['max_operation_time'];
 
         //get the zone controllers for this zone to array
@@ -366,7 +379,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         }
 
 	// process if a sensor is attached to this zone
-	if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3) {
+	if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3 || $zone_category == 4) {
                 $query = "SELECT zone_sensors.*, sensors.sensor_id, sensors.sensor_child_id, sensors.frost_controller FROM  zone_sensors, sensors WHERE (zone_sensors.zone_sensor_id = sensors.id) AND zone_sensors.zone_id = '{$zone_id}' LIMIT 1;";
                 $result = $conn->query($query);
                 $sensor = mysqli_fetch_array($result);
@@ -394,17 +407,17 @@ while ($row = mysqli_fetch_assoc($results)) {
 			if (strpos($node_name, 'Switch') !== false) {
 		                $query = "SELECT * FROM messages_in  WHERE node_id = '{$zone_node_id}' AND child_id = {$zone_sensor_child_id} ORDER BY datetime desc LIMIT 1;";
                 		$result = $conn->query($query);
-                                $rowcount=mysqli_num_rows($result);
+				$rowcount=mysqli_num_rows($result);
 			}
 		}
                 if ($rowcount > 0) {
-                        $msg_out = mysqli_fetch_array($result);
-                        $zone_c = $msg_out['payload'];
-                        $temp_reading_time = $msg_out['datetime'];
-                } else {
+			$msg_out = mysqli_fetch_array($result);
+			$zone_c = $msg_out['payload'];
+			$temp_reading_time = $msg_out['datetime'];
+		} else {
                         $zone_c = "";
                         $temp_reading_time = "";
-                }
+		}
 		// check if webhooks plugin installed and if a sensor is configured for this zone
 		if ($platform == 1 and in_array($row['id'], $sensors)) {
 			// get current temperature vale
@@ -483,7 +496,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         	                }
 
 				// if add-on controller then process state change from GUI
-				if ($zone_category == 2 || $zone_category == 4) {
+				if ($zone_category == 2) {
 					$current_state = $zone_controllers[$crow]["zone_controller_current_state"];
         	                        $add_on_state = $zone_controllers[$crow]["zone_controller_state"];
                                         $zone_controler_child_id = $zone_controllers[$crow]["controler_child_id"];
@@ -570,7 +583,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 		}
 
 		//Check Zones with sensor associated
-		if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3) {
+		if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3 || $zone_category == 4) {
 			//query to check night climate status and get temperature from night climate table
 			//$query = "select * from schedule_night_climat_zone_view WHERE zone_id = {$zone_id} LIMIT 1;";
 			$query = "SELECT * from schedule_night_climat_zone_view WHERE ((`end`>`start` AND CURTIME() between `start` AND `end`) OR (`end`<`start` AND CURTIME()<`end`) OR (`end`<`start` AND CURTIME()>`start`)) AND zone_id = {$zone_id} AND time_status = '1' AND tz_status = '1' AND (WeekDays & (1 << {$dow})) > 0 LIMIT 1;";
@@ -629,8 +642,8 @@ while ($row = mysqli_fetch_assoc($results)) {
                         $weather_fact = 0;
 			$query = "SELECT * FROM messages_in WHERE node_id = '1' ORDER BY id desc LIMIT 1";
 			$result = $conn->query($query);
-                        $rowcount=mysqli_num_rows($result);
-                        if($rowcount > 0) {
+			$rowcount=mysqli_num_rows($result);
+			if($rowcount > 0) {
 				$weather_temp = mysqli_fetch_array($result);
 				$weather_c = $weather_temp['payload'];
 				//    1    00-05    0.3
@@ -640,7 +653,6 @@ while ($row = mysqli_fetch_assoc($results)) {
 				//    5    21-30    0.7
 				if ($weather_c <= 5 ) {$weather_fact = 0.3;} elseif ($weather_c <= 10 ) {$weather_fact = 0.4;} elseif ($weather_c <= 15 ) {$weather_fact = 0.5;} elseif ($weather_c <= 20 ) {$weather_fact = 0.6;} elseif ($weather_c <= 30 ) {$weather_fact = 0.7;}
 			}
-
 			//Following to decide which temperature is target temperature
                         if ($livetemp_active=='1' && $livetemp_zone_id == $zone_id) {
                                 $target_c=$livetemp_c;
@@ -760,9 +772,9 @@ while ($row = mysqli_fetch_assoc($results)) {
                                 echo "Sensor Name - ".$row['sensor_name'].", Frost Target Temperture - ".$frost_target_c.", Frost Sensor Temperature - ".$frost_sensor_c."\n"; }
                 }
 
-		//initialize two variable
+		//initialize variables
 		$zone_mode = 0;
-		$hvac_state = 0; // 0 = COOL, 1 = HEAT
+//		$hvac_state = 0; // 0 = COOL, 1 = HEAT
 		if ($zone_fault == '0'){
 			if ($zone_category == 0) {
 	                        //check system controller not in OFF mode
@@ -939,7 +951,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 					$stop_cause="System is OFF";
 					$zone_state = 0;
 				}
-			} elseif ($zone_category == 3) { // process category 3 zone (HVAC)
+			} elseif ($zone_category == 3 || $zone_category == 4) { // process category 3 zone (HVAC)
                                 if ($frost_active == 1){
                                         $zone_status="1";
                                         $zone_mode = 21;
@@ -966,7 +978,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                                 	                			$stop_cause="HVAC OFF ";
 		                                        	        	$zone_state = 0;
 		        	                                        	break;
-                                                                        case 1: // TIMER mode
+                                                                        case 1: // TIMER mode HEAT Only
 										if ($sch_status == '1') {
 	                                                                                if ($zone_c <= $temp_cut_out_rising) {
         	                                                                                $zone_status="1";
@@ -974,21 +986,55 @@ while ($row = mysqli_fetch_assoc($results)) {
                         	                                                                $start_cause="HVAC Heat Cycle Started ";
                                 	                                                        $zone_state = 1;
                                         	                                                $hvac_state = 1;
-                                                	                                } elseif ($zone_c > $temp_cut_out_rising && $zone_c < $temp_cut_out_falling) {
+                                                	                                } elseif ($zone_c > $temp_cut_out_rising) {
                                                         	                                $zone_status="0";
                                                                 	                        $zone_mode = 80;
                                                                         	                $stop_cause="HVAC Climate C Reached ";
                                                                                 	        $zone_state = 0;
-	                                                                                } elseif ($zone_c >= $temp_cut_out_falling) {
-        	                                                                                $zone_status="1";
-                	                                                                        $zone_mode = 86;
-                        	                                                                $start_cause="HVAC Cool Cycle Started ";
-                                	                                                        $zone_state = 1;
-                                        	                                                $hvac_state = 0;
+												$hvac_state = 1;
                                                 	                                }
 										}
                                                                                 break;
-			        	                                case 2: // AUTO mode
+                                                                        case 2: // TIMER mode COOL Only
+                                                                                if ($sch_status == '1') {
+                                                                                        if ($zone_c >= $temp_cut_out_falling) {
+                                                                                                $zone_status="1";
+                                                                                                $zone_mode = 86;
+                                                                                                $start_cause="HVAC Cool Cycle Started ";
+                                                                                                $zone_state = 1;
+                                                                                                $hvac_state = 0;
+                                                                                        } elseif ($zone_c < $temp_cut_out_falling) {
+                                                                                                $zone_status="0";
+                                                                                                $zone_mode = 80;
+                                                                                                $stop_cause="HVAC Climate C Reached ";
+                                                                                                $zone_state = 0;
+												$hvac_state = 0;
+                                                                                        }
+                                                                                }
+                                                                                break;
+                                                                        case 3: // TIMER mode AUTO 
+                                                                                if ($sch_status == '1') {
+                                                                                        if ($zone_c <= $temp_cut_out_rising) {
+                                                                                                $zone_status="1";
+                                                                                                $zone_mode = 81;
+                                                                                                $start_cause="HVAC Heat Cycle Started ";
+                                                                                                $zone_state = 1;
+                                                                                                $hvac_state = 1;
+                                                                                        } elseif ($zone_c > $temp_cut_out_rising && $zone_c < $temp_cut_out_falling) {
+                                                                                                $zone_status="0";
+                                                                                                $zone_mode = 80;
+                                                                                                $stop_cause="HVAC Climate C Reached ";
+                                                                                                $zone_state = 0;
+                                                                                        } elseif ($zone_c >= $temp_cut_out_falling) {
+                                                                                                $zone_status="1";
+                                                                                                $zone_mode = 86;
+                                                                                                $start_cause="HVAC Cool Cycle Started ";
+                                                                                                $zone_state = 1;
+                                                                                                $hvac_state = 0;
+                                                                                        }
+                                                                                }
+                                                                                break;
+			        	                                case 4: // AUTO mode
         			        	                                if ($zone_c <= $temp_cut_out_rising) {
                 			        	                                $zone_status="1";
                                                			        	        $zone_mode = 121;
@@ -1008,7 +1054,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 	                        		                        	        $hvac_state = 0;
 	        	                        		                }
         	        	                        		        break;
-									case 3: // FAN mode
+									case 5: // FAN mode
 		        	        	                        	$zone_status="1";
 										if ($sch_status == 1) {
 											$zone_mode = 87;
@@ -1018,7 +1064,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 		                               			        	$start_cause="HVAC Fan Only ";
 				                                	        $zone_state = 1;
 								 		break;
-	        	                		                case 4: // HEAT mode
+	        	                		                case 6: // HEAT mode
 										if ($zone_c >= $temp_cut_out_rising) {
 	        	        	                		                $zone_status="0";
         	        	        	                		        if ($sch_status == 1) {
@@ -1048,7 +1094,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 										}
 										$hvac_state = 1;
                 		                        		        break;
-		                		                        case 5: // COOL mode
+		                		                        case 7: // COOL mode
         		                		                        if ($zone_c <= $temp_cut_out_falling) {
                 		                		                        $zone_status="0";
 	                		                		                if ($sch_status == 1) {
@@ -1438,7 +1484,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 		if ($debug_msg == 1) { echo "zone_status - ".$zone_status."\n"; }
                 if ($zone_category == 3) {
 			$query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', temp_target = {$target_c},temp_cut_in = {$temp_cut_out_rising}, temp_cut_out = {$temp_cut_out}, controler_fault = {$zone_ctr_fault}, sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
-                } elseif ($zone_category == 2 || $zone_category == 4) {
+                } elseif ($zone_category == 2) {
                         $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}' WHERE zone_id ={$zone_id} LIMIT 1;";
                 } elseif ($zone_category == 1) {
                         $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}', sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
@@ -1448,7 +1494,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 
                 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Type     \033[41m".$zone_type."\033[0m \n";
 		$conn->query($query);
-		if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3) {
+		if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3 || $zone_category == 4) {
 			if (strpos($zone_type, 'Switch') !== false) {
                                 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Sensor Reading     \033[41m".intval($zone_c)."\033[0m \n";
                                 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Mode       \033[41m".$zone_mode."\033[0m \n";
@@ -1467,7 +1513,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                         $zone_controler_child_id = $zone_controllers[$crow]["controler_child_id"];
                         echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Controller: \033[41m".$zone_controler_id."\033[0m Controller Child: \033[41m".$zone_controler_child_id."\033[0m Zone Status: \033[41m".$zone_status."\033[0m \n";
                 }
-		if ($zone_category == 0 || $zone_category == 3) {
+		if ($zone_category == 0 || $zone_category == 3 || $zone_category == 4) {
 			if ($zone_status=='1') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Start Cause: ".$start_cause." - Target C:\033[41m".$target_c."\033[0m Zone C:\033[31m".$zone_c."\033[0m \n";}
 			if ($zone_status=='0') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Stop Cause: ".$stop_cause." - Target C:\033[41m".$target_c."\033[0m Zone C:\033[31m".$zone_c."\033[0m \n";}
 		} else {
@@ -1478,7 +1524,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                 $zone_commands[$command_index] = (array('controllers' =>$zone_controllers, 'zone_id' =>$zone_id, 'zone_name' =>$zone_name, 'zone_category' =>$zone_category, 'zone_status'=>$zone_status, 'zone_status_prev'=>$zone_status_prev, 'zone_overrun_prev'=>$zone_overrun_prev, 'zone_override_status'=>$zone_override_status));
 		$command_index = $command_index+1;
 		//process Zone Cat 0 logs
-		if ($zone_category == 0 OR $zone_category == 3){
+		if ($zone_category == 0 OR $zone_category == 3 || $zone_category == 4){
 			//all zone status to system controller array and increment array index
 			$system_controller[$system_controller_index] = $zone_status;
 			$system_controller_index = $system_controller_index+1;
@@ -1638,7 +1684,7 @@ for ($row = 0; $row < count($zone_commands); $row++){
         	        	$conn->query($query);
 	        	}
 
-			if ($zone_category <= 2) {
+			if ($zone_category <> 3) {
 				if ($zone_override_status == 0) {
 					$query = "UPDATE zone_controllers SET state = {$zone_command}, current_state = {$zone_command} WHERE id = {$zc_id} LIMIT 1;";
 					$conn->query($query);
@@ -1719,7 +1765,7 @@ if (in_array("1", $system_controller)) {
 		System Controller Wirelss Section:	MySensors Wireless or MQTT Relay module for your System Controller
 		***************************************************************************************************/
 		//update messages_out table with sent status to 0 and payload to as system controller status.
-                if ($sc_mode != 3) { //process if NOT  HVAC fan only mode
+                if ($sc_mode != 5) { //process if NOT  HVAC fan only mode
 	        	if ($system_controller_mode == 1 && ($off_relay_type == 'MySensor' || $off_relay_type == 'MQTT')){
                                 $query = "SELECT node_id FROM nodes WHERE id = '$off_relay_id' LIMIT 1;";
                                 $result = $conn->query($query);
@@ -1752,7 +1798,7 @@ if (in_array("1", $system_controller)) {
 		/*****************************************************
 		System Controller Wired to Raspberry Pi GPIO Section.
 		******************************************************/
-		if ($sc_mode != 3) { //process if NOT  HVAC fan only mode
+		if ($sc_mode != 5) { //process if NOT  HVAC fan only mode
 			if ($system_controller_mode == 1 && $off_relay_type == 'GPIO'){
                                 $query = "SELECT node_id FROM nodes WHERE id = '$off_relay_id' LIMIT 1;";
                                 $result = $conn->query($query);
@@ -1785,7 +1831,7 @@ if (in_array("1", $system_controller)) {
 		/******************************************************************************************
 		System Controller Wired over I2C Interface Make sure you have i2c Interface enabled 
 		*******************************************************************************************/
-                if ($sc_mode != 3) { //process if NOT  HVAC fan only mode
+                if ($sc_mode != 5) { //process if NOT  HVAC fan only mode
 		        if ($system_controller_mode == 1 && $off_relay_type == 'I2C'){
         		        exec("python3 /var/www/cron/i2c/i2c_relay.py" .$off_relay_id." ".$off_relay_child_id." 0");
                 		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller I2C Rrelay Board: \033[41m".$off_relay_id."\033[0m Relay ID: \033[41m".$off_relay_child_id."\033[0m \n";
@@ -1890,7 +1936,7 @@ if (in_array("1", $system_controller)) {
                                 $result = $conn->query($query);
                                 $nodes = mysqli_fetch_array($result);
                                 $node_id = $nodes['node_id'];
-				if ($sc_mode == 3) { // HVAC fan ON if set to fan mode, else turn OFF
+				if ($sc_mode == 5) { // HVAC fan ON if set to fan mode, else turn OFF
 	        	                $query = "UPDATE messages_out SET sent = '0', payload = '1' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
 				} else {
         				$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
@@ -1927,7 +1973,7 @@ if (in_array("1", $system_controller)) {
                                 $result = $conn->query($query);
                                 $nodes = mysqli_fetch_array($result);
                                 $node_id = $nodes['node_id'];
-				if ($sc_mode == 3) { // HVAC fan ON if set to fan mode, else turn OFF
+				if ($sc_mode == 5) { // HVAC fan ON if set to fan mode, else turn OFF
                                         $query = "UPDATE messages_out SET sent = '0', payload = '1' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
 				} else {
                 			$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
@@ -1950,7 +1996,7 @@ if (in_array("1", $system_controller)) {
                 		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller I2C Rrelay Board: \033[41m".$cool_relay_id."\033[0m Relay ID: \033[41m".$cool_relay_child_id."\033[0m \n";
 	                }
         	        if ($fan_relay_type == 'I2C') {
-				if ($sc_mode == 3) { // HVAC fan ON if set to fan mode, else turn OFF
+				if ($sc_mode == 5) { // HVAC fan ON if set to fan mode, else turn OFF
 					exec("python3 /var/www/cron/i2c/i2c_relay.py" .$fan_relay_id." ".$fan_relay_child_id." 1");
 				} else {
         		                exec("python3 /var/www/cron/i2c/i2c_relay.py" .$fan_relay_id." ".$fan_relay_child_id." 0");
@@ -1982,6 +2028,35 @@ if (in_array("1", $system_controller)) {
                 }
 	}
 }
+
+//if HVAC mode get the heat, cool and fan relay on/off state
+if ($system_controller_mode == 1) {
+	if ($new_system_controller_status=='1') {
+		if ($sc_mode != 5) {
+			$query = "SELECT name FROM relays WHERE relay_id = '$on_relay_id' AND relay_child_id = '$on_relay_child_id'LIMIT 1;";
+                	$result = $conn->query($query);
+	                $h_relay = mysqli_fetch_array($result);
+        	        if (strpos($h_relay['name'], 'Heat') !== false) { $hvac_relays_state = 0b101; } else { $hvac_relays_state = 0b011; }
+	      	} else {
+        		$hvac_relays_state = 0b001;
+		}
+	} else {
+		 if ($sc_mode == 5) { $hvac_relays_state = 0b001; } else { $hvac_relays_state = 0b000; }
+	}
+        $query = "UPDATE system_controller SET hvac_relays_state = '{$hvac_relays_state}'";
+        $result = $conn->query($query);
+        if ($result) {
+        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller HVAC Relay State updated Successfully. \n";
+        } else {
+        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller HVAC Relay State update failed. \n";
+        }
+	if ($debug_msg == 1) {
+		echo "hvac_state - ".$hvac_state."\n";
+		echo "hvac_relays_state - ".$hvac_relays_state."\n";
+		if ($hvac_relays_state != 0) { echo "On Relay Name - ".$h_relay['name']."\n"; }
+	}
+}
+
 /********************************************************************************************************************************************************************
 Following section is Optional for States collection
 I thank you for not commenting it out as it will help me to allocate time to keep this systems updated.
