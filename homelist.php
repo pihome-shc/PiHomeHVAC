@@ -163,13 +163,13 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                         if ($system_controller_mode == 1) {
                                 switch ($sc_mode) {
                                         case 1:
-                                                echo '<h3 class="statuszoon pull-left text-dark"><small>'.$lang['mode_heat'].'</small></h3>';
+                                                echo '<h3 class="statuszoon pull-left text-dark"><small>&nbsp'.$lang['mode_heat'].'</small></h3>';
                                                 break;
                                         case 2:
-                                                echo '<h3 class="statuszoon pull-left text-dark"><small>'.$lang['mode_cool'].'</small></h3>';
+                                                echo '<h3 class="statuszoon pull-left text-dark"><small>&nbsp'.$lang['mode_cool'].'</small></h3>';
                                                 break;
                                         case 3:
-                                                echo '<h3 class="statuszoon pull-left text-dark"><small>'.$lang['mode_auto'].'</small></h3>';
+                                                echo '<h3 class="statuszoon pull-left text-dark"><small>&nbsp'.$lang['mode_auto'].'</small></h3>';
                                                 break;
                                         default:
                                                 echo '<h3 class="statuszoon pull-left text-dark"><small>&nbsp</small></h3>';
@@ -186,13 +186,13 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                         if ($system_controller_mode == 1) {
                                 switch ($sc_mode) {
                                         case 1:
-                                                echo '<h3 class="statuszoon pull-left text-dark"><small>'.$lang['mode_heat'].'</small></h3>';
+                                                echo '<h3 class="statuszoon pull-left text-dark"><small>&nbsp'.$lang['mode_heat'].'</small></h3>';
                                                 break;
                                         case 2:
-                                                echo '<h3 class="statuszoon pull-left text-dark"><small>'.$lang['mode_cool'].'</small></h3>';
+                                                echo '<h3 class="statuszoon pull-left text-dark"><small>&nbsp'.$lang['mode_cool'].'</small></h3>';
                                                 break;
                                         case 3:
-                                                echo '<h3 class="statuszoon pull-left text-dark"><small>'.$lang['mode_auto'].'</small></h3>';
+                                                echo '<h3 class="statuszoon pull-left text-dark"><small>&nbsp'.$lang['mode_auto'].'</small></h3>';
                                                 break;
                                         default:
                                                 echo '<h3 class="statuszoon pull-left text-dark"><small>&nbsp</small></h3>';
