@@ -160,48 +160,48 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
         	        <button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">
                 	<h3 class="buttontop"><small>'.$lang['mode'].'</small></h3>
 	                <h3 class="degre" >'.$current_sc_mode.'</h3>';
-			if ($system_controller_mode == 1) {
-				switch ($sc_mode) {
-					case 1:
-						echo '<h4 class="degre2">'.$lang['mode_heat'].'</h4>';
-						break;
-                                        case 2:
-                                                echo '<h4 class="degre2">'.$lang['mode_cool'].'</h4>';
-                                                break;
-                                        case 3:
-                                                echo '<h4 class="degre2">'.$lang['mode_auto'].'</h4>';
-                                                break;
-					default:
-						echo '<h4 class="degre2">&nbsp</h4>';
-				}
-			} else {
-				echo '<h4 class="degre2">&nbsp</h4>';
-			}
-            		echo '</button></a>';
-		} else {
-	                echo '<a style="color: #777; cursor: pointer; <small>text-decoration: none;" href="home.php?page_name=mode">
-        	        <button class="btn btn-default btn-circle black-background '.$button_style.' mainbtn animated fadeIn">
-                	<h3><small>'.$current_sc_mode.'</small></h3>
-	                <h3 class="degre" >'.$lang['mode'].'</h3>';
                         if ($system_controller_mode == 1) {
                                 switch ($sc_mode) {
                                         case 1:
-                                                echo '<h4 class="degre2">'.$lang['mode_heat'].'</h4>';
+                                                echo '<h3 class="statuszoon pull-left text-dark"><small>'.$lang['mode_heat'].'</small></h3>';
                                                 break;
                                         case 2:
-                                                echo '<h4 class="degre2">'.$lang['mode_cool'].'</h4>';
+                                                echo '<h3 class="statuszoon pull-left text-dark"><small>'.$lang['mode_cool'].'</small></h3>';
                                                 break;
                                         case 3:
-                                                echo '<h4 class="degre2">'.$lang['mode_auto'].'</h4>';
+                                                echo '<h3 class="statuszoon pull-left text-dark"><small>'.$lang['mode_auto'].'</small></h3>';
                                                 break;
                                         default:
-                                                echo '<h4 class="degre2">&nbsp</h4>';
+                                                echo '<h3 class="statuszoon pull-left text-dark"><small>&nbsp</small></h3>';
                                 }
                         } else {
-                                echo '<h4 class="degre2">&nbsp</h4>';
+                                echo '<h3 class="statuszoon pull-left text-dark"><small>&nbsp</small></h3>';
                         }
-            		echo '</button></a>';
-		}
+                        echo '</button></a>';
+                } else {
+                        echo '<a style="color: #777; cursor: pointer; <small>text-decoration: none;" href="home.php?page_name=mode">
+                        <button class="btn btn-default btn-circle black-background '.$button_style.' mainbtn animated fadeIn">
+                        <h3><small>'.$current_sc_mode.'</small></h3>
+                        <h3 class="degre" >'.$lang['mode'].'</h3>';
+                        if ($system_controller_mode == 1) {
+                                switch ($sc_mode) {
+                                        case 1:
+                                                echo '<h3 class="statuszoon pull-left text-dark"><small>'.$lang['mode_heat'].'</small></h3>';
+                                                break;
+                                        case 2:
+                                                echo '<h3 class="statuszoon pull-left text-dark"><small>'.$lang['mode_cool'].'</small></h3>';
+                                                break;
+                                        case 3:
+                                                echo '<h3 class="statuszoon pull-left text-dark"><small>'.$lang['mode_auto'].'</small></h3>';
+                                                break;
+                                        default:
+                                                echo '<h3 class="statuszoon pull-left text-dark"><small>&nbsp</small></h3>';
+                                }
+                        } else {
+                                echo '<h3 class="statuszoon pull-left text-dark"><small>&nbsp</small></h3>';
+                        }
+                        echo '</button></a>';
+                }
 
 		//loop through zones
 		$active_schedule = 0;
