@@ -48,7 +48,7 @@ if (isset($_POST['submit'])) {
                 $min_c = 0;
 	        $max_c = SensorToDB($conn,$_POST['max_c'],$sensor_type_id);
         	$default_c = SensorToDB($conn,$_POST['default_c'],$sensor_type_id);
-	} elseif ($zone_category == 3) {
+	} elseif ($zone_category == 3  || $zone_category == 4) {
 	        $min_c = SensorToDB($conn,$_POST['min_c'],$sensor_type_id);
         	$max_c = SensorToDB($conn,$_POST['max_c'],$sensor_type_id);
                 $default_c = SensorToDB($conn,$_POST['default_c'],$sensor_type_id);
@@ -73,12 +73,12 @@ if (isset($_POST['submit'])) {
 	$message_id =  $_POST['message_out_id'];
 	$sync = '0';
 	$purge= '0';
-	
+
 	$system_controller = explode('-', $_POST['system_controller_id'], 2);
 	$system_controller_id = $system_controller[0];
 
 	//query to search node id for temperature sensors
-	if ($zone_category < 2) {
+	if ($zone_category <> 2) {
 		$query = "SELECT * FROM nodes WHERE node_id = '{$sensor_id}' LIMIT 1;";
 		$result = $conn->query($query);
 		$found_product = mysqli_fetch_array($result);
@@ -193,7 +193,7 @@ if (isset($_POST['submit'])) {
 		}
 	}
 
-        if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3) {
+        if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3 || $zone_category == 4) {
                 //Add or Edit Zone record to Zone_Sensor Table
                 if ($id==0){
                         $query = "INSERT INTO `zone_sensors` (`sync`, `purge`, `zone_id`, `min_c`, `max_c`, `default_c`, `hysteresis_time`, `sp_deadband`, `zone_sensor_id`) VALUES ('{$sync}', '{$purge}', '{$cnt_id}', '{$min_c}', '{$max_c}', '{$default_c}', '{$hysteresis_time}', '{$sp_deadband}', '{$zone_sensor_id}');";
@@ -326,7 +326,7 @@ if (isset($_POST['submit'])) {
 		}
 	}
 
-	if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3) {
+	if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3 || $zone_category == 4) {
 		//Add Zone to schedule_night_climat_zone table at same time
 		if ($id==0){
 			$query = "SELECT * FROM schedule_night_climate_time;";
@@ -511,7 +511,7 @@ $new_index_id = $found_product['index_id']+1;
 <div class="form-group" class="control-label"><label><?php echo $lang['zone_type']; ?></label> <small class="text-muted"><?php echo $lang['zone_type_info'];?></small>
 <select id="type" onchange=zone_category(this.options[this.selectedIndex].value) name="type" class="form-control select2" autocomplete="off" required>
 <?php if(isset($row['type'])) { echo '<option selected >'.$row['type'].'</option>'; } ?>
-<?php  $query = "SELECT DISTINCT `type`, `category` FROM `zone_type` ORDER BY `id` ASC;";
+<?php  $query = "SELECT DISTINCT `type`, `category` FROM `zone_type` ORDER BY `category`, `id` ASC;";
 $result = $conn->query($query);
 echo "<option></option>";
 while ($datarw=mysqli_fetch_array($result)) {
@@ -656,7 +656,6 @@ function zone_category(value)
                         document.getElementById("system_controller_id").required = false;
                         break;
                 case "2":
-                case "4":
                         var sensor_type = 1;
                         document.getElementById("min_c").style.display = 'none';
                         document.getElementById("min_c_label").style.visibility = 'hidden';;
@@ -691,6 +690,7 @@ function zone_category(value)
                         document.getElementById("system_controller_id").required = false;
                         break;
                 case "3":
+                case "4":
                         var sensor_type = 1;
                         document.getElementById("default_c_label_1").style.visibility = 'visible';
                         document.getElementById("default_c_label_1").innerHTML = document.getElementById("default_c_label_text").value;
@@ -711,7 +711,11 @@ function zone_category(value)
                         document.getElementById("zone_sensor_id").style.display = 'block';
                         document.getElementById("sensor_id_label_1").style.visibility = 'visible';;
                         document.getElementById("sensor_id_label_2").style.visibility = 'visible';;
-                        document.getElementById("controler_id_label").style.visibility = 'hidden';;
+			if (document.getElementById("selected_zone_type").value === "HVAC-M") {
+				document.getElementById("controler_id_label").style.visibility = 'visible';;
+			} else {
+                        	document.getElementById("controler_id_label").style.visibility = 'hidden';;
+			}
                         document.getElementById("system_controller_id").style.display = 'block';
                         document.getElementById("system_controller_id_label").style.visibility = 'visible';;
                         document.getElementById("boost_button_id").style.display = 'block';

@@ -499,7 +499,7 @@ if (isset($_POST['submit'])) {
 
 						<!-- Group Zone Settings -->
 						<?php
-						if (($row["category"] == 0 || $row["category"] == 1 || $row["category"] == 3 || $row["category"] == 4) && $row["sensor_type_id"] <> 3) {
+						if (($row["category"] == 0 || $row["category"] == 1 || $row["category"] == 3|| $row["category"] == 4) && $row["sensor_type_id"] <> 3) {
 							if($row['tz_status'] == 1 AND $time_id != 0){
 								//if($time_id != 0){
 								$style_text = "";
@@ -508,7 +508,8 @@ if (isset($_POST['submit'])) {
 							}
 							 echo '<div id="'.$row["tz_id"].'" style="'.$style_text.'">
 								<div class="form-group" class="control-label">';
-                                                                        if(strpos($row["type"], 'HVAC') !== false) {
+//                                                                        if($row["type"]=='HVAC' || $row["type"]=='HVAC-M') {
+									if(strpos($row["type"], 'HVAC') !== false) {
                                                                                 $min = DispSensor($conn,$row['min_c'],$row['sensor_type_id']);
                                                                         } else {
                                                                                 //0=C, 1=F
