@@ -15,7 +15,7 @@ The new 'Switch' zone category is used when no sensor or system controller are u
 
 Version 1.3 Introduces support for MQTT Devices, together with Home Assistant Integration.
 
-Version 1.4 Introduces support for multi-zone HVAC systems.
+Version 1.4 Introduces support for multi-zone HVAC systems, together with 3 timer options - HEAT, COOL and AUTO (switch between HEAT and COOL as required).
 
 ## Setup:
 
