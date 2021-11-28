@@ -619,6 +619,12 @@ if($what=="sc_mode"){
                                 if (settings($conn, 'mode') == 0) { $new_sc_mode = 0; } else { $new_sc_mode = 5; }
                                 break;
                         case 5:
+                                if (settings($conn, 'mode') == 0) { $new_sc_mode = 0; } else { $new_sc_mode = 6; }
+                                break;
+                        case 6:
+                                if (settings($conn, 'mode') == 0) { $new_sc_mode = 0; } else { $new_sc_mode = 7; }
+                                break;
+                        case 7:
                                 $new_sc_mode = 0;
                                 break;
                         default:

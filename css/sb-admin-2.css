@@ -560,6 +560,9 @@ color: #E31721;
 .buttontop {
 margin-top:-10px;
 }
+.buttonmode {
+margin-top:0px;
+}
 .degre{
 margin-top: 10px;
 font-family: "HelveticaNeue-Light", 'Roboto', 'Source Sans Pro',  Helvetica, Arial,sans-serif;
