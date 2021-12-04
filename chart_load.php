@@ -109,13 +109,13 @@ if ($grow['mask'] & 0b1) {
         	        $system_controller_stop = strtotime($row['stop_datetime']) * 1000;
 	        }
                 if(strpos($zone_type, 'Heating') !== false) {
-                        if($graph_water == 2) {
+                        if ($graph_water == 2) {
                                 $warn1 = $warn1."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
-                        } else }
+                        } else {
                                 $warn2 = $warn2."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
                         }
                 } elseif((strpos($zone_type, 'Water') !== false) || (strpos($zone_type, 'Immersion') !== false)) {
-                        if($graph_water == 2) {
+                        if ($graph_water == 2) {
                                 $warn2 = $warn2."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
                         } else {
                                 $warn1 = $warn1."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
