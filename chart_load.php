@@ -54,12 +54,14 @@ if ($grow['mask'] & 0b1) {
 	$graph1 = '';
 	$graph2 = '';
 	$graph3 = '';
+        $graph_water = 2; // default graph number for water zone
 	while ($row = mysqli_fetch_assoc($resulta)) {
         	// grab the sensor names to be displayed in the plot legend
 		$name=$row['name'];
 		$id=$row['id'];
 	  	$graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
         	$graph_num = $row['graph_num'];
+                if(strpos($name, 'Water') !== false) { $graph_water = $graph_num; }
 		$query="select * from zone_graphs where zone_id = {$id};";
         	$result = $conn->query($query);
 	        // create array of pairs of x and y values for every zone
@@ -106,11 +108,19 @@ if ($grow['mask'] & 0b1) {
 	        } else {
         	        $system_controller_stop = strtotime($row['stop_datetime']) * 1000;
 	        }
-        	if(strpos($zone_type, 'Heating') !== false) {
-	                $warn1 = $warn1."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
-        	} elseif((strpos($zone_type, 'Water') !== false) || (strpos($zone_type, 'Immersion') !== false)) {
-                	$warn2 = $warn2."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
-	        }
+                if(strpos($zone_type, 'Heating') !== false) {
+                        if($graph_water == 2) {
+                                $warn1 = $warn1."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
+                        } else }
+                                $warn2 = $warn2."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
+                        }
+                } elseif((strpos($zone_type, 'Water') !== false) || (strpos($zone_type, 'Immersion') !== false)) {
+                        if($graph_water == 2) {
+                                $warn2 = $warn2."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
+                        } else {
+                                $warn1 = $warn1."{ xaxis: { from: ".$system_controller_start.", to: ".$system_controller_stop." }, color: \"#ffe9dc\" },  \n" ;
+                        }
+                }
 	}
 }
 
