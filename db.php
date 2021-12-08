@@ -865,6 +865,14 @@ if($what=="system_controller_settings"){
 	        $results = $conn->query($query);
         	$row = mysqli_fetch_assoc($results);
 	        $cool_node_id = $row['node_id'];
+		//Check messages_out for System Controller 
+        	$query = "SELECT * FROM messages_out WHERE node_id='".$cool_node_id."' AND child_id='".$cool_controler_child_id."' LIMIT 1;";
+		$result = $conn->query($query);
+		if (mysqli_num_rows($result)==0){
+			//Update messages_out for System Controller. 
+			$query = "INSERT INTO `messages_out`(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`) VALUES (0, 0, '".$cool_node_id."', '".$cool_controler_child_id."', 1, 1, 2, 0, 0, '".$datetime."', 0);";
+			$conn->query($query);
+		}
 
         	$query = "SELECT * FROM relays WHERE id ='".$fan_relay_id."' LIMIT 1";
 	        $results = $conn->query($query);
@@ -875,6 +883,14 @@ if($what=="system_controller_settings"){
         	$results = $conn->query($query);
 	        $row = mysqli_fetch_assoc($results);
         	$fan_node_id = $row['node_id'];
+		//Check messages_out for System Controller 
+        	$query = "SELECT * FROM messages_out WHERE node_id='".$fan_node_id."' AND child_id='".$fan_controler_child_id."' LIMIT 1;";
+		$result = $conn->query($query);
+		if (mysqli_num_rows($result)==0){
+			//Update messages_out for System Controller. 
+			$query = "INSERT INTO `messages_out`(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`) VALUES (0, 0, '".$fan_node_id."', '".$fan_controler_child_id."', 1, 1, 2, 0, 0, '".$datetime."', 0);";
+			$conn->query($query);
+		}
 	}
 
 	//Check messages_out for System Controller 
