@@ -1384,6 +1384,18 @@ if($what=="time_zone"){
 		
 		$query = "UPDATE `system` SET `timezone`='" . $time_zone_val . "';";
 		exec("sudo timedatectl set-timezone $time_zone_val");
+                // Checking if gateway script is running
+                $gateway_script_txt = 'python3 /var/www/cron/gateway.py';
+                exec("ps ax | grep '$gateway_script_txt' | grep -v grep", $pids);
+                if (count($pids) > 0) {
+                        exec("sudo pkill -f '$gateway_script_txt'");
+                }
+                // Checking if DS18b20 script is running
+                $ds18b20_script_txt = 'python3 /var/www/cron/gpio_ds18b20.py';
+                exec("ps ax | grep '$ds18b20_script_txt' | grep -v grep", $pids);
+                if (count($pids) > 0) {
+                        exec("sudo pkill -f '$ds18b20_script_txt'");
+                }
         if($conn->query($query)){
             header('Content-type: application/json');
             echo json_encode(array('Success'=>'Success','Query'=>$query));
