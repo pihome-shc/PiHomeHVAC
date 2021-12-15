@@ -212,14 +212,15 @@ def on_message(client, userdata, message):
             " PayLoad:",
             mqtt_payload,
         )
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         cur_mqtt.execute(
-            "INSERT INTO `messages_in`(`node_id`, `sync`, `purge`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES (%s, 0, 0, %s, 0, %s, NOW())",
-            [mqtt_node_id, mqtt_child_sensor_id, mqtt_payload],
+            "INSERT INTO `messages_in`(`node_id`, `sync`, `purge`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES (%s, 0, 0, %s, 0, %s, %s)",
+            [mqtt_node_id, mqtt_child_sensor_id, mqtt_payload, timestamp],
         )
         con_mqtt.commit()
         cur_mqtt.execute(
-            'UPDATE `nodes` SET `last_seen`= NOW() WHERE `node_id`= %s',
-            [mqtt_node_id],
+            'UPDATE `nodes` SET `last_seen`= %s WHERE `node_id`= %s',
+            [timestamp, mqtt_node_id],
         )
         con_mqtt.commit()
         # Check is sensor is attached to a zone which is being graphed
@@ -249,8 +250,9 @@ def on_message(client, userdata, message):
                         mqtt_payload,
                     )
                 if mqtt_zone_id == 0:
+                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     cur_mqtt.execute(
-                        'INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())',
+                        'INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
                         (
                             0,
                             0,
@@ -262,6 +264,7 @@ def on_message(client, userdata, message):
                             mqtt_child_sensor_id,
                             0,
                             mqtt_payload,
+                            timestamp,
                         ),
                     )
                     con_mqtt.commit()
@@ -281,8 +284,9 @@ def on_message(client, userdata, message):
                             results[mqtt_zone_view_to_index["category"]]
                         )
                         if mqtt_category != 2:
+                            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                             cur_mqtt.execute(
-                                'INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,NOW())',
+                                'INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
                                 (
                                     0,
                                     0,
@@ -294,6 +298,7 @@ def on_message(client, userdata, message):
                                     mqtt_child_sensor_id,
                                     0,
                                     mqtt_payload,
+                                    timestamp,
                                 ),
                             )
                             con_mqtt.commit()
@@ -886,8 +891,8 @@ try:
                         )
                         con.commit()
                         cur.execute(
-                            "UPDATE `nodes` SET `last_seen`=now(), `sync`=0  WHERE node_id = %s",
-                            [node_id],
+                            "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE node_id = %s",
+                            [timestamp, node_id],
                         )
                         con.commit()
                         # Check is sensor is attached to a zone which is being graphed
@@ -997,8 +1002,8 @@ try:
                         )
                         con.commit()
                         cur.execute(
-                            "UPDATE `nodes` SET `last_seen`=now(), `sync`=0  WHERE node_id = %s",
-                             [node_id],
+                            "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE node_id = %s",
+                             [timestamp, node_id],
                         )
                         con.commit()
                         # Check is sensor is attached to a zone which is being graphed
@@ -1104,8 +1109,8 @@ try:
                         )
                         con.commit()
                         cur.execute(
-                            "UPDATE `nodes` SET `last_seen`=now(), `sync`=0  WHERE node_id = %s",
-                            [node_id],
+                            "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE node_id = %s",
+                            [timestamp, node_id],
                         )
                         con.commit()
 
@@ -1155,9 +1160,10 @@ try:
                             "UPDATE nodes_battery SET bat_level = %s WHERE id=(SELECT nid from (SELECT MAX(id) as nid FROM nodes_battery WHERE node_id = %s ) as n)",
                             (payload, node_id),
                         )
+                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         cur.execute(
-                            "UPDATE nodes SET last_seen=now(), `sync`=0 WHERE node_id = %s",
-                            [node_id],
+                            "UPDATE nodes SET last_seen=%s, `sync`=0 WHERE node_id = %s",
+                            [timestamp, node_id],
                         )
                         con.commit()
 
@@ -1182,9 +1188,10 @@ try:
                         xboost = "UPDATE boost SET status=%s WHERE boost_button_id=%s AND boost_button_child_id = %s"
                         cur.execute(xboost, (payload, node_id, child_sensor_id))
                         con.commit()
+                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         cur.execute(
-                            "UPDATE `nodes` SET `last_seen`=now(), `sync`=0 WHERE node_id = %s",
-                            [node_id],
+                            "UPDATE `nodes` SET `last_seen`=%s, `sync`=0 WHERE node_id = %s",
+                            [timestamp, node_id],
                         )
                         con.commit()
 
@@ -1210,9 +1217,10 @@ try:
                         xaway = "UPDATE away SET status=%s WHERE away_button_id=%s AND away_button_child_id = %s"
                         cur.execute(xaway, (payload, node_id, child_sensor_id))
                         con.commit()
+                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         cur.execute(
-                            "UPDATE `nodes` SET `last_seen`=now(), `sync`=0  WHERE node_id = %s",
-                            [node_id],
+                            "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE node_id = %s",
+                            [timestamp, node_id],
                         )
                         con.commit()
                         # else:
@@ -1327,9 +1335,10 @@ try:
                             else:
                                 print("write")
                                 gw.write(msg.encode("utf-8"))
+                                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                                 cur.execute(
-                                    "UPDATE `node_id` set sent=1, `date_time`=now() where id=%s",
-                                    [out_id],
+                                    "UPDATE `node_id` set sent=1, `date_time`=%s where id=%s",
+                                    [timestamp, out_id],
                                 )  # update DB so this message will not be processed in next loop
                                 con.commit()  # commit above
                         else:
