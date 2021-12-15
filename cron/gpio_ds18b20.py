@@ -122,7 +122,7 @@ def insertDB(IDs, temperature):
             # If DS18B20 Sensor record exist: Update Nodes Table with Last seen status.
             if row == 1:
                 cur.execute(
-                    "UPDATE `nodes` SET `last_seen`=now() WHERE node_id = %s", [IDs[i]]
+                    "UPDATE `nodes` SET `last_seen`=%s WHERE node_id = %s", [time.strftime("%Y-%m-%d %H:%M:%S"), IDs[i]]
                 )
                 con.commit()
             print(
