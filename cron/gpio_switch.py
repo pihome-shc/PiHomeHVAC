@@ -100,7 +100,7 @@ while True:
                 # enter new message_in record if first time or the state of the pin has changed
                 if  msg_update:
                     cur.execute(
-                        "UPDATE `nodes` SET `last_seen`=now() WHERE node_id = %s", [in_id]
+                        "UPDATE `nodes` SET `last_seen`= %s WHERE node_id = %s", [time.strftime("%Y-%m-%d %H:%M:%S"), in_id]
                     )
                     con.commit()
                     print(

@@ -276,7 +276,7 @@ $away = mysqli_fetch_array($result);
 $away_status = $away['status'];
 
 //query to check holidays status
-$query = "SELECT * FROM holidays WHERE NOW() between start_date_time AND end_date_time AND status = '1' LIMIT 1";
+$query = "SELECT * FROM holidays WHERE '".$date_time."' between start_date_time AND end_date_time AND status = '1' LIMIT 1";
 $result = $conn->query($query);
 $rowcount=mysqli_num_rows($result);
 if ($rowcount > 0) {
