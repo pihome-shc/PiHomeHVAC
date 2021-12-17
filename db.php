@@ -1396,6 +1396,12 @@ if($what=="time_zone"){
                 if (count($pids) > 0) {
                         exec("sudo pkill -f '$ds18b20_script_txt'");
                 }
+                // Checking if GPIO Switch script is running
+                $switch_script_txt = 'python3 /var/www/cron/gpio_switch.py';
+                exec("ps ax | grep '$switch_script_txt' | grep -v grep", $pids);
+                if (count($pids) > 0) {
+                        exec("sudo pkill -f '$switch_script_txt'");
+                }
         if($conn->query($query)){
             header('Content-type: application/json');
             echo json_encode(array('Success'=>'Success','Query'=>$query));
