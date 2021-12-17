@@ -72,7 +72,8 @@ try:
 			while is_running(running_pid) :
 				pass
 			time.sleep(10)
-			cur.execute('UPDATE `sw_install` SET `stop_datetime`=now() WHERE id = %s', [id])
+			timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+			cur.execute('UPDATE `sw_install` SET `stop_datetime`=now() WHERE id = %s', [timestamp, id])
 			con.commit()
 			con.close()
 			print("Finished Executing script: ", script)
