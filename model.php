@@ -2634,7 +2634,7 @@ echo '
 echo '     </div>
             <div class="modal-footer">
 			<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-			<a href="javascript:backup_email_update()" class="btn btn-default login btn-sm">'.$lang['save'].'</a>
+                        <a href="javascript:backup_email_update()"><button class="btn btn-default login btn-sm" data-toggle="confirmation" data-title="'.$lang['update_email_address'].'">'.$lang['save'].'</button> </a>
 			<a href="javascript:db_backup()" class="btn btn-default login btn-sm">'.$lang['backup_start'].'</a>
             </div>
         </div>
