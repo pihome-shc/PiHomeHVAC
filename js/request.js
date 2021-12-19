@@ -516,9 +516,7 @@ var idata="w=backup_email_update&o=update&backup_email="+document.getElementById
     idata+="&wid=0";
     $.get('db.php',idata)
     .done(function(odata){
-        if(odata.Success)
-            reload_page();
-        else
+        if(!odata.Success)
             console.log(odata.Message);
     })
     .fail(function( jqXHR, textStatus, errorThrown ){

@@ -771,4 +771,7 @@ $lang['setup_guide_gateway'] = "Setup Guide Gateway";
 $lang['setup_guide_mqtt'] = "Setup Guide MQTT Devices";
 $lang['zone_category3'] = "NO Controller, Sensor and System Control (HVAC)";
 $lang['zone_category4'] = "Controller, Sensor and System Control (HVAC Multi Zone)";
+$lang['update_email_address'] = "Update Email Address";
+$lang['setup_email_notifications'] = "Setup Email Notifications";
+$lang['setup_database_backup'] = "Setup Database Backup";
 ?>

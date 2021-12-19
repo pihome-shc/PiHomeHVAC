@@ -1903,6 +1903,14 @@ echo '
             <div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title">'.$lang['email_settings'].'</h5>
+                <div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                        	<li><a href="pdf_download.php?file=setup_email_notifications.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_email_notifications'].'</a></li>
+                        </ul>
+                </div>
             </div>
             <div class="modal-body">';
 $gquery = "SELECT * FROM email";
@@ -2622,6 +2630,16 @@ echo '
             <div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title">'.$lang['pihome_backup'].'</h5>
+                <div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=setup_database_backup.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_database_backup'].'</a></li>
+                                <li class="divider"></li>
+                        	<li><a href="pdf_download.php?file=setup_email_notifications.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_email_notifications'].'</a></li>
+                        </ul>
+                </div>
             </div>
             <div class="modal-body">
 			<p class="text-muted"> '.$lang['pihome_backup_text'].' </p>
@@ -2634,7 +2652,7 @@ echo '
 echo '     </div>
             <div class="modal-footer">
 			<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-			<a href="javascript:backup_email_update()" class="btn btn-default login btn-sm">'.$lang['save'].'</a>
+                        <a href="javascript:backup_email_update()"><button class="btn btn-default login btn-sm" data-toggle="confirmation" data-title="'.$lang['update_email_address'].'">'.$lang['save'].'</button> </a>
 			<a href="javascript:db_backup()" class="btn btn-default login btn-sm">'.$lang['backup_start'].'</a>
             </div>
         </div>
