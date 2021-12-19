@@ -290,7 +290,8 @@ if ($rowcount > 0) {
 $query = "SELECT * FROM controller_zone_logs WHERE zone_id = '".$system_controller_id."' ORDER BY id desc LIMIT 1;";
 $result = $conn->query($query);
 $row = mysqli_fetch_array($result);
-if (mysqli_num_rows($result) > 0){
+$cz_logs_count = mysqli_num_rows($result);
+if ($cz_logs_count > 0){
 	$system_controller_start_datetime = $row['start_datetime'];
 	$system_controller_stop_datetime = $row['stop_datetime'];
 	$system_controller_expoff_datetime = $row['expected_end_date_time'];
@@ -1576,7 +1577,7 @@ for ($row = 0; $row < count($zone_commands); $row++){
         $controllers = $zone_commands[$row]["controllers"];
 
 	//Zone category 0 and system controller is not requested calculate if overrun needed
-	if($zone_category==0 && isset($system_controller_stop_datetime) && !in_array("1", $system_controller)) {
+        if($zone_category == 0 && $cz_logs_count > 0 && !in_array("1", $system_controller)) {
 		//overrun time <0 - latch overrun for the zone zone untill next system controller start
 		if($system_controller_overrun_time < 0){
 			$zone_overrun = (($zone_status_prev == 1)||($zone_overrun_prev == 1)) ? 1:0;
