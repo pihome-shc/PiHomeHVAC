@@ -1208,7 +1208,7 @@ if($what=="setup_email"){
 	$e_smtp = $_GET['e_smtp'];
         $e_port = $_GET['e_port'];
 	$e_username = $_GET['e_username'];
-	$e_password = $_GET['e_password'];
+        $e_password = enc_passwd($_GET['e_password']);
 	$e_from_address = $_GET['e_from_address'];
 	$e_to_address = $_GET['e_to_address'];
 	if ($status=='true'){$status = '1';} else {$status = '0';}
