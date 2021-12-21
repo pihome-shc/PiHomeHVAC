@@ -1041,8 +1041,14 @@ if($what=="setup_piconnect"){
 
 //Database Backup
 if($what=="db_backup"){
-        shell_exec("nohup python3 start_backup.py >/dev/null 2>&1");
-	$info_message = "Data Base Backup Request Started, This process may take some time complete..." ;
+        $query = "SELECT `password` FROM email LIMIT 1;";
+        $result = $conn->query($query);
+        if (mysqli_num_rows($result) > 0){
+                $row = mysqli_fetch_assoc($result);
+                $p_password = dec_passwd($row['password']);
+                shell_exec("nohup python3 start_backup.py ".$p_password." >/dev/null 2>&1");
+                $info_message = "Data Base Backup Request Started, This process may take some time complete..." ;
+        }
 }
 
 //Code Update
