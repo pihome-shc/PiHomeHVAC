@@ -1348,7 +1348,7 @@ if($what=="mqtt"){
              '" . $_GET['inp_IP'] . "',
              " . $_GET['inp_Port'] . ",
              '" . $_GET['inp_Username'] . "',
-             '" . $_GET['inp_Password'] . "',
+             '" . enc_passwd($_GET['inp_Password']) . "',
              " . $_GET['sel_Enabled'] . ",
              " . $_GET['sel_Type'] . ");";
         if($conn->query($query)){
@@ -1367,7 +1367,7 @@ if($what=="mqtt"){
             `ip`='" . $_GET['inp_IP'] . "',
             `port`=" . $_GET['inp_Port'] . ",
             `username`='" . $_GET['inp_Username'] . "',
-            `password`='" . $_GET['inp_Password'] . "',
+            `password`='" . enc_passwd($_GET['inp_Password']) . "',
             `enabled`=" . $_GET['sel_Enabled'] . ",
             `type`=" . $_GET['sel_Type'] . "
             WHERE `id`=" . $_GET['inp_id'] . ";";
