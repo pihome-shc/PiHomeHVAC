@@ -56,7 +56,7 @@ try:
     cursorselect.close()
     if cursorselect.rowcount > 0:
         USER = results[name_to_index['username']]
-        PASS = results[name_to_index['password']]
+        PASS = sys.argv[1]
         HOST = results[name_to_index['smtp']]
         PORT = results[name_to_index['port']]
         TO = results[name_to_index['to']]
