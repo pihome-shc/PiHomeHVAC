@@ -32,7 +32,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                                 <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu">
-                                <li><a href="pdf_download.php?file=setup_override.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_override'].'</a></li>
+                                <li><a href="pdf_download.php?file=setup_override.pdf" target="_blank"><i class="fa fa-file fa-fw"></i><?php echo $lang['setup_override']; ?></a></li>
                         </ul>
                         <div class="btn-group"><?php echo '&nbsp;&nbsp;'.date("H:i"); ?></div>
                 </div>
