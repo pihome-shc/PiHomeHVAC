@@ -13,7 +13,7 @@ echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
 echo "\033[31m \n";
 echo "******************************************************************\n";
 echo "*   System Controller Script Version 0.01 Build Date 19/10/2020  *\n";
-echo "*   Update on 18/08/2021                                         *\n";
+echo "*   Update on 21/12/2021                                         *\n";
 echo "*                                        Have Fun - PiHome.eu    *\n";
 echo "******************************************************************\n";
 echo " \033[0m \n";
@@ -333,6 +333,7 @@ $current_time = date('H:i:s');
 $dow = idate('w');
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Day of the Week: \033[41m".$dow. "\033[0m \n";
 echo "------------------------------------------------------------------------------------------------------- \n";
+$sch_active = 0; //set to indicate no active schedules
 $query = "SELECT zone.id, zone.status, zone.zone_state, zone.name, zone_type.type, zone_type.category, zone.max_operation_time FROM zone, zone_type WHERE zone.type_id = zone_type.id order by index_id asc;";
 $results = $conn->query($query);
 while ($row = mysqli_fetch_assoc($results)) {
@@ -437,6 +438,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         if ($zone_status == 1) {
                 $rval=get_schedule_status($conn, $zone_id,$holidays_status);
                 $sch_status = $rval['sch_status'];
+                if ($sch_active == 0 && $sch_status == '1') { $sch_active = 1; }
                 if($rval['sch_count'] == 0){
                         $sch_status = 0;
                         $sch_c = 0;
@@ -816,7 +818,30 @@ while ($row = mysqli_fetch_assoc($results)) {
        	                                                	}
 							} elseif ($away_status=='0') {
 								if (($holidays_status=='0') || ($sch_holidays=='1')) {
-									if($boost_status=='0'){
+									if (($sch_active) && ($zone_override_status=='1')) {
+										$zone_status="0";
+										$stop_cause="Override Finished";
+                                                                        	if ($zone_c < $temp_cut_out_rising){
+                                                                                	$zone_status="1";
+                                                                                        $zone_mode = 71;
+                                                                                        $start_cause="Schedule Override Started";
+                                                                                        $expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
+                                                                                        $zone_state = 1;
+                                                                               	}
+                                                                                if ($zone_c >= $temp_cut_out_rising && ($zone_c < $temp_cut_out)){
+                                                                                	$zone_status=$zone_status_prev;
+                                                                                        $zone_mode = 72 - $zone_status_prev;
+                                                                                        $start_cause="Schedule Override Target Deadband";
+                                                                                        $stop_cause="Schedule Override Target Deadband";
+                                                                                        $zone_state = $zone_status_prev;
+                                                                               	}
+                                                                                if ($zone_c >= $temp_cut_out){
+                                                                                	$zone_status="0";
+                                                                                        $zone_mode = 70;
+                                                                                        $stop_cause="Schedule Override Target C Achieved";
+                                                                                        $zone_state = 0;
+                                                                            	}
+									} elseif($boost_status=='0'){
 										$zone_status="0";
 										$stop_cause="Boost Finished";
 										if ($night_climate_status =='0') {
@@ -845,26 +870,6 @@ while ($row = mysqli_fetch_assoc($results)) {
 												$zone_status="0";
 												$zone_mode = 80;
 												$stop_cause="Schedule Target C Achieved";
-												$zone_state = 0;
-											}
-											if (($sch_status =='1') && ($zone_override_status=='1') && ($zone_c < $temp_cut_out_rising)){
-												$zone_status="1";
-												$zone_mode = 71;
-												$start_cause="Schedule Override Started";
-												$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
-												$zone_state = 1;
-											}
-											if (($sch_status =='1') && ($zone_override_status=='1') && ($zone_c >= $temp_cut_out_rising && ($zone_c < $temp_cut_out))){
-												$zone_status=$zone_status_prev;
-												$zone_mode = 72 - $zone_status_prev;
-												$start_cause="Schedule Override Target Deadband";
-												$stop_cause="Schedule Override Target Deadband";
-												$zone_state = $zone_status_prev;
-											}
-											if (($sch_status =='1') && ($zone_override_status=='1') && ($zone_c >= $temp_cut_out)){
-												$zone_status="0";
-												$zone_mode = 70;
-												$stop_cause="Schedule Override Target C Achieved";
 												$zone_state = 0;
 											}
 											if (($sch_status =='0') &&($sch_holidays=='1')){
@@ -916,7 +921,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 										$zone_mode = 60;
 										$stop_cause="Boost Target C Achived";
 										$zone_state = 0;
-									}
+									} //end if($boost_status=='0')
 								}elseif(($holidays_status=='1') && ($sch_holidays=='0')){
 									$zone_status="0";
 									$zone_mode = 40;
@@ -1198,7 +1203,30 @@ while ($row = mysqli_fetch_assoc($results)) {
 				} elseif ($frost_active == 0 && $zone_c < $zone_max_c) {
 					if ($away_status=='0') {
 						if (($holidays_status=='0') || ($sch_holidays=='1')) {
-							if($boost_status=='0'){
+                                                	if (($sch_active) && ($zone_override_status=='1')) {
+                                                        	$zone_status="0";
+                                                                $stop_cause="Override Finished";
+                                                                if ($zone_c < $temp_cut_out_rising){
+                                                                	$zone_status="1";
+                                                                        $zone_mode = 71;
+                                                                        $start_cause="Schedule Override Started";
+                                                                        $expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
+                                                                        $zone_state = 1;
+                                                                }
+                                                               	if ($zone_c >= $temp_cut_out_rising && ($zone_c < $temp_cut_out)){
+                                                                	$zone_status=$zone_status_prev;
+                                                                        $zone_mode = 72 - $zone_status_prev;
+                                                                        $start_cause="Schedule Override Target Deadband";
+                                                                        $stop_cause="Schedule Override Target Deadband";
+                                                                        $zone_state = $zone_status_prev;
+                                                                }
+                                                                if ($zone_c >= $temp_cut_out){
+                                                               		$zone_status="0";
+                                                                        $zone_mode = 70;
+                                                                        $stop_cause="Schedule Override Target C Achieved";
+                                                                        $zone_state = 0;
+                                                                }
+                                                        } elseif($boost_status=='0'){
 								$zone_status="0";
 								$add_on_stop_cause="Boost Finished";
 								if ($night_climate_status =='0') {
@@ -1220,26 +1248,6 @@ while ($row = mysqli_fetch_assoc($results)) {
 										$zone_status="0";
 										$zone_mode = 80;
 										$add_on_stop_cause="Schedule Target C Achieved";
-										$zone_state = 0;
-									}
-									if (($sch_status =='1') && ($zone_override_status=='1') && ($zone_c < $temp_cut_out_rising)){
-										$zone_status="1";
-										$zone_mode = 71;
-										$add_on_start_cause="Schedule Override Started";
-										$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
-										$zone_state = 1;
-									}
-									if (($sch_status =='1') && ($zone_override_status=='1') && ($zone_c >= $temp_cut_out_rising && ($zone_c < $temp_cut_out))){
-										$zone_status=$zone_status_prev;
-										$zone_mode = 72 - $zone_status_prev;
-										$add_on_start_cause="Schedule Override Target Deadband";
-										$add_on_stop_cause="Schedule Override Target Deadband";
-										$zone_state = $zone_status_prev;
-									}
-									if (($sch_status =='1') && ($zone_override_status=='1') && ($zone_c >= $temp_cut_out)){
-										$zone_status="0";
-										$zone_mode = 70;
-										$add_on_stop_cause="Schedule Override Target C Achieved";
 										$zone_state = 0;
 									}
 									if (($sch_status =='0') &&($sch_holidays=='1')){
@@ -1323,7 +1331,30 @@ while ($row = mysqli_fetch_assoc($results)) {
        	                               	        }
 					} elseif ($away_status=='0') {
 						if (($holidays_status=='0') || ($sch_holidays=='1')) {
-							if($boost_status=='0'){
+                                                        if (($sch_active) && ($zone_override_status=='1')) {
+                                                                $zone_status="0";
+                                                                $stop_cause="Override Finished";
+                                                                if ($zone_c < $temp_cut_out_rising){
+                                                                        $zone_status="1";
+                                                                        $zone_mode = 71;
+                                                                        $start_cause="Schedule Override Started";
+                                                                        $expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
+                                                                        $zone_state = 1;
+                                                                }
+                                                                if ($zone_c >= $temp_cut_out_rising && ($zone_c < $temp_cut_out)){
+                                                                        $zone_status=$zone_status_prev;
+                                                                        $zone_mode = 72 - $zone_status_prev;
+                                                                        $start_cause="Schedule Override Target Deadband";
+                                                                        $stop_cause="Schedule Override Target Deadband";
+                                                                        $zone_state = $zone_status_prev;
+                                                                }
+                                                                if ($zone_c >= $temp_cut_out){
+                                                                        $zone_status="0";
+                                                                        $zone_mode = 70;
+                                                                        $stop_cause="Schedule Override Target C Achieved";
+                                                                        $zone_state = 0;
+                                                                }
+                                                        } elseif($boost_status=='0'){
 								$zone_status="0";
 								$add_on_stop_cause="Boost Finished";
 								if ($sch_status =='1') {
@@ -1333,13 +1364,6 @@ while ($row = mysqli_fetch_assoc($results)) {
 									$add_on_start_cause="Schedule Started";
 									$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
 									$zone_state = $sensor_state;
-								}
-								if (($sch_status =='1') && ($zone_override_status=='1') && ($zone_c == 0)){
-									$zone_status="1";
-									$zone_mode = 71;
-									$add_on_start_cause="Schedule Override Started";
-									$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
-									$zone_state = 1;
 								}
 								if (($sch_status =='0') &&($sch_holidays=='1')){
 									$zone_status="0";
@@ -1580,7 +1604,7 @@ for ($row = 0; $row < count($zone_commands); $row++){
         if($zone_category == 0 && $cz_logs_count > 0 && !in_array("1", $system_controller)) {
 		//overrun time <0 - latch overrun for the zone zone untill next system controller start
 		if($system_controller_overrun_time < 0){
-			$zone_overrun = (($zone_status_prev == 1)||($zone_overrun_prev == 1)) ? 1:0;
+			$zone_overrun = (($zone_status_prev == 1)||($zone_overrun_prev == 1)||($zone_override_status == 1 && !in_array("1", $system_controller))) ? 1:0;
 		// overrun time = 0 - overrun not needed
 		}else if ($system_controller_overrun_time == 0){
 			$zone_overrun = 0;
@@ -2113,4 +2137,3 @@ echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Controller Script Ended \n";
 echo "\033[32m*******************************************************************************************************\033[0m  \n";
 if(isset($conn)) { $conn->close();}
 ?>
-
