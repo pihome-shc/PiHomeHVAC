@@ -33,6 +33,7 @@ print(" " + bc.ENDC)
 
 import MySQLdb as mdb, datetime, sys, smtplib, string, os
 import configparser
+import subprocess
 
 # Import smtplib for the actual sending function
 import smtplib
@@ -65,8 +66,12 @@ try:
     cursorselect.close()
     if cursorselect.rowcount > 0:
         USER = results[name_to_index['username']]
-        PASS = results[name_to_index['password']]
-        HOST = results[name_to_index['smtp']]
+        result = subprocess.run(
+            ['php', '/var/www/cron/email_passwd_decrypt.php'],         # program and arguments
+            stdout=subprocess.PIPE,                     # capture stdout
+            check=True                                  # raise exception if program fails
+        )
+        PASS = result.stdout.decode("utf-8").split()[0] # result.stdout contains a byte-string        HOST = results[name_to_index['smtp']]
         PORT = results[name_to_index['port']]
         TO = results[name_to_index['to']]
         FROM = results[name_to_index['from']]

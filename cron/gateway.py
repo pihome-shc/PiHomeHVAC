@@ -40,6 +40,7 @@ import socket, re
 from Pin_Dict import pindict
 import board, digitalio
 import traceback
+import subprocess
 
 # Debug print to screen configuration
 dbgLevel = 3  # 0-off, 1-info, 2-detailed, 3-all
@@ -414,7 +415,12 @@ try:
                 MQTT_HOSTNAME = results_mqtt[description_to_index["ip"]]
                 MQTT_PORT = results_mqtt[description_to_index["port"]]
                 MQTT_USERNAME = results_mqtt[description_to_index["username"]]
-                MQTT_PASSWORD = results_mqtt[description_to_index["password"]]
+                result = subprocess.run(
+                    ['php', '/var/www/cron/mqtt_passwd_decrypt.php'],         # program and arguments
+                    stdout=subprocess.PIPE,                     # capture stdout
+                    check=True                                  # raise exception if program fails
+                )
+                MQTT_PASSWORD = result.stdout.decode("utf-8").split()[0] # result.stdout contains a byte-string
                 mqttClient = mqtt.Client(MQTT_CLIENT_ID)
                 mqttClient.on_connect = on_connect  # attach function to callback
                 mqttClient.on_disconnect = on_disconnect

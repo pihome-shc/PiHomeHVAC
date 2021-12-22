@@ -1208,7 +1208,7 @@ if($what=="setup_email"){
 	$e_smtp = $_GET['e_smtp'];
         $e_port = $_GET['e_port'];
 	$e_username = $_GET['e_username'];
-	$e_password = $_GET['e_password'];
+        $e_password = enc_passwd($_GET['e_password']);
 	$e_from_address = $_GET['e_from_address'];
 	$e_to_address = $_GET['e_to_address'];
 	if ($status=='true'){$status = '1';} else {$status = '0';}
@@ -1342,7 +1342,7 @@ if($what=="mqtt"){
              '" . $_GET['inp_IP'] . "',
              " . $_GET['inp_Port'] . ",
              '" . $_GET['inp_Username'] . "',
-             '" . $_GET['inp_Password'] . "',
+             '" . enc_passwd($_GET['inp_Password']) . "',
              " . $_GET['sel_Enabled'] . ",
              " . $_GET['sel_Type'] . ");";
         if($conn->query($query)){
@@ -1361,7 +1361,7 @@ if($what=="mqtt"){
             `ip`='" . $_GET['inp_IP'] . "',
             `port`=" . $_GET['inp_Port'] . ",
             `username`='" . $_GET['inp_Username'] . "',
-            `password`='" . $_GET['inp_Password'] . "',
+            `password`='" . enc_passwd($_GET['inp_Password']) . "',
             `enabled`=" . $_GET['sel_Enabled'] . ",
             `type`=" . $_GET['sel_Type'] . "
             WHERE `id`=" . $_GET['inp_id'] . ";";

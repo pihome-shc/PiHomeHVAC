@@ -517,7 +517,7 @@ function GetModal_MQTTAddEdit($conn)
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="text" class="form-control" name="inp_Password" id="inp_Password" value="' . ($IsAdd ? '' : $row['password']) . '">
+                <input type="password" class="form-control" name="inp_Password" id="inp_Password" value="' . ($IsAdd ? '' : $row['password']) . '">
             </div>
             <div class="form-group">
                 <label>Enabled</label>

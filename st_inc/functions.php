@@ -892,4 +892,24 @@ function holidays($conn,$button) {
         <h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-circle fa-fw '.$holidaystatus.'"></i></small>
         </h3></button></a>';
 }
+
+function enc_passwd($plain_password) {
+        if (file_exists("/sys/class/net/eth0")) {
+                exec("cat /sys/class/net/eth0/address", $key);
+        } else {
+                exec("cat /sys/class/net/wlan0/address", $key);
+        }
+        $hash = openssl_encrypt($plain_password, "AES-128-ECB", $key[0]);
+        return($hash);
+}
+
+function dec_passwd($e_password) {
+        if (file_exists("/sys/class/net/eth0")) {
+                exec("cat /sys/class/net/eth0/address", $key);
+        } else {
+                exec("cat /sys/class/net/wlan0/address", $key);
+        }
+        $plain = openssl_decrypt($e_password, "AES-128-ECB", $key[0]);
+        return($plain);
+}
 ?>
