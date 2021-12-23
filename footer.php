@@ -66,7 +66,7 @@ $(document).ready(function() {
 			<div class="form-group" class="control-label" id="controler_id_label" style="display:block"><label><?php echo $lang['zone_controller_id']; ?></label> <small class="text-muted"><?php echo $lang['zone_controler_id_info'];?></small>
 	        	        <input type="hidden" id="selected_controler_id[]" name="selected_controler_id[]" value="<?php echo $zone_controllers[$i]['controller_relay_id']?>"/>
 				<div class="entry input-group col-xs-12" id="cnt_id - <?php echo $i ?>">
-					<select id="controler_idx" onchange="ControllerIDList(this.options[this.selectedIndex].value, <?php echo $i ?>)" name="controler_idx" class="form-control select2" data-error="<?php echo $lang['zone_controller_id_error']; ?>" autocomplete="off">
+					<select id="controler_idx" onchange="ControllerIDList(this.options[this.selectedIndex].value)" name="controler_idx" class="form-control select2" data-error="<?php echo $lang['zone_controller_id_error']; ?>" autocomplete="off">
 						<?php if(isset($zone_controllers[$i]["zone_controller_name"])) { echo '<option selected >'.$zone_controllers[$i]["zone_controller_name"].'</option>'; } ?>
 						<?php  $query = "SELECT id, name, type FROM relays WHERE type = 0 ORDER BY id ASC;";
 						$result = $conn->query($query);
