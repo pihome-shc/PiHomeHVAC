@@ -71,7 +71,8 @@ try:
             stdout=subprocess.PIPE,                     # capture stdout
             check=True                                  # raise exception if program fails
         )
-        PASS = result.stdout.decode("utf-8").split()[0] # result.stdout contains a byte-string        HOST = results[name_to_index['smtp']]
+        PASS = result.stdout.decode("utf-8").split()[0] # result.stdout contains a byte-string
+        HOST = results[name_to_index['smtp']]
         PORT = results[name_to_index['port']]
         TO = results[name_to_index['to']]
         FROM = results[name_to_index['from']]
