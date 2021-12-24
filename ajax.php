@@ -452,7 +452,7 @@ function GetModal_MQTT($conn)
         else if($row['type']==3) echo 'Home Assistant.';
         else echo 'Unknown.';
         echo '</span>';
-        echo '<span class="pull-right text-muted small" style="width:200px;text-align:right;">Password:&nbsp;' . $row['password'] . '</span>';
+        echo '<span class="pull-right text-muted small" style="width:200px;text-align:right;">Password:&nbsp;' . dec_passwd($row['password']) . '</span>';
         echo '<br/><span class="text-muted small">' . $row['ip'] . '&nbsp;:&nbsp;' . $row['port'] . '</span>';
 
         echo '<span class="pull-right text-muted small" style="width:200px;text-align:right;">';
@@ -517,7 +517,7 @@ function GetModal_MQTTAddEdit($conn)
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" class="form-control" name="inp_Password" id="inp_Password" value="' . ($IsAdd ? '' : $row['password']) . '">
+                <input type="password" class="form-control" name="inp_Password" id="inp_Password" value="' . ($IsAdd ? '' : dec_passwd($row['password'])) . '">
             </div>
             <div class="form-group">
                 <label>Enabled</label>
