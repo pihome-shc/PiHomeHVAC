@@ -293,6 +293,75 @@ var idata="w=boost&o=update";
     });
 }
 
+//Add Offset
+function add_offset(){
+var idata="w=offset&o=add&schedule_daily_time_id="+document.getElementById("schedule_daily_time_id").value;
+	idata+="&status="+document.getElementById("checkbox5").checked;
+        idata+="&low_temperature="+document.getElementById("low_temperature").value;
+        idata+="&high_temperature="+document.getElementById("high_temperature").value;
+        idata+="&start_time_offset="+document.getElementById("start_time_offset").value;
+        idata+="&sensor_id="+document.getElementById("sensor_id").value;
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            reload_page();
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("add_offset: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//update offset settings
+function update_offset(){
+var x = document.getElementById("offset_setup").querySelectorAll("input");
+var i;
+var idata="w=offset&o=update";
+    for (i = 0; i < x.length; i++) {
+        if(x[i].name == "offset_enabled")
+             idata+="&"+x[i].id+"="+x[i].checked;
+        else
+             idata+="&"+x[i].id+"="+x[i].value;
+    }
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            reload_page();
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("update_offset: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//Delete Offset
+function delete_offset(wid){
+var idata="w=offset&o=delete&wid="+wid;
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            reload_page();
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("delete_offset: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
 //Add Node
 function add_node(){
 var idata="w=node&o=add&node_type="+document.getElementById("node_type").value;
