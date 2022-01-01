@@ -34,23 +34,23 @@ if(($what=="zone") && ($opp=="delete")){
 	//Delete Boost Records
 	$query = "UPDATE boost SET boost.purge='1' WHERE zone_id = '".$wid."'";
 	$conn->query($query);
-	
+
 	//Delete All Message Out records
 	$query = "DELETE FROM messages_out WHERE zone_id = '".$wid."'";
 	$conn->query($query);
-	
+
 	//Delete Override records
 	$query = "UPDATE override SET override.purge='1' WHERE zone_id = '".$wid."'";
 	$conn->query($query);
-	
+
 	//Delete Daily Time records
 	$query = "UPDATE schedule_daily_time_zone SET schedule_daily_time_zone.purge='1' WHERE zone_id = '".$wid."'";
 	$conn->query($query);
-	
+
 	//Delete Night Climat records
 	$query = "UPDATE schedule_night_climat_zone SET schedule_night_climat_zone.purge='1' WHERE zone_id = '".$wid."'";
 	$conn->query($query);
-	
+
         //Delete Zone Sensors record
         $query = "UPDATE zone_sensors SET zone_sensors.purge='1' WHERE zone_id = '".$wid."'";
         $conn->query($query);
@@ -79,13 +79,13 @@ if(($what=="zone") && ($opp=="delete")){
 	$conn->query($query);
 }
 
-//Holidays 
+//Holidays
 //following variable set to 0 on start for array index.
 $sch_time_index = '0';
 if($what=="holidays"){
 	if($opp=="active"){
 		$query = "SELECT * FROM holidays WHERE id ='".$wid."'";
-		$results = $conn->query($query);	
+		$results = $conn->query($query);
 		$row = mysqli_fetch_assoc($results);
 		$da= $row['status'];
 		if($da=="1"){ $set="0"; }else{ $set="1"; }
@@ -115,15 +115,15 @@ if($what=="holidays"){
 
 //Users accounts
 if(($what=="user") && ($opp=="delete")){
-		$query = "DELETE FROM user WHERE id = '".$wid."'"; 
+		$query = "DELETE FROM user WHERE id = '".$wid."'";
 		$conn->query($query);
 }
 
-//Heating Schedule 
+//Heating Schedule
 if($what=="schedule"){
 	if($opp=="active"){
 		$query = "SELECT * FROM schedule_daily_time WHERE id ='".$wid."'";
-		$results = $conn->query($query);	
+		$results = $conn->query($query);
 		$row = mysqli_fetch_assoc($results);
 		$da= $row['status'];
 		if($da=="1"){ $set="0"; }else{ $set="1"; }
@@ -141,7 +141,7 @@ if($what=="schedule"){
 if($what=="schedule_zone"){
 	if($opp=="active"){
 		$query = "SELECT * FROM schedule_daily_time_zone WHERE id ='".$wid."'";
-		$results = $conn->query($query);	
+		$results = $conn->query($query);
 		$row = mysqli_fetch_assoc($results);
 		$da= $row['status'];
 		if($da=="1"){ $set="0"; }else{ $set="1"; }
@@ -149,13 +149,13 @@ if($what=="schedule_zone"){
 		$conn->query($query);
 	}
 }
-//Override 
+//Override
 if($what=="override"){
 	if($opp=="active"){
 		//$time = date('H:i:s', time());
 		$time = date("Y-m-d H:i:s");
 		$query = "SELECT * FROM override WHERE zone_id ='".$wid."'";
-		$results = $conn->query($query);	
+		$results = $conn->query($query);
 		$row = mysqli_fetch_assoc($results);
 		$da= $row['status'];
 		if($da=="1"){ $set="0"; }else{ $set="1"; }
@@ -163,7 +163,7 @@ if($what=="override"){
 		$conn->query($query);
 	}
 }
-//Boost 
+//Boost
 if($what=="boost"){
 	if($opp=="active"){
 		$query = "SELECT * FROM boost WHERE status = '1' limit 1;";
@@ -184,7 +184,7 @@ if($what=="boost"){
 		if($boost_status=="1"){ $set="0"; }else{ $set="1";}
 		$query = "UPDATE boost SET status = '{$set}', sync = '0', time = '{$time}' WHERE id = '{$wid}' LIMIT 1";
 		$conn->query($query);
-		//this line update message out 
+		//this line update message out
 		$query = "UPDATE messages_out SET payload = '{$set}', datetime = '{$time}', sent = '0', sync = '0' WHERE zone_id = '{$zone_id}' AND node_id = {$row['boost_button_id']} AND child_id = {$row['boost_button_child_id']} LIMIT 1";
 		$conn->query($query);
 		//HVAC mode - only allow 1 active boost, so clear all others
@@ -195,16 +195,16 @@ if($what=="boost"){
 	}
 	if($opp=="delete"){
 		//get list of Boost console Id and Child ID
-		$query = "select * from boost WHERE id = '".$wid."';"; 
+		$query = "select * from boost WHERE id = '".$wid."';";
 		$results = $conn->query($query);
 		$row = mysqli_fetch_assoc($results);
 		$boost_button_id= $row['boost_button_id'];
 		$boost_button_child_id=$row['boost_button_child_id'];
-		//delete from message_out related to this boost. 
+		//delete from message_out related to this boost.
 		$query = "DELETE FROM messages_out WHERE node_id = '".$boost_button_id."' AND child_id = '".$boost_button_child_id."' LIMIT 1;"; 
 		$conn->query($query);
-		//Now Mark for deletion from Boost 
-		$query = "UPDATE boost SET `purge` = '1' WHERE id = '".$wid."';"; 
+		//Now Mark for deletion from Boost
+		$query = "UPDATE boost SET `purge` = '1' WHERE id = '".$wid."';";
 		$conn->query($query);
 		if($conn->query($query)){
             		header('Content-type: application/json');
@@ -323,6 +323,80 @@ if($what=="boost"){
                                 echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $ins_query));
 			}
 			return;
+		}
+	}
+}
+
+//Offset
+if($what=="offset"){
+        if($opp=="delete"){
+                $query = "DELETE FROM schedule_time_temp_offset WHERE id = '".$wid."' LIMIT 1;";
+                $conn->query($query);
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+        if($opp=="add"){
+                $schedule_daily_time_id = $_GET['schedule_daily_time_id'];
+                $low_temperature = $_GET['low_temperature'];
+                $high_temperature = $_GET['high_temperature'];
+                $start_time_offset = $_GET['start_time_offset'];
+                $sensor_id = $_GET['sensor_id'];
+                $status = $_GET['status'];
+        	if ($status=='true'){$status = '1';} else {$status = '0';}
+		$query = "INSERT INTO `schedule_time_temp_offset`(`sync`, `purge`, `status`, `schedule_daily_time_id`, `low_temperature`, `high_temperature`, `start_time_offset`, `sensors_id`) VALUES (0,0,'{$status}','{$schedule_daily_time_id}','{$low_temperature}','{$high_temperature}','{$start_time_offset}','{$sensor_id}')";
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+	}
+        if($opp=="update"){
+                $sel_query = "SELECT * FROM schedule_time_temp_offset ORDER BY id asc;";
+                $results = $conn->query($sel_query);
+                while ($row = mysqli_fetch_assoc($results)) {
+                        $id = $row['id'];
+			$input1 = 'low_temp'.$id;
+                        $input2 = 'high_temp'.$id;
+                        $input3 = 'offset_id'.$id;
+                        $input4 = 'sensors_id'.$id;
+                        $input5 = 'sch_id'.$id;
+                        $input6 = 'checkbox_offset'.$id;
+                        $enabled =  $_GET[$input6];
+                        if ($enabled=='true'){$enabled = '1';} else {$enabled = '0';}
+			$low_temperature = $_GET[$input1];
+                        $high_temperature = $_GET[$input2];
+                        $start_time_offset = $_GET[$input3];
+                        $sensors_id = $_GET[$input4];
+                        $schedule_daily_time_id = $_GET[$input5];
+			if ($sensors_id == 0) {
+				$sensor_type = 1;
+			} else {
+                		$query = "SELECT sensor_type_id FROM sensors WHERE id = ".$sensors_id." LIMIT 1;";
+                		$sresult = $conn->query($query);
+				$srow = mysqli_fetch_assoc($sresult);
+				$sensor_type = $srow['sensor_type_id'];
+			}
+                        $upd_query = "UPDATE schedule_time_temp_offset SET schedule_daily_time_id = '".$schedule_daily_time_id."', status = '".$enabled."', low_temperature = '".SensorToDB($conn, $low_temperature, $sensor_type)."', high_temperature = '".SensorToDB($conn, $high_temperature, $sensor_type)."', start_time_offset = '".$start_time_offset."', sensors_id = '".$sensors_id."' WHERE id='".$row['id']."' LIMIT 1;";
+	                if($conn->query($upd_query)){
+        	                header('Content-type: application/json');
+                	        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        	return;
+	                }else{
+        	                header('Content-type: application/json');
+                	        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        	return;
+                	}
 		}
 	}
 }
@@ -1041,8 +1115,14 @@ if($what=="setup_piconnect"){
 
 //Database Backup
 if($what=="db_backup"){
-        shell_exec("nohup python3 start_backup.py >/dev/null 2>&1");
-	$info_message = "Data Base Backup Request Started, This process may take some time complete..." ;
+        $query = "SELECT `password` FROM email LIMIT 1;";
+        $result = $conn->query($query);
+	if (mysqli_num_rows($result) > 0){
+		$row = mysqli_fetch_assoc($result);
+		$p_password = dec_passwd($row['password']);
+        	shell_exec("nohup python3 start_backup.py ".$p_password." >/dev/null 2>&1");
+		$info_message = "Data Base Backup Request Started, This process may take some time complete..." ;
+	}
 }
 
 //Code Update
@@ -1208,7 +1288,7 @@ if($what=="setup_email"){
 	$e_smtp = $_GET['e_smtp'];
         $e_port = $_GET['e_port'];
 	$e_username = $_GET['e_username'];
-        $e_password = enc_passwd($_GET['e_password']);
+	$e_password = enc_passwd($_GET['e_password']);
 	$e_from_address = $_GET['e_from_address'];
 	$e_to_address = $_GET['e_to_address'];
 	if ($status=='true'){$status = '1';} else {$status = '0';}

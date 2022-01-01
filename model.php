@@ -311,7 +311,7 @@ echo '
                                                 $result = $conn->query($query);
                                                 if ($result){
                                                         while ($nrow=mysqli_fetch_array($result)) {
-                                                        	echo '<option value="'.$nrow['id'].'" ' . ($nrow['id']==$brow['heat_relay_id'] ? 'selected' : '') . '>'.$nrow['name'].'</option>';
+								echo '<option value="'.$nrow['id'].'" ' . ($nrow['id']==$brow['heat_relay_id'] ? 'selected' : '') . '>'.$nrow['name'].'</option>';
                                                         }
                                                 }
                                                 echo '</select>
@@ -734,6 +734,235 @@ echo '</div></div>
     </div>
 </div>';
 
+// Offset Modal
+global $lang;
+//check if weather api is active
+$query = "SELECT * FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);";
+$result = $conn->query($query);
+$w_count=mysqli_num_rows($result);
+if ($w_count > 0) { $weather_enabled = 1; } else { $weather_enabled = 0; }
+echo '
+<div class="modal fade" id="offset_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['offset_settings'].'</h5>
+                <div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=start_time_offset.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_start_time_offset'].'</a></li>
+                         </ul>
+                </div>
+            </div>
+            <div class="modal-body">';
+	echo '<p class="text-muted"> '.$lang['offset_settings_text'].' </p>';
+
+	$query = "SELECT schedule_time_temp_offset.id, schedule_time_temp_offset.status, schedule_time_temp_offset.low_temperature,
+	schedule_time_temp_offset.high_temperature, schedule_time_temp_offset.start_time_offset, schedule_time_temp_offset.sensors_id,
+	IFNULL(ss.name, 'Weather') AS sensor_name, `schedule_daily_time_id`, sdt.sch_name, IFNULL(ts.sensor_type_id, 1) AS sensor_type_id
+        FROM schedule_time_temp_offset
+        JOIN schedule_daily_time sdt ON schedule_time_temp_offset.schedule_daily_time_id = sdt.id
+        LEFT JOIN sensors ss ON schedule_time_temp_offset.sensors_id = ss.id
+        LEFT JOIN sensors ts ON schedule_time_temp_offset.sensors_id = ts.id
+        ORDER BY id ASC;";
+	$results = $conn->query($query);
+	echo '<table class="table table-bordered">
+	    <tr>
+        	<th class="col-md-4"><small>'.$lang['sch_name'].'</small></th>
+                <th class="col-md-1"><small>'.$lang['enabled'].'</small></th>
+        	<th class="col-md-1"><small>'.$lang['low_temp'].'</small></th>
+        	<th class="col-md-1"><small>'.$lang['high_temp'].'</small></th>
+        	<th class="col-md-1"><small>'.$lang['offset'].'</small></th>
+        	<th class="col-md-3"><small>'.$lang['control_temp'].'</small></th>
+        	<th class="col-md-1"></th>
+    	</tr>';
+
+while ($row = mysqli_fetch_assoc($results)) {
+	if ($row["status"]) { $offset_enabled = "checked"; } else { $offset_enabled = ""; }
+    	echo '
+            <tr>
+	        <td><select class="form-control input-sm" type="text" id="schedule_id" name="schedule_id" onchange=set_schedule_daily_time_id((this.options[this.selectedIndex].value),'.$row["id"].')>';
+        	//Get schedule List
+	        $query = "SELECT DISTINCT sch_name, `schedule_daily_time_zone`.`schedule_daily_time_id`
+        	FROM `schedule_daily_time`, `schedule_daily_time_zone`
+	        WHERE (`schedule_daily_time`.`id` = `schedule_daily_time_zone`.`schedule_daily_time_id`) AND `schedule_daily_time_zone`.`status` = 1;";
+        	$result = $conn->query($query);
+	        if ($result){
+        	        while ($zrow=mysqli_fetch_array($result)) {
+				echo '<option value="'.$zrow['schedule_daily_time_id'].'" '.($row['schedule_daily_time_id']==$zrow['schedule_daily_time_id'] ? 'selected' : '').'>'.$zrow['sch_name'].'</option>';
+	                }
+        	}
+        	echo '
+        	</select></td>
+                <td style="text-align:center; vertical-align:middle;">
+                	<input type="checkbox" id="checkbox_offset'.$row["id"].'" name="offset_enabled" size="1" value="1" '.$offset_enabled.'>
+                </td>
+                <td><input id="low_temp'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="low_temp" size="1" value="'.DispSensor($conn,$row["low_temperature"],$row["sensor_type_id"]).'" placeholder="Low Temperature" required></td>
+            	<td><input id="high_temp'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="high_temp" size="1" value="'.DispSensor($conn,$row["high_temperature"],$row["sensor_type_id"]).'" placeholder="High Temperature" required></td>
+            	<td><input id="offset_id'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="offset_id" size="1" value="'.$row['start_time_offset'].'" placeholder="Max Time Offset" required></td>
+
+		<td><select class="form-control input-sm" type="text" id="sensor'.$row["id"].'" name="sensor" onchange=set_sensors_id((this.options[this.selectedIndex].value),'.$row["id"].')>';
+                if ($weather_enabled) { echo '<option value="0" '.($row['sensors_id']==0 ? 'selected' : '').'>Weather</option>'; }
+                //get list from sensors table to display
+                $query = "SELECT id, name FROM sensors ORDER BY name ASC;";
+                $result = $conn->query($query);
+                if ($result){
+                        while ($srow=mysqli_fetch_array($result)) {
+                                echo '<option value="'.$srow['id'].'" '.($row['sensors_id']==$srow['id'] ? 'selected' : '').'>'.$srow['name'].'</option>';
+                        }
+                }
+                echo '</select></td>
+
+
+	     	<input type="hidden" id="sensors_id'.$row["id"].'" name="sensors_id" value="'.$row["sensors_id"].'">
+		<input type="hidden" id="sch_id'.$row["id"].'" name="sch_id" value="'.$row["schedule_daily_time_id"].'">
+                <input type="hidden" id="sensor_type'.$row["id"].'" name="sensor_type" value="'.$row["sensor_type_id"].'">
+            	<td><a href="javascript:delete_offset('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="You are about to DELETE this BOOST Setting"><span class="glyphicon glyphicon-trash"></span></button> </a></td>
+            </tr>';
+}
+
+echo '</table></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="update_offset()">
+                <button type="button" class="btn btn-default login btn-sm" data-href="#" data-toggle="modal" data-target="#add_offset">'.$lang['add_schedule_offset'].'</button>
+            </div>
+        </div>
+    </div>
+</div>';
+
+?>
+<script>
+function set_sensors_id(value, id){
+        var valuetext = value;
+	var id_text = id;
+	document.getElementById("sensors_id" + id_text).value = valuetext;
+}
+
+function set_schedule_daily_time_id(value, id){
+        var valuetext = value;
+        var id_text = id;
+        document.getElementById("sch_id" + id_text).value = valuetext;
+}
+</script>
+<?php
+
+//Add Offset
+//check if weather api is active
+$query = "SELECT * FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);";
+$result = $conn->query($query);
+$w_count=mysqli_num_rows($result);
+if ($w_count > 0) { $weather_enabled = 1; } else { $weather_enabled = 0; }
+echo '
+<div class="modal fade" id="add_offset" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['add_offset'].'</h5>
+            </div>
+            <div class="modal-body">';
+echo '<p class="text-muted">'.$lang['offset_info_text'].'</p>
+	<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
+        <div class="form-group" class="control-label">
+        	<div class="checkbox checkbox-default checkbox-circle">';
+                	echo '<input id="checkbox5" class="styled" type="checkbox" value="1" name="offset_status" checked Enabled>';
+                        echo '<label for="checkbox5"> '.$lang['offset_enable'].'</label>
+               	</div>
+        </div>
+        <!-- /.form-group -->
+	<div class="form-group" class="control-label"><label>'.$lang['schedule'].'</label> 
+	<select class="form-control input-sm" type="text" id="schedule_daily_time_id" name="schedule_daily_time_id">';
+	//Get schedule List
+	$query = "SELECT DISTINCT sch_name, `schedule_daily_time_zone`.`schedule_daily_time_id` 
+	FROM `schedule_daily_time`, `schedule_daily_time_zone`
+	WHERE (`schedule_daily_time`.`id` = `schedule_daily_time_zone`.`schedule_daily_time_id`) AND `schedule_daily_time_zone`.`status` = 1;";
+	$result = $conn->query($query);
+	if ($result){
+		while ($zrow=mysqli_fetch_array($result)) {
+			echo '<option value="'.$zrow['schedule_daily_time_id'].'">'.$zrow['sch_name'].'</option>';
+		}
+	}
+	echo '
+	</select>
+    <div class="help-block with-errors"></div></div>
+	<div class="form-group" class="control-label"><label>'.$lang['low_temp'].'</label> <small class="text-muted">'.$lang['low_temp_info'].'</small>
+	<select class="form-control input-sm" type="text" id="low_temperature" name="low_temperature">
+	<option value="5">5</option>
+	<option value="4">4</option>
+	<option value="3">3</option>
+	<option value="2">2</option>
+	<option value="1">1</option>
+	<option value="0">0</option>
+	<option value="-1">-1</option>
+	<option value="-2">-2</option>
+	<option value="-3">-3</option>
+	<option value="-4">-4</option>
+	<option value="-5">-5</option>
+	</select>
+    <div class="help-block with-errors"></div></div>
+        <div class="form-group" class="control-label"><label>'.$lang['high_temp'].'</label> <small class="text-muted">'.$lang['high_temp_info'].'</small>
+        <select class="form-control input-sm" type="text" id="high_temperature" name="high_temperature">
+        <option value="15">15</option>
+        <option value="14">14</option>
+        <option value="13">13</option>
+        <option value="12">12</option>
+        <option value="11">11</option>
+        <option value="10">10</option>
+        <option value="9">9</option>
+        <option value="8">8</option>
+        <option value="7">7</option>
+        <option value="6">6</option>
+        <option value="5">5</option>
+        </select>
+    <div class="help-block with-errors"></div></div>
+	<div class="form-group" class="control-label"><label>'.$lang['start_time_offset'].'</label> <small class="text-muted">'.$lang['start_time_offset_info'].'</small>
+	<select class="form-control input-sm" type="text" id="start_time_offset" name="start_time_offset">
+	<option value="5">5</option>
+	<option value="10">10</option>
+	<option value="15">15</option>
+	<option value="20">20</option>
+	<option value="25">25</option>
+	<option value="30">30</option>
+	<option value="35">35</option>
+	<option value="40">40</option>
+	<option value="45">45</option>
+	<option value="50">50</option>
+	<option value="55">55</option>
+	<option value="60">60</option>
+	<option value="70">70</option>
+	<option value="80">80</option>
+	<option value="90">90</option>
+	<option value="100">100</option>
+	<option value="110">110</option>
+	<option value="120">120</option>
+	</select>
+    <div class="help-block with-errors"></div></div>
+    <div class="form-group" class="control-label"><label>'.$lang['sensor_name'].'</label> <small class="text-muted">'.$lang['sensor_name_info'].'</small>
+		<select class="form-control input-sm" type="text" id="sensor_id" name="sensor_id">';
+		if ($weather_enabled) { echo '<option value="0">Weather</option>'; }
+		//get list from sensors table to display 
+		$query = "SELECT id, name FROM sensors ORDER BY name ASC;";
+		$result = $conn->query($query);
+		if ($result){
+			while ($srow=mysqli_fetch_array($result)) {
+				echo '<option value="'.$srow['id'].'">'.$srow['name'].'</option>';
+			}
+		}
+		echo '</select>
+	    <div class="help-block with-errors"></div></div>';
+echo '</div>
+            <div class="modal-footer">
+				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="add_offset()">
+
+            </div>
+        </div>
+    </div>
+</div>';
 
 //nodes model
 echo '
@@ -1956,7 +2185,7 @@ echo '
 	<div class="help-block with-errors"></div></div>
 
 	<div class="form-group" class="control-label"><label>'.$lang['email_password'].' </label>
-	<input class="form-control input-sm" type="password" id="e_password" name="e_password" value="'.dec_passwd($erow['password']).'" placeholder="Password for e-mail Server">
+	<input class="form-control input-sm" type="password" id="e_password" name="e_password" value="'.$erow['password'].'" placeholder="Password for e-mail Server">
 	<div class="help-block with-errors"></div></div>
 
 	<div class="form-group" class="control-label"><label>'.$lang['email_from_address'].' </label>

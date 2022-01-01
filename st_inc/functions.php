@@ -19,10 +19,12 @@
 *************************************************************************"
 */
 
+//require_once(__DIR__.'/session.php');
 require_once(__DIR__.'/connection.php');
 
 if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") { $button_style = "btn-xxl-wide"; } else { $button_style = "btn-xxl"; }
 
+global $lang;
 // Time Zone Settings for PHP
 //date_default_timezone_set("Europe/Dublin"); // You can set Timezone Manually and uncomment this line and comment out following line
 date_default_timezone_set(settings($conn, 'timezone'));
@@ -801,6 +803,43 @@ function get_schedule_status($conn,$zone_id,$holidays_status){
                                 	}
 	                        }
         	        }
+                        $query = "SELECT * FROM schedule_time_temp_offset WHERE schedule_daily_time_id = ".$time_id." AND status = 1 LIMIT 1;";
+                        $oresult = $conn->query($query);
+                        $rowcount=mysqli_num_rows($oresult);
+                        if ($rowcount > 0) {
+                                $orow = mysqli_fetch_array($oresult);
+                                $low_temp = $orow['low_temperature'];
+                                $high_temp = $orow['high_temperature'];
+                                $sensors_id = $orow['sensors_id'];
+                                $start_time_offset = $orow['start_time_offset'];
+                                if ($sensors_id == 0) {
+                                        $node_id = 1;
+                                        $child_id = 0;
+                                } else {
+                                        $query = "SELECT sensor_id, sensor_child_id FROM sensors WHERE id = ".$sensors_id." LIMIT 1;";
+                                        $sresult = $conn->query($query);
+                                        $srow = mysqli_fetch_array($sresult);
+                                        $sensor_id = $srow['sensor_id'];
+                                        $child_id = $srow['sensor_child_id'];
+                                        $query = "SELECT node_id FROM nodes WHERE id = ".$sensor_id." LIMIT 1;";
+                                        $nresult = $conn->query($query);
+                                        $nrow = mysqli_fetch_array($nresult);
+                                        $node_id = $nrow['node_id'];
+                                }
+                                $query = "SELECT payload FROM `messages_in` WHERE `node_id` = '".$node_id."' AND `child_id` = ".$child_id." ORDER BY `datetime` DESC LIMIT 1;";
+                                $tresult = $conn->query($query);
+                                $rowcount=mysqli_num_rows($tresult);
+                                if ($rowcount > 0) {
+                                        $trow = mysqli_fetch_array($tresult);
+                                        $outside_temp = $trow['payload'];
+                                        if ($outside_temp >= $low_temp && $outside_temp <= $high_temp) {
+                                                $temp_span = $high_temp - $low_temp;
+                                                $step_size = $start_time_offset/$temp_span;
+                                                $start_time_temp_offset = ($high_temp - $outside_temp) * $step_size;
+                                                $start_time = $start_time - ($start_time_temp_offset * 60);
+                                        }
+                                }
+                        }
                 	if (($end_time > $start_time && $time > $start_time && $time < $end_time && ($WeekDays  & (1 << $dow)) > 0) || ($end_time < $start_time && $time < $end_time && ($WeekDays  & (1 << $prev_dow)) > 0) || ($end_time < $start_time && $time > $start_time && ($WeekDays  & (1 << $dow)) > 0) && $time_status == "1") {
 	                	$sch_status = 1;
 				break; // exit the loop if an active schedule found
@@ -845,6 +884,33 @@ function override($conn,$button) {
         <h3 class="buttontop"><small>'.$button.'</small></h3>
         <h3 class="degre" ><i class="fa fa-refresh fa-1x"></i></h3>
         <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$override_status.'"></i></small>
+        </h3></button></a>';
+}
+
+function offset($conn,$button) {
+	include("model.php");
+        global $button_style;
+
+	$offset_status='blue';
+        $query = "SELECT id FROM zone;";
+        $zresults = $conn->query($query);
+        $rowcount=mysqli_num_rows($zresults);
+        if ($rowcount > 0) {
+		while ($zrow = mysqli_fetch_assoc($zresults)) {
+			$zone_id = $zrow['id'];
+                	$rval=get_schedule_status($conn, $zone_id,"0");
+                	$sch_status = $rval['sch_status'];
+                	if ($sch_status == '1') {
+				$query = "SELECT status FROM schedule_time_temp_offset WHERE schedule_daily_time_id = ".$rval['time_id']." AND status = 1 LIMIT 1";
+				$result = $conn->query($query);
+				if (mysqli_num_rows($result) > 0) {$offset_status='red';}
+			}
+		}
+	}
+	echo '<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-toggle="modal" href="#offset_setup" data-backdrop="static" data-keyboard="false">
+        <h3 class="buttontop"><small>'.$button.'</small></h3>
+        <h3 class="degre" ><i class="fa fa-clock-o fa-1x"></i></h3>
+        <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$offset_status.'"></i></small>
         </h3></button></a>';
 }
 
@@ -894,22 +960,22 @@ function holidays($conn,$button) {
 }
 
 function enc_passwd($plain_password) {
-        if (file_exists("/sys/class/net/eth0")) {
-                exec("cat /sys/class/net/eth0/address", $key);
-        } else {
-                exec("cat /sys/class/net/wlan0/address", $key);
-        }
-        $hash = openssl_encrypt($plain_password, "AES-128-ECB", $key[0]);
-        return($hash);
+	if (file_exists("/sys/class/net/eth0")) {
+    		exec("cat /sys/class/net/eth0/address", $key);
+	} else {
+    		exec("cat /sys/class/net/wlan0/address", $key);
+	}
+	$hash = openssl_encrypt($plain_password, "AES-128-ECB", $key[0]);
+	return($hash);
 }
 
 function dec_passwd($e_password) {
         if (file_exists("/sys/class/net/eth0")) {
                 exec("cat /sys/class/net/eth0/address", $key);
         } else {
-                exec("cat /sys/class/net/wlan0/address", $key);
+        	exec("cat /sys/class/net/wlan0/address", $key);
         }
-        $plain = openssl_decrypt($e_password, "AES-128-ECB", $key[0]);
+	$plain = openssl_decrypt($e_password, "AES-128-ECB", $key[0]);
         return($plain);
 }
 ?>
