@@ -817,4 +817,5 @@ $lang['start_time_offset_info'] = "Maximun Time in Minutes to be subtracted from
 $lang['sensor_name_info'] = "Select either Outside Weather or Sensor to be used to calculate the Start Time Offset Applied.";
 $lang['setup_start_time_offset'] = "Setup Schedule Start Time Offset";
 $lang['offset_enable'] = "Schedule Offset Enable";
-$lang['control_temp'] = "Control Temperature";?>
+$lang['control_temp'] = "Control Temperature";
+?>
