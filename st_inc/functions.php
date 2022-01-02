@@ -862,11 +862,11 @@ function boost($conn,$button) {
         $query = "SELECT status FROM boost WHERE status = '1' LIMIT 1";
         $result = $conn->query($query);
         $boost_status=mysqli_num_rows($result);
-        if ($boost_status ==1) {$boost_status='red';}else{$boost_status='blue';}
-        echo '<a style="color: #777; cursor: pointer; text-decoration: none;" href="boost.php">
+        if ($boost_status ==1) {$boost_status='red';} else {$boost_status='blue';}
+        echo '<a style="font-style: normal; color: #777; cursor: pointer; text-decoration: none;" href="boost.php">
         <button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
-        <h3 class="degre" ><i class="fa fa-rocket fa-1x"></i></h3>
+        <h3 class="degre"><i class="fa fa-rocket fa-1x"></i></h3>
         <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$boost_status.'"></i></small>
         </h3></button></a>';
 
@@ -879,10 +879,10 @@ function override($conn,$button) {
         $result = $conn->query($query);
         $override_status=mysqli_num_rows($result);
         if ($override_status==1) {$override_status='red';}else{$override_status='blue';}
-        echo '<a style="color: #777; cursor: pointer; text-decoration: none;" href="override.php">
+        echo '<a style="font-style: normal; color: #777; cursor: pointer; text-decoration: none;" href="override.php">
         <button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
-        <h3 class="degre" ><i class="fa fa-refresh fa-1x"></i></h3>
+        <h3 class="degre"><i class="fa fa-refresh fa-1x"></i></h3>
         <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$override_status.'"></i></small>
         </h3></button></a>';
 }
@@ -891,6 +891,7 @@ function offset($conn,$button) {
 	include("model.php");
         global $button_style;
 
+	$start_time_temp_offset = "";
 	$offset_status='blue';
         $query = "SELECT id FROM zone;";
         $zresults = $conn->query($query);
@@ -901,17 +902,53 @@ function offset($conn,$button) {
                 	$rval=get_schedule_status($conn, $zone_id,"0");
                 	$sch_status = $rval['sch_status'];
                 	if ($sch_status == '1') {
-				$query = "SELECT status FROM schedule_time_temp_offset WHERE schedule_daily_time_id = ".$rval['time_id']." AND status = 1 LIMIT 1";
-				$result = $conn->query($query);
-				if (mysqli_num_rows($result) > 0) {$offset_status='red';}
+				$query = "SELECT * FROM schedule_time_temp_offset WHERE schedule_daily_time_id = ".$rval['time_id']." AND status = 1 LIMIT 1";
+				$oresult = $conn->query($query);
+				if (mysqli_num_rows($oresult) > 0) {
+					$orow = mysqli_fetch_array($oresult);
+					$offset_status='red';
+	                                $low_temp = $orow['low_temperature'];
+        	                        $high_temp = $orow['high_temperature'];
+                	                $sensors_id = $orow['sensors_id'];
+                        	        $start_time_offset = $orow['start_time_offset'];
+                                	if ($sensors_id == 0) {
+                                        	$node_id = 1;
+	                                        $child_id = 0;
+        	                        } else {
+                	                        $query = "SELECT sensor_id, sensor_child_id FROM sensors WHERE id = ".$sensors_id." LIMIT 1;";
+                        	                $sresult = $conn->query($query);
+                                	        $srow = mysqli_fetch_array($sresult);
+                                        	$sensor_id = $srow['sensor_id'];
+	                                        $child_id = $srow['sensor_child_id'];
+        	                                $query = "SELECT node_id FROM nodes WHERE id = ".$sensor_id." LIMIT 1;";
+                	                        $nresult = $conn->query($query);
+                        	                $nrow = mysqli_fetch_array($nresult);
+                                	        $node_id = $nrow['node_id'];
+	                                }
+        	                        $query = "SELECT payload FROM `messages_in` WHERE `node_id` = '".$node_id."' AND `child_id` = ".$child_id." ORDER BY `datetime` DESC LIMIT 1;";
+                	                $tresult = $conn->query($query);
+                        	        $rowcount=mysqli_num_rows($tresult);
+                                	if ($rowcount > 0) {
+                                        	$trow = mysqli_fetch_array($tresult);
+	                                        $outside_temp = $trow['payload'];
+        	                                if ($outside_temp >= $low_temp && $outside_temp <= $high_temp) {
+                	                                $temp_span = $high_temp - $low_temp;
+                        	                        $step_size = $start_time_offset/$temp_span;
+                                	                $start_time_temp_offset = "Start -".($high_temp - $outside_temp) * $step_size;
+                                        	} else {
+							$start_time_temp_offset = "Start -0";
+						}
+                                	}
+				}
 			}
 		}
 	}
-	echo '<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-toggle="modal" href="#offset_setup" data-backdrop="static" data-keyboard="false">
+	echo '<div style="font-style: normal;"
+	<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-toggle="modal" href="#offset_setup" data-backdrop="static" data-keyboard="false">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
-        <h3 class="degre" ><i class="fa fa-clock-o fa-1x"></i></h3>
-        <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$offset_status.'"></i></small>
-        </h3></button></a>';
+        <h3 class="degre"><i class="fa fa-clock-o fa-1x"></i></h3>
+        <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$offset_status.'"></i></small><small class="statuszoon">'.$start_time_temp_offset.'&nbsp</small>
+        </h3></button></div>';
 }
 
 function night_climate($conn,$button) {
@@ -921,12 +958,12 @@ function night_climate($conn,$button) {
         $results = $conn->query($query);
         $row = mysqli_fetch_assoc($results);
         if ($row['status'] == 1) {$night_status='red';}else{$night_status='blue';}
-        echo '<a style="color: #777; cursor: pointer; text-decoration: none;" href="scheduling.php?nid=0">
+        echo '<a style="font-style: normal; color: #777; cursor: pointer; text-decoration: none;" href="scheduling.php?nid=0">
         <button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
-        <h3 class="degre" ><i class="fa fa-bed fa-1x"></i></h3>
+        <h3 class="degre"><i class="fa fa-bed fa-1x"></i></h3>
         <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$night_status.'"></i></small>
-        </h3></button>';
+        </h3></button></a>';
 }
 
 function away($conn,$button) {
@@ -936,10 +973,10 @@ function away($conn,$button) {
         $result = $conn->query($query);
         $away = mysqli_fetch_array($result);
         if ($away['status']=='1'){$awaystatus="red";}elseif ($away['status']=='0'){$awaystatus="blue";}
-        echo '<a href="javascript:active_away();">
+        echo '<a style="font-style: normal;" href="javascript:active_away();">
         <button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
-        <h3 class="degre" ><i class="fa fa-sign-out fa-1x"></i></h3>
+        <h3 class="degre"><i class="fa fa-sign-out fa-1x"></i></h3>
         <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$awaystatus.'"></i></small>
         </h3></button></a>';
 }
@@ -951,10 +988,10 @@ function holidays($conn,$button) {
         $result = $conn->query($query);
         $holidays_status=mysqli_num_rows($result);
         if ($holidays_status=='1'){$holidaystatus="red";}elseif ($holidays_status=='0'){$holidaystatus="blue";}
-        echo '<a style="color: #777; cursor: pointer; text-decoration: none;" href="holidays.php">
+        echo '<a style="font-style: normal; color: #777; cursor: pointer; text-decoration: none;" href="holidays.php">
         <button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
-        <h3 class="degre" ><i class="fa fa-paper-plane fa-1x"></i></h3>
+        <h3 class="degre"><i class="fa fa-paper-plane fa-1x"></i></h3>
         <h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-circle fa-fw '.$holidaystatus.'"></i></small>
         </h3></button></a>';
 }
