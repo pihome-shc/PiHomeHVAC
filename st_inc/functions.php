@@ -836,8 +836,12 @@ function get_schedule_status($conn,$zone_id,$holidays_status){
                                                 $temp_span = $high_temp - $low_temp;
                                                 $step_size = $start_time_offset/$temp_span;
                                                 $start_time_temp_offset = ($high_temp - $outside_temp) * $step_size;
-                                                $start_time = $start_time - ($start_time_temp_offset * 60);
+                                        } elseif ($outside_temp < $low_temp) {
+                                                $start_time_temp_offset = $start_time_offset;
+                                        } else {
+                                                $start_time_temp_offset = 0;
                                         }
+                                        $start_time = $start_time - ($start_time_temp_offset * 60);
                                 }
                         }
                 	if (($end_time > $start_time && $time > $start_time && $time < $end_time && ($WeekDays  & (1 << $dow)) > 0) || ($end_time < $start_time && $time < $end_time && ($WeekDays  & (1 << $prev_dow)) > 0) || ($end_time < $start_time && $time > $start_time && ($WeekDays  & (1 << $dow)) > 0) && $time_status == "1") {
@@ -935,6 +939,8 @@ function offset($conn,$button) {
                 	                                $temp_span = $high_temp - $low_temp;
                         	                        $step_size = $start_time_offset/$temp_span;
                                 	                $start_time_temp_offset = "Start -".($high_temp - $outside_temp) * $step_size;
+                                                } elseif ($outside_temp < $low_temp ) {
+                                                        $start_time_temp_offset = "Start -".$start_time_offset;
                                         	} else {
 							$start_time_temp_offset = "Start -0";
 						}
