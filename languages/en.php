@@ -801,6 +801,7 @@ $lang['setup_guide_mqtt'] = "Setup Guide MQTT Devices";
 $lang['update_email_address'] = "Update Email Address";
 $lang['setup_email_notifications'] = "Setup Email Notifications";
 $lang['setup_database_backup'] = "Setup Database Backup";
+$lang['setup_override'] = "Setup Override";
 $lang['offset'] = "Offset";
 $lang['schedule_offset'] = "Schedule Offset";
 $lang['offset_settings'] = "Schedule Offset Settings";
