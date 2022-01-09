@@ -808,4 +808,5 @@ $lang['sensor_name_info'] = "Select either Outside Weather or Sensor to be used 
 $lang['setup_start_time_offset'] = "Setup Schedule Start Time Offset";
 $lang['offset_enable'] = "Schedule Offset Enable";
 $lang['control_temp'] = "Control Temperature";
+$lang['setup_zigbee2mqtt'] = "Setup a Zigbee2mqtt MQTT Device Connection";
 ?>

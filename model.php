@@ -2006,6 +2006,8 @@ echo '<div class="modal fade" id="mqtt_devices" tabindex="-1" role="dialog" aria
                         </a>
                         <ul class="dropdown-menu">
                                 <li><a href="pdf_download.php?file=setup_guide_mqtt.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_guide_mqtt'].'</a></li>
+                                <li class="divider"></li>
+                                <li><a href="pdf_download.php?file=setup_zigbee2mqtt.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_zigbee2mqtt'].'</a></li>
                         </ul>
                 </div>
             </div>
