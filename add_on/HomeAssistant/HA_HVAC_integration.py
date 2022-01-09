@@ -9,6 +9,7 @@ import threading
 import time
 from datetime import timedelta
 from re import findall
+import subprocess
 from subprocess import check_output
 import paho.mqtt.client as mqtt
 import psutil
@@ -1120,7 +1121,12 @@ if __name__ == "__main__":
             MQTT_HOSTNAME = results[description_to_index["ip"]]
             MQTT_PORT = results[description_to_index["port"]]
             MQTT_USERNAME = results[description_to_index["username"]]
-            MQTT_PASSWORD = results[description_to_index["password"]]
+            result = subprocess.run(
+                ['php', '/var/www/cron/mqtt_passwd_decrypt.php'],         # program and arguments
+                stdout=subprocess.PIPE,                     # capture stdout
+                check=True                                  # raise exception if program fails
+            )
+            MQTT_PASSWORD = result.stdout.decode("utf-8").split()[0] # result.stdout contains a byte-string
             mqttClient = mqtt.Client(MQTT_CLIENT_ID)
             mqttClient.on_connect = on_connect  # attach function to callback
             mqttClient.on_message = on_message
