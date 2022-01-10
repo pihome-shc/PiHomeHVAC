@@ -367,7 +367,7 @@ if (isset($_POST['submit'])) {
 
 					<!-- Start Time -->
 					<?php
-					if ($sun_enabled) {
+					if ($sun_enabled && !isset($_GET['nid'])) {
 						if($time_id != 0){
 							if ($time_row['start_sr'] == '1') {
 								$start_sr_check = 'checked';
@@ -403,7 +403,7 @@ if (isset($_POST['submit'])) {
                                         <input type="hidden" id="start_time_state" name="start_time_state" value="<?php echo $start_mode; ?>">
                                         <div class="form-group" class="control-label"><label><?php echo $lang['start_time']; ?></label>
                         			<input class="form-control input-sm" type="time" id="start_time" name="start_time" value="<?php echo $time_row["start"];?>" placeholder="Start Time" required>
-						<?php if ($sun_enabled) { ?>
+						<?php if ($sun_enabled && !isset($_GET['nid'])) { ?>
 			                                <br>
         	                                        &nbsp;<img src="./images/sunset.png">
 							<i class="fa fa-info-circle fa-lg text-info" data-container="body" data-toggle="popover" data-placement="right" data-content="<?php echo $lang['start_time_enable_info']; ?>"></i>
@@ -422,7 +422,7 @@ if (isset($_POST['submit'])) {
 					</div>
 					<!-- End Time -->
                                          <?php
-					if ($sun_enabled) {
+					if ($sun_enabled && !isset($_GET['nid'])) {
                                          	if($time_id != 0){
                                          		if ($time_row['end_sr'] == '1') {
                                                 		$end_sr_check = 'checked';
@@ -458,7 +458,7 @@ if (isset($_POST['submit'])) {
                                         <input type="hidden" id="end_time_state" name="end_time_state" value="<?php echo $end_mode; ?>">
 					<div class="form-group" class="control-label"><label><?php echo $lang['end_time']; ?></label>
 						<input class="form-control input-sm" type="time" id="end_time" name="end_time" value="<?php echo $time_row["end"];?>" placeholder="End Time" required>
-						<?php if ($sun_enabled) { ?>
+						<?php if ($sun_enabled && !isset($_GET['nid'])) { ?>
                                                 	<br>
 	                                                &nbsp;<img src="./images/sunset.png">
 							 <i class="fa fa-info-circle fa-lg text-info" data-container="body" data-toggle="popover" data-placement="right" data-content="<?php echo $lang['end_time_enable_info']; ?>"></i>
