@@ -122,7 +122,7 @@ if (isset($_POST['submit'])) {
                 	        $query = "UPDATE schedule_night_climat_zone SET sync = '0', status='$status', min_temperature='".number_format(SensorToDB($conn,$_POST['min_temp'][$id],$type),1)."', max_temperature='".number_format(SensorToDB($conn,$_POST['max_temp'][$id],$type),1)."' WHERE id='$id'";
                         	$zoneresults = $conn->query($query);
 	                        if ($zoneresults) {
-        	                        $message_success .= "<p>".$lang['night_climate_temp_success']."</p>";
+        	                        $message_success .= "<p>".$lang['night_climate_zone_success']."</p>";
 					header("Refresh: 3; url=".$return_url);
                 	        } else {
                                 $error .= "<p>".$lang['night_climate_error']."</p><p>".mysqli_error($conn). "</p>";
