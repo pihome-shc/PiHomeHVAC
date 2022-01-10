@@ -810,4 +810,5 @@ $lang['offset_enable'] = "Schedule Offset Enable";
 $lang['control_temp'] = "Control Temperature";
 $lang['setup_zigbee2mqtt'] = "Setup a Zigbee2mqtt MQTT Device Connection";
 $lang['setup_guide_night_climate_scheduling'] = "Setup Night Climate Scheduling";
+$lang['night_climate_zone_success'] = "Night Climate Zone Changed Successfully.";
 ?>
