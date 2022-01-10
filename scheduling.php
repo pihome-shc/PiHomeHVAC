@@ -89,7 +89,7 @@ if (isset($_POST['submit'])) {
                 $result = $conn->query($query);
                 $nctcount = $result->num_rows;
                 if ($nctcount == 0) {
-                        $query = "INSERT INTO `schedule_night_climate_time` VALUES (1,1,0,'{$sc_en}','{$start_time}','{$end_time}','{$mask}');";
+                        $query = "INSERT INTO `schedule_night_climate_time`(`id`, `sync`, `purge`, `status`, `start_time`, `end_time`, `WeekDays`) VALUES (1,1,0,'{$sc_en}','{$start_time}','{$end_time}','{$mask}');";
                         $result = $conn->query($query);
                         if ($result) {
                                 $message_success .= "<p>".$lang['night_climate_time_success']."</p>";
