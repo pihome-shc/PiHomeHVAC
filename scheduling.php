@@ -280,8 +280,8 @@ if (isset($_POST['submit'])) {
  	<div class="row">
         	<div class="col-lg-12">
 			<div class="panel panel-primary">
-                        	<div class="panel-heading">
-					<i class="fa fa-clock-o fa-fw"></i>
+			       	<div class="panel-heading">
+			        	<i class="fa fa-clock-o fa-fw"></i>
                                         <?php if(isset($_GET['nid'])) {
                                         	echo $lang['night_climate'];
                                      	} elseif ($time_id != 0) {
@@ -289,10 +289,22 @@ if (isset($_POST['submit'])) {
                                         } else {
                                         	echo $lang['schedule_add'];
                                     	} ?>
-					<div class="pull-right"> 
-						<div class="btn-group"><?php echo date("H:i"); ?></div> 
+					<div class="dropdown pull-right">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+							<i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+						</a>
+			                        <ul class="dropdown-menu">
+							<?php if(!isset($_GET['nid'])) {
+	                					echo '<li><a href="pdf_download.php?file=setup_guide_scheduling.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_scheduling'].'</a></li>
+				                                <li class="divider"></li>
+                	        				<li><a href="pdf_download.php?file=start_time_offset.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_start_time_offset'].'</a></li>';
+			                                } else {
+                        					echo '<li><a href="pdf_download.php?file=setup_guide_night_climate_scheduling.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_guide_night_climate_scheduling'].'</a></li>';
+							} ?>
+			                        </ul>
+                        			<div class="btn-group"><?php echo '&nbsp;&nbsp;'.date("H:i"); ?></div>
 					</div>
-                        	</div>
+			        </div>
                         	<!-- /.panel-heading -->
                         	<div class="panel-body">
 
