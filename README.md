@@ -61,8 +61,8 @@ The core requirements for the SBC are as stated above, MaxAir has been successfu
 * Orange Pi Zero Plus
 * Orange Pi Zero Plus2 H5 (with eMMC on-board storage)
 * Orange Pi Zero2
-* Orange Pi 3
-* Orange Pi 3 LTS
+* Orange Pi 3 (with optional eMMC on-board storage)
+* Orange Pi 3 LTS (with eMMC on-board storage)
 * Rock Pi E (with optional eMMC on-board storage)
 * Pine H64 Model B (with optional eMMC on-board storage)
 * Bannana Pi BPI-M2 Zero
