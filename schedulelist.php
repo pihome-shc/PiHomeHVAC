@@ -34,8 +34,6 @@ require_once(__DIR__ . '/st_inc/functions.php');
                 		<li><a href="pdf_download.php?file=setup_guide_scheduling.pdf" target="_blank"><i class="fa fa-file fa-fw"></i><?php echo $lang['setup_scheduling']; ?></a></li>
                                 <li class="divider"></li>
                         	<li><a href="pdf_download.php?file=start_time_offset.pdf" target="_blank"><i class="fa fa-file fa-fw"></i><?php echo $lang['setup_start_time_offset']; ?></a></li>
-                                <li class="divider"></li>
-                        	<li><a href="pdf_download.php?file=setup_guide_night_climate_scheduling.pdf" target="_blank"><i class="fa fa-file fa-fw"></i><?php echo $lang['setup_guide_night_climate_scheduling']; ?></a></li>
                         </ul>
                         <div class="btn-group"><?php echo '&nbsp;&nbsp;'.date("H:i"); ?></div>
 		</div>
