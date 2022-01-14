@@ -75,6 +75,7 @@ HA_Zone_Name = []
 # Get MaxAir mode (0 - Boiler, 1 - HVAC)
 cur.execute("SELECT `mode` FROM `system` LIMIT 1;")
 MA_Mode = cur.fetchone()[0]
+MA_Mode = MA_Mode & 0b1
 # Get Zone info
 cur.execute("SELECT `id`, `sensors_id`, `name` FROM `zone_view` ORDER BY `sensors_id`;")
 ZONES = cur.rowcount
