@@ -122,6 +122,7 @@ if (isset($_POST['submit'])) {
 	} ?>
         <option value=0>Zone</option>
         <option value=1>Boiler</option>
+        <option value=5>Pump</option>
         <option value=2>HVAC - Heat</option>
         <option value=3>HVAC - Chill</option>
         <option value=4>HVAC - Fan</option>
