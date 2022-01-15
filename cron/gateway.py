@@ -407,7 +407,6 @@ try:
                 con_mqtt = mdb.connect(dbhost, dbuser, dbpass, dbname)
                 cur_mqtt = con_mqtt.cursor()
                 MQTT_CLIENT_ID = "Gateway_MaxAir"  # MQTT Client ID
-                MQTT_CONNECTED = 1
                 results_mqtt = cur.fetchone()
                 description_to_index = dict(
                     (d[0], i) for i, d in enumerate(cur.description)
@@ -416,7 +415,7 @@ try:
                 MQTT_PORT = results_mqtt[description_to_index["port"]]
                 MQTT_USERNAME = results_mqtt[description_to_index["username"]]
                 result = subprocess.run(
-                    ['php', '/var/www/cron/mqtt_passwd_decrypt.php'],         # program and arguments
+                    ['php', '/var/www/cron/mqtt_passwd_decrypt.php', '2'],         # program and arguments
                     stdout=subprocess.PIPE,                     # capture stdout
                     check=True                                  # raise exception if program fails
                 )
@@ -430,6 +429,8 @@ try:
                 signal.signal(signal.SIGINT, signal_handler)
                 mqttClient.connect(MQTT_HOSTNAME, MQTT_PORT)
                 mqttClient.loop_start()
+                MQTT_CONNECTED = 1
+
     else:
         # If no MQTT connection has been defined do not connect
         print(
@@ -814,7 +815,7 @@ try:
                             (payload, node_id),
                         )
                         con.commit()
-
+                    
                         # ..::Step Three ::..
                         # Add Nodes Sketch Version to Nodes Table.
                     if (

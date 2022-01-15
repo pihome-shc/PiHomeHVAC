@@ -1123,7 +1123,7 @@ if __name__ == "__main__":
             MQTT_PORT = results[description_to_index["port"]]
             MQTT_USERNAME = results[description_to_index["username"]]
             result = subprocess.run(
-                ['php', '/var/www/cron/mqtt_passwd_decrypt.php'],         # program and arguments
+                ['php', '/var/www/cron/mqtt_passwd_decrypt.php', '3'],         # program and arguments
                 stdout=subprocess.PIPE,                     # capture stdout
                 check=True                                  # raise exception if program fails
             )
