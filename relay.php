@@ -109,6 +109,9 @@ if (isset($_POST['submit'])) {
     			case 1:
         			echo '<option selected >Boiler</option>';
         			break;
+                        case 5:
+                                echo '<option selected >Pump</option>';
+                                break;
     			case 2:
         			echo '<option selected >HVAC - Heat</option>';
         			break;
