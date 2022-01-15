@@ -4,7 +4,17 @@
 require_once(__DIR__.'../../st_inc/connection.php');
 require_once(__DIR__.'../../st_inc/functions.php');
 
-$query = "SELECT `password` FROM mqtt LIMIT 1;";
+switch ($argv[1]) {
+        case "2":
+          $query = "SELECT `password` FROM mqtt WHERE `type` = 2 AND `enabled` = 1 LIMIT 1;";
+          break;
+        case "3":
+          $query = "SELECT `password` FROM mqtt WHERE `type` = 3 AND `enabled` = 1 LIMIT 1;";
+          break;
+        default:
+          $query = "SELECT `password` FROM mqtt LIMIT 0;";
+      }
+
 $result = $conn->query($query);
 if (mysqli_num_rows($result) > 0){
         $row = mysqli_fetch_assoc($result);
