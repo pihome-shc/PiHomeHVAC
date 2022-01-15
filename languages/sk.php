@@ -824,5 +824,5 @@ $lang['setup_guide_night_climate_scheduling'] = "Setup Night Climate Scheduling"
 $lang['night_climate_zone_success'] = "Night Climate Zone Changed Successfully.";
 $lang['Orange_Pi_3_LTS_technical'] = "Orange Pi 3 LTS Technical";
 $lang['pump_relay'] = "Pump Relay";
-$lang['setup_pummp_type_relays'] = "Setup Pump Type Relays";
+$lang['setup_pump_type_relays'] = "Setup Pump Type Relays";
 ?>
