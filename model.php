@@ -1305,7 +1305,7 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
                         <ul class="dropdown-menu">
                                 <li><a href="pdf_download.php?file=configure_relay_devices.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['configure_relay_devices'].'</a></li>
                                 <li class="divider"></li>
-				<li><a href="pdf_download.php?file=setup_pummp_type_relays.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_pummp_type_relays'].'</a></li>
+				<li><a href="pdf_download.php?file=setup_pump_type_relays.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_pump_type_relays'].'</a></li>
                                 <li class="divider"></li>
 				<li><a href="pdf_download.php?file=delete_zones_relays_sensors_nodes.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['delete_zones_relays_sensors_nodes'].'</a></li>
                         </ul>
