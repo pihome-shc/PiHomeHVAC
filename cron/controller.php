@@ -41,7 +41,8 @@ $hvac_state = 0; // 0 = COOL, 1 = HEAT
 $cool_relay_type = '';
 $fan_relay_type = '';
 
-//function used to process any pump relays
+//array_walk function used to process any pump relays
+//array_walk specifies that this function can only take 2 parameters, so unable to pass $conn
 function process_pump_relays($command, $relay_id)
 {
 	global $conn;
