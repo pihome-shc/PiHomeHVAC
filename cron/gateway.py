@@ -407,7 +407,6 @@ try:
                 con_mqtt = mdb.connect(dbhost, dbuser, dbpass, dbname)
                 cur_mqtt = con_mqtt.cursor()
                 MQTT_CLIENT_ID = "Gateway_MaxAir"  # MQTT Client ID
-                MQTT_CONNECTED = 1
                 results_mqtt = cur.fetchone()
                 description_to_index = dict(
                     (d[0], i) for i, d in enumerate(cur.description)
@@ -428,9 +427,9 @@ try:
                 mqttClient.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
                 signal.signal(signal.SIGTERM, signal_handler)
                 signal.signal(signal.SIGINT, signal_handler)
-                if MQTT_CONNECTED == 0:
-                    mqttClient.connect(MQTT_HOSTNAME, MQTT_PORT)
-                    mqttClient.loop_start()
+                mqttClient.connect(MQTT_HOSTNAME, MQTT_PORT)
+                mqttClient.loop_start()
+                MQTT_CONNECTED = 1
 
     else:
         # If no MQTT connection has been defined do not connect
