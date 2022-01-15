@@ -1604,6 +1604,8 @@ echo '
                         <ul class="dropdown-menu">
                                 <li><a href="pdf_download.php?file=setup_guide_zones.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_guide_zones'].'</a></li>
                                 <li class="divider"></li>
+                        	<li><a href="pdf_download.php?file=setup_pump_type_relays.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_pump_type_relays'].'</a></li>
+                                <li class="divider"></li>
                                 <li><a href="pdf_download.php?file=switch_zones.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['switch_zones'].'</a></li>
                         </ul>
                 </div>
