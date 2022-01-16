@@ -1790,8 +1790,8 @@ for ($row = 0; $row < count($zone_commands); $row++){
 		} elseif ($zone_relay_type_id == 5) { //end if ($zone_relay_type_id == 0)
 			if (empty($pump_relays)) { //add first pump type relay
 				$pump_relays = array($controller_relay_id=>$zone_command);
-			} elseif (($controller_relay_id == $pump_relays[$controller_relay_id] && $zone_command == 1)) {
-				$pump_relays = array($controller_relay_id=>$zone_command);;
+                        } elseif (array_key_exists($controller_relay_id, $pump_relays) && $zone_command == 1) {
+                                $pump_relays[$controller_relay_id] = $zone_command;
 			}
 		}
 	} //end for ($crow = 0; $crow < count($controllers); $crow++)
