@@ -1305,18 +1305,20 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
                         <ul class="dropdown-menu">
                                 <li><a href="pdf_download.php?file=configure_relay_devices.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['configure_relay_devices'].'</a></li>
                                 <li class="divider"></li>
-                                <li><a href="pdf_download.php?file=delete_zones_relays_sensors_nodes.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['delete_zones_relays_sensors_nodes'].'</a></li>
+				<li><a href="pdf_download.php?file=setup_pump_type_relays.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_pump_type_relays'].'</a></li>
+                                <li class="divider"></li>
+				<li><a href="pdf_download.php?file=delete_zones_relays_sensors_nodes.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['delete_zones_relays_sensors_nodes'].'</a></li>
                         </ul>
                 </div>
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['relay_settings_text'].'</p>';
-		$query = "SELECT relays.id, relays.relay_id, relays.relay_child_id, relays.on_trigger, relays.name, relays.type, zr.zone_id, nd.node_id, nd.last_seen
-		FROM relays
-		LEFT join zone_relays zr ON relays.id = zr.zone_relay_id
+		$query = "SELECT DISTINCT relays.id, relays.relay_id, relays.relay_child_id, relays.on_trigger, relays.name, relays.type, IF(zr.zone_id IS NULL, 0, 1) AS attached, nd.node_id, nd.last_seen
+                FROM relays
+                LEFT join zone_relays zr ON relays.id = zr.zone_relay_id
                 LEFT JOIN zone z ON zr.zone_id = z.id
-		JOIN nodes nd ON relays.relay_id = nd.id
-		ORDER BY relay_id asc, relay_child_id ASC;";
+                JOIN nodes nd ON relays.relay_id = nd.id
+                ORDER BY relay_id asc, relay_child_id ASC;";
 		$results = $conn->query($query);
 		echo '<table class="table table-bordered">
     			<tr>
@@ -1350,6 +1352,10 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
                 				$relay_type ="HVAC - Fan";
                                                 $attached_to = "HVAC Fan Relay";
                 				break;
+                                        case 5:
+                                                $relay_type ="Pump";
+                                                $attached_to = $row["zone_name"]." Zone";
+                                                break;
     				}
 				if ($row["on_trigger"] == 0) { $trigger = "LOW"; } else { $trigger = "HIGH"; }
     				echo '<tr>
@@ -1359,7 +1365,7 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
             				<td>'.$row["relay_child_id"].'</td>
                                         <td>'.$trigger.'</td>
             				<td><a href="relay.php?id='.$row["id"].'"><button class="btn btn-primary btn-xs"><span class="ionicons ion-edit"></span></button> </a>&nbsp;&nbsp';
-            				if(isset($row['zone_id']) || $row['type'] == 1) {
+            				if($row['attached'] == 1 || $row['type'] == 1) {
 		 				echo '<button class="btn btn-danger btn-xs disabled" data-toggle="tooltip" title="'.$lang['confirm_del_relay_2'].$attached_to.'"><span class="glyphicon glyphicon-trash"></span></button></td>';
 	    				} else {
                 				echo '<a href="javascript:delete_relay('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$lang['confirm_del_relay_1'].'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>';
@@ -1598,6 +1604,8 @@ echo '
                         <ul class="dropdown-menu">
                                 <li><a href="pdf_download.php?file=setup_guide_zones.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_guide_zones'].'</a></li>
                                 <li class="divider"></li>
+                        	<li><a href="pdf_download.php?file=setup_pump_type_relays.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_pump_type_relays'].'</a></li>
+                                <li class="divider"></li>
                                 <li><a href="pdf_download.php?file=switch_zones.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['switch_zones'].'</a></li>
                         </ul>
                 </div>
@@ -1619,8 +1627,10 @@ echo '
         				$vresult = $conn->query($query);
         				while ($vrow = mysqli_fetch_assoc($vresult)) {
 						$unit = SensorUnits($conn,$vrow['sensor_type_id']);
-                				if ($vrow['category'] == 2) {
-                        				echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['controller'].": ".$vrow['relay_type'].": ".$vrow['relay_id']."-".$vrow['relay_child_id']."</small></span><br>";
+                                                if ($vrow['r_type'] == 5) {
+							echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['pump_relay'].": ".$vrow['relay_type'].": ".$vrow['relay_id']."-".$vrow['relay_child_id']."</small></span><br>";
+                				} elseif ($vrow['category'] == 2) {
+							echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['controller'].": ".$vrow['relay_type'].": ".$vrow['relay_id']."-".$vrow['relay_child_id']."</small></span><br>";
 						} elseif ($vrow['category'] == 3) {
 							echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['min']." ".DispSensor($conn,$vrow['min_c'],$vrow['sensor_type_id']).$unit." </em>, ".$lang['max']." ".$vrow['max_c'].$unit." </em> - ".$lang['sensor'].": ".$vrow['sensors_id']."</small></span><br>";
                 				} else {

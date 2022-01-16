@@ -18,5 +18,3 @@ DELETE FROM `button_page`;
 
 INSERT INTO `button_page` (`id`, `sync`, `purge`, `name`, `function`, `index_id`, `page`)
 VALUES (1, '0', '0', 'Boost', 'boost', '1', '2'), (2, '0', '0', 'Override', 'override', '2', '2'),(3, '0', '0', 'Offset', 'offset', '3', '2'), (4, '0', '0', 'Night Climate', 'night_climate', '4', '2'), (5, '0', '0', 'Away', 'away', '5', '2'), (6, '0', '0', 'Holidays', 'holidays', '6', '2');
-
-

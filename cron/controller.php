@@ -41,6 +41,70 @@ $hvac_state = 0; // 0 = COOL, 1 = HEAT
 $cool_relay_type = '';
 $fan_relay_type = '';
 
+//array_walk function used to process any pump relays
+//array_walk specifies that this function can only take 2 parameters, so unable to pass $conn
+function process_pump_relays($command, $relay_id)
+{
+	global $conn;
+	$query = "SELECT * FROM `relays` WHERE `id` = $relay_id LIMIT 1;";
+	$result = $conn->query($query);
+	$row = mysqli_fetch_array($result);
+	$relay_id = $row['relay_id']; 
+        $relay_child_id = $row['relay_child_id'];
+        $relay_type = $row['type'];
+        $relay_on_trigger = $row['on_trigger'];
+	$query = "SELECT * FROM nodes WHERE id = ".$relay_id." AND status IS NOT NULL LIMIT 1;";
+	$result = $conn->query($query);
+	$relay_node = mysqli_fetch_array($result);
+	$relay_node_id = $relay_node['node_id'];
+        $relay_node_type = $relay_node['type'];
+        /************************************************************************************
+	Pump Wired to Raspberry Pi GPIO Section: Pump Connected Raspberry Pi GPIO.
+	*************************************************************************************/
+	if ( $relay_node_type == 'GPIO'){
+		if ($relay_on_trigger == 1) {
+			$relay_on = '1'; //GPIO value to write to turn on attached relay
+			$relay_off = '0'; // GPIO value to write to turn off attached relay
+		} else {
+                        $relay_on = '0'; //GPIO value to write to turn on attached relay
+                        $relay_off = '1'; // GPIO value to write to turn off attached relay
+		}
+    		$relay_status = ($command == '1') ? $relay_on : $relay_off;
+    		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Pump: GIOP Relay Status: \033[41m".$relay_status. "\033[0m (".$relay_on."=On, ".$relay_off."=Off) \n";
+                $query = "UPDATE messages_out SET sent = '0', payload = '{$command}' WHERE node_id ='$relay_node_id' AND child_id = '$relay_child_id';";
+                $conn->query($query);
+	}
+
+        /************************************************************************************
+	Pump Wired over I2C Interface Make sure you have i2c Interface enabled 
+	*************************************************************************************/
+	if ( $relay_node_type == 'I2C'){
+		exec("python3 /var/www/cron/i2c/i2c_relay.py ".$relay_node_id." ".$relay_child_id." ".$command);
+		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Pump Relay Board: ".$relay_node_id. " Relay No: ".$relay_child_id." Status: ".$command." \n";
+	}
+
+        /************************************************************************************
+	Pump Wireless Section: MySensors Wireless or MQTT Relay module for your Pump control.
+	*************************************************************************************/
+	if ( $relay_node_type == 'MySensor' ||  $relay_node_type == 'MQTT'){
+		//update messages_out table with sent status to 0 and payload to as zone status.
+		$query = "UPDATE messages_out SET sent = '0', payload = '{$command}' WHERE node_id ='$relay_node_id' AND child_id = '$relay_child_id';";
+		$conn->query($query);
+	}
+
+        /************************************************************************************
+	Sonoff Switch Section: Tasmota WiFi Relay module for your Zone control.
+	*************************************************************************************/
+	if ( $relay_node_type == 'Tasmota'){
+       		$query = "SELECT * FROM http_messages WHERE zone_name = '$zone_name' AND message_type = '$command' LIMIT 1;";
+              	$result = $conn->query($query);
+       	        $http = mysqli_fetch_array($result);
+        	$add_on_msg = $http['command'].' '.$http['parameter'];
+       	        $query = "UPDATE messages_out SET sent = '0', payload = '{$add_on_msg}' WHERE node_id ='$relay_node_id' AND child_id = '$relay_child_id';";
+        	$conn->query($query);
+       	}
+}
+
 //Function to recursively check homebridge config.json
 function scanArrayRecursively($arr, $index) {
 	if ($arr) {
@@ -346,7 +410,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         $zone_max_operation_time=$row['max_operation_time'];
 
         //get the zone controllers for this zone to array
-        $query = "SELECT zone_relays.id AS zc_id, cid.node_id as relay_id, zr.relay_child_id, zr.on_trigger, zone_relays.zone_relay_id, zone_relays.state, zone_relays.current_state, ctype.`type` ";
+        $query = "SELECT zone_relays.id AS zc_id, cid.node_id as relay_id, zr.relay_child_id, zr.on_trigger, zr.type AS relay_type_id, zone_relays.zone_relay_id, zone_relays.state, zone_relays.current_state, ctype.`type` ";
         $query = $query."FROM zone_relays ";
         $query = $query."join relays zr on zone_relay_id = zr.id ";
         $query = $query."join nodes ctype on zr.relay_id = ctype.id ";
@@ -356,7 +420,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         $index = 0;
         $zone_controllers=[];
         while ($crow = mysqli_fetch_assoc($cresult)) {
-                $zone_controllers[$index] = array('zc_id' =>$crow['zc_id'], 'controler_id' =>$crow['relay_id'], 'controler_child_id' =>$crow['relay_child_id'], 'controler_on_trigger' =>$crow['on_trigger'], 'controller_relay_id' =>$crow['zone_relay_id'], 'zone_controller_state' =>$crow['state'], 'zone_controller_current_state' =>$crow['current_state'], 'zone_controller_type' =>$crow['type'], 'manual_button_override' >=0);
+                $zone_controllers[$index] = array('zc_id' =>$crow['zc_id'], 'controler_id' =>$crow['relay_id'], 'controler_child_id' =>$crow['relay_child_id'], 'relay_type_id' =>$crow['relay_type_id'], 'controler_on_trigger' =>$crow['on_trigger'], 'controller_relay_id' =>$crow['zone_relay_id'], 'zone_controller_state' =>$crow['state'], 'zone_controller_current_state' =>$crow['current_state'], 'zone_controller_type' =>$crow['type'], 'manual_button_override' >=0);
                 $index = $index + 1;
         }
 	//query to check if zone_current_state record exists tor the zone
@@ -1536,7 +1600,8 @@ while ($row = mysqli_fetch_assoc($results)) {
                 for ($crow = 0; $crow < count($zone_controllers); $crow++){
                         $zone_controler_id = $zone_controllers[$crow]["controler_id"];
                         $zone_controler_child_id = $zone_controllers[$crow]["controler_child_id"];
-                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Controller: \033[41m".$zone_controler_id."\033[0m Controller Child: \033[41m".$zone_controler_child_id."\033[0m Zone Status: \033[41m".$zone_status."\033[0m \n";
+			if ($zone_controllers[$crow]["relay_type_id"] == 5) { $zp = "Pump"; } else { $zp = "Zone"; }
+                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Controller: \033[41m".$zone_controler_id."\033[0m Controller Child: \033[41m".$zone_controler_child_id."\033[0m ".$zp." Status: \033[41m".$zone_status."\033[0m \n";
                 }
 		if ($zone_category == 0 || $zone_category == 3 || $zone_category == 4) {
 			if ($zone_status=='1') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Start Cause: ".$start_cause." - Target C:\033[41m".$target_c."\033[0m Zone C:\033[31m".$zone_c."\033[0m \n";}
@@ -1590,6 +1655,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 /***************************************************************************************
                                    Zone Commands loop
  ***************************************************************************************/
+$pump_relays = array();
 for ($row = 0; $row < count($zone_commands); $row++){
         $zone_id = $zone_commands[$row]["zone_id"];
         $zone_category = $zone_commands[$row]["zone_category"];
@@ -1647,11 +1713,13 @@ for ($row = 0; $row < count($zone_commands); $row++){
 		$zone_overrun = 0;
 	}
 	$zone_command = (($zone_status == 1) || ($zone_overrun == 1)) ? 1:0 ;
-
+	//process all the zone relays associated with this zone
         for ($crow = 0; $crow < count($controllers); $crow++){
 		$zc_id = $controllers[$crow]["zc_id"];
                 $zone_controler_id = $controllers[$crow]["controler_id"];
                 $zone_controler_child_id = $controllers[$crow]["controler_child_id"];
+		$controller_relay_id = $controllers[$crow]["controller_relay_id"];
+                $zone_relay_type_id = $controllers[$crow]["relay_type_id"];
                 $zone_on_trigger = $controllers[$crow]["controler_on_trigger"];
                 $zone_controller_type = $controllers[$crow]["zone_controller_type"];
                 $manual_button_override = $controllers[$crow]["manual_button_override"];
@@ -1667,58 +1735,72 @@ for ($row = 0; $row < count($zone_commands); $row++){
 
 		if ($debug_msg == 1) { 
 			echo $zone_controler_id."-".$zone_controler_child_id.", ".$zone_controller_state.", ".$manual_button_override."\n"; 
+			echo "relay_type_id - ".$zone_relay_type_id."\n";
 			echo "zone_overrun - ".$zone_overrun.", manual_button_override - ".$manual_button_override.", zone_command - ".$zone_command.", zone_status_prev - ".$zone_status_prev."\n";
 		}
 //		if (($manual_button_override == 0) || ($manual_button_override == 1 && $zone_command == 0)) {
-		if ((($manual_button_override == 0) || ($manual_button_override == 1 && $zone_command == 0)) && ($zone_command != $zone_status_prev || $zone_controller_type == 'MySensor')) {
-			/***************************************************************************************
-			Zone Valve Wired to Raspberry Pi GPIO Section: Zone Valve Connected Raspberry Pi GPIO.
-			****************************************************************************************/
-			if ($zone_controller_type == 'GPIO'){
-		    		$relay_status = ($zone_command == '1') ? $relay_on : $relay_off;
-		    		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: GIOP Relay Status: \033[41m".$relay_status. "\033[0m (".$relay_on."=On, ".$relay_off."=Off) \n";
-                                $query = "UPDATE messages_out SET sent = '0', payload = '{$zone_command}' WHERE node_id ='$zone_controler_id' AND child_id = '$zone_controler_child_id' LIMIT 1;";
-                                $conn->query($query);
-			}
+		//process zone relays
+		if ($zone_relay_type_id == 0) {
+			if ((($manual_button_override == 0) || ($manual_button_override == 1 && $zone_command == 0)) && ($zone_command != $zone_status_prev || $zone_controller_type == 'MySensor')) {
+				/***************************************************************************************
+				Zone Valve Wired to Raspberry Pi GPIO Section: Zone Valve Connected Raspberry Pi GPIO.
+				****************************************************************************************/
+				if ($zone_controller_type == 'GPIO'){
+			    		$relay_status = ($zone_command == '1') ? $relay_on : $relay_off;
+			    		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: GIOP Relay Status: \033[41m".$relay_status. "\033[0m (".$relay_on."=On, ".$relay_off."=Off) \n";
+                        	        $query = "UPDATE messages_out SET sent = '0', payload = '{$zone_command}' WHERE node_id ='$zone_controler_id' AND child_id = '$zone_controler_child_id' LIMIT 1;";
+                                	$conn->query($query);
+				}
 
-			/***************************************************************************************
-			Zone Valve Wired over I2C Interface Make sure you have i2c Interface enabled 
-			****************************************************************************************/
-			if ($zone_controller_type == 'I2C'){
-				exec("python3 /var/www/cron/i2c/i2c_relay.py ".$zone_controler_id." ".$zone_controler_child_id." ".$zone_command);
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Relay Broad: ".$zone_controler_id. " Relay No: ".$zone_controler_child_id." Status: ".$zone_command." \n";
-			}
+				/***************************************************************************************
+				Zone Valve Wired over I2C Interface Make sure you have i2c Interface enabled 
+				****************************************************************************************/
+				if ($zone_controller_type == 'I2C'){
+					exec("python3 /var/www/cron/i2c/i2c_relay.py ".$zone_controler_id." ".$zone_controler_child_id." ".$zone_command);
+					echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Relay Broad: ".$zone_controler_id. " Relay No: ".$zone_controler_child_id." Status: ".$zone_command." \n";
+				}
 
-			/***************************************************************************************
-			Zone Valve Wireless Section: MySensors Wireless or MQTT Relay module for your Zone Valve control.
-			****************************************************************************************/
-			if ($zone_controller_type == 'MySensor' || $zone_controller_type == 'MQTT'){
-				//update messages_out table with sent status to 0 and payload to as zone status.
-				$query = "UPDATE messages_out SET sent = '0', payload = '{$zone_command}' WHERE node_id ='$zone_controler_id' AND child_id = '$zone_controler_child_id' LIMIT 1;";
-				$conn->query($query);
-			}
-			/***************************************************************************************
-			Sonoff Switch Section: Tasmota WiFi Relay module for your Zone control.
-			****************************************************************************************/
-        		if ($zone_controller_type == 'Tasmota'){
-                		$query = "SELECT * FROM http_messages WHERE zone_name = '$zone_name' AND message_type = '$zone_command' LIMIT 1;";
-	                	$result = $conn->query($query);
-	        	        $http = mysqli_fetch_array($result);
-        	        	$add_on_msg = $http['command'].' '.$http['parameter'];
-	        	        $query = "UPDATE messages_out SET sent = '0', payload = '{$add_on_msg}' WHERE node_id ='$zone_controler_id' AND child_id = '$zone_controler_child_id' LIMIT 1;";
-        	        	$conn->query($query);
-	        	}
-
-			if ($zone_category <> 3) {
-				if ($zone_override_status == 0) {
-					$query = "UPDATE zone_controllers SET state = {$zone_command}, current_state = {$zone_command} WHERE id = {$zc_id} LIMIT 1;";
+				/***************************************************************************************
+				Zone Valve Wireless Section: MySensors Wireless or MQTT Relay module for your Zone Valve control.
+				****************************************************************************************/
+				if ($zone_controller_type == 'MySensor' || $zone_controller_type == 'MQTT'){
+					//update messages_out table with sent status to 0 and payload to as zone status.
+					$query = "UPDATE messages_out SET sent = '0', payload = '{$zone_command}' WHERE node_id ='$zone_controler_id' AND child_id = '$zone_controler_child_id' LIMIT 1;";
 					$conn->query($query);
 				}
+				/***************************************************************************************
+				Sonoff Switch Section: Tasmota WiFi Relay module for your Zone control.
+				****************************************************************************************/
+        			if ($zone_controller_type == 'Tasmota'){
+                			$query = "SELECT * FROM http_messages WHERE zone_name = '$zone_name' AND message_type = '$zone_command' LIMIT 1;";
+	                		$result = $conn->query($query);
+		        	        $http = mysqli_fetch_array($result);
+        		        	$add_on_msg = $http['command'].' '.$http['parameter'];
+	        		        $query = "UPDATE messages_out SET sent = '0', payload = '{$add_on_msg}' WHERE node_id ='$zone_controler_id' AND child_id = '$zone_controler_child_id' LIMIT 1;";
+        	        		$conn->query($query);
+	        		}
+
+				if ($zone_category <> 3) {
+					if ($zone_override_status == 0) {
+						$query = "UPDATE zone_controllers SET state = {$zone_command}, current_state = {$zone_command} WHERE id = {$zc_id} LIMIT 1;";
+						$conn->query($query);
+					}
+				}
+			} //end if ($manual_button_override == 0) {
+		} elseif ($zone_relay_type_id == 5) { //end if ($zone_relay_type_id == 0)
+			if (empty($pump_relays)) { //add first pump type relay
+				$pump_relays = array($controller_relay_id=>$zone_command);
+                        } elseif (array_key_exists($controller_relay_id, $pump_relays) && $zone_command == 1) {
+                                $pump_relays[$controller_relay_id] = $zone_command;
 			}
-		} //end if ($manual_button_override == 0) {
+		}
 	} //end for ($crow = 0; $crow < count($controllers); $crow++)
 } //end for ($row = 0; $row < count($zone_commands); $row++)
 
+//process any pump relays
+if (!empty($pump_relays)) {
+	array_walk($pump_relays, "process_pump_relays");
+}
 //For debug info only
 if ($debug_msg == 1) {
         echo "zone_log Array and Count\n";
@@ -1731,6 +1813,9 @@ if ($debug_msg == 1) {
         print_r ($system_controller);
         echo "zone_controllers Array\n";
         print_r ($zone_controllers);
+        print_r ($zone_commands);
+        echo "pump_relays Array\n";
+        print_r ($pump_relays);
 }
 if (isset($system_controller_stop_datetime)) {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Switched Off At: ".$system_controller_stop_datetime. "\n";}
 if (isset($expected_end_date_time)){
