@@ -842,7 +842,7 @@ $lang['edit_sensor_limits'] = "Edit Sensor Limits";
 $lang['sensor_limits_info'] = "Enable Notification if Limits Exceeded.";
 $lang['sensor_limits_name_info'] = "Select Sensor to which Minimum and Maximum Threshold are to be applied.";
 $lang['setup_sensor_notifications'] = "Setup Sensor Value Notifications";
-$lang['sensor_name_error'] "Sensor Name Can Not be Empty.";
+$lang['sensor_name_error'] = "Sensor Name Can Not be Empty.";
 $lang['sensor_limits_add_success'] = "Senor Limits Added Successfully.";
 $lang['sensor_limits_add_error'] = "Senor Limits addition failed with error: ";
 $lang['sensor_limits_modify_success'] = "Senor Limits Modified Successfully.";
