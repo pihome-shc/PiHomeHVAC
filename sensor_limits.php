@@ -45,12 +45,12 @@ if (isset($_POST['submit'])) {
         $temp_id = mysqli_insert_id($conn);
 	if ($result) {
                 if ($id==0){
-                        $message_success = "<p>".$lang['temp_sensor_record_add_success']."</p>";
+                        $message_success = "<p>".$lang['sensor_limits_add_success']."</p>";
                 } else {
-                        $message_success = "<p>".$lang['temp_sensor_record_update_success']."</p>";
+                        $message_success = "<p>".$lang['sensor_limits_modify_succes']."</p>";
                 }
 	} else {
-		$error = "<p>".$lang['temp_sensor_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+		$error = "<p>".$lang['sensor_limits_add_error']." </p> <p>" .mysqli_error($conn). "</p>";
 	}
 	$message_success .= "<p>".$lang['do_not_refresh']."</p>";
 	header("Refresh: 10; url=home.php");
