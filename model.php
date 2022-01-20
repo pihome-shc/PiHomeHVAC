@@ -249,6 +249,58 @@ echo '
     </div>
 </div>';
 
+//Sensor Limits model
+echo '
+<div class="modal fade" id="sensor_limits" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['sensor_limits_settings'].'</h5>
+                <div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=setup_sensor_notifications.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_sensor_notifications'].'</a></li>
+                        </ul>
+                </div>
+            </div>
+            <div class="modal-body">
+<p class="text-muted">'.$lang['sensor_limits_settings_text'].'</p>';
+$query = "SELECT sensor_limits.id, sensors.name, sensor_limits.min, sensor_limits.max, status FROM sensors, sensor_limits WHERE sensor_limits.sensor_id = sensors.id ORDER BY name asc";
+$results = $conn->query($query);
+echo '  <table class="table table-bordered">
+    <tr>
+        <th class="col-xs-4"><small>'.$lang['sensor_name'].'</small></th>
+        <th class="col-xs-1"><small>'.$lang['min_val'].'</small></th>
+        <th class="col-xs-1"><small>'.$lang['max_val'].'</small></th>
+        <th class="col-xs-1"><small>'.$lang['enabled'].'</small></th>
+        <th class="col-xs-2"><small>'.$lang['edit_delete'].'</small></th>
+    </tr>';
+while ($row = mysqli_fetch_assoc($results)) {
+    if ($row['status'] == 1) { $enabled = $lang['yes']; } else { $enabled = $lang['no']; }
+    echo '
+        <tr>
+            <td>'.$row["name"].'</td>
+            <td>'.$row["min"].'</td>
+            <td>'.$row["max"].'</td>
+            <td style="text-align:center; vertical-align:middle;">'.$enabled.'</td>
+            <td><a href="sensor_limits.php?id='.$row["id"].'"><button class="btn btn-primary btn-xs"><span class="ionicons ion-edit"></span></button> </a>&nbsp;&nbsp
+                <a href="javascript:delete_sensor_limits('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$lang['confirm_del_sensor_limit'].'"><span class="glyphicon glyphicon-trash"></span></button> </a>
+	    </td>
+        </tr>';
+}
+echo '
+</table></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+		<a class="btn btn-default login btn-sm" href="sensor_limits.php">'.$lang['sensor_limits_add'].'</a>
+            </div>
+        </div>
+    </div>
+</div>';
+
 //System Controller settings
 echo '
 <div class="modal fade" id="system_controller" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -1604,7 +1656,7 @@ echo '
                         <ul class="dropdown-menu">
                                 <li><a href="pdf_download.php?file=setup_guide_zones.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_guide_zones'].'</a></li>
                                 <li class="divider"></li>
-                        	<li><a href="pdf_download.php?file=setup_pump_type_relays.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_pump_type_relays'].'</a></li>
+	                        <li><a href="pdf_download.php?file=setup_pump_type_relays.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_pump_type_relays'].'</a></li>
                                 <li class="divider"></li>
                                 <li><a href="pdf_download.php?file=switch_zones.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['switch_zones'].'</a></li>
                         </ul>
@@ -2395,7 +2447,7 @@ $timezones = array(
     'Europe/Helsinki'      => "(GMT+02:00) Helsinki",
     'Europe/Istanbul'      => "(GMT+02:00) Istanbul",
     'Asia/Jerusalem'       => "(GMT+02:00) Jerusalem",
-    'Europe/Kiev'          => "(GMT+02:00) Kiev",
+    'Europe/Kyiv'          => "(GMT+02:00) Kiev",
     'Europe/Minsk'         => "(GMT+02:00) Minsk",
     'Europe/Riga'          => "(GMT+02:00) Riga",
     'Europe/Sofia'         => "(GMT+02:00) Sofia",
