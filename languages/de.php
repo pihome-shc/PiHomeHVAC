@@ -798,4 +798,25 @@ $lang['night_climate_zone_success'] = "Night Climate Zone Changed Successfully."
 $lang['Orange_Pi_3_LTS_technical'] = "Orange Pi 3 LTS Technical";
 $lang['pump_relay'] = "Pump Relay";
 $lang['setup_pump_type_relays'] = "Setup Pump Type Relays";
+$lang['sensor_limits'] = "Sensor Limits";
+$lang['sensor_limits_settings'] = "Sensor Limits Settings";
+$lang['sensor_limits_settings_text'] = "Set the Minimum and Maximum Sensor Values and Enable Notification if Limits Exceeded.";
+$lang['min_val'] = "Minimum Value";
+$lang['min_val_info'] = "Set the Minimum Threshold Value";
+$lang['min_val_help'] = "If the Sensor Reading Falls Below This Value, then a Notification Will be Raised.";
+$lang['max_val'] = "Maximum Value";
+$lang['max_val_info'] = "Set the Maximum Threshold Value";
+$lang['max_val_help'] = "If the Sensor Reading Exceeds This Value, then a Notification Will be Raised.";
+$lang['edit_delete'] = "Edit/Delete";
+$lang['confirm_del_sensor_limit'] = "DELETE Limits for This Sensor";
+$lang['sensor_limits_add'] = "Add Sensor Limits";
+$lang['add_sensor_limits'] = "Add Sensor Limits";
+$lang['edit_sensor_limits'] = "Edit Sensor Limits";
+$lang['sensor_limits_info'] = "Enable Notification if Limits Exceeded.";
+$lang['sensor_limits_name_info'] = "Select Sensor to which Minimum and Maximum Threshold are to be applied.";
+$lang['setup_sensor_notifications'] = "Setup Sensor Value Notifications";
+$lang['sensor_name_error'] "Sensor Name Can Not be Empty.";
+$lang['sensor_limits_add_success'] = "Senor Limits Added Successfully.";
+$lang['sensor_limits_add_error'] = "Senor Limits addition failed with error: ";
+$lang['sensor_limits_modify_success'] = "Senor Limits Modified Successfully.";
 ?>
