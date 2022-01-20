@@ -1457,6 +1457,8 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
 				<li><a href="pdf_download.php?file=delete_zones_relays_sensors_nodes.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['delete_zones_relays_sensors_nodes'].'</a></li>
                                 <li class="divider"></li>
 				<li><a href="pdf_download.php?file=setup_guide_sensors.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_guide_sensors'].'</a></li>
+                                <li class="divider"></li>
+				<li><a href="pdf_download.php?file=setup_sensor_notifications.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_sensor_notifications'].'</a></li>
                     	</ul>
                 </div>
             </div>
