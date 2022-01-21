@@ -1,6 +1,6 @@
 # MaxAir - Smart Thermostat
 
-### Note: Now at Version 1.5.
+### Note: Now at Version 1.6.
 
 The previous version, PiHome, was centered around the creation of zones, this version is more centered around devices.
 
@@ -18,6 +18,8 @@ Version 1.3 Introduces support for MQTT Devices, together with Home Assistant In
 Version 1.4 Introduces support for multi-zone HVAC systems, together with 3 timer options - HEAT, COOL and AUTO (switch between HEAT and COOL as required).
 
 Version 1.5 Introduced the use of Pump Relays to control the useage of external pumps.
+
+Version 1.6 Introduces Email Notifications for Sensors when they return values either above of below pre-set limits.
 
 ## Setup:
 

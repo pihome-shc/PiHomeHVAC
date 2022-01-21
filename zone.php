@@ -59,7 +59,7 @@ if (isset($_POST['submit'])) {
 	}
 	$max_operation_time = $_POST['max_operation_time'];
 	$hysteresis_time = $_POST['hysteresis_time'];
-        $sp_deadband = SensorToDB($conn,$_POST['sp_deadband'],$sensor_type_id);
+        $sp_deadband = $_POST['sp_deadband'];
         $initial_sensor_id = $_POST['initial_sensor_id'];
 	$controllers = array();
         if($zone_category <> 3) {
