@@ -201,6 +201,7 @@ $system_controller_overrun_time = $row['overrun'];
 $sc_mode = $row['sc_mode'];
 $sc_mode_prev  = $row['sc_mode_prev'];
 $sc_weather_factoring  = $row['weather_factoring'];
+$sc_weather_sensor_id  = $row['weather_sensor_id'];
 //calulate system controller on time in seconds
 if ($system_controller_active_status == 1) {
         $now=strtotime(date('Y-m-d H:i:s'));
@@ -709,7 +710,21 @@ while ($row = mysqli_fetch_assoc($results)) {
 			//Get Weather Temperature
                         $weather_fact = 0;
                         if ($system_controller_mode == 0 && $sc_weather_factoring == 1) {
-                                $query = "SELECT * FROM messages_in WHERE node_id = '1' ORDER BY id desc LIMIT 1";
+                                if ($sc_weather_sensor_id == 0) {
+                                        $weather_sensor_node_id = 1;
+                                        $weather_sensor_child_id = 0;
+                                } else {
+                                        $query = "SELECT sensor_id, sensor_child_id FROM sensors WHERE id = {$sc_weather_sensor_id} LIMIT 1;";
+                                        $result = $conn->query($query);
+                                        $sc_weather = mysqli_fetch_array($result);
+                                        $weather_sensor_id = $sc_weather['sensor_id'];
+                                        $weather_sensor_child_id = $sc_weather['sensor_child_id'];
+                                        $query = "SELECT * FROM nodes WHERE id = {$weather_sensor_id} LIMIT 1;";
+                                        $result = $conn->query($query);
+                                        $sc_weather = mysqli_fetch_array($result);
+                                        $weather_sensor_node_id = $sc_weather['node_id'];
+                                }
+                                $query = "SELECT * FROM messages_in WHERE node_id = '{$weather_sensor_node_id}' AND child_id = {$weather_sensor_child_id} ORDER BY id desc LIMIT 1";
                                 $result = $conn->query($query);
                                 $rowcount=mysqli_num_rows($result);
                                 if($rowcount > 0) {
