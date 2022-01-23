@@ -474,6 +474,15 @@ echo '
 							</div>
 						</div>
 						<!-- /.form-group -->
+                        			<div class="form-group" class="control-label"><label>'.$lang['weather_factoring'].'</label> <small class="text-muted">'.$lang['weather_factoring_info'].'</small>
+                                                        <select class="form-control input-sm" type="text" id="weather_factoring" name="weather_factoring">
+                                        			<option value="0" ' . ($brow['weather_factoring'] == 0 || $brow['weather_factoring'] == '0' ? 'selected' : '') . '>'.$lang['disabled'].'</option>
+                                        			<option value="1" ' . ($brow['weather_factoring'] == 1 || $brow['weather_factoring'] == '1' ? 'selected' : '') . '>'.$lang['enabled'].'</option>
+                                                        </select>
+                                                        <div class="help-block with-errors">
+                                                        </div>
+                                                </div>
+                                                <!-- /.form-group -->
 						';
 					}
 				} else {
