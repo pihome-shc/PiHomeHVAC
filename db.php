@@ -909,10 +909,12 @@ if($what=="system_controller_settings"){
 	        $cool_relay_id = $_GET['cool_relay_id'];
         	$fan_relay_id = $_GET['fan_relay_id'];
 		$overrun = "0";
+                $overrun = "0";
 	} else {
                 $cool_relay_id = 0;
                 $fan_relay_id = 0;
 		$overrun = $_GET['overrun'];
+                $weather_factoring = $_GET['weather_factoring'];
 	}
 	$hysteresis_time = $_GET['hysteresis_time'];
 	$max_operation_time = $_GET['max_operation_time'];
@@ -980,10 +982,10 @@ if($what=="system_controller_settings"){
         $result = $conn->query($query);
         if (mysqli_num_rows($result)==0){
 		//No record in system_controller table, so add
-		$query = "INSERT INTO `system_controller` VALUES (1,1,0,0,1,1,'".$name."',".$heat_node_id.",".$hysteresis_time.",".$max_operation_time.",".$overrun.",now(),0,0,".$heat_relay_id.",".$cool_relay_id.",".$fan_relay_id.");";
+		$query = "INSERT INTO `system_controller` VALUES (1,1,0,0,1,1,'".$name."',".$heat_node_id.",".$hysteresis_time.",".$max_operation_time.",".$overrun.",now(),0,0,".$heat_relay_id.",".$cool_relay_id.",".$fan_relay_id.",".$weather_factoring.");";
 	} else {
 		//Update system_controller Setting 
-		$query = "UPDATE system_controller SET status = ".$status.", name = '".$name."', node_id = ".$heat_node_id.", hysteresis_time = ".$hysteresis_time.", max_operation_time = ".$max_operation_time.", overrun = ".$overrun.", heat_relay_id = ".$heat_relay_id.", cool_relay_id = ".$cool_relay_id.", fan_relay_id = ".$fan_relay_id." where ID = 1;";
+		$query = "UPDATE system_controller SET status = ".$status.", name = '".$name."', node_id = ".$heat_node_id.", hysteresis_time = ".$hysteresis_time.", max_operation_time = ".$max_operation_time.", overrun = ".$overrun.", heat_relay_id = ".$heat_relay_id.", cool_relay_id = ".$cool_relay_id.", fan_relay_id = ".$fan_relay_id.", weather_factoring = ".$weather_factoring." WHERE ID = 1;";
 	}
 	if($conn->query($query)){
 		header('Content-type: application/json');

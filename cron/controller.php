@@ -200,6 +200,7 @@ $system_controller_max_operation_time = $row['max_operation_time'] * 60;
 $system_controller_overrun_time = $row['overrun'];
 $sc_mode = $row['sc_mode'];
 $sc_mode_prev  = $row['sc_mode_prev'];
+$sc_weather_factoring  = $row['weather_factoring'];
 //calulate system controller on time in seconds
 if ($system_controller_active_status == 1) {
         $now=strtotime(date('Y-m-d H:i:s'));
@@ -707,18 +708,20 @@ while ($row = mysqli_fetch_assoc($results)) {
 
 			//Get Weather Temperature
                         $weather_fact = 0;
-			$query = "SELECT * FROM messages_in WHERE node_id = '1' ORDER BY id desc LIMIT 1";
-			$result = $conn->query($query);
-			$rowcount=mysqli_num_rows($result);
-			if($rowcount > 0) {
-				$weather_temp = mysqli_fetch_array($result);
-				$weather_c = $weather_temp['payload'];
-				//    1    00-05    0.3
-				//    2    06-10    0.4
-				//    3    11-15    0.5
-				//    4    16-20    0.6
-				//    5    21-30    0.7
-				if ($weather_c <= 5 ) {$weather_fact = 0.3;} elseif ($weather_c <= 10 ) {$weather_fact = 0.4;} elseif ($weather_c <= 15 ) {$weather_fact = 0.5;} elseif ($weather_c <= 20 ) {$weather_fact = 0.6;} elseif ($weather_c <= 30 ) {$weather_fact = 0.7;}
+                        if ($system_controller_mode == 0 && $sc_weather_factoring == 1) {
+                                $query = "SELECT * FROM messages_in WHERE node_id = '1' ORDER BY id desc LIMIT 1";
+                                $result = $conn->query($query);
+                                $rowcount=mysqli_num_rows($result);
+                                if($rowcount > 0) {
+                                        $weather_temp = mysqli_fetch_array($result);
+                                        $weather_c = $weather_temp['payload'];
+                                        //    1    00-05    0.3
+                                        //    2    06-10    0.4
+                                        //    3    11-15    0.5
+                                        //    4    16-20    0.6
+                                        //    5    21-30    0.7
+					if ($weather_c <= 5 ) {$weather_fact = 0.3;} elseif ($weather_c <= 10 ) {$weather_fact = 0.4;} elseif ($weather_c <= 15 ) {$weather_fact = 0.5;} elseif ($weather_c <= 20 ) {$weather_fact = 0.6;} elseif ($weather_c <= 30 ) {$weather_fact = 0.7;}
+				}
 			}
 			//Following to decide which temperature is target temperature
                         if ($livetemp_active=='1' && $livetemp_zone_id == $zone_id) {

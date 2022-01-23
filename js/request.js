@@ -203,6 +203,7 @@ var idata="w=system_controller_settings&o=update&status="+document.getElementByI
                 idata+="&fan_relay_id="+document.getElementById("fan_relay_id").value;
 	} else {
                 idata+="&overrun="+document.getElementById("overrun").value;
+                idata+="&weather_factoring="+document.getElementById("weather_factoring").value;
 	}
 	idata+="&hysteresis_time="+document.getElementById("hysteresis_time").value;
 	idata+="&max_operation_time="+document.getElementById("max_operation_time").value;
