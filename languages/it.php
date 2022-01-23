@@ -836,4 +836,6 @@ $lang['sensor_name_error'] = "Sensor Name Can Not be Empty.";
 $lang['sensor_limits_add_success'] = "Senor Limits Added Successfully.";
 $lang['sensor_limits_add_error'] = "Senor Limits addition failed with error: ";
 $lang['sensor_limits_modify_success'] = "Senor Limits Modified Successfully.";
+$lang['weather_factoring'] = "Weather Factoring";
+$lang['weather_factoring_info'] = "Apply a weather temperature related factor to the sensor reading.";
 ?>
