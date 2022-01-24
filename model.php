@@ -483,6 +483,22 @@ echo '
                                                         </div>
                                                 </div>
                                                 <!-- /.form-group -->
+                                		<div class="form-group" class="control-label"><label>'.$lang['weather_sensor'].'</label> <small class="text-muted">'.$lang['weather_sensor_info'].'</small>
+                                                	<select class="form-control input-sm" type="text" id="weather_sensor_id" name="weather_sensor_id" >
+                                				<option value="0" ' . ($brow['weather_sensor_id'] == 0 || $brow['weather_sensor_id'] == '0' ? 'selected' : '') . '>'.$lang['openweather'].'</option>';
+                                                		//get list of sensors to display
+                                                		$query = "SELECT id, name FROM sensors WHERE sensor_type_id = 1;";
+                                                		$result = $conn->query($query);
+                                                		if ($result){
+                                                        		while ($srow=mysqli_fetch_array($result)) {
+                                                				echo '<option value="'.$srow['id'].'" ' . ($srow['id']==$brow['weather_sensor_id'] ? 'selected' : '') . '>'.$srow['name'].'</option>';
+                                                        		}
+                                                		}
+                                                		echo '</select>
+                                                		<div class="help-block with-errors">
+                                                		</div>
+                                        		</div>
+                                        		<!-- /.form-group -->
 						';
 					}
 				} else {
