@@ -475,10 +475,11 @@ try:
             sensor_temp = result[0]
             if sensor_temp < min or sensor_temp > max:
                 if sensor_temp < min:
-                    message = "Sensor - " + name + " is Below Minimum Limit" + "\n"
+                    message = "Sensor - " + name + " is Below Minimum Limit"
                 elif sensor_temp > max:
-                    message = "Sensor - " + name + " is Above Maximum Limit" + "\n"
-                query = ("SELECT * FROM notice WHERE message = '" + message + "' LIMIT 1")
+                    message = "Sensor - " + name + " is Above Maximum Limit"
+                n_msg = message  + "\n"
+                query = ("SELECT * FROM notice WHERE message = '" + n_msg + "' LIMIT 1")
                 cursorsel = con.cursor()
                 cursorsel.execute(query)
                 name_to_index = dict(
@@ -495,11 +496,7 @@ try:
                 else:  # new notification so add a new message to the notification table
                     cursorupdate.execute(
                         'INSERT INTO notice (sync, `purge`, datetime, message, status) VALUES(%s,%s,%s,%s,%s)',
-                        (0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message, 1))
-                    if sensor_temp < min:
-                        message = "Sensor - " + name + " is Below Minimum Limit"
-                    elif sensor_temp > max:
-                        message = "Sensor - " + name + " is Above Maximum Limit"
+                        (0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), n_msg, 1))
                     print(bc.blu + (
                         datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - " + message)
                 cursorupdate.close()
