@@ -13,20 +13,20 @@ class bc:
 
 
 print(bc.hed + " ")
-print("    __  __                             _         ")
-print("   |  \/  |                    /\     (_)        ")
-print("   | \  / |   __ _  __  __    /  \     _   _ __  ")
-print("   | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| ")
-print("   | |  | | | (_| |  >  <   / ____ \  | | | |    ")
-print("   |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
+print("            __  __                             _         ")
+print("           |  \/  |                    /\     (_)        ")
+print("           | \  / |   __ _  __  __    /  \     _   _ __  ")
+print("           | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| ")
+print("           | |  | | | (_| |  >  <   / ____ \  | | | |    ")
+print("           |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
 print(" ")
-print("             " +bc.SUB + "S M A R T   THERMOSTAT " + bc.ENDC)
-print("********************************************************")
-print("*          Script to send status Email messages        *")
-print("*                Build Date: 26/10/2021                *")
-print("*      Version 0.04 - Last Modified 26/10/2021         *")
-print("*                                 Have Fun - PiHome.eu *")
-print("********************************************************")
+print("                       " +bc.SUB + "S M A R T   THERMOSTAT " + bc.ENDC)
+print("      ********************************************************")
+print("      *          Script to send status Email messages        *")
+print("      *                Build Date: 26/10/2021                *")
+print("      *      Version 0.05 - Last Modified 25/01/2022         *")
+print("      *                                 Have Fun - PiHome.eu *")
+print("      ********************************************************")
 print(" ")
 print(" " + bc.ENDC)
 
@@ -34,6 +34,7 @@ import MySQLdb as mdb, datetime, sys, smtplib, string
 import configparser
 import subprocess
 
+sline = "-----------------------------------------------------------------------------"
 # Initialise the database access varables
 config = configparser.ConfigParser()
 config.read('/var/www/st_inc/db_config.ini')
@@ -82,7 +83,7 @@ finally:
         con.close()
 
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Notice Script Started")
-print("------------------------------------------------------------------")
+print(sline)
 # Check Gateway Logs for last 10 minuts and start search for gateway connected failed.
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Checking Gateway Communication")
 
@@ -132,7 +133,7 @@ finally:
     if con:
         con.close()
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Gateway Notice Finished")
-print("------------------------------------------------------------------")
+print(sline)
 
 # *************************************************************************************************************
 # Active Nodes Last Seen status and Battery Level
@@ -349,7 +350,7 @@ finally:
         con.close()
 
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Active Node Check Finished")
-print("------------------------------------------------------------------")
+print(sline)
 
 # *************************************************************************************************************
 # Check CPU Temperature from last one hour if it was over 50c
@@ -376,14 +377,15 @@ try:
     if count > 0:  # If greater then 0 then we have something to send out.
         message = "Over CPU Max Temperature Recorded in last one Hour"
         query = ("SELECT * FROM notice WHERE message = '" + message + "'")
-        cursorselect.execute(query)
+        cursorsel = con.cursor()
+        cursorsel.execute(query)
         name_to_index = dict(
             (d[0], i)
             for i, d
-            in enumerate(cursorselect.description)
+            in enumerate(cursorsel.description)
         )
-        messages = cursorselect.fetchone()  # Grab all notices with the same message content.
-        cursorselect.close()
+        messages = cursorsel.fetchone()
+        cursorsel.close()
         cursorupdate = con.cursor()
         if cursorselect.rowcount > 0:
             if messages[name_to_index['status']] == 1:
@@ -412,7 +414,117 @@ finally:
         con.close()
 
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - CPU Temperature Check Finished")
-print("------------------------------------------------------------------")
+print(sline)
+
+# *************************************************************************************************************
+# Check if any Sensors have exceeded set thier limits
+print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Checking Sensors for Out of Limits Temperature")
+
+try:
+    con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+    cursorselect = con.cursor()
+    query = ("SELECT * FROM sensor_limits WHERE status = 1")
+    cursorselect.execute(query)
+    sensor_to_index = dict(
+        (d[0], i)
+        for i, d
+        in enumerate(cursorselect.description)
+    )
+    results = cursorselect.fetchall()
+    cursorselect.close()
+    if cursorselect.rowcount > 0:  # Some Sensors have limits set
+        for i in results:  # loop through sensors with limits
+            sensors_id = i[sensor_to_index['sensor_id']]
+            sensors_id = str(sensors_id)
+            min = i[sensor_to_index['min']]
+            max = i[sensor_to_index['max']]
+            # get the sensor node and child id
+            query = ("SELECT name, sensor_id, sensor_child_id FROM sensors WHERE id = '" + sensors_id + "' LIMIT 1")
+            cursorsel = con.cursor()
+            cursorsel.execute(query)
+            name_to_index = dict(
+                (d[0], i)
+                for i, d
+                in enumerate(cursorsel.description)
+            )
+            result = cursorsel.fetchone()
+            cursorsel.close()
+            name = result[name_to_index['name']]
+            sensor_id = result[name_to_index['sensor_id']]
+            sensor_id = str(sensor_id)
+            sensor_child_id = result[name_to_index['sensor_child_id']]
+            sensor_child_id = str(sensor_child_id)
+            # get the node id for this sensor
+            query = ("SELECT node_id FROM nodes WHERE id = '" + sensor_id + "' LIMIT 1")
+            cursorsel = con.cursor()
+            cursorsel.execute(query)
+            node_to_index = dict(
+                (d[0], i)
+                for i, d
+                in enumerate(cursorsel.description)
+            )
+            result = cursorsel.fetchone()
+            cursorsel.close()
+            node_id = result[node_to_index['node_id']]
+            node_id = str(node_id)
+            # get last temperature for this sensor
+            query = ("SELECT payload FROM messages_in_view_24h WHERE node_id = '" + node_id + "' AND child_id = '" + sensor_child_id + "' ORDER BY datetime DESC LIMIT 1;")
+            cursorsel = con.cursor()
+            cursorsel.execute(query)
+            result = cursorsel.fetchone()
+            cursorsel.close()
+            if cursorsel.rowcount > 0: # check if we have any data for this sensor
+                sensor_temp = result[0]
+                if sensor_temp < min or sensor_temp > max:
+                    if sensor_temp < min:
+                        message = "Sensor - " + name + " is Below Minimum Limit"
+                    elif sensor_temp > max:
+                        message = "Sensor - " + name + " is Above Maximum Limit"
+                    n_msg = message  + "\n"
+                    query = ("SELECT * FROM notice WHERE message = '" + n_msg + "' LIMIT 1")
+                    cursorsel = con.cursor()
+                    cursorsel.execute(query)
+                    name_to_index = dict(
+                        (d[0], i)
+                        for i, d
+                        in enumerate(cursorsel.description)
+                    )
+                    messages = cursorsel.fetchone()
+                    cursorsel.close()
+                    cursorupdate = con.cursor()
+                    if cursorsel.rowcount > 0:  # This message already exists
+                        if messages[name_to_index['status']] == 1:  # This sensor has already sent an email with this content
+                            cursorupdate.execute("UPDATE notice SET status = '0'")  # so clear status to stop further emails
+                    else:  # new notification so add a new message to the notification table
+                        cursorupdate.execute(
+                            'INSERT INTO notice (sync, `purge`, datetime, message, status) VALUES(%s,%s,%s,%s,%s)',
+                            (0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), n_msg, 1))
+                        print(bc.blu + (
+                            datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - " + message)
+                    cursorupdate.close()
+                    con.commit()
+                else: # sensor temp is back within limits so delete the notice
+                    query = "DELETE FROM notice WHERE message LIKE 'Sensor - " + name + " is %'"
+                    cursordelete = con.cursor()
+                    cursordelete.execute(query)
+                    cursordelete.close()
+                    con.commit()
+            else: # if not reported in the last 24 hours then delete any old messages
+                    query = "DELETE FROM notice WHERE message LIKE 'Sensor - " + name + " is %'"
+                    cursordelete = con.cursor()
+                    cursordelete.execute(query)
+                    cursordelete.close()
+                    con.commit()
+
+except mdb.Error as e:
+    print("Error %d: %s" % (e.args[0], e.args[1]))
+    sys.exit(1)
+finally:
+    if con:
+        con.close()
+
+print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Sensor Limits Check Finished")
+print(sline)
 
 # Send Email Message
 if send_status:
@@ -465,6 +577,6 @@ if send_status:
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - NO Email Message Sent")
 else:
     print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Email Sending Disabled")
-print("------------------------------------------------------------------")
+print(sline)
 
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Notice Script Ended \n")
