@@ -24,7 +24,7 @@ print("             " +bc.SUB + "S M A R T   THERMOSTAT " + bc.ENDC)
 print("********************************************************")
 print("*          Script to send status Email messages        *")
 print("*                Build Date: 26/10/2021                *")
-print("*      Version 0.05 - Last Modified 25/01/2022         *")
+print("*      Version 0.04 - Last Modified 26/10/2021         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" ")
@@ -467,46 +467,53 @@ try:
             node_id = result[node_to_index['node_id']]
             node_id = str(node_id)
             # get last temperature for this sensor
-            query = ("SELECT payload FROM messages_in WHERE node_id = '" + node_id + "' AND child_id = '" + sensor_child_id + "' ORDER BY datetime DESC LIMIT 1;")
+            query = ("SELECT payload FROM messages_in_view_24h WHERE node_id = '" + node_id + "' AND child_id = '" + sensor_child_id + "' ORDER BY datetime DESC LIMIT 1;")
             cursorsel = con.cursor()
             cursorsel.execute(query)
             result = cursorsel.fetchone()
             cursorsel.close()
-            sensor_temp = result[0]
-            if sensor_temp < min or sensor_temp > max:
-                if sensor_temp < min:
-                    message = "Sensor - " + name + " is Below Minimum Limit"
-                elif sensor_temp > max:
-                    message = "Sensor - " + name + " is Above Maximum Limit"
-                n_msg = message  + "\n"
-                query = ("SELECT * FROM notice WHERE message = '" + n_msg + "' LIMIT 1")
-                cursorsel = con.cursor()
-                cursorsel.execute(query)
-                name_to_index = dict(
-                    (d[0], i)
-                    for i, d
-                    in enumerate(cursorsel.description)
-                )
-                messages = cursorsel.fetchone()
-                cursorsel.close()
-                cursorupdate = con.cursor()
-                if cursorsel.rowcount > 0:  # This message already exists
-                    if messages[name_to_index['status']] == 1:  # This sensor has already sent an email with this content
-                        cursorupdate.execute("UPDATE notice SET status = '0'")  # so clear status to stop further emails
-                else:  # new notification so add a new message to the notification table
-                    cursorupdate.execute(
-                        'INSERT INTO notice (sync, `purge`, datetime, message, status) VALUES(%s,%s,%s,%s,%s)',
-                        (0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), n_msg, 1))
-                    print(bc.blu + (
-                        datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - " + message)
-                cursorupdate.close()
-                con.commit()
-            else: # sensor temp is back within limits so delete the notice
-                query = "DELETE FROM notice WHERE message LIKE 'Sensor - " + name + " is %'"
-                cursordelete = con.cursor()
-                cursordelete.execute(query)
-                cursordelete.close()
-                con.commit()
+            if cursorsel.rowcount > 0: # check if we have any data for this sensor
+                sensor_temp = result[0]
+                if sensor_temp < min or sensor_temp > max:
+                    if sensor_temp < min:
+                        message = "Sensor - " + name + " is Below Minimum Limit"
+                    elif sensor_temp > max:
+                        message = "Sensor - " + name + " is Above Maximum Limit"
+                    n_msg = message  + "\n"
+                    query = ("SELECT * FROM notice WHERE message = '" + n_msg + "' LIMIT 1")
+                    cursorsel = con.cursor()
+                    cursorsel.execute(query)
+                    name_to_index = dict(
+                        (d[0], i)
+                        for i, d
+                        in enumerate(cursorsel.description)
+                    )
+                    messages = cursorsel.fetchone()
+                    cursorsel.close()
+                    cursorupdate = con.cursor()
+                    if cursorsel.rowcount > 0:  # This message already exists
+                        if messages[name_to_index['status']] == 1:  # This sensor has already sent an email with this content
+                            cursorupdate.execute("UPDATE notice SET status = '0'")  # so clear status to stop further emails
+                    else:  # new notification so add a new message to the notification table
+                        cursorupdate.execute(
+                            'INSERT INTO notice (sync, `purge`, datetime, message, status) VALUES(%s,%s,%s,%s,%s)',
+                            (0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), n_msg, 1))
+                        print(bc.blu + (
+                            datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - " + message)
+                    cursorupdate.close()
+                    con.commit()
+                else: # sensor temp is back within limits so delete the notice
+                    query = "DELETE FROM notice WHERE message LIKE 'Sensor - " + name + " is %'"
+                    cursordelete = con.cursor()
+                    cursordelete.execute(query)
+                    cursordelete.close()
+                    con.commit()
+            else: # if not reported in the last 24 hours then delete any old messages
+                    query = "DELETE FROM notice WHERE message LIKE 'Sensor - " + name + " is %'"
+                    cursordelete = con.cursor()
+                    cursordelete.execute(query)
+                    cursordelete.close()
+                    con.commit()
 
 except mdb.Error as e:
     print("Error %d: %s" % (e.args[0], e.args[1]))
