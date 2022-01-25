@@ -34,6 +34,7 @@ import MySQLdb as mdb, datetime, sys, smtplib, string
 import configparser
 import subprocess
 
+sline = "-----------------------------------------------------------------------------"
 # Initialise the database access varables
 config = configparser.ConfigParser()
 config.read('/var/www/st_inc/db_config.ini')
@@ -82,7 +83,7 @@ finally:
         con.close()
 
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Notice Script Started")
-print("------------------------------------------------------------------")
+print(sline)
 # Check Gateway Logs for last 10 minuts and start search for gateway connected failed.
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Checking Gateway Communication")
 
@@ -132,7 +133,7 @@ finally:
     if con:
         con.close()
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Gateway Notice Finished")
-print("------------------------------------------------------------------")
+print(sline)
 
 # *************************************************************************************************************
 # Active Nodes Last Seen status and Battery Level
@@ -349,7 +350,7 @@ finally:
         con.close()
 
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Active Node Check Finished")
-print("------------------------------------------------------------------")
+print(sline)
 
 # *************************************************************************************************************
 # Check CPU Temperature from last one hour if it was over 50c
@@ -413,7 +414,7 @@ finally:
         con.close()
 
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - CPU Temperature Check Finished")
-print("------------------------------------------------------------------")
+print(sline)
 
 # *************************************************************************************************************
 # Check if any Sensors have exceeded set thier limits
@@ -523,7 +524,7 @@ finally:
         con.close()
 
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Sensor Limits Check Finished")
-print("------------------------------------------------------------------")
+print(sline)
 
 # Send Email Message
 if send_status:
@@ -576,6 +577,6 @@ if send_status:
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - NO Email Message Sent")
 else:
     print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Email Sending Disabled")
-print("------------------------------------------------------------------")
+print(sline)
 
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Notice Script Ended \n")
