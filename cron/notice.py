@@ -376,14 +376,15 @@ try:
     if count > 0:  # If greater then 0 then we have something to send out.
         message = "Over CPU Max Temperature Recorded in last one Hour"
         query = ("SELECT * FROM notice WHERE message = '" + message + "'")
-        cursorselect.execute(query)
+        cursorsel = con.cursor()
+        cursorsel.execute(query)
         name_to_index = dict(
             (d[0], i)
             for i, d
-            in enumerate(cursorselect.description)
+            in enumerate(cursorsel.description)
         )
-        messages = cursorselect.fetchone()  # Grab all notices with the same message content.
-        cursorselect.close()
+        messages = cursorsel.fetchone()
+        cursorsel.close()
         cursorupdate = con.cursor()
         if cursorselect.rowcount > 0:
             if messages[name_to_index['status']] == 1:
@@ -412,6 +413,112 @@ finally:
         con.close()
 
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - CPU Temperature Check Finished")
+print("------------------------------------------------------------------")
+
+# *************************************************************************************************************
+# Check if any Sensors have exceeded set thier limits
+print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Checking Sensors for Out of Limits Temperature")
+
+try:
+    con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+    cursorselect = con.cursor()
+    query = ("SELECT * FROM sensor_limits WHERE status = 1")
+    cursorselect.execute(query)
+    sensor_to_index = dict(
+        (d[0], i)
+        for i, d
+        in enumerate(cursorselect.description)
+    )
+    results = cursorselect.fetchall()
+    cursorselect.close()
+    if cursorselect.rowcount > 0:  # Some Sensors have limits set
+        for i in results:  # loop through sensors with limits
+            sensors_id = i[sensor_to_index['sensor_id']]
+            sensors_id = str(sensors_id)
+            min = i[sensor_to_index['min']]
+            max = i[sensor_to_index['max']]
+            # get the sensor node and child id
+            query = ("SELECT name, sensor_id, sensor_child_id FROM sensors WHERE id = '" + sensors_id + "' LIMIT 1")
+            cursorsel = con.cursor()
+            cursorsel.execute(query)
+            name_to_index = dict(
+                (d[0], i)
+                for i, d
+                in enumerate(cursorsel.description)
+            )
+            result = cursorsel.fetchone()
+            cursorsel.close()
+            name = result[name_to_index['name']]
+            sensor_id = result[name_to_index['sensor_id']]
+            sensor_id = str(sensor_id)
+            sensor_child_id = result[name_to_index['sensor_child_id']]
+            sensor_child_id = str(sensor_child_id)
+            # get the node id for this sensor
+            query = ("SELECT node_id FROM nodes WHERE id = '" + sensor_id + "' LIMIT 1")
+            cursorsel = con.cursor()
+            cursorsel.execute(query)
+            node_to_index = dict(
+                (d[0], i)
+                for i, d
+                in enumerate(cursorsel.description)
+            )
+            result = cursorsel.fetchone()
+            cursorsel.close()
+            node_id = result[node_to_index['node_id']]
+            node_id = str(node_id)
+            # get last temperature for this sensor
+            query = ("SELECT payload FROM messages_in WHERE node_id = '" + node_id + "' AND child_id = '" + sensor_child_id + "' ORDER BY datetime DESC LIMIT 1;")
+            cursorsel = con.cursor()
+            cursorsel.execute(query)
+            result = cursorsel.fetchone()
+            cursorsel.close()
+            sensor_temp = result[0]
+            if sensor_temp < min or sensor_temp > max:
+                if sensor_temp < min:
+                    message = "Sensor - " + name + " is Below Minimum Limit" + "\n"
+                elif sensor_temp > max:
+                    message = "Sensor - " + name + " is Above Maximum Limit" + "\n"
+                query = ("SELECT * FROM notice WHERE message = '" + message + "' LIMIT 1")
+                cursorsel = con.cursor()
+                cursorsel.execute(query)
+                name_to_index = dict(
+                    (d[0], i)
+                    for i, d
+                    in enumerate(cursorsel.description)
+                )
+                messages = cursorsel.fetchone()
+                cursorsel.close()
+                cursorupdate = con.cursor()
+                if cursorsel.rowcount > 0:  # This message already exists
+                    if messages[name_to_index['status']] == 1:  # This sensor has already sent an email with this content
+                        cursorupdate.execute("UPDATE notice SET status = '0'")  # so clear status to stop further emails
+                else:  # new notification so add a new message to the notification table
+                    cursorupdate.execute(
+                        'INSERT INTO notice (sync, `purge`, datetime, message, status) VALUES(%s,%s,%s,%s,%s)',
+                        (0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message, 1))
+                    if sensor_temp < min:
+                        message = "Sensor - " + name + " is Below Minimum Limit"
+                    elif sensor_temp > max:
+                        message = "Sensor - " + name + " is Above Maximum Limit"
+                    print(bc.blu + (
+                        datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - " + message)
+                cursorupdate.close()
+                con.commit()
+            else: # sensor temp is back within limits so delete the notice
+                query = "DELETE FROM notice WHERE message LIKE 'Sensor - " + name + " is %'"
+                cursordelete = con.cursor()
+                cursordelete.execute(query)
+                cursordelete.close()
+                con.commit()
+
+except mdb.Error as e:
+    print("Error %d: %s" % (e.args[0], e.args[1]))
+    sys.exit(1)
+finally:
+    if con:
+        con.close()
+
+print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Sensor Limits Check Finished")
 print("------------------------------------------------------------------")
 
 # Send Email Message
