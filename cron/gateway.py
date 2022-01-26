@@ -128,7 +128,7 @@ def set_relays(
         results_mqtt_r = cur.fetchone()
         description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
         mqtt_topic = results_mqtt_r[description_to_index["mqtt_topic"]]
-        if out_payload == "1":
+        if int(out_payload) == out_on_trigger:
             payload_str = results_mqtt_r[description_to_index["on_payload"]]
         else:
             payload_str = results_mqtt_r[description_to_index["off_payload"]]
