@@ -99,7 +99,9 @@ if (isset($_POST['submit'])) {
                         }
                 }
 		else {
-	                $query = "UPDATE schedule_night_climate_time SET sync = '0', status = '{$sc_en}', start_time = '{$start_time}', end_time = '{$end_time}', WeekDays = '{$mask}' where id = 1;";
+                        $found_product = mysqli_fetch_array($result);
+                        $nct_id = $found_product['id'];
+	                $query = "UPDATE schedule_night_climate_time SET sync = '0', status = '{$sc_en}', start_time = '{$start_time}', end_time = '{$end_time}', WeekDays = '{$mask}' where id = {$nct_id};";
         	        $timeresults = $conn->query($query);
                 	if ($timeresults) {
                         	$message_success = "<p>".$lang['night_climate_time_success']."</p>";
@@ -249,9 +251,9 @@ if (isset($_POST['submit'])) {
 
 <!-- If the request is to EDIT, retrieve selected items from DB   -->
 <?php if(isset($_GET['nid'])) {
-        $query = "SELECT `id`, `sync`, `purge`, `status`, `start_time` as start, `end_time` as end, `WeekDays` FROM schedule_night_climate_time WHERE id = 1;";
-        $results = $conn->query($query);
-        $time_row = mysqli_fetch_assoc($results);
+        $query = "SELECT `id`, `sync`, `purge`, `status`, `start_time` as start, `end_time` as end, `WeekDays` FROM schedule_night_climate_time LIMIT 1;";
+        $result = $conn->query($query);
+        $time_row = mysqli_fetch_assoc($result);
         $query = "select * from schedule_night_climat_zone_view where zone_status = 1;";
         $zoneresults = $conn->query($query);
 } elseif ($time_id != 0) {
