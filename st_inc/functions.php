@@ -960,7 +960,7 @@ function offset($conn,$button) {
 function night_climate($conn,$button) {
         global $button_style;
 
-        $query = "SELECT * FROM schedule_night_climate_time WHERE id = 1";
+        $query = "SELECT * FROM schedule_night_climate_time LIMIT 1";
         $results = $conn->query($query);
         $row = mysqli_fetch_assoc($results);
         if ($row['status'] == 1) {$night_status='red';}else{$night_status='blue';}
