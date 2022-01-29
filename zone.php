@@ -31,6 +31,10 @@ if(isset($_GET['id'])) {
 	$id = 0;
 	$controller_count = 1;
 }
+
+//used to suppress display of Max Operating Time and Hysteresis Time input fields 
+$no_max_op_hys = 0;
+
 //Form submit
 if (isset($_POST['submit'])) {
         $zone_sensor_id = $_POST['selected_sensor_id'];
@@ -57,11 +61,14 @@ if (isset($_POST['submit'])) {
 		$max_c = 0;
                 $default_c = 0;
 	}
-//      Removed 29/01/2022 by twa as these 2 parameters are never used, default values used to populate database in case decide to re-implement at some future date
-//      $max_operation_time = $_POST['max_operation_time'];
-//      $hysteresis_time = $_POST['hysteresis_time'];
-        $max_operation_time = 60;
-        $hysteresis_time = 3;
+//	Removed 29/01/2022 by twa as these 2 parameters are never used, default values used to populate database in case decide to re-implement at some future date
+	if ($no_max_op_hys == 1) {
+		$max_operation_time = $_POST['max_operation_time'];
+		$hysteresis_time = $_POST['hysteresis_time'];
+	} else {
+	        $max_operation_time = 60;
+        	$hysteresis_time = 3;
+	}
         $sp_deadband = $_POST['sp_deadband'];
         $initial_sensor_id = $_POST['initial_sensor_id'];
 	$controllers = array();
@@ -546,8 +553,8 @@ function zone_category(value)
                         document.getElementById("max_c_label_2").style.visibility = 'visible';
                         document.getElementById("max_c_label_2").innerHTML = document.getElementById("max_c_label_info").value;;
                         document.getElementById("max_c").style.display = 'block';
-//                        document.getElementById("hysteresis_time").style.display = 'block';
-//                        document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
+                        document.getElementById("hysteresis_time").style.display = 'block';
+                        document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
                         document.getElementById("sp_deadband").style.display = 'block';
                         document.getElementById("sp_deadband_label").style.visibility = 'visible';;
                         document.getElementById("zone_sensor_id").style.display = 'block';
@@ -560,7 +567,7 @@ function zone_category(value)
                         document.getElementById("boost_button_child_id").style.display = 'block';
                         document.getElementById("boost_button_child_id_label").style.visibility = 'visible';;
                         document.getElementById("max_c").required = true;
-//                        document.getElementById("hysteresis_time").required = true;
+                        document.getElementById("hysteresis_time").required = true;
                         document.getElementById("sp_deadband").required = true;
 			document.getElementById("sensor_id_label_1").innerHTML = document.getElementById("sensor_c_label_text").value;
                         document.getElementById("zone_sensor_id").required = true;
@@ -611,13 +618,13 @@ function zone_category(value)
                                 document.getElementById("max_c_label_2").innerHTML = document.getElementById("max_c_label_info").value;;
                         }
                         if (document.getElementById("selected_zone_type").value === "Immersion") {
-//	                        document.getElementById("hysteresis_time").style.display = 'block';
-//        	                document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
+	                        document.getElementById("hysteresis_time").style.display = 'block';
+        	                document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
                 	        document.getElementById("sp_deadband").style.display = 'block';
                         	document.getElementById("sp_deadband_label").style.visibility = 'visible';;
 			} else {
-//                                document.getElementById("hysteresis_time").style.display = 'none';
-//                                document.getElementById("hysteresis_time_label").style.visibility = 'hidden';;
+                                document.getElementById("hysteresis_time").style.display = 'none';
+                                document.getElementById("hysteresis_time_label").style.visibility = 'hidden';;
                                 document.getElementById("sp_deadband").style.display = 'none';
                                 document.getElementById("sp_deadband_label").style.visibility = 'hidden';;
 			}
@@ -632,7 +639,7 @@ function zone_category(value)
                 	        document.getElementById("boost_button_child_id").style.display = 'block';
                         	document.getElementById("boost_button_child_id_label").style.visibility = 'visible';;
 	                        document.getElementById("max_c").required = true;
-//        	                document.getElementById("hysteresis_time").required = true;
+        	                document.getElementById("hysteresis_time").required = true;
                 	        document.getElementById("sp_deadband").required = true;
 			} else {
                                 document.getElementById("boost_button_id").style.display = 'none';
@@ -640,7 +647,7 @@ function zone_category(value)
                                 document.getElementById("boost_button_child_id").style.display = 'none';
                                 document.getElementById("boost_button_child_id_label").style.visibility = 'hidden';;
                                 document.getElementById("max_c").required = false;
-//                                document.getElementById("hysteresis_time").required = false;
+                                document.getElementById("hysteresis_time").required = false;
                                 document.getElementById("sp_deadband").required = false;
 			}
                         if (document.getElementById("selected_zone_type").value === "Binary") {
@@ -668,8 +675,8 @@ function zone_category(value)
                         document.getElementById("default_c").style.display = 'none';
                         document.getElementById("default_c_label_1").style.visibility = 'hidden';;
                         document.getElementById("default_c_label_2").style.visibility = 'hidden';;
-//                        document.getElementById("hysteresis_time").style.display = 'none';
-//                        document.getElementById("hysteresis_time_label").style.visibility = 'hidden';;
+                        document.getElementById("hysteresis_time").style.display = 'none';
+                        document.getElementById("hysteresis_time_label").style.visibility = 'hidden';;
                         document.getElementById("sp_deadband").style.display = 'none';
                         document.getElementById("sp_deadband_label").style.visibility = 'hidden';;
                         document.getElementById("zone_sensor_id").style.display = 'none';
@@ -683,7 +690,7 @@ function zone_category(value)
                         document.getElementById("boost_button_child_id").style.display = 'none';
                         document.getElementById("boost_button_child_id_label").style.visibility = 'hidden';;
                         document.getElementById("max_c").required = false;
-//                        document.getElementById("hysteresis_time").required = false;
+                        document.getElementById("hysteresis_time").required = false;
                         document.getElementById("sp_deadband").required = false;
                         document.getElementById("sensor_id_label_1").innerHTML = document.getElementById("sensor_c_label_text").value;
                         document.getElementById("zone_sensor_id").required = false;
@@ -707,8 +714,8 @@ function zone_category(value)
                         document.getElementById("max_c_label_2").style.visibility = 'visible';
                         document.getElementById("max_c_label_2").innerHTML = document.getElementById("max_c_label_info").value;;
                         document.getElementById("max_c").style.display = 'block';
-//                        document.getElementById("hysteresis_time").style.display = 'block';
-//                        document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
+                        document.getElementById("hysteresis_time").style.display = 'block';
+                        document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
                         document.getElementById("sp_deadband").style.display = 'block';
                         document.getElementById("sp_deadband_label").style.visibility = 'visible';;
                         document.getElementById("zone_sensor_id").style.display = 'block';
@@ -726,7 +733,7 @@ function zone_category(value)
                         document.getElementById("boost_button_child_id").style.display = 'block';
                         document.getElementById("boost_button_child_id_label").style.visibility = 'visible';;
                         document.getElementById("max_c").required = true;
-//                        document.getElementById("hysteresis_time").required = true;
+                        document.getElementById("hysteresis_time").required = true;
                         document.getElementById("sp_deadband").required = true;
                         document.getElementById("sensor_id_label_1").innerHTML = document.getElementById("sensor_c_label_text").value;
                         document.getElementById("zone_sensor_id").required = true;
@@ -781,19 +788,18 @@ function zone_category(value)
 <div class="form-group" class="control-label" style="display:block"><label id="max_c_label_1"><?php echo $lang['max_temperature']; ?></label> <small class="text-muted" id="max_c_label_2"><?php echo $lang['zone_max_temperature_info'];?></small>
 <input class="form-control" placeholder="<?php echo $lang['zone_max_temperature_help']; ?>" value="<?php if(isset($rowzonesensors['max_c'])) { echo DispSensor($conn,$rowzonesensors['max_c'],$rowzonesensors['sensor_type_id']); } else {echo DispSensor($conn,'25',$rowzonesensors['sensor_type_id']);}  ?>" id="max_c" name="max_c" data-error="<?php echo $lang['zone_max_temperature_error']; ?>"  autocomplete="off" required>
 <div class="help-block with-errors"></div></div>
+<?php // Removed 29/01/2022 by twa as these 2 parameters are never used
+if ($no_max_op_hys == 1) { ?>
+	<!-- Maximum Operation Time -->
+	<div class="form-group" class="control-label" id="max_operation_time_label" style="display:block"><label><?php echo $lang['zone_max_operation_time']; ?></label> <small class="text-muted"><?php echo $lang['zone_max_operation_time_info'];?></small>
+	<input class="form-control" placeholder="<?php echo $lang['zone_max_operation_time_help']; ?>" value="<?php if(isset($row['max_operation_time'])) { echo $row['max_operation_time']; } else {echo '60';}  ?>" id="max_operation_time" name="max_operation_time" data-error="<?php echo $lang['zone_max_operation_time_error']; ?>"  autocomplete="off" required>
+	<div class="help-block with-errors"></div></div>
 
-<?php /* Removed 29/01/2022 by twa as these 2 parameters are never used
-<!-- Maximum Operation Time -->
-<div class="form-group" class="control-label" id="max_operation_time_label" style="display:block"><label><?php echo $lang['zone_max_operation_time']; ?></label> <small class="text-muted"><?php echo $lang['zone_max_operation_time_info'];?></small>
-<input class="form-control" placeholder="<?php echo $lang['zone_max_operation_time_help']; ?>" value="<?php if(isset($row['max_operation_time'])) { echo $row['max_operation_time']; } else {echo '60';}  ?>" id="max_operation_time" name="max_operation_time" data-error="<?php echo $lang['zone_max_operation_time_error']; ?>"  autocomplete="off" required>
-<div class="help-block with-errors"></div></div>
-
-<!-- Hysteresis Time -->
-<div class="form-group" class="control-label" id="hysteresis_time_label" style="display:block"><label><?php echo $lang['hysteresis_time']; ?></label> <small class="text-muted"><?php echo $lang['zone_hysteresis_info'];?></small>
-<input class="form-control" placeholder="<?php echo $lang['zone_hysteresis_time_help']; ?>" value="<?php if(isset($rowzonesensors['hysteresis_time'])) { echo $rowzonesensors['hysteresis_time']; } else {echo '3';} ?>" id="hysteresis_time" name="hysteresis_time" data-error="<?php echo $lang['zone_hysteresis_time_error']; ?>"  autocomplete="off" required>
-<div class="help-block with-errors"></div></div>
-*/ ?>
-
+	<!-- Hysteresis Time -->
+	<div class="form-group" class="control-label" id="hysteresis_time_label" style="display:block"><label><?php echo $lang['hysteresis_time']; ?></label> <small class="text-muted"><?php echo $lang['zone_hysteresis_info'];?></small>
+	<input class="form-control" placeholder="<?php echo $lang['zone_hysteresis_time_help']; ?>" value="<?php if(isset($rowzonesensors['hysteresis_time'])) { echo $rowzonesensors['hysteresis_time']; } else {echo '3';} ?>" id="hysteresis_time" name="hysteresis_time" data-error="<?php echo $lang['zone_hysteresis_time_error']; ?>"  autocomplete="off" required>
+	<div class="help-block with-errors"></div></div>
+<?php } ?>
 <!-- Temperature Setpoint Deadband -->
 <div class="form-group" class="control-label" id="sp_deadband_label" style="display:block"><label><?php echo $lang['zone_sp_deadband']; ?></label> <small class="text-muted"><?php echo $lang['zone_sp_deadband_info'];?></small>
 <input class="form-control" placeholder="<?php echo $lang['zone_sp_deadband_help']; ?>" value="<?php if(isset($rowzonesensors['sp_deadband'])) { echo $rowzonesensors['sp_deadband']; } else {echo '0.5';} ?>" id="sp_deadband" name="sp_deadband" data-error="<?php echo $lang['zone_sp_deadband_error'] ; ?>"  autocomplete="off" required>
