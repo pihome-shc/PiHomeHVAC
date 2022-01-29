@@ -32,7 +32,7 @@ if(isset($_GET['id'])) {
 	$controller_count = 1;
 }
 
-//used to suppress display of Max Operating Time and Hysteresis Time input fields 
+//used to suppress display of Max Operating Time and Hysteresis Time input fields, 0 = fields supressed, 1 = fields displayed
 $no_max_op_hys = 0;
 
 //Form submit
