@@ -546,8 +546,8 @@ function zone_category(value)
                         document.getElementById("max_c_label_2").style.visibility = 'visible';
                         document.getElementById("max_c_label_2").innerHTML = document.getElementById("max_c_label_info").value;;
                         document.getElementById("max_c").style.display = 'block';
-                        document.getElementById("hysteresis_time").style.display = 'block';
-                        document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
+//                        document.getElementById("hysteresis_time").style.display = 'block';
+//                        document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
                         document.getElementById("sp_deadband").style.display = 'block';
                         document.getElementById("sp_deadband_label").style.visibility = 'visible';;
                         document.getElementById("zone_sensor_id").style.display = 'block';
@@ -560,7 +560,7 @@ function zone_category(value)
                         document.getElementById("boost_button_child_id").style.display = 'block';
                         document.getElementById("boost_button_child_id_label").style.visibility = 'visible';;
                         document.getElementById("max_c").required = true;
-                        document.getElementById("hysteresis_time").required = true;
+//                        document.getElementById("hysteresis_time").required = true;
                         document.getElementById("sp_deadband").required = true;
 			document.getElementById("sensor_id_label_1").innerHTML = document.getElementById("sensor_c_label_text").value;
                         document.getElementById("zone_sensor_id").required = true;
@@ -611,13 +611,13 @@ function zone_category(value)
                                 document.getElementById("max_c_label_2").innerHTML = document.getElementById("max_c_label_info").value;;
                         }
                         if (document.getElementById("selected_zone_type").value === "Immersion") {
-	                        document.getElementById("hysteresis_time").style.display = 'block';
-        	                document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
+//	                        document.getElementById("hysteresis_time").style.display = 'block';
+//        	                document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
                 	        document.getElementById("sp_deadband").style.display = 'block';
                         	document.getElementById("sp_deadband_label").style.visibility = 'visible';;
 			} else {
-                                document.getElementById("hysteresis_time").style.display = 'none';
-                                document.getElementById("hysteresis_time_label").style.visibility = 'hidden';;
+//                                document.getElementById("hysteresis_time").style.display = 'none';
+//                                document.getElementById("hysteresis_time_label").style.visibility = 'hidden';;
                                 document.getElementById("sp_deadband").style.display = 'none';
                                 document.getElementById("sp_deadband_label").style.visibility = 'hidden';;
 			}
@@ -632,7 +632,7 @@ function zone_category(value)
                 	        document.getElementById("boost_button_child_id").style.display = 'block';
                         	document.getElementById("boost_button_child_id_label").style.visibility = 'visible';;
 	                        document.getElementById("max_c").required = true;
-        	                document.getElementById("hysteresis_time").required = true;
+//        	                document.getElementById("hysteresis_time").required = true;
                 	        document.getElementById("sp_deadband").required = true;
 			} else {
                                 document.getElementById("boost_button_id").style.display = 'none';
@@ -640,7 +640,7 @@ function zone_category(value)
                                 document.getElementById("boost_button_child_id").style.display = 'none';
                                 document.getElementById("boost_button_child_id_label").style.visibility = 'hidden';;
                                 document.getElementById("max_c").required = false;
-                                document.getElementById("hysteresis_time").required = false;
+//                                document.getElementById("hysteresis_time").required = false;
                                 document.getElementById("sp_deadband").required = false;
 			}
                         if (document.getElementById("selected_zone_type").value === "Binary") {
@@ -668,8 +668,8 @@ function zone_category(value)
                         document.getElementById("default_c").style.display = 'none';
                         document.getElementById("default_c_label_1").style.visibility = 'hidden';;
                         document.getElementById("default_c_label_2").style.visibility = 'hidden';;
-                        document.getElementById("hysteresis_time").style.display = 'none';
-                        document.getElementById("hysteresis_time_label").style.visibility = 'hidden';;
+//                        document.getElementById("hysteresis_time").style.display = 'none';
+//                        document.getElementById("hysteresis_time_label").style.visibility = 'hidden';;
                         document.getElementById("sp_deadband").style.display = 'none';
                         document.getElementById("sp_deadband_label").style.visibility = 'hidden';;
                         document.getElementById("zone_sensor_id").style.display = 'none';
@@ -683,7 +683,7 @@ function zone_category(value)
                         document.getElementById("boost_button_child_id").style.display = 'none';
                         document.getElementById("boost_button_child_id_label").style.visibility = 'hidden';;
                         document.getElementById("max_c").required = false;
-                        document.getElementById("hysteresis_time").required = false;
+//                        document.getElementById("hysteresis_time").required = false;
                         document.getElementById("sp_deadband").required = false;
                         document.getElementById("sensor_id_label_1").innerHTML = document.getElementById("sensor_c_label_text").value;
                         document.getElementById("zone_sensor_id").required = false;
@@ -707,8 +707,8 @@ function zone_category(value)
                         document.getElementById("max_c_label_2").style.visibility = 'visible';
                         document.getElementById("max_c_label_2").innerHTML = document.getElementById("max_c_label_info").value;;
                         document.getElementById("max_c").style.display = 'block';
-                        document.getElementById("hysteresis_time").style.display = 'block';
-                        document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
+//                        document.getElementById("hysteresis_time").style.display = 'block';
+//                        document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
                         document.getElementById("sp_deadband").style.display = 'block';
                         document.getElementById("sp_deadband_label").style.visibility = 'visible';;
                         document.getElementById("zone_sensor_id").style.display = 'block';
@@ -726,7 +726,7 @@ function zone_category(value)
                         document.getElementById("boost_button_child_id").style.display = 'block';
                         document.getElementById("boost_button_child_id_label").style.visibility = 'visible';;
                         document.getElementById("max_c").required = true;
-                        document.getElementById("hysteresis_time").required = true;
+//                        document.getElementById("hysteresis_time").required = true;
                         document.getElementById("sp_deadband").required = true;
                         document.getElementById("sensor_id_label_1").innerHTML = document.getElementById("sensor_c_label_text").value;
                         document.getElementById("zone_sensor_id").required = true;
