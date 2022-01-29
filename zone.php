@@ -31,6 +31,10 @@ if(isset($_GET['id'])) {
 	$id = 0;
 	$controller_count = 1;
 }
+
+//used to suppress display of Max Operating Time and Hysteresis Time input fields, 0 = fields supressed, 1 = fields displayed
+$no_max_op_hys = 0;
+
 //Form submit
 if (isset($_POST['submit'])) {
         $zone_sensor_id = $_POST['selected_sensor_id'];
@@ -57,8 +61,14 @@ if (isset($_POST['submit'])) {
 		$max_c = 0;
                 $default_c = 0;
 	}
-	$max_operation_time = $_POST['max_operation_time'];
-	$hysteresis_time = $_POST['hysteresis_time'];
+//	Removed 29/01/2022 by twa as these 2 parameters are never used, default values used to populate database in case decide to re-implement at some future date
+	if ($no_max_op_hys == 1) {
+		$max_operation_time = $_POST['max_operation_time'];
+		$hysteresis_time = $_POST['hysteresis_time'];
+	} else {
+	        $max_operation_time = 60;
+        	$hysteresis_time = 3;
+	}
         $sp_deadband = $_POST['sp_deadband'];
         $initial_sensor_id = $_POST['initial_sensor_id'];
 	$controllers = array();
@@ -778,17 +788,18 @@ function zone_category(value)
 <div class="form-group" class="control-label" style="display:block"><label id="max_c_label_1"><?php echo $lang['max_temperature']; ?></label> <small class="text-muted" id="max_c_label_2"><?php echo $lang['zone_max_temperature_info'];?></small>
 <input class="form-control" placeholder="<?php echo $lang['zone_max_temperature_help']; ?>" value="<?php if(isset($rowzonesensors['max_c'])) { echo DispSensor($conn,$rowzonesensors['max_c'],$rowzonesensors['sensor_type_id']); } else {echo DispSensor($conn,'25',$rowzonesensors['sensor_type_id']);}  ?>" id="max_c" name="max_c" data-error="<?php echo $lang['zone_max_temperature_error']; ?>"  autocomplete="off" required>
 <div class="help-block with-errors"></div></div>
+<?php // Removed 29/01/2022 by twa as these 2 parameters are never used
+if ($no_max_op_hys == 1) { ?>
+	<!-- Maximum Operation Time -->
+	<div class="form-group" class="control-label" id="max_operation_time_label" style="display:block"><label><?php echo $lang['zone_max_operation_time']; ?></label> <small class="text-muted"><?php echo $lang['zone_max_operation_time_info'];?></small>
+	<input class="form-control" placeholder="<?php echo $lang['zone_max_operation_time_help']; ?>" value="<?php if(isset($row['max_operation_time'])) { echo $row['max_operation_time']; } else {echo '60';}  ?>" id="max_operation_time" name="max_operation_time" data-error="<?php echo $lang['zone_max_operation_time_error']; ?>"  autocomplete="off" required>
+	<div class="help-block with-errors"></div></div>
 
-<!-- Maximum Operation Time -->
-<div class="form-group" class="control-label" id="max_operation_time_label" style="display:block"><label><?php echo $lang['zone_max_operation_time']; ?></label> <small class="text-muted"><?php echo $lang['zone_max_operation_time_info'];?></small>
-<input class="form-control" placeholder="<?php echo $lang['zone_max_operation_time_help']; ?>" value="<?php if(isset($row['max_operation_time'])) { echo $row['max_operation_time']; } else {echo '60';}  ?>" id="max_operation_time" name="max_operation_time" data-error="<?php echo $lang['zone_max_operation_time_error']; ?>"  autocomplete="off" required>
-<div class="help-block with-errors"></div></div>
-
-<!-- Hysteresis Time -->
-<div class="form-group" class="control-label" id="hysteresis_time_label" style="display:block"><label><?php echo $lang['hysteresis_time']; ?></label> <small class="text-muted"><?php echo $lang['zone_hysteresis_info'];?></small>
-<input class="form-control" placeholder="<?php echo $lang['zone_hysteresis_time_help']; ?>" value="<?php if(isset($rowzonesensors['hysteresis_time'])) { echo $rowzonesensors['hysteresis_time']; } else {echo '3';} ?>" id="hysteresis_time" name="hysteresis_time" data-error="<?php echo $lang['zone_hysteresis_time_error']; ?>"  autocomplete="off" required>
-<div class="help-block with-errors"></div></div>
-
+	<!-- Hysteresis Time -->
+	<div class="form-group" class="control-label" id="hysteresis_time_label" style="display:block"><label><?php echo $lang['hysteresis_time']; ?></label> <small class="text-muted"><?php echo $lang['zone_hysteresis_info'];?></small>
+	<input class="form-control" placeholder="<?php echo $lang['zone_hysteresis_time_help']; ?>" value="<?php if(isset($rowzonesensors['hysteresis_time'])) { echo $rowzonesensors['hysteresis_time']; } else {echo '3';} ?>" id="hysteresis_time" name="hysteresis_time" data-error="<?php echo $lang['zone_hysteresis_time_error']; ?>"  autocomplete="off" required>
+	<div class="help-block with-errors"></div></div>
+<?php } ?>
 <!-- Temperature Setpoint Deadband -->
 <div class="form-group" class="control-label" id="sp_deadband_label" style="display:block"><label><?php echo $lang['zone_sp_deadband']; ?></label> <small class="text-muted"><?php echo $lang['zone_sp_deadband_info'];?></small>
 <input class="form-control" placeholder="<?php echo $lang['zone_sp_deadband_help']; ?>" value="<?php if(isset($rowzonesensors['sp_deadband'])) { echo $rowzonesensors['sp_deadband']; } else {echo '0.5';} ?>" id="sp_deadband" name="sp_deadband" data-error="<?php echo $lang['zone_sp_deadband_error'] ; ?>"  autocomplete="off" required>
