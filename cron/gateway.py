@@ -26,7 +26,7 @@ print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
 print("* Script to communicate with MySensors Nodes, for more *")
 print("* info please check MySensors API.                     *")
 print("*      Build Date: 18/09/2017                          *")
-print("*      Version 0.11 - Last Modified 18/08/2021         *")
+print("*      Version 0.12 - Last Modified 31/01/2022         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -544,16 +544,29 @@ try:
             node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
             n_id = nd[node_to_index["id"]]
             node_type = nd[node_to_index["type"]]
+            # Get the trigger level if the node/child is present in the relays table
             cur.execute(
-                "SELECT on_trigger FROM `relays` where relay_id = (%s) AND relay_child_id = (%s) LIMIT 1",
+                "SELECT COUNT(*) FROM `relays` where relay_id = (%s) AND relay_child_id = (%s) LIMIT 1",
                 (
                     n_id,
                     out_child_id,
                 ),
             )
-            r = cur.fetchone()
-            relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-            out_on_trigger = r[relay_to_index["on_trigger"]]
+            count = cur.fetchone()  # Grab all messages from database for Outgoing.
+            count = count[
+                0
+            ]  # Parse first and the only one part of data table named "count" - there is number of records grabbed in SELECT above
+            if count > 0:  # If greater then 0 then it is a relay, so get the trigger level.
+                cur.execute(
+                    "SELECT on_trigger FROM `relays` where relay_id = (%s) AND relay_child_id = (%s) LIMIT 1",
+                    (
+                        n_id,
+                        out_child_id,
+                    ),
+                )
+                r = cur.fetchone()
+                relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                out_on_trigger = r[relay_to_index["on_trigger"]]
             if gatewayenableoutgoing == 1 or (
                 node_type.find("GPIO") != -1 and gatewayenableoutgoing == 0
             ):
