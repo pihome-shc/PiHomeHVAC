@@ -73,7 +73,7 @@ try:
 				pass
 			time.sleep(10)
 			timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-			cur.execute('UPDATE `sw_install` SET `stop_datetime`=now() WHERE id = %s', [timestamp, id])
+			cur.execute('UPDATE `sw_install` SET `stop_datetime` = %s WHERE id = %s', [timestamp, id])
 			con.commit()
 			con.close()
 			print("Finished Executing script: ", script)
