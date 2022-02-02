@@ -47,19 +47,26 @@ if (isset($_POST['submit'])) {
         $purge= '0';
 	$frost_temp = $_POST['frost_temp'];
 	if ($frost_temp == 0) { $frost_controller = 0; } else { $frost_controller = $_POST['frost_controller']; }
+        $show_it = $_POST['show_it'];
+        $graph_num = $_POST['graph_num'];
 
 	//Add or Edit Sensor record to sensors Table
-	$query = "INSERT INTO `sensors` (`id`, `sync`, `purge`, `zone_id`, `sensor_id`, `sensor_child_id`, `correction_factor`, `sensor_type_id`, `index_id`, `pre_post`, `name`, `graph_num`, `show_it`, `frost_temp`, `frost_controller`) VALUES ('{$id}', '{$sync}', '{$purge}', '0', '{$sensor_id}', '{$sensor_child_id}', '{$correction_factor}', '{$sensor_type_id}', '{$index_id}', '{$pre_post}', '{$name}', '0', '1', '{$frost_temp}', '{$frost_controller}') ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), sensor_id=VALUES(sensor_id), sensor_child_id=VALUES(sensor_child_id), correction_factor=VALUES(correction_factor), sensor_type_id=VALUES(sensor_type_id), index_id=VALUES(index_id), pre_post=VALUES(pre_post), name=VALUES(name), graph_num=VALUES(graph_num), show_it=VALUES(show_it), frost_temp=VALUES(frost_temp), frost_controller=VALUES(frost_controller);";
+	
+        if ($id==0){
+                $query = "INSERT INTO `sensors` (`id`, `sync`, `purge`, `zone_id`, `sensor_id`, `sensor_child_id`, `correction_factor`, `sensor_type_id`, `index_id`, `pre_post`, `name`, `graph_num`, `show_it`, `frost_temp`, `frost_controller`) VALUES ('{$id}', '{$sync}', '{$purge}', '0', '{$sensor_id}', '{$sensor_child_id}', '{$correction_factor}', '{$sensor_type_id}', '{$index_id}', '{$pre_post}', '{$name}', '0', '1', '{$frost_temp}', '{$frost_controller}');";
+        } else {
+                $query = "UPDATE `sensors` SET `sync` = '{$sync}',`purge` = '{$purge}',`sensor_id` = '{$sensor_id}',`sensor_child_id` = '{$sensor_child_id}',`correction_factor` = '{$correction_factor}',`sensor_type_id` = '{$sensor_type_id}',`index_id` = '{$index_id}',`pre_post` = '{$pre_post}',`name` = '{$name}',`graph_num` = '{$graph_num}',`show_it` = '{$show_it}',`frost_temp` = '{$frost_temp}',`frost_controller` = '{$frost_controller}' WHERE `id` = {$id};";
+        }
 	$result = $conn->query($query);
         $temp_id = mysqli_insert_id($conn);
 	if ($result) {
                 if ($id==0){
-                        $message_success = "<p>".$lang['temp_sensor_record_add_success']."</p>";
+                        $message_success = "<p>".$lang['sensor_record_add_success']."</p>";
                 } else {
-                        $message_success = "<p>".$lang['temp_sensor_record_update_success']."</p>";
+                        $message_success = "<p>".$lang['sensor_record_update_success']."</p>";
                 }
 	} else {
-		$error = "<p>".$lang['temp_sensor_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+		$error = "<p>".$lang['sensor_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
 	}
 	$message_success .= "<p>".$lang['do_not_refresh']."</p>";
 	header("Refresh: 10; url=home.php");
