@@ -865,4 +865,5 @@ $lang['weather_factoring'] = "Weather Factoring";
 $lang['weather_factoring_info'] = "Apply a weather temperature related factor to the zone control sensor reading.";
 $lang['weather_sensor'] = "Weather Sensor";
 $lang['weather_sensor_info'] = "Sensor Name to be used for Weather Factoring";
+$lang['setup_guide_ha_integration'] = "Setup Guide Home Assistant Integration";
 ?>

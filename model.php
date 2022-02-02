@@ -2715,6 +2715,8 @@ echo '
                                 		<li><a href="pdf_download.php?file=software_install.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['software_install'].'</a></li>
 						<li class="divider"></li>
 						<li><a href="pdf_download.php?file=software_install_technical.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['software_install_technical'].'</a></li>
+                                                <li class="divider"></li>
+                        			<li><a href="pdf_download.php?file=setup_guide_ha_integration.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_guide_ha_integration'].'</a></li>
                          		</ul>
                 		</div>
                         </div>
