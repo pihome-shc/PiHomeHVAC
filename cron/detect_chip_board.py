@@ -27,9 +27,12 @@ print("*                                  Have Fun - PiHome.eu *")
 print("*********************************************************")
 print(" " + bc.ENDC)
 
-import board
-from adafruit_platformdetect import Detector
+try:
+    import board
+    from adafruit_platformdetect import Detector
 
-detector = Detector()
-print("Chip id: ", detector.chip.id)
-print("Board id: ", detector.board.id)
+    detector = Detector()
+    print("Chip id: ", detector.chip.id)
+    print("Board id: ", detector.board.id)
+except:
+    print("Board id: NONE")
