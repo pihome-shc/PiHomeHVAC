@@ -31,7 +31,7 @@ if (strpos($board_id, 'ORANGE_PI') !== false || strpos($board_id, 'PINEH64') !==
 } elseif(strpos($board_id, 'BEAGLEBONE') !== false) {
         $id = (exec ("ls /sys/bus/w1/devices/ | grep  28-"));
         $system_c = (exec ("cat /sys/bus/w1/devices/".$id."/w1_slave | grep t= | cut -c30,31,32"))/10;
-} else {
+} elseif(strpos($board_id, 'NONE') === false) {
         $system_c = exec ("vcgencmd measure_temp | cut -c6,7,8,9");
 }
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Temperature: ". $system_c."\n";
