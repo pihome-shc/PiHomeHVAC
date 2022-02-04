@@ -37,8 +37,12 @@ from datetime import datetime
 import struct
 import requests
 import socket, re
-from Pin_Dict import pindict
-import board, digitalio
+try:
+    from Pin_Dict import pindict
+    import board, digitalio
+    blinka = True
+except:
+    blinka = False
 import traceback
 import subprocess
 
@@ -84,7 +88,7 @@ def set_relays(
             "UPDATE `messages_out` set sent=1 where id=%s", [out_id]
         )  # update DB so this message will not be processed in next loop
         con.commit()  # commit above
-    elif node_type.find("GPIO") != -1:  # process GPIO mode
+    elif node_type.find("GPIO") != -1 and blinka:  # process GPIO mode
         child_id = str(out_child_id)
         if child_id in pindict:  # check if pin exists for this board
             pin_num = pindict[child_id]  # get pin identification
@@ -568,7 +572,7 @@ try:
                 relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
                 out_on_trigger = r[relay_to_index["on_trigger"]]
             if gatewayenableoutgoing == 1 or (
-                node_type.find("GPIO") != -1 and gatewayenableoutgoing == 0
+                node_type.find("GPIO") != -1 and gatewayenableoutgoing == 0 and blinka
             ):
                 if dbgLevel >= 1 and dbgMsgOut == 1:  # Debug print to screen
                     print(
