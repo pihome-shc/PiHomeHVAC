@@ -95,15 +95,6 @@ if (isset($_POST['submit'])) {
 		$sensor_id = $found_product['id'];
 	}
 
-	//If boost button console isnt installed then no need to add this to message_out
-	if ($boost_button_id != 0 && $id==0){
-		//query to search node id for boost button
-		$query = "SELECT * FROM nodes WHERE node_id = '{$boost_button_id}' LIMIT 1;";
-		$result = $conn->query($query);
-		$found_product = mysqli_fetch_array($result);
-		$boost_button_id = $found_product['node_id'];
-	}
-
         //query to search type id for zone controller
         $query = "SELECT id FROM zone_type WHERE type = '{$type}' LIMIT 1;";
         $result = $conn->query($query);
@@ -240,20 +231,20 @@ if (isset($_POST['submit'])) {
         }
 
 
-	//If boost button console isnt installed and editing existing zone, then no need to add this to message_out
-	if ($boost_button_id != 0 && $id==0){
-		//Add Zone Boost Button Console to messageout table at same time
-		$query = "INSERT INTO `messages_out` (`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`,  `datetime`, `zone_id`) VALUES ('0', '0', '{$boost_button_id}','{$boost_button_child_id}', '2', '0', '0', '2', '1', '{$date_time}', '{$zone_id}');";
-		$result = $conn->query($query);
-		if ($result) {
-			$message_success .= "<p>".$lang['zone_button_success']."</p>";
-		} else {
-			$error .= "<p>".$lang['zone_button_fail']."</p> <p>" .mysqli_error($conn). "</p>";
+        if ($id==0){
+		//If boost button console isnt installed and editing existing zone, then no need to add this to message_out
+		if ($boost_button_id != 0){
+			//Add Zone Boost Button Console to messageout table at same time
+			$query = "INSERT INTO `messages_out` (`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`,  `datetime`, `zone_id`) VALUES ('0', '0', '{$boost_button_id}','{$boost_button_child_id}', '2', '0', '0', '2', '1', '{$date_time}', '{$zone_id}');";
+			$result = $conn->query($query);
+			if ($result) {
+				$message_success .= "<p>".$lang['zone_button_message_success']."</p>";
+			} else {
+				$error .= "<p>".$lang['zone_button_message_fail']."</p> <p>" .mysqli_error($conn). "</p>";
+			}
 		}
-	}
 
-	//Add Zone to boost table at same time
-	if ($id==0){
+		//Add Zone to boost table at same time
 		if ((settings($conn, 'mode') & 0b1) == 0) { //boiler mode
 			$query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `boost_button_id`, `boost_button_child_id`, `hvac_mode`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$max_c}','{$max_operation_time}', '{$boost_button_id}', '{$boost_button_child_id}', '0');";
 	                $result = $conn->query($query);
@@ -280,6 +271,22 @@ if (isset($_POST['submit'])) {
 		                        $error .= "<p>".$lang['zone_boost_fail']."</p> <p>" .mysqli_error($conn). "</p>";
                 		}
 			}
+		}
+	} elseif ($boost_button_id != 0) { // editing so update boost console in boost and messages_out Tables
+        	$query = "UPDATE boost SET `boost_button_id` = {$boost_button_id}, `boost_button_child_id` = {$boost_button_child_id} WHERE `zone_id` = '{$id}';";
+		$result = $conn->query($query);
+		if ($result) {
+			$message_success .= "<p>".$lang['zone_boost_update_success']."</p>";
+		} else {
+			$error .= "<p>".$lang['zone_boost_update_fail']."</p> <p>" .mysqli_error($conn). "</p>";
+		}
+		//Add New Zone Boost Button Console to message_out table at same time
+		$query = "INSERT INTO `messages_out` (`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`,  `datetime`, `zone_id`) VALUES ('0', '0', '{$boost_button_id}','{$boost_button_child_id}', '2', '0', '0', '2', '1', '{$date_time}', '{$id}');";
+		$result = $conn->query($query);
+		if ($result) {
+			$message_success .= "<p>".$lang['zone_button_message_success']."</p>";
+		} else {
+			$error .= "<p>".$lang['zone_button_message_fail']."</p> <p>" .mysqli_error($conn). "</p>";
 		}
 	}
 
@@ -468,7 +475,7 @@ if (isset($_POST['submit'])) {
 }
 
 // get the list of available sensors in to array
-$query = "SELECT id, name, sensor_type_id FROM sensors ORDER BY name ASC;";
+$query = "SELECT id, name, sensor_type_id FROM sensors WHERE zone_id = 0 ORDER BY name ASC;";
 $result = $conn->query($query);
 $sensorArray = array();
 while($rowsensors = mysqli_fetch_assoc($result)) {
@@ -553,8 +560,8 @@ function zone_category(value)
                         document.getElementById("max_c_label_2").style.visibility = 'visible';
                         document.getElementById("max_c_label_2").innerHTML = document.getElementById("max_c_label_info").value;;
                         document.getElementById("max_c").style.display = 'block';
-                        document.getElementById("hysteresis_time").style.display = 'block';
-                        document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
+//                        document.getElementById("hysteresis_time").style.display = 'block';
+//                        document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
                         document.getElementById("sp_deadband").style.display = 'block';
                         document.getElementById("sp_deadband_label").style.visibility = 'visible';;
                         document.getElementById("zone_sensor_id").style.display = 'block';
@@ -567,7 +574,7 @@ function zone_category(value)
                         document.getElementById("boost_button_child_id").style.display = 'block';
                         document.getElementById("boost_button_child_id_label").style.visibility = 'visible';;
                         document.getElementById("max_c").required = true;
-                        document.getElementById("hysteresis_time").required = true;
+//                        document.getElementById("hysteresis_time").required = true;
                         document.getElementById("sp_deadband").required = true;
 			document.getElementById("sensor_id_label_1").innerHTML = document.getElementById("sensor_c_label_text").value;
                         document.getElementById("zone_sensor_id").required = true;
@@ -618,13 +625,13 @@ function zone_category(value)
                                 document.getElementById("max_c_label_2").innerHTML = document.getElementById("max_c_label_info").value;;
                         }
                         if (document.getElementById("selected_zone_type").value === "Immersion") {
-	                        document.getElementById("hysteresis_time").style.display = 'block';
-        	                document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
+//	                        document.getElementById("hysteresis_time").style.display = 'block';
+//        	                document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
                 	        document.getElementById("sp_deadband").style.display = 'block';
                         	document.getElementById("sp_deadband_label").style.visibility = 'visible';;
 			} else {
-                                document.getElementById("hysteresis_time").style.display = 'none';
-                                document.getElementById("hysteresis_time_label").style.visibility = 'hidden';;
+//                                document.getElementById("hysteresis_time").style.display = 'none';
+//                                document.getElementById("hysteresis_time_label").style.visibility = 'hidden';;
                                 document.getElementById("sp_deadband").style.display = 'none';
                                 document.getElementById("sp_deadband_label").style.visibility = 'hidden';;
 			}
@@ -639,7 +646,7 @@ function zone_category(value)
                 	        document.getElementById("boost_button_child_id").style.display = 'block';
                         	document.getElementById("boost_button_child_id_label").style.visibility = 'visible';;
 	                        document.getElementById("max_c").required = true;
-        	                document.getElementById("hysteresis_time").required = true;
+//        	                document.getElementById("hysteresis_time").required = true;
                 	        document.getElementById("sp_deadband").required = true;
 			} else {
                                 document.getElementById("boost_button_id").style.display = 'none';
@@ -647,7 +654,7 @@ function zone_category(value)
                                 document.getElementById("boost_button_child_id").style.display = 'none';
                                 document.getElementById("boost_button_child_id_label").style.visibility = 'hidden';;
                                 document.getElementById("max_c").required = false;
-                                document.getElementById("hysteresis_time").required = false;
+//                                document.getElementById("hysteresis_time").required = false;
                                 document.getElementById("sp_deadband").required = false;
 			}
                         if (document.getElementById("selected_zone_type").value === "Binary") {
@@ -675,8 +682,8 @@ function zone_category(value)
                         document.getElementById("default_c").style.display = 'none';
                         document.getElementById("default_c_label_1").style.visibility = 'hidden';;
                         document.getElementById("default_c_label_2").style.visibility = 'hidden';;
-                        document.getElementById("hysteresis_time").style.display = 'none';
-                        document.getElementById("hysteresis_time_label").style.visibility = 'hidden';;
+//                        document.getElementById("hysteresis_time").style.display = 'none';
+//                        document.getElementById("hysteresis_time_label").style.visibility = 'hidden';;
                         document.getElementById("sp_deadband").style.display = 'none';
                         document.getElementById("sp_deadband_label").style.visibility = 'hidden';;
                         document.getElementById("zone_sensor_id").style.display = 'none';
@@ -690,7 +697,7 @@ function zone_category(value)
                         document.getElementById("boost_button_child_id").style.display = 'none';
                         document.getElementById("boost_button_child_id_label").style.visibility = 'hidden';;
                         document.getElementById("max_c").required = false;
-                        document.getElementById("hysteresis_time").required = false;
+//                        document.getElementById("hysteresis_time").required = false;
                         document.getElementById("sp_deadband").required = false;
                         document.getElementById("sensor_id_label_1").innerHTML = document.getElementById("sensor_c_label_text").value;
                         document.getElementById("zone_sensor_id").required = false;
@@ -714,8 +721,8 @@ function zone_category(value)
                         document.getElementById("max_c_label_2").style.visibility = 'visible';
                         document.getElementById("max_c_label_2").innerHTML = document.getElementById("max_c_label_info").value;;
                         document.getElementById("max_c").style.display = 'block';
-                        document.getElementById("hysteresis_time").style.display = 'block';
-                        document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
+//                        document.getElementById("hysteresis_time").style.display = 'block';
+//                        document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
                         document.getElementById("sp_deadband").style.display = 'block';
                         document.getElementById("sp_deadband_label").style.visibility = 'visible';;
                         document.getElementById("zone_sensor_id").style.display = 'block';
@@ -733,7 +740,7 @@ function zone_category(value)
                         document.getElementById("boost_button_child_id").style.display = 'block';
                         document.getElementById("boost_button_child_id_label").style.visibility = 'visible';;
                         document.getElementById("max_c").required = true;
-                        document.getElementById("hysteresis_time").required = true;
+//                        document.getElementById("hysteresis_time").required = true;
                         document.getElementById("sp_deadband").required = true;
                         document.getElementById("sensor_id_label_1").innerHTML = document.getElementById("sensor_c_label_text").value;
                         document.getElementById("zone_sensor_id").required = true;
@@ -876,13 +883,14 @@ function ControllerIDList(value)
 
 <!-- Boost Button ID -->
 <?php
-	echo '<div class="form-group" class="control-label" id="boost_button_id_label" style="display:block"><label>'.$lang['zone_boost_button_id'].'</label> <small class="text-muted">'.$lang['zone_boost_info'].'</small><select id="boost_button_id" name="boost_button_id" class="form-control select2" data-error="'.$lang['zone_boost_id_error'].'" autocomplete="off" >';
+	echo '<div class="form-group" class="control-label" id="boost_button_id_label" style="display:block"><label>'.$lang['zone_boost_button_id'].'</label> <small class="text-muted">'.$lang['zone_boost_info'].'</small>
+	<select id="boost_button_id" name="boost_button_id" class="form-control select2" data-error="'.$lang['zone_boost_id_error'].'" autocomplete="off" >';
 	if(isset($rowboost['boost_button_id'])) {
 		echo '<option selected >'.$rowboost['boost_button_id'].'</option>';
 	} else {
 		echo '<option selected value="0">N/A</option>';
 	}
-	$query = "SELECT node_id FROM nodes where name = 'Button Console';";
+	$query = "SELECT node_id FROM nodes where name LIKE '% Console';";
 	$result = $conn->query($query);
 	while ($datarw=mysqli_fetch_array($result)) {
 		$node_id=$datarw["node_id"];
@@ -893,7 +901,8 @@ function ControllerIDList(value)
 
 <!-- Boost Button Child ID -->
 <?php
-	echo '<div class="form-group" class="control-label" id="boost_button_child_id_label" style="display:block"><label>'.$lang['zone_boost_button_child_id'].'</label> <small class="text-muted">'.$lang['zone_boost_button_info'].'</small><select id="boost_button_child_id" name="boost_button_child_id" class="form-control select2" data-error="'.$lang['zone_boost_child_id_error'].'" autocomplete="off" required>';
+	echo '<div class="form-group" class="control-label" id="boost_button_child_id_label" style="display:block"><label>'.$lang['zone_boost_button_child_id'].'</label><small class="text-muted">'.$lang['zone_boost_button_info'].'</small>
+	<select id="boost_button_child_id" name="boost_button_child_id" class="form-control select2" data-error="'.$lang['zone_boost_child_id_error'].'" autocomplete="off" required>';
 	if(isset($rowboost['boost_button_child_id'])) {
 		echo '<option selected >'.$rowboost['boost_button_child_id'].'</option>';
 	}else {

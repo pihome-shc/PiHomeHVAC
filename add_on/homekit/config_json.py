@@ -20,8 +20,8 @@ with open(src, "r") as read_file:
 # get zone names from the database
 con = mdb.connect(dbhost, dbuser, dbpass, dbname)
 cur = con.cursor()
-cur.execute("SELECT * FROM zone_view WHERE status  = 1 or graph_it = 1")
-result = cur.fetchall()
+cur.execute("SELECT * FROM zone WHERE status  = 1")
+results = cur.fetchall()
 row_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
 cur.close()
 con.close()
@@ -42,7 +42,7 @@ d['https'] = False
 
 # Add switches for active zone controllers
 switches = []
-for row in result:
+for row in results:
         if row[row_to_index['status']] == 1:
                 sub_d = collections.OrderedDict()
                 sub_d['id'] = 'switch' + str(row[row_to_index['id']])
@@ -54,13 +54,21 @@ for row in result:
                 switches.append(sub_d)
 d['switches'] = switches
 
-# Add sensors for zones with graph_it set
+# Add sensors not associated with a zone
+con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+cur = con.cursor()
+cur.execute("SELECT sensors.id, sensors.name, sensor_type.type FROM sensors, sensor_type WHERE (sensors.sensor_type_id = sensor_type.id) AND zone_id  = 0")
+results = cur.fetchall()
+row_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+cur.close()
+con.close()
+
 sensors = []
-for row in result:
+for row in results:
         sub_d = collections.OrderedDict()
         sub_d['id'] = 'sensor' + str(row[row_to_index['id']])
         sub_d['name'] = row[row_to_index['name']] + ' Temperature'
-        sub_d['type'] = 'temperature'
+        sub_d['type'] = row[row_to_index['type']].lower()
         sensors.append(sub_d)
 d['sensors'] = sensors
 zonelist.append(d)
