@@ -823,4 +823,8 @@ $lang['weather_factoring_info'] = "Apply a weather temperature related factor to
 $lang['weather_sensor'] = "Weather Sensor";
 $lang['weather_sensor_info'] = "Sensor Name to be used for Weather Factoring";
 $lang['setup_guide_ha_integration'] = "Setup Guide Home Assistant Integration";
+$lang['zone_button_message_success'] = "Zone Boost Button Message Added Successfully.";
+$lang['zone_button_message_fail'] = "Zone Boost Button Message Addition Failed.";
+$lang['zone_boost_update_success'] = "Zone Boost Record Updated Successfully.";
+$lang['zone_boost_update_fail'] = "Zone Boost Record Update Failed.";
 ?>
