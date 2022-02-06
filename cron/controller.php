@@ -105,72 +105,8 @@ function process_pump_relays($command, $relay_id)
        	}
 }
 
-//Function to recursively check homebridge config.json
-function scanArrayRecursively($arr, $index) {
-	if ($arr) {
-		foreach ($arr as $key => $value) {
-			if (is_array($value)) {
-				scanArrayRecursively($value, $index);
-			} else {
-				if ($index == 'id') { // checking for [id] keys in config.json
-					if ($key == $index) {
-						if (strpos($value, 'switch') !== false) {
-							array_push($GLOBALS['switches'], substr($value, 6));
-						} elseif (strpos($value, 'sensor') !== false) {
-							array_push($GLOBALS['sensors'], substr($value, 6));
-						}
-					}
-				} elseif ($index == 'platform') { // checking for [platform] keys in config.json
-					if ($key == $index) {
-						if (strpos($value, 'HttpWebHooks') !== false) { $GLOBALS['platform'] = 1; return; }
-					}
-				}
-			}
-		}
-	}
-}
-
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Controller Script Started \n";
 
-$switches = array(); // array of switch zone ids in homebridge config.json
-$sensors = array(); // array of sensor zone ids in homebridge config.json
-$platform = 0; // flag to indicate if webhooks plugin is present
-
-//check if homebridge service is running
-$rval=my_exec("/bin/systemctl status homebridge");
-if($rval['stdout']=='') {
-	$stat='Error';
-} else {
-	$stat='Status: Unknown';
-	$rval['stdout']=explode(PHP_EOL,$rval['stdout']);
-	foreach($rval['stdout'] as $line) {
-		if(strstr($line,'Loaded:')) {
-			if(strstr($line,'disabled;')) {
-				$stat='Status: Disabled';
-			}
-		}
-		if(strstr($line,'Active:')) {
-			if(strstr($line,'active (running)')) {
-				$stat=trim($line);
-				// homebridge service is running so check if config.json file exists
-				$path = exec('find /usr/ -name homebridge-http-webhooks'); // path to webhooks directory
-				$filename = '/var/lib/homebridge/config.json'; // path to config.json
-				if (file_exists($filename) and file_exists($path)) {
-					$string = file_get_contents($filename);
-					$json_data = json_decode($string, true);
-					// check if webhooks platform section is present in config.json
-					scanArrayRecursively($json_data, 'platform');
-					if ($platform  == 1) {
-						// webhooks plugin present so get zone ids for both switches and sensors in to arrarys
-						scanArrayRecursively($json_data, 'id');
-					}
-				}
-			} else if(strstr($line,'(dead)')) {
-				$stat='Status: Dead';
-			}
-		}
-	}
-}
 //Only for debouging
 if ($debug_msg == 1) {
 	$query = "select zone.id as tz_id, zone.name, zone.status as tz_status, zone_type.type, zone_type.category FROM zone, zone_type WHERE (zone.type_id = zone_type.id) AND status = 1 AND zone.`purge`= 0 ORDER BY index_id asc; ";
@@ -486,19 +422,6 @@ while ($row = mysqli_fetch_assoc($results)) {
                         $zone_c = "";
                         $temp_reading_time = "";
 		}
-		// check if webhooks plugin installed and if a sensor is configured for this zone
-		if ($platform == 1 and in_array($row['id'], $sensors)) {
-			// get current temperature vale
-			$url = "http://127.0.0.1:51828/?accessoryId=sensor" . $zone_id;
-			$contents = file_get_contents($url);
-			$contents = utf8_encode($contents);
-			$temp = json_decode($contents, true);
-			// update if the vales do not match
-			if (floatval($temp['state']) != floatval($zone_c)) {
-				$url = $url . "&value=" . $zone_c;
-				$contents = file_get_contents($url);
-			}
-		}
 	}
         // only process active zones
         if ($zone_status == 1) {
@@ -805,22 +728,6 @@ while ($row = mysqli_fetch_assoc($results)) {
                 $z_state[$zone_id] = $zone_state;
 		// end Check Zone category 0 or 1
 		} 
-
-		// check if webhooks plugin installed and if a switch is configured for this zone
-		if ($platform == 1 and in_array($row['id'], $switches)) {
-			if (strcasecmp($boost_active,'1') == 0) {$boost_state = 'true';} else {$boost_state = 'false';}
-			// get the current state of the switch
-			$url = "http://127.0.0.1:51828/?accessoryId=switch" . $row['id'];
-			$contents = file_get_contents($url);
-			$contents = utf8_encode($contents);
-			$resp = json_decode($contents, true);
-			if ($resp['state']) {$state = 'true';} else {$state = 'false';}
-			// update if the states do not match
-			if ($state !=  $boost_state) {
-				$url = $url . "&state=" . $boost_state;
-				$contents = file_get_contents($url);
-			}
-		}
 
                 // check frost protection linked to this zone controller
                 if ($system_controller_mode == 0) {
