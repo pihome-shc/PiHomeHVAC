@@ -57,7 +57,7 @@ d['switches'] = switches
 # Add sensors not associated with a zone
 con = mdb.connect(dbhost, dbuser, dbpass, dbname)
 cur = con.cursor()
-cur.execute("SELECT sensors.id, sensors.name, sensor_type.type FROM sensors, sensor_type WHERE (sensors.sensor_type_id = sensor_type.id) AND zone_id  = 0")
+cur.execute("SELECT sensors.id, sensors.name, sensor_type.type FROM sensors, sensor_type WHERE (sensors.sensor_type_id = sensor_type.id) AND sensor_type.id < 3;")
 results = cur.fetchall()
 row_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
 cur.close()
