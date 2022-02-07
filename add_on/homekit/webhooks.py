@@ -148,7 +148,7 @@ try:
                     payload = {'accessoryId': sensor_id, 'value': sensor_temp}
                     r = requests.get('http://127.0.0.1:51828/', params=payload)
 #                print(r.url)
-        time.sleep(0.1)
+        time.sleep(30)
 
 except configparser.Error as e:
     print("ConfigParser:", format(e))
