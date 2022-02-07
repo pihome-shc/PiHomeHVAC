@@ -73,7 +73,7 @@ sensors = []
 for row in results:
     sub_d = collections.OrderedDict()
     sub_d['id'] = 'sensor' + str(row[row_to_index['id']])
-    sub_d['name'] = row[row_to_index['name']] + ' Temperature'
+    sub_d['name'] = row[row_to_index['name']] +  ' ' + row[row_to_index['type']]
     sub_d['type'] = row[row_to_index['type']].lower()
     sensors.append(sub_d)
 d['sensors'] = sensors
