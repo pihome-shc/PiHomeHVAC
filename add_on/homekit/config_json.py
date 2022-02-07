@@ -15,12 +15,12 @@ dbname = config.get('db', 'dbname')
 # Read existing config.json in to a python dictionary
 src = "/var/lib/homebridge/config.json"
 with open(src, "r") as read_file:
-        config = json.load(read_file)
+    config = json.load(read_file)
 
 # get zone names from the database
 con = mdb.connect(dbhost, dbuser, dbpass, dbname)
 cur = con.cursor()
-cur.execute("SELECT * FROM zone WHERE status  = 1")
+cur.execute("SELECT zone.*, zone_type.category FROM zone, zone_type WHERE (zone.type_id = zone_type.id) AND zone.status = 1")
 results = cur.fetchall()
 row_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
 cur.close()
@@ -43,21 +43,27 @@ d['https'] = False
 # Add switches for active zone controllers
 switches = []
 for row in results:
-        if row[row_to_index['status']] == 1:
-                sub_d = collections.OrderedDict()
-                sub_d['id'] = 'switch' + str(row[row_to_index['id']])
-                sub_d['name'] = row[row_to_index['name']] + ' Zone'
-                sub_d['on_url'] = 'http://127.0.0.1/api/boostSet?zonename=' + row[row_to_index['name']] + '&state=1'
-                sub_d['on_method'] = 'GET'
-                sub_d['off_url'] = 'http://127.0.0.1/api/boostSet?zonename=' + row[row_to_index['name']] + '&state=0'
-                sub_d['off_method'] = 'GET'
-                switches.append(sub_d)
+    if row[row_to_index['status']] == 1:
+        sub_d = collections.OrderedDict()
+        sub_d['id'] = 'switch' + str(row[row_to_index['id']])
+        sub_d['name'] = row[row_to_index['name']] + ' Zone'
+        if row[row_to_index['category']] != 2:
+            sub_d['on_url'] = 'http://127.0.0.1/api/boostSet?zonename=' + row[row_to_index['name']] + '&state=1'
+            sub_d['on_method'] = 'GET'
+            sub_d['off_url'] = 'http://127.0.0.1/api/boostSet?zonename=' + row[row_to_index['name']] + '&state=0'
+            sub_d['off_method'] = 'GET'
+        else:
+            sub_d['on_url'] = 'http://127.0.0.1/api/binarySet?zonename=' + row[row_to_index['name']] + '&state=1'
+            sub_d['on_method'] = 'GET'
+            sub_d['off_url'] = 'http://127.0.0.1/api/binarySet?zonename=' + row[row_to_index['name']] + '&state=0'
+            sub_d['off_method'] = 'GET'
+        switches.append(sub_d)
 d['switches'] = switches
 
 # Add sensors not associated with a zone
 con = mdb.connect(dbhost, dbuser, dbpass, dbname)
 cur = con.cursor()
-cur.execute("SELECT sensors.id, sensors.name, sensor_type.type FROM sensors, sensor_type WHERE (sensors.sensor_type_id = sensor_type.id) AND zone_id  = 0")
+cur.execute("SELECT sensors.id, sensors.name, sensor_type.type FROM sensors, sensor_type WHERE (sensors.sensor_type_id = sensor_type.id) AND sensor_type.id < 3;")
 results = cur.fetchall()
 row_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
 cur.close()
@@ -65,11 +71,11 @@ con.close()
 
 sensors = []
 for row in results:
-        sub_d = collections.OrderedDict()
-        sub_d['id'] = 'sensor' + str(row[row_to_index['id']])
-        sub_d['name'] = row[row_to_index['name']] + ' Temperature'
-        sub_d['type'] = row[row_to_index['type']].lower()
-        sensors.append(sub_d)
+    sub_d = collections.OrderedDict()
+    sub_d['id'] = 'sensor' + str(row[row_to_index['id']])
+    sub_d['name'] = row[row_to_index['name']] +  ' ' + row[row_to_index['type']]
+    sub_d['type'] = row[row_to_index['type']].lower()
+    sensors.append(sub_d)
 d['sensors'] = sensors
 zonelist.append(d)
 
@@ -78,11 +84,11 @@ config["platforms"] = zonelist
 
 # If the 'accessories' key exist in dictionary then delete it using del.
 if "accessories" in config:
-        del config['accessories']
+    del config['accessories']
 # Add empty accessories block
 config["accessories"] = []
 
 # Write updated config.json file
 with open(src, "w") as write_file:
-        json.dump(config, write_file, indent = 4)
+    json.dump(config, write_file, indent = 4)
 

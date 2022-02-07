@@ -58,3 +58,33 @@ sudo cp -a -- "$FILE" "$FILE-$(date +"%Y%m%d-%H%M%S")"
 /usr/bin/python3 /var/www/add_on/homekit/config_json.py
 echo "Restarting Homebridge"
 sudo hb-service restart
+
+# check if Unit File already exists
+echo "Checking For Existing Unit File"
+FILE=/lib/systemd/system/webhooks_integration.service
+if [  -f "$FILE" ]; then
+    echo "Deleting Existing Unit File: $FILE"
+    rm $FILE
+fi
+echo "Creating Unit File: $FILE"
+sudo cat <<EOT >> /lib/systemd/system/webhooks_integration.service
+[Unit]
+Description=Homebridge Webhooks Integration
+After=multi-user.target
+[Service]
+Type=simple
+WorkingDirectory=/var/www/add_on/homekit
+ExecStart=/usr/bin/python3 /var/www/add_on/homekit/webhooks.py
+Restart=on-failure
+RestartSec=10s
+User=root
+[Install]
+WantedBy=multi-user.target
+EOT
+
+echo "Enabling the service"
+sudo systemctl daemon-reload
+sudo systemctl enable webhooks_integration.service
+echo "Starting the service"
+sudo systemctl start webhooks_integration.service
+

@@ -1,5 +1,7 @@
 # Homekit
-For controlling local devices with the iOS Home App. This interface uses Homebridge and the Homebridge Http Webhooks plugin to provide control of BOOST for individual zones and to interogate temperature sensors. 
+For controlling local devices with the iOS Home App. This interface uses Homebridge and the Homebridge Http Webhooks plugin to provide control of BOOST for individual zones and to interogate temperature sensors.
+
+This add-on also enables integration with Home Assistant, through its HomeKit Controller Accessory.
 
 ## Quick Start
 
@@ -13,4 +15,5 @@ For controlling local devices with the iOS Home App. This interface uses Homebri
     Create a backup of /var/lib/homebridge/config.json.
     Add to config.json the Webhooks platform
     Add to config.json Webhooks switches for each zone where status = 1, the [id] value will be switchxx where xx is the zone_id.
-    Add to config.json Webhooks sensors for each zone where status = 1 or graph_it = 1, the [id] value will be sensorxx where xx is the zone_id.
+    Add to config.json Webhooks sensors for each temperature and humidity type sensor.
+    Install the sensor and switch update Python application as a service.
