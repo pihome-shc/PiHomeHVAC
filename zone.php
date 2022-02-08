@@ -475,7 +475,7 @@ if (isset($_POST['submit'])) {
 }
 
 // get the list of available sensors in to array
-$query = "SELECT id, name, sensor_type_id FROM sensors WHERE zone_id = 0 ORDER BY name ASC;";
+$query = "SELECT id, name, sensor_type_id FROM sensors WHERE zone_id = 0 OR zone_id = {$id} ORDER BY name ASC;";
 $result = $conn->query($query);
 $sensorArray = array();
 while($rowsensors = mysqli_fetch_assoc($result)) {
