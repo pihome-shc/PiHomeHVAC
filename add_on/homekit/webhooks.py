@@ -148,6 +148,97 @@ try:
                     payload = {'accessoryId': sensor_id, 'value': sensor_temp}
                     r = requests.get('http://127.0.0.1:51828/', params=payload)
 #                print(r.url)
+                    if sensor_id == "sensor33":
+                        pass
+
+        # Process Thermostats
+        x = data['platforms'][1]['thermostats']
+        for i in x:
+            thermostat_id = i['id']
+            id = i['id'][10:]
+            # Get the termperature from the sensor associated with this thermostat
+            cursorselect = con.cursor()
+            cursorselect.execute(
+                "SELECT nodes.node_id, sensors.sensor_child_id FROM sensors, nodes WHERE (sensors.sensor_id = nodes.id) AND sensors.id = (%s) LIMIT 1;",
+                (i['id'][10:],),
+            )
+            sensor_to_index = dict(
+                (d[0], i)
+                for i, d
+                in enumerate(cursorselect.description)
+            )
+            result = cursorselect.fetchone()
+            cursorselect.close()
+            node_id = result[sensor_to_index['node_id']]
+            node_id = str(node_id)
+            child_id = result[sensor_to_index['sensor_child_id']]
+            cursorselect = con.cursor()
+            cursorselect.execute(
+                'SELECT `payload`  FROM `messages_in_view_24h` WHERE `node_id` = (%s) AND `child_id` = (%s) ORDER BY datetime DESC LIMIT 1',
+                [node_id, child_id],
+            )
+            if cursorselect.rowcount > 0:
+                msg_in_to_index = dict(
+                    (d[0], i)
+                    for i, d
+                    in enumerate(cursorselect.description)
+                )
+                ttemp = cursorselect.fetchone()
+                cursorselect.close()
+                thermostat_temp = float(ttemp[msg_in_to_index['payload']])
+
+               # webhooks thermostat does not return any calues
+#                request_url = urllib.request.urlopen('http://127.0.0.1:51828/?accessoryId=' + thermostat_id)
+#                x = request_url.read()
+#                y = x.decode("utf-8")
+#                z = json.loads(y)
+#                webhooks_temp = float(z["state"])
+                payload = {'accessoryId': thermostat_id, 'currenttemperature': thermostat_temp}
+                r = requests.get('http://127.0.0.1:51828/', params=payload)
+
+            # Set the thermostat state
+            cursorselect = con.cursor()
+            cursorselect.execute(
+                "SELECT zone_id FROM zone_sensors WHERE zone_sensor_id = (%s) LIMIT 1;",
+                (i['id'][10:],),
+            )
+            zone_sensors_to_index = dict(
+                (d[0], i)
+                for i, d
+                in enumerate(cursorselect.description)
+            )
+            result = cursorselect.fetchone()
+            cursorselect.close()
+            zone_id = result[zone_sensors_to_index['zone_id']]
+
+            cursorselect = con.cursor()
+            cursorselect.execute(
+                "SELECT mode, temp_target FROM zone_current_state WHERE zone_id = (%s) LIMIT 1;",
+                (zone_id,),
+            )
+            zc_state_to_index = dict(
+                (d[0], i)
+                for i, d
+                in enumerate(cursorselect.description)
+            )
+            result = cursorselect.fetchone()
+            cursorselect.close()
+            mode = result[zc_state_to_index['mode']]
+            if mode == 81:
+                current_mode = 1
+            else:
+                current_mode = 0
+
+            payload = {'accessoryId': thermostat_id, 'targetstate': 0}
+            r = requests.get('http://127.0.0.1:51828/', params=payload)
+            payload = {'accessoryId': thermostat_id, 'currentstate': 1}
+            r = requests.get('http://127.0.0.1:51828/', params=payload)
+
+            if mode != 0:
+                target_temp = result[zc_state_to_index['temp_target']]
+                payload = {'accessoryId': thermostat_id, 'targettemperature': target_temp}
+                r = requests.get('http://127.0.0.1:51828/', params=payload)
+
         time.sleep(30)
 
 except configparser.Error as e:
