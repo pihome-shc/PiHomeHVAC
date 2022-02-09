@@ -15,13 +15,20 @@ if [ "${PROC}" == "armv6l" ]; then
         sudo cp -r node-v11.15.0-linux-armv6l/* /usr/local/
         rm node-v11.15.0-linux-armv6l.tar.gz
         rm -R node-v11.15.0-linux-armv6l
-else
+elif [ "${PROC}" == "aarch64" ]; then
         echo 'Version' "${PROC}"
         curl -o node-v15.13.0-linux-arm64.tar.gz https://nodejs.org/dist/v15.13.0/node-v15.13.0-linux-arm64.tar.gz
         tar -xzf node-v15.13.0-linux-arm64.tar.gz
         sudo cp -r node-v15.13.0-linux-arm64/* /usr/local/
         rm node-v15.13.0-linux-arm64.tar.gz
         rm -R node-v15.13.0-linux-arm64
+elif [ "${PROC}" == "x86_64" ]; then
+        echo 'Version' "${PROC}"
+        curl -o node-v15.13.0-linux-x64.tar.gz https://nodejs.org/dist/v15.13.0/node-v15.13.0-linux-x64.tar.gz
+        tar -xzf node-v15.13.0-linux-x64.tar.gz
+        sudo cp -r node-v15.13.0-linux-x64/* /usr/local/
+        rm node-v15.13.0-linux-x64.tar.gz
+        rm -R node-v15.13.0-linux-x64
 fi
 
 echo "Installing Homebridge"

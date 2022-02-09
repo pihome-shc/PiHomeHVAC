@@ -109,10 +109,10 @@ for row in results:
     sub_d = collections.OrderedDict()
     sub_d['id'] = 'thermostat' + str(row[row_to_index['zone_sensor_id']])
     sub_d['name'] = row[row_to_index['name']]
-    sub_d['on_url'] = 'http://127.0.0.1/api/binarySet?zonename=' + row[row_to_index['name']] + '&state=1'
-    sub_d['on_method'] = 'GET'
-    sub_d['off_url'] = 'http://127.0.0.1/api/binarySet?zonename=' + row[row_to_index['name']] + '&state=0'
-    sub_d['off_method'] = 'GET'
+    sub_d['set_target_temperature_url'] = 'http://127.0.0.1/api/thermostatscript.php?targettemperature=%f'
+    sub_d['set_target_temperature_mode'] = 'GET'
+    sub_d['set_target_heating_cooling_state_url'] = 'http://127.0.0.1/api/thermostatscript.php?targetstate=%b'
+    sub_d['set_target_heating_cooling_state_method'] = 'GET'
     thermostats.append(sub_d)
 d['thermostats'] = thermostats
 
