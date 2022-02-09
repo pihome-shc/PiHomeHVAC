@@ -17,15 +17,6 @@ src = "/var/lib/homebridge/config.json"
 with open(src, "r") as read_file:
     config = json.load(read_file)
 
-# get zone names from the database
-con = mdb.connect(dbhost, dbuser, dbpass, dbname)
-cur = con.cursor()
-cur.execute("SELECT zone.*, zone_type.category FROM zone, zone_type WHERE (zone.type_id = zone_type.id) AND zone.status = 1")
-results = cur.fetchall()
-row_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-cur.close()
-con.close()
-
 # Fill list using template for each active zone
 zonelist =[]
 d = collections.OrderedDict()
@@ -41,24 +32,50 @@ d['cache_directory'] = './.node-persist/storage'
 d['https'] = False
 
 # Add switches for active zone controllers
+# get zone names from the database
+con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+cur = con.cursor()
+cur.execute("SELECT zone.*, zone_type.category FROM zone, zone_type WHERE (zone.type_id = zone_type.id) AND zone.status = 1 AND zone_type.category <> 2")
+results = cur.fetchall()
+row_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+cur.close()
+con.close()
+
 switches = []
 for row in results:
     if row[row_to_index['status']] == 1:
         sub_d = collections.OrderedDict()
         sub_d['id'] = 'switch' + str(row[row_to_index['id']])
         sub_d['name'] = row[row_to_index['name']] + ' Zone'
-        if row[row_to_index['category']] != 2:
-            sub_d['on_url'] = 'http://127.0.0.1/api/boostSet?zonename=' + row[row_to_index['name']] + '&state=1'
-            sub_d['on_method'] = 'GET'
-            sub_d['off_url'] = 'http://127.0.0.1/api/boostSet?zonename=' + row[row_to_index['name']] + '&state=0'
-            sub_d['off_method'] = 'GET'
-        else:
-            sub_d['on_url'] = 'http://127.0.0.1/api/binarySet?zonename=' + row[row_to_index['name']] + '&state=1'
-            sub_d['on_method'] = 'GET'
-            sub_d['off_url'] = 'http://127.0.0.1/api/binarySet?zonename=' + row[row_to_index['name']] + '&state=0'
-            sub_d['off_method'] = 'GET'
+        sub_d['on_url'] = 'http://127.0.0.1/api/boostSet?zonename=' + row[row_to_index['name']] + '&state=1'
+        sub_d['on_method'] = 'GET'
+        sub_d['off_url'] = 'http://127.0.0.1/api/boostSet?zonename=' + row[row_to_index['name']] + '&state=0'
+        sub_d['off_method'] = 'GET'
         switches.append(sub_d)
 d['switches'] = switches
+
+# Add outlets for active zone controllers
+# get zone names from the database
+con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+cur = con.cursor()
+cur.execute("SELECT zone.*, zone_type.category FROM zone, zone_type WHERE (zone.type_id = zone_type.id) AND zone.status = 1 AND zone_type.category = 2")
+results = cur.fetchall()
+row_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+cur.close()
+con.close()
+
+outlets = []
+for row in results:
+    if row[row_to_index['status']] == 1:
+        sub_d = collections.OrderedDict()
+        sub_d['id'] = 'outlet' + str(row[row_to_index['id']])
+        sub_d['name'] = row[row_to_index['name']] + ' Zone'
+        sub_d['on_url'] = 'http://127.0.0.1/api/binarySet?zonename=' + row[row_to_index['name']] + '&state=1'
+        sub_d['on_method'] = 'GET'
+        sub_d['off_url'] = 'http://127.0.0.1/api/binarySet?zonename=' + row[row_to_index['name']] + '&state=0'
+        sub_d['off_method'] = 'GET'
+        outlets.append(sub_d)
+d['outlets'] = outlets
 
 # Add sensors not associated with a zone
 con = mdb.connect(dbhost, dbuser, dbpass, dbname)
@@ -73,11 +90,31 @@ sensors = []
 for row in results:
     sub_d = collections.OrderedDict()
     sub_d['id'] = 'sensor' + str(row[row_to_index['id']])
-    sub_d['name'] = row[row_to_index['name']] +  ' ' + row[row_to_index['type']]
+    sub_d['name'] = row[row_to_index['name']] + ' ' + row[row_to_index['type']]
     sub_d['type'] = row[row_to_index['type']].lower()
     sensors.append(sub_d)
 d['sensors'] = sensors
 zonelist.append(d)
+
+# Add thermostat based on the zone used for Live temperature
+con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+cur = con.cursor()
+cur.execute("SELECT zone.name, zone_sensors.zone_id, zone_sensors.zone_sensor_id FROM zone, `zone_sensors`, livetemp WHERE (zone_sensors.zone_id = livetemp.zone_id) AND (zone.id = zone_sensors.zone_id) LIMIT 1;")
+results = cur.fetchall()
+row_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+cur.close()
+con.close()
+thermostats = []
+for row in results:
+    sub_d = collections.OrderedDict()
+    sub_d['id'] = 'thermostat' + str(row[row_to_index['zone_sensor_id']])
+    sub_d['name'] = row[row_to_index['name']]
+    sub_d['on_url'] = 'http://127.0.0.1/api/binarySet?zonename=' + row[row_to_index['name']] + '&state=1'
+    sub_d['on_method'] = 'GET'
+    sub_d['off_url'] = 'http://127.0.0.1/api/binarySet?zonename=' + row[row_to_index['name']] + '&state=0'
+    sub_d['off_method'] = 'GET'
+    thermostats.append(sub_d)
+d['thermostats'] = thermostats
 
 # Add list to dictionary
 config["platforms"] = zonelist
