@@ -240,7 +240,7 @@ try:
                 payload = {'accessoryId': thermostat_id, 'currenttemperature': thermostat_temp}
                 r = requests.get('http://127.0.0.1:51828/', params=payload)
 
-            # webhooks thermostat does not return any calues
+            # webhooks thermostat does not return any values, MaxAir is updated through the thermostatscript api
 
             # Set the thermostat state
             con = mdb.connect(dbhost, dbuser, dbpass, dbname)
