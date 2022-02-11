@@ -21,3 +21,4 @@ LEFT JOIN sensors s ON zs.zone_sensor_id = s.id
 LEFT JOIN sensor_type st ON s.sensor_type_id = st.id
 join zone_type ztype on zone.type_id = ztype.id
 where sdtz.`purge` = '0' order by zone.index_id;
+ALTER TABLE `schedule_daily_time` ADD COLUMN IF NOT EXISTS `type` TINYINT(4) NOT NULL AFTER `sch_name`;
