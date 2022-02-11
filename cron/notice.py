@@ -229,7 +229,7 @@ try:
                         )
                         messages = cursorsel.fetchone()
                         cursorsel.close()
-                        if time_difference_in_minutes >= notice_interval:  # Active Sensor found which has not reported in the last test interval
+                        if time_difference_in_minutes >= notice_interval and notice_interval > 0:  # Active Sensor found which has not reported in the last test interval
                             cursorupdate = con.cursor()
                             if cursorsel.rowcount > 0:  # This message already exists
                                 if messages[name_to_index[
