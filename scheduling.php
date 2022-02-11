@@ -52,6 +52,7 @@ if ($w_count > 0) {
 //Form submit
 if (isset($_POST['submit'])) {
 	$sc_en = isset($_POST['sc_en']) ? $_POST['sc_en'] : "0";
+        $aw_en = isset($_POST['aw_en']) ? $_POST['aw_en'] : "0";
 		//PHP: Bitwise operator
 		//http://php.net/manual/en/language.operators.bitwise.php
 		//https://www.w3resource.com/php/operators/bitwise-operators.php
@@ -185,9 +186,9 @@ if (isset($_POST['submit'])) {
                 $result = $conn->query($query);
                 $sdt_count = $result->num_rows;
                	if ($sdt_count == 0) {
-	                $query = "INSERT INTO `schedule_daily_time`(`id`, `sync`, `purge`, `status`, `start`, `start_sr`, `start_ss`, `start_offset`, `end`, `end_sr`, `end_ss`, `end_offset`, `WeekDays`, `sch_name`) VALUES ('{$time_id}','0', '0', '{$sc_en}', '{$start_time}', '{$start_sr}', '{$start_ss}', '{$start_offset}','{$end_time}', '{$end_sr}', '{$end_ss}', '{$end_offset}','{$mask}', '{$sch_name}');";
+	                $query = "INSERT INTO `schedule_daily_time`(`id`, `sync`, `purge`, `status`, `start`, `start_sr`, `start_ss`, `start_offset`, `end`, `end_sr`, `end_ss`, `end_offset`, `WeekDays`, `sch_name`, `type`) VALUES ('{$time_id}','0', '0', '{$sc_en}', '{$start_time}', '{$start_sr}', '{$start_ss}', '{$start_offset}','{$end_time}', '{$end_sr}', '{$end_ss}', '{$end_offset}','{$mask}', '{$sch_name}', '{$aw_en}');";
 		} else {
-			$query = "UPDATE schedule_daily_time SET sync = '0', status = '{$sc_en}', start = '{$start_time}', start_sr = '{$start_sr}', start_ss = '{$start_ss}', start_offset = '{$start_offset}', end = '{$end_time}', end_sr = '{$end_sr}', end_ss = '{$end_ss}', end_offset = '{$end_offset}', WeekDays = '{$mask}', sch_name = '{$sch_name}' WHERE id = '{$time_id}';";
+			$query = "UPDATE schedule_daily_time SET sync = '0', status = '{$sc_en}', start = '{$start_time}', start_sr = '{$start_sr}', start_ss = '{$start_ss}', start_offset = '{$start_offset}', end = '{$end_time}', end_sr = '{$end_sr}', end_ss = '{$end_ss}', end_offset = '{$end_offset}', WeekDays = '{$mask}', sch_name = '{$sch_name}' , type = '{$aw_en}' WHERE id = '{$time_id}';";
 		}
 		$result = $conn->query($query);
 		$schedule_daily_time_id = mysqli_insert_id($conn);
@@ -274,7 +275,18 @@ if (isset($_POST['submit'])) {
                 ORDER BY zone.index_id asc;";
 	$zoneresults = $conn->query($query);
 }
-?>
+
+if(!isset($_GET['nid'])) {
+        $querya = "SELECT * FROM schedule_daily_time WHERE type = 1 LIMIT 1";
+        $resulta = $conn->query($querya);
+        $rowcount=mysqli_num_rows($resulta);
+        if($rowcount > 0) {
+	        $away_row = mysqli_fetch_array($resulta);
+		if ($away_row['id'] == $time_id) { $away_disabled = ""; } else { $away_disabled = "Disabled"; }
+	} else {
+        	$away_disabled = ""; 
+	}
+}?>
 
 <!-- Title (e.g. Add Schedule or Edit Schedule) -->
 <div id="page-wrapper">
@@ -312,60 +324,73 @@ if (isset($_POST['submit'])) {
 
             				<form data-toggle="validator" role="form" method="post" action="<?php $_SERVER['PHP_SELF'];?>" id="form-join">
 
-					<!-- Enable Schedule -->
-					<div class="checkbox checkbox-default checkbox-circle">
-						<input id="checkbox0" class="styled" type="checkbox" name="sc_en" value="1" <?php $check = ($time_row['status'] == 1) ? 'checked' : ''; echo $check; ?>>
-						<label for="checkbox0"> <?php echo $lang['schedule_enable']; ?></label>
+                                        <div class="row">
+	                                        <!-- Enable Schedule -->
+                                                <div class="col-xs-2">
+							<div class="checkbox checkbox-default checkbox-circle">
+								<input id="checkbox0" class="styled" type="checkbox" name="sc_en" value="1" <?php $check = ($time_row['status'] == 1) ? 'checked' : ''; echo $check; ?>>
+								<label for="checkbox0"> <?php echo $lang['schedule_enable']; ?></label>
+							</div>
+						</div>
+
+	                                        <!-- Enable Away Schedule -->
+                                                <div class="col-xs-2">
+		                                        <div class="checkbox checkbox-default checkbox-circle">
+                				                <input id="checkbox1" class="styled" type="checkbox" name="aw_en" value="1" <?php $check = ($time_row['type'] == 1) ? 'checked' : ''; echo $check. " ".$away_disabled ; ?>>
+                                		                <label for="checkbox1"> <?php echo $lang['away_enable']; ?></label>
+                                        		</div>
+						</div>
 					</div>
+					<!-- /.row -->
 
 					<!-- Day Selector -->
 					<div class="row">
 						<div class="col-xs-3">
 							<div class="checkbox checkbox-default checkbox-circle">
-    								<input id="checkbox1" class="styled" type="checkbox" name="Sunday_en" value="1" <?php $check = (($time_row['WeekDays'] & 1) > 0) ? 'checked' : ''; echo $check; ?>>
-    								<label for="checkbox1"> <?php echo $lang['sun']; ?></label>
+    								<input id="checkbox2" class="styled" type="checkbox" name="Sunday_en" value="1" <?php $check = (($time_row['WeekDays'] & 1) > 0) ? 'checked' : ''; echo $check; ?>>
+    								<label for="checkbox2"> <?php echo $lang['sun']; ?></label>
 							</div>
 						</div>
 
 						<div class="col-xs-3">
 							<div class="checkbox checkbox-default checkbox-circle">
-    								<input id="checkbox2" class="styled" type="checkbox" name="Monday_en" value="1" <?php $check = (($time_row['WeekDays'] & 2) > 0) ? 'checked' : ''; echo $check; ?>>
-    								<label for="checkbox2"> <?php echo $lang['mon']; ?></label>
+    								<input id="checkbox3" class="styled" type="checkbox" name="Monday_en" value="1" <?php $check = (($time_row['WeekDays'] & 2) > 0) ? 'checked' : ''; echo $check; ?>>
+    								<label for="checkbox3"> <?php echo $lang['mon']; ?></label>
 							</div>
 						</div>
 
         					<div class="col-xs-3">
 							<div class="checkbox checkbox-default checkbox-circle">
-    								<input id="checkbox3" class="styled" type="checkbox" name="Tuesday_en" value="1" <?php $check = (($time_row['WeekDays'] & 4) > 0) ? 'checked' : ''; echo $check; ?>>
-    								<label for="checkbox3"> <?php echo $lang['tue']; ?></label>
+    								<input id="checkbox4" class="styled" type="checkbox" name="Tuesday_en" value="1" <?php $check = (($time_row['WeekDays'] & 4) > 0) ? 'checked' : ''; echo $check; ?>>
+    								<label for="checkbox4"> <?php echo $lang['tue']; ?></label>
 							</div>
 						</div>
 
 						<div class="col-xs-3">
 							<div class="checkbox checkbox-default checkbox-circle">
-    								<input id="checkbox4" class="styled" type="checkbox" name="Wednesday_en" value="1" <?php $check = (($time_row['WeekDays'] & 8) > 0) ? 'checked' : ''; echo $check; ?>>
-    								<label for="checkbox4"> <?php echo $lang['wed']; ?></label>
+    								<input id="checkbox5" class="styled" type="checkbox" name="Wednesday_en" value="1" <?php $check = (($time_row['WeekDays'] & 8) > 0) ? 'checked' : ''; echo $check; ?>>
+    								<label for="checkbox5"> <?php echo $lang['wed']; ?></label>
 							</div>
 						</div>
 
         					<div class="col-xs-3">
 							<div class="checkbox checkbox-default checkbox-circle">
-    								<input id="checkbox5" class="styled" type="checkbox" name="Thursday_en" value="1" <?php $check = (($time_row['WeekDays'] & 16) > 0) ? 'checked' : ''; echo $check; ?>>
-	    							<label for="checkbox5"> <?php echo $lang['thu']; ?></label>
+    								<input id="checkbox6" class="styled" type="checkbox" name="Thursday_en" value="1" <?php $check = (($time_row['WeekDays'] & 16) > 0) ? 'checked' : ''; echo $check; ?>>
+	    							<label for="checkbox6"> <?php echo $lang['thu']; ?></label>
 							</div>
 						</div>
 
 						<div class="col-xs-3">
 							<div class="checkbox checkbox-default checkbox-circle">
-    								<input id="checkbox6" class="styled" type="checkbox" name="Friday_en" value="1" <?php $check = (($time_row['WeekDays'] & 32) > 0) ? 'checked' : ''; echo $check; ?>>
-    								<label for="checkbox6"> <?php echo $lang['fri']; ?></label>
+    								<input id="checkbox7" class="styled" type="checkbox" name="Friday_en" value="1" <?php $check = (($time_row['WeekDays'] & 32) > 0) ? 'checked' : ''; echo $check; ?>>
+    								<label for="checkbox7"> <?php echo $lang['fri']; ?></label>
 							</div>
 						</div>
 
 						<div class="col-xs-3">
 							<div class="checkbox checkbox-default checkbox-circle">
-    								<input id="checkbox7" class="styled" type="checkbox" name="Saturday_en" value="1" <?php $check = (($time_row['WeekDays'] & 64) > 0) ? 'checked' : ''; echo $check; ?>>
-    								<label for="checkbox7"> <?php echo $lang['sat']; ?></label>
+    								<input id="checkbox8" class="styled" type="checkbox" name="Saturday_en" value="1" <?php $check = (($time_row['WeekDays'] & 64) > 0) ? 'checked' : ''; echo $check; ?>>
+    								<label for="checkbox8"> <?php echo $lang['sat']; ?></label>
 							</div>
 						</div>
 					</div>

@@ -61,9 +61,14 @@ require_once(__DIR__ . '/st_inc/functions.php');
                 <?php
 		//following variable set to 0 on start for array index.
 		$sch_time_index = '0';
+		//query to check away status
+		$query = "SELECT * FROM away LIMIT 1";
+		$result = $conn->query($query);
+		$away = mysqli_fetch_array($result);
+		$away_status = $away['status'];
 		//$query = "SELECT time_id, time_status, `start`, `end`, tz_id, tz_status, zone_id, index_id, zone_name, temperature, max(temperature) as max_c FROM schedule_daily_time_zone_view group by time_id ORDER BY start asc";
 		//$query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, type, `category`, temperature, FORMAT(max(temperature),2) as max_c, sch_name, max(sunset) AS sunset, sensor_type_id, stype FROM schedule_daily_time_zone_view WHERE holidays_id = 0 AND tz_status = 1 group by time_id ORDER BY start, sch_name asc";
-               	$query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, type, `category`, temperature, FORMAT(max(temperature),2) as max_c, sch_name, start_sr, start_ss, start_offset, end_sr, end_ss, end_offset, sensor_type_id, stype FROM schedule_daily_time_zone_view WHERE holidays_id = 0 AND tz_status = 1 group by time_id ORDER BY start, sch_name asc";
+               	$query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, type, `category`, temperature, FORMAT(max(temperature),2) as max_c, sch_name, sch_type, start_sr, start_ss, start_offset, end_sr, end_ss, end_offset, sensor_type_id, stype FROM schedule_daily_time_zone_view WHERE holidays_id = 0 AND tz_status = 1 group by time_id ORDER BY start, sch_name asc";
 		$results = $conn->query($query);
 		while ($row = mysqli_fetch_assoc($results)) {
                         $dow = idate('w');
@@ -78,6 +83,8 @@ require_once(__DIR__ . '/st_inc/functions.php');
 			if($row["WeekDays"]  & (1 << 6)){ $Saturday_status_icon="ion-checkmark-circled"; $Saturday_status_color="orangefa"; }else{ $Saturday_status_icon="ion-close-circled"; $Saturday_status_color="bluefa"; }
 
                         if($row["time_status"]=="0"){ $shactive="bluesch"; }else{ $shactive="orangesch"; }
+			$sch_name = $row['sch_name'];
+                        $sch_type = $row['sch_type'];
                         $time = strtotime(date("G:i:s"));
                         $start_time = strtotime($row['start']);
                         $end_time = strtotime($row['end']);
@@ -106,7 +113,7 @@ require_once(__DIR__ . '/st_inc/functions.php');
                                 }
                         }
                         if ((($end_time > $start_time && $time > $start_time && $time < $end_time && ($row["WeekDays"]  & (1 << $dow)) > 0) || ($end_time < $start_time && $time < $end_time && ($row["WeekDays"]  & (1 << $prev_dow)) > 0) || ($end_time < $start_time && $time > $start_time && ($row["WeekDays"]  & (1 << $dow)) > 0)) && $row["time_status"]=="1") {
-                                $shactive="redsch";
+				if (($sch_type == 1 && $away_status == 1) || ($sch_type == 0 && $away_status == 0)) { $shactive="redsch"; }
                         }
 
 			//time shchedule listing
@@ -126,7 +133,7 @@ require_once(__DIR__ . '/st_inc/functions.php');
 			<a style="color: #333; cursor: pointer; text-decoration: none;" data-toggle="collapse" data-parent="#accordion" href="#collapse' . $row['tz_id'] . '">
                         <div class="chat-body clearfix">
                                 <div class="header text-info">&nbsp;&nbsp;';
-                                        echo '<span class="label label-info">' . $row['sch_name'] . '</span>';
+                                        echo '<span class="label label-info">' . $sch_name . '</span>';
                                         if($row["category"] == 2 && $sunset == 1) { echo '&nbsp;&nbsp;<img src="./images/sunset.png">'; }
                                         echo '<br>&nbsp;&nbsp; '. $row['start'] . ' - ' . $row['end'] . ' &nbsp;&nbsp;
 

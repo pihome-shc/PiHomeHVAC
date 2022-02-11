@@ -13,12 +13,12 @@ echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
 echo "\033[31m \n";
 echo "******************************************************************\n";
 echo "*   System Controller Script Version 0.01 Build Date 19/10/2020  *\n";
-echo "*   Update on 21/12/2021                                         *\n";
+echo "*   Update on 10/02/2022                                         *\n";
 echo "*                                        Have Fun - PiHome.eu    *\n";
 echo "******************************************************************\n";
 echo " \033[0m \n";
 
-
+$line_len = 115; //length of seperator lines
 
 require_once(__DIR__.'../../st_inc/connection.php');
 require_once(__DIR__.'../../st_inc/functions.php');
@@ -334,7 +334,7 @@ $current_time = date('H:i:s');
 //following variable set to current day of the week.
 $dow = idate('w');
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Day of the Week: \033[41m".$dow. "\033[0m \n";
-echo "------------------------------------------------------------------------------------------------------- \n";
+for ($i = 0; $i < $line_len; $i++){ echo "-"; } echo "\n";
 $sch_active = 0; //set to indicate no active schedules
 $query = "SELECT zone.id, zone.status, zone.zone_state, zone.name, zone_type.type, zone_type.category, zone.max_operation_time FROM zone, zone_type WHERE zone.type_id = zone_type.id order by index_id asc;";
 $results = $conn->query($query);
@@ -425,8 +425,10 @@ while ($row = mysqli_fetch_assoc($results)) {
 	}
         // only process active zones
         if ($zone_status == 1) {
-                $rval=get_schedule_status($conn, $zone_id,$holidays_status);
+                $rval=get_schedule_status($conn, $zone_id, $holidays_status, $away_status);
                 $sch_status = $rval['sch_status'];
+                $sch_name = $rval['sch_name'];
+                $away_sch = $rval['away_sch'];
                 if ($sch_active == 0 && $sch_status == '1') { $sch_active = 1; }
                 if($rval['sch_count'] == 0){
                         $sch_status = 0;
@@ -620,7 +622,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 				$timestamp =strtotime(date('H:i:s')) + 60 *10;
 				$nc_end_time_rc = date('H:i:s', $timestamp);
 				$current_time = date('H:i:s');
-				if ((TimeIsBetweenTwoTimes($current_time, $nc_start_time, $nc_end_time)) && ($nc_time_status =='1') && ($nc_zone_status =='1') && ($nc_weekday > 0)) {
+				if (($away_sch == 0) && (TimeIsBetweenTwoTimes($current_time, $nc_start_time, $nc_end_time)) && ($nc_time_status =='1') && ($nc_zone_status =='1') && ($nc_weekday > 0)) {
 					echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Night Climate Enabled for This Zone \n";
 					$night_climate_status='1';
 				} else {
@@ -805,7 +807,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 	                                                               	$stop_cause="Manual Target C Achieved";
                                                                 	$zone_state = 0;
        	                                                	}
-							} elseif ($away_status=='0') {
+							} elseif ($away_status=='0' || $away_sch == 1) {
 								if (($holidays_status=='0') || ($sch_holidays=='1')) {
 									if (($sch_active) && ($zone_override_status=='1')) {
 										$zone_status="0";
@@ -837,7 +839,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 											if (($sch_status =='1') && ($zone_c < $temp_cut_out_rising) && (($sch_coop == 0) ||($system_controller_active_status == "1"))){
 												$zone_status="1";
 												$zone_mode = 81;
-												$start_cause="Schedule Started";
+												$start_cause="Schedule '".$sch_name."' Started";
 												$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
 												$zone_state = 1;
 											}
@@ -917,7 +919,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 									$stop_cause="Holiday Active";
 									$zone_state = 0;
 								}
-							}elseif($away_status=='1'){
+							}elseif($away_status=='1' && $away_sch == 0){
 								$zone_status="0";
 								$zone_mode = 90;
 								$stop_cause="Away Active";
@@ -961,7 +963,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                                         $zone_state = $zone_status_prev;
 					$hvac_state = 1;
                                 } elseif (($frost_active == 0) && ($zone_c < $zone_max_c) && ($zone_c > $zone_min_c)) {
-					if ($away_status=='0'){
+					if ($away_status=='0' || $away_sch == 1){
 						if (($holidays_status=='0') || ($sch_holidays=='1')) {
 							if ($boost_status=='0') {
         			                                $zone_status="0";
@@ -1159,7 +1161,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                                         	        $stop_cause="Holiday Active";
                                                 	$zone_state = 0;
 	                                        } // end holidays
-        	                     	} elseif ($away_status=='1'){ // end away = 0
+        	                     	} elseif ($away_status=='1' && $away_sch == 0){ // end away = 0
                 	                	$zone_status="0";
                         	                $zone_mode = 90;
                                 	        $stop_cause="Away Active";
@@ -1190,7 +1192,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 					$add_on_stop_cause="Frost Protection Deadband";
 					$zone_state = $zone_status_prev;
 				} elseif ($frost_active == 0 && $zone_c < $zone_max_c) {
-					if ($away_status=='0') {
+					if ($away_status=='0' || $away_sch == 1) {
 						if (($holidays_status=='0') || ($sch_holidays=='1')) {
                                                 	if (($sch_active) && ($zone_override_status=='1')) {
                                                         	$zone_status="0";
@@ -1222,7 +1224,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 									if (($sch_status =='1' && $zone_c < $temp_cut_out_rising)){
 										$zone_status="1";
 										$zone_mode = 111;
-										$add_on_start_cause="Schedule Started";
+										$add_on_start_cause = "Schedule '".$sch_name."' Started";
 										$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
 										$zone_state = 1;
 									}
@@ -1295,7 +1297,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 							$add_on_stop_cause="Holiday Active";
 							$zone_state = 0;
 						}
-					}elseif($away_status=='1'){
+					}elseif($away_status=='1' && $away_sch == 0){
 						$zone_status="0";
 						$zone_mode = 90;
 						$add_on_stop_cause="Away Active";
@@ -1318,7 +1320,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                		                                $add_on_start_cause="Manual Start";
                	               	                        $zone_state = 1;
        	                               	        }
-					} elseif ($away_status=='0') {
+					} elseif ($away_status=='0' || $away_sch == 1) {
 						if (($holidays_status=='0') || ($sch_holidays=='1')) {
                                                         if (($sch_active) && ($zone_override_status=='1')) {
                                                                 $zone_status="0";
@@ -1350,7 +1352,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 									$sensor_state = intval($zone_c);
 									$zone_status="1";
 									$zone_mode = 111;
-									$add_on_start_cause="Schedule Started";
+									$add_on_start_cause = "Schedule '".$sch_name."' Started";
 									$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
 									$zone_state = $sensor_state;
 								}
@@ -1373,7 +1375,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 							$add_on_stop_cause="Holiday Active";
 							$zone_state = 0;
 						}
-					}elseif($away_status=='1'){
+					}elseif($away_status=='1' && $away_sch == 0){
 						$zone_status="0";
 						$zone_mode = 90;
 						$add_on_stop_cause="Away Active";
@@ -1386,7 +1388,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 					$zone_state = 0;
 				}
 			} else { // process Zone Category 2 or 4 zone
-				if ($away_status=='1'){
+				if ($away_status=='1' && $away_sch == 0){
 					$zone_status="0";
 					$zone_mode = 90;
           				$zone_state = 0;
@@ -1415,7 +1417,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 					  	$zone_status="1";
 						$zone_mode = 111;
           					$zone_state = 1;
-						$add_on_start_cause="Schedule Started";
+						$add_on_start_cause = "Schedule '".$sch_name."' Started";
 						$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
 					} else {
 	                                        $zone_status = (($add_on_state == 1) || ($zone_state == 1)) ? "1":"0" ;
@@ -1573,7 +1575,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 				}
 			}
 		} //end process Zone Cat 1 and 2 logs
-		echo "------------------------------------------------------------------------------------------------------- \n";
+		for ($i = 0; $i < $line_len; $i++){ echo "-"; } echo "\n";
         } //end if($zone_status == 1)
 } //end of while loop
 
@@ -2104,7 +2106,7 @@ if (TimeIsBetweenTwoTimes($current_time, $start_time, $end_time)) {
 	$result = $conn->query($query);
 	$user_row = mysqli_fetch_array($result);
 	$email = $user_row['email'];
-	echo "------------------------------------------------------------------------------------------------------- \n";
+	for ($i = 0; $i < $line_len; $i++){ echo "-"; } echo "\n";
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Calling Home \n";
 	//$external_ip = file_get_contents('http://www.pihome.eu/piconnect/myip.php');
 	$external_ip = exec ("curl -s checkip.amazonaws.com");
@@ -2129,21 +2131,21 @@ if (TimeIsBetweenTwoTimes($current_time, $start_time, $end_time)) {
 	$result = url_get_contents($url);
 	$result = file_get_contents($url);
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - PiHome Says: ".$result."\n";
-	echo "------------------------------------------------------------------------------------------------------- \n";
+	for ($i = 0; $i < $line_len; $i++){ echo "-"; } echo "\n";
 }
 
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Active Status: \033[41m".$new_system_controller_status."\033[0m \n";
 if ($system_controller_mode == 0) {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Hysteresis Status: \033[41m".$hysteresis."\033[0m \n";
 }
-echo "------------------------------------------------------------------------------------------------------- \n";
+for ($i = 0; $i < $line_len; $i++){ echo "-"; } echo "\n";
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Purging marked records. \n";
 $query = purge_tables();
 foreach(preg_split("/((\r?\n)|(\r\n?))/", $query) as $line){
 	$conn->query($line);
 }
-echo "------------------------------------------------------------------------------------------------------- \n";
+for ($i = 0; $i < $line_len; $i++){ echo "-"; } echo "\n";
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Controller Script Ended \n";
-echo "\033[32m*******************************************************************************************************\033[0m  \n";
+echo "\033[32m"; for ($i = 0; $i < $line_len; $i++){ echo "*"; } echo "\033[0m  \n";
 if(isset($conn)) { $conn->close();}
 ?>

@@ -59,6 +59,12 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 		//determine if using cyclic mode selection
 		$mode_select = settings($conn, 'mode') >> 0b1;
 
+		//query to check away status
+		$query = "SELECT * FROM away LIMIT 1";
+		$result = $conn->query($query);
+		$away = mysqli_fetch_array($result);
+		$away_status = $away['status'];
+
                 //query to check holidays status
                 $query = "SELECT * FROM holidays WHERE NOW() between start_date_time AND end_date_time AND status = '1' LIMIT 1";
                 $result = $conn->query($query);
@@ -239,7 +245,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 			$overrun= $zone_current_state['overrun'];
 
                         //get the current zone schedule status
-                        $rval=get_schedule_status($conn, $zone_id,$holidays_status);
+                        $rval=get_schedule_status($conn, $zone_id,$holidays_status,$away_status);
                         $sch_status = $rval['sch_status'];
 			if ($sch_status == 1) { $active_schedule = 1; }
 
@@ -408,7 +414,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 										echo '<p>Coop Start Schedule - Waiting for System Controller start.</p>';
 									}
 								}
-								$squery = "SELECT * FROM schedule_daily_time_zone_view where zone_id ='{$zone_id}' AND tz_status = 1 AND time_status = '1' AND (WeekDays & (1 << {$dow})) > 0 ORDER BY start asc";
+								$squery = "SELECT * FROM schedule_daily_time_zone_view where zone_id ='{$zone_id}' AND tz_status = 1 AND time_status = '1' AND (WeekDays & (1 << {$dow})) > 0 AND type = 0 ORDER BY start asc";
 								$sresults = $conn->query($squery);
 								if (mysqli_num_rows($sresults) == 0){
 									echo '<div class=\"list-group\">
@@ -705,7 +711,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                         $zone_c = $sensor['payload'];
 
 			//get the current zone schedule status
-			$rval=get_schedule_status($conn, $zone_id,$holidays_status);
+			$rval=get_schedule_status($conn, $zone_id,$holidays_status,$away_status);
                         $sch_status = $rval['sch_status'];
 
                         //query to get zone current state
