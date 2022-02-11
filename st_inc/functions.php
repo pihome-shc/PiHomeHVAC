@@ -748,7 +748,7 @@ function scan_db_update_dir($dir) {
 }
 
 // get the schedule status by zone_id, start/stop times can be sunrise/sunset dependant on flag setting
-function get_schedule_status($conn,$zone_id,$holidays_status){
+function get_schedule_status($conn,$zone_id,$holidays_status,$away_status){
         // get current day number
         $dow = idate('w');
         // get previous day number, used when end time is less than start time
@@ -757,9 +757,10 @@ function get_schedule_status($conn,$zone_id,$holidays_status){
 	$end_time = strtotime(date("G:i:s"));
 
         // get raw data
-        $query = "SELECT time_id, start, start_sr, Start_ss, Start_offset, end, end_sr, end_ss, end_offset, WeekDays, time_status
+        $query = "SELECT time_id, start, start_sr, Start_ss, Start_offset, end, end_sr, end_ss, end_offset, WeekDays, time_status, sch_name, sch_type
                 FROM schedule_daily_time_zone_view
                 WHERE tz_status = '1' AND `time_status` = '1' AND zone_id = {$zone_id}";
+	if ($away_status == 1) { $query = $query." AND `sch_type` = 1"; } else { $query = $query." AND `sch_type` = 0"; }
         if ($holidays_status == 0) {
                 $query = $query." AND holidays_id = 0;";
         } else {
@@ -769,6 +770,7 @@ function get_schedule_status($conn,$zone_id,$holidays_status){
         $sch_count=mysqli_num_rows($results);
         if ($sch_count > 0) {
 		$sch_status = 0;
+		$away_sch = $away_status;
 		while ($row = mysqli_fetch_assoc($results)) {
 	                // check each schedule for this zone
         	        $time = strtotime(date("G:i:s"));
@@ -783,6 +785,7 @@ function get_schedule_status($conn,$zone_id,$holidays_status){
         	        $end_offset = $row['end_offset'];
                 	$WeekDays = $row['WeekDays'];
 	                $time_status = $row['time_status'];
+			$sch_name = $row['sch_name'];
         	        // use sunrise/sunset if any flags set
                 	if ($start_sr == 1 || $start_ss == 1 || $end_sr == 1 || $end_ss == 1) {
                         	// get the sunrise and sunset times
@@ -852,9 +855,12 @@ function get_schedule_status($conn,$zone_id,$holidays_status){
         } else {
                 $sch_status = 0;
                 $time_id = 0;
+		$away_sch = 0;
         }
         return array('time_id'=>$time_id,
                 'sch_status'=>$sch_status,
+                'sch_name'=>$sch_name,
+                'away_sch'=>$away_sch,
                 'end_time'=>$end_time,
                 'sch_count'=>$sch_count
         );
@@ -903,7 +909,7 @@ function offset($conn,$button) {
         if ($rowcount > 0) {
 		while ($zrow = mysqli_fetch_assoc($zresults)) {
 			$zone_id = $zrow['id'];
-                	$rval=get_schedule_status($conn, $zone_id,"0");
+                	$rval=get_schedule_status($conn, $zone_id,"0","0");
                 	$sch_status = $rval['sch_status'];
                 	if ($sch_status == '1') {
 				$query = "SELECT * FROM schedule_time_temp_offset WHERE schedule_daily_time_id = ".$rval['time_id']." AND status = 1 LIMIT 1";
