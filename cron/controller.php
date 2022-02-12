@@ -18,7 +18,7 @@ echo "*                                        Have Fun - PiHome.eu    *\n";
 echo "******************************************************************\n";
 echo " \033[0m \n";
 
-$line_len = 95; //length of seperator lines
+$line_len = 100; //length of seperator lines
 
 require_once(__DIR__.'../../st_inc/connection.php');
 require_once(__DIR__.'../../st_inc/functions.php');
@@ -768,6 +768,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 
 		//initialize variables
 		$zone_mode = 0;
+		if ($sc_mode != 0 && $away_status=='1' && $away_sch == 1) { $active_sc_mode = 1; } else { $active_sc_mode = $sc_mode; }
 //		$hvac_state = 0; // 0 = COOL, 1 = HEAT
 		if ($zone_fault == '0'){
 			if ($zone_category == 0) {
@@ -787,7 +788,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 					} elseif ($frost_active == 0 && $zone_c < $zone_max_c && $hysteresis=='0') {
 						//system controller has not exceeded max running timw
 						if (($system_controller_on_time < $system_controller_max_operation_time) || ($system_controller_max_operation_time == 0)) {
-							if ($sc_mode == 4 || ($sc_mode == 2 && strpos($zone_type, 'Heating') !== false)  || ($sc_mode == 3 && strpos($zone_type, 'Water') !== false)) {
+							if ($active_sc_mode == 4 || ($active_sc_mode == 2 && strpos($zone_type, 'Heating') !== false)  || ($active_sc_mode == 3 && strpos($zone_type, 'Water') !== false)) {
        	                                        		if ($zone_c < $temp_cut_out_rising) {
                	                                	        	$zone_status="1";
                        	                	                        $zone_mode = 141;
@@ -807,7 +808,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 	                                                               	$stop_cause="Manual Target C Achieved";
                                                                 	$zone_state = 0;
        	                                                	}
-							} elseif ($away_status=='0' || $away_sch == 1) {
+							} elseif ($away_status=='0' || ($away_status=='1' && $away_sch == 1)) {
 								if (($holidays_status=='0') || ($sch_holidays=='1')) {
 									if (($sch_active) && ($zone_override_status=='1')) {
 										$zone_status="0";
@@ -963,12 +964,12 @@ while ($row = mysqli_fetch_assoc($results)) {
                                         $zone_state = $zone_status_prev;
 					$hvac_state = 1;
                                 } elseif (($frost_active == 0) && ($zone_c < $zone_max_c) && ($zone_c > $zone_min_c)) {
-					if ($away_status=='0' || $away_sch == 1){
+					if ($away_status=='0' || ($away_status=='1' && $away_sch == 1)){
 						if (($holidays_status=='0') || ($sch_holidays=='1')) {
 							if ($boost_status=='0') {
         			                                $zone_status="0";
                 			                        $stop_cause="Boost Finished";
-								switch ($sc_mode) {
+								switch ($active_sc_mode) {
         	                			                case 0: // OFF
                 	                			                $zone_status="0";
                         	                			        $zone_mode = 0;
@@ -1192,7 +1193,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 					$add_on_stop_cause="Frost Protection Deadband";
 					$zone_state = $zone_status_prev;
 				} elseif ($frost_active == 0 && $zone_c < $zone_max_c) {
-					if ($away_status=='0' || $away_sch == 1) {
+					if ($away_status=='0' || ($away_status=='1' && $away_sch == 1)) {
 						if (($holidays_status=='0') || ($sch_holidays=='1')) {
                                                 	if (($sch_active) && ($zone_override_status=='1')) {
                                                         	$zone_status="0";
@@ -1313,14 +1314,14 @@ while ($row = mysqli_fetch_assoc($results)) {
 			} elseif ($zone_category == 1 && strpos($zone_type, 'Switch') !== false) {
 	                        //check system controller not in OFF mode
         	                if ($sc_mode != 0) {
-					if ($sc_mode == 4 || $sc_mode == 2){
+					if ($active_sc_mode == 4 || $active_sc_mode == 2){
                                        		if ($zone_c == 1) {
                                 	        	$zone_status="1";
        	                	                        $zone_mode = 141;
                		                                $add_on_start_cause="Manual Start";
                	               	                        $zone_state = 1;
        	                               	        }
-					} elseif ($away_status=='0' || $away_sch == 1) {
+					} elseif ($away_status=='0' || ($away_status=='1' && $away_sch == 1)) {
 						if (($holidays_status=='0') || ($sch_holidays=='1')) {
                                                         if (($sch_active) && ($zone_override_status=='1')) {
                                                                 $zone_status="0";
@@ -1533,15 +1534,21 @@ while ($row = mysqli_fetch_assoc($results)) {
 		if ($zone_category == 0 || $zone_category == 3 || $zone_category == 4) {
 			if ($zone_status=='1') {
 				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Start Cause: ".$start_cause." - Target C:\033[41m".$target_c."\033[0m Zone C:\033[31m".$zone_c."\033[0m \n";
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Running Schedule \033[41m".$sch_name."\033[0m \n";
+				if (floor($zone_mode/10)*10 == 80) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Running Schedule \033[41m".$sch_name."\033[0m \n"; }
 			}
-			if ($zone_status=='0') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Stop Cause: ".$stop_cause." - Target C:\033[41m".$target_c."\033[0m Zone C:\033[31m".$zone_c."\033[0m \n";}
+			if ($zone_status=='0') {
+				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Stop Cause: ".$stop_cause." - Target C:\033[41m".$target_c."\033[0m Zone C:\033[31m".$zone_c."\033[0m \n";
+				if ($zone_mode == 30 || floor($zone_mode/10)*10 == 80) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Running Schedule \033[44m".$sch_name."\033[0m \n"; }
+			}
 		} else {
 			if ($zone_status=='1') {
 				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Start Cause: ".$add_on_start_cause."\033[0m \n";
                                 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Running Schedule \033[41m".$sch_name."\033[0m \n";
 			}
-			if ($zone_status=='0') {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Stop Cause: ".$add_on_stop_cause."\033[0m \n";}
+			if ($zone_status=='0') {
+				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Stop Cause: ".$add_on_stop_cause."\033[0m \n";
+                                if ($zone_mode == 30 || floor($zone_mode/10)*10 == 80) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Running Schedule \033[44m".$sch_name."\033[0m \n"; }
+			}
 		}
 		//Pass data to zone commands loop
                 $zone_commands[$command_index] = (array('controllers' =>$zone_controllers, 'zone_id' =>$zone_id, 'zone_name' =>$zone_name, 'zone_category' =>$zone_category, 'zone_status'=>$zone_status, 'zone_status_prev'=>$zone_status_prev, 'zone_overrun_prev'=>$zone_overrun_prev, 'zone_override_status'=>$zone_override_status));
@@ -1799,16 +1806,16 @@ if (in_array("1", $system_controller)) {
 
 	$new_system_controller_status='1';
 	//change relay states on change
-	if (($system_controller_active_status != $new_system_controller_status) || ($sc_mode != $sc_mode_prev) || ($off_relay_type == 'MySensor') || ($on_relay_type == 'MySensor')){
+	if (($system_controller_active_status != $new_system_controller_status) || ($active_sc_mode != $sc_mode_prev) || ($off_relay_type == 'MySensor') || ($on_relay_type == 'MySensor')){
 		//update system controller active status to 1
-		$query = "UPDATE system_controller SET sync = '0', active_status = '{$new_system_controller_status}', sc_mode_prev = '{$sc_mode}' WHERE id ='1' LIMIT 1";
+		$query = "UPDATE system_controller SET sync = '0', active_status = '{$new_system_controller_status}', sc_mode_prev = '{$active_sc_mode}' WHERE id ='1' LIMIT 1";
 		$conn->query($query);
 
 		/**************************************************************************************************
 		System Controller Wirelss Section:	MySensors Wireless or MQTT Relay module for your System Controller
 		***************************************************************************************************/
 		//update messages_out table with sent status to 0 and payload to as system controller status.
-                if ($sc_mode != 5) { //process if NOT  HVAC fan only mode
+                if ($active_sc_mode != 5) { //process if NOT  HVAC fan only mode
 	        	if ($system_controller_mode == 1 && ($off_relay_type == 'MySensor' || $off_relay_type == 'MQTT')){
                                 $query = "SELECT node_id FROM nodes WHERE id = '$off_relay_id' LIMIT 1;";
                                 $result = $conn->query($query);
@@ -1841,7 +1848,7 @@ if (in_array("1", $system_controller)) {
 		/*****************************************************
 		System Controller Wired to Raspberry Pi GPIO Section.
 		******************************************************/
-		if ($sc_mode != 5) { //process if NOT  HVAC fan only mode
+		if ($active_sc_mode != 5) { //process if NOT  HVAC fan only mode
 			if ($system_controller_mode == 1 && $off_relay_type == 'GPIO'){
                                 $query = "SELECT node_id FROM nodes WHERE id = '$off_relay_id' LIMIT 1;";
                                 $result = $conn->query($query);
@@ -1874,7 +1881,7 @@ if (in_array("1", $system_controller)) {
 		/******************************************************************************************
 		System Controller Wired over I2C Interface Make sure you have i2c Interface enabled 
 		*******************************************************************************************/
-                if ($sc_mode != 5) { //process if NOT  HVAC fan only mode
+                if ($active_sc_mode != 5) { //process if NOT  HVAC fan only mode
 		        if ($system_controller_mode == 1 && $off_relay_type == 'I2C'){
         		        exec("python3 /var/www/cron/i2c/i2c_relay.py" .$off_relay_id." ".$off_relay_child_id." 0");
                 		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller I2C Rrelay Board: \033[41m".$off_relay_id."\033[0m Relay ID: \033[41m".$off_relay_child_id."\033[0m \n";
@@ -1946,9 +1953,9 @@ if (in_array("1", $system_controller)) {
 }else{
 	$new_system_controller_status='0';
         //change relay states on change
-        if (($system_controller_active_status != $new_system_controller_status) || ($sc_mode != $sc_mode_prev) || ($zone_current_mode != $zone_mode) || ($zone_current_mode != $zone_mode) || ($heat_relay_type == 'MySensor') || ($cool_relay_type == 'MySensor') || ($fan_relay_type == 'MySensor')){
+        if (($system_controller_active_status != $new_system_controller_status) || ($active_sc_mode != $sc_mode_prev) || ($zone_current_mode != $zone_mode) || ($zone_current_mode != $zone_mode) || ($heat_relay_type == 'MySensor') || ($cool_relay_type == 'MySensor') || ($fan_relay_type == 'MySensor')){
 		//update system controller active status to 0
-		$query = "UPDATE system_controller SET sync = '0', active_status = '{$new_system_controller_status}', sc_mode_prev = '{$sc_mode}' WHERE id ='1' LIMIT 1";
+		$query = "UPDATE system_controller SET sync = '0', active_status = '{$new_system_controller_status}', sc_mode_prev = '{$active_sc_mode}' WHERE id ='1' LIMIT 1";
 		$conn->query($query);
 
 		/****************************************************************************************************
@@ -1979,7 +1986,7 @@ if (in_array("1", $system_controller)) {
                                 $result = $conn->query($query);
                                 $nodes = mysqli_fetch_array($result);
                                 $node_id = $nodes['node_id'];
-				if ($sc_mode == 5) { // HVAC fan ON if set to fan mode, else turn OFF
+				if ($active_sc_mode == 5) { // HVAC fan ON if set to fan mode, else turn OFF
 	        	                $query = "UPDATE messages_out SET sent = '0', payload = '1' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
 				} else {
         				$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
@@ -2016,7 +2023,7 @@ if (in_array("1", $system_controller)) {
                                 $result = $conn->query($query);
                                 $nodes = mysqli_fetch_array($result);
                                 $node_id = $nodes['node_id'];
-				if ($sc_mode == 5) { // HVAC fan ON if set to fan mode, else turn OFF
+				if ($active_sc_mode == 5) { // HVAC fan ON if set to fan mode, else turn OFF
                                         $query = "UPDATE messages_out SET sent = '0', payload = '1' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
 				} else {
                 			$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
@@ -2039,7 +2046,7 @@ if (in_array("1", $system_controller)) {
                 		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller I2C Rrelay Board: \033[41m".$cool_relay_id."\033[0m Relay ID: \033[41m".$cool_relay_child_id."\033[0m \n";
 	                }
         	        if ($fan_relay_type == 'I2C') {
-				if ($sc_mode == 5) { // HVAC fan ON if set to fan mode, else turn OFF
+				if ($active_sc_mode == 5) { // HVAC fan ON if set to fan mode, else turn OFF
 					exec("python3 /var/www/cron/i2c/i2c_relay.py" .$fan_relay_id." ".$fan_relay_child_id." 1");
 				} else {
         		                exec("python3 /var/www/cron/i2c/i2c_relay.py" .$fan_relay_id." ".$fan_relay_child_id." 0");
@@ -2075,7 +2082,7 @@ if (in_array("1", $system_controller)) {
 //if HVAC mode get the heat, cool and fan relay on/off state
 if ($system_controller_mode == 1) {
 	if ($new_system_controller_status=='1') {
-		if ($sc_mode != 5) {
+		if ($active_sc_mode != 5) {
 			$query = "SELECT name FROM relays WHERE relay_id = '$on_relay_id' AND relay_child_id = '$on_relay_child_id'LIMIT 1;";
                 	$result = $conn->query($query);
 	                $h_relay = mysqli_fetch_array($result);
@@ -2084,7 +2091,7 @@ if ($system_controller_mode == 1) {
         		$hvac_relays_state = 0b001;
 		}
 	} else {
-		 if ($sc_mode == 5) { $hvac_relays_state = 0b001; } else { $hvac_relays_state = 0b000; }
+		 if ($active_sc_mode == 5) { $hvac_relays_state = 0b001; } else { $hvac_relays_state = 0b000; }
 	}
         $query = "UPDATE system_controller SET hvac_relays_state = '{$hvac_relays_state}'";
         $result = $conn->query($query);

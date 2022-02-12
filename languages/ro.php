@@ -846,4 +846,6 @@ $lang['zone_button_message_fail'] = "Zone Boost Button Message Addition Failed."
 $lang['zone_boost_update_success'] = "Zone Boost Record Updated Successfully.";
 $lang['zone_boost_update_fail'] = "Zone Boost Record Update Failed.";
 $lang['away_enable'] = "Enable Away Schedule";
+$lang['away_setup'] = "Setup Away Function";
+$lang['zone_operating_mode_numbering'] = "Zone Operating Mode Numbering";
 ?>
