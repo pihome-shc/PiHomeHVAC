@@ -756,9 +756,6 @@ function get_schedule_status($conn,$zone_id,$holidays_status,$away_status){
 
 	$end_time = strtotime(date("G:i:s"));
 
-        $sch_name = "";
-        $sch_status = 0;
-
 	// get raw data
         $query = "SELECT time_id, start, start_sr, Start_ss, Start_offset, end, end_sr, end_ss, end_offset, WeekDays, time_status, sch_name, sch_type
                 FROM schedule_daily_time_zone_view
@@ -853,9 +850,12 @@ function get_schedule_status($conn,$zone_id,$holidays_status,$away_status){
                 	if (($end_time > $start_time && $time > $start_time && $time < $end_time && ($WeekDays  & (1 << $dow)) > 0) || ($end_time < $start_time && $time < $end_time && ($WeekDays  & (1 << $prev_dow)) > 0) || ($end_time < $start_time && $time > $start_time && ($WeekDays  & (1 << $dow)) > 0) && $time_status == "1") {
 	                	$sch_status = 1;
 				break; // exit the loop if an active schedule found
-        	        }
+                        } else {
+                                $sch_status = 0;
+                        }
 		} // end of while loop
         } else {
+                $sch_name = "";
                 $sch_status = 0;
                 $time_id = 0;
 		$away_sch = 0;
