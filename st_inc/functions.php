@@ -984,12 +984,17 @@ function night_climate($conn,$button) {
 function away($conn,$button) {
         global $button_style;
 
+        $query = "SELECT * FROM system_controller LIMIT 1";
+        $result = $conn->query($query);
+        $row = mysqli_fetch_array($result);
+        $sc_mode = $row['sc_mode'];
+
         $query = "SELECT * FROM away LIMIT 1";
         $result = $conn->query($query);
         $away = mysqli_fetch_array($result);
-        if ($away['status']=='1'){$awaystatus="red";}elseif ($away['status']=='0'){$awaystatus="blue";}
-        echo '<a style="font-style: normal;" href="javascript:active_away();">
-        <button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">
+        if ($away['status']=='1') { $awaystatus="red"; } elseif ( $away['status']=='0' || $sc_mode == 0) { $awaystatus="blue"; }
+        if ($sc_mode != 0 ) { echo '<a style="font-style: normal;" href="javascript:active_away();">'; }
+        echo '<button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
         <h3 class="degre"><i class="fa fa-sign-out fa-1x"></i></h3>
         <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$awaystatus.'"></i></small>
