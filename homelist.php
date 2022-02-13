@@ -247,6 +247,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                         //get the current zone schedule status
                         $rval=get_schedule_status($conn, $zone_id,$holidays_status,$away_status);
                         $sch_status = $rval['sch_status'];
+                        $away_sch = $rval['away_sch'];
 			if ($sch_status == 1) { $active_schedule = 1; }
 
 			//get the sensor id
@@ -308,6 +309,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 			}
 			echo '<h3 class="status">';
 
+                        if ($away_status == 1 && $away_sch == 1 ) { $zone_mode = 90; }
                         $rval=getIndicators($conn, $zone_mode, $zone_temp_target);
                         //Left small circular icon/color status
                         echo '<small class="statuscircle"><i class="fa fa-circle fa-fw ' . $rval['status'] . '"></i></small>';
@@ -713,6 +715,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 			//get the current zone schedule status
 			$rval=get_schedule_status($conn, $zone_id,$holidays_status,$away_status);
                         $sch_status = $rval['sch_status'];
+                        $away_sch = $rval['away_sch'];
 
                         //query to get zone current state
                         $query = "SELECT * FROM zone_current_state WHERE zone_id =  '{$row['id']}' LIMIT 1;";
@@ -748,6 +751,8 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                         } elseif ($sch_status =='0' && $add_on_active == 1) {
                                 $add_on_mode = 114;
                         }
+
+			if ($away_status == 1 && $away_sch == 1 ) { $zone_mode = 90; }
                         $rval=getIndicators($conn, $add_on_mode, $zone_temp_target);
                         //Left small circular icon/color status
                         echo '<small class="statuscircle"><i class="fa fa-circle fa-fw ' . $rval['status'] . '"></i></small>';
