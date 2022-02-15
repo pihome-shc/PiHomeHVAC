@@ -433,11 +433,16 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 										$start_time = strtotime($srow['start']);
 										$end_time = strtotime($srow['end']);
 										if ($time >$start_time && $time <$end_time){$shactive="redsch_list";}
+                                                                                if ($srow["coop"] == "1") {
+											$coop = '<i class="glyphicon glyphicon-leaf green" data-container="body" data-toggle="popover" data-placement="right" data-content="' . $lang['schedule_coop_help'] . '"></i>';
+                                                                                } else {
+                                                                                        $coop = '';
+                                                                                }
 											//this line to pass unique argument  "?w=schedule_list&o=active&wid=" href="javascript:delete_schedule('.$srow["id"].');"
 											echo '<a href="javascript:schedule_zone('.$srow['tz_id'].');" class="list-group-item">';
 											echo '<div class="circle_list '. $shactive.'"> <p class="schdegree">'.number_format(DispSensor($conn,$srow['temperature'],$sensor_type_id),0).$unit.'</p></div>';
 											echo '<span class="label label-info sch_name"> '.$srow['sch_name'].'</span>
-											<span class="pull-right text-muted sch_list"><em>'. $srow['start'].' - ' .$srow['end'].'</em></span></a>';
+											<span class="pull-right text-muted sch_list"><em>'. $coop. ' '.$srow['start'].' - ' .$srow['end'].'</em></span></a>';
 									}
 								echo '</div>';
 							}
