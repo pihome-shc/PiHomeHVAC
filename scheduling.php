@@ -567,7 +567,7 @@ if(!isset($_GET['nid'])) {
                                                                         }
 									$max = DispSensor($conn,$row['max_c'],$row['sensor_type_id']);
         								if(!isset($_GET['nid'])) {
-										if (settings($conn, 'mode') == 0 && $row['sensor_type_id'] == 1) {
+										if ((settings($conn, 'mode')  & 0b1) == 0 && $row['sensor_type_id'] == 1) {
 											//<!-- Zone Coop Enable Checkbox -->
 										       	if($time_id != 0){ $check = ($row['coop'] == 1) ? 'checked' : ''; }
 										        echo '<div class="checkbox checkbox-default  checkbox-circle">
