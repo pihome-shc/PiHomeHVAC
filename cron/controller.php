@@ -494,10 +494,10 @@ while ($row = mysqli_fetch_assoc($results)) {
 					$current_state = $zone_controllers[$crow]["zone_controller_current_state"];
         	                        $add_on_state = $zone_controllers[$crow]["zone_controller_state"];
                                         $zone_controler_child_id = $zone_controllers[$crow]["controler_child_id"];
-					if (($zone_current_mode == 114) && ($current_state != $add_on_state)) {
+					if (($zone_current_mode == "114" || $zone_current_mode == "115") && ($current_state != $add_on_state)) {
                         	        	$query = "UPDATE override SET status = 1, sync = '0' WHERE zone_id = {$zone_id};";
                                 	        $conn->query($query);
-					} elseif ($sch_status == 0 && $zone_override_status == 1) {
+					} elseif (($zone_current_mode == "114" || $zone_current_mode == "115") && $sch_status == 0 && $zone_override_status == 1) {
         	                                $query = "UPDATE override SET status = 0, sync = '0' WHERE zone_id = {$zone_id};";
                 	                        $conn->query($query);
 					}
@@ -1508,23 +1508,25 @@ while ($row = mysqli_fetch_assoc($results)) {
 		} else {
 	                $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', temp_target = {$target_c},temp_cut_in = {$temp_cut_in}, temp_cut_out = {$temp_cut_out}, controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}', sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
 		}
+                $conn->query($query);
 
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Name     \033[41m".$zone_name."\033[0m \n";
                 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Type     \033[41m".$zone_type."\033[0m \n";
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ID       \033[41m".$zone_id. "\033[0m \n";
 		$conn->query($query);
-		if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3 || $zone_category == 4) {
-			if (strpos($zone_type, 'Switch') !== false) {
-                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Sensor Reading     \033[41m".intval($zone_c)."\033[0m \n";
-                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Mode       \033[41m".$zone_mode."\033[0m \n";
-			} else {
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Sensor Reading     \033[41m".$zone_c."\033[0m \n";
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Weather Factor     \033[41m".$weather_fact."\033[0m \n";
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: DeadBand           \033[41m".$zone_sp_deadband."\033[0m \n";
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Cut In Temperature        \033[41m".$temp_cut_out_rising."\033[0m \n";
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Cut Out Temperature       \033[41m".$temp_cut_out."\033[0m \n";
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Mode       \033[41m".$zone_mode."\033[0m \n";
-			}
+		if ($zone_category == 1) {
+                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Mode     \033[41m".$zone_mode."\033[0m \n";
+	                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Sensor Reading     \033[41m".intval($zone_c)."\033[0m \n";
+                } elseif ($zone_category == 2) {
+                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Mode     \033[41m".$zone_mode."\033[0m \n";
+		} else {
+                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Mode     \033[41m".$zone_mode."\033[0m \n";
+			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Sensor Reading     \033[41m".$zone_c."\033[0m \n";
+			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Weather Factor     \033[41m".$weather_fact."\033[0m \n";
+			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: DeadBand           \033[41m".$zone_sp_deadband."\033[0m \n";
+			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Cut In Temperature        \033[41m".$temp_cut_out_rising."\033[0m \n";
+			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Cut Out Temperature       \033[41m".$temp_cut_out."\033[0m \n";
 		}
-		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone ID: \033[41m".$zone_id. "\033[0m \n";
                 for ($crow = 0; $crow < count($zone_controllers); $crow++){
                         $zone_controler_id = $zone_controllers[$crow]["controler_id"];
                         $zone_controler_child_id = $zone_controllers[$crow]["controler_child_id"];
@@ -1543,7 +1545,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 		} else {
 			if ($zone_status=='1') {
 				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Start Cause: ".$add_on_start_cause."\033[0m \n";
-                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Running Schedule \033[41m".$sch_name."\033[0m \n";
+                                if ($sch_status =='1') { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Running Schedule \033[41m".$sch_name."\033[0m \n"; }
 			}
 			if ($zone_status=='0') {
 				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Stop Cause: ".$add_on_stop_cause."\033[0m \n";
@@ -1571,7 +1573,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 					$aoquery = "INSERT INTO `add_on_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`, `expected_end_date_time`) VALUES ('0', '0', '{$zone_id}', '{$date_time}', '{$add_on_start_cause}', NULL, NULL,'{$expected_end_date_time}');";
 				}
 				$result = $conn->query($aoquery);
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone ID: ".$zone_id." Status: ".$zone_status."\n";
+				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ID       ".$zone_id." Status: ".$zone_status."\n";
 				if ($result) {
 					echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table added Successfully. \n";
 				}else {
