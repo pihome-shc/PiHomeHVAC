@@ -494,10 +494,10 @@ while ($row = mysqli_fetch_assoc($results)) {
 					$current_state = $zone_controllers[$crow]["zone_controller_current_state"];
         	                        $add_on_state = $zone_controllers[$crow]["zone_controller_state"];
                                         $zone_controler_child_id = $zone_controllers[$crow]["controler_child_id"];
-					if (($zone_current_mode == "114" || $zone_current_mode == "115") && ($current_state != $add_on_state)) {
+					if (($zone_current_mode == "74" || $zone_current_mode == "75") && ($current_state != $add_on_state)) {
                         	        	$query = "UPDATE override SET status = 1, sync = '0' WHERE zone_id = {$zone_id};";
                                 	        $conn->query($query);
-					} elseif (($zone_current_mode == "114" || $zone_current_mode == "115") && $sch_status == 0 && $zone_override_status == 1) {
+					} elseif (($zone_current_mode == "74" || $zone_current_mode == "75") && $sch_status == 0 && $zone_override_status == 1) {
         	                                $query = "UPDATE override SET status = 0, sync = '0' WHERE zone_id = {$zone_id};";
                 	                        $conn->query($query);
 					}
@@ -1422,9 +1422,13 @@ while ($row = mysqli_fetch_assoc($results)) {
 						$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
 					} else {
 	                                        $zone_status = (($add_on_state == 1) || ($zone_state == 1)) ? "1":"0" ;
-        	                                $zone_mode = 74 + $add_on_state;
+        	                                $zone_mode = 75 - $add_on_state;
                 	                        $zone_state = $add_on_state;
-                        	                $add_on_start_cause="Manual Override Started";
+						if ($zone_mode == 74) {
+                        	                	$add_on_start_cause="Manual Override ON State";
+						} elseif ($zone_mode == 75) {
+                                                        $add_on_stop_cause="Manual Override OFF State";
+						}
                                 	        $expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
 					}
 				} elseif ($boost_status=='1') {
@@ -1567,13 +1571,12 @@ while ($row = mysqli_fetch_assoc($results)) {
 			// Process Logs Category 1, 2 and 4 logs if zone status has changed
 			// zone switching ON
 			if($zone_status_prev == '0' &&  ($zone_status == '1' || $zone_state  == '1')) {
-				if($zone_mode == '111' || $zone_mode == '21' ||  $zone_mode == '10') {
+				if($zone_mode == '111' || $zone_mode == '114' || $zone_mode == '21' ||  $zone_mode == '10') {
 					$aoquery = "INSERT INTO `add_on_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`, `expected_end_date_time`) VALUES ('0', '0', '{$zone_id}', '{$date_time}', '{$add_on_start_cause}', NULL, NULL, NULL);";
 				} else {
 					$aoquery = "INSERT INTO `add_on_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`, `expected_end_date_time`) VALUES ('0', '0', '{$zone_id}', '{$date_time}', '{$add_on_start_cause}', NULL, NULL,'{$expected_end_date_time}');";
 				}
 				$result = $conn->query($aoquery);
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ID       ".$zone_id." Status: ".$zone_status."\n";
 				if ($result) {
 					echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table added Successfully. \n";
 				}else {
