@@ -726,8 +726,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                         $query = "SELECT * FROM zone_current_state WHERE zone_id =  '{$row['id']}' LIMIT 1;";
                         $result = $conn->query($query);
                         $zone_current_state = mysqli_fetch_array($result);
-                        $add_on_mode = $zone_current_state['mode'];
-                        if ($add_on_mode == 0) { $add_on_active = 0; } else { $add_on_active = 1; }
+                        if ($zone_current_state['mode'] == 0) { $add_on_active = 0; } else { $add_on_active = 1; }
 
                         if ($add_on_active == 1){$add_on_colour = "green";} elseif ($add_on_active == 0){$add_on_colour = "black";}
                         if ($zone_category == 2) {
@@ -747,14 +746,10 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 			}
                         echo '<h3 class="status">';
 
-                        if ($sch_status =='1' && $add_on_active == 0) {
-                                $add_on_mode = 74;
-                        } elseif ($sch_status =='1' && $add_on_active == 1) {
-                                $add_on_mode = 111;
-                        } elseif ($sch_status =='0' && $add_on_active == 0) {
-                                $add_on_mode = 0;
-                        } elseif ($sch_status =='0' && $add_on_active == 1) {
-                                $add_on_mode = 114;
+                        if ($sch_status =='1') {
+                                $add_on_mode = $zone_current_state['mode'];
+                        } else {
+                                if ($add_on_active == 0) { $add_on_mode = 0; } else { $add_on_mode = 114; }
                         }
 
 			if ($away_status == 1 && $away_sch == 1 ) { $zone_mode = 90; }
