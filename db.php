@@ -772,7 +772,11 @@ if($what=="add_on"){
 
 			//if switch type zone then force GUI status update
                         if ($category == 2) {
-                                if ($set == 0) { $mode = 0; } else { $mode = 114; }
+                                if ($sch_active == '0') {
+                                        if ($set == 0) { $mode = 0; } else { $mode = 114; }
+                                } else {
+                                        if ($set == 0) { $mode = 75; } else { $mode = 74; }
+                                }
                                 $query = "UPDATE zone_current_state SET mode  = '{$mode}', status = '{$set}' WHERE id = '{$wid}';";
                                 if($conn->query($query)){
                                         $update_error=0;
@@ -790,7 +794,7 @@ if($what=="add_on"){
                 }
 
                 if($sch_active == "1") {
-                        $query = "UPDATE override SET status = '{$da}' WHERE zone_id = '{$wid}' LIMIT 1;";
+                        $query = "UPDATE override SET status = '1' WHERE zone_id = '{$wid}' LIMIT 1;";
                         if($conn->query($query)){
                                 $update_error=0;
                         }else{
