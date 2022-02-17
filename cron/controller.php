@@ -494,7 +494,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 					$current_state = $zone_controllers[$crow]["zone_controller_current_state"];
         	                        $add_on_state = $zone_controllers[$crow]["zone_controller_state"];
                                         $zone_controler_child_id = $zone_controllers[$crow]["controler_child_id"];
-					if (($zone_current_mode == "74" || $zone_current_mode == "75") && ($current_state != $add_on_state)) {
+					if (($zone_current_mode == "74" || $zone_current_mode == "75") && ($current_state != $add_on_state) && $sch_status == 1) {
                         	        	$query = "UPDATE override SET status = 1, sync = '0' WHERE zone_id = {$zone_id};";
                                 	        $conn->query($query);
 					} elseif (($zone_current_mode == "74" || $zone_current_mode == "75") && $sch_status == 0 && $zone_override_status == 1) {
@@ -1444,6 +1444,11 @@ while ($row = mysqli_fetch_assoc($results)) {
         	                                $zone_mode = 0;
 	                                        $zone_state = 0;
                 	                        $add_on_stop_cause="Schedule Finished";
+                                       	} elseif ($zone_current_mode == 74 || $zone_current_mode == 75) {
+                                                $zone_status="0";
+                                                $zone_mode = 0;
+                                                $zone_state = 0;
+                                                $add_on_stop_cause="Override Finished";
 					} else {
                                         	$zone_status="1";
                                         	$zone_mode = 114;
