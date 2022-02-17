@@ -831,4 +831,5 @@ $lang['zone_boost_update_fail'] = "Zone Boost Record Update Failed.";
 $lang['away_enable'] = "Enable Away Schedule";
 $lang['away_setup'] = "Setup Away Function";
 $lang['zone_operating_mode_numbering'] = "Zone Operating Mode Numbering";
+$lang['switch_zone_state_control'] = "Switch Zone State Control";
 ?>
