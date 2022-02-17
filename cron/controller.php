@@ -489,7 +489,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 	                                }
         	                }
 
-				// if add-on controller then process state change from GUI
+				// if add-on controller then process state change from GUI or api call
 				if ($zone_category == 2) {
 					$current_state = $zone_controllers[$crow]["zone_controller_current_state"];
         	                        $add_on_state = $zone_controllers[$crow]["zone_controller_state"];
