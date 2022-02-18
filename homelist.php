@@ -416,7 +416,14 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 										echo '<p>Coop Start Schedule - Waiting for System Controller start.</p>';
 									}
 								}
-								$squery = "SELECT * FROM schedule_daily_time_zone_view where zone_id ='{$zone_id}' AND tz_status = 1 AND time_status = '1' AND (WeekDays & (1 << {$dow})) > 0 AND type = 0 ORDER BY start asc";
+//								$squery = "SELECT * FROM schedule_daily_time_zone_view where zone_id ='{$zone_id}' AND tz_status = 1 AND time_status = '1' AND (WeekDays & (1 << {$dow})) > 0 AND type = 0 ORDER BY start asc";
+                                                                $squery = "SELECT schedule_daily_time.sch_name, schedule_daily_time.start, schedule_daily_time.end,
+                                                                schedule_daily_time_zone.temperature, schedule_daily_time_zone.id AS tz_id, schedule_daily_time_zone.coop
+                                                                FROM `schedule_daily_time`, `schedule_daily_time_zone`
+                                                                WHERE (schedule_daily_time.id = schedule_daily_time_zone.schedule_daily_time_id) AND schedule_daily_time.status = 1
+                                                                AND schedule_daily_time_zone.status = 1 AND schedule_daily_time.type = 0 AND schedule_daily_time_zone.zone_id ='{$zone_id}'
+                                                                AND (schedule_daily_time.WeekDays & (1 << {$dow})) > 0
+                                                                ORDER BY schedule_daily_time.start asc;";
 								$sresults = $conn->query($squery);
 								if (mysqli_num_rows($sresults) == 0){
 									echo '<div class=\"list-group\">
@@ -433,7 +440,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 										$start_time = strtotime($srow['start']);
 										$end_time = strtotime($srow['end']);
 										if ($time >$start_time && $time <$end_time){$shactive="redsch_list";}
-                                                                                if ($srow["coop"] == "1") {
+                                                                                if ($srow['coop'] == "1") {
 											$coop = '<i class="glyphicon glyphicon-leaf green" data-container="body" data-toggle="popover" data-placement="right" data-content="' . $lang['schedule_coop_help'] . '"></i>';
                                                                                 } else {
                                                                                         $coop = '';
@@ -822,7 +829,14 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 									</li>
 								</ul>';
 							}else{
-								$squery = "SELECT * FROM schedule_daily_time_zone_view where zone_id ='{$zone_id}' AND tz_status = 1 AND time_status = '1' AND (WeekDays & (1 << {$dow})) > 0 ORDER BY start asc";
+//								$squery = "SELECT * FROM schedule_daily_time_zone_view where zone_id ='{$zone_id}' AND tz_status = 1 AND time_status = '1' AND (WeekDays & (1 << {$dow})) > 0 ORDER BY start asc";
+                                                                $squery = "SELECT schedule_daily_time.sch_name, schedule_daily_time.start, schedule_daily_time.end,
+                                                                schedule_daily_time_zone.temperature, schedule_daily_time_zone.id AS tz_id
+                                                                FROM `schedule_daily_time`, `schedule_daily_time_zone`
+                                                                WHERE (schedule_daily_time.id = schedule_daily_time_zone.schedule_daily_time_id) AND schedule_daily_time.status = 1
+                                                                AND schedule_daily_time_zone.status = 1 AND schedule_daily_time.type = 0 AND schedule_daily_time_zone.zone_id ='{$zone_id}'
+                                                                AND (schedule_daily_time.WeekDays & (1 << {$dow})) > 0
+                                                                ORDER BY schedule_daily_time.start asc;";
 								$sresults = $conn->query($squery);
 								if (mysqli_num_rows($sresults) == 0){
 									echo '<div class=\"list-group\">
