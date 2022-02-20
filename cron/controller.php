@@ -28,7 +28,7 @@ ini_set('max_execution_time', 40);
 $date_time = date('Y-m-d H:i:s');
 
 //set to display debug messages if called with any parameter
-if(isset($argv[1])) { $debug_msg = 1; } else { $debug_msg = 0; }
+if(isset($argv[1])) { $debug_msg = $argv[1]; } else { $debug_msg = 0; }
 
 //set to indicate controller condition
 $start_cause ='';
@@ -463,6 +463,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                 }
 
                 if ($zone_category <> 3) {
+                        $manual_button_override = 0;
 	              	//Calculate zone fail using the zone_controllers array
         	        for ($crow = 0; $crow < count($zone_controllers); $crow++){
                 	        $zone_controler_id = $zone_controllers[$crow]["controler_id"];
@@ -470,7 +471,6 @@ while ($row = mysqli_fetch_assoc($results)) {
 	                        $zone_fault = 0;
         	                $zone_ctr_fault = 0;
                 	        $zone_sensor_fault = 0;
-				$manual_button_override = 0;
 
 	                        //Get data from nodes table
         	                $query = "SELECT * FROM nodes WHERE node_id ='$zone_controler_id' AND status IS NOT NULL LIMIT 1;";
@@ -508,30 +508,90 @@ while ($row = mysqli_fetch_assoc($results)) {
                                                 }
                                         }
 
-	                        	// check is switch has manually changed the ON/OFF state
-	        	                if ($controler_type == 'Tasmota') {
-        	        	                if ($base_addr == '000.000.000.000') {
-                	        	                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - NO Gateway Address is Set \n";
-                        	        	} else {
-                			                $query = "SELECT * FROM http_messages WHERE zone_name = '{$zone_name}' AND message_type = 1 LIMIT 1;";
-		                        	        $result = $conn->query($query);
-                                			$http = mysqli_fetch_array($result);
-	                                        	$url = "http://".$base_addr.$zone_controler_child_id."/cm?cmnd=power";
-		                                        $contents = file_get_contents($url);
-        		                                $contents = utf8_encode($contents);
-                		                        $resp = json_decode($contents, true);
-                        		                if ($resp[strtoupper($http['command'])] == 'ON' ) {
-                                		                $button_override = 1;
-                                        		} else {
-                                                		$button_override = 0;
-		                                        }
-							if ($current_state == $button_override) { $manual_button_override = 0; } else { $manual_button_override = 1; }
-        		                        }
-                		        }
-                                	if ($debug_msg == 1) { echo "zone_current_mode ".$zone_current_mode.", current_state ".$current_state.", add_on_state ".$add_on_state.", manual_button_override ".$manual_button_override.", sch_status ".$sch_status."\n"; }
-				}
-        	                $zone_controllers[$crow]['manual_button_override'] = $manual_button_override;
+                                        // check is switch has manually changed the ON/OFF state
+                                        // for zones with multiple controllers - only capture the first change
+                                        if ($controler_type == 'Tasmota' && $manual_button_override == 0) {
+                                                if ($base_addr == '000.000.000.000') {
+                                                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - NO Gateway Address is Set \n";
+                                                } else {
+                                                        $query = "SELECT * FROM http_messages WHERE zone_name = '{$zone_name}' AND message_type = 1 LIMIT 1;";
+                                                        $result = $conn->query($query);
+                                                        $http = mysqli_fetch_array($result);
+                                                        $url = "http://".$base_addr.$zone_controler_child_id."/cm?cmnd=power";
+                                                        $contents = file_get_contents($url);
+                                                        $contents = utf8_encode($contents);
+                                                        $resp = json_decode($contents, true);
+                                                        if ($resp[strtoupper($http['command'])] == 'ON' ) {
+                                                                $new_add_on_state = 1;
+                                                        } else {
+                                                                $new_add_on_state = 0;
+                                                        }
+                                                        if ($manual_button_override == 0 && $current_state != $new_add_on_state) {
+                                                                $manual_button_override = 1;
+                                                        }
+                                                }
+                                        }
+                                        if ($debug_msg == 1 || $debug_msg == 2) { echo "zone_controler_id ".$zone_controler_id.", zone_current_mode ".$zone_current_mode.", current_state ".$current_state.", add_on_state ".$add_on_state.", manual_button_override ".$manual_button_override.", sch_status ".$sch_status."\n"; }
+                                }
+                                $zone_controllers[$crow]['manual_button_override'] = $manual_button_override;
                 	} // end for ($crow = 0; $crow < count($zone_controllers); $crow++)
+                        if ($manual_button_override == 1) {
+                                $add_on_state = $new_add_on_state;
+                                $zone_c = $new_add_on_state;
+                                $query = "SELECT * FROM messages_out WHERE zone_id = '{$zone_id}'";
+                                $results = $conn->query($query);
+                                while ($row = mysqli_fetch_assoc($results)) {
+                                        $id= $row['id'];
+                                        $node_id = $row['node_id'];
+                                        $query = "SELECT type FROM nodes WHERE node_id = '{$node_id}' LIMIT 1";
+                                        $nresults = $conn->query($query);
+                                        $nrow = mysqli_fetch_assoc($nresults);
+                                        if ($nrow['type'] == 'Tasmota') {
+                                                if($add_on_state == 0){ $message_type="0"; }else{ $message_type="1"; }
+                                                $query = "SELECT  command, parameter FROM http_messages WHERE node_id = '{$node_id}' AND message_type = '{$message_type}' LIMIT 1;";
+                                                $hresults = $conn->query($query);
+                                                $hrow = mysqli_fetch_assoc($hresults);
+                                                $set =  $message_type;
+                                                $payload = $hrow['command']." ".$hrow['parameter'];
+                                        } else {
+                                                if($add_on_state == 0){
+                                                        $set="0";
+                                                        $payload = "0";
+                                                }else{
+                                                        $set="1";
+                                                        $payload = "1";
+                                                }
+                                        }
+                                        $time = date("Y-m-d H:i:s");
+                                        $query = "UPDATE messages_out SET payload = '{$payload}', datetime = '{$time}', sent = '0' WHERE id = '{$id}';";
+                                        $conn->query($query);
+                                }
+
+                                $query = "UPDATE zone_relays SET state = '{$set}', current_state = '{$set}' WHERE zone_id = '{$zone_id}';";
+                                $conn->query($query);
+                                if ($sch_active == '0') {
+                                        if ($add_on_state == 0) { $mode = 0; } else { $mode = 114; }
+                                } else {
+                                        if ($add_on_state == 0) { $mode = 75; } else { $mode = 74; }
+                                }
+                                $query = "UPDATE zone_current_state SET mode  = '{$mode}', status = '{$set}' WHERE zone_id = '{zone_id}';";
+                                $conn->query($query);
+
+                                $query = "UPDATE zone SET zone_state = {$set} WHERE id = {$zone_id};";
+                                $conn->query($query);
+                                $zone_state = $set;
+                                if ($sch_status == 1) {
+                                        if ($zone_override_status == 0) {
+                                                $query = "UPDATE override SET status = 1, sync = '0' WHERE zone_id = {$zone_id};";
+                                                $conn->query($query);
+                                        }
+                                } else {
+                                        if ($zone_override_status == 1) {
+                                                $query = "UPDATE override SET status = 0, sync = '0' WHERE zone_id = {$zone_id};";
+                                                $conn->query($query);
+                                        }
+                                }
+                        }
                 } else {
                         $zone_fault = 0;
                         $zone_ctr_fault = 0;
