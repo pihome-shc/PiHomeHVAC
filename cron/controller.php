@@ -535,7 +535,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                                 }
                                 $zone_controllers[$crow]['manual_button_override'] = $manual_button_override;
                 	} // end for ($crow = 0; $crow < count($zone_controllers); $crow++)
-			
+
 			// if there has been an external update to any of the relays associated with this zone (both Tasmota and MySensor), then update MaxAir to capture the new state
 			// will update the following tables - messages_out, zone, zone_relays, zone_current state and override
 			// the Home screen will be updated once this script has executed
