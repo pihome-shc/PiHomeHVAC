@@ -988,7 +988,7 @@ if($what=="system_controller_settings"){
         $result = $conn->query($query);
         if (mysqli_num_rows($result)==0){
 		//No record in system_controller table, so add
-		$query = "INSERT INTO `system_controller` VALUES (1,1,0,0,1,1,'".$name."',".$heat_node_id.",".$hysteresis_time.",".$max_operation_time.",".$overrun.",now(),0,0,".$heat_relay_id.",".$cool_relay_id.",".$fan_relay_id.",".$weather_factoring.",".$weather_sensor_id.");";
+		$query = "INSERT INTO `system_controller` VALUES (1,1,0,0,1,1,'".$name."',".$heat_node_id.",".$hysteresis_time.",".$max_operation_time.",".$overrun.",now(),0,0,".$heat_relay_id.",".$cool_relay_id.",".$fan_relay_id.",0,".$weather_factoring.",".$weather_sensor_id.");";
 	} else {
 		//Update system_controller Setting 
 		$query = "UPDATE system_controller SET status = ".$status.", name = '".$name."', node_id = ".$heat_node_id.", hysteresis_time = ".$hysteresis_time.", max_operation_time = ".$max_operation_time.", overrun = ".$overrun.", heat_relay_id = ".$heat_relay_id.", cool_relay_id = ".$cool_relay_id.", fan_relay_id = ".$fan_relay_id.", weather_factoring = ".$weather_factoring.", weather_sensor_id = ".$weather_sensor_id." WHERE ID = 1;";
