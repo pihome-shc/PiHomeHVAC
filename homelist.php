@@ -309,7 +309,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 			}
 			echo '<h3 class="status">';
 
-                        if ($away_status == 1 && $away_sch == 1 ) { $zone_mode = 90; }
+                        if ($away_status == 1 && $away_sch == 1 ) { $zone_mode = $zone_mode + 10; }
                         $rval=getIndicators($conn, $zone_mode, $zone_temp_target);
                         //Left small circular icon/color status
                         echo '<small class="statuscircle"><i class="fa fa-circle fa-fw ' . $rval['status'] . '"></i></small>';
