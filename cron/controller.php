@@ -1,22 +1,26 @@
 <?php
 #!/usr/bin/php
-echo "\033[36m";
-echo "\n";
-echo "           __  __                             _         \n";
-echo "          |  \/  |                    /\     (_)        \n";
-echo "          | \  / |   __ _  __  __    /  \     _   _ __  \n";
-echo "          | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| \n";
-echo "          | |  | | | (_| |  >  <   / ____ \  | | | |    \n";
-echo "          |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    \n";
-echo " \033[0m \n";
-echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
-echo "\033[31m \n";
-echo "******************************************************************\n";
-echo "*   System Controller Script Version 0.01 Build Date 19/10/2020  *\n";
-echo "*   Update on 10/02/2022                                         *\n";
-echo "*                                        Have Fun - PiHome.eu    *\n";
-echo "******************************************************************\n";
-echo " \033[0m \n";
+//set to display debug messages if called with any parameter
+if(isset($argv[1])) { $debug_msg = $argv[1]; } else { $debug_msg = -1; }
+if ($debug_msg >= 0) {
+	echo "\033[36m";
+	echo "\n";
+	echo "           __  __                             _         \n";
+	echo "          |  \/  |                    /\     (_)        \n";
+	echo "          | \  / |   __ _  __  __    /  \     _   _ __  \n";
+	echo "          | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| \n";
+	echo "          | |  | | | (_| |  >  <   / ____ \  | | | |    \n";
+	echo "          |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    \n";
+	echo " \033[0m \n";
+	echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
+	echo "\033[31m \n";
+	echo "******************************************************************\n";
+	echo "*   System Controller Script Version 0.01 Build Date 19/10/2020  *\n";
+	echo "*   Update on 10/02/2022                                         *\n";
+	echo "*                                        Have Fun - PiHome.eu    *\n";
+	echo "******************************************************************\n";
+	echo " \033[0m \n";
+}
 
 $line_len = 100; //length of seperator lines
 
@@ -26,9 +30,6 @@ require_once(__DIR__.'../../st_inc/functions.php');
 //Set php script execution time in seconds
 ini_set('max_execution_time', 40);
 $date_time = date('Y-m-d H:i:s');
-
-//set to display debug messages if called with any parameter
-if(isset($argv[1])) { $debug_msg = $argv[1]; } else { $debug_msg = 0; }
 
 //set to indicate controller condition
 $start_cause ='';
@@ -241,7 +242,7 @@ if ($system_controller_mode == 0) {
         } elseif ($sc_mode == 4) {
                 $current_sc_mode = "BOTH";
         }
-        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Operating in Boiler Mode \n";
+        if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Operating in Boiler Mode \n"; }
 } else {
         if ($sc_mode == 0) {
                 $current_sc_mode = "OFF";
@@ -268,7 +269,7 @@ if ($system_controller_mode == 0) {
                 $current_sc_mode = "COOL";
                 $timer_mode = "";
         }
-        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Operating in HVAC Mode - ".$current_sc_mode.$timer_mode."\n";
+        if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Operating in HVAC Mode - ".$current_sc_mode.$timer_mode."\n"; }
 }
 
 //query to check away status
@@ -333,8 +334,8 @@ $current_time = date('H:i:s');
 
 //following variable set to current day of the week.
 $dow = idate('w');
-echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Day of the Week: \033[41m".$dow. "\033[0m \n";
-for ($i = 0; $i < $line_len; $i++){ echo "-"; } echo "\n";
+if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Day of the Week: \033[41m".$dow. "\033[0m \n"; }
+if ($debug_msg >= 0 ) { for ($i = 0; $i < $line_len; $i++){ echo "-"; } echo "\n"; }
 $sch_active = 0; //set to indicate no active schedules
 $query = "SELECT zone.id, zone.status, zone.zone_state, zone.name, zone_type.type, zone_type.category, zone.max_operation_time FROM zone, zone_type WHERE zone.type_id = zone_type.id order by index_id asc;";
 $results = $conn->query($query);
@@ -348,12 +349,12 @@ while ($row = mysqli_fetch_assoc($results)) {
         $zone_max_operation_time=$row['max_operation_time'];
 
         //get the zone controllers for this zone to array
-        $query = "SELECT zone_relays.id AS zc_id, cid.node_id as relay_id, zr.relay_child_id, zr.on_trigger, zr.type AS relay_type_id, zone_relays.zone_relay_id, zone_relays.state, zone_relays.current_state, ctype.`type` ";
-        $query = $query."FROM zone_relays ";
-        $query = $query."join relays zr on zone_relay_id = zr.id ";
-        $query = $query."join nodes ctype on zr.relay_id = ctype.id ";
-        $query = $query."join nodes cid on zr.relay_id = cid.id ";
-        $query = $query."WHERE zone_id = '$zone_id';";
+	$query = "SELECT zone_relays.id AS zc_id, cid.node_id as relay_id, zr.relay_child_id, zr.on_trigger, zr.type AS relay_type_id, zone_relays.zone_relay_id, zone_relays.state, zone_relays.current_state, ctype.`type`
+	FROM zone_relays
+	join relays zr on zone_relay_id = zr.id
+	join nodes ctype on zr.relay_id = ctype.id
+	join nodes cid on zr.relay_id = cid.id
+	WHERE zone_id = '$zone_id';";
         $cresult = $conn->query($query);
         $index = 0;
         $zone_controllers=[];
@@ -425,7 +426,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 	}
         // only process active zones
         if ($zone_status == 1) {
-                $rval=get_schedule_status($conn, $zone_id, $holidays_status, $away_status);
+                $rval=get_schedule_status($conn, $zone_id,$holidays_status,$away_status);
                 $sch_status = $rval['sch_status'];
                 $sch_name = $rval['sch_name'];
                 $away_sch = $rval['away_sch'];
@@ -485,14 +486,14 @@ while ($row = mysqli_fetch_assoc($results)) {
         	                        if ($controler_seen_time  < ($now - ($controler_notice*60))){
                 	                        $zone_fault = 1;
                         	                $zone_ctr_fault = 1;
-                                	        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone valve communication timeout for This Zone. Node Last Seen: ".$controler_seen."\n";
+                                	        if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone valve communication timeout for This Zone. Node Last Seen: ".$controler_seen."\n"; }
 	                                }
         	                }
 
-				// if add-on controller then process state change from GUI or api call
-				if ($zone_category == 2) {
-					$current_state = $zone_controllers[$crow]["zone_controller_current_state"];
-        	                        $add_on_state = $zone_controllers[$crow]["zone_controller_state"];
+                                // if add-on controller then process state change from GUI or api call
+                                if ($zone_category == 2) {
+                                        $current_state = $zone_controllers[$crow]["zone_controller_current_state"];
+                                        $add_on_state = $zone_controllers[$crow]["zone_controller_state"];
                                         $zone_controler_child_id = $zone_controllers[$crow]["controler_child_id"];
                                         if ($zone_current_mode == "74" || $zone_current_mode == "75") {
                                                 if ($sch_status == 1) {
@@ -507,7 +508,6 @@ while ($row = mysqli_fetch_assoc($results)) {
                                                         }
                                                 }
                                         }
-
                                         // check is switch has manually changed the ON/OFF state
                                         // for zones with multiple controllers - only capture the first change
                                         if ($controler_type == 'Tasmota' && $manual_button_override == 0) {
@@ -625,7 +625,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 			$now=strtotime(date('Y-m-d H:i:s'));
 			if (($boost_time > $now) && ($boost_status=='1')){
 				$boost_active='1';
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Boost is Active for This Zone \n";
+				if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Boost is Active for This Zone \n"; }
 			}elseif (($boost_time < $now) && ($boost_status=='1')){
 				$boost_active='0';
 				//You can comment out if you dont have Boost Button Console installed.
@@ -693,7 +693,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 				$nc_end_time_rc = date('H:i:s', $timestamp);
 				$current_time = date('H:i:s');
 				if (($away_sch == 0) && (TimeIsBetweenTwoTimes($current_time, $nc_start_time, $nc_end_time)) && ($nc_time_status =='1') && ($nc_zone_status =='1') && ($nc_weekday > 0)) {
-					echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Night Climate Enabled for This Zone \n";
+					if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Night Climate Enabled for This Zone \n"; }
 					$night_climate_status='1';
 				} else {
 					$night_climate_status='0';
@@ -765,7 +765,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 				$now=strtotime(date('Y-m-d H:i:s'));
 				if ($hysteresis_time > $now){
 					$hysteresis='1';
-					echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Hysteresis time: ".date('Y-m-d H:i:s',$hysteresis_time)." \n";
+					if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Hysteresis time: ".date('Y-m-d H:i:s',$hysteresis_time)." \n"; }
 				} else {
 					$hysteresis='0';
 				}
@@ -783,7 +783,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 				if ($sensor_seen_time  < ($now - ($sensor_notice*60))){
 					$zone_fault = 1;
 					$zone_sensor_fault = 1;  
-					echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Temperature sensor communication timeout for This Zone. Last temperature reading: ".$temp_reading_time."\n";
+					if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Temperature sensor communication timeout for This Zone. Last temperature reading: ".$temp_reading_time."\n"; }
 				}
 			}
 
@@ -793,7 +793,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 				$heat_relay_seen_time = strtotime($heat_relay_seen);
 				if ($heat_relay_seen_time  < ($now - ($heat_relay_notice*60))){
 					$zone_fault = 1;
-					echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller controler communication timeout. System Controller Last Seen: ".$heat_relay_seen."\n";
+					if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller controler communication timeout. System Controller Last Seen: ".$heat_relay_seen."\n"; }
 				}
 			}
                 //create array zone states, used to determine if new zone log table entry is required
@@ -832,13 +832,12 @@ while ($row = mysqli_fetch_assoc($results)) {
                                 //use the lowest value if multiple values
                                 if ($frost_c < $frost_target_c) { $frost_target_c = $frost_c; }
                         }
-                        if ($debug_msg == 1) {
-                                echo "Sensor Name - ".$row['sensor_name'].", Frost Target Temperture - ".$frost_target_c.", Frost Sensor Temperature - ".$frost_sensor_c."\n"; }
+                        if ($debug_msg == 1) { echo "Sensor Name - ".$row['sensor_name'].", Frost Target Temperture - ".$frost_target_c.", Frost Sensor Temperature - ".$frost_sensor_c."\n"; }
                 }
 
 		//initialize variables
 		$zone_mode = 0;
-		if ($sc_mode != 0 && $away_status=='1' && $away_sch == 1) { $active_sc_mode = 1; } else { $active_sc_mode = $sc_mode; }
+                if ($sc_mode != 0 && $away_status=='1' && $away_sch == 1) { $active_sc_mode = 1; } else { $active_sc_mode = $sc_mode; }
 //		$hvac_state = 0; // 0 = COOL, 1 = HEAT
 		if ($zone_fault == '0'){
 			if ($zone_category == 0) {
@@ -1589,46 +1588,62 @@ while ($row = mysqli_fetch_assoc($results)) {
 		}
                 $conn->query($query);
 
-                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Name     \033[41m".$zone_name."\033[0m \n";
-                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Type     \033[41m".$zone_type."\033[0m \n";
-                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ID       \033[41m".$zone_id. "\033[0m \n";
+		if ($debug_msg >= 0 ) {
+	                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Name     \033[41m".$zone_name."\033[0m \n";
+        	        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Type     \033[41m".$zone_type."\033[0m \n";
+                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ID       \033[41m".$zone_id. "\033[0m \n";
+		}
 		$conn->query($query);
 		if ($zone_category == 1) {
-                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Mode     \033[41m".$zone_mode."\033[0m \n";
-	                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Sensor Reading     \033[41m".intval($zone_c)."\033[0m \n";
+			if ($debug_msg >= 0 ) {
+                        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Mode     \033[41m".$zone_mode."\033[0m \n";
+	                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Sensor Reading     \033[41m".intval($zone_c)."\033[0m \n";
+			}
                 } elseif ($zone_category == 2) {
-                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Mode     \033[41m".$zone_mode."\033[0m \n";
+			if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Mode     \033[41m".$zone_mode."\033[0m \n"; }
 		} else {
-                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Mode     \033[41m".$zone_mode."\033[0m \n";
-			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Sensor Reading     \033[41m".$zone_c."\033[0m \n";
-			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Weather Factor     \033[41m".$weather_fact."\033[0m \n";
-			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: DeadBand           \033[41m".$zone_sp_deadband."\033[0m \n";
-			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Cut In Temperature        \033[41m".$temp_cut_out_rising."\033[0m \n";
-			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Cut Out Temperature       \033[41m".$temp_cut_out."\033[0m \n";
+			if ($debug_msg >= 0 ) {
+                        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Mode     \033[41m".$zone_mode."\033[0m \n";
+				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Sensor Reading     \033[41m".$zone_c."\033[0m \n";
+			}
+			if ($debug_msg >= 0 ) {
+				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Weather Factor     \033[41m".$weather_fact."\033[0m \n";
+				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: DeadBand           \033[41m".$zone_sp_deadband."\033[0m \n";
+				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Cut In Temperature        \033[41m".$temp_cut_out_rising."\033[0m \n";
+				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Cut Out Temperature       \033[41m".$temp_cut_out."\033[0m \n";
+			}
 		}
                 for ($crow = 0; $crow < count($zone_controllers); $crow++){
                         $zone_controler_id = $zone_controllers[$crow]["controler_id"];
                         $zone_controler_child_id = $zone_controllers[$crow]["controler_child_id"];
 			if ($zone_controllers[$crow]["relay_type_id"] == 5) { $zp = "Pump"; } else { $zp = "Zone"; }
-                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Controller: \033[41m".$zone_controler_id."\033[0m Controller Child: \033[41m".$zone_controler_child_id."\033[0m ".$zp." Status: \033[41m".$zone_status."\033[0m \n";
+                        if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Controller: \033[41m".$zone_controler_id."\033[0m Controller Child: \033[41m".$zone_controler_child_id."\033[0m ".$zp." Status: \033[41m".$zone_status."\033[0m \n"; }
                 }
 		if ($zone_category == 0 || $zone_category == 3 || $zone_category == 4) {
 			if ($zone_status=='1') {
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Start Cause: ".$start_cause." - Target C:\033[41m".$target_c."\033[0m Zone C:\033[31m".$zone_c."\033[0m \n";
-				if (floor($zone_mode/10)*10 == 80) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Running Schedule \033[41m".$sch_name."\033[0m \n"; }
+				if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Start Cause: ".$start_cause." - Target C:\033[41m".$target_c."\033[0m Zone C:\033[31m".$zone_c."\033[0m \n"; }
+				if (floor($zone_mode/10)*10 == 80) {
+					if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Running Schedule \033[41m".$sch_name."\033[0m \n"; }
+				}
 			}
 			if ($zone_status=='0') {
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Stop Cause: ".$stop_cause." - Target C:\033[41m".$target_c."\033[0m Zone C:\033[31m".$zone_c."\033[0m \n";
-				if ($zone_mode == 30 || floor($zone_mode/10)*10 == 80) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Running Schedule \033[44m".$sch_name."\033[0m \n"; }
+				if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Stop Cause: ".$stop_cause." - Target C:\033[41m".$target_c."\033[0m Zone C:\033[31m".$zone_c."\033[0m \n"; }
+				if ($zone_mode == 30 || floor($zone_mode/10)*10 == 80) { 
+					if ($debug_msg >= 0 ) {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Running Schedule \033[44m".$sch_name."\033[0m \n"; }
+				}
 			}
 		} else {
 			if ($zone_status=='1') {
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Start Cause: ".$add_on_start_cause."\033[0m \n";
-                                if ($sch_status =='1') { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Running Schedule \033[41m".$sch_name."\033[0m \n"; }
+				if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Start Cause: ".$add_on_start_cause."\033[0m \n"; }
+                                if ($sch_status =='1') { 
+					if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Running Schedule \033[41m".$sch_name."\033[0m \n"; }
+				}
 			}
 			if ($zone_status=='0') {
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Stop Cause: ".$add_on_stop_cause."\033[0m \n";
-                                if ($zone_mode == 30 || floor($zone_mode/10)*10 == 80) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Running Schedule \033[44m".$sch_name."\033[0m \n"; }
+				if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ".$zone_name." Stop Cause: ".$add_on_stop_cause."\033[0m \n"; }
+                                if ($zone_mode == 30 || floor($zone_mode/10)*10 == 80) { 
+					if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Running Schedule \033[44m".$sch_name."\033[0m \n"; }
+				}
 			}
 		}
 		//Pass data to zone commands loop
@@ -1653,22 +1668,22 @@ while ($row = mysqli_fetch_assoc($results)) {
 				}
 				$result = $conn->query($aoquery);
 				if ($result) {
-					echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table added Successfully. \n";
+					if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table added Successfully. \n"; }
 				}else {
-					echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table addition failed. \n";
+					if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table addition failed. \n"; }
 				}
 			// zone switching OFF
 			} elseif ($zone_status_prev == '1' &&  $zone_status == '0') {
 				$query = "UPDATE add_on_logs SET stop_datetime = '{$date_time}', stop_cause = '{$add_on_stop_cause}' WHERE `zone_id` = '{$zone_id}' ORDER BY id DESC LIMIT 1";
 				$result = $conn->query($query);
 				if ($result) {
-					echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table updated Successfully. \n";
+					if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table updated Successfully. \n"; }
 				}else {
-					echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table update failed. \n";
+					if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table update failed. \n"; }
 				}
 			}
 		} //end process Zone Cat 1 and 2 logs
-		for ($i = 0; $i < $line_len; $i++){ echo "-"; } echo "\n";
+		if ($debug_msg >= 0 ) { for ($i = 0; $i < $line_len; $i++){ echo "-"; } echo "\n"; }
         } //end if($zone_status == 1)
 } //end of while loop
 
@@ -1721,11 +1736,11 @@ for ($row = 0; $row < count($zone_commands); $row++){
 	                $query = "UPDATE zone_current_state SET status = 1 WHERE id ={$zone_id} LIMIT 1;";
         	        $conn->query($query);
 
-                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone ".$zone_id. " circulation pump overrun active. \n";
+                	if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone ".$zone_id. " circulation pump overrun active. \n"; }
 	                if ($system_controller_overrun_time > 0) {
-        	                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Overrun end time ".date('Y-m-d H:i:s',$overrun_end_time). " \n";
+        	                if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Overrun end time ".date('Y-m-d H:i:s',$overrun_end_time). " \n"; }
                 	} else{
-                        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Overrun will end on the next System Controller start. \n";
+                        	if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Overrun will end on the next System Controller start. \n"; }
 	                }
         	}
 	}else {
@@ -1767,7 +1782,7 @@ for ($row = 0; $row < count($zone_commands); $row++){
 				****************************************************************************************/
 				if ($zone_controller_type == 'GPIO'){
 			    		$relay_status = ($zone_command == '1') ? $relay_on : $relay_off;
-			    		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: GIOP Relay Status: \033[41m".$relay_status. "\033[0m (".$relay_on."=On, ".$relay_off."=Off) \n";
+			    		if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: GIOP Relay Status: \033[41m".$relay_status. "\033[0m (".$relay_on."=On, ".$relay_off."=Off) \n"; }
                         	        $query = "UPDATE messages_out SET sent = '0', payload = '{$zone_command}' WHERE node_id ='$zone_controler_id' AND child_id = '$zone_controler_child_id' LIMIT 1;";
                                 	$conn->query($query);
 				}
@@ -1777,7 +1792,7 @@ for ($row = 0; $row < count($zone_commands); $row++){
 				****************************************************************************************/
 				if ($zone_controller_type == 'I2C'){
 					exec("python3 /var/www/cron/i2c/i2c_relay.py ".$zone_controler_id." ".$zone_controler_child_id." ".$zone_command);
-					echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Relay Broad: ".$zone_controler_id. " Relay No: ".$zone_controler_child_id." Status: ".$zone_command." \n";
+					if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Relay Broad: ".$zone_controler_id. " Relay No: ".$zone_controler_child_id." Status: ".$zone_command." \n"; }
 				}
 
 				/***************************************************************************************
@@ -1837,10 +1852,14 @@ if ($debug_msg == 1) {
         echo "pump_relays Array\n";
         print_r ($pump_relays);
 }
-if (isset($system_controller_stop_datetime)) {echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Switched Off At: ".$system_controller_stop_datetime. "\n";}
+if (isset($system_controller_stop_datetime)) {
+	if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Switched Off At: ".$system_controller_stop_datetime. "\n";}
+}
 if (isset($expected_end_date_time)){
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Expected End Time: ".$expected_end_date_time. "\n";
-        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller ON Time: \033[41m".$system_controller_on_time."\033[0m seconds\n";
+	if ($debug_msg >= 0 ) {
+		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Expected End Time: ".$expected_end_date_time. "\n";
+        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller ON Time: \033[41m".$system_controller_on_time."\033[0m seconds\n";
+	}
 }
 /***********************************
       System Controller On section
@@ -1903,7 +1922,7 @@ if (in_array("1", $system_controller)) {
                                 $node_id = $nodes['node_id'];
         	        	$query = "UPDATE messages_out SET sent = '0', payload = '0' WHERE node_id ='{$node_id}' AND child_id = '{$off_relay_child_id}' LIMIT 1;";
 	        	        $conn->query($query);
-        	        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$node_id."\033[0m Child ID: \033[41m".$off_relay_child_id."\033[0m \n";
+        	        	if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$node_id."\033[0m Child ID: \033[41m".$off_relay_child_id."\033[0m \n"; }
 		        }
 			if ($on_relay_type == 'MySensor' || $on_relay_type == 'MQTT'){
                                 $query = "SELECT node_id FROM nodes WHERE id = '$on_relay_id' LIMIT 1;";
@@ -1912,7 +1931,7 @@ if (in_array("1", $system_controller)) {
                                 $node_id = $nodes['node_id'];
 				$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$on_relay_child_id}' LIMIT 1;";
 				$conn->query($query);
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$node_id."\033[0m Child ID: \033[41m".$on_relay_child_id."\033[0m \n";
+				if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$node_id."\033[0m Child ID: \033[41m".$on_relay_child_id."\033[0m \n"; }
 			}
 		}
         	if ($system_controller_mode == 1 && ($fan_relay_type == 'MySensor' || $fan_relay_type == 'MQTT')){
@@ -1922,7 +1941,7 @@ if (in_array("1", $system_controller)) {
                         $node_id = $nodes['node_id'];
         		$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
 	                $conn->query($query);
-        	        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$node_id."\033[0m Child ID: \033[41m".$fan_relay_child_id."\033[0m \n";
+        	        if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$node_id."\033[0m Child ID: \033[41m".$fan_relay_child_id."\033[0m \n"; }
 	        }
 
 		/*****************************************************
@@ -1936,7 +1955,7 @@ if (in_array("1", $system_controller)) {
                                 $node_id = $nodes['node_id'];
                                 $query = "UPDATE messages_out SET sent = '0', payload = '0' WHERE node_id ='{$node_id}' AND child_id = '{$off_relay_child_id}' LIMIT 1;";
                                 $conn->query($query);
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$off_relay_child_id. "\033[0m Status: \033[41m".$off_relay_off."\033[0m (".$off_relay_on."=On, ".$off_relay_off."=Off) \n";
+				if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$off_relay_child_id. "\033[0m Status: \033[41m".$off_relay_off."\033[0m (".$off_relay_on."=On, ".$off_relay_off."=Off) \n"; }
 			}
         		if ($on_relay_type == 'GPIO'){
                                 $query = "SELECT node_id FROM nodes WHERE id = '$on_relay_id' LIMIT 1;";
@@ -1945,7 +1964,7 @@ if (in_array("1", $system_controller)) {
                                 $node_id = $nodes['node_id'];
                 		$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$on_relay_child_id}' LIMIT 1;";
                                 $conn->query($query);
-	                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$on_relay_child_id. "\033[0m Status: \033[41m".$on_relay_on."\033[0m (".$on_relay_on."=On, ".$on_relay_off."=Off) \n";
+	                	if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$on_relay_child_id. "\033[0m Status: \033[41m".$on_relay_on."\033[0m (".$on_relay_on."=On, ".$on_relay_off."=Off) \n"; }
 	        	}
 		}
 	        if ($system_controller_mode == 1 && $fan_relay_type == 'GPIO'){
@@ -1955,7 +1974,7 @@ if (in_array("1", $system_controller)) {
                         $node_id = $nodes['node_id'];
                 	$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
                         $conn->query($query);
-                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$fan_relay_child_id. "\033[0m Status: \033[41m".$fan_relay_on."\033[0m (".$fan_relay_on."=On, ".$fan_relay_off."=Off) \n";
+                	if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$fan_relay_child_id. "\033[0m Status: \033[41m".$fan_relay_on."\033[0m (".$fan_relay_on."=On, ".$fan_relay_off."=Off) \n"; }
 	        }
 
 		/******************************************************************************************
@@ -1964,16 +1983,16 @@ if (in_array("1", $system_controller)) {
                 if ($active_sc_mode != 5) { //process if NOT  HVAC fan only mode
 		        if ($system_controller_mode == 1 && $off_relay_type == 'I2C'){
         		        exec("python3 /var/www/cron/i2c/i2c_relay.py" .$off_relay_id." ".$off_relay_child_id." 0");
-                		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller I2C Rrelay Board: \033[41m".$off_relay_id."\033[0m Relay ID: \033[41m".$off_relay_child_id."\033[0m \n";
+                		if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller I2C Rrelay Board: \033[41m".$off_relay_id."\033[0m Relay ID: \033[41m".$off_relay_child_id."\033[0m \n"; }
 		        }
 			if ($on_relay_type == 'I2C'){
 				exec("python3 /var/www/cron/i2c/i2c_relay.py" .$on_relay_id." ".$on_relay_child_id." 1"); 
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller I2C Rrelay Board: \033[41m".$on_relay_id."\033[0m Relay ID: \033[41m".$on_relay_child_id."\033[0m \n";
+				if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller I2C Rrelay Board: \033[41m".$on_relay_id."\033[0m Relay ID: \033[41m".$on_relay_child_id."\033[0m \n"; }
 			}
 		}
 	        if ($system_controller_mode == 1 && $fan_relay_type == 'I2C'){
         	        exec("python3 /var/www/cron/i2c/i2c_relay.py" .$fan_relay_id." ".$fan_relay_child_id." 1");
-                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller I2C Rrelay Board: \033[41m".$fan_relay_id."\033[0m Relay ID: \033[41m".$fan_relay_child_id."\033[0m \n";
+                	if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller I2C Rrelay Board: \033[41m".$fan_relay_id."\033[0m Relay ID: \033[41m".$fan_relay_child_id."\033[0m \n"; }
 	        }
 	}
 	if ($system_controller_active_status != $new_system_controller_status) {
@@ -1987,9 +2006,9 @@ if (in_array("1", $system_controller)) {
 	                	}
         	        	$result = $conn->query($bsquery);
                 		if ($result) {
-                        		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Log table added Successfully. \n";
+                        		if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Log table added Successfully. \n"; }
 	                	}else {
-        	                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Log table addition failed. \n";
+        	                	if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Log table addition failed. \n"; }
                 		}
 			}
 		} // end foreach($zone_log as $key => $value)
@@ -2001,9 +2020,9 @@ if (in_array("1", $system_controller)) {
 		}
 		$result = $conn->query($bsquery);
 		if ($result) {
-			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Log table added Successfully. \n";
+			if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Log table added Successfully. \n"; }
 		}else {
-			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System System Log table addition failed. \n";
+			if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System System Log table addition failed. \n"; }
 		}
 	} else {
 		foreach($zone_log as $key => $value) {
@@ -2019,9 +2038,9 @@ if (in_array("1", $system_controller)) {
 				}
                 	        $result = $conn->query($query);
                         	if ($result) {
-                                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Log table updated Successfully. \n";
+                                	if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Log table updated Successfully. \n"; }
 	                        }else {
-        	                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Log table update failed. \n";
+        	                        if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Log table update failed. \n"; }
 				}
                         }
 		}
@@ -2049,7 +2068,7 @@ if (in_array("1", $system_controller)) {
                         $node_id = $nodes['node_id'];
 			$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$heat_relay_child_id}' LIMIT 1;";
 			$conn->query($query);
-			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$node_id."\033[0m Child ID: \033[41m".$heat_relay_child_id."\033[0m \n";
+			if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$node_id."\033[0m Child ID: \033[41m".$heat_relay_child_id."\033[0m \n"; }
 		}
         	if ($system_controller_mode == 1){
                 	//update messages_out table with sent status to 0 and payload to as system controller status.
@@ -2072,7 +2091,7 @@ if (in_array("1", $system_controller)) {
         				$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
 				}
         		        $conn->query($query);
-                		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$node_id."\033[0m Child ID: \033[41m".$fan_relay_child_id."\033[0m \n";
+                		if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Node ID: \033[41m".$node_id."\033[0m Child ID: \033[41m".$fan_relay_child_id."\033[0m \n"; }
 			}
         	}
 
@@ -2086,7 +2105,7 @@ if (in_array("1", $system_controller)) {
                         $node_id = $nodes['node_id'];
         		$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$heat_relay_child_id}' LIMIT 1;";
                         $conn->query($query);
-			echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$heat_relay_child_id. "\033[0m Status: \033[41m".$heat_relay_off."\033[0m (".$heat_relay_on."=On, ".$heat_relay_off."=Off) \n";
+			if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$heat_relay_child_id. "\033[0m Status: \033[41m".$heat_relay_off."\033[0m (".$heat_relay_on."=On, ".$heat_relay_off."=Off) \n"; }
 		}
 	        if ($system_controller_mode == 1){
         	        if ($cool_relay_type == 'GPIO') { // HVAC cool relay OFF
@@ -2096,7 +2115,7 @@ if (in_array("1", $system_controller)) {
                                 $node_id = $nodes['node_id'];
                                 $query = "UPDATE messages_out SET sent = '0', payload = '0' WHERE node_id ='{$node_id}' AND child_id = '{$cool_relay_child_id}' LIMIT 1;";
 				$conn->query($query);
-                		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$cool_relay_child_id. "\033[0m Status: \033[41m".$cool_relay_off."\033[0m (".$cool_relay_on."=On, ".$cool_relay_off."=Off) \n";
+                		if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$cool_relay_child_id. "\033[0m Status: \033[41m".$cool_relay_off."\033[0m (".$cool_relay_on."=On, ".$cool_relay_off."=Off) \n"; }
 			}
 			if ($fan_relay_type == 'GPIO') {
                                 $query = "SELECT node_id FROM nodes WHERE id = '$fan_relay_id' LIMIT 1;";
@@ -2109,7 +2128,7 @@ if (in_array("1", $system_controller)) {
                 			$query = "UPDATE messages_out SET sent = '0', payload = '{$new_system_controller_status}' WHERE node_id ='{$node_id}' AND child_id = '{$fan_relay_child_id}' LIMIT 1;";
 				}
 				$conn->query($query);
-	                	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$fan_relay_child_id. "\033[0m Status: \033[41m".$fan_relay_off."\033[0m (".$fan_relay_on."=On, ".$fan_relay_off."=Off) \n";
+	                	if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller GIOP: \033[41m".$fan_relay_child_id. "\033[0m Status: \033[41m".$fan_relay_off."\033[0m (".$fan_relay_on."=On, ".$fan_relay_off."=Off) \n"; }
 			}
         	}
 
@@ -2118,12 +2137,12 @@ if (in_array("1", $system_controller)) {
 		****************************************************************************************/
 		if ($heat_relay_type == 'I2C'){
                 	exec("python3 /var/www/cron/i2c/i2c_relay.py" .$heat_relay_id." ".$heat_relay_child_id." 0");
-	                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller I2C Rrelay Board: \033[41m".$heat_relay_id."\033[0m Relay ID: \033[41m".$heat_relay_child_id."\033[0m \n";
+	                if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller I2C Rrelay Board: \033[41m".$heat_relay_id."\033[0m Relay ID: \033[41m".$heat_relay_child_id."\033[0m \n"; }
 		}
 	        if ($system_controller_mode == 1){
         	        if ($cool_relay_type == 'I2C') { // HVAC cool relay OFF
                 	        exec("python3 /var/www/cron/i2c/i2c_relay.py" .$cool_relay_id." ".$cool_relay_child_id." 0");
-                		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller I2C Rrelay Board: \033[41m".$cool_relay_id."\033[0m Relay ID: \033[41m".$cool_relay_child_id."\033[0m \n";
+                		if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller I2C Rrelay Board: \033[41m".$cool_relay_id."\033[0m Relay ID: \033[41m".$cool_relay_child_id."\033[0m \n"; }
 	                }
         	        if ($fan_relay_type == 'I2C') {
 				if ($active_sc_mode == 5) { // HVAC fan ON if set to fan mode, else turn OFF
@@ -2131,7 +2150,7 @@ if (in_array("1", $system_controller)) {
 				} else {
         		                exec("python3 /var/www/cron/i2c/i2c_relay.py" .$fan_relay_id." ".$fan_relay_child_id." 0");
 				}
-				echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller I2C Rrelay Board: \033[41m".$fan_relay_id."\033[0m Relay ID: \033[41m".$fan_relay_child_id."\033[0m \n";
+				if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller I2C Rrelay Board: \033[41m".$fan_relay_id."\033[0m Relay ID: \033[41m".$fan_relay_child_id."\033[0m \n"; }
 			}
 		}
 
@@ -2142,18 +2161,18 @@ if (in_array("1", $system_controller)) {
                         		$query = "UPDATE controller_zone_logs SET stop_datetime = '{$date_time}', stop_cause = '{$stop_cause}' WHERE `zone_id` = '{$key}' ORDER BY id DESC LIMIT 1;";
                                         $result = $conn->query($query);
                                         if ($result) {
-                                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Log table updated Successfully. \n";
+                                                if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Log table updated Successfully. \n"; }
                                         }else {
-                                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Log table update failed. \n";
+                                                if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone Log table update failed. \n"; }
                                         }
                                 }
                         }
 			$query = "UPDATE controller_zone_logs SET stop_datetime = '{$date_time}', stop_cause = '{$stop_cause}' WHERE `zone_id` = '{$system_controller_id}' ORDER BY id DESC LIMIT 1;";
                         $result = $conn->query($query);
                         if ($result) {
-                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Log table updated Successfully. \n";
+                                if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Log table updated Successfully. \n"; }
                         }else {
-                                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Log table update failed. \n";
+                                if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Log table update failed. \n"; }
                         }
                 }
 	}
@@ -2176,14 +2195,16 @@ if ($system_controller_mode == 1) {
         $query = "UPDATE system_controller SET hvac_relays_state = '{$hvac_relays_state}'";
         $result = $conn->query($query);
         if ($result) {
-        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller HVAC Relay State updated Successfully. \n";
+        	if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller HVAC Relay State updated Successfully. \n"; }
         } else {
-        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller HVAC Relay State update failed. \n";
+        	if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller HVAC Relay State update failed. \n"; }
         }
 	if ($debug_msg == 1) {
-		echo "hvac_state - ".$hvac_state."\n";
-		echo "hvac_relays_state - ".$hvac_relays_state."\n";
-		if ($hvac_relays_state != 0) { echo "On Relay Name - ".$h_relay['name']."\n"; }
+		if ($debug_msg >= 0 ) {
+			echo "hvac_state - ".$hvac_state."\n";
+			echo "hvac_relays_state - ".$hvac_relays_state."\n";
+			if ($hvac_relays_state != 0) { echo "On Relay Name - ".$h_relay['name']."\n"; }
+		}
 	}
 }
 
@@ -2227,12 +2248,14 @@ if (TimeIsBetweenTwoTimes($current_time, $start_time, $end_time)) {
 	for ($i = 0; $i < $line_len; $i++){ echo "-"; } echo "\n";
 }
 
-echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Active Status: \033[41m".$new_system_controller_status."\033[0m \n";
+if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Active Status: \033[41m".$new_system_controller_status."\033[0m \n"; }
 if ($system_controller_mode == 0) {
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Hysteresis Status: \033[41m".$hysteresis."\033[0m \n";
+	if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - System Controller Hysteresis Status: \033[41m".$hysteresis."\033[0m \n"; }
 }
-for ($i = 0; $i < $line_len; $i++){ echo "-"; } echo "\n";
-echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Purging marked records. \n";
+if ($debug_msg >= 0 ) { 
+	for ($i = 0; $i < $line_len; $i++){ echo "-"; } echo "\n"; 
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Purging marked records. \n";
+}
 $query = purge_tables();
 foreach(preg_split("/((\r?\n)|(\r\n?))/", $query) as $line){
 	$conn->query($line);

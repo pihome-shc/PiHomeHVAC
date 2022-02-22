@@ -548,7 +548,11 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
 	else if($zone_mode_main == 90){
 		$shactive='fa-sign-out';
 		$shcolor='';
-		$target='';     //show no target temperature
+		if($zone_mode_sub == 0){
+			$target='';     //show no target temperature
+		} else {
+			$target=number_format(DispTemp($conn,$zone_temp_target),1) . '&deg;';
+		}
                 $scactive='fa fa-circle-o-notch';
                 $sccolor='';
 	}
@@ -757,10 +761,13 @@ function get_schedule_status($conn,$zone_id,$holidays_status,$away_status){
 	$end_time = strtotime(date("G:i:s"));
 
 	// get raw data
-        $query = "SELECT time_id, start, start_sr, Start_ss, Start_offset, end, end_sr, end_ss, end_offset, WeekDays, time_status, sch_name, sch_type
-                FROM schedule_daily_time_zone_view
-                WHERE tz_status = '1' AND `time_status` = '1' AND zone_id = {$zone_id}";
-	if ($away_status == 1) { $query = $query." AND `sch_type` = 1"; } else { $query = $query." AND `sch_type` = 0"; }
+        $query = "SELECT schedule_daily_time.id AS time_id, schedule_daily_time.start, schedule_daily_time.start_sr, schedule_daily_time.start_ss, schedule_daily_time.start_offset,
+	schedule_daily_time.end, schedule_daily_time.end_sr, schedule_daily_time.end_ss, schedule_daily_time.end_offset,
+	schedule_daily_time.WeekDays, schedule_daily_time.status AS time_status, schedule_daily_time.sch_name, schedule_daily_time.type AS sch_type
+	FROM `schedule_daily_time`, `schedule_daily_time_zone`
+	WHERE (schedule_daily_time.id = schedule_daily_time_zone.schedule_daily_time_id) AND schedule_daily_time_zone.status = 1 
+	AND schedule_daily_time.status = 1 AND zone_id = {$zone_id}";
+	if ($away_status == 1) { $query = $query." AND schedule_daily_time.type = 1"; } else { $query = $query." AND schedule_daily_time.type = 0"; }
         if ($holidays_status == 0) {
                 $query = $query." AND holidays_id = 0;";
         } else {
