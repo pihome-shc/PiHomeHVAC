@@ -33,7 +33,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         $frost_sensor_node = mysqli_fetch_array($result);
         $frost_sensor_node_id = $frost_sensor_node['node_id'];
         //query to get temperature from messages_in_view_24h table view
-        $query = "SELECT payload FROM messages_in_view_24h WHERE node_id = '".$frost_sensor_node_id."' AND child_id = ".$row['sensor_child_id']." ORDER BY datetime desc LIMIT 1;";
+        $query = "SELECT payload FROM messages_in_view_24h WHERE node_id = '".$frost_sensor_node_id."' AND child_id = ".$row['sensor_child_id']." LIMIT 1;";
         $result = $conn->query($query);
         $msg_in = mysqli_fetch_array($result);
         $frost_sensor_c = $msg_in['payload'];
@@ -126,7 +126,7 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
 
 				                        <?php
                                                         $max_cpu_temp = settings($conn, 'max_cpu_temp');
-	        				        $query = "select * from messages_in where node_id = 0 order by datetime desc limit 1";
+	        				        $query = "select * from messages_in where node_id = 0 limit 1";
         	        				$result = $conn->query($query);
                 	        			$result = mysqli_fetch_array($result);
                         	        		$system_cc = $result['payload'];

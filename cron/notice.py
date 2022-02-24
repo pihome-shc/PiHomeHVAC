@@ -468,7 +468,7 @@ try:
             node_id = result[node_to_index['node_id']]
             node_id = str(node_id)
             # get last temperature for this sensor
-            query = ("SELECT payload FROM messages_in_view_24h WHERE node_id = '" + node_id + "' AND child_id = '" + sensor_child_id + "' ORDER BY datetime DESC LIMIT 1;")
+            query = ("SELECT payload FROM messages_in_view_24h WHERE node_id = '" + node_id + "' AND child_id = '" + sensor_child_id + "' LIMIT 1;")
             cursorsel = con.cursor()
             cursorsel.execute(query)
             result = cursorsel.fetchone()

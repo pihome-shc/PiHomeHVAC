@@ -404,7 +404,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 		$node_name=$nodes['name'];
 
 		//query to get temperature from messages_in_view_24h table view
-		$query = "SELECT * FROM messages_in_view_24h WHERE node_id = '{$zone_node_id}' AND child_id = {$zone_sensor_child_id} ORDER BY datetime desc LIMIT 1;";
+		$query = "SELECT * FROM messages_in_view_24h WHERE node_id = '{$zone_node_id}' AND child_id = {$zone_sensor_child_id} LIMIT 1;";
 		$result = $conn->query($query);
 		$rowcount=mysqli_num_rows($result);
                 if ($rowcount == 0) {
@@ -492,7 +492,8 @@ while ($row = mysqli_fetch_assoc($results)) {
 
                                 // if add-on controller then process state change from GUI or api call
                                 if ($zone_category == 2) {
-                                        $current_state = $zone_controllers[$crow]["zone_controller_current_state"];
+//                                        $current_state = $zone_controllers[$crow]["zone_controller_current_state"];
+                                        $current_state = $zone_status_prev;
                                         $add_on_state = $zone_controllers[$crow]["zone_controller_state"];
                                         $zone_controler_child_id = $zone_controllers[$crow]["controler_child_id"];
                                         if ($zone_current_mode == "74" || $zone_current_mode == "75") {
@@ -668,7 +669,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 				$row = mysqli_fetch_assoc($result);
 				$node_id = $row['node_id'];
 				$child_id = $row['child_id'];
-				$query = "SELECT payload, datetime FROM  `messages_in_view_24h` WHERE node_id = ".$node_id." AND child_id = ".$child_id." ORDER BY  datetime DESC;";
+				$query = "SELECT payload, datetime FROM  `messages_in_view_24h` WHERE node_id = ".$node_id." AND child_id = ".$child_id.";";
 				$result = $conn->query($query);
 				$index = 0;
 				$temp1 = 0;
@@ -818,7 +819,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                         $frost_sensor_node = mysqli_fetch_array($result);
                         $frost_sensor_node_id = $frost_sensor_node['node_id'];
                         //query to get temperature from messages_in_view_24h table view
-                        $query = "SELECT * FROM messages_in_view_24h WHERE node_id = '".$frost_sensor_node_id."' AND child_id = ".$row['sensor_child_id']." ORDER BY datetime desc LIMIT 1;";
+                        $query = "SELECT * FROM messages_in_view_24h WHERE node_id = '".$frost_sensor_node_id."' AND child_id = ".$row['sensor_child_id']." LIMIT 1;";
                         $result = $conn->query($query);
                         $msg_in = mysqli_fetch_array($result);
                         $frost_sensor_c = $msg_in['payload'];

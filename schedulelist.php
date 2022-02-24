@@ -75,7 +75,7 @@ require_once(__DIR__ . '/st_inc/functions.php');
 		while ($row = mysqli_fetch_assoc($results)) {
                         $dow = idate('w');
                         $prev_dow = $dow - 1;
-                        if($row["sunset"] == 1) { $sunset = 1; } else { $sunset = 0; }
+                        if($row["start_sr"] == 1 || $row["start_ss"] == 1 || $row["end_sr"] == 1 || $row["end_ss"] == 1) { $sr_ss = 1; } else { $sr_ss = 0; }
 			if($row["WeekDays"]  & (1 << 0)){ $Sunday_status_icon="ion-checkmark-circled"; $Sunday_status_color="orangefa"; }else{ $Sunday_status_icon="ion-close-circled"; $Sunday_status_color="bluefa"; }
 			if($row["WeekDays"]  & (1 << 1)){ $Monday_status_icon="ion-checkmark-circled"; $Monday_status_color="orangefa"; }else{ $Monday_status_icon="ion-close-circled"; $Monday_status_color="bluefa"; }
 			if($row["WeekDays"]  & (1 << 2)){ $Tuesday_status_icon="ion-checkmark-circled"; $Tuesday_status_color="orangefa"; }else{ $Tuesday_status_icon="ion-close-circled"; $Tuesday_status_color="bluefa"; }
@@ -136,7 +136,7 @@ require_once(__DIR__ . '/st_inc/functions.php');
                         <div class="chat-body clearfix">
                                 <div class="header text-info">&nbsp;&nbsp;';
                                         echo '<span class="label label-info">' . $sch_name . '</span>';
-                                        if($row["category"] == 2 && $sunset == 1) { echo '&nbsp;&nbsp;<img src="./images/sunset.png">'; }
+                                        if($row["category"] == 2 && $sr_ss == 1) { echo '&nbsp;&nbsp;<img src="./images/sunset.png">'; }
                                         echo '<br>&nbsp;&nbsp; '. $row['start'] . ' - ' . $row['end'] . ' &nbsp;&nbsp;
 
 					<small class="pull-right pull-right-days pull-right-sch-list">
