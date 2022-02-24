@@ -93,7 +93,7 @@ echo '<div class="modal fade" id="show_frost" tabindex="-1" role="dialog" aria-l
                                 $frost_sensor_node = mysqli_fetch_array($result);
                                 $frost_sensor_node_id = $frost_sensor_node['node_id'];
                                 //query to get temperature from messages_in_view_24h table view
-                        	$query = "SELECT * FROM messages_in_view_24h WHERE node_id = '".$frost_sensor_node_id."' AND child_id = ".$row['sensor_child_id']." ORDER BY datetime desc LIMIT 1;";
+                        	$query = "SELECT * FROM messages_in_view_24h WHERE node_id = '".$frost_sensor_node_id."' AND child_id = ".$row['sensor_child_id']." LIMIT 1;";
                                 $result = $conn->query($query);
                                 $msg_in = mysqli_fetch_array($result);
                                 $frost_sensor_c = $msg_in['payload'];
