@@ -170,7 +170,7 @@ try:
             con = mdb.connect(dbhost, dbuser, dbpass, dbname)
             cursorselect = con.cursor()
             cursorselect.execute(
-                'SELECT `payload`  FROM `messages_in_view_24h` WHERE `node_id` = (%s) AND `child_id` = (%s) ORDER BY datetime DESC LIMIT 1',
+                'SELECT `payload`  FROM `messages_in_view_24h` WHERE `node_id` = (%s) AND `child_id` = (%s) LIMIT 1',
                 [node_id, child_id],
             )
             if cursorselect.rowcount > 0:
@@ -223,7 +223,7 @@ try:
             con = mdb.connect(dbhost, dbuser, dbpass, dbname)
             cursorselect = con.cursor()
             cursorselect.execute(
-                'SELECT `payload`  FROM `messages_in_view_24h` WHERE `node_id` = (%s) AND `child_id` = (%s) ORDER BY datetime DESC LIMIT 1',
+                'SELECT `payload`  FROM `messages_in_view_24h` WHERE `node_id` = (%s) AND `child_id` = (%s) LIMIT 1',
                 [node_id, child_id],
             )
             if cursorselect.rowcount > 0:
