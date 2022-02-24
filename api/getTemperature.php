@@ -48,7 +48,7 @@ if(isset($_GET['sensorname'])) {
 		} else {
                 	//query to get temperature from messages_in_view_24h table view
 			$node_id=$nodes['node_id'];
-                 	$query = "SELECT * FROM messages_in_view_24h WHERE node_id = '{$node_id}' AND child_id = {$child_id} ORDER BY datetime desc LIMIT 1;";
+                 	$query = "SELECT * FROM messages_in_view_24h WHERE node_id = '{$node_id}' AND child_id = {$child_id} LIMIT 1;";
                  	$result = $conn->query($query);
                  	$sensor = mysqli_fetch_array($result);
                  	if(! $sensor) {
