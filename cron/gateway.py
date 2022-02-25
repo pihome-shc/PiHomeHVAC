@@ -119,11 +119,14 @@ def set_relays(
         cmd = out_payload.split(" ")[0].upper()
         param = out_payload.split(" ")[1]
         myobj = {"cmnd": str(out_payload)}
-        x = requests.post(url, data=myobj)  # send request to Sonoff device
-        if x.status_code == 200:
-            if x.json().get(cmd) == param:  # clear send if response is okay
-                cur.execute("UPDATE `messages_out` set sent=1 where id=%s", [out_id])
-                con.commit()  # commit above
+        try:
+            x = requests.post(url, data=myobj)  # send request to Sonoff device
+            if x.status_code == 200:
+                if x.json().get(cmd) == param:  # clear send if response is okay
+                    cur.execute("UPDATE `messages_out` set sent=1 where id=%s", [out_id])
+                    con.commit()  # commit above
+        except:
+           print("\nUnable to communicate with: %s" % url[0:-3])
     elif node_type.find("MQTT") != -1 and MQTT_CONNECTED == 1:  # process MQTT mode
         cur.execute(
             'SELECT `mqtt_topic`, `on_payload`, `off_payload`  FROM `mqtt_devices` WHERE `type` = "1" AND `nodes_id` = (%s) AND `child_id` = (%s) LIMIT 1',
