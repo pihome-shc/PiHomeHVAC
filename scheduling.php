@@ -262,7 +262,7 @@ if (isset($_POST['submit'])) {
         $results = $conn->query($query);
         $time_row = mysqli_fetch_assoc($results);
 
-        $query = "SELECT sdt.id as time_id, zone.id as zone_id, sdtz.id as tz_id, zone.name as zone_name, zone.status as tz_status, ztype.type, ztype.category, zs.min_c, zs.max_c,
+        $query = "SELECT sdt.id as time_id, zone.id as zone_id, sdtz.id as tz_id, zone.name as zone_name, sdtz.status as tz_status, ztype.type, ztype.category, zs.min_c, zs.max_c,
                 s.sensor_type_id, st.type as stype, sdtz.coop, sdtz.temperature
                 FROM zone
                 JOIN zone_type ztype ON zone.type_id = ztype.id
