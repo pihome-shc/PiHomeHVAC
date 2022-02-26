@@ -1,15 +1,15 @@
-//  _____    _   _    _                             
-// |  __ \  (_) | |  | |                           
-// | |__) |  _  | |__| |   ___    _ __ ___     ___ 
-// |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \ 
-// | |      | | | |  | | | (_) | | | | | | | |  __/
-// |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|
+//           __  __                             _
+//          |  \/  |                    /\     (_)
+//          | \  / |   __ _  __  __    /  \     _   _ __
+//          | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+//          | |  | | | (_| |  >  <   / ____ \  | | | |
+//          |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 //
-//    S M A R T   H E A T I N G   C O N T R O L 
+//                 S M A R T   T H E R M O S T A T
 // *****************************************************************
 // *       Battery Powered OneWire DS18B20 Temperature Sensor      *
 // *           Version 0.34 Build Date 06/11/2017                  *
-// *            Last Modification Date 06/06/2020                  *
+// *            Last Modification Date 26/02/2022                  *
 // *                                          Have Fun - PiHome.eu *
 // *****************************************************************
 
@@ -70,7 +70,7 @@
 #define MY_RF24_CHANNEL	91
 
 //PiHome - Make Sure you change Node ID, for each temperature sensor. 21 for Ground Floor, 20 for First Floor, 30 for Domastic Hot Water.
-#define MY_NODE_ID 24
+#define MY_NODE_ID 27
 
 //RF24_250KBPS for 250kbs, RF24_1MBPS for 1Mbps, or RF24_2MBPS for 2Mbps
 #define MY_RF24_DATARATE RF24_250KBPS

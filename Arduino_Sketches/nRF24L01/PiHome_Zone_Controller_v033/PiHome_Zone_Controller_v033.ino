@@ -1,15 +1,15 @@
-//  _____    _   _    _                             
-// |  __ \  (_) | |  | |                           
-// | |__) |  _  | |__| |   ___    _ __ ___     ___ 
-// |  ___/  | | |  __  |  / _ \  | |_  \_ \   / _ \ 
-// | |      | | | |  | | | (_) | | | | | | | |  __/
-// |_|      |_| |_|  |_|  \___/  |_| |_| |_|  \___|
+//           __  __                             _
+//          |  \/  |                    /\     (_)
+//          | \  / |   __ _  __  __    /  \     _   _ __
+//          | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
+//          | |  | | | (_| |  >  <   / ____ \  | | | |
+//          |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
 //
-//    S M A R T   H E A T I N G   C O N T R O L 
+//                 S M A R T   T H E R M O S T A T
 // *****************************************************************
 // *           Heating Zone Controller Relay Sketch                *
 // *            Version 0.33 Build Date 06/11/2017                 *
-// *            Last Modification Date 04/03/2020                  *
+// *            Last Modification Date 26/02/2022                  *
 // *                                          Have Fun - PiHome.eu *
 // *****************************************************************
 
@@ -167,11 +167,9 @@ void loop(){
 	}
 }
 
-
 void sendHeartbeat(){
 
 }
-
 
 void receive(const MyMessage &message){
 	// We only expect one type of message from controller. But we better check anyway.
@@ -190,16 +188,6 @@ void receive(const MyMessage &message){
 			Serial.print(" - New Status: ");
 			Serial.println(message.getBool());
 		#endif
-		//Store state in eeprom 
-		//saveState(message.sensor, message.getBool());
-	
-		//https://www.youtube.com/watch?v=0_deJhUQmrU
-		//https://www.youtube.com/watch?v=HVaFSK68Kok
-		//int myNum [] = {3, 4, 5, 6, 7, 8}
-	//	for (int x = 0; x < 5; x++) {
-			//do something with pump and mixing valve 
-		//	serial.printin(myNum[x]);
-	//	}
 	}
 	if (message.type==V_VAR1) {
 		Serial.print("Node ID:    ");
@@ -222,8 +210,5 @@ void receive(const MyMessage &message){
 			//call reset function 
 			resetFunc();
 		}
-
 	}
-	
-	
 }
