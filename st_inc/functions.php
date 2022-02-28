@@ -777,7 +777,7 @@ function get_schedule_status($conn,$zone_id,$holidays_status,$away_status){
         $sch_count=mysqli_num_rows($results);
         if ($sch_count > 0) {
 		$sch_status = 0;
-		$away_sch = $away_status;
+		$away_sch = 0;
 		while ($row = mysqli_fetch_assoc($results)) {
 	                // check each schedule for this zone
         	        $time = strtotime(date("G:i:s"));
@@ -856,9 +856,11 @@ function get_schedule_status($conn,$zone_id,$holidays_status,$away_status){
                         }
                 	if (($end_time > $start_time && $time > $start_time && $time < $end_time && ($WeekDays  & (1 << $dow)) > 0) || ($end_time < $start_time && $time < $end_time && ($WeekDays  & (1 << $prev_dow)) > 0) || ($end_time < $start_time && $time > $start_time && ($WeekDays  & (1 << $dow)) > 0) && $time_status == "1") {
 	                	$sch_status = 1;
+                                $away_sch = 1;
 				break; // exit the loop if an active schedule found
                         } else {
                                 $sch_status = 0;
+                                $away_sch = 0;
                         }
 		} // end of while loop
         } else {
