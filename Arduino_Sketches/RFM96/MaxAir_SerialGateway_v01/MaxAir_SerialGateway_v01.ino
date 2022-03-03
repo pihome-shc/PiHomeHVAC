@@ -9,7 +9,7 @@
 // *****************************************************************
 // *    MaxAir Serial Gateway Based on Arudino Mini Pro            *
 // *            Version 0.2 Build Date 06/11/2017                  *
-// *            Last Modification Date 08/06/2021                  *
+// *            Last Modification Date 03/03/2022                  *
 // *                                          Have Fun - PiHome.eu *
 // *****************************************************************
 
