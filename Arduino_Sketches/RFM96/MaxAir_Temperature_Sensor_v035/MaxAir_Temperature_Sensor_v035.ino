@@ -9,7 +9,7 @@
 // *****************************************************************
 // *       Battery Powered OneWire DS18B20 Temperature Sensor      *
 // *           Version 0.35 Build Date 06/11/2017                  *
-// *            Last Modification Date 28/06/2020                  *
+// *            Last Modification Date 03/03/2022                  *
 // *                                          Have Fun - PiHome.eu *
 // *****************************************************************
 
@@ -43,7 +43,7 @@ RFM95_BW125CR48SF4096 	125 	4/8 	4096 	Slow, long range
 #define MY_TRANSPORT_STATE_TIMEOUT_MS  (3*1000ul)
 #define RFM95_RETRY_TIMEOUT_MS  (3000ul)
 #define MY_RFM95_IRQ_PIN 2
-#define MY_RFM95_IRQ_NUM MY_RFM95_IRQ_PIN
+#define MY_RFM95_IRQ_NUM digitalPinToInterrupt(MY_RFM95_IRQ_PIN)
 #define MY_RFM95_CS_PIN 8
 
 //MaxAir - Make Sure you change Node ID, for each temperature sensor. 21 for Ground Floor, 20 for First Floor, 30 for Domastic Hot Water.

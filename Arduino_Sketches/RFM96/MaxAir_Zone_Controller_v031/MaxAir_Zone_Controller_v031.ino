@@ -9,7 +9,7 @@
 // *****************************************************************
 // *           Heating Zone Controller Relay Sketch                *
 // *            Version 0.31 Build Date 06/11/2017                 *
-// *            Last Modification Date 08/06/2021                  *
+// *            Last Modification Date 03/03/2022                  *
 // *                                          Have Fun - PiHome.eu *
 // *****************************************************************
 
@@ -45,7 +45,7 @@ RFM95_BW125CR48SF4096 	125 	4/8 	4096 	Slow, long range
 #define MY_TRANSPORT_STATE_TIMEOUT_MS  (3*1000ul) //general state timeout (in ms) 
 #define RFM95_RETRY_TIMEOUT_MS  (3000ul)
 #define MY_RFM95_IRQ_PIN 2
-#define MY_RFM95_IRQ_NUM MY_RFM95_IRQ_PIN
+#define MY_RFM95_IRQ_NUM digitalPinToInterrupt(MY_RFM95_IRQ_PIN)
 #define MY_RFM95_CS_PIN 8
 
 //MaxAir Zone Controller Node ID
