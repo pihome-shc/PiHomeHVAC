@@ -8,7 +8,7 @@
 //                   S M A R T   T H E R M O S T A T
 // *****************************************************************
 // *       Battery Powered OneWire DS18B20 Temperature Sensor      *
-// *           Version 0.36 Build Date 06/11/2017                  *
+// *           Version 0.35 Build Date 06/11/2017                  *
 // *            Last Modification Date 03/03/2022                  *
 // *                                          Have Fun - PiHome.eu *
 // *****************************************************************
