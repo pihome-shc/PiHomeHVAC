@@ -9,7 +9,7 @@
 // *****************************************************************
 // *             Battery Powered Switch Sensor                     *
 // *           Version 0.01 Build Date 03/09/2021                  *
-// *            Last Modification Date 03/09/2021                  *
+// *            Last Modification Date 03/03/2022                  *
 // *                                          Have Fun - PiHome.eu *
 // *****************************************************************
 
