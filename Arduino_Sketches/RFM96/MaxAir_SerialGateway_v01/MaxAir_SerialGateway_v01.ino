@@ -41,7 +41,7 @@ RFM95_BW125CR48SF4096 	125 	4/8 	4096 	Slow, long range
 #define MY_TRANSPORT_STATE_TIMEOUT_MS  (3*1000ul)
 #define RFM95_RETRY_TIMEOUT_MS  (3000ul)
 #define MY_RFM95_IRQ_PIN 1
-#define MY_RFM95_IRQ_NUM MY_RFM95_IRQ_PIN
+#define MY_RFM95_IRQ_NUM digitalPinToInterrupt(MY_RFM95_IRQ_PIN)
 #define MY_RFM95_CS_PIN 8
 
 //MaxAir Node ID - Not needed for Gateway 
