@@ -929,35 +929,37 @@ function GetModal_SensorsInfo($conn)
                 $results = $conn->query($query);
                 $count = mysqli_num_rows($results);
                 echo '<p class="text-muted">'.$lang['node_count_last24h'].$count.'</p>';
-                echo '<table class="table table-fixed">
-                        <thead>
-                                <tr>
-                                        <th class="col-xs-6"><small>'.$lang['sensor_name'].'</small></th>
-                                        <th style="text-align:center; vertical-align:middle;" class="col-xs-6"><small>'.$lang['last_seen'].'</small></th>
-                                </tr>
-                        </thead>
-                        <tbody>';
-	                	while ($row = mysqli_fetch_assoc($results)) {
-					$query = "SELECT id FROM nodes WHERE node_id = {$row['node_id']} LIMIT 1;";
-					$result = $conn->query($query);
-					$nodes_row = mysqli_fetch_assoc($result);
-                                	$query = "SELECT name FROM sensors WHERE sensor_id = {$nodes_row['id']} AND sensor_child_id = {$row['child_id']} LIMIT 1;";
-	                                $s_result = $conn->query($query);
-					$scount=mysqli_num_rows($s_result);
-					if ($scount > 0) {
-						$sensor_row = mysqli_fetch_assoc($s_result);
-						$s_name = $sensor_row['name'];
-					} else {
-						$s_name = "Unallocated Sensor";
+                if ($count > 0) {
+                	echo '<table class="table table-fixed">
+                        	<thead>
+                                	<tr>
+                                        	<th class="col-xs-6"><small>'.$lang['sensor_name'].'</small></th>
+                                        	<th style="text-align:center; vertical-align:middle;" class="col-xs-6"><small>'.$lang['last_seen'].'</small></th>
+                                	</tr>
+                        	</thead>
+                        	<tbody>';
+	                		while ($row = mysqli_fetch_assoc($results)) {
+						$query = "SELECT id FROM nodes WHERE node_id = {$row['node_id']} LIMIT 1;";
+						$result = $conn->query($query);
+						$nodes_row = mysqli_fetch_assoc($result);
+                                		$query = "SELECT name FROM sensors WHERE sensor_id = {$nodes_row['id']} AND sensor_child_id = {$row['child_id']} LIMIT 1;";
+	                                	$s_result = $conn->query($query);
+						$scount=mysqli_num_rows($s_result);
+						if ($scount > 0) {
+							$sensor_row = mysqli_fetch_assoc($s_result);
+							$s_name = $sensor_row['name'];
+						} else {
+							$s_name = "Unallocated Sensor";
+						}
+                        	        	echo '<tr>
+                                	        	<td class="col-xs-6">'.$s_name.'</td>
+                                        		<td style="text-align:center; vertical-align:middle;" class="col-xs-6">'.$row["datetime"].'</td>
+                                		</tr>';
 					}
-                        	        echo '<tr>
-                                	        <td class="col-xs-6">'.$s_name.'</td>
-                                        	<td style="text-align:center; vertical-align:middle;" class="col-xs-6">'.$row["datetime"].'</td>
-                                	</tr>';
-				}
-			 echo '</tbody>
-		</table>
-    	</div>
+			 	echo '</tbody>
+			</table>';
+		}
+    	echo '</div>
     	<div class="modal-footer" id="ajaxModalFooter">
             	<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
