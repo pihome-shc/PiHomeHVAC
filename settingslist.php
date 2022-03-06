@@ -100,7 +100,7 @@ $("#ajaxModal").on("show.bs.modal", function(e) {
                                                         <h3 class="status"></small></h3>
                                                         </button>
 
-                       					<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="edit_sensors.php" data-toggle="modal" data-target="#temperature_sensor">
+                                                        <button type="button" class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Sensors">
                                                         <h3 class="buttontop"><small><?php echo $lang['sensors']; ?></small></h3>
                                                         <h3 class="degre" ><i class="ionicons ion-thermometer red"></i></h3>
                                                         <h3 class="status"></small></h3>

@@ -873,3 +873,104 @@ if($_GET['Ajax']=='GetModal_Uptime')
     GetModal_Uptime($conn);
     return;
 }
+
+function GetModal_Sensors($conn)
+{
+	global $lang;
+	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
+
+	echo '<div class="modal-header">
+        	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+            	<h5 class="modal-title" id="ajaxModalLabel">'.$lang['temperature_sensor'].'</h5>
+        </div>
+        <div class="modal-body" id="ajaxModalBody">
+                <p class="text-muted"> '.$lang['temperature_sensor_text'].' </p>';
+		$query = "SELECT * FROM nodes where name LIKE '%Sensor' ORDER BY node_id asc;";
+		$results = $conn->query($query);
+		echo '<div class=\"list-group\">';
+			while ($row = mysqli_fetch_assoc($results)) {
+				$batquery = "select * from nodes_battery where node_id = {$row['node_id']} ORDER BY id desc limit 1;";
+				$batresults = $conn->query($batquery);
+				$brow = mysqli_fetch_array($batresults);
+				//check if sensors in use by any zone
+				$query = "SELECT * FROM zone_sensors where sensor_id = {$row['id']} Limit 1;";
+				$zresult = $conn->query($query);
+				$rcount = mysqli_num_rows($zresult);
+				echo "<div class=\"list-group-item\"><i class=\"ionicons ion-thermometer red\"></i> ".$row['node_id'];
+					if ($row['ms_version'] > 0){echo '- <i class="fa fa-battery-full"></i> '.round($brow ['bat_level'],0).'% - '.$brow ['bat_voltage'];}
+        				echo '<span class="pull-right text-muted small"><button type="button"  data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_SensorsInfo&id=' . $row['node_id'] . '" onclick="sensors_Info(this);"><em>'.$row['last_seen'].'&nbsp</em></span></button>
+				</div> ';
+			}
+    	echo '</div>';      //close class="modal-body">
+    	echo '<div class="modal-footer" id="ajaxModalFooter">
+		<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+        </div>';      //close class="modal-footer">
+    	echo '<script language="javascript" type="text/javascript">
+        	sensors_Info=function(ithis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(ithis)); }).modal("hide");};
+    	</script>';
+   	 return;
+}
+if($_GET['Ajax']=='GetModal_Sensors')
+{
+    	GetModal_Sensors($conn);
+    	return;
+}
+function GetModal_SensorsInfo($conn)
+{
+        global $lang;
+	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
+
+    	echo '<div class="modal-header">
+            	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+            	<h5 class="modal-title" id="ajaxModalLabel">'.$lang['sensor_last24h'].$_GET['id'].'</h5>
+        </div>
+        <div class="modal-body" id="ajaxModalBody">';
+                $query = "SELECT * FROM messages_in_view_24h WHERE node_id = '{$_GET['id']}'";
+                $results = $conn->query($query);
+                $count = mysqli_num_rows($results);
+                echo '<p class="text-muted">'.$lang['node_count_last24h'].$count.'</p>';
+                if ($count > 0) {
+                	echo '<table class="table table-fixed">
+                        	<thead>
+                                	<tr>
+                                        	<th class="col-xs-6"><small>'.$lang['sensor_name'].'</small></th>
+                                        	<th style="text-align:center; vertical-align:middle;" class="col-xs-6"><small>'.$lang['last_seen'].'</small></th>
+                                	</tr>
+                        	</thead>
+                        	<tbody>';
+	                		while ($row = mysqli_fetch_assoc($results)) {
+						$query = "SELECT id FROM nodes WHERE node_id = {$row['node_id']} LIMIT 1;";
+						$result = $conn->query($query);
+						$nodes_row = mysqli_fetch_assoc($result);
+                                		$query = "SELECT name FROM sensors WHERE sensor_id = {$nodes_row['id']} AND sensor_child_id = {$row['child_id']} LIMIT 1;";
+	                                	$s_result = $conn->query($query);
+						$scount=mysqli_num_rows($s_result);
+						if ($scount > 0) {
+							$sensor_row = mysqli_fetch_assoc($s_result);
+							$s_name = $sensor_row['name'];
+						} else {
+							$s_name = $lang['unallocated_sensor'].$row['child_id'];
+						}
+                        	        	echo '<tr>
+                                	        	<td class="col-xs-6">'.$s_name.'</td>
+                                        		<td style="text-align:center; vertical-align:middle;" class="col-xs-6">'.$row["datetime"].'</td>
+                                		</tr>';
+					}
+			 	echo '</tbody>
+			</table>';
+		}
+    	echo '</div>
+    	<div class="modal-footer" id="ajaxModalFooter">
+            	<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+        </div>';      //close class="modal-footer">
+    	echo '<script language="javascript" type="text/javascript">
+        	services_Info=function(ithis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(ithis)); }).modal("hide");};
+    	</script>';
+    	return;
+}
+if($_GET['Ajax']=='GetModal_SensorsInfo')
+{
+    	GetModal_SensorsInfo($conn);
+    	return;
+}
+

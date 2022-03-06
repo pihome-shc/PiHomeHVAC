@@ -1551,41 +1551,6 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
     </div>
 </div>';
 
-//Sensor location model
-echo '<div class="modal fade" id="temperature_sensor" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['temperature_sensor'].'</h5>
-            </div>
-            <div class="modal-body">
-		<p class="text-muted"> '.$lang['temperature_sensor_text'].' </p>';
-		$query = "SELECT * FROM nodes where name LIKE '%Sensor' ORDER BY node_id asc;";
-		$results = $conn->query($query);
-		echo '<div class=\"list-group\">';
-			while ($row = mysqli_fetch_assoc($results)) {
-				$batquery = "select * from nodes_battery where node_id = {$row['node_id']} ORDER BY id desc limit 1;";
-				$batresults = $conn->query($batquery);
-				$brow = mysqli_fetch_array($batresults);
-				//check if sensors in use by any zone
-				$query = "SELECT * FROM zone_sensors where sensor_id = {$row['id']} Limit 1;";
-				$zresult = $conn->query($query);
-				$rcount = mysqli_num_rows($zresult);
-				echo "<div class=\"list-group-item\"><i class=\"ionicons ion-thermometer red\"></i> ".$row['node_id'];
-					if ($row['ms_version'] > 0){echo "- <i class=\"fa fa-battery-full\"></i> ".round($brow ['bat_level'],0)."% - ".$brow ['bat_voltage'];}
-        				echo "<span class=\"pull-right text-muted small\"><em>".$row['last_seen']."&nbsp</em></span>
-				</div> ";
-			}
-		echo '</div>
-	    </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-            </div>
-        </div>
-    </div>
-</div>';
-
 //Sensor Type
 echo '
 <div class="modal fade" id="sensor_types" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
