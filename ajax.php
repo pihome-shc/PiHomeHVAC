@@ -949,7 +949,7 @@ function GetModal_SensorsInfo($conn)
 							$sensor_row = mysqli_fetch_assoc($s_result);
 							$s_name = $sensor_row['name'];
 						} else {
-							$s_name = "Unallocated Sensor";
+							$s_name = $lang['unallocated_sensor'].$row['child_id'];
 						}
                         	        	echo '<tr>
                                 	        	<td class="col-xs-6">'.$s_name.'</td>
