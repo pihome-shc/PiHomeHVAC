@@ -848,5 +848,5 @@ $lang['away_enable'] = "Enable Away Schedule";
 $lang['away_setup'] = "Setup Away Function";
 $lang['zone_operating_mode_numbering'] = "Zone Operating Mode Numbering";
 $lang['switch_zone_state_control'] = "Switch Zone State Control";
-$lang['sensor_last24h'] = "Senors Readings Last 24 Hours for Sensor ID - ";
+$lang['sensor_last24h'] = "Senors Readings Last 24 Hours for Node ID - ";
 ?>
