@@ -830,4 +830,7 @@ $lang['zone_boost_update_fail'] = "Zone Boost Record Update Failed.";
 $lang['away_enable'] = "Enable Away Schedule";
 $lang['away_setup'] = "Setup Away Function";
 $lang['zone_operating_mode_numbering'] = "Zone Operating Mode Numbering";
+$lang['sensor_last24h'] = "Senors Readings Last 24 Hours for Node ID - ";
+$lang['node_count_last24h'] = "Number of Readings for this Node in the Last 24 Hours - ";
+$lang['unallocated_sensor'] = "Unallocated Sensor Child - ";
 ?>
