@@ -925,10 +925,14 @@ function GetModal_SensorsInfo($conn)
             	<h5 class="modal-title" id="ajaxModalLabel">'.$lang['sensor_last24h'].$_GET['id'].'</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">';
+                $query = "SELECT COUNT(DISTINCT `child_id`) AS TotalRows FROM `messages_in_view_24h` WHERE `node_id` = '{$_GET['id']}';";
+                $result = $conn->query($query);
+                $num_child = mysqli_fetch_assoc($result);
                 $query = "SELECT * FROM messages_in_view_24h WHERE node_id = '{$_GET['id']}'";
                 $results = $conn->query($query);
                 $count = mysqli_num_rows($results);
                 echo '<p class="text-muted">'.$lang['node_count_last24h'].$count.'</p>';
+                echo '<p class="text-muted">'.$lang['average_count_last24h'].intval((($count/$num_child['TotalRows'])/24)).'</p>';
                 if ($count > 0) {
                 	echo '<table class="table table-fixed">
                         	<thead>
