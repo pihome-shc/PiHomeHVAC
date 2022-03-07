@@ -918,7 +918,7 @@ if($_GET['Ajax']=='GetModal_Sensors')
 function GetModal_SensorsInfo($conn)
 {
         global $lang;
-        $query = "SELECT COUNT(DISTINCT `child_id`) AS TotalRows FROM `messages_in_view_24h` WHERE `node_id` = '{$_GET['id']}';";
+        $query = "SELECT COUNT(DISTINCT `child_id`) AS TotalRows FROM `messages_in` WHERE `node_id` = '{$_GET['id']}';";
         $result = $conn->query($query);
         $num_child = mysqli_fetch_assoc($result);
         $query = "SELECT * FROM messages_in_view_24h WHERE node_id = '{$_GET['id']}'";
