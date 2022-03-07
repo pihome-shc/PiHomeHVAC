@@ -931,8 +931,8 @@ function GetModal_SensorsInfo($conn)
                 $query = "SELECT * FROM messages_in_view_24h WHERE node_id = '{$_GET['id']}'";
                 $results = $conn->query($query);
                 $count = mysqli_num_rows($results);
-                echo '<p class="text-muted">'.$lang['node_count_last24h'].$count.'</p>';
-                echo '<p class="text-muted">'.$lang['average_count_last24h'].intval((($count/$num_child['TotalRows'])/24)).'</p>';
+                echo '<p class="text-muted">'.$lang['node_count_last24h'].$count.'<br>';
+                echo $lang['average_count_last24h'].intval((($count/$num_child['TotalRows'])/24)).'</p>';
                 if ($count > 0) {
                 	echo '<table class="table table-fixed">
                         	<thead>
