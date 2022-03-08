@@ -906,7 +906,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 					sum(TIMESTAMPDIFF(MINUTE, start_datetime, expected_end_date_time)) as total_minuts,
 					sum(TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime)) as on_minuts,
 					(sum(TIMESTAMPDIFF(MINUTE, start_datetime, expected_end_date_time)) - sum(TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime))) as save_minuts
-					from controller_zone_logs WHERE date(start_datetime) = CURDATE() GROUP BY date(start_datetime) asc";
+					from controller_zone_logs WHERE date(start_datetime) = CURDATE() AND zone_id = ".$system_controller_id." GROUP BY date(start_datetime) asc";
 					$result = $conn->query($query);
 					$system_controller_time = mysqli_fetch_array($result);
 					$system_controller_time_total = $system_controller_time['total_minuts'];
