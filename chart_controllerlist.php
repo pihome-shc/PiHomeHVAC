@@ -21,11 +21,17 @@
 
 //boiler usage time
 echo "<h4>".$lang['graph_saving']."</h4></p>".$lang['graph_saving_text']."</p>";
+$query = "SELECT * FROM system_controller LIMIT 1";
+$result = $conn->query($query);
+$row = mysqli_fetch_array($result);
+$sc_count=$result->num_rows;
+$system_controller_id = $row['id'];
+
 $query="select date(start_datetime) as date,
 sum(TIMESTAMPDIFF(MINUTE, start_datetime, expected_end_date_time)) as total_minuts,
 sum(TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime)) as on_minuts,
 (sum(TIMESTAMPDIFF(MINUTE, start_datetime, expected_end_date_time)) - sum(TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime))) as save_minuts
-from controller_zone_logs WHERE start_datetime >= NOW() - INTERVAL 30 DAY GROUP BY date(start_datetime) desc";
+from controller_zone_logs WHERE start_datetime >= NOW() - INTERVAL 30 DAY  AND zone_id = ".$system_controller_id." GROUP BY date(start_datetime) desc";
 
 $result = $conn->query($query);
 echo '<table id="example" class="table table-bordered table-hover dt-responsive" width="100%">';
