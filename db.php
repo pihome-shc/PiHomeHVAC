@@ -204,7 +204,7 @@ if($what=="boost"){
 		$query = "DELETE FROM messages_out WHERE node_id = '".$boost_button_id."' AND child_id = '".$boost_button_child_id."' LIMIT 1;"; 
 		$conn->query($query);
 		//Now Mark for deletion from Boost
-		$query = "UPDATE boost SET `purge` = '1' WHERE id = '".$wid."';";
+		$query = "DELETE FROM boost WHERE id = '".$wid."'LIMIT 1;";
 		$conn->query($query);
 		if($conn->query($query)){
             		header('Content-type: application/json');
