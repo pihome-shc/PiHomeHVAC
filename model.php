@@ -573,6 +573,10 @@ if ((settings($conn, 'mode') & 0b1) == 0) {
 }
 
 while ($row = mysqli_fetch_assoc($results)) {
+    $query = "SELECT * FROM boost WHERE zone_id = {$row['zone_id']};";
+    $result = $conn->query($query);
+    $b_count=mysqli_num_rows($result);
+    if ($b_count > 1) { $disabled = ""; } else { $disabled = "disabled"; }
     $minute = $row["minute"];
     if ((settings($conn, 'mode') & 0b1) == 0) {
     	$boost_button_id = $row["boost_button_id"];
@@ -593,7 +597,11 @@ while ($row = mysqli_fetch_assoc($results)) {
 	     	echo '<input type="hidden" id="zone_id'.$row["id"].'" name="zone_id" value="'.$row["zone_id"].'">
 		<input type="hidden" id="hvac_mode'.$row["id"].'" name="hvac_mode" value="'.$row["hvac_mode"].'">
                 <input type="hidden" id="sensor_type'.$row["id"].'" name="sensor_type" value="'.$row["sensor_type_id"].'">
-            	<td><a href="javascript:delete_boost('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="You are about to DELETE this BOOST Setting"><span class="glyphicon glyphicon-trash"></span></button> </a></td>
+                <td>';
+                if ($b_count > 1) { echo '<a href="javascript:delete_boost('.$row["id"].');">'; }
+                echo '<button class="btn btn-danger btn-xs '.$disabled.'" ';
+                if ($b_count > 1) { echo 'data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="You are about to DELETE this BOOST Setting"'; }
+                echo '><span class="glyphicon glyphicon-trash"></span></button> </a></td>
             </tr>';
     } else {
 	$hvac_mode = $row['hvac_mode'];
@@ -616,7 +624,11 @@ while ($row = mysqli_fetch_assoc($results)) {
 	     	echo '<input type="hidden" id="zone_id'.$row["id"].'" name="zone_id" value="'.$row["zone_id"].'">
 		<input type="hidden" id="hvac_mode'.$row["id"].'" name="hvac_mode" value="'.$row["hvac_mode"].'">
                 <input type="hidden" id="sensor_type'.$row["id"].'" name="sensor_type" value="'.$row["sensor_type_id"].'">
-            	<td><a href="javascript:delete_boost('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="You are about to DELETE this BOOST Setting"><span class="glyphicon glyphicon-trash"></span></button> </a></td>
+                <td>';
+                if ($b_count > 1) { echo '<a href="javascript:delete_boost('.$row["id"].');">'; }
+                echo '<button class="btn btn-danger btn-xs '.$disabled.'" ';
+                if ($b_count > 1) { echo 'data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="You are about to DELETE this BOOST Setting"'; }
+                echo '><span class="glyphicon glyphicon-trash"></span></button> </a></td>
             </tr>';
     }
 }
