@@ -26,12 +26,18 @@ echo "<h4>".$lang['graph_system_controller_usage']."</h4></p>".$lang['graph_syst
 </div>
 
 <?php
+$query = "SELECT * FROM system_controller LIMIT 1";
+$result = $conn->query($query);
+$row = mysqli_fetch_array($result);
+$sc_count=$result->num_rows;
+$system_controller_id = $row['id'];
+
 $arr_name='month_usage';
 $query="select date(start_datetime) as month, 
 sum(TIMESTAMPDIFF(MINUTE, start_datetime, expected_end_date_time))/60 as total_minuts,
 sum(TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime))/60 as on_minuts, 
 (sum(TIMESTAMPDIFF(MINUTE, start_datetime, expected_end_date_time)) - sum(TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime)))/60 as save_minuts
-from controller_zone_logs WHERE start_datetime >= NOW() - INTERVAL 400 DAY GROUP BY YEAR(start_datetime), MONTH(start_datetime) order by month asc";
+from controller_zone_logs WHERE start_datetime >= NOW() - INTERVAL 400 DAY AND zone_id = ".$system_controller_id." GROUP BY YEAR(start_datetime), MONTH(start_datetime) order by month asc";
 $result = $conn->query($query);
 
 //create array of pairs of x and y values
