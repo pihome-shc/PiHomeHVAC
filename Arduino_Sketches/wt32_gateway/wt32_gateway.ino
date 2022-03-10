@@ -32,8 +32,8 @@
    | SCK  | 14   | 14    | 14    |
    | CSN  | 15   | 15    | 15    |
    | CE   | 4    | -     | -     |
-   | RST  | -    | 17    | 17    |
-   | IRQ  | 16*  | 16    | 16    |
+   | RST  | -    | -     | -     |
+   | IRQ  | 39*  | 39    | 39    |
     
  * Make sure to fill in your ssid and WiFi password below.
 */
@@ -203,7 +203,7 @@ void setup()
 {
     pinMode(ETH_ONLY, INPUT);
     pinMode(CLEAR_EEPROM, INPUT);
-    if (!digitalRead(ETH_ONLY)) {
+    if (digitalRead(ETH_ONLY)) {
       Serial.println("START WiFiManager");
       WiFi.setHostname("maxairgw");
       //start ticker with 0.5 because we start in AP mode and try to connect
