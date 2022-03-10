@@ -327,13 +327,17 @@ void showRootPage(){
 //Message Related
   page+="<tr>"; page+= "<td>Gateway Up Time</td>"; page+= "<td>"; page += readableTimestamp(runningTime); page+= "</td>"; page+="</tr>";
 
-  page+="<tr>"; page+= "<td>Wi-Fi SSID</td>"; page+= "<td>"; page += WiFi.SSID(); page+= "</td>"; page+="</tr>";
-  page+="<tr>"; page+= "<td>Wi-Fi Signal</td>"; page+= "<td>"; page += WiFi.RSSI(); page+= "</td>"; page+="</tr>";
-  //page+="<tr>"; page+= "<td>Hostname</td>"; page+= "<td>"; page += WiFi.hostname(); page+= "</td>"; page+="</tr>";
-  page+="<tr>"; page+= "<td>Wi-Fi MAC Address</td>"; page+= "<td>"; page += WiFi.macAddress(); page+= "</td>"; page+="</tr>";
-  page+="<tr>"; page+= "<td>Wi-Fi IP Address</td>"; page+= "<td>"; page += WiFi.localIP().toString(); page+= "</td>"; page+="</tr>";
-  page+="<tr>"; page+= "<td>Ethernet MAC Address</td>"; page+= "<td>"; page += ETH.macAddress(); page+= "</td>"; page+="</tr>";
-  page+="<tr>"; page+= "<td>Ethernet IP Address</td>"; page+= "<td>"; page += ETH.localIP().toString(); page+= "</td>"; page+="</tr>";
+  if (digitalRead(ETH_ONLY)) {
+    page+="<tr>"; page+= "<td>Wi-Fi SSID</td>"; page+= "<td>"; page += WiFi.SSID(); page+= "</td>"; page+="</tr>";
+    page+="<tr>"; page+= "<td>Wi-Fi Signal</td>"; page+= "<td>"; page += WiFi.RSSI(); page+= "</td>"; page+="</tr>";
+    //page+="<tr>"; page+= "<td>Hostname</td>"; page+= "<td>"; page += WiFi.hostname(); page+= "</td>"; page+="</tr>";
+    page+="<tr>"; page+= "<td>Wi-Fi MAC Address</td>"; page+= "<td>"; page += WiFi.macAddress(); page+= "</td>"; page+="</tr>";
+    page+="<tr>"; page+= "<td>Wi-Fi IP Address</td>"; page+= "<td>"; page += WiFi.localIP().toString(); page+= "</td>"; page+="</tr>";
+  }
+  if (digitalRead(DISABLE_ETH)) {
+    page+="<tr>"; page+= "<td>Ethernet MAC Address</td>"; page+= "<td>"; page += ETH.macAddress(); page+= "</td>"; page+="</tr>";
+    page+="<tr>"; page+= "<td>Ethernet IP Address</td>"; page+= "<td>"; page += ETH.localIP().toString(); page+= "</td>"; page+="</tr>";
+  }
   page+="<tr>"; page+= "<td>Free Memory</td>"; page+= "<td>"; page += ESP.getFreeHeap(); page+= "</td>"; page+="</tr>";
 
   page+="<tr>"; page+= "<td>Network Transmited Messages</td>"; page+= "<td>"; page += MsgTx; page+= "</td>"; page+="</tr>";
