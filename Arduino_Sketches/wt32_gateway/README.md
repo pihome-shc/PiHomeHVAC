@@ -8,3 +8,15 @@
 ### Pin Mapping
 Currently there is no Arduino IDE option for the board and in order to implement the SPi connection to the radio module the file pins_arduino.h needs to be customized.
 Copy the file pins_arduino.h to the 'Windows' directory C:\Users\xxxxxxxxxxx\Documents\ArduinoData\packages\esp32\hardware\esp32\1.0.6\variants\esp32
+### Pin Usage
+#### IO2  - Program Select/Radio MOSI
+#### IO4  - Radio CE
+#### IO5  - RX
+#### IO12 - Radio MISO
+#### IO14 - Radio SCK
+#### IO15 - Radio SS
+#### IO17 - ERR
+#### IO33 - TX
+#### IO35 - ETH Only
+#### IO36 - Clear WiFi Creditional
+#### IO39 - Radio IRQ
