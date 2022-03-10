@@ -11,17 +11,17 @@ Copy the file pins_arduino.h to the 'Windows' directory C:\Users\xxxxxxxxxxx\Doc
 ### Pin Usage
 #### TX0  - Serial OUT
 #### RX0  - Serial IN
-#### IO0  - Program Select
+#### IO0  - Program Select Jumper
 #### IO2  - Radio MOSI
 #### IO4  - Radio CE
-#### IO5  - RX
+#### IO5  - RX LED
 #### IO12 - Radio MISO
 #### IO14 - Radio SCK
 #### IO15 - Radio SS
-#### IO17 - ERR
-#### IO33 - TX
-#### IO35 - ETH Only
-#### IO36 - Clear WiFi Creditional
+#### IO17 - ERR LED
+#### IO33 - TX LED
+#### IO35 - ETH Only Jumper
+#### IO36 - Clear WiFi Creditional Jumper
 #### IO39 - Radio IRQ
 #### 5V   - 5volt Power In
 #### 3V3  - 3.3volt power to Radio Module
