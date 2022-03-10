@@ -147,6 +147,7 @@ IPAddress myDNS(8, 8, 8, 8);
 
 #define ETH_ONLY 35 // set LOW using jumper to only work in WIFI mode
 #define CLEAR_EEPROM 36 // set LOW using jumper to clear save WIFI credentials
+#define DISABLE_ETH 32 // set LOW using jumper to disable the Ethernet Interface
 
 #if defined(MY_USE_UDP)
   #include <WiFiUdp.h>
@@ -203,6 +204,7 @@ void setup()
 {
     pinMode(ETH_ONLY, INPUT);
     pinMode(CLEAR_EEPROM, INPUT);
+    pinMode(DISABLE_ETH, INPUT);
     if (digitalRead(ETH_ONLY)) {
       Serial.println("START WiFiManager");
       WiFi.setHostname("maxairgw");
@@ -243,20 +245,22 @@ void setup()
       ticker.detach();
     }
 
-    // Configure Ethernet
-    // To be called before ETH.begin()
-    WT32_ETH01_onEvent();
+    if (digitalRead(DISABLE_ETH)) {
+      // Configure Ethernet
+      // To be called before ETH.begin()
+      WT32_ETH01_onEvent();
 
-    //bool begin(uint8_t phy_addr=ETH_PHY_ADDR, int power=ETH_PHY_POWER, int mdc=ETH_PHY_MDC, int mdio=ETH_PHY_MDIO, 
-    //           eth_phy_type_t type=ETH_PHY_TYPE, eth_clock_mode_t clk_mode=ETH_CLK_MODE);
-    //ETH.begin(ETH_PHY_ADDR, ETH_PHY_POWER, ETH_PHY_MDC, ETH_PHY_MDIO, ETH_PHY_TYPE, ETH_CLK_MODE);
-    ETH.begin(ETH_PHY_ADDR, ETH_PHY_POWER);
+      //bool begin(uint8_t phy_addr=ETH_PHY_ADDR, int power=ETH_PHY_POWER, int mdc=ETH_PHY_MDC, int mdio=ETH_PHY_MDIO, 
+      //           eth_phy_type_t type=ETH_PHY_TYPE, eth_clock_mode_t clk_mode=ETH_CLK_MODE);
+      //ETH.begin(ETH_PHY_ADDR, ETH_PHY_POWER, ETH_PHY_MDC, ETH_PHY_MDIO, ETH_PHY_TYPE, ETH_CLK_MODE);
+      ETH.begin(ETH_PHY_ADDR, ETH_PHY_POWER);
 
-    // Static IP, leave without this line to get IP via DHCP
-    //bool config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPAddress dns1 = 0, IPAddress dns2 = 0);
-    // ETH.config(myIP, myGW, mySN, myDNS);
+      // Static IP, leave without this line to get IP via DHCP
+      //bool config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPAddress dns1 = 0, IPAddress dns2 = 0);
+      // ETH.config(myIP, myGW, mySN, myDNS);
 
-    WT32_ETH01_waitForConnect();
+      WT32_ETH01_waitForConnect();
+    }
     setupWebServer();
 }
 
@@ -323,13 +327,17 @@ void showRootPage(){
 //Message Related
   page+="<tr>"; page+= "<td>Gateway Up Time</td>"; page+= "<td>"; page += readableTimestamp(runningTime); page+= "</td>"; page+="</tr>";
 
-  page+="<tr>"; page+= "<td>Wi-Fi SSID</td>"; page+= "<td>"; page += WiFi.SSID(); page+= "</td>"; page+="</tr>";
-  page+="<tr>"; page+= "<td>Wi-Fi Signal</td>"; page+= "<td>"; page += WiFi.RSSI(); page+= "</td>"; page+="</tr>";
-  //page+="<tr>"; page+= "<td>Hostname</td>"; page+= "<td>"; page += WiFi.hostname(); page+= "</td>"; page+="</tr>";
-  page+="<tr>"; page+= "<td>Wi-Fi MAC Address</td>"; page+= "<td>"; page += WiFi.macAddress(); page+= "</td>"; page+="</tr>";
-  page+="<tr>"; page+= "<td>Wi-Fi IP Address</td>"; page+= "<td>"; page += WiFi.localIP().toString(); page+= "</td>"; page+="</tr>";
-  page+="<tr>"; page+= "<td>Ethernet MAC Address</td>"; page+= "<td>"; page += ETH.macAddress(); page+= "</td>"; page+="</tr>";
-  page+="<tr>"; page+= "<td>Ethernet IP Address</td>"; page+= "<td>"; page += ETH.localIP().toString(); page+= "</td>"; page+="</tr>";
+  if (digitalRead(ETH_ONLY)) {
+    page+="<tr>"; page+= "<td>Wi-Fi SSID</td>"; page+= "<td>"; page += WiFi.SSID(); page+= "</td>"; page+="</tr>";
+    page+="<tr>"; page+= "<td>Wi-Fi Signal</td>"; page+= "<td>"; page += WiFi.RSSI(); page+= "</td>"; page+="</tr>";
+    //page+="<tr>"; page+= "<td>Hostname</td>"; page+= "<td>"; page += WiFi.hostname(); page+= "</td>"; page+="</tr>";
+    page+="<tr>"; page+= "<td>Wi-Fi MAC Address</td>"; page+= "<td>"; page += WiFi.macAddress(); page+= "</td>"; page+="</tr>";
+    page+="<tr>"; page+= "<td>Wi-Fi IP Address</td>"; page+= "<td>"; page += WiFi.localIP().toString(); page+= "</td>"; page+="</tr>";
+  }
+  if (digitalRead(DISABLE_ETH)) {
+    page+="<tr>"; page+= "<td>Ethernet MAC Address</td>"; page+= "<td>"; page += ETH.macAddress(); page+= "</td>"; page+="</tr>";
+    page+="<tr>"; page+= "<td>Ethernet IP Address</td>"; page+= "<td>"; page += ETH.localIP().toString(); page+= "</td>"; page+="</tr>";
+  }
   page+="<tr>"; page+= "<td>Free Memory</td>"; page+= "<td>"; page += ESP.getFreeHeap(); page+= "</td>"; page+="</tr>";
 
   page+="<tr>"; page+= "<td>Network Transmited Messages</td>"; page+= "<td>"; page += MsgTx; page+= "</td>"; page+="</tr>";
