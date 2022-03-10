@@ -16,23 +16,23 @@
 
 ### Pin Usage
 
-| Pin Name | Function                          |
-| -------- | --------------------------------- |
-| TX0      | Serial OUT                        |
-| RX0      | Serial IN                         |
-| IO0      | Program Select Jumper             |
-| IO2      | Radio MOSI                        |
-| IO4      | Radio CE                          |
-| IO5      | RX LED                            |
-| IO12     | Radio MISO                        |
-| IO14     | Radio SCK                         |
-| IO15     | Radio SS                          |
-| IO17     | ERR LED                           |
-| IO32     | Disable Ethernet Interface Jumper |
-| IO33     | TX LED                            |
-| IO35     | Ethernet Only Jumper              |
-| IO36     | Clear WiFi Credentials Jumper     |
-| IO39     | Radio IRQ                         |
-| 5V       | 5volt Power Input                 |
-| 3V3      | 3.3volt Power Out to Radio        |
-| GND      | Common Ground                     |
+| Pin Name      | Function                          |
+| ------------- | --------------------------------- |
+| TX0           | Serial OUT                        |
+| RX0           | Serial IN                         |
+| IO0           | Program Select Jumper             |
+| IO2           | Radio MOSI                        |
+| IO4           | Radio CE                          |
+| TXD (IO5)     | RX LED                            |
+| IO12          | Radio MISO                        |
+| IO14          | Radio SCK                         |
+| IO15          | Radio SS                          |
+| RXD (IO17)    | ERR LED                           |
+| CFG (IO32)    | Disable Ethernet Interface Jumper |
+| 485_EN (IO33) | TX LED                            |
+| IO35          | Ethernet Only Jumper              |
+| IO36          | Clear WiFi Credentials Jumper     |
+| IO39          | Radio IRQ                         |
+| 5V            | 5volt Power Input                 |
+| 3V3           | 3.3volt Power Out to Radio        |
+| GND           | Common Ground                     |
