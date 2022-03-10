@@ -21,7 +21,7 @@ Copy the file pins_arduino.h to the 'Windows' directory C:\Users\xxxxxxxxxxx\Doc
 #### IO17 - ERR LED
 #### IO33 - TX LED
 #### IO35 - ETH Only Jumper
-#### IO36 - Clear WiFi Creditional Jumper
+#### IO36 - Clear WiFi Creditionals Jumper
 #### IO39 - Radio IRQ
 #### 5V   - 5volt Power In
 #### 3V3  - 3.3volt power to Radio Module
