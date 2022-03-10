@@ -20,3 +20,6 @@ Copy the file pins_arduino.h to the 'Windows' directory C:\Users\xxxxxxxxxxx\Doc
 #### IO35 - ETH Only
 #### IO36 - Clear WiFi Creditional
 #### IO39 - Radio IRQ
+#### 5V   - 5volt Power In
+#### 3V3  - 3.3volt power to Radio Module
+#### GND  - Common Ground
