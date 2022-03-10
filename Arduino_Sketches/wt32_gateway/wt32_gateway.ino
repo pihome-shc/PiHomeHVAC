@@ -245,9 +245,9 @@ void setup()
       ticker.detach();
     }
 
-    if (!digitalRead(DISABLE_ETH)) {
+    if (digitalRead(DISABLE_ETH)) {
       // Configure Ethernet
-     // To be called before ETH.begin()
+      // To be called before ETH.begin()
       WT32_ETH01_onEvent();
 
       //bool begin(uint8_t phy_addr=ETH_PHY_ADDR, int power=ETH_PHY_POWER, int mdc=ETH_PHY_MDC, int mdio=ETH_PHY_MDIO, 
