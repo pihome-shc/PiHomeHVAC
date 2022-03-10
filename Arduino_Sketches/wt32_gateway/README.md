@@ -30,7 +30,7 @@
 | RXD (IO17)    | ERR LED                                                      |
 | CFG (IO32)    | Disable Ethernet Interface Jumper (10K Pullup Resistor to 3V3) |
 | 485_EN (IO33) | TX LED                                                       |
-| IO35          | Ethernet Only Jumper (10K Pullup Resistor to 3V3)            |
+| IO35          | Disable WiFi Interface Jumper (10K Pullup Resistor to 3V3)   |
 | IO36          | Clear WiFi Credentials Jumper (10K Pullup Resistor to 3V3)   |
 | IO39          | Radio IRQ (10K Pullup Resistor to 3V3)                       |
 | 5V            | 5volt Power Input                                            |
