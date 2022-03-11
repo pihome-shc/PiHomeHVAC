@@ -41,8 +41,13 @@
 /**
  * This version has been modified for use with the WT32-ETH01 module.
  * 
- * THe SPI MISO pin for the ESP32 is normally on pin 13, which is not available on the WT32-ETH01.
+ * efine the SPi pins for use with the WT32-ETH01.
  */
+#define SS 15
+#define MOSI 2
+#define MISO 12
+#define SCK 14
+
 // Enable debug prints to serial monitor
 #define MY_DEBUG
 //Define Sketch Version
