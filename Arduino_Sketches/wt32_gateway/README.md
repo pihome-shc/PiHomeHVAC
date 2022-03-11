@@ -8,7 +8,7 @@
 
 **Jumper to clear EEPROM of saved wireless credentials.**
 
-**Connection can be either WiFi or Ethernet.**
+**Connection can be either WiFi or Ethernet or both.**
 
 ### Pin Usage
 
