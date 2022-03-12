@@ -38,16 +38,6 @@
  * Make sure to fill in your ssid and WiFi password below.
 */
 
-/**
- * This version has been modified for use with the WT32-ETH01 module.
- * 
- * define the SPi pins for use with the WT32-ETH01.
- */
-#define SS 15
-#define MOSI 2
-#define MISO 12
-#define SCK 14
-
 // Enable debug prints to serial monitor
 #define MY_DEBUG
 //Define Sketch Version
@@ -204,6 +194,20 @@ void showRootPage();
 String readableTimestamp(unsigned long milliseconds);
 
 const char* host = "maxairgw";
+
+/**
+ * This version has been modified for use with the WT32-ETH01 module
+ * Define the SPi pins for use with the WT32-ETH01.
+ */
+#define MISO 12
+#define MOSI 2
+#define SCK 14
+#define SS 15
+
+void before(){
+  // Startup up the SPi library, with defined pins.
+  SPI.begin(SCK, MISO, MOSI, SS);
+}
 
 void setup()
 {
