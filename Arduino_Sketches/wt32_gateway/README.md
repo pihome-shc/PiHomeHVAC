@@ -8,7 +8,7 @@
 
 **Jumper to clear EEPROM of saved wireless credentials.**
 
-**Connection can be either WiFi or Ethernet.**
+**Connection can be either WiFi or Ethernet or both.**
 
 ### Pin Mapping
 **Currently there is no Arduino IDE option for the board and in order to implement the SPi connection to the radio module the file pins_arduino.h needs to be customized.**
