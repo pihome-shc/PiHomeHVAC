@@ -1,0 +1,6 @@
+<h1>PiHome - Smart Heating, Ventilation and Air Conditioning (HVAC)</h1>
+<p>Wi-Fi Smart Home Gateway based on MySensors library with NodeMCU and nRF24L01 PA LNA </p>
+<p>For more information check PiHome website <a href="http://www.pihome.eu">http://www.pihome.eu</a></p>
+<h3>Note:</h3>
+<p>Power by micro USB with minimum 2amp for better performance. </p>
+
