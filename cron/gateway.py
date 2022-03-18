@@ -514,7 +514,7 @@ try:
             if time.time() - ping_timer >= 60:
                 ping_timer = time.time()
                 gateway_up = (
-                    True if os.system("ping -c 1 " + gatewaylocation) is 0 else False
+                    True if os.system("ping -c 1 " + gatewaylocation) == 0 else False
                 )
                 if not gateway_up:
                     break
