@@ -103,7 +103,7 @@ def report_recursive(dcmp):
                 copy_dir = True
         # adding a new sub-directory and all its contents or copy file to existing directory
         if copy_dir :
-            cmd = 'install -c -m 644 -g www-data -o www-data ' + dcmp.left + '/' + name + '/*.* ' + update_path + '/' + name
+            cmd = 'rsync -avzh ' + dcmp.left + '/' + name + ' ' + update_path
         else :
             cmd = 'install -c -m 644 -g www-data -o www-data ' + dcmp.left + '/' + name + ' ' + update_path
         os.system(cmd)
