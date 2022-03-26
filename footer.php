@@ -144,12 +144,57 @@ $(document).ready(function(){
  });
 <?php } ?>
 
-<?php if (strtok($_SERVER["REQUEST_URI"], '?') == '/settings.php'){ ?>
+<?php if ($_SERVER['REQUEST_URI'] == '/settings_1.php'){ ?>
 //load settingslist
 $(document).ready(function(){
-	$.get('settingslist.php', function(output) {
-		$('#settingslist').html(output).fadeIn(50);
-	});
+        $.get('settingslist.php?id=1', function(output) {
+                $('#settingslist').html(output).fadeIn(50);
+        });
+ });
+<?php } ?>
+
+<?php if ($_SERVER['REQUEST_URI'] == '/settings_2.php'){ ?>
+//load settingslist
+$(document).ready(function(){
+        $.get('settingslist.php?id=2', function(output) {
+                $('#settingslist').html(output).fadeIn(50);
+        });
+ });
+<?php } ?>
+
+<?php if ($_SERVER['REQUEST_URI'] == '/settings_3.php'){ ?>
+//load settingslist
+$(document).ready(function(){
+        $.get('settingslist.php?id=3', function(output) {
+                $('#settingslist').html(output).fadeIn(50);
+        });
+ });
+<?php } ?>
+
+<?php if ($_SERVER['REQUEST_URI'] == '/settings_4.php'){ ?>
+//load settingslist
+$(document).ready(function(){
+        $.get('settingslist.php?id=4', function(output) {
+                $('#settingslist').html(output).fadeIn(50);
+        });
+ });
+<?php } ?>
+
+<?php if ($_SERVER['REQUEST_URI'] == '/settings_5.php'){ ?>
+//load settingslist
+$(document).ready(function(){
+        $.get('settingslist.php?id=5', function(output) {
+                $('#settingslist').html(output).fadeIn(50);
+        });
+ });
+<?php } ?>
+
+<?php if ($_SERVER['REQUEST_URI'] == '/settings_6.php'){ ?>
+//load settingslist
+$(document).ready(function(){
+        $.get('settingslist.php?id=6', function(output) {
+                $('#settingslist').html(output).fadeIn(50);
+        });
  });
 <?php } ?>
 
