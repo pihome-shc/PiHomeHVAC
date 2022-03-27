@@ -429,29 +429,8 @@ if ($settings_id <= 3) {
 				</div>
 			<?php } ?>
 		<?php
-                switch ($settings_id) {
-                        case 1:
-                                include("model_set1.php");
-                                break;
-                        case 2:
-                                include("model_set2.php");
-                                break;
-                        case 3:
-                                include("model_set3.php");
-                                break;
-                        case 4:
-                                include("model_set4.php");
-                                break;
-                        case 5:
-                                include("model_set5.php");
-                                break;
-                        case 6:
-                                include("model_set6.php");
-                                break;
-                        default:
-                                include("model.php");
-                }
-		include("model_shutdown_reboot.php");
+		$model_num = $settings_id;
+		include("model.php");
                 ?>
 
 	        </div>

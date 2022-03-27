@@ -498,6 +498,9 @@ echo '<div class="modal fade" id="mqtt_devices" tabindex="-1" role="dialog" aria
 
 <script>
 $(document).ready(function(){
+  $('[data-toggle="popover"]').popover();
+});
+
 $('[data-toggle=confirmation]').confirmation({
   rootSelector: '[data-toggle=confirmation]',
   container: 'body'

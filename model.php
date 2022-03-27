@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
              __  __                             _
             |  \/  |                    /\     (_)
@@ -18,48 +18,7 @@
 * WHAT YOU ARE DOING                                                    *"
 *************************************************************************"
 */
-//PiConnect Settings
-echo '
-<div class="modal fade" id="piconnect" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">PiConnect '.$lang['settings'].'</h5>
-            </div>
-            <div class="modal-body">
-<p class="text-muted"> 
-'.$lang['piconnect_text'].'</a></p>';
-$query = "SELECT * FROM piconnect";
-$result = $conn->query($query);
-$row = mysqli_fetch_array($result);
-$status = $row['status'];
-$api_key = $row['api_key'];
-	echo '
-		<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
-		<div class="form-group" class="control-label">
-		<div class="checkbox checkbox-default checkbox-circle">';
-		if ($row['status'] == '1'){
-			echo '<input id="checkbox0" class="styled" type="checkbox" value="1" name="status" checked>';
-		}else {
-			echo '<input id="checkbox0" class="styled" type="checkbox" value="1" name="status">';
-		}
-	echo'
-		<label for="checkbox0"> Enable PiConnect</label></div>
-		<div class="form-group" class="control-label"><label>API Key</label>
-		<input class="form-control input-sm" type="text" id="api_key" name="api_key" value="'.$row["api_key"].'" placeholder="PiConnect API Key">
-		<div class="help-block with-errors"></div></div>';
-echo '<br>
-<h5 class="strong red" >'.$lang['piconnect_notice_text'].'</h5>';
-echo '</div></div>
-            <div class="modal-footer">
-			    <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['cancel'].'</button>
-                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="setup_piconnect()">
-             </div>
-        </div>
-    </div>
-</div>';
-
+if ($model_num == 1) {
 // show frost protection
 echo '<div class="modal fade" id="show_frost" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -115,6 +74,667 @@ echo '<div class="modal fade" id="show_frost" tabindex="-1" role="dialog" aria-l
     </div>
 </div>';
 
+//last job log status model
+echo '
+<div class="modal fade" id="status_job" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                                <h5 class="modal-title">'.$lang['jobs_status_log'].'</h5>
+                        </div>
+                        <div class="modal-body">
+                                <div class="form-group" class="control-label"><label>'.$lang['jobs_name'].'</label> <small class="text-muted">'.$lang['last_job_log_info'].'</small>
+                                        <select class="form-control input-sm" type="text" id="job_name" name="job_name" onchange=last_job_log(this.options[this.selectedIndex].value)>';
+                                        //get list of heat relays to display
+                                        $query = "SELECT id, job_name, output FROM jobs;";
+                                        $result = $conn->query($query);
+                                        if ($result){
+                                                while ($jrow=mysqli_fetch_array($result)) {
+                                                        echo '<option value="'.$jrow['output'].'">'.$jrow['job_name'].'</option>';
+                                                }
+                                        }
+                                        echo '</select>
+                                        <div class="help-block with-errors"></div>
+                                </div>
+                                <!-- /.form-group -->';
+                                $query = "select id, output from jobs where id = 1 limit 1";
+                                $results = $conn->query($query);
+                                $row = mysqli_fetch_assoc($results);
+                                echo '<textarea id="job_status_text" style="background-color: black;color:#fff;height: 500px; min-width: 100%"><pre>'.$row['output'].'</pre></textarea>
+                        </div>
+                        <div class="modal-footer" id="ajaxModalFooter_1">
+                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Close</button>
+                        </div>
+                </div>
+        </div>
+</div>';
+?>
+<script>
+function last_job_log(value){
+        var valuetext = value;
+        document.getElementById("job_status_text").value = valuetext;
+}
+</script>
+<?php
+
+// Last Software Install Model
+echo '<div class="modal" id="last_sw_install" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">'.$lang['close'].'</span></button>
+          <h4 class="modal-title">'.$lang['last_sw_install'].'</h4>
+      </div>
+      <div class="modal-body">';
+        $output = file_get_contents('/var/www/cron/sw_install.txt');
+        echo '<textarea id="install_status_text" style="background-color: black;color:#fff;height: 500px; min-width: 100%">'.$output.'</textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+      </div>
+    </div>
+  </div>
+</div>';
+
+// Documentation Model
+echo '<div class="modal" id="documentation" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">'.$lang['close'].'</span></button>
+          <h4 class="modal-title">'.$lang['documentation'].'</h4>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted">'.$lang['documentation_info'].'</p>
+        <div class=\"list-group\">';
+                $path = '/var/www/documentation/pdf_format';
+                $allFiles = array_diff(scandir($path . "/"), [".", ".."]); // Use array_diff to remove both period values eg: ("." , "..")
+                foreach ($allFiles as $value) {
+			$title = substr($value, 0, -4);
+                        echo '<span class="list-group-item">
+                        <i class="fa fa-file fa-2x orange"></i> '.$lang[$title].'<a href="pdf_download.php?file='.$value.'" target="_blank">
+                        <button type="button" class="pull-right btn btn-default login btn-sm" >'.$lang['open'].'</button></a></span>';
+                }
+        echo '</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+      </div>
+    </div>
+  </div>
+</div>';
+
+//OS version model
+//$osversion = exec ("cat /etc/os-release");
+//$lines=file('/etc/os-release');
+$lines=array();
+$fp=fopen('/etc/os-release', 'r');
+while ($fp && !feof($fp)){
+    $line=fgets($fp);
+    //process line however you like
+    $line=trim($line);
+    //add to array
+    $lines[]=$line;
+}
+fclose($fp);
+echo '
+<div class="modal fade" id="os_version" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['os_version'].'</h5>
+            </div>
+            <div class="modal-body">
+			   <div class="list-group">
+				<a href="#" class="list-group-item"><i class="fa fa-linux"></i> '.$lines[1].'</a>
+				<a href="#" class="list-group-item"><i class="fa fa-linux"></i> '.$lines[3].'</a>
+				</div>
+           </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+            </div>
+        </div>
+    </div>
+</div>';
+
+//MaxAir Versions
+echo '
+<div class="modal fade" id="maxair_versions" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                                <h5 class="modal-title">'.$lang['maxair_versions'].'</h5>
+                        </div>
+                        <div class="modal-body">';
+                                $file1 = file('/var/www/st_inc/db_config.ini');
+                                $pieces =  explode(' ', $file1[count($file1) - 4]);
+                                $code_v_installed = array_pop($pieces);
+                                $pieces =  explode(' ', $file1[count($file1) - 3]);
+                                $code_b_installed = array_pop($pieces);
+                                $pieces =  explode(' ', $file1[count($file1) - 2]);
+                                $db_v_installed = array_pop($pieces);
+                                $pieces =  explode(' ', $file1[count($file1) - 1]);
+                                $db_b_installed = array_pop($pieces);
+
+                                $query = "SELECT name FROM repository WHERE status = 1 LIMIT 1;";
+                                $result = $conn->query($query);
+                                $row = mysqli_fetch_assoc($result);
+                                $file2 = file('https://raw.githubusercontent.com/'.$row['name'].'/PiHomeHVAC/master/st_inc/db_config.ini');
+                                $pieces =  explode(' ', $file2[count($file2) - 4]);
+                                $code_v_github = array_pop($pieces);
+                                $pieces =  explode(' ', $file2[count($file2) - 3]);
+                                $code_b_github = array_pop($pieces);
+                                $pieces =  explode(' ', $file2[count($file2) - 2]);
+                                $db_v_github = array_pop($pieces);
+                                $pieces =  explode(' ', $file2[count($file2) - 1]);
+                                $db_b_github = array_pop($pieces);
+
+                                echo '<p class="text-muted"> '.$lang['maxair_versions_text'].' <br>'.$lang['repository'].' - https://github.com/'.$row['name'].'/PiHomeHVAC.git</p>
+                                <table class="table table-bordered">
+                                        <tr>
+                                                <th class="col-xs-8"></th>
+                                                <th class="col-xs-2" "not_mapped_style" style="text-align:center">'.$lang['maxair_update_installed'].'</th>
+                                                <th class="col-xs-2" "not_mapped_style" style="text-align:center">'.$lang['maxair_update_github'].'</th>
+                                        </tr>
+
+                                        <tr>
+                                                <td style="font-weight:bold">'.$lang['maxair_update_code_v'].'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$code_v_installed.'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$code_v_github.'</td>
+                                        </tr>
+                                        <tr>
+                                                <td style="font-weight:bold">'.$lang['maxair_update_code_b'].'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$code_b_installed.'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$code_b_github.'</td>
+                                        </tr>
+                                        <tr>
+                                                <td style="font-weight:bold">'.$lang['maxair_update_db_v'].'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$db_v_installed.'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$db_v_github.'</td>
+                                        </tr>
+                                        <tr>
+                                                <td style="font-weight:bold">'.$lang['maxair_update_db_b'].'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$db_b_installed.'</td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$db_b_github.'</td>
+                                        </tr>';
+
+                                echo '</table>
+                        </div>
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                        </div>
+                </div>
+        </div>
+</div>';
+
+//wifi model
+$rxwifidata = exec ("cat /sys/class/net/wlan0/statistics/rx_bytes");
+$txwifidata = exec ("cat /sys/class/net/wlan0/statistics/tx_bytes");
+$rxwifidata = $rxwifidata/1024; // convert to kb
+$rxwifidata = $rxwifidata/1024; // convert to mb
+
+$txwifidata = $txwifidata/1024; // convert to kb
+$txwifidata = $txwifidata/1024; // convert to mb
+$wifimac = exec ("cat /sys/class/net/wlan0/address");
+//$wifipeed = exec ("cat /sys/class/net/wlan0/speed");
+//$wifipeed = exec("iwconfig wlan0 | grep -i --color quality");
+$wifistatus = exec ("cat /sys/class/net/wlan0/operstate");
+echo '
+<div class="modal fade" id="wifi_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['wifi_settings'].'</h5>
+            </div>
+            <div class="modal-body">
+			<p class="text-muted"> '.$lang['wifi_settings_text'].' </p>
+<div class="list-group">
+<a href="#" class="list-group-item">
+<i class="fa fa-signal green"></i> '.$lang['status'].': '.$wifistatus.'
+</a>
+<a href="#" class="list-group-item">
+<i class="fa fa-signal green"></i> '.$lang['mac'].': '.$wifimac.'
+</a>
+<a href="#" class="list-group-item">
+<i class="fa fa-signal green"></i> '.$lang['download'].': '.number_format($rxwifidata,0).' MB 
+</a>
+<a href="#" class="list-group-item">
+<i class="fa fa-signal green"></i> '.$lang['upload'].': '.number_format($txwifidata,0).' MB 
+</a>
+</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+            </div>
+        </div>
+    </div>
+</div>';
+
+//ethernet model
+$rxdata = exec ("cat /sys/class/net/eth0/statistics/rx_bytes");
+$txdata = exec ("cat /sys/class/net/eth0/statistics/tx_bytes");
+$rxdata = $rxdata/1024; // convert to kb
+$rxdata = $rxdata/1024; // convert to mb
+$txdata = $txdata/1024; // convert to kb
+$txdata = $txdata/1024; // convert to mb
+$nicmac = exec ("cat /sys/class/net/eth0/address");
+$nicpeed = exec ("cat /sys/class/net/eth0/speed");
+$nicactive = exec ("cat /sys/class/net/eth0/operstate");
+echo '
+<div class="modal fade" id="eth_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['ethernet_settings'].'</h5>
+            </div>
+            <div class="modal-body">
+			   <div class="list-group">
+				<a href="#" class="list-group-item"><i class="ionicons ion-network green"></i>
+				'.$lang['status'].': '.$nicactive.'</a>
+				<a href="#" class="list-group-item"><i class="ionicons ion-network green"></i>
+				'.$lang['speed'].': '.$nicpeed.'Mb</a>
+				<a href="#" class="list-group-item"><i class="ionicons ion-network green"></i>
+				'.$lang['mac'].': '.$nicmac.'</a>
+				<a href="#" class="list-group-item"><i class="ionicons ion-network green"></i>
+				'.$lang['download'].': '.number_format($rxdata,0).' MB </a> 
+				<a href="#" class="list-group-item"><i class="ionicons ion-network green"></i>
+				'.$lang['upload'].': '.number_format($txdata,0).' MB </a>
+				</div>
+           </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+            </div>
+        </div>
+    </div>
+</div>';
+
+//Big Thank you
+echo '
+<div class="modal fade" id="big_thanks" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['credits'].'</h5>
+            </div>
+            <div class="modal-body">
+<p class="text-muted"> '.$lang['credits_text'].' </p>';
+echo '	<div class=\"list-group\">';
+echo " 
+
+<a href=\"http://startbootstrap.com/template-overviews/sb-admin-2\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> SB Admin 2 Template <span class=\"pull-right text-muted small\"><em>...</em></span></a>
+<a href=\"http://www.cssscript.com/pretty-checkbox-radio-inputs-bootstrap-awesome-bootstrap-checkbox-css\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> Pretty Checkbox <span class=\"pull-right text-muted small\"><em>...</em></span></a>
+<a href=\"https://fortawesome.github.io/Font-Awesome\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> Font-Awesome <span class=\"pull-right text-muted small\"><em>...</em></span></a>
+<a href=\"http://ionicons.com\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> Ionicons <span class=\"pull-right text-muted small\"><em>...</em></span></a>
+<a href=\"http://www.cssmatic.com/box-shadow\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> Box Shadow CSS <span class=\"pull-right text-muted small\"><em>...</em></span></a>
+<a href=\"https://daneden.github.io/animate.css\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> Animate.css <span class=\"pull-right text-muted small\"><em>...</em></span></a>
+<a href=\"https://www.mysensors.org\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> MySensors <span class=\"pull-right text-muted small\"><em>...</em></span></a>
+<a href=\"http://www.pihome.eu\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> All others if forget them... <span class=\"pull-right text-muted small\"><em>...</em></span></a>
+<a href=\"http://pihome.harkemedia.de\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> RaspberryPi Home Automation <span class=\"pull-right text-muted small\"><em>...</em></span></a>
+";
+echo '</div></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+            </div>
+        </div>
+    </div>
+</div>';
+}
+
+if ($model_num == 2) {
+//Software Install Modal
+echo '
+<div class="modal fade" id="sw_install" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                                <h5 class="modal-title">'.$lang['software_install'].'</h5>
+		                <div class="dropdown pull-right">
+                		        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                		<i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+		                        </a>
+                		        <ul class="dropdown-menu">
+                                		<li><a href="pdf_download.php?file=software_install.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['software_install'].'</a></li>
+						<li class="divider"></li>
+						<li><a href="pdf_download.php?file=software_install_technical.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['software_install_technical'].'</a></li>
+                                                <li class="divider"></li>
+                        			<li><a href="pdf_download.php?file=setup_guide_ha_integration.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_guide_ha_integration'].'</a></li>
+                         		</ul>
+                		</div>
+                        </div>
+                        <div class="modal-body">
+                                <p class="text-muted">'.$lang['install_software_text'].'</p>
+                                <div class=\"list-group\">';
+                                        $installpath = "/var/www/api/enable_rewrite.sh";
+                                        $installname = "Install Apache ReWrite";
+                                        if (file_exists("/etc/apache2/mods-available/rewrite.load")) {
+                                                $prompt = $lang['re_install'];
+                                        } else {
+                                                $prompt = $lang['install'];
+                                        }
+                                        echo '<span class="list-group-item">
+                                        <i class="fa fa-terminal fa-2x green"></i> '.$installname.'
+                                        <span class="pull-right text-muted small"><button type="button" class="btn btn-default login btn-sm"
+                                        onclick="install_software(`'.$installpath.'`)">'.$prompt.'</button></span>
+                                        <p class="text-muted">Install ReWrite for Apache Web Server</p></span>';
+                                        $path = '/var/www/add_on';
+                                        $dir = new DirectoryIterator($path);
+                                        foreach ($dir as $fileinfo) {
+                                                if ($fileinfo->isDir() && !$fileinfo->isDot()) {
+                                                        $installpath = $path."/".$fileinfo->getFilename()."/install.sh";
+                                                        if (file_exists($installpath)) {
+                                                                $contents = file_get_contents($installpath);
+                                                                $searchfor = 'app_name';
+                                                                $pattern = preg_quote($searchfor, '/');
+                                                                $pattern = "/^.*$pattern.*\$/m";
+                                                                if(preg_match_all($pattern, $contents, $matches)){
+                                                                        $str = implode("\n", $matches[0]);
+                                                                        $name = explode(':',$str)[1];
+                                                                } else {
+                                                                        $name = $fileinfo->getFilename();
+                                                                }
+                                                                $searchfor = 'app_description';
+                                                                $pattern = preg_quote($searchfor, '/');
+                                                                $pattern = "/^.*$pattern.*\$/m";
+                                                                if(preg_match_all($pattern, $contents, $matches)){
+                                                                        $str = implode("\n", $matches[0]);
+                                                                        $description = explode(':',$str)[1];
+                                                                } else {
+                                                                        $description = '';
+                                                                }
+                                                                $searchfor = 'service_name';
+                                                                $pattern = preg_quote($searchfor, '/');
+                                                                $pattern = "/^.*$pattern.*\$/m";
+                                                                if(preg_match_all($pattern, $contents, $matches)){
+                                                                        $str = implode("\n", $matches[0]);
+                                                                        $service_name = explode(':',$str);
+                                                                        $rval=my_exec("/bin/systemctl status " . $service_name[1]);
+                                                                        if ($rval['stdout']=='') { $installed = 0; } else { $installed = 1; }
+                                                                } else {
+                                                                        $instaleed = 2;
+                                                                }
+                                                                echo '<span class="list-group-item">
+                                                                <i class="fa fa-terminal fa-2x green"></i> '.$name;
+                                                                if ($installed == 0) {
+                                                                        echo '<span class="pull-right text-muted small"><button type="button" class="btn btn-default login btn-sm"
+                                                                        onclick="install_software(`'.$installpath.'`)">'.$lang['install'].'</button></span>';
+
+                                                                } elseif ($installed == 1) {
+                                                                        echo '<span class="pull-right text"><p> '.$lang['already_installed'].'</p></span>';
+                                                                } else {
+                                                                        echo '<span class="pull-right text"><p> '.$lang['no_installer'].'</p></span>';
+                                                                }
+                                                                echo '<p class="text-muted">'.$description.'</p></span>';
+                                                        }
+                                                }
+                                        }
+                                echo '</div>
+                        </div>
+                        <!-- /.modal-body -->
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                        </div>
+                        <!-- /.modal-footer -->
+                </div>
+                <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+</div>
+<!-- /.modal-fade -->
+';
+
+// Software Install Add
+echo '<div class="modal" id="add_install">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">'.$lang['close'].'</span></button>
+          <h4 class="modal-title">'.$lang['installing_sw'].'</h4>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted">'.$lang['installing_sw_info'].'</p>';
+        $output = file_get_contents('/var/www/cron/sw_install.txt');
+        echo '<textarea id="install_status_text" style="background-color: black;color:#fff;height: 500px; min-width: 100%"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary btn-sm" onclick="sw_install_close()">'.$lang['close'].'</button>
+      </div>
+    </div>
+  </div>
+</div>';
+
+//MaxAir Code Update
+echo '
+<div class="modal fade" id="maxair_update" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['maxair_update'].'</h5>
+                <div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=software_update_technical.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['software_update_technical'].'</a></li>
+                        </ul>
+                </div>
+            </div>
+            <div class="modal-body">
+                        <p class="text-muted"> '.$lang['maxair_update_text'].' </p>';
+            echo '</div>
+            <div class="modal-footer">
+                <input type="button" name="submit" value="'.$lang['update_check'].'" class="btn btn-default login btn-sm" onclick="check_updates()">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+            </div>
+        </div>
+    </div>
+</div>';
+
+// backup_image
+echo '
+<div class="modal fade" id="backup_image" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['pihome_backup'].'</h5>
+                <div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=setup_database_backup.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_database_backup'].'</a></li>
+                                <li class="divider"></li>
+                        	<li><a href="pdf_download.php?file=setup_email_notifications.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_email_notifications'].'</a></li>
+                        </ul>
+                </div>
+            </div>
+            <div class="modal-body">
+			<p class="text-muted"> '.$lang['pihome_backup_text'].' </p>
+			<form data-toggle="validator" role="form" method="post" action="#" id="form-join">
+			<div class="form-group" class="control-label"><label>'.$lang['email_address'].'</label> <small class="text-muted">'.$lang['pihome_backup_email_info'].'</small>
+			<input class="form-control input-sm" type="text" id="backup_email" name="backup_email" value="'.settings($conn, backup_email).'" placeholder="Email Address to Receive your Backup file">
+			<div class="help-block with-errors"></div>
+			</div>
+			</form>';
+echo '     </div>
+            <div class="modal-footer">
+			<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                        <a href="javascript:backup_email_update()"><button class="btn btn-default login btn-sm" data-toggle="confirmation" data-title="'.$lang['update_email_address'].'">'.$lang['save'].'</button> </a>
+			<a href="javascript:db_backup()" class="btn btn-default login btn-sm">'.$lang['backup_start'].'</a>
+            </div>
+        </div>
+    </div>
+</div>';
+
+//user accounts model
+echo '
+<div class="modal fade" id="user_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['user_accounts'].'</h5>
+            </div>
+            <div class="modal-body">
+			<p class="text-muted"> '.$lang['user_accounts_text'].' </p>';
+echo '<div class=\"list-group\">';
+$query = "SELECT * FROM user";
+$results = $conn->query($query);
+while ($row = mysqli_fetch_assoc($results)) {
+	$full_name=$row['fullname'];
+	$username=$row['username'];
+        if ($_SESSION['user_id'] == $row['id']) { $username .= " (Logged On)"; }
+        if($row['account_enable'] == 1) {
+                $content_msg="You are about to DELETE an ENABLED USER";
+        } else {
+                $content_msg="You are about to DELETE a CURRENTLY DISABLED USER";
+        }
+        echo "<div href=\"settings.php?uid=".$row['id']."\"  class=\"list-group-item\"> <i class=\"ionicons ion-person blue\"></i> ".$username."
+                <span class=\"pull-right text-muted small\"><em>
+                <a href=\"user_accounts.php?uid=".$row["id"]."\"><button class=\"btn btn-default btn-xs login\"><span class=\"ionicons ion-edit\"></span></button>&nbsp</a>";
+                if ($_SESSION['user_id'] != $row['id']) {
+                        echo "<a href=\"javascript:del_user(".$row["id"].");\"><button class=\"btn btn-danger btn-xs\" data-toggle=\"confirmation\" data-title=".$lang["confirmation"]." data-content=\"$content_msg\"><span class=\"glyphicon glyphicon-trash\"></span></button></a>";
+                } else {
+                        echo "<button class=\"btn btn-danger btn-xs disabled\"><span class=\"glyphicon glyphicon-trash\"></span></button>";
+                }
+                echo "</em></span>
+        </div>";
+}
+echo '</div></div>
+            <div class="modal-footer">
+                <a href="user_accounts.php?uid=0"><button class="btn btn-default login btn-sm">'.$lang['add_user'].'</button></a>
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+            </div>
+        </div>
+    </div>
+</div>';
+
+//Setup Database Cleanup intervals
+echo '<div class="modal fade" id="db_cleanup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['db_cleanup'].'</h5>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">'.$lang['db_cleanup_text'].'</p>
+                <table class="table table-bordered">
+                        <tr>
+                                <th class="col-md-2 text-center"><small>'.$lang['table_name'].'</small></th>
+                                <th class="col-md-1 text-center"><small>'.$lang['db_cleanup_value'].'</small></th>
+                                <th class="col-md-1 text-center"><small>'.$lang['db_cleanup_period'].'</small></th>
+                        </tr>';
+			$query = "SELECT * FROM db_cleanup LIMIT 1;";
+			$result = $conn->query($query);
+			$db_row = mysqli_fetch_assoc($result);
+                        $query = "SELECT column_name
+				FROM INFORMATION_SCHEMA.COLUMNS
+				WHERE TABLE_SCHEMA = 'maxair' AND table_name = 'db_cleanup' AND ordinal_position > 3
+				ORDER BY ordinal_position;";
+			$results = $conn->query($query);
+			$x = 0;
+                        while ($row = mysqli_fetch_assoc($results)) {
+                                $col_name = $row["column_name"];
+				$per_int = $db_row[$col_name];
+				$pieces = explode(" ", $per_int);
+				$period = $pieces[0];
+                                $interval = $pieces[1];
+                                echo '<tr>
+                                        <td>'.$row["column_name"].'</td>
+                                        <td><input id="period'.$x.'" type="text" class="pull-left text" style="border: none" name="period'.$x.'"  size="3" value="'.$period.'" placeholder="Period" required></td>
+                                        <td><select class="form-control input-sm" type="text" id="ival'.$x.'" name="ival'.$x.'" onchange=set_interval('.$x.')>
+                                                <option value="HOUR" ' . ($interval=='HOUR' ? 'selected' : '') . '>'.$lang['HOUR'].'</option>
+                                                <option value="DAY" ' . ($interval=='DAY' ? 'selected' : '') . '>'.$lang['DAY'].'</option>
+                                                <option value="WEEK" ' . ($interval=='WEEK' ? 'selected' : '') . '>'.$lang['WEEK'].'</option>
+                                                <option value="MONTH" ' . ($interval=='MONTH' ? 'selected' : '') . '>'.$lang['MONTH'].'</option>
+                                        </select></td>
+					<input type="hidden" id="set_interval'.$x.'" name="set_interval_type" value="'.$interval.'">
+                                </tr>';
+				$x = $x + 1;
+                        }
+                echo '</table>
+            </div>
+                <div class="modal-footer">
+                        <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                        <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="set_db_cleanup()">
+            </div>
+        </div>
+    </div>
+</div>';
+
+//set GitHub Repository location
+echo '<div class="modal fade" id="set_repository" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['github_repository'].'</h5>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">'.$lang['github_repository_text'].'</p>';
+                $query = "SELECT id, status, name FROM repository;";
+                $results = $conn->query($query);
+                echo '<div class="form-group" class="control-label"><label>'.$lang['repository_url'].'</label> <small class="text-muted"> (Default Repository is - '.$lang['default_repository'].')</small>
+                <select class="form-control input-sm" type="text" id="rep_id" name="rep_id" >';
+                if ($results){
+                        while ($frow=mysqli_fetch_array($results)) {
+                                echo '<option value="'.$frow['id'].'" ' . ($frow['status']==1 ? 'selected' : '') . '>https://github.com/'.$frow['name'].'/PiHomeHVAC.git</option>';
+                        }
+                }
+                echo '</select>
+                	<div class="help-block with-errors"></div>
+                </div>
+            </div>
+                <div class="modal-footer">
+                        <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                        <input type="button" name="submit" value="'.$lang['set_default'].'" class="btn btn-default login btn-sm" onclick="set_default()">
+                        <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="set_repository()">
+            </div>
+        </div>
+    </div>
+</div>';
+
+//set max cpu temperature
+echo '<div class="modal fade" id="max_cpu_temp" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['max_cpu_temp'].'</h5>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">'.$lang['max_cpu_temp_text'].'</p>';
+                $query = "SELECT max_cpu_temp FROM system LIMIT 1;";
+                $result = $conn->query($query);
+		$row = mysqli_fetch_array($result);
+                echo '<div class="form-group" class="control-label"><label>'.$lang['temperature'].'</label> <small class="text-muted"> </small>
+                <select class="form-control input-sm" type="text" id="m_cpu_temp" name="m_cpu_temp" >';
+                for ($x = 40; $x <=  70; $x = $x + 5) {
+                	echo '<option value="'.$x.'" ' . ($x==$row['max_cpu_temp'] ? 'selected' : '') . '>'.$x.'&deg;</option>';
+                }
+                echo '</select>
+                        <div class="help-block with-errors"></div>
+                </div>
+            </div>
+                <div class="modal-footer">
+                        <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                        <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="set_max_cpu_temp()">
+            </div>
+        </div>
+    </div>
+</div>';
+}
+
+if ($model_num == 3) {
 //System Mode
 $system_mode = settings($conn, 'mode');
 echo '
@@ -141,7 +761,6 @@ echo '
                 <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="update_system_mode()">
             </div>
         </div>
-
     </div>
 </div>';
 
@@ -187,7 +806,6 @@ echo '
                 <h5 class="modal-title">'.$lang['language'].'</h5>
             </div>
             <div class="modal-body">
-
 				<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
 				<div class="form-group" class="control-label"><label>'.$lang['language'].'</label>
 				<select class="form-control input-sm" type="text" id="new_lang" name="new_lang">';
@@ -301,6 +919,532 @@ echo '
     </div>
 </div>';
 
+//network settings model
+echo '
+<div class="modal fade" id="network_setting" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['network_settings'].'</h5>
+            </div>
+            <div class="modal-body">';
+
+$query = "SELECT * FROM `network_settings` ORDER BY `id` ASC;";
+$result = $conn->query($query);
+
+$rowArray = array();
+
+while($row = mysqli_fetch_assoc($result)) {
+   $rowArray[] = $row;
+}
+
+echo '<p class="text-muted">'.$lang['network_text'].'</p>';
+echo '
+        <form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
+        <input class="form-control input-sm" type="hidden" id="n_int_type" name="n_int_type" value="'.$rowArray[0]['interface_type'].'"/>
+        <div class="form-group" class="control-label"><label>'.$lang['network_interface'].'</label>
+                <select class="form-control input-sm" type="text" id="n_int_num" name="n_int_num" onchange=change(this.options[this.selectedIndex].value)>
+                <option value=0>wlan0</option>
+                <option value=1>wlan1</option>
+                <option value=2>eth0</option>
+                <option value=3>eth1</option>
+                </select>
+                <div class="help-block with-errors">
+                </div>
+        </div>
+        <div class="form-group" class="control-label"><label>'.$lang['network_primary'].'</label>
+                <select class="form-control input-sm" type="text" id="n_primary" name="n_primary">
+                <option value=0>No</option>
+                <option selected value=1>Yes</option>
+                </select>
+                <div class="help-block with-errors">
+                </div>
+        </div>
+        <div class="form-group" class="control-label"><label>'.$lang['network_ap_mode'].'</label>
+                <select class="form-control input-sm" type="text" id="n_ap_mode" name="n_ap_mode">
+                <option selected value=0>No</option>
+                <option value=1>Yes</option>
+                </select>
+                <div class="help-block with-errors">
+                </div>
+        </div>
+        <div class="form-group" class="control-label"><label>'.$lang['network_mac_address'].'</label>
+                <input class="form-control input-sm" type="text" id="n_mac" name="n_mac" value="'.$rowArray[0]['mac_address'].'" placeholder="MAC Address">
+                <div class="help-block with-errors">
+                </div>
+        </div>
+        <div class="form-group" class="control-label"><label>'.$lang['network_hostname'].'</label>
+                <input class="form-control input-sm" type="text" id="n_hostname" name="n_hostname" value="'.$rowArray[0]['hostname'].'" placeholder="Hostname">
+                <div class="help-block with-errors">
+                </div>
+        </div>
+        <div class="form-group" class="control-label"><label>'.$lang['network_ip_address'].'</label>
+                <input class="form-control input-sm" type="text" id="n_ip" name="n_ip" value="'.$rowArray[0]['ip_address'].'" placeholder="IP Address">
+                <div class="help-block with-errors">
+                </div>
+        </div>
+        <div class="form-group" class="control-label"><label>'.$lang['network_gateway_address'].'</label>
+                <input class="form-control input-sm" type="text" id="n_gateway" name="n_gateway" value="'.$rowArray[0]['gateway_address'].'" placeholder="Gateway Address">
+                <div class="help-block with-errors">
+                </div>
+        </div>
+        <div class="form-group" class="control-label"><label>'.$lang['network_net_mask'].'</label>
+                <input class="form-control input-sm" type="text" id="n_net_mask" name="n_net_mask" value="'.$rowArray[0]['net_mask'].'" placeholder="Net Mask">
+                <div class="help-block with-errors">
+                </div>
+        </div>
+        <div class="form-group" class="control-label"><label>'.$lang['network_dns1_address'].'</label>
+                <input class="form-control input-sm" type="text" id="n_dns1" name="n_dns1" value="'.$rowArray[0]['dns1_address'].'" placeholder="DNS1 Address">
+                <div class="help-block with-errors">
+                </div>
+        </div>
+        <div class="form-group" class="control-label"><label>'.$lang['network_dns2_address'].'</label>
+                <input class="form-control input-sm" type="text" id="n_dns2" name="n_dns2" value="'.$rowArray[0]['dns2_address'].'" placeholder="DNS2 Address">
+                <div class="help-block with-errors">
+                </div>
+        </div>
+        </div>
+        <!-- /.modal-body -->
+            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="setup_network()">
+            </div>
+            <!-- /.modal-footer -->
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal-fade -->
+';
+?>
+<script>
+function change(value){
+        var jArray = <?php echo json_encode($rowArray); ?>;
+        var valuetext = value;
+        document.getElementById("n_primary").value = jArray[value]['primary_interface'];
+        document.getElementById("n_mac").value = jArray[value]['mac_address'];
+        document.getElementById("n_hostname").value = jArray[value]['hostname'];
+        document.getElementById("n_ip").value = jArray[value]['ip_address'];
+        document.getElementById("n_gateway").value = jArray[value]['gateway_address'];
+        document.getElementById("n_net_mask").value = jArray[value]['net_mask'];
+        document.getElementById("n_dns1").value = jArray[value]['dns1_address'];
+        document.getElementById("n_dns2").value = jArray[value]['dns2_address'];
+        switch (value) {
+                case '0':
+                        document.getElementById("n_int_type").value = 'wlan0';
+                        break;
+                case '1':
+                        document.getElementById("n_int_type").value = 'wlan1';
+                        break;
+                case '2':
+                        document.getElementById("n_int_type").value = 'eth0';
+                        break;
+                case '3':
+                        document.getElementById("n_int_type").value = 'eth1';
+                        break;
+                default:
+        }
+}
+</script>
+<?php
+
+//email settings model
+echo '
+<div class="modal fade" id="email_setting" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['email_settings'].'</h5>
+                <div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                        	<li><a href="pdf_download.php?file=setup_email_notifications.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_email_notifications'].'</a></li>
+                        </ul>
+                </div>
+            </div>
+            <div class="modal-body">';
+$gquery = "SELECT * FROM email";
+$gresult = $conn->query($gquery);
+$erow = mysqli_fetch_array($gresult);
+
+echo '<p class="text-muted">'.$lang['email_text'].'</p>';
+echo '
+	<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
+	<div class="form-group" class="control-label">
+	<div class="checkbox checkbox-default checkbox-circle">';
+	if ($erow['status'] == '1'){
+		echo '<input id="checkbox3" class="styled" type="checkbox" value="1" name="status" checked>';
+	}else {
+		echo '<input id="checkbox3" class="styled" type="checkbox" value="1" name="status">';
+	}
+echo '
+	<label for="checkbox3"> '.$lang['email_enable'].'</label></div></div>
+	<div class="form-group" class="control-label"><label>'.$lang['email_smtp_server'].'</label>
+	<input class="form-control input-sm" type="text" id="e_smtp" name="e_smtp" value="'.$erow['smtp'].'" placeholder="e-mail SMTP Server Address ">
+	<div class="help-block with-errors"></div></div>
+        <div class="form-group" class="control-label"><label>'.$lang['port'].'</label>
+        <select class="form-control input-sm" type="text" id="e_port" name="e_port" >
+                <option value="25" ' . ($erow['port']==25 ? 'selected' : '') . '>25</option>
+                <option value="465" ' . ($erow['port']==465 ? 'selected' : '') . '>465</option>
+        </select>
+        <div class="help-block with-errors"></div></div>
+	<div class="form-group" class="control-label"><label>'.$lang['email_username'].' </label>
+	<input class="form-control input-sm" type="text" id="e_username" name="e_username" value="'.$erow['username'].'" placeholder="Username for e-mail Server">
+	<div class="help-block with-errors"></div></div>
+	<div class="form-group" class="control-label"><label>'.$lang['email_password'].' </label>
+	<input class="form-control input-sm" type="password" id="e_password" name="e_password" value="'.$erow['password'].'" placeholder="Password for e-mail Server">
+	<div class="help-block with-errors"></div></div>
+	<div class="form-group" class="control-label"><label>'.$lang['email_from_address'].' </label>
+	<input class="form-control input-sm" type="text" id="e_from_address" name="e_from_address" value="'.$erow['from'].'" placeholder="From e-mail" >
+	<div class="help-block with-errors"></div></div>
+	<div class="form-group" class="control-label"><label>'.$lang['email_to_address'].' </label>
+	<input class="form-control input-sm" type="text" id="e_to_address" name="e_to_address" value="'.$erow['to'].'" placeholder="To e-mail Address">
+	<div class="help-block with-errors"></div></div>';
+
+echo '</div>
+            <div class="modal-footer">
+				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+				<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="setup_email()">
+            </div>
+        </div>
+    </div>
+</div>';
+
+//Time Zone
+echo '
+<div class="modal fade" id="time_zone" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['time_zone'].'</h5>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted"> '.$lang['time_zone_text'].'</p>
+				<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
+				<div class="form-group" class="control-label"><label>'.$lang['time_zone'].'</label>
+				<select class="form-control input-sm" type="number" id="new_time_zone" name="new_time_zone" >
+				<option selected >'.settings($conn, 'timezone').'</option>';
+$timezones = array(
+    'Pacific/Midway'       => "(GMT-11:00) Midway Island",
+    'US/Samoa'             => "(GMT-11:00) Samoa",
+    'US/Hawaii'            => "(GMT-10:00) Hawaii",
+    'US/Alaska'            => "(GMT-09:00) Alaska",
+    'US/Pacific'           => "(GMT-08:00) Pacific Time (US &amp; Canada)",
+    'America/Tijuana'      => "(GMT-08:00) Tijuana",
+    'US/Arizona'           => "(GMT-07:00) Arizona",
+    'US/Mountain'          => "(GMT-07:00) Mountain Time (US &amp; Canada)",
+    'America/Chihuahua'    => "(GMT-07:00) Chihuahua",
+    'America/Mazatlan'     => "(GMT-07:00) Mazatlan",
+    'America/Mexico_City'  => "(GMT-06:00) Mexico City",
+    'America/Monterrey'    => "(GMT-06:00) Monterrey",
+    'Canada/Saskatchewan'  => "(GMT-06:00) Saskatchewan",
+    'US/Central'           => "(GMT-06:00) Central Time (US &amp; Canada)",
+    'US/Eastern'           => "(GMT-05:00) Eastern Time (US &amp; Canada)",
+    'US/East-Indiana'      => "(GMT-05:00) Indiana (East)",
+    'America/Bogota'       => "(GMT-05:00) Bogota",
+    'America/Lima'         => "(GMT-05:00) Lima",
+    'America/Caracas'      => "(GMT-04:30) Caracas",
+    'Canada/Atlantic'      => "(GMT-04:00) Atlantic Time (Canada)",
+    'America/La_Paz'       => "(GMT-04:00) La Paz",
+    'America/Santiago'     => "(GMT-04:00) Santiago",
+    'Canada/Newfoundland'  => "(GMT-03:30) Newfoundland",
+    'America/Buenos_Aires' => "(GMT-03:00) Buenos Aires",
+    'Greenland'            => "(GMT-03:00) Greenland",
+    'Atlantic/Stanley'     => "(GMT-02:00) Stanley",
+    'Atlantic/Azores'      => "(GMT-01:00) Azores",
+    'Atlantic/Cape_Verde'  => "(GMT-01:00) Cape Verde Is.",
+    'Africa/Casablanca'    => "(GMT) Casablanca",
+    'Europe/Dublin'        => "(GMT) Dublin",
+    'Europe/Lisbon'        => "(GMT) Lisbon",
+    'Europe/London'        => "(GMT) London",
+    'Africa/Monrovia'      => "(GMT) Monrovia",
+    'Europe/Amsterdam'     => "(GMT+01:00) Amsterdam",
+    'Europe/Belgrade'      => "(GMT+01:00) Belgrade",
+    'Europe/Berlin'        => "(GMT+01:00) Berlin",
+    'Europe/Bratislava'    => "(GMT+01:00) Bratislava",
+    'Europe/Brussels'      => "(GMT+01:00) Brussels",
+    'Europe/Budapest'      => "(GMT+01:00) Budapest",
+    'Europe/Copenhagen'    => "(GMT+01:00) Copenhagen",
+    'Europe/Ljubljana'     => "(GMT+01:00) Ljubljana",
+    'Europe/Madrid'        => "(GMT+01:00) Madrid",
+    'Europe/Paris'         => "(GMT+01:00) Paris",
+    'Europe/Prague'        => "(GMT+01:00) Prague",
+    'Europe/Rome'          => "(GMT+01:00) Rome",
+    'Europe/Sarajevo'      => "(GMT+01:00) Sarajevo",
+    'Europe/Skopje'        => "(GMT+01:00) Skopje",
+    'Europe/Stockholm'     => "(GMT+01:00) Stockholm",
+    'Europe/Vienna'        => "(GMT+01:00) Vienna",
+    'Europe/Warsaw'        => "(GMT+01:00) Warsaw",
+    'Europe/Zagreb'        => "(GMT+01:00) Zagreb",
+    'Europe/Athens'        => "(GMT+02:00) Athens",
+    'Europe/Bucharest'     => "(GMT+02:00) Bucharest",
+    'Africa/Cairo'         => "(GMT+02:00) Cairo",
+    'Africa/Harare'        => "(GMT+02:00) Harare",
+    'Europe/Helsinki'      => "(GMT+02:00) Helsinki",
+    'Europe/Istanbul'      => "(GMT+02:00) Istanbul",
+    'Asia/Jerusalem'       => "(GMT+02:00) Jerusalem",
+    'Europe/Kyiv'          => "(GMT+02:00) Kiev",
+    'Europe/Minsk'         => "(GMT+02:00) Minsk",
+    'Europe/Riga'          => "(GMT+02:00) Riga",
+    'Europe/Sofia'         => "(GMT+02:00) Sofia",
+    'Europe/Tallinn'       => "(GMT+02:00) Tallinn",
+    'Europe/Vilnius'       => "(GMT+02:00) Vilnius",
+    'Asia/Baghdad'         => "(GMT+03:00) Baghdad",
+    'Asia/Kuwait'          => "(GMT+03:00) Kuwait",
+    'Africa/Nairobi'       => "(GMT+03:00) Nairobi",
+    'Asia/Riyadh'          => "(GMT+03:00) Riyadh",
+    'Europe/Moscow'        => "(GMT+03:00) Moscow",
+    'Asia/Tehran'          => "(GMT+03:30) Tehran",
+    'Asia/Baku'            => "(GMT+04:00) Baku",
+    'Europe/Volgograd'     => "(GMT+04:00) Volgograd",
+    'Asia/Muscat'          => "(GMT+04:00) Muscat",
+    'Asia/Tbilisi'         => "(GMT+04:00) Tbilisi",
+    'Asia/Yerevan'         => "(GMT+04:00) Yerevan",
+    'Asia/Kabul'           => "(GMT+04:30) Kabul",
+    'Asia/Karachi'         => "(GMT+05:00) Karachi",
+    'Asia/Tashkent'        => "(GMT+05:00) Tashkent",
+    'Asia/Kolkata'         => "(GMT+05:30) Kolkata",
+    'Asia/Kathmandu'       => "(GMT+05:45) Kathmandu",
+    'Asia/Yekaterinburg'   => "(GMT+06:00) Ekaterinburg",
+    'Asia/Almaty'          => "(GMT+06:00) Almaty",
+    'Asia/Dhaka'           => "(GMT+06:00) Dhaka",
+    'Asia/Novosibirsk'     => "(GMT+07:00) Novosibirsk",
+    'Asia/Bangkok'         => "(GMT+07:00) Bangkok",
+    'Asia/Jakarta'         => "(GMT+07:00) Jakarta",
+    'Asia/Krasnoyarsk'     => "(GMT+08:00) Krasnoyarsk",
+    'Asia/Chongqing'       => "(GMT+08:00) Chongqing",
+    'Asia/Hong_Kong'       => "(GMT+08:00) Hong Kong",
+    'Asia/Kuala_Lumpur'    => "(GMT+08:00) Kuala Lumpur",
+    'Australia/Perth'      => "(GMT+08:00) Perth",
+    'Asia/Singapore'       => "(GMT+08:00) Singapore",
+    'Asia/Taipei'          => "(GMT+08:00) Taipei",
+    'Asia/Ulaanbaatar'     => "(GMT+08:00) Ulaan Bataar",
+    'Asia/Urumqi'          => "(GMT+08:00) Urumqi",
+    'Asia/Irkutsk'         => "(GMT+09:00) Irkutsk",
+    'Asia/Seoul'           => "(GMT+09:00) Seoul",
+    'Asia/Tokyo'           => "(GMT+09:00) Tokyo",
+    'Australia/Adelaide'   => "(GMT+09:30) Adelaide",
+    'Australia/Darwin'     => "(GMT+09:30) Darwin",
+    'Asia/Yakutsk'         => "(GMT+10:00) Yakutsk",
+    'Australia/Brisbane'   => "(GMT+10:00) Brisbane",
+    'Australia/Canberra'   => "(GMT+10:00) Canberra",
+    'Pacific/Guam'         => "(GMT+10:00) Guam",
+    'Australia/Hobart'     => "(GMT+10:00) Hobart",
+    'Australia/Melbourne'  => "(GMT+10:00) Melbourne",
+    'Pacific/Port_Moresby' => "(GMT+10:00) Port Moresby",
+    'Australia/Sydney'     => "(GMT+10:00) Sydney",
+    'Asia/Vladivostok'     => "(GMT+11:00) Vladivostok",
+    'Asia/Magadan'         => "(GMT+12:00) Magadan",
+    'Pacific/Auckland'     => "(GMT+12:00) Auckland",
+    'Pacific/Fiji'         => "(GMT+12:00) Fiji",
+);
+
+foreach($timezones as $xzone => $x_value) {
+	echo '<option value="'.$xzone.'">'.$x_value.'</option>';
+}
+echo '</select>';
+echo'
+				</select>
+                <div class="help-block with-errors"></div></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['cancel'].'</button>
+                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="update_timezone()">
+            </div>
+        </div>
+    </div>
+</div>';
+
+// Jobs Schedule modal
+echo '
+<div class="modal fade" id="jobs_schedule" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['schedule_jobs'].'</h5>
+                <div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=task_scheduling.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['task_scheduling'].'</a></li>
+                         </ul>
+                </div>
+            </div>
+            <div class="modal-body">
+<p class="text-muted"> '.$lang['schedule_jobs_info'].' </p>';
+$query = "SELECT id, job_name, script, enabled, log_it, time FROM jobs ORDER BY id asc";
+$results = $conn->query($query);
+echo '<br><table>
+    <tr>
+        <th class="col-xs-3">'.$lang['jobs_name'].'</th>
+        <th class="col-xs-4">'.$lang['jobs_script'].'</th>
+        <th class="col-xs-1">'.$lang['enabled'].'</th>
+        <th class="col-xs-1">'.$lang['jobs_log'].'</th>
+        <th class="col-xs-2">'.$lang['jobs_time'].'</th>
+        <th class="col-xs-1"></th>
+    </tr>';
+
+while ($row = mysqli_fetch_assoc($results)) {
+    if ($row["log_it"] == 0) { $log_check = ''; } else { $log_check = 'checked'; }
+    if ($row["enabled"] == 0) { $enabled_check = ''; } else { $enabled_check = 'checked'; }
+    echo '
+        <tr>
+            <td><input id="jobs_name'.$row["id"].'" type="value" class="form-control pull-right" style="border: none" value="'.$row["job_name"].'" placeholder="Job Name"></td>
+            <td><input id="jobs_script'.$row["id"].'" type="value" class="form-control pull-right" style="border: none" value="'.$row["script"].'" placeholder="Job Script"></td>
+            <td style="text-align:center; vertical-align:middle;">
+               <input type="checkbox" id="checkbox_enabled'.$row["id"].'" name="enabled" value="1" '.$enabled_check.'>
+            </td>
+            <td style="text-align:center; vertical-align:middle;">
+               <input type="checkbox" id="checkbox_log'.$row["id"].'" name="logit" value="1" '.$log_check.'>
+            </td>
+            <td><input id="jobs_time'.$row["id"].'" type="value" class="form-control pull-right" style="border: none" value="'.$row["time"].'" placeholder="Run Job Every"></td>
+            <td><a href="javascript:delete_job('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>
+        </tr>';
+
+}
+
+echo '</table></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default login btn-sm" data-href="#" data-toggle="modal" data-target="#add_job">'.$lang['add_job'].'</button>
+                <input type="button" name="submit" value="'.$lang['apply'].'" class="btn btn-default login btn-sm" onclick="schedule_jobs()">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+            </div>
+        </div>
+    </div>
+</div>';
+
+//Add Job Schedule
+echo '
+<div class="modal fade" id="add_job" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['add_new_job'].'</h5>
+            </div>
+            <div class="modal-body">';
+echo '<p class="text-muted">'.$lang['add_new_job_info_text'].'</p>
+	<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
+      	<div class="form-group" class="control-label">
+             <div class="checkbox checkbox-default checkbox-circle">
+                 <input id="checkbox_enabled" class="styled" type="checkbox" value="0" name="status" Enabled>
+                 <label for="checkbox_enabled"> '.$lang['enabled'].'</label>
+             </div>
+        </div>
+	<div class="form-group" class="control-label"><label>'.$lang['jobs_name'].'</label> <small class="text-muted">'.$lang['jobs_name_info'].'</small>
+	<input class="form-control input-sm" type="text" id="job_name" name="job_name" value="" placeholder="'.$lang['jobs_name'].'">
+	<div class="help-block with-errors"></div></div>
+        <div class="form-group" class="control-label"><label>'.$lang['jobs_script'].'</label> <small class="text-muted">'.$lang['jobs_script_info'].'</small>
+        <input class="form-control input-sm" type="text" id="job_script" name="job_script" value="" placeholder="'.$lang['jobs_script'].'">
+        <div class="help-block with-errors"></div></div>
+        <div class="form-group" class="control-label"><label>'.$lang['jobs_time'].'</label> <small class="text-muted">'.$lang['jobs_time_info'].'</small>
+        <input class="form-control input-sm" type="text" id="job_time" name="job_time" value="" placeholder="'.$lang['jobs_time'].'">
+        <div class="help-block with-errors"></div></div>
+        <div class="form-group" class="control-label">
+             <div class="checkbox checkbox-default checkbox-circle">
+                 <input id="checkbox_logit" class="styled" type="checkbox" value="0" name="status" Enabled>
+                 <label for="checkbox_logit"> '.$lang['jobs_log'].'</label>
+             </div>
+        </div>
+</div>
+            <div class="modal-footer">
+				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+				<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="add_job()">
+            </div>
+        </div>
+    </div>
+</div>';
+
+//Set Buttons model
+echo '<div class="modal fade" id="set_buttons" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['set_buttons'].'</h5>
+            </div>
+            <div class="modal-body">
+		<p class="text-muted">'.$lang['set_buttons_text'].'</p>
+		<input type="hidden" id="button_page_1" name="button_page_1" value="'.$lang['home_page'].'">
+                <input type="hidden" id="button_page_2" name="button_page_2" value="'.$lang['onetouch_page'].'">';
+		echo '<table class="table table-bordered">
+    			<tr>
+                                <th class="col-md-3 text-center"><small>'.$lang['button_name'].'</small></th>
+                                <th class="col-md-2 text-center"><small>'.$lang['toggle_page'].'</small></th>
+                                <th class="col-md-1 text-center"><small>'.$lang['index_number'].'</small></th>
+    			</tr>';
+	                $query = "SELECT * FROM button_page ORDER BY index_id ASC;";
+        	        $results = $conn->query($query);
+			while ($row = mysqli_fetch_assoc($results)) {
+				if ($row["page"] == 1) { $button_text = $lang['home_page']; } else { $button_text = $lang['onetouch_page']; }
+                                echo '<tr>
+                                        <td>'.$row["name"].'</td>
+					<td><input type="button" id="page_button'.$row["id"].'" value="'.$button_text.'" class="btn btn-info btn-block" onclick="set_button_text('.$row["id"].')"></td>
+           		                <td><input id="index'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="index_id"  size="3" value="'.$row["index_id"].'" placeholder="Index ID" required></td>
+					<input type="hidden" id="page_type'.$row["id"].'" name="page_type" value="'.$row["page"].'">
+        			</tr>';
+			}
+            	echo '</table>
+	    </div>
+		<div class="modal-footer">
+                	<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                	<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="set_buttons()">
+            </div>
+        </div>
+    </div>
+</div>';
+
+//Set Graph Categories to display
+echo '<div class="modal fade" id="display_graphs" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['enable_graphs'].'</h5>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">'.$lang['enable_graphs_text'].'</p>
+                <table class="table table-bordered">
+                        <tr>
+                                <th class="col-md-2 text-center"><small>'.$lang['graph'].'</small></th>
+                                <th class="col-md-1 text-center"><small>'.$lang['enabled'].'</small></th>
+                        </tr>';
+			$myArr = [];
+			array_push($myArr, $lang['graph_temperature'], $lang['graph_humidity'], $lang['graph_addon_usage'], $lang['graph_saving'], $lang['graph_system_controller_usage'], $lang['graph_battery_usage']);
+                        $query = "SELECT mask FROM graphs LIMIT 1;";
+                        $result = $conn->query($query);
+			$row = mysqli_fetch_assoc($result);
+			$m = 1;
+                        for ($x = 0; $x <=  5; $x++) {
+                        	if ($row['mask'] & $m) { $enabled_check = 'checked'; } else { $enabled_check = ''; }
+                                echo '<tr>
+                                        <td>'.$myArr[$x].'</td>
+            				<td style="text-align:center; vertical-align:middle;">
+               					<input type="checkbox" id="checkbox_graph'.$x.'" name="enabled" value="1" '.$enabled_check.'>
+            				</td>
+                                </tr>';
+				$m = $m << 1;
+                        }
+                echo '</table>
+            </div>
+                <div class="modal-footer">
+                        <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                        <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="enable_graphs()">
+            </div>
+        </div>
+    </div>
+</div>';
+}
+
+if ($model_num == 4) {
 //System Controller settings
 echo '
 <div class="modal fade" id="system_controller" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -331,7 +1475,6 @@ echo '
 
 					echo '
 					<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
-
 					<div class="form-group" class="control-label">
 						<div class="checkbox checkbox-default checkbox-circle">';
 							if ($bcount > 0) {
@@ -347,14 +1490,12 @@ echo '
 						</div>
 					</div>
 					<!-- /.form-group -->
-
 					<div class="form-group" class="control-label"><label>'.$lang['system_controller_name'].'</label>
 						<input class="form-control input-sm" type="text" id="name" name="name" value="'.$brow['name'].'" placeholder="System Controller Name to Display on Screen ">
 						<div class="help-block with-errors">
 						</div>
 					</div>
 					<!-- /.form-group -->
-
                         		<div class="form-group" class="control-label"><label>'.$lang['heat_relay_id'].'</label> <small class="text-muted">'.$lang['heat_relay_id_info'].'</small>
                                                 <select class="form-control input-sm" type="text" id="heat_relay_id" name="heat_relay_id" >';
                                                 //get list of heat relays to display
@@ -388,7 +1529,6 @@ echo '
                                                 </div>
                                         </div>
                                         <!-- /.form-group -->
-
                                         <div class="form-group" class="control-label"><label>'.$lang['fan_relay_id'].'</label> <small class="text-muted">'.$lang['fan_relay_id_info'].'</small>
                                                 <select class="form-control input-sm" type="text" id="fan_relay_id" name="fan_relay_id" >';
                                                 //get list of heat relays to display
@@ -426,7 +1566,6 @@ echo '
 						</div>
 					</div>
 					<!-- /.form-group -->
-
 					<div class="form-group" class="control-label"><label>'.$lang['max_operation_time'].'</label> <small class="text-muted">'.$lang['max_operation_time_info'].'</small>
 						<select class="form-control input-sm" type="text" id="max_operation_time" name="max_operation_time">
 						<option selected>'.$brow['max_operation_time'].'</option>
@@ -656,7 +1795,6 @@ echo '
             <div class="modal-body">';
 echo '<p class="text-muted">'.$info_text.'</p>
 	<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
-
 	<div class="form-group" class="control-label"><label>'.$zone_hvac.'</label> 
 	<select class="form-control input-sm" type="text" id="zone_id" name="zone_id">';
 	if ((settings($conn, 'mode') & 0b1) == 0) {
@@ -676,7 +1814,6 @@ echo '<p class="text-muted">'.$info_text.'</p>
 	echo '
 	</select>
     <div class="help-block with-errors"></div></div>
-
 	<div class="form-group" class="control-label"><label>'.$lang['boost_temperature'].'</label> <small class="text-muted">'.$lang['boost_temperature_info'].'</small>
 	<select class="form-control input-sm" type="text" id="boost_temperature" name="boost_temperature">
 	<option value="20">20</option>
@@ -700,7 +1837,6 @@ echo '<p class="text-muted">'.$info_text.'</p>
 	<option value="95">95</option>
 	</select>
     <div class="help-block with-errors"></div></div>
-
 	<div class="form-group" class="control-label"><label>'.$lang['boost_time'].'</label> <small class="text-muted">'.$lang['boost_time_info'].'</small>
 	<select class="form-control input-sm" type="text" id="boost_time" name="boost_time">
 	<option value="20">20</option>
@@ -737,7 +1873,6 @@ echo '<p class="text-muted">'.$info_text.'</p>
 		echo '<option value="0">N/A</option>
 		</select>
 	    <div class="help-block with-errors"></div></div>
-
 		<div class="form-group" class="control-label"><label>'.$lang['boost_button_child_id'].'</label> <small class="text-muted">'.$lang['boost_button_child_id_info'].'</small>
 		<select class="form-control input-sm" type="text" id="boost_button_child_id" name="boost_button_child_id">
 		<option value="0">N/A</option>
@@ -822,287 +1957,10 @@ echo '</div></div>
         </div>
     </div>
 </div>';
-
-// Offset Modal
-global $lang;
-//check if weather api is active
-$query = "SELECT * FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);";
-$result = $conn->query($query);
-$w_count=mysqli_num_rows($result);
-if ($w_count > 0) { $weather_enabled = 1; } else { $weather_enabled = 0; }
-echo '
-<div class="modal fade" id="offset_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['offset_settings'].'</h5>
-                <div class="dropdown pull-right">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
-                        </a>
-                        <ul class="dropdown-menu">
-                                <li><a href="pdf_download.php?file=start_time_offset.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_start_time_offset'].'</a></li>
-                         </ul>
-                </div>
-            </div>
-            <div class="modal-body">';
-	echo '<p class="text-muted"> '.$lang['offset_settings_text'].' </p>';
-
-	$query = "SELECT schedule_time_temp_offset.id, schedule_time_temp_offset.status, schedule_time_temp_offset.low_temperature,
-	schedule_time_temp_offset.high_temperature, schedule_time_temp_offset.start_time_offset, schedule_time_temp_offset.sensors_id,
-	IFNULL(ss.name, 'Weather') AS sensor_name, `schedule_daily_time_id`, sdt.sch_name, IFNULL(ts.sensor_type_id, 1) AS sensor_type_id
-        FROM schedule_time_temp_offset
-        JOIN schedule_daily_time sdt ON schedule_time_temp_offset.schedule_daily_time_id = sdt.id
-        LEFT JOIN sensors ss ON schedule_time_temp_offset.sensors_id = ss.id
-        LEFT JOIN sensors ts ON schedule_time_temp_offset.sensors_id = ts.id
-        ORDER BY id ASC;";
-	$results = $conn->query($query);
-	echo '<table class="table table-bordered">
-	    <tr>
-        	<th class="col-md-4"><small>'.$lang['sch_name'].'</small></th>
-                <th class="col-md-1"><small>'.$lang['enabled'].'</small></th>
-        	<th class="col-md-1"><small>'.$lang['low_temp'].'</small></th>
-        	<th class="col-md-1"><small>'.$lang['high_temp'].'</small></th>
-        	<th class="col-md-1"><small>'.$lang['offset'].'</small></th>
-        	<th class="col-md-3"><small>'.$lang['control_temp'].'</small></th>
-        	<th class="col-md-1"></th>
-    	</tr>';
-
-while ($row = mysqli_fetch_assoc($results)) {
-	if ($row["status"]) { $offset_enabled = "checked"; } else { $offset_enabled = ""; }
-    	echo '
-            <tr>
-	        <td><select class="form-control input-sm" type="text" id="schedule_id" name="schedule_id" onchange=set_schedule_daily_time_id((this.options[this.selectedIndex].value),'.$row["id"].')>';
-        	//Get schedule List
-	        $query = "SELECT DISTINCT sch_name, `schedule_daily_time_zone`.`schedule_daily_time_id`
-        	FROM `schedule_daily_time`, `schedule_daily_time_zone`
-	        WHERE (`schedule_daily_time`.`id` = `schedule_daily_time_zone`.`schedule_daily_time_id`) AND `schedule_daily_time_zone`.`status` = 1;";
-        	$result = $conn->query($query);
-	        if ($result){
-        	        while ($zrow=mysqli_fetch_array($result)) {
-				echo '<option value="'.$zrow['schedule_daily_time_id'].'" '.($row['schedule_daily_time_id']==$zrow['schedule_daily_time_id'] ? 'selected' : '').'>'.$zrow['sch_name'].'</option>';
-	                }
-        	}
-        	echo '
-        	</select></td>
-                <td style="text-align:center; vertical-align:middle;">
-                	<input type="checkbox" id="checkbox_offset'.$row["id"].'" name="offset_enabled" size="1" value="1" '.$offset_enabled.'>
-                </td>
-                <td><input id="low_temp'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="low_temp" size="1" value="'.DispSensor($conn,$row["low_temperature"],$row["sensor_type_id"]).'" placeholder="Low Temperature" required></td>
-            	<td><input id="high_temp'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="high_temp" size="1" value="'.DispSensor($conn,$row["high_temperature"],$row["sensor_type_id"]).'" placeholder="High Temperature" required></td>
-            	<td><input id="offset_id'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="offset_id" size="1" value="'.$row['start_time_offset'].'" placeholder="Max Time Offset" required></td>
-
-		<td><select class="form-control input-sm" type="text" id="sensor'.$row["id"].'" name="sensor" onchange=set_sensors_id((this.options[this.selectedIndex].value),'.$row["id"].')>';
-                if ($weather_enabled) { echo '<option value="0" '.($row['sensors_id']==0 ? 'selected' : '').'>Weather</option>'; }
-                //get list from sensors table to display
-                $query = "SELECT id, name FROM sensors ORDER BY name ASC;";
-                $result = $conn->query($query);
-                if ($result){
-                        while ($srow=mysqli_fetch_array($result)) {
-                                echo '<option value="'.$srow['id'].'" '.($row['sensors_id']==$srow['id'] ? 'selected' : '').'>'.$srow['name'].'</option>';
-                        }
-                }
-                echo '</select></td>
-
-
-	     	<input type="hidden" id="sensors_id'.$row["id"].'" name="sensors_id" value="'.$row["sensors_id"].'">
-		<input type="hidden" id="sch_id'.$row["id"].'" name="sch_id" value="'.$row["schedule_daily_time_id"].'">
-                <input type="hidden" id="sensor_type'.$row["id"].'" name="sensor_type" value="'.$row["sensor_type_id"].'">
-            	<td><a href="javascript:delete_offset('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="You are about to DELETE this BOOST Setting"><span class="glyphicon glyphicon-trash"></span></button> </a></td>
-            </tr>';
 }
 
-echo '</table></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="update_offset()">
-                <button type="button" class="btn btn-default login btn-sm" data-href="#" data-toggle="modal" data-target="#add_offset">'.$lang['add_schedule_offset'].'</button>
-            </div>
-        </div>
-    </div>
-</div>';
-
-?>
-<script>
-function set_sensors_id(value, id){
-        var valuetext = value;
-	var id_text = id;
-	document.getElementById("sensors_id" + id_text).value = valuetext;
-}
-
-function set_schedule_daily_time_id(value, id){
-        var valuetext = value;
-        var id_text = id;
-        document.getElementById("sch_id" + id_text).value = valuetext;
-}
-</script>
-<?php
-
-//Add Offset
-//check if weather api is active
-$query = "SELECT * FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);";
-$result = $conn->query($query);
-$w_count=mysqli_num_rows($result);
-if ($w_count > 0) { $weather_enabled = 1; } else { $weather_enabled = 0; }
-$c_f = settings($conn, 'c_f');
-echo '
-<div class="modal fade" id="add_offset" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['add_offset'].'</h5>
-            </div>
-            <div class="modal-body">';
-echo '<p class="text-muted">'.$lang['offset_info_text'].'</p>
-	<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
-        <div class="form-group" class="control-label">
-        	<div class="checkbox checkbox-default checkbox-circle">';
-                	echo '<input id="checkbox5" class="styled" type="checkbox" value="1" name="offset_status" checked Enabled>';
-                        echo '<label for="checkbox5"> '.$lang['offset_enable'].'</label>
-               	</div>
-        </div>
-        <!-- /.form-group -->
-	<div class="form-group" class="control-label"><label>'.$lang['schedule'].'</label> 
-	<select class="form-control input-sm" type="text" id="schedule_daily_time_id" name="schedule_daily_time_id">';
-	//Get schedule List
-	$query = "SELECT DISTINCT sch_name, `schedule_daily_time_zone`.`schedule_daily_time_id` 
-	FROM `schedule_daily_time`, `schedule_daily_time_zone`
-	WHERE (`schedule_daily_time`.`id` = `schedule_daily_time_zone`.`schedule_daily_time_id`) AND `schedule_daily_time_zone`.`status` = 1;";
-	$result = $conn->query($query);
-	if ($result){
-		while ($zrow=mysqli_fetch_array($result)) {
-			echo '<option value="'.$zrow['schedule_daily_time_id'].'">'.$zrow['sch_name'].'</option>';
-		}
-	}
-	echo '
-	</select>
-    <div class="help-block with-errors"></div></div>
-	<div class="form-group" class="control-label"><label>'.$lang['low_temp'].'</label> <small class="text-muted">'.$lang['low_temp_info'].'</small>
-        <select class="form-control input-sm" type="text" id="low_temperature" name="low_temperature">';
-        if ($c_f == 0) {
-                echo '<option value="5">5</option>
-                <option value="4">4</option>
-                <option value="3">3</option>
-                <option value="2">2</option>
-                <option value="1">1</option>
-                <option value="0">0</option>
-                <option value="-1">-1</option>
-                <option value="-2">-2</option>
-                <option value="-3">-3</option>
-                <option value="-4">-4</option>
-                <option value="-5">-5</option>';
-        } else {
-                echo '<option value="40">40</option>
-                <option value="39">39</option>
-                <option value="38">38</option>
-                <option value="37">37</option>
-                <option value="36">36</option>
-                <option value="35">35</option>
-                <option value="34">34</option>
-                <option value="33">33</option>
-                <option value="32">32</option>
-                <option value="31">31</option>
-                <option value="30">30</option>
-                <option value="29">29</option>
-                <option value="28">28</option>
-                <option value="27">27</option>
-                <option value="26">26</option>
-                <option value="25">25</option>
-                <option value="24">24</option>
-                <option value="23">23</option>
-                <option value="22">22</option>
-                <option value="21">21</option>
-                <option value="20">20</option>';
-        }
-        echo '</select>
-    <div class="help-block with-errors"></div></div>
-        <div class="form-group" class="control-label"><label>'.$lang['high_temp'].'</label> <small class="text-muted">'.$lang['high_temp_info'].'</small>
-        <select class="form-control input-sm" type="text" id="high_temperature" name="high_temperature">';
-        if ($c_f == 0) {
-                echo '<option value="15">15</option>
-                <option value="14">14</option>
-                <option value="13">13</option>
-                <option value="12">12</option>
-                <option value="11">11</option>
-                <option value="10">10</option>
-                <option value="9">9</option>
-                <option value="8">8</option>
-                <option value="7">7</option>
-                <option value="6">6</option>
-                <option value="5">5</option>';
-        } else {
-                echo '<option value="60">60</option>
-                <option value="59">59</option>
-                <option value="58">58</option>
-                <option value="57">57</option>
-                <option value="56">56</option>
-                <option value="55">55</option>
-                <option value="54">54</option>
-                <option value="53">53</option>
-                <option value="52">52</option>
-                <option value="51">51</option>
-                <option value="50">50</option>
-                <option value="49">49</option>
-                <option value="48">48</option>
-                <option value="47">47</option>
-                <option value="46">46</option>
-                <option value="45">45</option>
-                <option value="44">44</option>
-                <option value="43">43</option>
-                <option value="42">42</option>
-                <option value="41">41</option>
-                <option value="40">40</option>';
-        }
-        echo '</select>
-    <div class="help-block with-errors"></div></div>
-	<div class="form-group" class="control-label"><label>'.$lang['start_time_offset'].'</label> <small class="text-muted">'.$lang['start_time_offset_info'].'</small>
-	<select class="form-control input-sm" type="text" id="start_time_offset" name="start_time_offset">
-	<option value="5">5</option>
-	<option value="10">10</option>
-	<option value="15">15</option>
-	<option value="20">20</option>
-	<option value="25">25</option>
-	<option value="30">30</option>
-	<option value="35">35</option>
-	<option value="40">40</option>
-	<option value="45">45</option>
-	<option value="50">50</option>
-	<option value="55">55</option>
-	<option value="60">60</option>
-	<option value="70">70</option>
-	<option value="80">80</option>
-	<option value="90">90</option>
-	<option value="100">100</option>
-	<option value="110">110</option>
-	<option value="120">120</option>
-	</select>
-    <div class="help-block with-errors"></div></div>
-    <div class="form-group" class="control-label"><label>'.$lang['sensor_name'].'</label> <small class="text-muted">'.$lang['sensor_name_info'].'</small>
-		<select class="form-control input-sm" type="text" id="sensor_id" name="sensor_id">';
-		if ($weather_enabled) { echo '<option value="0">Weather</option>'; }
-		//get list from sensors table to display 
-		$query = "SELECT id, name FROM sensors ORDER BY name ASC;";
-		$result = $conn->query($query);
-		if ($result){
-			while ($srow=mysqli_fetch_array($result)) {
-				echo '<option value="'.$srow['id'].'">'.$srow['name'].'</option>';
-			}
-		}
-		echo '</select>
-	    <div class="help-block with-errors"></div></div>';
-echo '</div>
-            <div class="modal-footer">
-				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="add_offset()">
-
-            </div>
-        </div>
-    </div>
-</div>';
-
-//nodes model
+if ($model_num == 5) {
+//nodes modal
 echo '
 <div class="modal fade" id="nodes" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -1235,9 +2093,7 @@ echo '
             </div>
             <div class="modal-body">';
 echo '<p class="text-muted">'.$lang['node_add_info_text'].'</p>
-
 	<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
-
 	<div class="form-group" class="control-label"><label>'.$lang['node_type'].'</label> <small class="text-muted">'.$lang['node_type_info'].'</small>
 	<select class="form-control input-sm" type="text" id="node_type" onchange=show_hide_devices() name="node_type">
 	<option value="I2C" selected="selected">I2C</option>
@@ -1248,12 +2104,9 @@ echo '<p class="text-muted">'.$lang['node_add_info_text'].'</p>
         <option value="MQTT">MQTT</option>
 	</select>
     <div class="help-block with-errors"></div></div>
-
-
 	<div class="form-group" class="control-label"><label>'.$lang['node_id'].'</label> <small class="text-muted">'.$lang['node_id_info'].'</small>
 		<input class="form-control input-sm" type="text" id="add_node_id" name="add_node_id" value="" placeholder="'.$lang['node_id'].'">
 	<div class="help-block with-errors"></div></div>
-
         <div class="form-group" class="control-label" id="dummy_type_label" style="display:none"><label>'.$lang['node_name'].'</label> <smallclass="text-muted">'.$lang['dummy_name_info'].'</small>
                 <select class="form-control input-sm" type="text" id="dummy_type" name="dummy_type">
                         <option value="Sensor" selected="selected">Dummy Sensor</option>
@@ -1261,7 +2114,6 @@ echo '<p class="text-muted">'.$lang['node_add_info_text'].'</p>
                 </select>
                 <div class="help-block with-errors"></div>
         </div>
-
         <div class="form-group" class="control-label" id="mqtt_type_label" style="display:none"><label>'.$lang['node_name'].'</label> <smallclass="text-muted">'.$lang['mqtt_name_info'].'</small>
                 <select class="form-control input-sm" type="text" id="mqtt_type" name="mqtt_type">
                         <option value="Sensor" selected="selected">MQTT Sensor</option>
@@ -1269,7 +2121,6 @@ echo '<p class="text-muted">'.$lang['node_add_info_text'].'</p>
                 </select>
                 <div class="help-block with-errors"></div>
         </div>
-
 	<div class="form-group" class="control-label" id="add_devices_label" style="display:block"><label>'.$lang['node_child_id'].'</label> <small class="text-muted">'.$lang['node_child_id_info'].'</small>
 		<input class="form-control input-sm" type="text" id="nodes_max_child_id" name="nodes_max_child_id" value="0" placeholder="'.$lang['node_max_child_id'].'">
 		<div class="help-block with-errors"></div>
@@ -1278,7 +2129,6 @@ echo '<p class="text-muted">'.$lang['node_add_info_text'].'</p>
             <div class="modal-footer">
 				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
 				<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="add_node()">
-
             </div>
         </div>
     </div>
@@ -1352,15 +2202,11 @@ echo '
             </div>
             <div class="modal-body">';
 echo '<p class="text-muted">'.$lang['zone_type_add_info_text'].'</p>
-
         <form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
-
         <div class="form-group" class="control-label"><label>'.$lang['zone_type'].'</label> <small class="text-muted">'.$lang['zone_type_info'].'</small>
         <input class="form-control input-sm" type="text" id="zone_type" name="zone_type" value="" placeholder="'.$lang['zone_type'].'">
         <div class="help-block with-errors"></div></div>
-
         <div class="form-group" class="control-label"><label>'.$lang['category'].'</label> <small class="text-muted">'.$lang['zone_category_info'].'</small>
-
         <select class="form-control input-sm" type="text" id="category" name="category">
         <option value=0 selected>'.$lang['zone_category0'].'</option>
         <option value=1>'.$lang['zone_category1'].'</option>
@@ -1369,17 +2215,321 @@ echo '<p class="text-muted">'.$lang['zone_type_add_info_text'].'</p>
         <option value=4>'.$lang['zone_category4'].'</option>
         </select>
     <div class="help-block with-errors"></div></div>
-
 </div>
             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
                                 <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="add_zone_type()">
-
             </div>
         </div>
     </div>
 </div>';
 
+//Zone model
+echo '
+<div class="modal fade" id="zone_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['zone_settings'].'</h5>
+                <div class="dropdown pull-right">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                                <li><a href="pdf_download.php?file=setup_guide_zones.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_guide_zones'].'</a></li>
+                                <li class="divider"></li>
+	                        <li><a href="pdf_download.php?file=setup_pump_type_relays.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_pump_type_relays'].'</a></li>
+                                <li class="divider"></li>
+                                <li><a href="pdf_download.php?file=switch_zones.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['switch_zones'].'</a></li>
+                                <li class="divider"></li>
+                        	<li><a href="pdf_download.php?file=switch_zone_state_control.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['switch_zone_state_control'].'</a></li>
+                        </ul>
+                </div>
+            </div>
+            <div class="modal-body">
+		<p class="text-muted">'.$lang['zone_settings_text'].'</p>';
+		$query = "select * from zone order by index_id asc";
+		$results = $conn->query($query);
+		echo '<div class=\"list-group\">';
+			while ($row = mysqli_fetch_assoc($results)) {
+        			if($row['status'] == 1) {
+                			$content_msg=$lang['confirm_dell_active_zone'];
+        			} else {
+                			$content_msg=$lang['confirm_dell_de_active_zone'];
+        			}
+				echo "<div class=\"list-group-item\">
+        				<i class=\"glyphicon glyphicon-th-large orange\"></i> ".$row['name']."";
+        				$query = "select * from zone_view WHERE id = '{$row['id']}'order by index_id asc";
+        				$vresult = $conn->query($query);
+        				while ($vrow = mysqli_fetch_assoc($vresult)) {
+						$unit = SensorUnits($conn,$vrow['sensor_type_id']);
+                                                if ($vrow['r_type'] == 5) {
+							echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['pump_relay'].": ".$vrow['relay_type'].": ".$vrow['relay_id']."-".$vrow['relay_child_id']."</small></span><br>";
+                				} elseif ($vrow['category'] == 2) {
+							echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['controller'].": ".$vrow['relay_type'].": ".$vrow['relay_id']."-".$vrow['relay_child_id']."</small></span><br>";
+						} elseif ($vrow['category'] == 3) {
+							echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['min']." ".DispSensor($conn,$vrow['min_c'],$vrow['sensor_type_id']).$unit." </em>, ".$lang['max']." ".$vrow['max_c'].$unit." </em> - ".$lang['sensor'].": ".$vrow['sensors_id']."</small></span><br>";
+                				} else {
+                        				echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['max']." ".DispSensor($conn,$vrow['max_c'],$vrow['sensor_type_id']).$unit." </em> - ".$lang['sensor'].": ".$vrow['sensors_id']." - ".$vrow['relay_type'].": ".$vrow['relay_id']."-".$vrow['relay_child_id']."</small></span><br>";
+                				}
+        				}
+        				echo "<span class=\"pull-right \"><small>
+        					<a href=\"zone.php?id=".$row['id']."\" class=\"btn btn-default btn-xs login\"><span class=\"ionicons ion-edit\"></span></a>&nbsp;&nbsp;
+        					<a href=\"javascript:delete_zone(".$row['id'].");\"><button class=\"btn btn-danger btn-xs\" data-toggle=\"confirmation\" data-title=".$lang['confirmation']." data-content=\"$content_msg\"><span class=\"glyphicon glyphicon-trash\"></span></button></a>
+        				</small></span>
+        				<br>
+        			</div>";
+			}
+		echo '</div>
+	    </div>
+	    <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                <a class="btn btn-default login btn-sm" href="zone.php">'.$lang['zone_add'].'</a>
+            </div>
+        </div>
+    </div>
+</div>';
+
+//gateway model
+echo '
+<div class="modal fade" id="sensor_gateway" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+        	<div class="modal-content">
+            		<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+               			<h5 class="modal-title">'.$lang['smart_home_gateway'].'</h5>
+                                <div class="dropdown pull-right">
+                                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                		<li><a href="pdf_download.php?file=setup_guide_gateway.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_guide_gateway'].'</a></li>
+                                        </ul>
+                                </div>
+            		</div>
+            		<div class="modal-body">';
+				$gquery = "SELECT * FROM gateway";
+				$gresult = $conn->query($gquery);
+                                $rowcount=mysqli_num_rows($gresult);
+                                if($rowcount == 0) {
+                                        echo $lang['smart_home_gateway_text_serial'];
+                                        $display_wifi = "display:none";
+                                        $display_serial = "display:block";
+                                        $gateway_type = 'serial';
+                                } else {
+                                        $grow = mysqli_fetch_array($gresult);
+                                        $gateway_type = $grow['type'];
+                                        echo '<p class="text-muted">';
+                                        if ($gateway_type=='wifi'){
+                                                echo $lang['smart_home_gateway_text_wifi'];
+                                                $display_wifi = "display:block";
+                                                $display_serial = "display:none";
+                                                $display_timeout = "display:block";
+                                        } elseif ($gateway_type=='serial') {
+                                                echo $lang['smart_home_gateway_text_serial'];
+                                                $display_wifi = "display:none";
+                                                $display_serial = "display:block";
+                                                $display_timeout = "display:block";
+                                        } elseif ($gateway_type=='virtual') {
+                                                echo $lang['smart_home_gateway_text_virtual'];
+                                                $display_wifi = "display:none";
+                                                $display_serial = "display:none";
+                                                $display_timeout = "display:none";
+                                        }
+                                }
+				echo '</p>';
+				echo '
+				<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
+				<div class="form-group" class="control-label">
+					<div class="checkbox checkbox-default checkbox-circle">';
+						if ($grow['status'] == '1'){
+							echo '<input id="checkbox1" class="styled" type="checkbox" value="1" name="status" checked>';
+						}else {
+							echo '<input id="checkbox1" class="styled" type="checkbox" value="1" name="status">';
+						}
+						echo '
+						<label for="checkbox1"> '.$lang['smart_home_gateway_enable'].'</label>
+					</div>
+				</div>
+                               	<!-- /.form-group -->
+                                <div class="form-group" class="control-label">
+                                        <div class="checkbox checkbox-default checkbox-circle">';
+                                                if ($grow['enable_outgoing'] == '1'){
+                                                        echo '<input id="checkbox4" class="styled" type="checkbox" value="1" name="enable_outgoing" checked>';
+                                                }else {
+                                                        echo '<input id="checkbox4" class="styled" type="checkbox" value="1" name="enable_outgoing">';
+                                                }
+                                                echo '
+                                                <label for="checkbox4"> '.$lang['enable_outgoing'].'</label>
+                                        </div>
+                                </div>
+                                <!-- /.form-group -->
+                                <div class="form-group" class="control-label"><label>'.$lang['smart_home_gateway_type'].'</label>
+                                        <select class="form-control input-sm" type="text" id="gw_type" name="gw_type" onchange=gw_location()>
+                                        <option value="wifi" ' . ($gateway_type=='wifi' ? 'selected' : '') . '>'.$lang['wifi'].'</option>
+                                        <option value="serial" ' . ($gateway_type=='serial' ? 'selected' : '') . '>'.$lang['serial'].'</option>
+                                        <option value="virtual" ' . ($gateway_type=='virtual' ? 'selected' : '') . '>'.$lang['virtual'].'</option>
+                                        </select>
+                                        <div class="help-block with-errors">
+                                        </div>
+                                </div>
+                                <!-- /.form-group -->
+                                <div class="form-group" class="control-label" id="wifi_gw" style="'.$display_wifi.'"><label>'.$lang['wifi_gateway_location'].'</label>
+                                	<input class="form-control input-sm" type="text" id="wifi_location" name="wifi_location" value="'.$grow['location'].'" placeholder="Gateway Location">
+                                        <div class="help-block with-errors">
+                                        </div>
+                                </div>
+                                <!-- /.form-group -->
+                                <div class="form-group" class="control-label" id="serial_gw" style="'.$display_serial.'"><label>'.$lang['serial_gateway_location'].'</label>
+                                        <select class="form-control input-sm" type="text" id="serial_location" name="serial_location">
+                                        <option selected>'.$grow['location'].'</option>';
+                                        $dev_tty = glob("/dev/tty*");
+                                        for ($x = 0; $x <=  count($dev_tty) - 1; $x++) {
+                                                echo '<option value="'.$dev_tty[$x].'" ' . '>'.$dev_tty[$x].'</option>';
+                                        }
+                                        echo '</select>
+                                        <div class="help-block with-errors">
+                                        </div>
+                                </div>
+                                <!-- /.form-group -->
+                                <div class="form-group" class="control-label" id="wifi_port" style="'.$display_wifi.'"><label>'.$lang['wifi_gateway_port'].' </label>
+                                        <input class="form-control input-sm" type="text" id="wifi_port_num" name="wifi_port_num" value="'.$grow['port'].'" placeholder="Gateway Port">
+                                        <div class="help-block with-errors">
+                                        </div>
+                                </div>
+                                <!-- /.form-group -->
+                                <div class="form-group" class="control-label" id="serial_port" style="'.$display_serial.'"><label>'.$lang['serial_gateway_port'].' </label>
+                                        <select class="form-control input-sm" type="text" id="serial_port_speed" name="serial_port_speed">
+                                                <option selected>'.$grow['port'].'</option>
+                                                <option value="9600">9600</option>
+                                                <option value="19200">19200</option>
+                                                <option value="38400">38400</option>
+                                                <option value="57600">57600</option>
+                                                <option value="74880">74880</option>
+                                                <option value="115200">115200</option>
+                                                <option value="230400">233400</option>
+                                                <option value="250000">250000</option>
+                                                <option value="500000">500000</option>
+                                                <option value="1000000">1000000</option>
+                                                <option value="2000000">2000000</option>
+                                                </select>
+                                        <div class="help-block with-errors">
+                                        </div>
+                                </div>
+                                <!-- /.form-group -->
+				<div class="form-group" class="control-label" id="gw_timout_label" style="'.$display_timeout.'"><label>'.$lang['timeout'].' </label>
+                                        <select class="form-control input-sm" type="text" id="gw_timout" name="gw_timout">
+                                        <option selected>'.$grow['timout'].'</option>
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3" selected>3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="15">15</option>
+                                        </select>
+                                        <div class="help-block with-errors"></div>
+				</div>
+                                <!-- /.form-group -->
+				<div class="form-group" class="control-label"><label>'.$lang['smart_home_gateway_version'].' </label>
+					<input class="form-control input-sm" type="text" id="gw_version" name="gw_version" value="'.$grow['version'].'" disabled>
+					<div class="help-block with-errors">
+					</div>
+				</div>
+                                <!-- /.form-group -->
+				<br><h4 class="info"><i class="fa fa-heartbeat red"></i> '.$lang['smart_home_gateway_scr_info'].'</h4>
+				<div class=\"list-group\">';
+					echo "
+					<a href=\"#\" class=\"list-group-item\"> PID <span class=\"pull-right text-muted small\"><em> ".$grow['pid']."</em></span></a>
+					<a href=\"#\" class=\"list-group-item\"> ".$lang['smart_home_gateway_pid'].": <span class=\"pull-right text-muted small\"><em>".$grow['pid_running_since']."</em></span></a>";
+
+					$query = "select * FROM gateway_logs WHERE pid_datetime >= NOW() - INTERVAL 5 MINUTE;";
+					$result = $conn->query($query);
+					if (mysqli_num_rows($result) != 0){
+						$gw_restarted = mysqli_num_rows($result);
+					} else {
+						$gw_restarted = '0';
+					}
+					echo "<a href=\"#\" class=\"list-group-item\"> ".$lang['smart_home_gateway_scr'].": <span class=\"pull-right text-muted small\"><em>".$gw_restarted."</em></span></a>";
+				echo '</div>
+                                <!-- /.list-group -->
+			</div>
+			<!-- /.modal-body -->
+            		<div class="modal-footer">
+				<a href="javascript:resetgw('.$grow['pid'].')" class="btn btn-default login btn-sm btn-edit">Reset GW</a>
+				<a href="javascript:find_gw()" class="btn btn-default login btn-sm btn-edit">Search GW</a>
+				<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="setup_gateway()">
+				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+            		</div>
+			<!-- /.modal-footer -->
+        	</div>
+		<!-- /.modal-content -->
+    	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal fade -->
+';
+
+//Alert Setting model
+echo '
+<div class="modal fade" id="node_alerts" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['node_alerts_edit'].'</h5>
+            </div>
+            <div class="modal-body">
+<p class="text-muted"> '.$lang['node_alerts_edit_info'].' </p>';
+$query = "SELECT nodes.*, battery.id AS batt
+FROM nodes
+LEFT JOIN battery ON battery.node_id = nodes.node_id
+WHERE status = 'Active' ORDER BY nodes.node_id asc;";
+$results = $conn->query($query);
+echo '<table>
+    <tr>
+        <th class="col-xs-1">'.$lang['node_id'].'</th>
+        <th class="col-xs-2">'.$lang['name'].'</th>
+        <th class="col-xs-3">'.$lang['last_seen'].'</th>
+        <th class="col-xs-3">'.$lang['notice_interval'].'
+        <span class="fa fa-info-circle fa-lg text-info" data-container="body" data-toggle="popover" data-placement="left" data-content="'.$lang['notice_interval_info'].'"</span></th>
+        <th class="col-xs-3">'.$lang['min_battery_level'].'
+        <span class="fa fa-info-circle fa-lg text-info" data-container="body" data-toggle="popover" data-placement="left" data-content="'.$lang['battery_level_info'].'"</span></th>
+    </tr>';
+
+while ($row = mysqli_fetch_assoc($results)) {
+    echo '
+        <tr>
+            <td>'.$row['node_id'].'</td>
+            <td>'.$row['name'].'</td>
+            <td>'.$row['last_seen'].'</td>
+            <td><input id="interval'.$row["node_id"].'" type="value" class="form-control pull-right" style="border: none" name="interval'.$row["node_id"].'" value="'.$row["notice_interval"].'" placeholder="Notice Interval" required></td>';
+	    if(!isset($row['batt'])) {
+	            echo '<td><input id="min_value'.$row["node_id"].'" type="value" class="form-control pull-right" style="border: none" name="min_value'.$row["node_id"].'" value="N/A" readonly="readonly" placeholder="Min Value"></td>';
+	    } else {
+                    echo '<td><input id="min_value'.$row["node_id"].'" type="value" class="form-control pull-right" style="border: none" name="min_value'.$row["node_id"].'" value="'.$row["min_value"].'" placeholder="Min Value"></td>';
+	    }
+        echo '</tr>';
+
+}
+
+echo '</table></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="node_alerts()">
+            </div>
+        </div>
+    </div>
+</div>';
+}
+
+if ($model_num == 6) {
 //Relay model
 echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -1645,267 +2795,6 @@ echo '<p class="text-muted">'.$lang['sensor_type_add_info_text'].'</p>
     </div>
 </div>';
 
-//Zone model
-echo '
-<div class="modal fade" id="zone_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['zone_settings'].'</h5>
-                <div class="dropdown pull-right">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
-                        </a>
-                        <ul class="dropdown-menu">
-                                <li><a href="pdf_download.php?file=setup_guide_zones.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_guide_zones'].'</a></li>
-                                <li class="divider"></li>
-	                        <li><a href="pdf_download.php?file=setup_pump_type_relays.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_pump_type_relays'].'</a></li>
-                                <li class="divider"></li>
-                                <li><a href="pdf_download.php?file=switch_zones.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['switch_zones'].'</a></li>
-                                <li class="divider"></li>
-                        	<li><a href="pdf_download.php?file=switch_zone_state_control.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['switch_zone_state_control'].'</a></li>
-                        </ul>
-                </div>
-            </div>
-            <div class="modal-body">
-		<p class="text-muted">'.$lang['zone_settings_text'].'</p>';
-		$query = "select * from zone order by index_id asc";
-		$results = $conn->query($query);
-		echo '<div class=\"list-group\">';
-			while ($row = mysqli_fetch_assoc($results)) {
-        			if($row['status'] == 1) {
-                			$content_msg=$lang['confirm_dell_active_zone'];
-        			} else {
-                			$content_msg=$lang['confirm_dell_de_active_zone'];
-        			}
-				echo "<div class=\"list-group-item\">
-        				<i class=\"glyphicon glyphicon-th-large orange\"></i> ".$row['name']."";
-        				$query = "select * from zone_view WHERE id = '{$row['id']}'order by index_id asc";
-        				$vresult = $conn->query($query);
-        				while ($vrow = mysqli_fetch_assoc($vresult)) {
-						$unit = SensorUnits($conn,$vrow['sensor_type_id']);
-                                                if ($vrow['r_type'] == 5) {
-							echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['pump_relay'].": ".$vrow['relay_type'].": ".$vrow['relay_id']."-".$vrow['relay_child_id']."</small></span><br>";
-                				} elseif ($vrow['category'] == 2) {
-							echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['controller'].": ".$vrow['relay_type'].": ".$vrow['relay_id']."-".$vrow['relay_child_id']."</small></span><br>";
-						} elseif ($vrow['category'] == 3) {
-							echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['min']." ".DispSensor($conn,$vrow['min_c'],$vrow['sensor_type_id']).$unit." </em>, ".$lang['max']." ".$vrow['max_c'].$unit." </em> - ".$lang['sensor'].": ".$vrow['sensors_id']."</small></span><br>";
-                				} else {
-                        				echo "<span class=\"pull-right \"><em>&nbsp;&nbsp;<small> ".$lang['max']." ".DispSensor($conn,$vrow['max_c'],$vrow['sensor_type_id']).$unit." </em> - ".$lang['sensor'].": ".$vrow['sensors_id']." - ".$vrow['relay_type'].": ".$vrow['relay_id']."-".$vrow['relay_child_id']."</small></span><br>";
-                				}
-        				}
-        				echo "<span class=\"pull-right \"><small>
-        					<a href=\"zone.php?id=".$row['id']."\" class=\"btn btn-default btn-xs login\"><span class=\"ionicons ion-edit\"></span></a>&nbsp;&nbsp;
-        					<a href=\"javascript:delete_zone(".$row['id'].");\"><button class=\"btn btn-danger btn-xs\" data-toggle=\"confirmation\" data-title=".$lang['confirmation']." data-content=\"$content_msg\"><span class=\"glyphicon glyphicon-trash\"></span></button></a>
-        				</small></span>
-        				<br>
-        			</div>";
-			}
-		echo '</div>
-	    </div>
-	    <div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                <a class="btn btn-default login btn-sm" href="zone.php">'.$lang['zone_add'].'</a>
-            </div>
-        </div>
-    </div>
-</div>';
-
-//gateway model
-echo '
-<div class="modal fade" id="sensor_gateway" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-dialog">
-        	<div class="modal-content">
-            		<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-               			<h5 class="modal-title">'.$lang['smart_home_gateway'].'</h5>
-                                <div class="dropdown pull-right">
-                                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
-                                        </a>
-                                        <ul class="dropdown-menu">
-                                		<li><a href="pdf_download.php?file=setup_guide_gateway.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_guide_gateway'].'</a></li>
-                                        </ul>
-                                </div>
-            		</div>
-            		<div class="modal-body">';
-				$gquery = "SELECT * FROM gateway";
-				$gresult = $conn->query($gquery);
-                                $rowcount=mysqli_num_rows($gresult);
-                                if($rowcount == 0) {
-                                        echo $lang['smart_home_gateway_text_serial'];
-                                        $display_wifi = "display:none";
-                                        $display_serial = "display:block";
-                                        $gateway_type = 'serial';
-                                } else {
-                                        $grow = mysqli_fetch_array($gresult);
-                                        $gateway_type = $grow['type'];
-                                        echo '<p class="text-muted">';
-                                        if ($gateway_type=='wifi'){
-                                                echo $lang['smart_home_gateway_text_wifi'];
-                                                $display_wifi = "display:block";
-                                                $display_serial = "display:none";
-                                                $display_timeout = "display:block";
-                                        } elseif ($gateway_type=='serial') {
-                                                echo $lang['smart_home_gateway_text_serial'];
-                                                $display_wifi = "display:none";
-                                                $display_serial = "display:block";
-                                                $display_timeout = "display:block";
-                                        } elseif ($gateway_type=='virtual') {
-                                                echo $lang['smart_home_gateway_text_virtual'];
-                                                $display_wifi = "display:none";
-                                                $display_serial = "display:none";
-                                                $display_timeout = "display:none";
-                                        }
-                                }
-				echo '</p>';
-				echo '
-				<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
-				<div class="form-group" class="control-label">
-					<div class="checkbox checkbox-default checkbox-circle">';
-						if ($grow['status'] == '1'){
-							echo '<input id="checkbox1" class="styled" type="checkbox" value="1" name="status" checked>';
-						}else {
-							echo '<input id="checkbox1" class="styled" type="checkbox" value="1" name="status">';
-						}
-						echo '
-						<label for="checkbox1"> '.$lang['smart_home_gateway_enable'].'</label>
-					</div>
-				</div>
-                               	<!-- /.form-group -->
-
-                                <div class="form-group" class="control-label">
-                                        <div class="checkbox checkbox-default checkbox-circle">';
-                                                if ($grow['enable_outgoing'] == '1'){
-                                                        echo '<input id="checkbox4" class="styled" type="checkbox" value="1" name="enable_outgoing" checked>';
-                                                }else {
-                                                        echo '<input id="checkbox4" class="styled" type="checkbox" value="1" name="enable_outgoing">';
-                                                }
-                                                echo '
-                                                <label for="checkbox4"> '.$lang['enable_outgoing'].'</label>
-                                        </div>
-                                </div>
-                                <!-- /.form-group -->
-
-                                <div class="form-group" class="control-label"><label>'.$lang['smart_home_gateway_type'].'</label>
-                                        <select class="form-control input-sm" type="text" id="gw_type" name="gw_type" onchange=gw_location()>
-                                        <option value="wifi" ' . ($gateway_type=='wifi' ? 'selected' : '') . '>'.$lang['wifi'].'</option>
-                                        <option value="serial" ' . ($gateway_type=='serial' ? 'selected' : '') . '>'.$lang['serial'].'</option>
-                                        <option value="virtual" ' . ($gateway_type=='virtual' ? 'selected' : '') . '>'.$lang['virtual'].'</option>
-                                        </select>
-                                        <div class="help-block with-errors">
-                                        </div>
-                                </div>
-                                <!-- /.form-group -->
-
-                                <div class="form-group" class="control-label" id="wifi_gw" style="'.$display_wifi.'"><label>'.$lang['wifi_gateway_location'].'</label>
-                                	<input class="form-control input-sm" type="text" id="wifi_location" name="wifi_location" value="'.$grow['location'].'" placeholder="Gateway Location">
-                                        <div class="help-block with-errors">
-                                        </div>
-                                </div>
-                                <!-- /.form-group -->
-
-                                <div class="form-group" class="control-label" id="serial_gw" style="'.$display_serial.'"><label>'.$lang['serial_gateway_location'].'</label>
-                                        <select class="form-control input-sm" type="text" id="serial_location" name="serial_location">
-                                        <option selected>'.$grow['location'].'</option>';
-                                        $dev_tty = glob("/dev/tty*");
-                                        for ($x = 0; $x <=  count($dev_tty) - 1; $x++) {
-                                                echo '<option value="'.$dev_tty[$x].'" ' . '>'.$dev_tty[$x].'</option>';
-                                        }
-                                        echo '</select>
-                                        <div class="help-block with-errors">
-                                        </div>
-                                </div>
-                                <!-- /.form-group -->
-
-                                <div class="form-group" class="control-label" id="wifi_port" style="'.$display_wifi.'"><label>'.$lang['wifi_gateway_port'].' </label>
-                                        <input class="form-control input-sm" type="text" id="wifi_port_num" name="wifi_port_num" value="'.$grow['port'].'" placeholder="Gateway Port">
-                                        <div class="help-block with-errors">
-                                        </div>
-                                </div>
-                                <!-- /.form-group -->
-
-                                <div class="form-group" class="control-label" id="serial_port" style="'.$display_serial.'"><label>'.$lang['serial_gateway_port'].' </label>
-                                        <select class="form-control input-sm" type="text" id="serial_port_speed" name="serial_port_speed">
-                                                <option selected>'.$grow['port'].'</option>
-                                                <option value="9600">9600</option>
-                                                <option value="19200">19200</option>
-                                                <option value="38400">38400</option>
-                                                <option value="57600">57600</option>
-                                                <option value="74880">74880</option>
-                                                <option value="115200">115200</option>
-                                                <option value="230400">233400</option>
-                                                <option value="250000">250000</option>
-                                                <option value="500000">500000</option>
-                                                <option value="1000000">1000000</option>
-                                                <option value="2000000">2000000</option>
-                                                </select>
-                                        <div class="help-block with-errors">
-                                        </div>
-                                </div>
-                                <!-- /.form-group -->
-
-				<div class="form-group" class="control-label" id="gw_timout_label" style="'.$display_timeout.'"><label>'.$lang['timeout'].' </label>
-                                        <select class="form-control input-sm" type="text" id="gw_timout" name="gw_timout">
-                                        <option selected>'.$grow['timout'].'</option>
-                                        <option value="0">0</option>
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3" selected>3</option>
-                                        <option value="4">4</option>
-                                        <option value="5">5</option>
-                                        <option value="6">6</option>
-                                        <option value="7">7</option>
-                                        <option value="8">8</option>
-                                        <option value="9">9</option>
-                                        <option value="10">10</option>
-                                        <option value="15">15</option>
-                                        </select>
-                                        <div class="help-block with-errors"></div>
-				</div>
-                                <!-- /.form-group -->
-
-				<div class="form-group" class="control-label"><label>'.$lang['smart_home_gateway_version'].' </label>
-					<input class="form-control input-sm" type="text" id="gw_version" name="gw_version" value="'.$grow['version'].'" disabled>
-					<div class="help-block with-errors">
-					</div>
-				</div>
-                                <!-- /.form-group -->
-
-				<br><h4 class="info"><i class="fa fa-heartbeat red"></i> '.$lang['smart_home_gateway_scr_info'].'</h4>
-				<div class=\"list-group\">';
-					echo "
-					<a href=\"#\" class=\"list-group-item\"> PID <span class=\"pull-right text-muted small\"><em> ".$grow['pid']."</em></span></a>
-					<a href=\"#\" class=\"list-group-item\"> ".$lang['smart_home_gateway_pid'].": <span class=\"pull-right text-muted small\"><em>".$grow['pid_running_since']."</em></span></a>";
-
-					$query = "select * FROM gateway_logs WHERE pid_datetime >= NOW() - INTERVAL 5 MINUTE;";
-					$result = $conn->query($query);
-					if (mysqli_num_rows($result) != 0){
-						$gw_restarted = mysqli_num_rows($result);
-					} else {
-						$gw_restarted = '0';
-					}
-					echo "<a href=\"#\" class=\"list-group-item\"> ".$lang['smart_home_gateway_scr'].": <span class=\"pull-right text-muted small\"><em>".$gw_restarted."</em></span></a>";
-				echo '</div>
-                                <!-- /.list-group -->
-			</div>
-			<!-- /.modal-body -->
-            		<div class="modal-footer">
-				<a href="javascript:resetgw('.$grow['pid'].')" class="btn btn-default login btn-sm btn-edit">Reset GW</a>
-				<a href="javascript:find_gw()" class="btn btn-default login btn-sm btn-edit">Search GW</a>
-				<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="setup_gateway()">
-				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-            		</div>
-			<!-- /.modal-footer -->
-        	</div>
-		<!-- /.modal-content -->
-    	</div>
-	<!-- /.modal-dialog -->
-</div>
-<!-- /.modal fade -->
-';
-
 //Add HTTP Message model
 echo '
 <div class="modal fade" id="add_on_http" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -1994,18 +2883,15 @@ echo '<p class="text-muted">'.$lang['add_on_add_info_text'].'</p>
         }
         echo '</select>
     	<div class="help-block with-errors"></div></div>
-
 	<div class="form-group" class="control-label"><label>'.$lang['message_type'].'</label> <small class="text-muted">'.$lang['message_type_info'].'</small>
 	<select <input class="form-control input-sm" type="text" id="zone_add_msg_type" name="zone_add_msg_type" value="" placeholder="'.$lang['message_type'].'">
 	<option selected value="0">0 </option>
         <option value="1">1 </option>
 	</select>
 	<div class="help-block with-errors"></div></div>
-
 	<div class="form-group" class="control-label"><label>'.$lang['http_command'].'</label> <small class="text-muted">'.$lang['http_command_info'].'</small>
 	<input class="form-control input-sm" type="text" id="zone_http_command" name="zone_http_command" value="" placeholder="'.$lang['http_command'].'">
 	<div class="help-block with-errors"></div></div>
-
         <div class="form-group" class="control-label"><label>'.$lang['http_parameter'].'</label> <small class="text-muted">'.$lang['http_parameter_info'].'</small>
         <input class="form-control input-sm" type="text" id="zone_http_parameter" name="zone_http_parameter" value="" placeholder="'.$lang['http_parameter'].'">
         <div class="help-block with-errors"></div></div>
@@ -2037,18 +2923,15 @@ echo '<p class="text-muted">'.$lang['add_on_add_info_text'].'</p>
         }
         echo '</select>
         <div class="help-block with-errors"></div></div>
-
         <div class="form-group" class="control-label"><label>'.$lang['message_type'].'</label> <small class="text-muted">'.$lang['message_type_info'].'</small>
         <select <input class="form-control input-sm" type="text" id="node_add_msg_type" name="node_add_msg_type" value="" placeholder="'.$lang['message_type'].'">
         <option selected value="0">0 </option>
         <option value="1">1 </option>
         </select>
         <div class="help-block with-errors"></div></div>
-
         <div class="form-group" class="control-label"><label>'.$lang['http_command'].'</label> <small class="text-muted">'.$lang['http_command_info'].'</small>
         <input class="form-control input-sm" type="text" id="node_http_command" name="node_http_command" value="" placeholder="'.$lang['http_command'].'">
         <div class="help-block with-errors"></div></div>
-
         <div class="form-group" class="control-label"><label>'.$lang['http_parameter'].'</label> <small class="text-muted">'.$lang['http_parameter_info'].'</small>
         <input class="form-control input-sm" type="text" id="node_http_parameter" name="node_http_parameter" value="" placeholder="'.$lang['http_parameter'].'">
         <div class="help-block with-errors"></div></div>
@@ -2116,906 +2999,7 @@ echo '<div class="modal fade" id="mqtt_devices" tabindex="-1" role="dialog" aria
         </div>
     </div>
 </div>';
-
-//network settings model
-echo '
-<div class="modal fade" id="network_setting" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['network_settings'].'</h5>
-            </div>
-            <div class="modal-body">';
-
-$query = "SELECT * FROM `network_settings` ORDER BY `id` ASC;";
-$result = $conn->query($query);
-
-$rowArray = array();
-
-while($row = mysqli_fetch_assoc($result)) {
-   $rowArray[] = $row;
 }
-
-echo '<p class="text-muted">'.$lang['network_text'].'</p>';
-echo '
-        <form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
-
-        <input class="form-control input-sm" type="hidden" id="n_int_type" name="n_int_type" value="'.$rowArray[0]['interface_type'].'"/>
-        <div class="form-group" class="control-label"><label>'.$lang['network_interface'].'</label>
-                <select class="form-control input-sm" type="text" id="n_int_num" name="n_int_num" onchange=change(this.options[this.selectedIndex].value)>
-                <option value=0>wlan0</option>
-                <option value=1>wlan1</option>
-                <option value=2>eth0</option>
-                <option value=3>eth1</option>
-                </select>
-                <div class="help-block with-errors">
-                </div>
-        </div>
-        <div class="form-group" class="control-label"><label>'.$lang['network_primary'].'</label>
-                <select class="form-control input-sm" type="text" id="n_primary" name="n_primary">
-                <option value=0>No</option>
-                <option selected value=1>Yes</option>
-                </select>
-                <div class="help-block with-errors">
-                </div>
-        </div>
-        <div class="form-group" class="control-label"><label>'.$lang['network_ap_mode'].'</label>
-                <select class="form-control input-sm" type="text" id="n_ap_mode" name="n_ap_mode">
-                <option selected value=0>No</option>
-                <option value=1>Yes</option>
-                </select>
-                <div class="help-block with-errors">
-                </div>
-        </div>
-        <div class="form-group" class="control-label"><label>'.$lang['network_mac_address'].'</label>
-                <input class="form-control input-sm" type="text" id="n_mac" name="n_mac" value="'.$rowArray[0]['mac_address'].'" placeholder="MAC Address">
-                <div class="help-block with-errors">
-                </div>
-        </div>
-        <div class="form-group" class="control-label"><label>'.$lang['network_hostname'].'</label>
-                <input class="form-control input-sm" type="text" id="n_hostname" name="n_hostname" value="'.$rowArray[0]['hostname'].'" placeholder="Hostname">
-                <div class="help-block with-errors">
-                </div>
-        </div>
-        <div class="form-group" class="control-label"><label>'.$lang['network_ip_address'].'</label>
-                <input class="form-control input-sm" type="text" id="n_ip" name="n_ip" value="'.$rowArray[0]['ip_address'].'" placeholder="IP Address">
-                <div class="help-block with-errors">
-                </div>
-        </div>
-        <div class="form-group" class="control-label"><label>'.$lang['network_gateway_address'].'</label>
-                <input class="form-control input-sm" type="text" id="n_gateway" name="n_gateway" value="'.$rowArray[0]['gateway_address'].'" placeholder="Gateway Address">
-                <div class="help-block with-errors">
-                </div>
-        </div>
-        <div class="form-group" class="control-label"><label>'.$lang['network_net_mask'].'</label>
-                <input class="form-control input-sm" type="text" id="n_net_mask" name="n_net_mask" value="'.$rowArray[0]['net_mask'].'" placeholder="Net Mask">
-                <div class="help-block with-errors">
-                </div>
-        </div>
-        <div class="form-group" class="control-label"><label>'.$lang['network_dns1_address'].'</label>
-                <input class="form-control input-sm" type="text" id="n_dns1" name="n_dns1" value="'.$rowArray[0]['dns1_address'].'" placeholder="DNS1 Address">
-                <div class="help-block with-errors">
-                </div>
-        </div>
-        <div class="form-group" class="control-label"><label>'.$lang['network_dns2_address'].'</label>
-                <input class="form-control input-sm" type="text" id="n_dns2" name="n_dns2" value="'.$rowArray[0]['dns2_address'].'" placeholder="DNS2 Address">
-                <div class="help-block with-errors">
-                </div>
-        </div>
-
-        </div>
-        <!-- /.modal-body -->
-
-            <div class="modal-footer">
-                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="setup_network()">
-            </div>
-            <!-- /.modal-footer -->
-        </div>
-        <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-</div>
-<!-- /.modal-fade -->
-';
-?>
-<script>
-function change(value){
-        var jArray = <?php echo json_encode($rowArray); ?>;
-        var valuetext = value;
-        document.getElementById("n_primary").value = jArray[value]['primary_interface'];
-        document.getElementById("n_mac").value = jArray[value]['mac_address'];
-        document.getElementById("n_hostname").value = jArray[value]['hostname'];
-        document.getElementById("n_ip").value = jArray[value]['ip_address'];
-        document.getElementById("n_gateway").value = jArray[value]['gateway_address'];
-        document.getElementById("n_net_mask").value = jArray[value]['net_mask'];
-        document.getElementById("n_dns1").value = jArray[value]['dns1_address'];
-        document.getElementById("n_dns2").value = jArray[value]['dns2_address'];
-        switch (value) {
-                case '0':
-                        document.getElementById("n_int_type").value = 'wlan0';
-                        break;
-                case '1':
-                        document.getElementById("n_int_type").value = 'wlan1';
-                        break;
-                case '2':
-                        document.getElementById("n_int_type").value = 'eth0';
-                        break;
-                case '3':
-                        document.getElementById("n_int_type").value = 'eth1';
-                        break;
-                default:
-        }
-}
-</script>
-<?php
-
-//email settings model
-echo '
-<div class="modal fade" id="email_setting" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['email_settings'].'</h5>
-                <div class="dropdown pull-right">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
-                        </a>
-                        <ul class="dropdown-menu">
-                        	<li><a href="pdf_download.php?file=setup_email_notifications.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_email_notifications'].'</a></li>
-                        </ul>
-                </div>
-            </div>
-            <div class="modal-body">';
-$gquery = "SELECT * FROM email";
-$gresult = $conn->query($gquery);
-$erow = mysqli_fetch_array($gresult);
-
-echo '<p class="text-muted">'.$lang['email_text'].'</p>';
-echo '
-	<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
-
-	<div class="form-group" class="control-label">
-	<div class="checkbox checkbox-default checkbox-circle">';
-	if ($erow['status'] == '1'){
-		echo '<input id="checkbox3" class="styled" type="checkbox" value="1" name="status" checked>';
-	}else {
-		echo '<input id="checkbox3" class="styled" type="checkbox" value="1" name="status">';
-	}
-echo '
-
-	<label for="checkbox3"> '.$lang['email_enable'].'</label></div></div>
-
-	<div class="form-group" class="control-label"><label>'.$lang['email_smtp_server'].'</label>
-	<input class="form-control input-sm" type="text" id="e_smtp" name="e_smtp" value="'.$erow['smtp'].'" placeholder="e-mail SMTP Server Address ">
-	<div class="help-block with-errors"></div></div>
-
-        <div class="form-group" class="control-label"><label>'.$lang['port'].'</label>
-        <select class="form-control input-sm" type="text" id="e_port" name="e_port" >
-                <option value="25" ' . ($erow['port']==25 ? 'selected' : '') . '>25</option>
-                <option value="465" ' . ($erow['port']==465 ? 'selected' : '') . '>465</option>
-        </select>
-        <div class="help-block with-errors"></div></div>
-
-	<div class="form-group" class="control-label"><label>'.$lang['email_username'].' </label>
-	<input class="form-control input-sm" type="text" id="e_username" name="e_username" value="'.$erow['username'].'" placeholder="Username for e-mail Server">
-	<div class="help-block with-errors"></div></div>
-
-	<div class="form-group" class="control-label"><label>'.$lang['email_password'].' </label>
-	<input class="form-control input-sm" type="password" id="e_password" name="e_password" value="'.$erow['password'].'" placeholder="Password for e-mail Server">
-	<div class="help-block with-errors"></div></div>
-
-	<div class="form-group" class="control-label"><label>'.$lang['email_from_address'].' </label>
-	<input class="form-control input-sm" type="text" id="e_from_address" name="e_from_address" value="'.$erow['from'].'" placeholder="From e-mail" >
-	<div class="help-block with-errors"></div></div>
-
-	<div class="form-group" class="control-label"><label>'.$lang['email_to_address'].' </label>
-	<input class="form-control input-sm" type="text" id="e_to_address" name="e_to_address" value="'.$erow['to'].'" placeholder="To e-mail Address">
-	<div class="help-block with-errors"></div></div>';
-
-echo '</div>
-            <div class="modal-footer">
-				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-				<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="setup_email()">
-
-            </div>
-        </div>
-    </div>
-</div>';
-
-//Alert Setting model
-echo '
-<div class="modal fade" id="node_alerts" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['node_alerts_edit'].'</h5>
-            </div>
-            <div class="modal-body">
-<p class="text-muted"> '.$lang['node_alerts_edit_info'].' </p>';
-$query = "SELECT * FROM nodes where status = 'Active' ORDER BY node_id asc";
-$results = $conn->query($query);
-echo '<table>
-    <tr>
-        <th class="col-xs-1">'.$lang['node_id'].'</th>
-        <th class="col-xs-2">'.$lang['name'].'</th>
-        <th class="col-xs-3">'.$lang['last_seen'].'</th>
-        <th class="col-xs-3">'.$lang['notice_interval'].'
-        <span class="fa fa-info-circle fa-lg text-info" data-container="body" data-toggle="popover" data-placement="left" data-content="'.$lang['notice_interval_info'].'"</span></th>
-        <th class="col-xs-3">'.$lang['min_battery_level'].'
-        <span class="fa fa-info-circle fa-lg text-info" data-container="body" data-toggle="popover" data-placement="left" data-content="'.$lang['battery_level_info'].'"</span></th>
-    </tr>';
-
-while ($row = mysqli_fetch_assoc($results)) {
-    $query = "SELECT * FROM nodes_battery where  node_id ='".$row['node_id']."'; ";
-    $result = $conn->query($query);
-    $count = $result->num_rows;
-    echo '
-        <tr>
-            <td>'.$row['node_id'].'</td>
-            <td>'.$row['name'].'</td>
-            <td>'.$row['last_seen'].'</td>
-            <td><input id="interval'.$row["node_id"].'" type="value" class="form-control pull-right" style="border: none" name="interval'.$row["node_id"].'" value="'.$row["notice_interval"].'" placeholder="Notice Interval" required></td>';
-	    if($count == 0) {
-	            echo '<td><input id="min_value'.$row["node_id"].'" type="value" class="form-control pull-right" style="border: none" name="min_value'.$row["node_id"].'" value="N/A" readonly="readonly" placeholder="Min Value"></td>';
-	    } else {
-                    echo '<td><input id="min_value'.$row["node_id"].'" type="value" class="form-control pull-right" style="border: none" name="min_value'.$row["node_id"].'" value="'.$row["min_value"].'" placeholder="Min Value"></td>';
-	    }
-        echo '</tr>';
-
-}
-
-echo '</table></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="node_alerts()">
-            </div>
-        </div>
-    </div>
-</div>';
-
-
-//Time Zone
-echo '
-<div class="modal fade" id="time_zone" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['time_zone'].'</h5>
-            </div>
-            <div class="modal-body">
-                <p class="text-muted"> '.$lang['time_zone_text'].'</p>
-				<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
-				<div class="form-group" class="control-label"><label>'.$lang['time_zone'].'</label>
-				<select class="form-control input-sm" type="number" id="new_time_zone" name="new_time_zone" >
-
-				<option selected >'.settings($conn, 'timezone').'</option>';
-$timezones = array(
-    'Pacific/Midway'       => "(GMT-11:00) Midway Island",
-    'US/Samoa'             => "(GMT-11:00) Samoa",
-    'US/Hawaii'            => "(GMT-10:00) Hawaii",
-    'US/Alaska'            => "(GMT-09:00) Alaska",
-    'US/Pacific'           => "(GMT-08:00) Pacific Time (US &amp; Canada)",
-    'America/Tijuana'      => "(GMT-08:00) Tijuana",
-    'US/Arizona'           => "(GMT-07:00) Arizona",
-    'US/Mountain'          => "(GMT-07:00) Mountain Time (US &amp; Canada)",
-    'America/Chihuahua'    => "(GMT-07:00) Chihuahua",
-    'America/Mazatlan'     => "(GMT-07:00) Mazatlan",
-    'America/Mexico_City'  => "(GMT-06:00) Mexico City",
-    'America/Monterrey'    => "(GMT-06:00) Monterrey",
-    'Canada/Saskatchewan'  => "(GMT-06:00) Saskatchewan",
-    'US/Central'           => "(GMT-06:00) Central Time (US &amp; Canada)",
-    'US/Eastern'           => "(GMT-05:00) Eastern Time (US &amp; Canada)",
-    'US/East-Indiana'      => "(GMT-05:00) Indiana (East)",
-    'America/Bogota'       => "(GMT-05:00) Bogota",
-    'America/Lima'         => "(GMT-05:00) Lima",
-    'America/Caracas'      => "(GMT-04:30) Caracas",
-    'Canada/Atlantic'      => "(GMT-04:00) Atlantic Time (Canada)",
-    'America/La_Paz'       => "(GMT-04:00) La Paz",
-    'America/Santiago'     => "(GMT-04:00) Santiago",
-    'Canada/Newfoundland'  => "(GMT-03:30) Newfoundland",
-    'America/Buenos_Aires' => "(GMT-03:00) Buenos Aires",
-    'Greenland'            => "(GMT-03:00) Greenland",
-    'Atlantic/Stanley'     => "(GMT-02:00) Stanley",
-    'Atlantic/Azores'      => "(GMT-01:00) Azores",
-    'Atlantic/Cape_Verde'  => "(GMT-01:00) Cape Verde Is.",
-    'Africa/Casablanca'    => "(GMT) Casablanca",
-    'Europe/Dublin'        => "(GMT) Dublin",
-    'Europe/Lisbon'        => "(GMT) Lisbon",
-    'Europe/London'        => "(GMT) London",
-    'Africa/Monrovia'      => "(GMT) Monrovia",
-    'Europe/Amsterdam'     => "(GMT+01:00) Amsterdam",
-    'Europe/Belgrade'      => "(GMT+01:00) Belgrade",
-    'Europe/Berlin'        => "(GMT+01:00) Berlin",
-    'Europe/Bratislava'    => "(GMT+01:00) Bratislava",
-    'Europe/Brussels'      => "(GMT+01:00) Brussels",
-    'Europe/Budapest'      => "(GMT+01:00) Budapest",
-    'Europe/Copenhagen'    => "(GMT+01:00) Copenhagen",
-    'Europe/Ljubljana'     => "(GMT+01:00) Ljubljana",
-    'Europe/Madrid'        => "(GMT+01:00) Madrid",
-    'Europe/Paris'         => "(GMT+01:00) Paris",
-    'Europe/Prague'        => "(GMT+01:00) Prague",
-    'Europe/Rome'          => "(GMT+01:00) Rome",
-    'Europe/Sarajevo'      => "(GMT+01:00) Sarajevo",
-    'Europe/Skopje'        => "(GMT+01:00) Skopje",
-    'Europe/Stockholm'     => "(GMT+01:00) Stockholm",
-    'Europe/Vienna'        => "(GMT+01:00) Vienna",
-    'Europe/Warsaw'        => "(GMT+01:00) Warsaw",
-    'Europe/Zagreb'        => "(GMT+01:00) Zagreb",
-    'Europe/Athens'        => "(GMT+02:00) Athens",
-    'Europe/Bucharest'     => "(GMT+02:00) Bucharest",
-    'Africa/Cairo'         => "(GMT+02:00) Cairo",
-    'Africa/Harare'        => "(GMT+02:00) Harare",
-    'Europe/Helsinki'      => "(GMT+02:00) Helsinki",
-    'Europe/Istanbul'      => "(GMT+02:00) Istanbul",
-    'Asia/Jerusalem'       => "(GMT+02:00) Jerusalem",
-    'Europe/Kyiv'          => "(GMT+02:00) Kiev",
-    'Europe/Minsk'         => "(GMT+02:00) Minsk",
-    'Europe/Riga'          => "(GMT+02:00) Riga",
-    'Europe/Sofia'         => "(GMT+02:00) Sofia",
-    'Europe/Tallinn'       => "(GMT+02:00) Tallinn",
-    'Europe/Vilnius'       => "(GMT+02:00) Vilnius",
-    'Asia/Baghdad'         => "(GMT+03:00) Baghdad",
-    'Asia/Kuwait'          => "(GMT+03:00) Kuwait",
-    'Africa/Nairobi'       => "(GMT+03:00) Nairobi",
-    'Asia/Riyadh'          => "(GMT+03:00) Riyadh",
-    'Europe/Moscow'        => "(GMT+03:00) Moscow",
-    'Asia/Tehran'          => "(GMT+03:30) Tehran",
-    'Asia/Baku'            => "(GMT+04:00) Baku",
-    'Europe/Volgograd'     => "(GMT+04:00) Volgograd",
-    'Asia/Muscat'          => "(GMT+04:00) Muscat",
-    'Asia/Tbilisi'         => "(GMT+04:00) Tbilisi",
-    'Asia/Yerevan'         => "(GMT+04:00) Yerevan",
-    'Asia/Kabul'           => "(GMT+04:30) Kabul",
-    'Asia/Karachi'         => "(GMT+05:00) Karachi",
-    'Asia/Tashkent'        => "(GMT+05:00) Tashkent",
-    'Asia/Kolkata'         => "(GMT+05:30) Kolkata",
-    'Asia/Kathmandu'       => "(GMT+05:45) Kathmandu",
-    'Asia/Yekaterinburg'   => "(GMT+06:00) Ekaterinburg",
-    'Asia/Almaty'          => "(GMT+06:00) Almaty",
-    'Asia/Dhaka'           => "(GMT+06:00) Dhaka",
-    'Asia/Novosibirsk'     => "(GMT+07:00) Novosibirsk",
-    'Asia/Bangkok'         => "(GMT+07:00) Bangkok",
-    'Asia/Jakarta'         => "(GMT+07:00) Jakarta",
-    'Asia/Krasnoyarsk'     => "(GMT+08:00) Krasnoyarsk",
-    'Asia/Chongqing'       => "(GMT+08:00) Chongqing",
-    'Asia/Hong_Kong'       => "(GMT+08:00) Hong Kong",
-    'Asia/Kuala_Lumpur'    => "(GMT+08:00) Kuala Lumpur",
-    'Australia/Perth'      => "(GMT+08:00) Perth",
-    'Asia/Singapore'       => "(GMT+08:00) Singapore",
-    'Asia/Taipei'          => "(GMT+08:00) Taipei",
-    'Asia/Ulaanbaatar'     => "(GMT+08:00) Ulaan Bataar",
-    'Asia/Urumqi'          => "(GMT+08:00) Urumqi",
-    'Asia/Irkutsk'         => "(GMT+09:00) Irkutsk",
-    'Asia/Seoul'           => "(GMT+09:00) Seoul",
-    'Asia/Tokyo'           => "(GMT+09:00) Tokyo",
-    'Australia/Adelaide'   => "(GMT+09:30) Adelaide",
-    'Australia/Darwin'     => "(GMT+09:30) Darwin",
-    'Asia/Yakutsk'         => "(GMT+10:00) Yakutsk",
-    'Australia/Brisbane'   => "(GMT+10:00) Brisbane",
-    'Australia/Canberra'   => "(GMT+10:00) Canberra",
-    'Pacific/Guam'         => "(GMT+10:00) Guam",
-    'Australia/Hobart'     => "(GMT+10:00) Hobart",
-    'Australia/Melbourne'  => "(GMT+10:00) Melbourne",
-    'Pacific/Port_Moresby' => "(GMT+10:00) Port Moresby",
-    'Australia/Sydney'     => "(GMT+10:00) Sydney",
-    'Asia/Vladivostok'     => "(GMT+11:00) Vladivostok",
-    'Asia/Magadan'         => "(GMT+12:00) Magadan",
-    'Pacific/Auckland'     => "(GMT+12:00) Auckland",
-    'Pacific/Fiji'         => "(GMT+12:00) Fiji",
-);
-
-foreach($timezones as $xzone => $x_value) {
-	echo '<option value="'.$xzone.'">'.$x_value.'</option>';
-}
-echo '</select>';
-echo'
-				</select>
-                <div class="help-block with-errors"></div></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['cancel'].'</button>
-                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="update_timezone()">
-            </div>
-        </div>
-    </div>
-</div>';
-
-// Jobs Schedule modal
-echo '
-<div class="modal fade" id="jobs_schedule" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['schedule_jobs'].'</h5>
-                <div class="dropdown pull-right">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
-                        </a>
-                        <ul class="dropdown-menu">
-                                <li><a href="pdf_download.php?file=task_scheduling.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['task_scheduling'].'</a></li>
-                         </ul>
-                </div>
-            </div>
-            <div class="modal-body">
-<p class="text-muted"> '.$lang['schedule_jobs_info'].' </p>';
-$query = "SELECT id, job_name, script, enabled, log_it, time FROM jobs ORDER BY id asc";
-$results = $conn->query($query);
-echo '<br><table>
-    <tr>
-        <th class="col-xs-3">'.$lang['jobs_name'].'</th>
-        <th class="col-xs-4">'.$lang['jobs_script'].'</th>
-        <th class="col-xs-1">'.$lang['enabled'].'</th>
-        <th class="col-xs-1">'.$lang['jobs_log'].'</th>
-        <th class="col-xs-2">'.$lang['jobs_time'].'</th>
-        <th class="col-xs-1"></th>
-    </tr>';
-
-while ($row = mysqli_fetch_assoc($results)) {
-    if ($row["log_it"] == 0) { $log_check = ''; } else { $log_check = 'checked'; }
-    if ($row["enabled"] == 0) { $enabled_check = ''; } else { $enabled_check = 'checked'; }
-    echo '
-        <tr>
-            <td><input id="jobs_name'.$row["id"].'" type="value" class="form-control pull-right" style="border: none" value="'.$row["job_name"].'" placeholder="Job Name"></td>
-            <td><input id="jobs_script'.$row["id"].'" type="value" class="form-control pull-right" style="border: none" value="'.$row["script"].'" placeholder="Job Script"></td>
-            <td style="text-align:center; vertical-align:middle;">
-               <input type="checkbox" id="checkbox_enabled'.$row["id"].'" name="enabled" value="1" '.$enabled_check.'>
-            </td>
-            <td style="text-align:center; vertical-align:middle;">
-               <input type="checkbox" id="checkbox_log'.$row["id"].'" name="logit" value="1" '.$log_check.'>
-            </td>
-            <td><input id="jobs_time'.$row["id"].'" type="value" class="form-control pull-right" style="border: none" value="'.$row["time"].'" placeholder="Run Job Every"></td>
-            <td><a href="javascript:delete_job('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$content_msg.'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>
-        </tr>';
-
-}
-
-echo '</table></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default login btn-sm" data-href="#" data-toggle="modal" data-target="#add_job">'.$lang['add_job'].'</button>
-                <input type="button" name="submit" value="'.$lang['apply'].'" class="btn btn-default login btn-sm" onclick="schedule_jobs()">
-                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-            </div>
-        </div>
-    </div>
-</div>';
-
-//Add Job Schedule
-echo '
-<div class="modal fade" id="add_job" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['add_new_job'].'</h5>
-            </div>
-            <div class="modal-body">';
-echo '<p class="text-muted">'.$lang['add_new_job_info_text'].'</p>
-
-	<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
-
-      	<div class="form-group" class="control-label">
-             <div class="checkbox checkbox-default checkbox-circle">
-                 <input id="checkbox_enabled" class="styled" type="checkbox" value="0" name="status" Enabled>
-                 <label for="checkbox_enabled"> '.$lang['enabled'].'</label>
-             </div>
-        </div>
-
-	<div class="form-group" class="control-label"><label>'.$lang['jobs_name'].'</label> <small class="text-muted">'.$lang['jobs_name_info'].'</small>
-	<input class="form-control input-sm" type="text" id="job_name" name="job_name" value="" placeholder="'.$lang['jobs_name'].'">
-	<div class="help-block with-errors"></div></div>
-
-        <div class="form-group" class="control-label"><label>'.$lang['jobs_script'].'</label> <small class="text-muted">'.$lang['jobs_script_info'].'</small>
-        <input class="form-control input-sm" type="text" id="job_script" name="job_script" value="" placeholder="'.$lang['jobs_script'].'">
-        <div class="help-block with-errors"></div></div>
-
-        <div class="form-group" class="control-label"><label>'.$lang['jobs_time'].'</label> <small class="text-muted">'.$lang['jobs_time_info'].'</small>
-        <input class="form-control input-sm" type="text" id="job_time" name="job_time" value="" placeholder="'.$lang['jobs_time'].'">
-        <div class="help-block with-errors"></div></div>
-
-        <div class="form-group" class="control-label">
-             <div class="checkbox checkbox-default checkbox-circle">
-                 <input id="checkbox_logit" class="styled" type="checkbox" value="0" name="status" Enabled>
-                 <label for="checkbox_logit"> '.$lang['jobs_log'].'</label>
-             </div>
-        </div>
-</div>
-            <div class="modal-footer">
-				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-				<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="add_job()">
-
-            </div>
-        </div>
-    </div>
-</div>';
-
-//last job log status model
-echo '
-<div class="modal fade" id="status_job" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-                <div class="modal-content">
-                        <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                                <h5 class="modal-title">'.$lang['jobs_status_log'].'</h5>
-                        </div>
-                        <div class="modal-body">
-                                <div class="form-group" class="control-label"><label>'.$lang['jobs_name'].'</label> <small class="text-muted">'.$lang['last_job_log_info'].'</small>
-                                        <select class="form-control input-sm" type="text" id="job_name" name="job_name" onchange=last_job_log(this.options[this.selectedIndex].value)>';
-                                        //get list of heat relays to display
-                                        $query = "SELECT id, job_name, output FROM jobs;";
-                                        $result = $conn->query($query);
-                                        if ($result){
-                                                while ($jrow=mysqli_fetch_array($result)) {
-                                                        echo '<option value="'.$jrow['output'].'">'.$jrow['job_name'].'</option>';
-                                                }
-                                        }
-                                        echo '</select>
-                                        <div class="help-block with-errors"></div>
-                                </div>
-                                <!-- /.form-group -->';
-                                $query = "select id, output from jobs where id = 1 limit 1";
-                                $results = $conn->query($query);
-                                $row = mysqli_fetch_assoc($results);
-                                echo '<textarea id="job_status_text" style="background-color: black;color:#fff;height: 500px; min-width: 100%"><pre>'.$row['output'].'</pre></textarea>
-                        </div>
-                        <div class="modal-footer" id="ajaxModalFooter_1">
-                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">Close</button>
-                        </div>
-                </div>
-        </div>
-</div>';
-?>
-<script>
-function last_job_log(value){
-        var valuetext = value;
-        document.getElementById("job_status_text").value = valuetext;
-}
-</script>
-<?php
-
-//Software Install Modal
-echo '
-<div class="modal fade" id="sw_install" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-                <div class="modal-content">
-                        <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                                <h5 class="modal-title">'.$lang['software_install'].'</h5>
-		                <div class="dropdown pull-right">
-                		        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                		<i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
-		                        </a>
-                		        <ul class="dropdown-menu">
-                                		<li><a href="pdf_download.php?file=software_install.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['software_install'].'</a></li>
-						<li class="divider"></li>
-						<li><a href="pdf_download.php?file=software_install_technical.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['software_install_technical'].'</a></li>
-                                                <li class="divider"></li>
-                        			<li><a href="pdf_download.php?file=setup_guide_ha_integration.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_guide_ha_integration'].'</a></li>
-                         		</ul>
-                		</div>
-                        </div>
-                        <div class="modal-body">
-                                <p class="text-muted">'.$lang['install_software_text'].'</p>
-                                <div class=\"list-group\">';
-                                        $installpath = "/var/www/api/enable_rewrite.sh";
-                                        $installname = "Install Apache ReWrite";
-                                        if (file_exists("/etc/apache2/mods-available/rewrite.load")) {
-                                                $prompt = $lang['re_install'];
-                                        } else {
-                                                $prompt = $lang['install'];
-                                        }
-                                        echo '<span class="list-group-item">
-                                        <i class="fa fa-terminal fa-2x green"></i> '.$installname.'
-                                        <span class="pull-right text-muted small"><button type="button" class="btn btn-default login btn-sm"
-                                        onclick="install_software(`'.$installpath.'`)">'.$prompt.'</button></span>
-                                        <p class="text-muted">Install ReWrite for Apache Web Server</p></span>';
-                                        $path = '/var/www/add_on';
-                                        $dir = new DirectoryIterator($path);
-                                        foreach ($dir as $fileinfo) {
-                                                if ($fileinfo->isDir() && !$fileinfo->isDot()) {
-                                                        $installpath = $path."/".$fileinfo->getFilename()."/install.sh";
-                                                        if (file_exists($installpath)) {
-                                                                $contents = file_get_contents($installpath);
-                                                                $searchfor = 'app_name';
-                                                                $pattern = preg_quote($searchfor, '/');
-                                                                $pattern = "/^.*$pattern.*\$/m";
-                                                                if(preg_match_all($pattern, $contents, $matches)){
-                                                                        $str = implode("\n", $matches[0]);
-                                                                        $name = explode(':',$str)[1];
-                                                                } else {
-                                                                        $name = $fileinfo->getFilename();
-                                                                }
-                                                                $searchfor = 'app_description';
-                                                                $pattern = preg_quote($searchfor, '/');
-                                                                $pattern = "/^.*$pattern.*\$/m";
-                                                                if(preg_match_all($pattern, $contents, $matches)){
-                                                                        $str = implode("\n", $matches[0]);
-                                                                        $description = explode(':',$str)[1];
-                                                                } else {
-                                                                        $description = '';
-                                                                }
-                                                                $searchfor = 'service_name';
-                                                                $pattern = preg_quote($searchfor, '/');
-                                                                $pattern = "/^.*$pattern.*\$/m";
-                                                                if(preg_match_all($pattern, $contents, $matches)){
-                                                                        $str = implode("\n", $matches[0]);
-                                                                        $service_name = explode(':',$str);
-                                                                        $rval=my_exec("/bin/systemctl status " . $service_name[1]);
-                                                                        if ($rval['stdout']=='') { $installed = 0; } else { $installed = 1; }
-                                                                } else {
-                                                                        $instaleed = 2;
-                                                                }
-                                                                echo '<span class="list-group-item">
-                                                                <i class="fa fa-terminal fa-2x green"></i> '.$name;
-                                                                if ($installed == 0) {
-                                                                        echo '<span class="pull-right text-muted small"><button type="button" class="btn btn-default login btn-sm"
-                                                                        onclick="install_software(`'.$installpath.'`)">'.$lang['install'].'</button></span>';
-
-                                                                } elseif ($installed == 1) {
-                                                                        echo '<span class="pull-right text"><p> '.$lang['already_installed'].'</p></span>';
-                                                                } else {
-                                                                        echo '<span class="pull-right text"><p> '.$lang['no_installer'].'</p></span>';
-                                                                }
-                                                                echo '<p class="text-muted">'.$description.'</p></span>';
-                                                        }
-                                                }
-                                        }
-                                echo '</div>
-                        </div>
-                        <!-- /.modal-body -->
-                        <div class="modal-footer">
-                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                        </div>
-                        <!-- /.modal-footer -->
-                </div>
-                <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-</div>
-<!-- /.modal-fade -->
-';
-
-// Software Install Add
-echo '<div class="modal" id="add_install">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">'.$lang['close'].'</span></button>
-          <h4 class="modal-title">'.$lang['installing_sw'].'</h4>
-      </div>
-      <div class="modal-body">
-        <p class="text-muted">'.$lang['installing_sw_info'].'</p>';
-        $output = file_get_contents('/var/www/cron/sw_install.txt');
-        echo '<textarea id="install_status_text" style="background-color: black;color:#fff;height: 500px; min-width: 100%"></textarea>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary btn-sm" onclick="sw_install_close()">'.$lang['close'].'</button>
-      </div>
-    </div>
-  </div>
-</div>';
-
-// Last Software Install Model
-echo '<div class="modal" id="last_sw_install" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">'.$lang['close'].'</span></button>
-          <h4 class="modal-title">'.$lang['last_sw_install'].'</h4>
-      </div>
-      <div class="modal-body">';
-        $output = file_get_contents('/var/www/cron/sw_install.txt');
-        echo '<textarea id="install_status_text" style="background-color: black;color:#fff;height: 500px; min-width: 100%">'.$output.'</textarea>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-      </div>
-    </div>
-  </div>
-</div>';
-
-// Documentation Model
-echo '<div class="modal" id="documentation" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">'.$lang['close'].'</span></button>
-          <h4 class="modal-title">'.$lang['documentation'].'</h4>
-      </div>
-      <div class="modal-body">
-        <p class="text-muted">'.$lang['documentation_info'].'</p>
-        <div class=\"list-group\">';
-                $path = '/var/www/documentation/pdf_format';
-                $allFiles = array_diff(scandir($path . "/"), [".", ".."]); // Use array_diff to remove both period values eg: ("." , "..")
-                foreach ($allFiles as $value) {
-			$title = substr($value, 0, -4);
-                        echo '<span class="list-group-item">
-                        <i class="fa fa-file fa-2x orange"></i> '.$lang[$title].'<a href="pdf_download.php?file='.$value.'" target="_blank">
-                        <button type="button" class="pull-right btn btn-default login btn-sm" >'.$lang['open'].'</button></a></span>';
-                }
-        echo '</div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-      </div>
-    </div>
-  </div>
-</div>';
-
-//OS version model
-//$osversion = exec ("cat /etc/os-release");
-//$lines=file('/etc/os-release');
-$lines=array();
-$fp=fopen('/etc/os-release', 'r');
-while ($fp && !feof($fp)){
-    $line=fgets($fp);
-    //process line however you like
-    $line=trim($line);
-    //add to array
-    $lines[]=$line;
-}
-fclose($fp);
-echo '
-<div class="modal fade" id="os_version" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['os_version'].'</h5>
-            </div>
-            <div class="modal-body">
-			   <div class="list-group">
-				<a href="#" class="list-group-item"><i class="fa fa-linux"></i> '.$lines[1].'</a>
-				<a href="#" class="list-group-item"><i class="fa fa-linux"></i> '.$lines[3].'</a>
-				</div>
-           </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-            </div>
-        </div>
-    </div>
-</div>';
-
-//MaxAir Code Update
-echo '
-<div class="modal fade" id="maxair_update" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['maxair_update'].'</h5>
-                <div class="dropdown pull-right">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
-                        </a>
-                        <ul class="dropdown-menu">
-                                <li><a href="pdf_download.php?file=software_update_technical.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['software_update_technical'].'</a></li>
-                        </ul>
-                </div>
-            </div>
-            <div class="modal-body">
-                        <p class="text-muted"> '.$lang['maxair_update_text'].' </p>';
-            echo '</div>
-            <div class="modal-footer">
-                <input type="button" name="submit" value="'.$lang['update_check'].'" class="btn btn-default login btn-sm" onclick="check_updates()">
-                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-            </div>
-        </div>
-    </div>
-</div>';
-
-//MaxAir Versions
-echo '
-<div class="modal fade" id="maxair_versions" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-                <div class="modal-content">
-                        <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                                <h5 class="modal-title">'.$lang['maxair_versions'].'</h5>
-                        </div>
-                        <div class="modal-body">';
-                                $file1 = file('/var/www/st_inc/db_config.ini');
-                                $pieces =  explode(' ', $file1[count($file1) - 4]);
-                                $code_v_installed = array_pop($pieces);
-                                $pieces =  explode(' ', $file1[count($file1) - 3]);
-                                $code_b_installed = array_pop($pieces);
-                                $pieces =  explode(' ', $file1[count($file1) - 2]);
-                                $db_v_installed = array_pop($pieces);
-                                $pieces =  explode(' ', $file1[count($file1) - 1]);
-                                $db_b_installed = array_pop($pieces);
-
-                                $query = "SELECT name FROM repository WHERE status = 1 LIMIT 1;";
-                                $result = $conn->query($query);
-                                $row = mysqli_fetch_assoc($result);
-                                $file2 = file('https://raw.githubusercontent.com/'.$row['name'].'/PiHomeHVAC/master/st_inc/db_config.ini');
-                                $pieces =  explode(' ', $file2[count($file2) - 4]);
-                                $code_v_github = array_pop($pieces);
-                                $pieces =  explode(' ', $file2[count($file2) - 3]);
-                                $code_b_github = array_pop($pieces);
-                                $pieces =  explode(' ', $file2[count($file2) - 2]);
-                                $db_v_github = array_pop($pieces);
-                                $pieces =  explode(' ', $file2[count($file2) - 1]);
-                                $db_b_github = array_pop($pieces);
-
-                                echo '<p class="text-muted"> '.$lang['maxair_versions_text'].' <br>'.$lang['repository'].' - https://github.com/'.$row['name'].'/PiHomeHVAC.git</p>
-                                <table class="table table-bordered">
-                                        <tr>
-                                                <th class="col-xs-8"></th>
-                                                <th class="col-xs-2" "not_mapped_style" style="text-align:center">'.$lang['maxair_update_installed'].'</th>
-                                                <th class="col-xs-2" "not_mapped_style" style="text-align:center">'.$lang['maxair_update_github'].'</th>
-                                        </tr>
-
-                                        <tr>
-                                                <td style="font-weight:bold">'.$lang['maxair_update_code_v'].'</td>
-                                                <td style="text-align:center; vertical-align:middle;">'.$code_v_installed.'</td>
-                                                <td style="text-align:center; vertical-align:middle;">'.$code_v_github.'</td>
-                                        </tr>
-                                        <tr>
-                                                <td style="font-weight:bold">'.$lang['maxair_update_code_b'].'</td>
-                                                <td style="text-align:center; vertical-align:middle;">'.$code_b_installed.'</td>
-                                                <td style="text-align:center; vertical-align:middle;">'.$code_b_github.'</td>
-                                        </tr>
-                                        <tr>
-                                                <td style="font-weight:bold">'.$lang['maxair_update_db_v'].'</td>
-                                                <td style="text-align:center; vertical-align:middle;">'.$db_v_installed.'</td>
-                                                <td style="text-align:center; vertical-align:middle;">'.$db_v_github.'</td>
-                                        </tr>
-                                        <tr>
-                                                <td style="font-weight:bold">'.$lang['maxair_update_db_b'].'</td>
-                                                <td style="text-align:center; vertical-align:middle;">'.$db_b_installed.'</td>
-                                                <td style="text-align:center; vertical-align:middle;">'.$db_b_github.'</td>
-                                        </tr>';
-
-                                echo '</table>
-                        </div>
-                        <div class="modal-footer">
-                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                        </div>
-                </div>
-        </div>
-</div>';
-
-// backup_image
-echo '
-<div class="modal fade" id="backup_image" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['pihome_backup'].'</h5>
-                <div class="dropdown pull-right">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
-                        </a>
-                        <ul class="dropdown-menu">
-                                <li><a href="pdf_download.php?file=setup_database_backup.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_database_backup'].'</a></li>
-                                <li class="divider"></li>
-                        	<li><a href="pdf_download.php?file=setup_email_notifications.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_email_notifications'].'</a></li>
-                        </ul>
-                </div>
-            </div>
-            <div class="modal-body">
-			<p class="text-muted"> '.$lang['pihome_backup_text'].' </p>
-			<form data-toggle="validator" role="form" method="post" action="#" id="form-join">
-			<div class="form-group" class="control-label"><label>'.$lang['email_address'].'</label> <small class="text-muted">'.$lang['pihome_backup_email_info'].'</small>
-			<input class="form-control input-sm" type="text" id="backup_email" name="backup_email" value="'.settings($conn, backup_email).'" placeholder="Email Address to Receive your Backup file">
-			<div class="help-block with-errors"></div>
-			</div>
-			</form>';
-echo '     </div>
-            <div class="modal-footer">
-			<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                        <a href="javascript:backup_email_update()"><button class="btn btn-default login btn-sm" data-toggle="confirmation" data-title="'.$lang['update_email_address'].'">'.$lang['save'].'</button> </a>
-			<a href="javascript:db_backup()" class="btn btn-default login btn-sm">'.$lang['backup_start'].'</a>
-            </div>
-        </div>
-    </div>
-</div>';
 
 // Reboot Modal
 echo '
@@ -3058,361 +3042,6 @@ echo '            </div>
         </div>
     </div>
 </div>';
-
-//wifi model
-$rxwifidata = exec ("cat /sys/class/net/wlan0/statistics/rx_bytes");
-$txwifidata = exec ("cat /sys/class/net/wlan0/statistics/tx_bytes");
-$rxwifidata = $rxwifidata/1024; // convert to kb
-$rxwifidata = $rxwifidata/1024; // convert to mb
-
-$txwifidata = $txwifidata/1024; // convert to kb
-$txwifidata = $txwifidata/1024; // convert to mb
-$wifimac = exec ("cat /sys/class/net/wlan0/address");
-//$wifipeed = exec ("cat /sys/class/net/wlan0/speed");
-//$wifipeed = exec("iwconfig wlan0 | grep -i --color quality");
-$wifistatus = exec ("cat /sys/class/net/wlan0/operstate");
-echo '
-<div class="modal fade" id="wifi_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['wifi_settings'].'</h5>
-            </div>
-            <div class="modal-body">
-			<p class="text-muted"> '.$lang['wifi_settings_text'].' </p>
-<div class="list-group">
-<a href="#" class="list-group-item">
-<i class="fa fa-signal green"></i> '.$lang['status'].': '.$wifistatus.'
-</a>
-<a href="#" class="list-group-item">
-<i class="fa fa-signal green"></i> '.$lang['mac'].': '.$wifimac.'
-</a>
-<a href="#" class="list-group-item">
-<i class="fa fa-signal green"></i> '.$lang['download'].': '.number_format($rxwifidata,0).' MB 
-</a>
-<a href="#" class="list-group-item">
-<i class="fa fa-signal green"></i> '.$lang['upload'].': '.number_format($txwifidata,0).' MB 
-</a>
-</div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-            </div>
-        </div>
-    </div>
-</div>';
-
-//ethernet model
-$rxdata = exec ("cat /sys/class/net/eth0/statistics/rx_bytes");
-$txdata = exec ("cat /sys/class/net/eth0/statistics/tx_bytes");
-$rxdata = $rxdata/1024; // convert to kb
-$rxdata = $rxdata/1024; // convert to mb
-$txdata = $txdata/1024; // convert to kb
-$txdata = $txdata/1024; // convert to mb
-$nicmac = exec ("cat /sys/class/net/eth0/address");
-$nicpeed = exec ("cat /sys/class/net/eth0/speed");
-$nicactive = exec ("cat /sys/class/net/eth0/operstate");
-echo '
-<div class="modal fade" id="eth_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['ethernet_settings'].'</h5>
-            </div>
-            <div class="modal-body">
-			   <div class="list-group">
-				<a href="#" class="list-group-item"><i class="ionicons ion-network green"></i>
-				'.$lang['status'].': '.$nicactive.'</a>
-				<a href="#" class="list-group-item"><i class="ionicons ion-network green"></i>
-				'.$lang['speed'].': '.$nicpeed.'Mb</a>
-				<a href="#" class="list-group-item"><i class="ionicons ion-network green"></i>
-				'.$lang['mac'].': '.$nicmac.'</a>
-				<a href="#" class="list-group-item"><i class="ionicons ion-network green"></i>
-				'.$lang['download'].': '.number_format($rxdata,0).' MB </a> 
-				<a href="#" class="list-group-item"><i class="ionicons ion-network green"></i>
-				'.$lang['upload'].': '.number_format($txdata,0).' MB </a>
-				</div>
-           </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-            </div>
-        </div>
-    </div>
-</div>';
-
-//user accounts model
-echo '
-<div class="modal fade" id="user_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['user_accounts'].'</h5>
-            </div>
-            <div class="modal-body">
-			<p class="text-muted"> '.$lang['user_accounts_text'].' </p>';
-echo '<div class=\"list-group\">';
-$query = "SELECT * FROM user";
-$results = $conn->query($query);
-while ($row = mysqli_fetch_assoc($results)) {
-	$full_name=$row['fullname'];
-	$username=$row['username'];
-        if ($_SESSION['user_id'] == $row['id']) { $username .= " (Logged On)"; }
-        if($row['account_enable'] == 1) {
-                $content_msg="You are about to DELETE an ENABLED USER";
-        } else {
-                $content_msg="You are about to DELETE a CURRENTLY DISABLED USER";
-        }
-        echo "<div href=\"settings.php?uid=".$row['id']."\"  class=\"list-group-item\"> <i class=\"ionicons ion-person blue\"></i> ".$username."
-                <span class=\"pull-right text-muted small\"><em>
-                <a href=\"user_accounts.php?uid=".$row["id"]."\"><button class=\"btn btn-default btn-xs login\"><span class=\"ionicons ion-edit\"></span></button>&nbsp</a>";
-                if ($_SESSION['user_id'] != $row['id']) {
-                        echo "<a href=\"javascript:del_user(".$row["id"].");\"><button class=\"btn btn-danger btn-xs\" data-toggle=\"confirmation\" data-title=".$lang["confirmation"]." data-content=\"$content_msg\"><span class=\"glyphicon glyphicon-trash\"></span></button></a>";
-                } else {
-                        echo "<button class=\"btn btn-danger btn-xs disabled\"><span class=\"glyphicon glyphicon-trash\"></span></button>";
-                }
-                echo "</em></span>
-        </div>";
-}
-echo '</div></div>
-            <div class="modal-footer">
-                <a href="user_accounts.php?uid=0"><button class="btn btn-default login btn-sm">'.$lang['add_user'].'</button></a>
-                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-            </div>
-        </div>
-    </div>
-</div>';
-
-//Big Thank you
-echo '
-<div class="modal fade" id="big_thanks" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['credits'].'</h5>
-            </div>
-            <div class="modal-body">
-<p class="text-muted"> '.$lang['credits_text'].' </p>';
-echo '	<div class=\"list-group\">';
-echo " 
-
-<a href=\"http://startbootstrap.com/template-overviews/sb-admin-2\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> SB Admin 2 Template <span class=\"pull-right text-muted small\"><em>...</em></span></a>
-<a href=\"http://www.cssscript.com/pretty-checkbox-radio-inputs-bootstrap-awesome-bootstrap-checkbox-css\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> Pretty Checkbox <span class=\"pull-right text-muted small\"><em>...</em></span></a>
-<a href=\"https://fortawesome.github.io/Font-Awesome\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> Font-Awesome <span class=\"pull-right text-muted small\"><em>...</em></span></a>
-<a href=\"http://ionicons.com\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> Ionicons <span class=\"pull-right text-muted small\"><em>...</em></span></a>
-<a href=\"http://www.cssmatic.com/box-shadow\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> Box Shadow CSS <span class=\"pull-right text-muted small\"><em>...</em></span></a>
-<a href=\"https://daneden.github.io/animate.css\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> Animate.css <span class=\"pull-right text-muted small\"><em>...</em></span></a>
-<a href=\"https://www.mysensors.org\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> MySensors <span class=\"pull-right text-muted small\"><em>...</em></span></a>
-<a href=\"http://www.pihome.eu\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> All others if forget them... <span class=\"pull-right text-muted small\"><em>...</em></span></a>
-<a href=\"http://pihome.harkemedia.de\" class=\"list-group-item\"><i class=\"ionicons ion-help-buoy blueinfo\"></i> RaspberryPi Home Automation <span class=\"pull-right text-muted small\"><em>...</em></span></a>
-";
-echo '</div></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-            </div>
-        </div>
-    </div>
-</div>';
-
-//Set Buttons model
-echo '<div class="modal fade" id="set_buttons" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['set_buttons'].'</h5>
-            </div>
-            <div class="modal-body">
-		<p class="text-muted">'.$lang['set_buttons_text'].'</p>
-		<input type="hidden" id="button_page_1" name="button_page_1" value="'.$lang['home_page'].'">
-                <input type="hidden" id="button_page_2" name="button_page_2" value="'.$lang['onetouch_page'].'">';
-		echo '<table class="table table-bordered">
-    			<tr>
-                                <th class="col-md-3 text-center"><small>'.$lang['button_name'].'</small></th>
-                                <th class="col-md-2 text-center"><small>'.$lang['toggle_page'].'</small></th>
-                                <th class="col-md-1 text-center"><small>'.$lang['index_number'].'</small></th>
-    			</tr>';
-	                $query = "SELECT * FROM button_page ORDER BY index_id ASC;";
-        	        $results = $conn->query($query);
-			while ($row = mysqli_fetch_assoc($results)) {
-				if ($row["page"] == 1) { $button_text = $lang['home_page']; } else { $button_text = $lang['onetouch_page']; }
-                                echo '<tr>
-                                        <td>'.$row["name"].'</td>
-					<td><input type="button" id="page_button'.$row["id"].'" value="'.$button_text.'" class="btn btn-info btn-block" onclick="set_button_text('.$row["id"].')"></td>
-           		                <td><input id="index'.$row["id"].'" type="text" class="pull-left text" style="border: none" name="index_id"  size="3" value="'.$row["index_id"].'" placeholder="Index ID" required></td>
-					<input type="hidden" id="page_type'.$row["id"].'" name="page_type" value="'.$row["page"].'">
-        			</tr>';
-			}
-            	echo '</table>
-	    </div>
-		<div class="modal-footer">
-                	<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                	<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="set_buttons()">
-            </div>
-        </div>
-    </div>
-</div>';
-
-//Setup Database Cleanup intervals
-echo '<div class="modal fade" id="db_cleanup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['db_cleanup'].'</h5>
-            </div>
-            <div class="modal-body">
-                <p class="text-muted">'.$lang['db_cleanup_text'].'</p>
-                <table class="table table-bordered">
-                        <tr>
-                                <th class="col-md-2 text-center"><small>'.$lang['table_name'].'</small></th>
-                                <th class="col-md-1 text-center"><small>'.$lang['db_cleanup_value'].'</small></th>
-                                <th class="col-md-1 text-center"><small>'.$lang['db_cleanup_period'].'</small></th>
-                        </tr>';
-			$query = "SELECT * FROM db_cleanup LIMIT 1;";
-			$result = $conn->query($query);
-			$db_row = mysqli_fetch_assoc($result);
-                        $query = "SELECT column_name
-				FROM INFORMATION_SCHEMA.COLUMNS
-				WHERE TABLE_SCHEMA = 'maxair' AND table_name = 'db_cleanup' AND ordinal_position > 3
-				ORDER BY ordinal_position;";
-			$results = $conn->query($query);
-			$x = 0;
-                        while ($row = mysqli_fetch_assoc($results)) {
-                                $col_name = $row["column_name"];
-				$per_int = $db_row[$col_name];
-				$pieces = explode(" ", $per_int);
-				$period = $pieces[0];
-                                $interval = $pieces[1];
-                                echo '<tr>
-                                        <td>'.$row["column_name"].'</td>
-                                        <td><input id="period'.$x.'" type="text" class="pull-left text" style="border: none" name="period'.$x.'"  size="3" value="'.$period.'" placeholder="Period" required></td>
-                                        <td><select class="form-control input-sm" type="text" id="ival'.$x.'" name="ival'.$x.'" onchange=set_interval('.$x.')>
-                                                <option value="HOUR" ' . ($interval=='HOUR' ? 'selected' : '') . '>'.$lang['HOUR'].'</option>
-                                                <option value="DAY" ' . ($interval=='DAY' ? 'selected' : '') . '>'.$lang['DAY'].'</option>
-                                                <option value="WEEK" ' . ($interval=='WEEK' ? 'selected' : '') . '>'.$lang['WEEK'].'</option>
-                                                <option value="MONTH" ' . ($interval=='MONTH' ? 'selected' : '') . '>'.$lang['MONTH'].'</option>
-                                        </select></td>
-					<input type="hidden" id="set_interval'.$x.'" name="set_interval_type" value="'.$interval.'">
-                                </tr>';
-				$x = $x + 1;
-                        }
-                echo '</table>
-            </div>
-                <div class="modal-footer">
-                        <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                        <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="set_db_cleanup()">
-            </div>
-        </div>
-    </div>
-</div>';
-
-//Set Graph Categories to display
-echo '<div class="modal fade" id="display_graphs" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['enable_graphs'].'</h5>
-            </div>
-            <div class="modal-body">
-                <p class="text-muted">'.$lang['enable_graphs_text'].'</p>
-                <table class="table table-bordered">
-                        <tr>
-                                <th class="col-md-2 text-center"><small>'.$lang['graph'].'</small></th>
-                                <th class="col-md-1 text-center"><small>'.$lang['enabled'].'</small></th>
-                        </tr>';
-			$myArr = [];
-			array_push($myArr, $lang['graph_temperature'], $lang['graph_humidity'], $lang['graph_addon_usage'], $lang['graph_saving'], $lang['graph_system_controller_usage'], $lang['graph_battery_usage']);
-                        $query = "SELECT mask FROM graphs LIMIT 1;";
-                        $result = $conn->query($query);
-			$row = mysqli_fetch_assoc($result);
-			$m = 1;
-                        for ($x = 0; $x <=  5; $x++) {
-                        	if ($row['mask'] & $m) { $enabled_check = 'checked'; } else { $enabled_check = ''; }
-                                echo '<tr>
-                                        <td>'.$myArr[$x].'</td>
-            				<td style="text-align:center; vertical-align:middle;">
-               					<input type="checkbox" id="checkbox_graph'.$x.'" name="enabled" value="1" '.$enabled_check.'>
-            				</td>
-                                </tr>';
-				$m = $m << 1;
-                        }
-                echo '</table>
-            </div>
-                <div class="modal-footer">
-                        <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                        <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="enable_graphs()">
-            </div>
-        </div>
-    </div>
-</div>';
-
-//set GitHub Repository location
-echo '<div class="modal fade" id="set_repository" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['github_repository'].'</h5>
-            </div>
-            <div class="modal-body">
-                <p class="text-muted">'.$lang['github_repository_text'].'</p>';
-                $query = "SELECT id, status, name FROM repository;";
-                $results = $conn->query($query);
-                echo '<div class="form-group" class="control-label"><label>'.$lang['repository_url'].'</label> <small class="text-muted"> (Default Repository is - '.$lang['default_repository'].')</small>
-                <select class="form-control input-sm" type="text" id="rep_id" name="rep_id" >';
-                if ($results){
-                        while ($frow=mysqli_fetch_array($results)) {
-                                echo '<option value="'.$frow['id'].'" ' . ($frow['status']==1 ? 'selected' : '') . '>https://github.com/'.$frow['name'].'/PiHomeHVAC.git</option>';
-                        }
-                }
-                echo '</select>
-                	<div class="help-block with-errors"></div>
-                </div>
-            </div>
-                <div class="modal-footer">
-                        <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                        <input type="button" name="submit" value="'.$lang['set_default'].'" class="btn btn-default login btn-sm" onclick="set_default()">
-                        <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="set_repository()">
-            </div>
-        </div>
-    </div>
-</div>';
-
-//set max cpu temperature
-echo '<div class="modal fade" id="max_cpu_temp" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['max_cpu_temp'].'</h5>
-            </div>
-            <div class="modal-body">
-                <p class="text-muted">'.$lang['max_cpu_temp_text'].'</p>';
-                $query = "SELECT max_cpu_temp FROM system LIMIT 1;";
-                $result = $conn->query($query);
-		$row = mysqli_fetch_array($result);
-                echo '<div class="form-group" class="control-label"><label>'.$lang['temperature'].'</label> <small class="text-muted"> </small>
-                <select class="form-control input-sm" type="text" id="m_cpu_temp" name="m_cpu_temp" >';
-                for ($x = 40; $x <=  70; $x = $x + 5) {
-                	echo '<option value="'.$x.'" ' . ($x==$row['max_cpu_temp'] ? 'selected' : '') . '>'.$x.'&deg;</option>';
-                }
-                echo '</select>
-                        <div class="help-block with-errors"></div>
-                </div>
-            </div>
-                <div class="modal-footer">
-                        <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
-                        <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="set_max_cpu_temp()">
-            </div>
-        </div>
-    </div>
-</div>';
-
 ?>
 
 <script>
@@ -3431,40 +3060,6 @@ $('[data-toggle=confirmation]').confirmation({
 </script>
 
 <script language="javascript" type="text/javascript">
-function BoilerChildList(value)
-{
- var valuetext = value;
- var e = document.getElementById("node_id");
- var selected_node_id = e.options[e.selectedIndex].text;
- var selected_node_id = selected_node_id.split(" - ");
- document.getElementById("selected_node_id").value = selected_node_id[1];
- document.getElementById("selected_node_type").value = selected_node_id[0];
- var gpio_pins = document.getElementById('gpio_pin_list').value
-
- var opt = document.getElementById("node_child_id").getElementsByTagName("option");
- for(j=opt.length-1;j>=0;j--)
- {
-        document.getElementById("node_child_id").options.remove(j);
- }
- if(selected_node_id.includes("GPIO")) {
-        var pins_arr = gpio_pins.split(',');
-        for(j=0;j<=pins_arr.length-1;j++)
-        {
-                var optn = document.createElement("OPTION");
-                optn.text = pins_arr[j];
-                optn.value = pins_arr[j];
-                document.getElementById("node_child_id").options.add(optn);
-        }
- } else {
-        for(j=1;j<=valuetext;j++)
-        {
-                var optn = document.createElement("OPTION");
-                optn.text = j;
-                optn.value = j;
-                document.getElementById("node_child_id").options.add(optn);
-        }
- }
-}
 function show_hide_devices()
 {
  var e = document.getElementById("node_type");
@@ -3559,4 +3154,3 @@ function set_default()
  document.getElementById("rep_id").value = 1;
 }
 </script>
-

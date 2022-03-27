@@ -753,6 +753,9 @@ echo '<div class="modal fade" id="display_graphs" tabindex="-1" role="dialog" ar
 
 <script>
 $(document).ready(function(){
+  $('[data-toggle="popover"]').popover();
+});
+
 $('[data-toggle=confirmation]').confirmation({
   rootSelector: '[data-toggle=confirmation]',
   container: 'body'
