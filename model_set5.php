@@ -613,6 +613,9 @@ echo '</table></div>
 
 <script>
 $(document).ready(function(){
+  $('[data-toggle="popover"]').popover();
+});
+
 $('[data-toggle=confirmation]').confirmation({
   rootSelector: '[data-toggle=confirmation]',
   container: 'body'
