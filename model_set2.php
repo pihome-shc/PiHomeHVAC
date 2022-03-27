@@ -369,6 +369,9 @@ echo '<div class="modal fade" id="max_cpu_temp" tabindex="-1" role="dialog" aria
 
 <script>
 $(document).ready(function(){
+  $('[data-toggle="popover"]').popover();
+});
+
 $('[data-toggle=confirmation]').confirmation({
   rootSelector: '[data-toggle=confirmation]',
   container: 'body'
