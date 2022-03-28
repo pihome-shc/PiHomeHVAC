@@ -141,7 +141,7 @@ function update_units(){
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=3"
         else
             console.log(odata.Message);
     })
@@ -161,7 +161,7 @@ function update_system_mode(){
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=3"
         else
             console.log(odata.Message);
     })
@@ -181,7 +181,7 @@ function update_lang(){
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=3"
         else
             console.log(odata.Message);
     })
@@ -212,7 +212,7 @@ var idata="w=system_controller_settings&o=update&status="+document.getElementByI
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=4"
         else
             console.log(odata.Message);
     })
@@ -240,7 +240,7 @@ var idata="w=boost&o=add&zone_id="+document.getElementById("zone_id").value;
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=4"
         else
             console.log(odata.Message);
     })
@@ -258,7 +258,7 @@ var idata="w=boost&o=delete&wid="+wid;
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=4"
         else
             console.log(odata.Message);
     })
@@ -283,7 +283,7 @@ var idata="w=boost&o=update";
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=4"
         else
             console.log(odata.Message);
     })
@@ -384,7 +384,7 @@ var idata="w=node&o=add&node_type="+document.getElementById("node_type").value;
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=5"
         else
             console.log(odata.Message);
     })
@@ -402,7 +402,7 @@ var idata="w=node&o=delete&wid="+wid;
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=5"
         else
             console.log(odata.Message);
     })
@@ -420,7 +420,7 @@ var idata="w=sensor&o=delete&wid="+wid;
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=6"
         else
             console.log(odata.Message);
     })
@@ -438,7 +438,7 @@ var idata="w=relay&o=delete&wid="+wid;
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=6"
         else
             console.log(odata.Message);
     })
@@ -456,7 +456,7 @@ var idata="w=mqtt_device&o=delete&wid="+wid;
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=6"
         else
             console.log(odata.Message);
     })
@@ -476,7 +476,7 @@ var idata="w=zone_type&o=add&zone_type="+document.getElementById("zone_type").va
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=5"
         else
             console.log(odata.Message);
     })
@@ -494,7 +494,7 @@ var idata="w=zone_type&o=delete&wid="+wid;
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=5"
         else
             console.log(odata.Message);
     })
@@ -514,7 +514,7 @@ var idata="w=sensor_type&o=add&sensor_type="+document.getElementById("sensor_typ
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=6"
         else
             console.log(odata.Message);
     })
@@ -532,7 +532,7 @@ var idata="w=sensor_type&o=delete&wid="+wid;
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=6"
         else
             console.log(odata.Message);
     })
@@ -601,13 +601,13 @@ var idata="w=backup_email_update&o=update&backup_email="+document.getElementById
 //Restart MySensors Gateway
 function resetgw(wid){
 	var quest = "?w=resetgw&o=0&wid=" + wid + "&frost_temp=0";
-	request('db.php', 'GET', quest, function(){ window.location="settings.php"; });
+	request('db.php', 'GET', quest, function(){ window.location="settings.php?s_id=5"; });
 }
 
 //triger search for PiHome network Gateway. 
 function find_gw() {  
   	var quest = "?w=find_gw" + "&o=0" + "&frost_temp=0" + "&wid=0";
-	request('db.php', 'GET', quest, function(){ window.location="settings.php"; });
+	request('db.php', 'GET', quest, function(){ window.location="settings.php?s_id=5"; });
     //window.location="settings.php?status=reboot";  
 }
 
@@ -629,7 +629,7 @@ var idata="w=setup_gateway&o=update&status="+document.getElementById("checkbox1"
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=5"
         else
             console.log(odata.Message);
     })
@@ -658,7 +658,7 @@ var idata="w=setup_network&o=update&n_primary="+document.getElementById("n_prima
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=3"
         else
             console.log(odata.Message);
     })
@@ -683,7 +683,7 @@ var idata="w=setup_email&o=update&status="+document.getElementById("checkbox3").
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=3"
         else
             console.log(odata.Message);
     })
@@ -708,7 +708,7 @@ var idata="w=setup_graph&o=update";
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=3"
         else
             console.log(odata.Message);
     })
@@ -733,7 +733,7 @@ var idata="w=show_sensors&o=update";
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=6"
         else
             console.log(odata.Message);
     })
@@ -758,7 +758,7 @@ var idata="w=node_alerts&o=update";
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=5"
         else
             console.log(odata.Message);
     })
@@ -778,7 +778,7 @@ function update_timezone(){
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=3"
         else
             console.log(odata.Message);
     })
@@ -864,7 +864,7 @@ var idata="w=http_msg&o=add";
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=6"
         else
             console.log(odata.Message);
     })
@@ -887,7 +887,7 @@ var idata="w=http_msg&o=add";
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=6"
         else
             console.log(odata.Message);
     })
@@ -905,7 +905,7 @@ var idata="w=http_msg&o=delete&wid="+wid;
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=6"
         else
             console.log(odata.Message);
     })
@@ -953,7 +953,7 @@ var idata="w=job&o=update";
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=3"
         else
             console.log(odata.Message);
     })
@@ -977,7 +977,7 @@ var idata="w=job&o=add";
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=3"
         else
             console.log(odata.Message);
     })
@@ -995,7 +995,7 @@ var idata="w=job&o=delete&wid="+wid;
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=3"
         else
             console.log(odata.Message);
     })
@@ -1047,7 +1047,7 @@ var idata="w=set_buttons&o=update";
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=3"
         else
             console.log(odata.Message);
     })
@@ -1072,7 +1072,7 @@ var idata="w=set_db_cleanup&o=update";
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=2"
         else
             console.log(odata.Message);
     })
@@ -1097,7 +1097,7 @@ var idata="w=enable_graphs&o=update";
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=3"
         else
             console.log(odata.Message);
     })
@@ -1117,7 +1117,7 @@ var idata="w=set_repository&o=update";
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=2"
         else
             console.log(odata.Message);
     })
@@ -1137,7 +1137,7 @@ var idata="w=set_max_cpu_temp&o=update";
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=2"
         else
             console.log(odata.Message);
     })
@@ -1155,7 +1155,7 @@ var idata="w=sensor_limits&o=delete&wid="+wid;
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
-            reload_page();
+            window.location="settings.php?s_id=3"
         else
             console.log(odata.Message);
     })
