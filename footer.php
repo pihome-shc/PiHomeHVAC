@@ -1,4 +1,4 @@
-<?php 
+<?php
 /*
              __  __                             _
             |  \/  |                    /\     (_)
@@ -36,7 +36,7 @@
 	<!-- bootstrap datepicker JavaScript -->
 	<script src="js/plugins/datepicker/bootstrap-datetimepicker.js"></script>
 
- 
+
     <!-- Custom Theme JavaScript -->
     <script src="js/sb-admin-2.js"></script>
 	<script src="js/validator.min.js"></script>
@@ -53,7 +53,7 @@
         <!-- jquery knob -->
         <script src="js/plugins/knob/jquery.knob.js"></script>
 
-<script>	
+<script>
 $(document).ready(function() {
     var maxField = 10; //Input fields increment limitation
     var addButton = $('.add_button'); //Add button selector
@@ -100,7 +100,7 @@ $(document).ready(function() {
 	    document.getElementById("controller_count").value = x;
         }
     });
-    
+
     //Once remove button is clicked
     $(wrapper).on('click', '.remove_button', function(e){
 	var x = document.getElementById("controller_count").value
@@ -136,7 +136,7 @@ window.setTimeout(function() {
 <?php } ?>
 
 <?php if ($_SERVER['REQUEST_URI'] == '/schedule.php'){ ?>
-//load schedulelist.php  
+//load schedulelist.php
 $(document).ready(function(){
 	$.get('schedulelist.php', function(output) {
 		$('#schedulelist').html(output).fadeIn(50);
@@ -144,76 +144,34 @@ $(document).ready(function(){
  });
 <?php } ?>
 
-<?php if ($_SERVER['REQUEST_URI'] == '/settings_1.php'){ ?>
-//load settingslist
-$(document).ready(function(){
-        $.get('settingslist.php?id=1', function(output) {
-                $('#settingslist').html(output).fadeIn(50);
-        });
- });
+<?php if (strtok($_SERVER["REQUEST_URI"], '?') == '/settings.php'){
+	$url_components = parse_url($_SERVER["REQUEST_URI"]);
+	parse_str($url_components['query'], $params);
+	$s_id = $params['s_id']; ?>
+
+	$(document).ready(function(){
+		$.get('settingslist.php?id=<?php echo $s_id; ?>', function(output) {
+        		$('#settingslist').html(output).fadeIn(50);
+       		});
+	});
 <?php } ?>
 
-<?php if ($_SERVER['REQUEST_URI'] == '/settings_2.php'){ ?>
-//load settingslist
-$(document).ready(function(){
-        $.get('settingslist.php?id=2', function(output) {
-                $('#settingslist').html(output).fadeIn(50);
-        });
- });
-<?php } ?>
-
-<?php if ($_SERVER['REQUEST_URI'] == '/settings_3.php'){ ?>
-//load settingslist
-$(document).ready(function(){
-        $.get('settingslist.php?id=3', function(output) {
-                $('#settingslist').html(output).fadeIn(50);
-        });
- });
-<?php } ?>
-
-<?php if ($_SERVER['REQUEST_URI'] == '/settings_4.php'){ ?>
-//load settingslist
-$(document).ready(function(){
-        $.get('settingslist.php?id=4', function(output) {
-                $('#settingslist').html(output).fadeIn(50);
-        });
- });
-<?php } ?>
-
-<?php if ($_SERVER['REQUEST_URI'] == '/settings_5.php'){ ?>
-//load settingslist
-$(document).ready(function(){
-        $.get('settingslist.php?id=5', function(output) {
-                $('#settingslist').html(output).fadeIn(50);
-        });
- });
-<?php } ?>
-
-<?php if ($_SERVER['REQUEST_URI'] == '/settings_6.php'){ ?>
-//load settingslist
-$(document).ready(function(){
-        $.get('settingslist.php?id=6', function(output) {
-                $('#settingslist').html(output).fadeIn(50);
-        });
- });
-<?php } ?>
-
-//load overridelist.php  
+//load overridelist.php
 $('#overridelist').load('overridelist.php');
 
-//load schedulelist.php	
+//load schedulelist.php
 $("#schedulelist").load('schedulelist.php');
-	
-//load boostlist.php 
+
+//load boostlist.php
 $('#boostlist').load('boostlist.php');
-		
-//load charttlist.php 
+
+//load charttlist.php
 $('#chart_dailyusage').load('chart_dailyusage.php');
 
-//load holidayslist.php 
+//load holidayslist.php
 $('#holidayslist').load('holidayslist.php');
 
-//load holidayslist.php 
+//load holidayslist.php
 $('#nightclimatelist').load('nightclimatelist.php');
 
 } );
@@ -236,7 +194,7 @@ $(document).ready(function(){
 <?php 
 if ($_SERVER['SCRIPT_NAME'] == '/scheduling.php'){
 	$query = "select * from zone where status = 1;";
-	$results = $conn->query($query);	
+	$results = $conn->query($query);
 /*	while ($row = mysqli_fetch_assoc($results)) { ?>
 		var slider<?php echo $row["id"];?> = document.getElementById("bb<?php echo $row["id"];?>");
 		var output<?php echo $row["id"];?> = document.getElementById("val<?php echo $row["id"];?>");
