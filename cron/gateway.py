@@ -248,6 +248,8 @@ def on_message(client, userdata, message):
             # category = int(results[zone_view_to_index['category']])
             mqtt_graph_num = int(results[mqtt_sensor_to_index["graph_num"]])
             if mqtt_graph_num > 0:
+                if c_f:
+                    payload = round((payload * 9/5) + 32, 1)
                 if dbgLevel >= 2 and dbgMsgIn == 1:
                     print(
                         "5a: Adding Temperature Reading to Graph Table From Node ID:",
@@ -336,6 +338,10 @@ try:
 
     con = mdb.connect(dbhost, dbuser, dbpass, dbname)
     cur = con.cursor()
+    cur.execute("SELECT c_f FROM system LIMIT 1")
+    row = cur.fetchone()
+    system_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+    c_f = row[system_to_index["c_f"]]  # 0 = centigrade, 1 = fahrenheit
     cur.execute("SELECT * FROM gateway where status = 1 order by id asc limit 1")
     row = cur.fetchone()
     gateway_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
@@ -939,6 +945,8 @@ try:
                             # category = int(results[zone_view_to_index['category']])
                             graph_num = int(results[sensor_to_index["graph_num"]])
                             if graph_num > 0:
+                                if c_f:
+                                    payload = round((payload * 9/5) + 32, 1)
                                 if dbgLevel >= 2 and dbgMsgIn == 1:
                                     print(
                                         "5a: Adding Temperature Reading to Graph Table From Node ID:",
