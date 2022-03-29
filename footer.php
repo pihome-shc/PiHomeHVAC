@@ -148,7 +148,7 @@ $(document).ready(function(){
 	$url_components = parse_url($_SERVER["REQUEST_URI"]);
 	parse_str($url_components['query'], $params);
 	$s_id = $params['s_id']; ?>
-
+	//load settingslist.php
 	$(document).ready(function(){
 		$.get('settingslist.php?id=<?php echo $s_id; ?>', function(output) {
         		$('#settingslist').html(output).fadeIn(50);
