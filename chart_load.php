@@ -70,11 +70,11 @@ if ($grow['mask'] & 0b1) {
         	$graph3_temp = array();
 	        while ($rowb = mysqli_fetch_assoc($result)) {
         	        if($graph_num == 1) {
-                	        $graph1_temp[] = array(strtotime($rowb['datetime']) * 1000, DispSensor($conn,$rowb['payload'],1));
+                	        $graph1_temp[] = array(strtotime($rowb['datetime']) * 1000, $rowb['payload']);
 	                } elseif($graph_num == 2) {
-        	                $graph2_temp[] = array(strtotime($rowb['datetime']) * 1000, DispSensor($conn,$rowb['payload'],1));
+        	                $graph2_temp[] = array(strtotime($rowb['datetime']) * 1000, $rowb['payload']);
                 	} elseif($graph_num == 3) {
-                        	$graph3_temp[] = array(strtotime($rowb['datetime']) * 1000, DispSensor($conn,$rowb['payload'],1));
+                        	$graph3_temp[] = array(strtotime($rowb['datetime']) * 1000, $rowb['payload']);
 			}
         	}
 	        // create dataset entry using distinct color based on zone index(to have the same color everytime chart is opened)
