@@ -1194,6 +1194,23 @@ try:
                         )
                         con.commit()
 
+                        cur.execute(
+                            "SELECT * FROM `battery` where node_id = (%s) LIMIT 1;",
+                            (node_id,),
+                        )
+                        results = cur.fetchone()
+                        if cur.rowcount == 0:
+                            if dbgLevel >= 2 and dbgMsgIn == 1:
+                                print(
+                                    "9b: Adding Battery for Node ID:",
+                                    node_id,
+                                )
+                            cur.execute(
+                                "INSERT INTO battery(`node_id`) VALUES(%s)",
+                                (node_id, )
+                            )
+                            con.commit()
+
                         # ..::Step Ten::..
                         # Add Boost Status Level to Database/Relay Last seen gets added here as well when ACK is set to 1 in messages_out table.
                     if (

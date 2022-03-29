@@ -26,6 +26,7 @@ require_once(__DIR__.'/st_inc/session.php');
 confirm_logged_in();
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -135,10 +136,26 @@ require_once(__DIR__.'/st_inc/functions.php');
                 </li>
 
 		<?php if ($_SESSION['admin'] == 1) { ?>
-	                <li class="dropdown">
-        	            <a class="dropdown-toggle" href="settings.php">
-                	        <i class="fa fa-cog fa-lg"></i>
-                    	    </a>
+                	<!-- /.dropdown-settings -->
+                	<li class="dropdown">
+                    		<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        		<i class="fa fa-cog fa-lg fa-fw"></i><i class="fa fa-caret-down"></i>
+                    		</a>
+                    		<ul class="dropdown-menu dropdown-user">
+                        		<li><a href="settings.php?s_id=1"><i class="fa fa-tachometer orange"></i> <?php echo $lang['system_status']; ?> </a></li>
+                        		<li class="divider"></li>
+                                        <li><a href="settings.php?s_id=2"><i class="fa fa-wrench red"></i> <?php echo $lang['system_maintenance']; ?> </a></li>
+                                        <li class="divider"></li>
+                        		<li><a href="settings.php?s_id=3"><i class="fa fa-cogs green"></i> <?php echo $lang['system_configuration']; ?></a></li>
+                                        <li class="divider"></li>
+                                       	<li><a href="settings.php?s_id=4"><i class="fa fa-cog red"></i> <?php echo $lang['system_controller_configuration']; ?> </a></li>
+                                        <li class="divider"></li>
+                                        <li><a href="settings.php?s_id=5"><i class="fa fa-sitemap blue""></i> <?php echo $lang['node_zone_configuration']; ?> </a></li>
+                                        <li class="divider"></li>
+                                        <li><a href="settings.php?s_id=6"><i class="fa fa-plug green""></i> <?php echo $lang['device_configuration']; ?> </a></li>
+                                        <li class="divider"></li>
+                     		</ul>
+                    	<!-- /.dropdown-settings -->
                 	</li>
 		<?php } ?>
 

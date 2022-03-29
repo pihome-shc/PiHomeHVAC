@@ -250,7 +250,23 @@ if($what=="boost"){
 	}
 	if($opp=="update"){
 		$datetime = date("Y-m-d H:i:s");
-		$sel_query = "SELECT * FROM boost ORDER BY id asc;";
+                if ((settings($conn, 'mode') & 0b1) == 0) {
+                        $sel_query = "SELECT boost.id, boost.`status`, boost.sync, boost.zone_id, zone_idx.index_id, zone_type.category, zone.name,
+                        boost.temperature, boost.minute, boost_button_id, boost_button_child_id, hvac_mode, ts.sensor_type_id
+                        FROM boost
+                        JOIN zone ON boost.zone_id = zone.id
+                        JOIN zone zone_idx ON boost.zone_id = zone_idx.id
+                        JOIN zone_type ON zone_type.id = zone.type_id
+                        JOIN zone_sensors zs ON zone.id = zs.zone_id
+                        JOIN sensors ts ON zs.zone_sensor_id = ts.id
+                        ORDER BY index_id ASC, minute ASC;";
+                } else {
+                        $sel_query = "SELECT boost.*, ts.sensor_type_id
+                        FROM boost
+                        JOIN zone_sensors zs ON boost.zone_id = zs.zone_id
+                        JOIN sensors ts ON zs.zone_sensor_id = ts.id
+                        ORDER BY hvac_mode ASC;";
+                }
 		$results = $conn->query($sel_query);
 		while ($row = mysqli_fetch_assoc($results)) {
 			$id = $row['id'];

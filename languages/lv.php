@@ -834,4 +834,5 @@ $lang['sensor_last24h'] = "Senors Readings Last 24 Hours for Node ID - ";
 $lang['node_count_last24h'] = "Number of Readings for this Node in the Last 24 Hours - ";
 $lang['unallocated_sensor'] = "Unallocated Sensor Child - ";
 $lang['average_count_last24h'] = "Average Number of Readings for this Node per Hour per Child ID - ";
+$lang['device_configuration'] = "Device Configuration";
 ?>
