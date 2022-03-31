@@ -228,6 +228,12 @@ if ($_SERVER['SCRIPT_NAME'] == '/scheduling.php'){
 <?php } ?>
 </script>
 
+<script>
+<?php if ($_SERVER['REQUEST_URI'] == '/chart_open.php'){ ?>
+        window.location="chart.php";
+<?php } ?>
+</script>
+
 <?php if ($_SERVER['REQUEST_URI'] == '/chart.php'){include("chart_load.php");} ?>
 
 <?php
