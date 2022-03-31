@@ -249,7 +249,7 @@ def on_message(client, userdata, message):
             mqtt_graph_num = int(results[mqtt_sensor_to_index["graph_num"]])
             if mqtt_graph_num > 0:
                 if c_f:
-                    payload = round((payload * 9/5) + 32, 2)
+                    payload = round((payload * 9/5) + 32, 1)
                 if dbgLevel >= 2 and dbgMsgIn == 1:
                     print(
                         "5a: Adding Temperature Reading to Graph Table From Node ID:",
@@ -946,7 +946,7 @@ try:
                             graph_num = int(results[sensor_to_index["graph_num"]])
                             if graph_num > 0:
                                 if c_f:
-                                    payload = round((payload * 9/5) + 32, 2)
+                                    payload = round((payload * 9/5) + 32, 1)
                                 if dbgLevel >= 2 and dbgMsgIn == 1:
                                     print(
                                         "5a: Adding Temperature Reading to Graph Table From Node ID:",
