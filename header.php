@@ -124,7 +124,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                     </a>
                 </li>
                 <li class="dropdown">
-                    <a class="dropdown-toggle" href="chart.php">
+                    <a class="dropdown-toggle" href="chart_open.php">
                         <i class="fa fa-bar-chart fa-lg"></i>
                     </a>
                 </li>
