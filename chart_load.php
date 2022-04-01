@@ -152,7 +152,7 @@ if ($grow['mask'] & 0b1) {
 
   // Create Graph 1
   var options_one = {
-    xaxis: { mode: "time", timeformat: "%H:%M"},
+    xaxis: { mode: "time", timezone: "browser", timeformat: "%H:%M"},
     series: { lines: { show: true, lineWidth: 1, fill: false}, curvedLines: { apply: true,  active: true,  monotonicFit: true } },
     grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf9f9"] }, borderColor: "#ff8839", markings: markings,},
     legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
@@ -165,7 +165,7 @@ if ($grow['mask'] & 0b1) {
 
   // Create Graphs 2
   var options_two = {
-    xaxis: { mode: "time", timeformat: "%H:%M"},
+    xaxis: { mode: "time", timezone: "browser", timeformat: "%H:%M"},
     series: { lines: { show: true, lineWidth: 1, fill: false}, curvedLines: { apply: true,  active: true,  monotonicFit: true } },
     grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf9f9"] }, borderColor: "#ff8839", markings: wmarkings,},
     legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
@@ -177,7 +177,7 @@ if ($grow['mask'] & 0b1) {
 
   // Create Graphs 3
   var options_three = {
-    xaxis: { mode: "time", timeformat: "%H:%M"},
+    xaxis: { mode: "time", timezone: "browser", timeformat: "%H:%M"},
     series: { lines: { show: true, lineWidth: 1, fill: false}, curvedLines: { apply: true,  active: true,  monotonicFit: true } },
     grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf7f4"] }, borderColor: "#ff8839", markings: markings_system_controller, },
     legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
@@ -229,7 +229,7 @@ if ($grow['mask'] & 0b1) {
 // Create Graph Humidity
 <?php if($grow['mask'] & 0b10) { ?>
   var options_humidity = {
-    xaxis: { mode: "time", timeformat: "%H:%M"},
+    xaxis: { mode: "time", timezone: "browser", timeformat: "%H:%M"},
     series: { lines: { show: true, lineWidth: 1, fill: false}, curvedLines: { apply: true,  active: true,  monotonicFit: true } },
     grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf9f9"] }, borderColor: "#ff8839",},
     legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
@@ -281,7 +281,7 @@ if ($grow['mask'] & 0b1) {
 <?php if($grow['mask'] & 0b100) { ?>
 // Create Graphs Add-On State
   var options_addon = {
-    xaxis: { mode: "time", timeformat: "%H:%M"},
+    xaxis: { mode: "time", timezone: "browser", timeformat: "%H:%M"},
     yaxis: { font:{ size:8, weight: "bold", family: "sans-serif", variant: "small-caps", color: "#545454" }, ticks: tick_dataset },
     series: { lines: { show: true, lineWidth: 2, fill: false}, straightLines: { apply: true,  active: true,  monotonicFit: true } },
     grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf7f4"] }, borderColor: "#ff8839", },
