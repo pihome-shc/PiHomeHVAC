@@ -1006,7 +1006,7 @@ function showTooltip(x, y, color, contents) {
     	</div>
     	<div class="modal-footer" id="ajaxModalFooter">
             <button class="btn btn-primary btn-sm" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="'.$ajax_modal.'"  onclick="sensors_Graph(this);">'.$button_name.'</button>
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+            <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
         echo '<script language="javascript" type="text/javascript">
                 sensors_Graph=function(gthis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(gthis)); })};
