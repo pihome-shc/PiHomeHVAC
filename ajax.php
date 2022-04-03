@@ -874,6 +874,151 @@ if($_GET['Ajax']=='GetModal_Uptime')
     return;
 }
 
+function GetModal_Sensor_Graph($conn)
+{
+        global $lang;
+        //foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
+
+	//create array of colours for the graphs
+	$query ="SELECT * FROM sensors ORDER BY id ASC;";
+	$results = $conn->query($query);
+	$counter = 0;
+	$count = mysqli_num_rows($results) + 2; //extra space made for system temperature graph
+	$sensor_color = array();
+	while ($row = mysqli_fetch_assoc($results)) {
+        	$graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
+        	$sensor_color[$graph_id] = graph_color($count, ++$counter);
+	}
+
+	$pieces = explode(',', $_GET['Ajax']);
+        $sensor_id = $pieces[1];
+	$query="SELECT * FROM sensors WHERE id = {$pieces[1]} LIMIT 1;";
+        $result = $conn->query($query);
+        $row = mysqli_fetch_assoc($result);
+	$name = $row['name'];
+	$nodes_id = $row['sensor_id'];
+	$child_id = $row['sensor_child_id'];
+	$type_id = $row['sensor_type_id'];
+	if ($type_id == 1) { $title = $lang['temperature']; } else { $title = $lang['humidity']; }
+        $title = $title.' '.$lang['graph'].' - '.$name;
+        $graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
+	$query="SELECT node_id FROM nodes WHERE id = {$nodes_id} LIMIT 1;";
+	$result = $conn->query($query);
+	$row = mysqli_fetch_assoc($result);
+	if ($pieces[2] == 0) {
+        	$query="SELECT * from messages_in_view_24h  where node_id = '{$row['node_id']}' AND child_id = {$child_id} ORDER BY id ASC;";
+                $ajax_modal = "ajax.php?Ajax=GetModal_Sensor_Graph,".$pieces[1].",1";
+		$button_name = $lang['graph_1h'];
+	} else {
+                $query="SELECT * from messages_in_view_1h  where node_id = '{$row['node_id']}' AND child_id = {$child_id} ORDER BY id ASC;";
+                $ajax_modal = "ajax.php?Ajax=GetModal_Sensor_Graph,".$pieces[1].",0";
+                $button_name = $lang['graph_24h'];
+	}
+        $results = $conn->query($query);
+        // create array of pairs of x and y values for every zone
+        $graph_temp = array();
+        while ($rowb = mysqli_fetch_assoc($results)) {
+                $graph_temp[] = array(strtotime($rowb['datetime']) * 1000, $rowb['payload']);
+        }
+        // create dataset entry using distinct color based on zone index(to have the same color everytime chart is opened)
+	$graph1 = '';
+	$graph1 = $graph1. "{data: ".json_encode($graph_temp).", color: '".$sensor_color[$graph_id]."'}, \n";
+	?>
+	<!--[if lte IE 8]><script src="js/plugins/flot/excanvas.min.js"></script><![endif]-->
+	<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="/js/flot/excanvas.min.js"></script><![endif]-->
+    	<script type="text/javascript" src="js/plugins/flot/jquery.flot.min.js"></script>
+    	<script type="text/javascript" src="js/plugins/flot/jshashtable-2.1.js"></script>
+    	<script type="text/javascript" src="js/plugins/flot/jquery.numberformatter-1.2.3.min.js"></script>
+    	<script type="text/javascript" src="js/plugins/flot/jquery.flot.js"></script>
+    	<script type="text/javascript" src="js/plugins/flot/jquery.flot.time.js"></script>
+    	<script type="text/javascript" src="js/plugins/flot/jquery.flot.symbol.js"></script>
+    	<script type="text/javascript" src="js/plugins/flot/jquery.flot.axislabels.js"></script>
+    	<script type="text/javascript" src="js/plugins/flot/jquery.flot.resize.js"></script>
+    	<script type="text/javascript" src="js/plugins/flot/jquery.flot.tooltip.min.js"></script>
+	<script type="text/javascript" src="js/plugins/flot/curvedLines.js"></script>
+
+	<script type="text/javascript">
+  	var dataset = [ <?php echo $graph1 ?>];
+	var options_one = {
+    		xaxis: { mode: "time", timezone: "browser", timeformat: "%H:%M"},
+    		series: { lines: { show: true, lineWidth: 1, fill: false}, curvedLines: { apply: true,  active: true,  monotonicFit: true } },
+    		grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf9f9"] }, borderColor: "#ff8839",},
+    		legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
+  	};
+
+  $.fn.UseTooltip = function () {
+    var previousPoint = null, previousLabel = null;
+    $(this).bind("plothover", function (event, pos, item) {
+        if (item) {
+            if ((previousLabel != item.series.label) ||
+                 (previousPoint != item.dataIndex)) {
+                previousPoint = item.dataIndex;
+                previousLabel = item.series.label;
+                $("#tooltip").remove();
+                var x = item.datapoint[0];
+                var y = item.datapoint[1];
+                var color = item.series.color;
+                showTooltip(item.pageX,
+                        item.pageY,
+                        color,
+                        "<strong>" + item.series.label + "</strong> At: " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"</strong> ");
+            }
+        } else {
+            $("#tooltip").remove();
+            previousPoint = null;
+            previousLabel = null;
+        }
+    });
+  };
+
+function showTooltip(x, y, color, contents) {
+    $('<div id="tooltip">' + contents + '</div>').css({
+        position: 'absolute',
+        display: 'none',
+        top: y - 10,
+        left: x + 10,
+        border: '1px solid ' + color,
+        padding: '3px',
+        'font-size': '9px',
+        'border-radius': '5px',
+        'background-color': '#fff',
+        'font-family': 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+        opacity: 0.7
+    }).appendTo("modal-body").fadeIn(200);
+  }
+
+  $(document).ready(function () {
+    $.plot($("#placeholder"), dataset, options_one);
+    $("#placeholder").UseTooltip();
+  });
+
+</script>
+<?php
+        echo '<div class="modal-header">
+            <h5 class="modal-title" id="ajaxModalLabel">'.$title.'</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+        </div>
+        <div class="modal-body" id="ajaxModalBody">
+                <div class="flot-chart">
+                        <div class="flot-chart-content" id="placeholder">
+			</div>
+		</div>
+    	</div>
+    	<div class="modal-footer" id="ajaxModalFooter">
+            <button class="btn btn-primary btn-sm" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="'.$ajax_modal.'"  onclick="sensors_Graph(this);">'.$button_name.'</button>
+            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+        </div>';      //close class="modal-footer">
+        echo '<script language="javascript" type="text/javascript">
+                sensors_Graph=function(gthis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(gthis)); })};
+        </script>';
+    return;
+}
+if(explode(',', $_GET['Ajax'])[0]=='GetModal_Sensor_Graph')
+{
+    GetModal_Sensor_Graph($conn);
+    return;
+}
+
 function GetModal_Sensors($conn)
 {
 	global $lang;

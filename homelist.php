@@ -26,7 +26,17 @@ require_once(__DIR__.'/st_inc/functions.php');
 
 if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") { $button_style = "btn-xxl-wide"; } else { $button_style = "btn-xxl"; }
 ?>
-<script language="javascript" type="text/javascript"></script>
+<script language='javascript' type='text/javascript'>
+	$('#ajaxModal').on('show.bs.modal', function(e) {
+        	//console.log($(e.relatedTarget).data('ajax'));
+            	$(this).find('#ajaxModalLabel').html('...');
+            	$(this).find('#ajaxModalBody').html('Waiting ...');
+            	$(this).find('#ajaxModalFooter').html('...');
+            	$(this).find('#ajaxModalContent').load($(e.relatedTarget).data('ajax'));
+        });
+</script>";
+
+
 <div class="panel panel-primary">
         <div class="panel-heading">
                 <div class="Light"><i class="fa fa-home fa-fw"></i> <?php echo $lang['home']; ?>
@@ -257,6 +267,8 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 	                $temperature_sensor_id=$sensor['sensor_id'];
                 	$temperature_sensor_child_id=$sensor['sensor_child_id'];
                         $sensor_type_id=$sensor['sensor_type_id'];
+                        $ajax_modal_24h = "ajax.php?Ajax=GetModal_Sensor_Graph,".$sensor['id'].",0";
+                        $ajax_modal_1h = "ajax.php?Ajax=GetModal_Sensor_Graph,".$sensor['id'].",1";
 
 			//get the node id
                 	$query = "SELECT node_id FROM nodes WHERE id = '{$temperature_sensor_id}' LIMIT 1;";
@@ -457,7 +469,10 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 						echo '
 						</div>
 						<!-- /.modal-body -->
-						<div class="modal-footer"><button type="button" class="btn btn-default btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+						<div class="modal-footer">
+                        				<button class="btn btn-primary btn-sm" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="'.$ajax_modal_24h.'">'.$lang['graph_24h'].'</button>
+                                                        <button class="btn btn-primary btn-sm" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="'.$ajax_modal_1h.'">'.$lang['graph_1h'].'</button>
+							<button type="button" class="btn btn-default btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
 						</div>
 						<!-- /.modal-footer -->
 					</div>
@@ -470,9 +485,10 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 		} // end of zones while loop
 
                 // Temperature Sensors Pre System Controller
-                $query = "SELECT sensors.name, sensors.sensor_child_id, sensors.sensor_type_id, nodes.node_id, nodes.last_seen, nodes.notice_interval FROM sensors, nodes WHERE (nodes.id = sensors.sensor_id) AND sensors.zone_id = 0 AND sensors.show_it = 1 AND sensors.pre_post = 1 order by index_id asc;";
+                $query = "SELECT sensors.id, sensors.name, sensors.sensor_child_id, sensors.sensor_type_id, nodes.node_id, nodes.last_seen, nodes.notice_interval FROM sensors, nodes WHERE (nodes.id = sensors.sensor_id) AND sensors.zone_id = 0 AND sensors.show_it = 1 AND sensors.pre_post = 1 order by index_id asc;";
                 $results = $conn->query($query);
                 while ($row = mysqli_fetch_assoc($results)) {
+                        $sensor_id = $row['id'];
                         $sensor_name = $row['name'];
                         $sensor_child_id = $row['sensor_child_id'];
                         $node_id = $row['node_id'];
@@ -490,7 +506,8 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                         $result = $conn->query($query);
                         $sensor = mysqli_fetch_array($result);
                         $sensor_c = $sensor['payload'];
-                        echo '<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-backdrop="static" data-keyboard="false">
+                        $ajax_modal = "ajax.php?Ajax=GetModal_Sensor_Graph,".$sensor_id.",0";
+                        echo '<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="'.$ajax_modal.'">
                         <h3><small>'.$sensor_name.'</small></h3>';
                         if ($sensor_type_id == 3) {
                                 if ($sensor_c == 0) { echo '<h3 class="degre">OFF</h3>'; } else { echo '<h3 class="degre">ON</h3>'; }
@@ -660,9 +677,10 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 		// end if system controller button
 
 		// Temperature Sensors Post System Controller
-		$query = "SELECT sensors.name, sensors.sensor_child_id, sensors.sensor_type_id,nodes.node_id, nodes.last_seen, nodes.notice_interval FROM sensors, nodes WHERE (nodes.id = sensors.sensor_id) AND sensors.zone_id = 0 AND sensors.show_it = 1 AND sensors.pre_post = 0 order by index_id asc;";
+		$query = "SELECT sensors.id, sensors.name, sensors.sensor_child_id, sensors.sensor_type_id,nodes.node_id, nodes.last_seen, nodes.notice_interval FROM sensors, nodes WHERE (nodes.id = sensors.sensor_id) AND sensors.zone_id = 0 AND sensors.show_it = 1 AND sensors.pre_post = 0 order by index_id asc;";
                 $results = $conn->query($query);
                 while ($row = mysqli_fetch_assoc($results)) {
+                        $sensor_id = $row['id'];
 			$sensor_name = $row['name'];
                         $sensor_child_id = $row['sensor_child_id'];
 			$node_id = $row['node_id'];
@@ -680,7 +698,8 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                         $result = $conn->query($query);
                         $sensor = mysqli_fetch_array($result);
                         $sensor_c = $sensor['payload'];
-   			echo '<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-backdrop="static" data-keyboard="false">
+                        $ajax_modal = "ajax.php?Ajax=GetModal_Sensor_Graph,".$sensor_id.",0";
+   			echo '<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="'.$ajax_modal.'">
                         <h3><small>'.$sensor_name.'</small></h3>';
                         if ($sensor_type_id == 3) {
                                 if ($sensor_c == 0) { echo '<h3 class="degre">OFF</h3>'; } else { echo '<h3 class="degre">ON</h3>'; }
@@ -894,6 +913,23 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 		?>
 		</div>
                 <!-- /.panel-body -->
+		<!-- Generic Ajax Modal -->
+        	<div class="modal fade" id="ajaxModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                	<div class="modal-dialog">
+                        	<div class="modal-content" id="ajaxModalContent">
+                                	<div class="modal-header">
+                                        	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                <h5 class="modal-title" id="ajaxModalLabel">...</h5>
+                                      	</div>
+                                        <div class="modal-body" id="ajaxModalBody">
+                                        	<?php echo $lang['waiting']; ?>
+                                        </div>
+                                        <div class="modal-footer" id="ajaxModalFooter">
+                                                ...
+                                        </div>
+                             	</div>
+                	</div>
+                </div>
 		<div class="panel-footer">
 			<?php
 			ShowWeather($conn);
