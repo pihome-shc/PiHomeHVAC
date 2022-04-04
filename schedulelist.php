@@ -70,7 +70,11 @@ require_once(__DIR__ . '/st_inc/functions.php');
 		$away_status = $away['status'];
 		//$query = "SELECT time_id, time_status, `start`, `end`, tz_id, tz_status, zone_id, index_id, zone_name, temperature, max(temperature) as max_c FROM schedule_daily_time_zone_view group by time_id ORDER BY start asc";
 		//$query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, type, `category`, temperature, FORMAT(max(temperature),2) as max_c, sch_name, max(sunset) AS sunset, sensor_type_id, stype FROM schedule_daily_time_zone_view WHERE holidays_id = 0 AND tz_status = 1 group by time_id ORDER BY start, sch_name asc";
-               	$query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, type, `category`, temperature, FORMAT(max(temperature),2) as max_c, sch_name, sch_type, start_sr, start_ss, start_offset, end_sr, end_ss, end_offset, sensor_type_id, stype FROM schedule_daily_time_zone_view WHERE holidays_id = 0 AND tz_status = 1 group by time_id ORDER BY start, sch_name asc";
+                $query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, type, `category`, temperature,
+                        FORMAT(max(temperature),2) as max_c, sch_name, sch_type, start_sr, start_ss, start_offset, end_sr, end_ss, end_offset, sensor_type_id, stype
+                        FROM schedule_daily_time_zone_view
+                        WHERE holidays_id = 0 AND (tz_status = 1 OR (tz_status = 0 AND time_status = 1))
+                        GROUP BY time_id ORDER BY start, sch_name asc";
 		$results = $conn->query($query);
 		while ($row = mysqli_fetch_assoc($results)) {
                         $dow = idate('w');
