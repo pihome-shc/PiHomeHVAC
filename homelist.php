@@ -34,8 +34,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
             	$(this).find('#ajaxModalFooter').html('...');
             	$(this).find('#ajaxModalContent').load($(e.relatedTarget).data('ajax'));
         });
-</script>";
-
+</script>
 
 <div class="panel panel-primary">
         <div class="panel-heading">
