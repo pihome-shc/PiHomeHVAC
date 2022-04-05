@@ -915,15 +915,20 @@ function GetModal_Sensor_Graph($conn)
                 $button_name = $lang['graph_24h'];
 	}
         $results = $conn->query($query);
-        // create array of pairs of x and y values for every zone
-        $data_x = array();
-        $data_y = array();
-        while ($rowb = mysqli_fetch_assoc($results)) {
-		$data_x[] = strtotime($rowb['datetime']) * 1000;
-		$data_y[] = $rowb['payload'];
+        if (mysqli_num_rows($results) > 0) {
+                // create array of pairs of x and y values for every zone
+                $data_x = array();
+                $data_y = array();
+                while ($rowb = mysqli_fetch_assoc($results)) {
+                        $data_x[] = strtotime($rowb['datetime']) * 1000;
+                        $data_y[] = $rowb['payload'];
+                        $js_array_x = json_encode($data_x);
+                        $js_array_y = json_encode($data_y);
+                }
+        } else {
+                $js_array_x = '';
+                $js_array_y = '';
         }
-	$js_array_x = json_encode($data_x);
-        $js_array_y = json_encode($data_y);
 	?>
 	<script type="text/javascript" src="js/plugins/plotly/plotly-2.9.0.min.js"></script>
         <script type="text/javascript" src="js/plugins/plotly/d3.min.js"></script>
