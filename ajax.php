@@ -916,19 +916,14 @@ function GetModal_Sensor_Graph($conn)
 	}
         $results = $conn->query($query);
         // create array of pairs of x and y values for every zone
-        $graph_temp = array();
         $data_x = array();
         $data_y = array();
         while ($rowb = mysqli_fetch_assoc($results)) {
-                $graph_temp[] = array(date('H:i',strtotime($rowb['datetime'])), floatval($rowb['payload']));
 		$data_x[] = strtotime($rowb['datetime']) * 1000;
 		$data_y[] = $rowb['payload'];
         }
 	$js_array_x = json_encode($data_x);
         $js_array_y = json_encode($data_y);
-        // create dataset entry using distinct color based on zone index(to have the same color everytime chart is opened)
-	$graph1 = '';
-	$graph1 = $graph1.json_encode($graph_temp);
 	?>
 	<script type="text/javascript" src="js/plugins/plotly/plotly-2.9.0.min.js"></script>
         <script type="text/javascript" src="js/plugins/plotly/d3.min.js"></script>
@@ -974,7 +969,7 @@ function GetModal_Sensor_Graph($conn)
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
         </div>
         <div class="modal-body" id="ajaxModalBody">
-		<div id="myChart" style="width:100%;max-width:600px"></div>
+		<div id="myChart" style="width:100%;max-width:580px"></div>
     	</div>
     	<div class="modal-footer" id="ajaxModalFooter">
             <button class="btn btn-primary btn-sm" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="'.$ajax_modal.'"  onclick="sensors_Graph(this);">'.$button_name.'</button>
