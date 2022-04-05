@@ -938,6 +938,10 @@ function GetModal_Sensor_Graph($conn)
   			mode: "lines",
   			x: xValues,
   			y: yValues,
+                        hoverlabel: {
+                                bgcolor: 'black',
+                                font: {color: 'white'}
+                        },
 			hovertemplate: 'At: %{x}<extra></extra>' +
                         '<br><b>Temp: </b>: %{y:.2f}\xB0<br>',
 			showlegend: false,
