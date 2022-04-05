@@ -917,92 +917,66 @@ function GetModal_Sensor_Graph($conn)
         $results = $conn->query($query);
         // create array of pairs of x and y values for every zone
         $graph_temp = array();
+        $data_x = array();
+        $data_y = array();
         while ($rowb = mysqli_fetch_assoc($results)) {
-                $graph_temp[] = array(strtotime($rowb['datetime']) * 1000, $rowb['payload']);
+                $graph_temp[] = array(date('H:i',strtotime($rowb['datetime'])), floatval($rowb['payload']));
+		$data_x[] = strtotime($rowb['datetime']) * 1000;
+		$data_y[] = $rowb['payload'];
         }
+	$js_array_x = json_encode($data_x);
+        $js_array_y = json_encode($data_y);
         // create dataset entry using distinct color based on zone index(to have the same color everytime chart is opened)
 	$graph1 = '';
-	$graph1 = $graph1. "{data: ".json_encode($graph_temp).", color: '".$sensor_color[$graph_id]."'}, \n";
+	$graph1 = $graph1.json_encode($graph_temp);
 	?>
-	<!--[if lte IE 8]><script src="js/plugins/flot/excanvas.min.js"></script><![endif]-->
-	<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="/js/flot/excanvas.min.js"></script><![endif]-->
-    	<script type="text/javascript" src="js/plugins/flot/jquery.flot.min.js"></script>
-    	<script type="text/javascript" src="js/plugins/flot/jshashtable-2.1.js"></script>
-    	<script type="text/javascript" src="js/plugins/flot/jquery.numberformatter-1.2.3.min.js"></script>
-    	<script type="text/javascript" src="js/plugins/flot/jquery.flot.js"></script>
-    	<script type="text/javascript" src="js/plugins/flot/jquery.flot.time.js"></script>
-    	<script type="text/javascript" src="js/plugins/flot/jquery.flot.symbol.js"></script>
-    	<script type="text/javascript" src="js/plugins/flot/jquery.flot.axislabels.js"></script>
-    	<script type="text/javascript" src="js/plugins/flot/jquery.flot.resize.js"></script>
-    	<script type="text/javascript" src="js/plugins/flot/jquery.flot.tooltip.min.js"></script>
-	<script type="text/javascript" src="js/plugins/flot/curvedLines.js"></script>
+	<script type="text/javascript" src="js/plugins/plotly/plotly-2.9.0.min.js"></script>
+        <script type="text/javascript" src="js/plugins/plotly/d3.min.js"></script>
+	<script>
 
-	<script type="text/javascript">
-  	var dataset = [ <?php echo $graph1 ?>];
-	var options_one = {
-    		xaxis: { mode: "time", timezone: "browser", timeformat: "%H:%M"},
-    		series: { lines: { show: true, lineWidth: 1, fill: false}, curvedLines: { apply: true,  active: true,  monotonicFit: true } },
-    		grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf9f9"] }, borderColor: "#ff8839",},
-    		legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
-  	};
+        var xValues = [<?php echo substr($js_array_x, 1, -1) ?>];
+        var yValues = [<?php echo substr($js_array_y, 1, -1) ?>];
 
-  $.fn.UseTooltip = function () {
-    var previousPoint = null, previousLabel = null;
-    $(this).bind("plothover", function (event, pos, item) {
-        if (item) {
-            if ((previousLabel != item.series.label) ||
-                 (previousPoint != item.dataIndex)) {
-                previousPoint = item.dataIndex;
-                previousLabel = item.series.label;
-                $("#tooltip").remove();
-                var x = item.datapoint[0];
-                var y = item.datapoint[1];
-                var color = item.series.color;
-                showTooltip(item.pageX,
-                        item.pageY,
-                        color,
-                        "<strong>" + item.series.label + "</strong> At: " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"</strong> ");
-            }
-        } else {
-            $("#tooltip").remove();
-            previousPoint = null;
-            previousLabel = null;
-        }
-    });
-  };
+	var data = [
+		{
+  			type: 'scatter',
+  			mode: "lines",
+  			x: xValues,
+  			y: yValues,
+			hovertemplate: 'At: %{x}<extra></extra>' +
+                        '<br><b>Temp: </b>: %{y:.2f}\xB0<br>',
+			showlegend: false,
+			line: {color: '<?php echo $sensor_color[$graph_id]; ?>'}
+		}
+	];
 
-function showTooltip(x, y, color, contents) {
-    $('<div id="tooltip">' + contents + '</div>').css({
-        position: 'absolute',
-        display: 'none',
-        top: y - 10,
-        left: x + 10,
-        border: '1px solid ' + color,
-        padding: '3px',
-        'font-size': '9px',
-        'border-radius': '5px',
-        'background-color': '#fff',
-        'font-family': 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
-        opacity: 0.7
-    }).appendTo("modal-body").fadeIn(200);
-  }
+	var layout = {
+		autosize: false,
+  		width: 580,
+  		xaxis: {
+    		title: 'Time',
+    		type: 'date',
+    		tickformat: '%H:%M'
+  		},
+  		yaxis: {
+    		title: 'Temperature'
+  		},
+		automargin: true,
+	};
 
-  $(document).ready(function () {
-    $.plot($("#placeholder"), dataset, options_one);
-    $("#placeholder").UseTooltip();
-  });
+	var config = {
+  		displayModeBar: true, // this is the line that hides the bar.
+	};
 
-</script>
+	Plotly.newPlot('myChart', data, layout, config);
+	</script>
 <?php
         echo '<div class="modal-header">
             <h5 class="modal-title" id="ajaxModalLabel">'.$title.'</h5>
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
         </div>
         <div class="modal-body" id="ajaxModalBody">
-                <div class="flot-chart">
-                        <div class="flot-chart-content" id="placeholder">
-			</div>
-		</div>
+		<div id="myChart" style="width:100%;max-width:600px"></div>
     	</div>
     	<div class="modal-footer" id="ajaxModalFooter">
             <button class="btn btn-primary btn-sm" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="'.$ajax_modal.'"  onclick="sensors_Graph(this);">'.$button_name.'</button>
