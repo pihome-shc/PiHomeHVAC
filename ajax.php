@@ -945,17 +945,20 @@ function GetModal_Sensor_Graph($conn)
 		}
 	];
 
-	var layout = {
-  		xaxis: {
-    		title: 'Time',
-    		type: 'date',
-    		tickformat: '%H:%M'
-  		},
-  		yaxis: {
-    		title: 'Temperature'
-  		},
-		automargin: true,
-	};
+        var layout = {
+                xaxis: {
+                title: 'Time',
+                type: 'date',
+                tickmode: "linear",
+                tick0: 0,
+                dtick: 2*60*60*1000,
+                tickformat: '%H:%M'
+                },
+                yaxis: {
+                title: 'Temperature'
+                },
+                automargin: true,
+        };
 
 	var config = {
   		displayModeBar: true, // this is the line that hides the bar.
