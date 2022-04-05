@@ -929,8 +929,8 @@ function GetModal_Sensor_Graph($conn)
         <script type="text/javascript" src="js/plugins/plotly/d3.min.js"></script>
 	<script>
 
-        var xValues = [<?php echo substr($js_array_x, 1, -1) ?>];
-        var yValues = [<?php echo substr($js_array_y, 1, -1) ?>];
+        var xValues = [...<?php echo $js_array_x ?>];
+        var yValues = [...<?php echo $js_array_y ?>];
 
 	var data = [
 		{
