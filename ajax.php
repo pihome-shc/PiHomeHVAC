@@ -951,8 +951,6 @@ function GetModal_Sensor_Graph($conn)
 	];
 
 	var layout = {
-		autosize: false,
-  		width: 580,
   		xaxis: {
     		title: 'Time',
     		type: 'date',
