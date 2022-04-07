@@ -36,6 +36,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
         });
 </script>
 
+
 <div class="panel panel-primary">
         <div class="panel-heading">
                 <div class="Light"><i class="fa fa-home fa-fw"></i> <?php echo $lang['home']; ?>
@@ -220,6 +221,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 
 		//loop through zones
 		$active_schedule = 0;
+		$zone_params = [];
 		$query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 0 OR `zone_type`.`category` = 3 OR `zone_type`.`category` = 4) ORDER BY `zone`.`index_id` ASC;";
 		$results = $conn->query($query);
 		while ($row = mysqli_fetch_assoc($results)) {
@@ -313,24 +315,24 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
  			echo '<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-href="#" data-toggle="modal" data-target="#'.$zone_type.''.$zone_id.'" data-backdrop="static" data-keyboard="false">
 			<h3><small>'.$zone_name.'</small></h3>';
 			if ($sensor_type_id == 3) {
-				if ($zone_c == 0) { echo '<h3 class="degre">OFF</h3>'; } else { echo '<h3 class="degre">ON</h3>'; }
+				if ($zone_c == 0) { echo '<h3 class="degre" id="zd_'.$zone_id.'">OFF</h3>'; } else { echo '<h3 class="degre" id="zd_'.$zone_id.'">ON</h3>'; }
 			} else {
 				$unit = SensorUnits($conn,$sensor_type_id);
-        	                echo '<h3 class="degre">'.number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit.'</h3>';
+        	                echo '<h3 class="degre" id="zd_'.$zone_id.'">'.number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit.'</h3>';
 			}
 			echo '<h3 class="status">';
 
                         if ($away_status == 1 && $away_sch == 1 ) { $zone_mode = $zone_mode + 10; }
                         $rval=getIndicators($conn, $zone_mode, $zone_temp_target);
                         //Left small circular icon/color status
-                        echo '<small class="statuscircle"><i class="fa fa-circle fa-fw ' . $rval['status'] . '"></i></small>';
+                        echo '<small class="statuscircle" id="zs1_'.$zone_id.'"><i class="fa fa-circle fa-fw ' . $rval['status'] . '"></i></small>';
                         //Middle target temp
-                        if ($sensor_type_id != 3) { echo '<small class="statusdegree">' . $rval['target'] .'</small>'; }
+                        if ($sensor_type_id != 3) { echo '<small class="statusdegree" id="zs2_'.$zone_id.'">' . $rval['target'] .'</small>'; }
                         //Right icon for what/why
-                        echo '<small class="statuszoon"><i class="fa ' . $rval['shactive'] . ' ' . $rval['shcolor'] . ' fa-fw"></i></small>';
+                        echo '<small class="statuszoon" id="zs3_'.$zone_id.'"><i class="fa ' . $rval['shactive'] . ' ' . $rval['shcolor'] . ' fa-fw"></i></small>';
                         //Overrun Icon
                         if($overrun == 1) {
-                            echo '<small class="statuszoon"><i class="fa ion-ios-play-outline orange fa-fw"></i></small>';
+                            echo '<small class="statuszoon" id="zs4_'.$zone_id.'"><i class="fa ion-ios-play-outline orange fa-fw"></i></small>';
                         }
                         echo '</h3></button>';      //close out status and button
 
@@ -481,9 +483,11 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 			</div>
 			<!-- /.modal fade -->
 			';
+			$zone_params[] = array('zone_id' =>$row['id'], 'zone_name' =>$row['name'], 'zone_category' =>$row['category']);
 		} // end of zones while loop
 
                 // Temperature Sensors Pre System Controller
+		$sensor_params = [];
                 $query = "SELECT sensors.id, sensors.name, sensors.sensor_child_id, sensors.sensor_type_id, nodes.node_id, nodes.last_seen, nodes.notice_interval FROM sensors, nodes WHERE (nodes.id = sensors.sensor_id) AND sensors.zone_id = 0 AND sensors.show_it = 1 AND sensors.pre_post = 1 order by index_id asc;";
                 $results = $conn->query($query);
                 while ($row = mysqli_fetch_assoc($results)) {
@@ -509,14 +513,15 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                         echo '<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="'.$ajax_modal.'">
                         <h3><small>'.$sensor_name.'</small></h3>';
                         if ($sensor_type_id == 3) {
-                                if ($sensor_c == 0) { echo '<h3 class="degre">OFF</h3>'; } else { echo '<h3 class="degre">ON</h3>'; }
+                                if ($sensor_c == 0) { echo '<h3 class="degre" id="sd_'.$sensor_id.'">OFF</h3>'; } else { echo '<h3 class="degre" id="sd_'.$sensor_id.'">ON</h3>'; }
 			} else {
 				$unit = SensorUnits($conn,$sensor_type_id);
-        	                echo '<h3 class="degre">'.number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit.'</h3>';
+        	                echo '<h3 class="degre" id="sd_'.$sensor_id.'">'.number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit.'</h3>';
 			}
                         echo '<h3 class="status">
-                        <small class="statuscircle"><i class="fa fa-circle fa-fw '.$shcolor.'"></i></small>
+                        <small class="statuscircle" id="ss1_'.$sensor_id.'"><i class="fa fa-circle fa-fw '.$shcolor.'"></i></small>
                         </h3></button>';      //close out status and button
+			$sensor_params[] = array('sensor_id' =>$row['id'], 'sensor_name' =>$row['name']);
                 }
 
 		//SYSTEM CONTROLLER BUTTON
@@ -543,7 +548,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 			if ($system_controller_mode == 1) {
                                 switch ($sc_mode) {
                                         case 0:
-                                                echo '<h3 class="degre" ><i class="fa fa-circle-o-notch"></i></h3>';
+                                                echo '<h3 class="degre" id="scd" ><i class="fa fa-circle-o-notch"></i></h3>';
                                                 break;
                                         case 1:
 						if ($active_schedule) {
@@ -551,7 +556,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 						} else {
 							$system_controller_colour="";
 						}
-                                                echo '<h3 class="degre" ><i class="ionicons ion-flame fa-1x '.$system_controller_colour.'"></i></h3>';
+                                                echo '<h3 class="degre" id="scd" ><i class="ionicons ion-flame fa-1x '.$system_controller_colour.'"></i></h3>';
 						break;
 					case 2:
                                                 if ($active_schedule) {
@@ -559,7 +564,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                                                 } else {
                                                         $system_controller_colour="";
                                                 }
-                                                echo '<h3 class="degre" ><i class="fa fa-snowflake-o fa-1x '.$system_controller_colour.'"></i></h3>';
+                                                echo '<h3 class="degre" id="scd" ><i class="fa fa-snowflake-o fa-1x '.$system_controller_colour.'"></i></h3>';
                                                 break;
                                         case 3:
 						if ($hvac_relays_state == 0b000) {
@@ -568,36 +573,36 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                                 			} elseif ($sc_active_status==0) {
                                         			$system_controller_colour="";
                                 			}
-							echo '<h3 class="degre" ><i class="fa fa-circle-o-notch fa-1x '.$system_controller_colour.'"></i></h3>';
+							echo '<h3 class="degre" id="scd" ><i class="fa fa-circle-o-notch fa-1x '.$system_controller_colour.'"></i></h3>';
 						} elseif ($hvac_relays_state & 0b100) {
-							echo '<h3 class="degre" ><i class="ionicons ion-flame fa-1x red"></i></h3>';
+							echo '<h3 class="degre" id="scd" ><i class="ionicons ion-flame fa-1x red"></i></h3>';
 						} elseif ($hvac_relays_state & 0b010) {
-							echo '<h3 class="degre" ><i class="fa fa-snowflake-o fa-1x blueinfo"></i></h3>';
+							echo '<h3 class="degre" id="scd" ><i class="fa fa-snowflake-o fa-1x blueinfo"></i></h3>';
 						}
 						break;
                                         case 4:
                                                 if ($hvac_relays_state == 0b000) {
                                                        	$system_controller_colour="green";
-                                                        echo '<h3 class="degre" ><i class="fa fa-circle-o-notch fa-1x '.$system_controller_colour.'"></i></h3>';
+                                                        echo '<h3 class="degre" id="scd" ><i class="fa fa-circle-o-notch fa-1x '.$system_controller_colour.'"></i></h3>';
                                                 } elseif ($hvac_relays_state & 0b100) {
-                                                        echo '<h3 class="degre" ><i class="ionicons ion-flame fa-1x red"></i></h3>';
+                                                        echo '<h3 class="degre" id="scd" ><i class="ionicons ion-flame fa-1x red"></i></h3>';
                                                 } elseif ($hvac_relays_state & 0b010) {
-                                                        echo '<h3 class="degre" ><i class="fa fa-snowflake-o fa-1x blueinfo"></i></h3>';
+                                                        echo '<h3 class="degre" id="scd" ><i class="fa fa-snowflake-o fa-1x blueinfo"></i></h3>';
                                                 }
                                                 break;
                                         case 5:
-                                                echo '<h3 class="degre" ><img src="images/hvac_fan_30.png" border="0"></h3>';
+                                                echo '<h3 class="degre" id="scd" ><img src="images/hvac_fan_30.png" border="0"></h3>';
                                                 break;
                                         case 6:
 						if ($hvac_relays_state & 0b100) { $system_controller_colour = "red"; } else { $system_controller_colour = "blue"; }
-                                                echo '<h3 class="degre" ><i class="ionicons ion-flame fa-1x '.$system_controller_colour.'"></i></h3>';
+                                                echo '<h3 class="degre" id="scd" ><i class="ionicons ion-flame fa-1x '.$system_controller_colour.'"></i></h3>';
                                                 break;
                                         case 7:
                                                 if ($hvac_relays_state & 0b010) { $system_controller_colour = "blueinfo"; } else { $system_controller_colour = ""; }
-                                                echo '<h3 class="degre" ><i class="fa fa-snowflake-o fa-1x '.$system_controller_colour.'"></i></h3>';
+                                                echo '<h3 class="degre" id="scd" ><i class="fa fa-snowflake-o fa-1x '.$system_controller_colour.'"></i></h3>';
                                                 break;
 					default:
-                                                echo '<h3 class="degre" ><i class="fa fa-circle-o-notch"></i></h3>';
+                                                echo '<h3 class="degre" id="scd" ><i class="fa fa-circle-o-notch"></i></h3>';
                                 }
 			} else {
                         	if ($sc_active_status==1) {
@@ -608,11 +613,11 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 				if ($sc_mode==0) {
                                 	$system_controller_colour="";
                                 }
-                                echo '<h3 class="degre" ><i class="ionicons ion-flame fa-1x '.$system_controller_colour.'"></i></h3>';
+                                echo '<h3 class="degre" id="scd" ><i class="ionicons ion-flame fa-1x '.$system_controller_colour.'"></i></h3>';
 			}
-			if($system_controller_fault=='1') {echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 70px;" class="statuszoon"><i class="fa ion-android-cancel fa-1x red"></i> </small>';}
-			elseif($hysteresis=='1') {echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 70px;" class="statuszoon"><i class="fa fa-hourglass fa-1x orange"></i> </small>';}
-			else { echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 48px;" class="statuszoon"></small>';}
+			if($system_controller_fault=='1') {echo'<h3 class="status"><small class="statusdegree" id="scs"></small><small style="margin-left: 70px;" class="statuszoon"><i class="fa ion-android-cancel fa-1x red"></i> </small>';}
+			elseif($hysteresis=='1') {echo'<h3 class="status"><small class="statusdegree" id="scs"></small><small style="margin-left: 70px;" class="statuszoon"><i class="fa fa-hourglass fa-1x orange"></i> </small>';}
+			else { echo'<h3 class="status"><small class="statusdegree" id="scs"></small><small style="margin-left: 48px;" class="statuszoon"></small>';}
 			echo '</h3></button>';
 
 			//System Controller Last 5 Status Logs listing model
@@ -701,15 +706,17 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
    			echo '<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="'.$ajax_modal.'">
                         <h3><small>'.$sensor_name.'</small></h3>';
                         if ($sensor_type_id == 3) {
-                                if ($sensor_c == 0) { echo '<h3 class="degre">OFF</h3>'; } else { echo '<h3 class="degre">ON</h3>'; }
+                                if ($sensor_c == 0) { echo '<h3 class="degre" id="sd_'.$sensor_id.'">OFF</h3>'; } else { echo '<h3 class="degre" id="sd_'.$sensor_id.'">ON</h3>'; }
 			} else {
 				$unit = SensorUnits($conn,$sensor_type_id);
-        	                echo '<h3 class="degre">'.number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit.'</h3>';
+        	                echo '<h3 class="degre" id="sd_'.$sensor_id.'">'.number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit.'</h3>';
 			}
                         echo '<h3 class="status">
-                        <small class="statuscircle"><i class="fa fa-circle fa-fw '.$shcolor.'"></i></small>
+                        <small class="statuscircle" id="ss1_'.$sensor_id.'"><i class="fa fa-circle fa-fw '.$shcolor.'"></i></small>
                         </h3></button>';      //close out status and button
+			$sensor_params[] = array('sensor_id' =>$row['id'], 'sensor_name' =>$row['name']);
  		}
+		$js_sensor_params = json_encode($sensor_params);
 
                 // Add-On buttons
                 $query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 1 OR `zone_type`.`category` = 2) ORDER BY `zone`.`index_id` ASC;";
@@ -763,11 +770,11 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                         echo '<h3 class="buttontop"><small>'.$row['name'].'</small></h3>';
                         if (($zone_category == 1 && $sensor_type_id != 3)) {
                                 $unit = SensorUnits($conn,$sensor_type_id);
-                                echo '<h3 class="degre">'.number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit.'</h3>';
+                                echo '<h3 class="degre" id="zd_'.$zone_id.'">'.number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit.'</h3>';
                         } elseif ($zone_category == 1 && $sensor_type_id == 3) {
-				if ($add_on_active == 0) { echo '<h3 class="degre">OFF</h3>'; } else { echo '<h3 class="degre">ON</h3>'; }
+				if ($add_on_active == 0) { echo '<h3 class="degre" id="zd_'.$zone_id.'">OFF</h3>'; } else { echo '<h3 class="degre" id="zd_'.$zone_id.'">ON</h3>'; }
 			} else {
-                        	echo '<h3 class="degre" ><i class="fa fa-power-off fa-1x '.$add_on_colour.'"></i></h3>';
+                        	echo '<h3 class="degre" id="zd_'.$zone_id.'"><i class="fa fa-power-off fa-1x '.$add_on_colour.'"></i></h3>';
 			}
                         echo '<h3 class="status">';
 
@@ -780,11 +787,11 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 			if ($away_status == 1 && $away_sch == 1 ) { $zone_mode = 90; }
                         $rval=getIndicators($conn, $add_on_mode, $zone_temp_target);
                         //Left small circular icon/color status
-                        echo '<small class="statuscircle"><i class="fa fa-circle fa-fw ' . $rval['status'] . '"></i></small>';
+                        echo '<small class="statuscircle" id="zs1_'.$zone_id.'"><i class="fa fa-circle fa-fw ' . $rval['status'] . '"></i></small>';
                         //Middle target temp
-                        echo '<small class="statusdegree">' . $rval['target'] .'</small>';
+                        echo '<small class="statusdegree" id="zs2_'.$zone_id.'">' . $rval['target'] .'</small>';
                         //Right icon for what/why
-                        echo '<small class="statuszoon"><i class="fa ' . $rval['shactive'] . ' ' . $rval['shcolor'] . ' fa-fw"></i></small>';
+                        echo '<small class="statuszoon" id="zs3_'.$zone_id.'"><i class="fa ' . $rval['shactive'] . ' ' . $rval['shcolor'] . ' fa-fw"></i></small>';
                         echo '</h3></button></a>';      //close out status and button
 
 			//Add-On Zone Schedule listing model
@@ -897,17 +904,23 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 			</div>
 			<!-- /.modal fade -->
 			';
-                }
+                        $zone_params[] = array('zone_id' =>$row['id'], 'zone_name' =>$row['name'], 'zone_category' =>$row['category']);
+                } // end of zones while loop
+                $js_zone_params = json_encode($zone_params);
+
                 echo '<input type="hidden" id="sch_active" name="sch_active" value="'.$sch_status.'"/>';
 
 		//select addional onetouch buttons
+		$button_params = [];
                 $query = "SELECT * FROM button_page WHERE page = 1 ORDER BY index_id ASC";
                 $results = $conn->query($query);
                 if (mysqli_num_rows($results) > 0) {
                         while ($row = mysqli_fetch_assoc($results)) {
                                 $var = $row['function'];
                                 $var($conn, $lang[$var]);
+				if ($row['page'] == 1) { $button_params[] = array('button_id' =>$row['id'], 'button_name' =>$row['name']); }
                         }
+			$js_button_params = json_encode($button_params);
                 }
 		?>
 		</div>
@@ -956,3 +969,49 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 	</div>
 	<!-- /.panel-primary -->
 <?php if(isset($conn)) { $conn->close();} ?>
+<script language="javascript" type="text/javascript">
+
+// update the heating zone temperature every 1 second
+$(document).ready(function(){
+ setInterval(function(){//setInterval() method execute on every interval until called clearInterval()
+var data = '<?php echo $js_zone_params ?>';
+var obj = JSON.parse(data)
+//console.log(obj.length);
+
+for (var i = 0; i < obj.length; i++) {
+  if (obj[i].zone_category == 0 || obj[i].zone_category == 3 || obj[i].zone_category == 4) {
+  	$('#zd_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=1").fadeIn("slow");
+  } else {
+        $('#zd_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=8").fadeIn("slow");
+  }
+  $('#zs1_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=2").fadeIn("slow");
+  $('#zs2_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=3").fadeIn("slow");
+  $('#zs3_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=4").fadeIn("slow");
+  $('#zs4_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=5").fadeIn("slow");
+//   console.log(obj[i].zone_id);
+}
+var data1 = '<?php echo $js_sensor_params ?>';
+var obj1 = JSON.parse(data1)
+//console.log(obj.length);
+
+for (var x = 0; x < obj1.length; x++) {
+  $('#sd_' + obj1[x].sensor_id).load("fetch_homelist.php?sensor_id=" + obj1[x].sensor_id + "&type=6").fadeIn("slow");
+  $('#ss1_' + obj1[x].sensor_id).load("fetch_homelist.php?sensor_id=" + obj1[x].sensor_id + "&type=7").fadeIn("slow");
+//   console.log(obj1[i].sensor_id);
+  //load() method fetch data from fetch.php page
+}
+  $('#scd').load("fetch_homelist.php?zone_id=0&type=9").fadeIn("slow");
+
+var data2 = '<?php echo $js_button_params ?>';
+var obj2 = JSON.parse(data2)
+//console.log(obj.length);
+
+for (var y = 0; y < obj2.length; y++) {
+  $('#bs1_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=10").fadeIn("slow");
+//   console.log(obj1[i].sensor_id);
+  //load() method fetch data from fetch.php page
+}
+
+ }, 1000);
+});
+</script>

@@ -889,7 +889,7 @@ function boost($conn,$button) {
         <button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
         <h3 class="degre"><i class="fa fa-rocket fa-1x"></i></h3>
-        <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$boost_status.'"></i></small>
+        <h3 class="status"><small class="statuscircle" id="bs1_1"><i class="fa fa-circle fa-fw '.$boost_status.'"></i></small>
         </h3></button></a>';
 
 }
@@ -905,7 +905,7 @@ function override($conn,$button) {
         <button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
         <h3 class="degre"><i class="fa fa-refresh fa-1x"></i></h3>
-        <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$override_status.'"></i></small>
+        <h3 class="status"><small class="statuscircle" id="bs1_2"><i class="fa fa-circle fa-fw '.$override_status.'"></i></small>
         </h3></button></a>';
 }
 
@@ -971,7 +971,7 @@ function offset($conn,$button) {
 	<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-toggle="modal" href="#offset_setup" data-backdrop="static" data-keyboard="false">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
         <h3 class="degre"><i class="fa fa-clock-o fa-1x"></i></h3>
-        <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$offset_status.'"></i></small><small class="statuszoon">'.$start_time_temp_offset.'&nbsp</small>
+        <h3 class="status"><small class="statuscircle" id="bs1_3"><i class="fa fa-circle fa-fw '.$offset_status.'"></i></small><small class="statuszoon">'.$start_time_temp_offset.'&nbsp</small>
         </h3></button></div>';
 }
 
@@ -986,7 +986,7 @@ function night_climate($conn,$button) {
         <button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
         <h3 class="degre"><i class="fa fa-bed fa-1x"></i></h3>
-        <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$night_status.'"></i></small>
+        <h3 class="status"><small class="statuscircle" id="bs1_4"><i class="fa fa-circle fa-fw '.$night_status.'"></i></small>
         </h3></button></a>';
 }
 
@@ -1006,7 +1006,7 @@ function away($conn,$button) {
         echo '<button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
         <h3 class="degre"><i class="fa fa-sign-out fa-1x"></i></h3>
-        <h3 class="status"><small class="statuscircle"><i class="fa fa-circle fa-fw '.$awaystatus.'"></i></small>
+        <h3 class="status"><small class="statuscircle" id="bs1_5"><i class="fa fa-circle fa-fw '.$awaystatus.'"></i></small>
         </h3></button></a>';
 }
 
@@ -1021,7 +1021,7 @@ function holidays($conn,$button) {
         <button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
         <h3 class="degre"><i class="fa fa-paper-plane fa-1x"></i></h3>
-        <h3 class="status"><small class="statuscircle" style="color:#048afd;"><i class="fa fa-circle fa-fw '.$holidaystatus.'"></i></small>
+        <h3 class="status"><small class="statuscircle" style="color:#048afd;" id="bs1_6"><i class="fa fa-circle fa-fw '.$holidaystatus.'"></i></small>
         </h3></button></a>';
 }
 
