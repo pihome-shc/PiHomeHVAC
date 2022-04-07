@@ -25,7 +25,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 
 if(isset($_GET['zone_id'])) { $zid = $_GET['zone_id']; }
 if(isset($_GET['sensor_id'])) { $sid = $_GET['sensor_id']; }
-if(isset($_GET['button_id'])) { $sid = $_GET['button_id']; }
+if(isset($_GET['button_id'])) { $bid = $_GET['button_id']; }
 if(isset($_GET['type'])) { $type = $_GET['type']; }
 
 //following two variable set to 0 on start for array index.
@@ -351,7 +351,7 @@ if ($type <= 5) {
 		else { echo'</small><small style="margin-left: 48px;" class="statuszoon">';}
 	}
 } elseif ($type == 10) {
-	switch ($button_id) {
+	switch ($bid) {
         	case 1:
         		$query = "SELECT status FROM boost WHERE status = '1' LIMIT 1";
         		$result = $conn->query($query);
