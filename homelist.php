@@ -943,13 +943,13 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                              	</div>
                 	</div>
                 </div>
-		<div class="panel-footer">
+		<div class="panel-footer" id="footer_weather">
 			<?php
 			ShowWeather($conn);
 			?>
 
                        	<div class="pull-right">
-                        	<div class="btn-group">
+                        	<div class="btn-group" id="footer_running_time">
 					<?php
 					$query="select date(start_datetime) as date,
 					sum(TIMESTAMPDIFF(MINUTE, start_datetime, expected_end_date_time)) as total_minuts,
@@ -1010,12 +1010,14 @@ var obj2 = JSON.parse(data2)
 
 for (var y = 0; y < obj2.length; y++) {
   $('#bs1_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=11").fadeIn("slow");
+  $('#bs2_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=12").fadeIn("slow");
 //   console.log(obj2[y].button_id);
   //load() method fetch data from fetch.php page
 }
 
   $('#homelist_date').load("fetch_homelist.php?zone_id=0&type=13").fadeIn("slow");
-
+  $('#footer_weather_date').load("fetch_homelist.php?zone_id=0&type=14").fadeIn("slow");
+  $('#footer_running_time').load("fetch_homelist.php?zone_id=0&type=15").fadeIn("slow");
  }, 1000);
 });
 </script>

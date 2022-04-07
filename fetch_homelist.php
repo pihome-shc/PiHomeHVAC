@@ -317,7 +317,7 @@ if ($type <= 5 || $type == 8) {
 			else { echo'';}
 		}
 	}
-} elseif ($type == 11) {
+} elseif ($type == 11 || $type == 12) {
 	switch ($bid) {
         	case 1:
         		$query = "SELECT status FROM boost WHERE status = '1' LIMIT 1";
@@ -388,6 +388,11 @@ if ($type <= 5 || $type == 8) {
 					}
 				}
 			}
+			if ($type == 11) {
+				echo '<i class="fa fa-circle fa-fw '.$offset_status.'">';
+			} elseif ($type == 12) {
+				echo $start_time_temp_offset.'&nbsp';
+			}
 //		        echo '<i class="fa fa-circle fa-fw '.$offset_status.'"></i></small><small class="statuszoon">'.$start_time_temp_offset.'&nbsp</small>';
                         break;
                 case 4:
@@ -419,7 +424,26 @@ if ($type <= 5 || $type == 8) {
                         break;
 	}
 } elseif ($type == 13) {
-        echo date("H:i");
+	echo date("H:i");
+} elseif ($type == 14) {
+        echo ShowWeather($conn);
+} elseif ($type == 15) {
+        $query = "SELECT * FROM system_controller LIMIT 1";
+        $result = $conn->query($query);
+        $row = mysqli_fetch_array($result);
+        $system_controller_id = $row['id'];
+
+	$query="select date(start_datetime) as date,
+        sum(TIMESTAMPDIFF(MINUTE, start_datetime, expected_end_date_time)) as total_minuts,
+        sum(TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime)) as on_minuts,
+        (sum(TIMESTAMPDIFF(MINUTE, start_datetime, expected_end_date_time)) - sum(TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime))) as save_minuts
+        from controller_zone_logs WHERE date(start_datetime) = CURDATE() AND zone_id = ".$system_controller_id." GROUP BY date(start_datetime) asc";
+        $result = $conn->query($query);
+        $system_controller_time = mysqli_fetch_array($result);
+       	$system_controller_time_total = $system_controller_time['total_minuts'];
+        $system_controller_time_on = $system_controller_time['on_minuts'];
+        $system_controller_time_save = $system_controller_time['save_minuts'];
+        if($system_controller_time_on >0){      echo ' <i class="ionicons ion-ios-clock-outline"></i> '.secondsToWords(($system_controller_time_on)*60);}
 }
 
 switch ($type) {
