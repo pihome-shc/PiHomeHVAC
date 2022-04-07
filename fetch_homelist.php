@@ -310,9 +310,9 @@ if ($type <= 5 || $type == 8) {
                         }
                         echo '<i class="ionicons ion-flame fa-1x '.$system_controller_colour.'">';
 		}
-		if($system_controller_fault=='1') {echo'</small><small style="margin-left: 70px;" class="statuszoon"><i class="fa ion-android-cancel fa-1x red">';}
-		elseif($hysteresis=='1') {echo'</small><small style="margin-left: 70px;" class="statuszoon"><i class="fa fa-hourglass fa-1x orange">';}
-		else { echo'</small><small style="margin-left: 48px;" class="statuszoon">';}
+		if($system_controller_fault=='1') {echo'<i class="fa ion-android-cancel fa-1x red">';}
+		elseif($hysteresis=='1') {echo'<i class="fa fa-hourglass fa-1x orange">';}
+//		else { echo'</small><small style="margin-left: 48px;" class="statuszoon">';}
 	}
 } elseif ($type == 10) {
 	switch ($bid) {
