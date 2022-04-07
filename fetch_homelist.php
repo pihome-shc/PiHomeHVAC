@@ -418,6 +418,8 @@ if ($type <= 5 || $type == 8) {
         		echo '<i class="fa fa-circle fa-fw '.$holidaystatus.'">';
                         break;
 	}
+} elseif ($type == 13) {
+        echo date("H:i");
 }
 
 switch ($type) {
