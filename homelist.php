@@ -41,7 +41,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
         <div class="panel-heading">
                 <div class="Light"><i class="fa fa-home fa-fw"></i> <?php echo $lang['home']; ?>
                         <div class="pull-right">
-                                <div class="btn-group"><?php echo date("H:i"); ?>
+                                <div class="btn-group" id="homelist_date"><?php echo date("H:i"); ?>
                                 </div>
                         </div>
                 </div>
@@ -1013,6 +1013,8 @@ for (var y = 0; y < obj2.length; y++) {
 //   console.log(obj2[y].button_id);
   //load() method fetch data from fetch.php page
 }
+
+  $('#homelist_date').load("fetch_homelist.php?zone_id=0&type=13").fadeIn("slow");
 
  }, 1000);
 });
