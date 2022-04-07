@@ -187,7 +187,7 @@ if ($type <= 5 || $type == 8) {
 	$result = $conn->query($query);
 	$sensor = mysqli_fetch_array($result);
 	$sensor_c = $sensor['payload'];
-} elseif ($type == 9) {
+} elseif ($type == 9 || $type == 10) {
 //-------------------------
 //process system controller
 //-------------------------
@@ -240,81 +240,84 @@ if ($type <= 5 || $type == 8) {
 			$hysteresis='0';
 		}
 
-		if ($system_controller_mode == 1) {
-                	switch ($sc_mode) {
-                        	case 0:
-                                	echo '<i class="fa fa-circle-o-notch">';
-                                        break;
-                                case 1:
-					if ($active_schedule) {
-                                               	if ($hvac_relays_state & 0b100) { $system_controller_colour="red"; } else { $system_controller_colour="blue"; }
-					} else {
-						$system_controller_colour="";
-					}
-                                        echo '<i class="ionicons ion-flame fa-1x '.$system_controller_colour.'">';
-					break;
-				case 2:
-                                        if ($active_schedule) {
-                                               	if ($hvac_relays_state & 0b010) { $system_controller_colour="blueinfo"; } else { $system_controller_colour="orange"; }
-                                        } else {
-                                                $system_controller_colour="";
-                                        }
-                                        echo '<i class="fa fa-snowflake-o fa-1x '.$system_controller_colour.'">';
-                                        break;
-                                case 3:
-					if ($hvac_relays_state == 0b000) {
-                                		if ($sc_active_status==1) {
-                                       			$system_controller_colour="green";
-                                		} elseif ($sc_active_status==0) {
-                                       			$system_controller_colour="";
-                                		}
-						echo '<i class="fa fa-circle-o-notch fa-1x '.$system_controller_colour.'">';
-					} elseif ($hvac_relays_state & 0b100) {
-						echo '<i class="ionicons ion-flame fa-1x red">';
-					} elseif ($hvac_relays_state & 0b010) {
-						echo '<i class="fa fa-snowflake-o fa-1x blueinfo">';
-					}
-					break;
-                                case 4:
-                                        if ($hvac_relays_state == 0b000) {
-                                              	$system_controller_colour="green";
-                                                echo '<i class="fa fa-circle-o-notch fa-1x '.$system_controller_colour.'">';
-                                        } elseif ($hvac_relays_state & 0b100) {
-                                                echo '<i class="ionicons ion-flame fa-1x red">';
-                                        } elseif ($hvac_relays_state & 0b010) {
-                                                echo '<i class="fa fa-snowflake-o fa-1x blueinfo">';
-                                        }
-                                        break;
-                                case 5:
-                                        echo '<img src="images/hvac_fan_30.png" border="0"></h3>';
-                                        break;
-                                case 6:
-					if ($hvac_relays_state & 0b100) { $system_controller_colour = "red"; } else { $system_controller_colour = "blue"; }
-                                        echo '<i class="ionicons ion-flame fa-1x '.$system_controller_colour.'">';
-                                        break;
-                                case 7:
-                                        if ($hvac_relays_state & 0b010) { $system_controller_colour = "blueinfo"; } else { $system_controller_colour = ""; }
-                                        echo '<i class="fa fa-snowflake-o fa-1x '.$system_controller_colour.'">';
-                                        break;
-				default:
-                                        echo '<i class="fa fa-circle-o-notch">';
-                                }
-		} else {
-                       	if ($sc_active_status==1) {
-				$system_controller_colour="red";
-			} elseif ($sc_active_status==0) {
-				$system_controller_colour="blue";
+		if ($type == 9) {
+			if ($system_controller_mode == 1) {
+        	        	switch ($sc_mode) {
+                	        	case 0:
+                        	        	echo '<i class="fa fa-circle-o-notch">';
+                                	        break;
+	                                case 1:
+						if ($active_schedule) {
+                	                               	if ($hvac_relays_state & 0b100) { $system_controller_colour="red"; } else { $system_controller_colour="blue"; }
+						} else {
+							$system_controller_colour="";
+						}
+	                                        echo '<i class="ionicons ion-flame fa-1x '.$system_controller_colour.'">';
+						break;
+					case 2:
+                        	                if ($active_schedule) {
+                                	               	if ($hvac_relays_state & 0b010) { $system_controller_colour="blueinfo"; } else { $system_controller_colour="orange"; }
+                                        	} else {
+                                                	$system_controller_colour="";
+	                                        }
+        	                                echo '<i class="fa fa-snowflake-o fa-1x '.$system_controller_colour.'">';
+                	                        break;
+                        	        case 3:
+						if ($hvac_relays_state == 0b000) {
+                                			if ($sc_active_status==1) {
+                                       				$system_controller_colour="green";
+	                                		} elseif ($sc_active_status==0) {
+        	                               			$system_controller_colour="";
+                	                		}
+							echo '<i class="fa fa-circle-o-notch fa-1x '.$system_controller_colour.'">';
+						} elseif ($hvac_relays_state & 0b100) {
+							echo '<i class="ionicons ion-flame fa-1x red">';
+						} elseif ($hvac_relays_state & 0b010) {
+							echo '<i class="fa fa-snowflake-o fa-1x blueinfo">';
+						}
+						break;
+                                	case 4:
+                                        	if ($hvac_relays_state == 0b000) {
+                                              		$system_controller_colour="green";
+	                                                echo '<i class="fa fa-circle-o-notch fa-1x '.$system_controller_colour.'">';
+        	                                } elseif ($hvac_relays_state & 0b100) {
+                	                                echo '<i class="ionicons ion-flame fa-1x red">';
+                        	                } elseif ($hvac_relays_state & 0b010) {
+                                	                echo '<i class="fa fa-snowflake-o fa-1x blueinfo">';
+                                        	}
+	                                        break;
+        	                        case 5:
+                	                        echo '<img src="images/hvac_fan_30.png" border="0"></h3>';
+                        	                break;
+                                	case 6:
+						if ($hvac_relays_state & 0b100) { $system_controller_colour = "red"; } else { $system_controller_colour = "blue"; }
+	                                        echo '<i class="ionicons ion-flame fa-1x '.$system_controller_colour.'">';
+        	                                break;
+                	                case 7:
+                        	                if ($hvac_relays_state & 0b010) { $system_controller_colour = "blueinfo"; } else { $system_controller_colour = ""; }
+                                	        echo '<i class="fa fa-snowflake-o fa-1x '.$system_controller_colour.'">';
+                                        	break;
+					default:
+        	                                echo '<i class="fa fa-circle-o-notch">';
+                	                }
+			} else {
+        	               	if ($sc_active_status==1) {
+					$system_controller_colour="red";
+				} elseif ($sc_active_status==0) {
+					$system_controller_colour="blue";
+				}
+				if ($sc_mode==0) {
+                	               	$system_controller_colour="";
+                        	}
+	                        echo '<i class="ionicons ion-flame fa-1x '.$system_controller_colour.'">';
 			}
-			if ($sc_mode==0) {
-                               	$system_controller_colour="";
-                        }
-                        echo '<i class="ionicons ion-flame fa-1x '.$system_controller_colour.'">';
+		} elseif ($type == 10) {
+			if($system_controller_fault=='1') {echo'<i class="fa ion-android-cancel fa-1x red">';}
+			elseif($hysteresis=='1') {echo'<i class="fa fa-hourglass fa-1x orange">';}
+			else { echo'';}
 		}
-		if($system_controller_fault=='1') {echo'<i class="fa ion-android-cancel fa-1x red">';}
-		elseif($hysteresis=='1') {echo'<i class="fa fa-hourglass fa-1x orange">';}
-		else { echo'';}
 	}
-} elseif ($type == 10) {
+} elseif ($type == 11) {
 	switch ($bid) {
         	case 1:
         		$query = "SELECT status FROM boost WHERE status = '1' LIMIT 1";

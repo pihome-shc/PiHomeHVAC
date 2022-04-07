@@ -615,6 +615,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                                 }
                                 echo '<h3 class="degre" id="scd" ><i class="ionicons ion-flame fa-1x '.$system_controller_colour.'"></i></h3>';
 			}
+
 			if($system_controller_fault=='1') {echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 70px;" class="statuszoon" id="scs"><i class="fa ion-android-cancel fa-1x red"></i> </small>';}
 			elseif($hysteresis=='1') {echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 70px;" class="statuszoon" id="scs"><i class="fa fa-hourglass fa-1x orange"></i> </small>';}
 			else { echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 48px;" class="statuszoon" id="scs"></small>';}
@@ -988,7 +989,7 @@ for (var i = 0; i < obj.length; i++) {
   $('#zs2_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=3").fadeIn("slow");
   $('#zs3_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=4").fadeIn("slow");
   $('#zs4_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=5").fadeIn("slow");
-   //console.log(obj[i].zone_id + ", " + obj[i].zone_category);
+   console.log(obj[i].zone_id + ", " + obj[i].zone_category);
 }
 var data1 = '<?php echo $js_sensor_params ?>';
 var obj1 = JSON.parse(data1)
@@ -1001,13 +1002,14 @@ for (var x = 0; x < obj1.length; x++) {
   //load() method fetch data from fetch.php page
 }
   $('#scd').load("fetch_homelist.php?zone_id=0&type=9").fadeIn("slow");
+  $('#scs').load("fetch_homelist.php?zone_id=0&type=10").fadeIn("slow");
 
 var data2 = '<?php echo $js_button_params ?>';
 var obj2 = JSON.parse(data2)
 //console.log(obj.length);
 
 for (var y = 0; y < obj2.length; y++) {
-  $('#bs1_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=10").fadeIn("slow");
+  $('#bs1_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=11").fadeIn("slow");
 //   console.log(obj2[y].button_id);
   //load() method fetch data from fetch.php page
 }
