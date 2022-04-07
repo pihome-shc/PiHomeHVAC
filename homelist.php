@@ -988,7 +988,7 @@ for (var i = 0; i < obj.length; i++) {
   $('#zs2_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=3").fadeIn("slow");
   $('#zs3_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=4").fadeIn("slow");
   $('#zs4_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=5").fadeIn("slow");
-   console.log(obj[i].zone_id + ", " + obj[i].zone_category);
+   //console.log(obj[i].zone_id + ", " + obj[i].zone_category);
 }
 var data1 = '<?php echo $js_sensor_params ?>';
 var obj1 = JSON.parse(data1)
