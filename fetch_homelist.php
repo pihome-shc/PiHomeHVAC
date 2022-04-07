@@ -312,7 +312,7 @@ if ($type <= 5 || $type == 8) {
 		}
 		if($system_controller_fault=='1') {echo'<i class="fa ion-android-cancel fa-1x red">';}
 		elseif($hysteresis=='1') {echo'<i class="fa fa-hourglass fa-1x orange">';}
-//		else { echo'</small><small style="margin-left: 48px;" class="statuszoon">';}
+		else { echo'';}
 	}
 } elseif ($type == 10) {
 	switch ($bid) {
