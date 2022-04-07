@@ -615,9 +615,9 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                                 }
                                 echo '<h3 class="degre" id="scd" ><i class="ionicons ion-flame fa-1x '.$system_controller_colour.'"></i></h3>';
 			}
-			if($system_controller_fault=='1') {echo'<h3 class="status"><small class="statusdegree" id="scs"></small><small style="margin-left: 70px;" class="statuszoon"><i class="fa ion-android-cancel fa-1x red"></i> </small>';}
-			elseif($hysteresis=='1') {echo'<h3 class="status"><small class="statusdegree" id="scs"></small><small style="margin-left: 70px;" class="statuszoon"><i class="fa fa-hourglass fa-1x orange"></i> </small>';}
-			else { echo'<h3 class="status"><small class="statusdegree" id="scs"></small><small style="margin-left: 48px;" class="statuszoon"></small>';}
+			if($system_controller_fault=='1') {echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 70px;" class="statuszoon" id="scs"><i class="fa ion-android-cancel fa-1x red"></i> </small>';}
+			elseif($hysteresis=='1') {echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 70px;" class="statuszoon" id="scs"><i class="fa fa-hourglass fa-1x orange"></i> </small>';}
+			else { echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 48px;" class="statuszoon" id="scs"></small>';}
 			echo '</h3></button>';
 
 			//System Controller Last 5 Status Logs listing model
