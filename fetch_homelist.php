@@ -61,9 +61,13 @@ if ($rowcount > 0) {
 //---------------
 //process  zones
 //---------------
-if ($type <= 5) {
+if ($type <= 5 || $type == 8) {
 	$active_schedule = 0;
-	$query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$zid} AND (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 0 OR `zone_type`.`category` = 3 OR `zone_type`.`category` = 4) LIMIT 1;";
+	if ($type == 8) {
+		$query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$zid} AND (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 1 OR `zone_type`.`category` = 2) LIMIT 1;";
+	} else {
+                $query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$zid} AND (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 0 OR `zone_type`.`category` = 3 OR `zone_type`.`category` = 4) LIMIT 1;";
+	}
 	$result = $conn->query($query);
 	$row = mysqli_fetch_assoc($result);
 	$zone_id=$row['id'];
@@ -71,17 +75,8 @@ if ($type <= 5) {
 	$zone_type=$row['type'];
 	$zone_category=$row['category'];
 
-	//query to get the zone controller info
-	if ($zone_category <> 3) {
-		$query = "SELECT relays.relay_id, relays.relay_child_id FROM zone_relays, relays WHERE (zone_relays.zone_relay_id = relays.id) AND zone_id = '{$zone_id}' LIMIT 1;";
-	        $result = $conn->query($query);
-        	$zone_relays = mysqli_fetch_array($result);
-	       	$zone_relay_id=$zone_relays['relay_id'];
-        	$zone_relay_child_id=$zone_relays['relay_child_id'];
-	}
-
 	//query to get zone current state
-	$query = "SELECT * FROM zone_current_state WHERE zone_id = '{$zone_id}' LIMIT 1;";
+	$query = "SELECT * FROM zone_current_state WHERE zone_id = '{$zid}' LIMIT 1;";
 	$result = $conn->query($query);
 	$zone_current_state = mysqli_fetch_array($result);
 	$zone_mode = $zone_current_state['mode'];
@@ -95,15 +90,18 @@ if ($type <= 5) {
 	$sensor_seen = $zone_current_state['sensor_seen_time'];
 	$temp_reading_time= $zone_current_state['sensor_reading_time'];
 	$overrun= $zone_current_state['overrun'];
+	if ($zone_category == 1 || $zone_category == 2) {
+        	if ($zone_current_state['mode'] == 0) { $add_on_active = 0; } else { $add_on_active = 1; }
+                if ($add_on_active == 1){$add_on_colour = "green";} elseif ($add_on_active == 0){$add_on_colour = "black";}
+	}
 
-	//get the current zone schedule status
-	$rval=get_schedule_status($conn, $zone_id,$holidays_status,$away_status);
-	$sch_status = $rval['sch_status'];
-	$away_sch = $rval['away_sch'];
-	if ($sch_status == 1) { $active_schedule = 1; }
+        //get the current zone schedule status
+        $rval=get_schedule_status($conn, $zone_id,$holidays_status,$away_status);
+        $sch_status = $rval['sch_status'];
+        $away_sch = $rval['away_sch'];
 
 	//get the sensor id
-	$query = "SELECT * FROM sensors WHERE zone_id = '{$zone_id}' LIMIT 1;";
+	$query = "SELECT * FROM sensors WHERE zone_id = '{$zid}' LIMIT 1;";
 	$result = $conn->query($query);
 	$sensor = mysqli_fetch_array($result);
 	$temperature_sensor_id=$sensor['sensor_id'];
@@ -150,9 +148,20 @@ if ($type <= 5) {
 		5 - manual operation OFF
 	        6 - cooling running
 		7 - fan running*/
+        //get the current zone schedule status
+        if ($zone_category == 1 || $zone_category == 2) {
+                if ($sch_status =='1') {
+                        $add_on_mode = $zone_current_state['mode'];
+                } else {
+                        if ($add_on_active == 0) { $add_on_mode = 0; } else { $add_on_mode = 114; }
+                }
 
-	if ($away_status == 1 && $away_sch == 1 ) { $zone_mode = $zone_mode + 10; }
-	$rval=getIndicators($conn, $zone_mode, $zone_temp_target);
+                if ($away_status == 1 && $away_sch == 1 ) { $zone_mode = 90; }
+                $rval=getIndicators($conn, $add_on_mode, $zone_temp_target);
+        } else {
+                if ($away_status == 1 && $away_sch == 1 ) { $zone_mode = $zone_mode + 10; }
+                $rval=getIndicators($conn, $zone_mode, $zone_temp_target);
+        }
 //---------------------------
 //process standalone sensors
 //---------------------------
@@ -178,51 +187,6 @@ if ($type <= 5) {
 	$result = $conn->query($query);
 	$sensor = mysqli_fetch_array($result);
 	$sensor_c = $sensor['payload'];
-//--------------------
-//process add-on zones
-//--------------------
-} elseif (($type >= 2 && $type <= 5 ) || $type == 8) {
-	// Add-On buttons
-        $query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$zid} AND (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 1 OR `zone_type`.`category` = 2) LIMIT 1;";
-        $result = $conn->query($query);
-        $row = mysqli_fetch_assoc($result);
-        //get the schedule status for this zone
-	$zone_id = $row['id'];
-        $zone_name=$row['name'];
-        $zone_type=$row['type'];
-        $zone_category=$row['category'];
-
-        //get the sensor id
-        $query = "SELECT * FROM sensors WHERE zone_id = '{$zone_id}' LIMIT 1;";
-        $result = $conn->query($query);
-        $sensor = mysqli_fetch_array($result);
-        $temperature_sensor_id=$sensor['sensor_id'];
-        $temperature_sensor_child_id=$sensor['sensor_child_id'];
-        $sensor_type_id=$sensor['sensor_type_id'];
-
-        //get the node id
-        $query = "SELECT node_id FROM nodes WHERE id = '{$temperature_sensor_id}' LIMIT 1;";
-        $result = $conn->query($query);
-        $nodes = mysqli_fetch_array($result);
-        $zone_node_id=$nodes['node_id'];
-
-        //query to get temperature from messages_in_view_24h table view
-        $query = "SELECT * FROM messages_in WHERE node_id = '{$zone_node_id}' AND child_id = '{$temperature_sensor_child_id}' ORDER BY id desc LIMIT 1;";
-        $result = $conn->query($query);
-        $sensor = mysqli_fetch_array($result);
-        $zone_c = $sensor['payload'];
-
-	//get the current zone schedule status
-	$rval=get_schedule_status($conn, $zone_id,$holidays_status,$away_status);
-        $sch_status = $rval['sch_status'];
-        $away_sch = $rval['away_sch'];
-
-        //query to get zone current state
-        $query = "SELECT * FROM zone_current_state WHERE zone_id =  '{$row['id']}' LIMIT 1;";
-        $result = $conn->query($query);
-        $zone_current_state = mysqli_fetch_array($result);
-        if ($zone_current_state['mode'] == 0) { $add_on_active = 0; } else { $add_on_active = 1; }
-        if ($add_on_active == 1){$add_on_colour = "green";} elseif ($add_on_active == 0){$add_on_colour = "black";}
 } elseif ($type == 9) {
 //-------------------------
 //process system controller

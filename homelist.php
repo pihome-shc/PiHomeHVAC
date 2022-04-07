@@ -988,7 +988,7 @@ for (var i = 0; i < obj.length; i++) {
   $('#zs2_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=3").fadeIn("slow");
   $('#zs3_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=4").fadeIn("slow");
   $('#zs4_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=5").fadeIn("slow");
-//   console.log(obj[i].zone_id);
+   console.log(obj[i].zone_id + ", " + obj[i].zone_category);
 }
 var data1 = '<?php echo $js_sensor_params ?>';
 var obj1 = JSON.parse(data1)
@@ -1008,7 +1008,7 @@ var obj2 = JSON.parse(data2)
 
 for (var y = 0; y < obj2.length; y++) {
   $('#bs1_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=10").fadeIn("slow");
-//   console.log(obj1[i].sensor_id);
+//   console.log(obj2[y].button_id);
   //load() method fetch data from fetch.php page
 }
 
