@@ -971,7 +971,7 @@ function offset($conn,$button) {
 	<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-toggle="modal" href="#offset_setup" data-backdrop="static" data-keyboard="false">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
         <h3 class="degre"><i class="fa fa-clock-o fa-1x"></i></h3>
-        <h3 class="status"><small class="statuscircle" id="bs1_3"><i class="fa fa-circle fa-fw '.$offset_status.'"></i></small><small class="statuszoon">'.$start_time_temp_offset.'&nbsp</small>
+        <h3 class="status"><small class="statuscircle" id="bs1_3"><i class="fa fa-circle fa-fw '.$offset_status.'"></i></small><small class="statuszoon" id=bs2_3">'.$start_time_temp_offset.'&nbsp</small>
         </h3></button></div>';
 }
 
