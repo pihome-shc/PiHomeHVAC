@@ -1029,8 +1029,8 @@ function GetModal_Sensors($conn)
                                                 <div class="col-xs-6"><span class="pull-right text-muted small"><button type="button"  data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_SensorsInfo&id=' . $nrow['node_id'] . '" onclick="sensors_Info(this);"><em>'.$nrow['last_seen'].'&nbsp</em></span></button>&nbsp&nbsp</div>
                                         </div>
 					<div class="form-group row" style="height: 10px;">
-						<div class="col-xs-3">&nbsp&nbsp<i class="fa fa-battery-full"></i> '.round($brow ['bat_level'],0).'% - '.$brow ['bat_voltage'].'</div>';
-						if ($mcount > 0) { echo '<div class="col-xs-3"><i class="ionicons ion-thermometer red"></i> - '.$mrow['payload'].$unit.'</div>'; } else { echo '<div class="col-xs-2"></div>'; }
+						<div class="col-xs-4">&nbsp&nbsp<i class="fa fa-battery-full"></i> '.round($brow ['bat_level'],0).'% - '.$brow ['bat_voltage'].'</div>';
+						if ($mcount > 0) { echo '<div class="col-xs-8"><i class="ionicons ion-thermometer red"></i> - '.$mrow['payload'].$unit.'</div>'; } else { echo '<div class="col-xs-8"></div>'; }
 					echo '</div>
 				</div> ';
 			}
