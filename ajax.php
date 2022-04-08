@@ -950,7 +950,7 @@ function GetModal_Sensor_Graph($conn)
 			hovertemplate: 'At: %{x}<extra></extra>' +
                         '<br><b>Temp: </b>: %{y:.2f}\xB0<br>',
 			showlegend: false,
-			line: {color: '<?php echo $sensor_color[$graph_id]; ?>'}
+			line: {shape: 'spline', color: '<?php echo $sensor_color[$graph_id]; ?>'}
 		}
 	];
 
