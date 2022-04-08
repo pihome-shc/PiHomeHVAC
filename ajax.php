@@ -1019,7 +1019,7 @@ function GetModal_Sensors($conn)
                                 $batquery = "select * from nodes_battery where node_id = {$nrow['node_id']} ORDER BY id desc limit 1;";
                                 $batresults = $conn->query($batquery);
                                 $brow = mysqli_fetch_array($batresults);
-                                $query = "SELECT payload FROM messages_in_view_24h where node_id = {$nrow['node_id']} AND child_id = {$row['sensor_child_id']} ORDER BY id DESC LIMIT 1;";
+                                $query = "SELECT payload FROM messages_in where node_id = {$nrow['node_id']} AND child_id = {$row['sensor_child_id']} ORDER BY datetime DESC LIMIT 1;";
                                 $mresult = $conn->query($query);
 				$mcount = mysqli_num_rows($mresult);
 				if ($mcount > 0) { mysqli_fetch_array($mresult); }
