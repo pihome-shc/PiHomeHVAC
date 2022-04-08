@@ -1021,14 +1021,14 @@ function GetModal_Sensors($conn)
                                 $query = "SELECT payload FROM messages_in where node_id = '{$nrow['node_id']}' AND child_id = {$row['sensor_child_id']} ORDER BY datetime DESC LIMIT 1;";
                                 $mresult = $conn->query($query);
 				$mcount = mysqli_num_rows($mresult);
-				if ($mcount > 0) { mysqli_fetch_array($mresult); }
+				if ($mcount > 0) { $mrow = mysqli_fetch_array($mresult); }
 				echo '<div class="list-group-item">
 					<div class="form-group row">
-  						<div class="col-xs-1">&nbsp&nbsp'.$nrow['node_id'].'_'.$row['sensor_child_id'].'</div>
-						<div class="col-xs-2">'.$srow['name'].'</div>';
-						echo '<div class="col-xs-3"><i class="fa fa-battery-full"></i> '.round($brow ['bat_level'],0).'% - '.$brow ['bat_voltage'].'</div>';
-						if ($mcount > 0) { echo '<div class="col-xs-2"><i class="ionicons ion-thermometer red"></i> - '.$mrow['payload'].'&deg</div>'; } else { echo '<div class="col-xs-2"></div>'; }
-        					echo '<div class="col-xs-3"><span class="pull-right text-muted small"><button type="button"  data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_SensorsInfo&id=' . $nrow['node_id'] . '" onclick="sensors_Info(this);"><em>'.$nrow['last_seen'].'&nbsp</em></span></button></div>
+  						<div class="col-xs-4">&nbsp&nbsp'.$nrow['node_id'].'_'.$row['sensor_child_id'].'</div>
+						<div class="col-xs-2">'.$row['name'].'</div>';
+						echo '<div class="col-xs-2"><i class="fa fa-battery-full"></i> '.round($brow ['bat_level'],0).'% - '.$brow ['bat_voltage'].'</div>';
+						if ($mcount > 0) { echo '<div class="col-xs-1"><i class="ionicons ion-thermometer red"></i> - '.$mrow['payload'].'&deg</div>'; } else { echo '<div class="col-xs-2"></div>'; }
+        					echo '<div class="col-xs-2"><span class="pull-right text-muted small"><button type="button"  data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_SensorsInfo&id=' . $nrow['node_id'] . '" onclick="sensors_Info(this);"><em>'.$nrow['last_seen'].'&nbsp</em></span></button></div>
 					</div>
 				</div> ';
 			}
