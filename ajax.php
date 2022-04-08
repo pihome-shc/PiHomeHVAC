@@ -940,7 +940,6 @@ function GetModal_Sensor_Graph($conn)
 	var data = [
 		{
   			type: 'scatter',
-  			mode: "lines",
   			x: xValues,
   			y: yValues,
   			hoverlabel: {
@@ -1017,14 +1016,23 @@ function GetModal_Sensors($conn)
 				$batresults = $conn->query($batquery);
 				$brow = mysqli_fetch_array($batresults);
 				//check if sensors in use by any zone
-				$query = "SELECT * FROM zone_sensors where sensor_id = {$row['id']} Limit 1;";
-				$zresult = $conn->query($query);
-				$rcount = mysqli_num_rows($zresult);
-				echo "<div class=\"list-group-item\"><i class=\"ionicons ion-thermometer red\"></i> ".$row['node_id'];
-					if ($row['ms_version'] > 0){echo '- <i class="fa fa-battery-full"></i> '.round($brow ['bat_level'],0).'% - '.$brow ['bat_voltage'];}
-        				echo '<span class="pull-right text-muted small"><button type="button"  data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_SensorsInfo&id=' . $row['node_id'] . '" onclick="sensors_Info(this);"><em>'.$row['last_seen'].'&nbsp</em></span></button>
+				$query = "SELECT name FROM sensors where sensor_id = {$row['id']} Limit 1;";
+				$sresult = $conn->query($query);
+				$srow = mysqli_fetch_array($sresult);
+                                $query = "SELECT payload FROM messages_in_view_1h where node_id = {$row['node_id']} ORDER BY id DESC LIMIT 1;";
+                                $mresult = $conn->query($query);
+                                $mrow = mysqli_fetch_array($mresult);
+				echo '<div class="list-group-item">
+					<div class="form-group row">
+  						<div class="col-xs-1">&nbsp&nbsp'.$row['node_id'].'</div>
+						<div class="col-xs-2">'.$srow['name'].'</div>';
+						if ($row['ms_version'] > 0){echo '<div class="col-xs-3"><i class="fa fa-battery-full"></i> '.round($brow ['bat_level'],0).'% - '.$brow ['bat_voltage'].'</div>';}
+						echo '<div class="col-xs-2"><i class="ionicons ion-thermometer red"></i> - '.$mrow['payload'].'&deg</div>';
+        					echo '<div class="col-xs-3"><span class="pull-right text-muted small"><button type="button"  data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_SensorsInfo&id=' . $row['node_id'] . '" onclick="sensors_Info(this);"><em>'.$row['last_seen'].'&nbsp</em></span></button></div>
+					</div>
 				</div> ';
 			}
+		echo '</div>'; //close class=\"list-group\">
     	echo '</div>';      //close class="modal-body">
     	echo '<div class="modal-footer" id="ajaxModalFooter">
 		<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
