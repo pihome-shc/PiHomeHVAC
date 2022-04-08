@@ -27,7 +27,7 @@ Version 1.7 Introduces a revised Settings Menu option, to improve performance.
 
 Version 1.71 Introduces an option to display a graph when either a Zone or Standalone Sensor tile is clicked. In the case of a Zone tile, buttons on the popup dialogue allow the selection of eithera 24hour or 1hour period graph display, in the case of a standalone sensor, a 24hour period graph will be displayed. The graph popup has buttons to allow swapping between 1hour and 24hour displays.
 
-Version 1.80 Introduces a revided Home screen, which no longer auto-refreshes. The data and indicator fields on the screen are updated individually once every second. The result is that now any pop-up windows that are opened, will remain displayed until closed by the user. 
+Version 1.80 Introduces a revised Home screen, which no longer auto-refreshes. The data and indicator fields on the screen are updated individually once every second. The result is that now any pop-up windows that are opened, will remain displayed until closed by the user. 
 
 ## Setup:
 
