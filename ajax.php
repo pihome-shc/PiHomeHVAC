@@ -1008,7 +1008,6 @@ function GetModal_Sensors($conn)
         </div>
         <div class="modal-body" id="ajaxModalBody">
                 <p class="text-muted"> '.$lang['temperature_sensor_text'].' </p>';
-		$query = "SELECT * FROM nodes where name LIKE '%Sensor' ORDER BY node_id asc;";
                 $query = "SELECT * FROM sensors ORDER BY sensor_id asc;";
 		$results = $conn->query($query);
 		echo '<div class=\"list-group\">';
@@ -1016,10 +1015,10 @@ function GetModal_Sensors($conn)
 				$query = "SELECT * FROM nodes where id = {$row['sensor_id']} LIMIT 1;";
 				$nresult = $conn->query($query);
 				$nrow = mysqli_fetch_array($nresult);
-                                $batquery = "select * from nodes_battery where node_id = {$nrow['node_id']} ORDER BY id desc limit 1;";
+                                $batquery = "select * from nodes_battery where node_id = '{$nrow['node_id']}' ORDER BY id desc limit 1;";
                                 $batresults = $conn->query($batquery);
                                 $brow = mysqli_fetch_array($batresults);
-                                $query = "SELECT payload FROM messages_in where node_id = {$nrow['node_id']} AND child_id = {$row['sensor_child_id']} ORDER BY datetime DESC LIMIT 1;";
+                                $query = "SELECT payload FROM messages_in where node_id = '{$nrow['node_id']}' AND child_id = {$row['sensor_child_id']} ORDER BY datetime DESC LIMIT 1;";
                                 $mresult = $conn->query($query);
 				$mcount = mysqli_num_rows($mresult);
 				if ($mcount > 0) { mysqli_fetch_array($mresult); }
@@ -1027,7 +1026,7 @@ function GetModal_Sensors($conn)
 					<div class="form-group row">
   						<div class="col-xs-1">&nbsp&nbsp'.$nrow['node_id'].'_'.$row['sensor_child_id'].'</div>
 						<div class="col-xs-2">'.$srow['name'].'</div>';
-						if ($nrow['ms_version'] > 0) { echo '<div class="col-xs-3"><i class="fa fa-battery-full"></i> '.round($brow ['bat_level'],0).'% - '.$brow ['bat_voltage'].'</div>';}
+						echo '<div class="col-xs-3"><i class="fa fa-battery-full"></i> '.round($brow ['bat_level'],0).'% - '.$brow ['bat_voltage'].'</div>';
 						if ($mcount > 0) { echo '<div class="col-xs-2"><i class="ionicons ion-thermometer red"></i> - '.$mrow['payload'].'&deg</div>'; } else { echo '<div class="col-xs-2"></div>'; }
         					echo '<div class="col-xs-3"><span class="pull-right text-muted small"><button type="button"  data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_SensorsInfo&id=' . $nrow['node_id'] . '" onclick="sensors_Info(this);"><em>'.$nrow['last_seen'].'&nbsp</em></span></button></div>
 					</div>
