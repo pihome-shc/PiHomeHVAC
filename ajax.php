@@ -1017,7 +1017,8 @@ function GetModal_Sensors($conn)
 				$nrow = mysqli_fetch_array($nresult);
                                 $batquery = "select * from nodes_battery where node_id = '{$nrow['node_id']}' ORDER BY id desc limit 1;";
                                 $batresults = $conn->query($batquery);
-                                $brow = mysqli_fetch_array($batresults);
+                                $bcount = mysqli_num_rows($batresults);
+                                if ($bcount > 0) { $brow = mysqli_fetch_array($batresults); }
                                 $query = "SELECT payload FROM messages_in where node_id = '{$nrow['node_id']}' AND child_id = {$row['sensor_child_id']} ORDER BY datetime DESC LIMIT 1;";
                                 $mresult = $conn->query($query);
 				$mcount = mysqli_num_rows($mresult);
@@ -1025,13 +1026,15 @@ function GetModal_Sensors($conn)
 				if ($mcount > 0) { $mrow = mysqli_fetch_array($mresult); }
 				echo '<div class="list-group-item">
                                         <div class="form-group row" style="height: 10px;">
-                                                <div class="col-xs-6">&nbsp&nbsp'.$nrow['node_id'].'_'.$row['sensor_child_id'].' - '.$row['name'].'</div>
-                                                <div class="col-xs-6"><span class="pull-right text-muted small"><button type="button"  data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_SensorsInfo&id=' . $nrow['node_id'] . '" onclick="sensors_Info(this);"><em>'.$nrow['last_seen'].'&nbsp</em></span></button>&nbsp&nbsp</div>
+                                                <div class="col-xs-12">&nbsp&nbsp'.$nrow['node_id'].'_'.$row['sensor_child_id'].' - '.$row['name'].'</div>
                                         </div>
-					<div class="form-group row" style="height: 10px;">
-						<div class="col-xs-4">&nbsp&nbsp<i class="fa fa-battery-full"></i> '.round($brow ['bat_level'],0).'% - '.$brow ['bat_voltage'].'</div>';
-						if ($mcount > 0) { echo '<div class="col-xs-8"><i class="ionicons ion-thermometer red"></i> - '.$mrow['payload'].$unit.'</div>'; } else { echo '<div class="col-xs-8"></div>'; }
+					<div class="form-group row" style="height: 10px;">';
+						if ($bcount > 0) { echo '<div class="col-xs-12">&nbsp&nbsp<i class="fa fa-battery-full"></i> '.round($brow ['bat_level'],0).'% - '.$brow ['bat_voltage'].'</div>'; } else { echo '<div class="col-xs-12">&nbsp&nbsp<i class="fa fa-battery-full"></i></div>'; }
 					echo '</div>
+					<div class="form-group row" style="height: 10px;">';
+						if ($mcount > 0) { echo '<div class="col-xs-6">&nbsp&nbsp<i class="ionicons ion-thermometer red"></i> - '.$mrow['payload'].$unit.'</div>'; } else { echo '<div class="col-xs-6">&nbsp&nbsp<i class="ionicons ion-thermometer red"></i></div>'; }
+                                                echo '<div class="col-xs-6"><span class="pull-right text-muted small"><button type="button"  data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_SensorsInfo&id=' . $nrow['node_id'] . '" onclick="sensors_Info(this);"><em>'.$nrow['last_seen'].'&nbsp</em></span></button>&nbsp&nbsp</div>
+					</div>
 				</div> ';
 			}
 		echo '</div>'; //close class=\"list-group\">
