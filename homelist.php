@@ -626,10 +626,12 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
                              	</div>
                 	</div>
                 </div>
-		<div class="panel-footer" id="footer_weather">
-			<?php
-			ShowWeather($conn);
-			?>
+                <div class="panel-footer">
+                        <div class="btn-group" id="footer_weather">
+                                <?php
+                                ShowWeather($conn);
+                                ?>
+                        </div>
 
                        	<div class="pull-right">
                         	<div class="btn-group" id="footer_running_time">
