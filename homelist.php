@@ -699,7 +699,7 @@ for (var y = 0; y < obj2.length; y++) {
 }
 
   $('#homelist_date').load("fetch_homelist.php?zone_id=0&type=13").fadeIn("slow");
-  $('#footer_weather_date').load("fetch_homelist.php?zone_id=0&type=14").fadeIn("slow");
+  $('#footer_weather').load("fetch_homelist.php?zone_id=0&type=14").fadeIn("slow");
   $('#footer_running_time').load("fetch_homelist.php?zone_id=0&type=15").fadeIn("slow");
  }, 1000);
 });
