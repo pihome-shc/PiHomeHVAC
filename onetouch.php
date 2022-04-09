@@ -30,7 +30,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 	<div class="panel-heading">
 		<div class="Light"><i class="fa fa-home fa-fw"></i> <?php echo $lang['home']; ?>
 			<div class="pull-right">
-				<div class="btn-group"><?php echo date("H:i"); ?>
+				<div class="btn-group" id="onetouch_date"><?php echo date("H:i"); ?>
 				</div>
 			</div>
 		</div>
@@ -65,13 +65,16 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 		</button>';
 
                 //select addional onetouch buttons
+                $button_params = [];
                 $query = "SELECT * FROM button_page WHERE page = 2 ORDER BY index_id ASC";
                 $results = $conn->query($query);
                 if (mysqli_num_rows($results) > 0) {
                         while ($row = mysqli_fetch_assoc($results)) {
                                 $var = $row['function'];
                                 $var($conn, $lang[$var]);
+                                if ($row['page'] == 2) { $button_params[] = array('button_id' =>$row['id'], 'button_name' =>$row['name']); }
                         }
+                        $js_button_params = json_encode($button_params);
                 }
 
                 if($_SESSION['admin'] == 1) { ?>
@@ -190,7 +193,7 @@ if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") {
 		<!-- /.modal fade -->
 	</div>'; ?>
 	<!-- /.panel-body -->
-	<div class="panel-footer">
+	<div class="panel-footer" id="footer_weather">
 		<?php
 		ShowWeather($conn);
 		?>
@@ -235,6 +238,20 @@ $(document).ready(function(){
  setInterval(function(){//setInterval() method execute on every interval until called clearInterval()
   $('#load_temp').load("fetch_temp.php").fadeIn("slow");
   //load() method fetch data from fetch.php page
+
+var data2 = '<?php echo $js_button_params ?>';
+var obj2 = JSON.parse(data2)
+//console.log(obj.length);
+
+for (var y = 0; y < obj2.length; y++) {
+  $('#bs1_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=11").fadeIn("slow");
+  $('#bs2_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=12").fadeIn("slow");
+//   console.log(obj2[y].button_id);
+  //load() method fetch data from fetch.php page
+}
+
+  $('#onetouch_date').load("fetch_homelist.php?zone_id=0&type=13").fadeIn("slow");
+  $('#footer_weather').load("fetch_homelist.php?zone_id=0&type=14").fadeIn("slow");
  }, 1000);
 });
 </script>
