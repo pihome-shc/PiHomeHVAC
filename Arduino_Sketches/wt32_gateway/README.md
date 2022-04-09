@@ -31,8 +31,8 @@
 | CFG (IO32)    | Disable Ethernet Interface Jumper (10K Pullup Resistor to 3V3) |
 | 485_EN (IO33) | TX LED                                                       |
 | IO35          | Disable WiFi Interface Jumper (10K Pullup Resistor to 3V3)   |
-| IO36          | Clear WiFi Credentials Jumper (10K Pullup Resistor to 3V3)   |
-| IO39          | Radio IRQ (10K Pullup Resistor to 3V3)                       |
+| IO36          | Radio IRQ (10K Pullup Resistor to 3V3)                       |
+| IO39          | Clear WiFi Credentials Jumper (10K Pullup Resistor to 3V3)   |
 | 5V            | 5volt Power Input                                            |
 | 3V3           | 3.3volt Power Out to Radio                                   |
 | GND           | Common Ground                                                |
