@@ -853,4 +853,6 @@ $lang['node_count_last24h'] = "Number of Readings for this Node in the Last 24 H
 $lang['unallocated_sensor'] = "Unallocated Sensor Child - ";
 $lang['average_count_last24h'] = "Average Number of Readings for this Node per Hour per Child ID - ";
 $lang['device_configuration'] = "Device Configuration";
+$lang['graph_1h'] = "Graph 1h";
+$lang['graph_24h'] = "Graph 24h";
 ?>

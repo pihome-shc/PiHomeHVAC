@@ -67,7 +67,7 @@
     RFM95_BW31_25CR48SF512  31.25   4/8   512   Slow, long range
     RFM95_BW125CR48SF4096   125   4/8   4096  Slow, long range 
   */
-  #define MY_RFM95_IRQ_PIN 39
+  #define MY_RFM95_IRQ_PIN 36
   #define MY_RFM95_IRQ_NUM digitalPinToInterrupt(MY_RFM95_IRQ_PIN)
   #define MY_RFM95_CS_PIN 15
 #endif
@@ -76,7 +76,7 @@
   #define MY_TRANSPORT_STATE_TIMEOUT_MS  (3*1000ul)
   #define MY_RFM69_FREQUENCY RFM69_868MHZ // Set your frequency here
   #define MY_IS_RFM69HW // Omit if your RFM is not "H"
-  #define MY_RFM69_IRQ_PIN 39
+  #define MY_RFM69_IRQ_PIN 36
   #define MY_RFM69_IRQ_NUM digitalPinToInterrupt(MY_RFM69_IRQ_PIN)
   #define MY_RFM69_CS_PIN 15 // NSS. Use MY_RFM69_SPI_CS for older versions (before 2.2.0)
 #endif
@@ -141,7 +141,7 @@ IPAddress myDNS(8, 8, 8, 8);
 #define MY_DEFAULT_TX_LED_PIN  33  // the PCB, on board LED
 
 #define ETH_ONLY 35 // set LOW using jumper to only work in WIFI mode
-#define CLEAR_EEPROM 36 // set LOW using jumper to clear save WIFI credentials
+#define CLEAR_EEPROM 39 // set LOW using jumper to clear save WIFI credentials
 #define DISABLE_ETH 32 // set LOW using jumper to disable the Ethernet Interface
 
 #if defined(MY_USE_UDP)

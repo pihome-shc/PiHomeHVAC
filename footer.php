@@ -183,7 +183,6 @@ $(document).ready(function(){
 	window.AutoInterval=setInterval(function(){
 		$("#schedulelist").load('schedulelist.php');
 		$('#overridelist').load('overridelist.php');
-		$('#homelist').load('homelist.php');
 		$('#boostlist').load('boostlist.php');
 		$('#holidayslist').load('holidayslist.php');
 	}, 15000);
