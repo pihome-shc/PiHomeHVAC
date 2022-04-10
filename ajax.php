@@ -965,10 +965,12 @@ function GetModal_Sensor_Graph($conn)
   		yaxis: {
     		title: 'Temperature'
   		},
+                autosize: true,
                 automargin: true
 	};
 
 	var config = {
+		responsive: true,
   		displayModeBar: true, // this is the line that hides the bar.
 	};
 
