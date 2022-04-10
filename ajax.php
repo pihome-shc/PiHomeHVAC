@@ -965,7 +965,7 @@ function GetModal_Sensor_Graph($conn)
   		yaxis: {
     		title: 'Temperature'
   		},
-		automargin: true,
+		automargin: true
 	};
 
 	var config = {
@@ -980,7 +980,7 @@ function GetModal_Sensor_Graph($conn)
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
         </div>
         <div class="modal-body" id="ajaxModalBody">
-		<div id="myChart" style="width:100%;max-width:580px"></div>
+		<div id="myChart" style="width:100%;max-width:500px"></div>
     	</div>
     	<div class="modal-footer" id="ajaxModalFooter">
             <button class="btn btn-primary btn-sm" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="'.$ajax_modal.'"  onclick="sensors_Graph(this);">'.$button_name.'</button>
