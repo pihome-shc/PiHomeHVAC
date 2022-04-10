@@ -166,7 +166,7 @@ if ($type <= 5 || $type == 8) {
 //process standalone sensors
 //---------------------------
 } elseif ($type == 6 || $type == 7)  {
-	$query = "SELECT sensors.id, sensors.name, sensors.sensor_child_id, sensors.sensor_type_id,nodes.node_id, nodes.last_seen, nodes.notice_interval FROM sensors, nodes WHERE sensors.id = {$sid} AND (nodes.id = sensors.sensor_id) AND sensors.zone_id = 0 AND sensors.show_it = 1 AND sensors.pre_post = 0 LIMIT 1;";
+	$query = "SELECT sensors.id, sensors.name, sensors.sensor_child_id, sensors.sensor_type_id,nodes.node_id, nodes.last_seen, nodes.notice_interval FROM sensors, nodes WHERE sensors.id = {$sid} AND (nodes.id = sensors.sensor_id) AND sensors.zone_id = 0 AND sensors.show_it = 1 LIMIT 1;";
 	$result = $conn->query($query);
 	$row = mysqli_fetch_assoc($result);
 	$sensor_id = $row['id'];
