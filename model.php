@@ -3140,6 +3140,183 @@ echo '</table></div>
     </div>
 </div>';
 ?>
+<script>
+function set_sensors_id(value, id){
+        var valuetext = value;
+	var id_text = id;
+	document.getElementById("sensors_id" + id_text).value = valuetext;
+}
+
+function set_schedule_daily_time_id(value, id){
+        var valuetext = value;
+        var id_text = id;
+        document.getElementById("sch_id" + id_text).value = valuetext;
+}
+</script>
+<?php
+
+//Add Offset
+//check if weather api is active
+$query = "SELECT * FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);";
+$result = $conn->query($query);
+$w_count=mysqli_num_rows($result);
+if ($w_count > 0) { $weather_enabled = 1; } else { $weather_enabled = 0; }
+$c_f = settings($conn, 'c_f');
+echo '
+<div class="modal fade" id="add_offset" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['add_offset'].'</h5>
+            </div>
+            <div class="modal-body">';
+echo '<p class="text-muted">'.$lang['offset_info_text'].'</p>
+	<form data-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
+        <div class="form-group" class="control-label">
+        	<div class="checkbox checkbox-default checkbox-circle">';
+                	echo '<input id="checkbox5" class="styled" type="checkbox" value="1" name="offset_status" checked Enabled>';
+                        echo '<label for="checkbox5"> '.$lang['offset_enable'].'</label>
+               	</div>
+        </div>
+        <!-- /.form-group -->
+	<div class="form-group" class="control-label"><label>'.$lang['schedule'].'</label> 
+	<select class="form-control input-sm" type="text" id="schedule_daily_time_id" name="schedule_daily_time_id">';
+	//Get schedule List
+	$query = "SELECT DISTINCT sch_name, `schedule_daily_time_zone`.`schedule_daily_time_id` 
+	FROM `schedule_daily_time`, `schedule_daily_time_zone`
+	WHERE (`schedule_daily_time`.`id` = `schedule_daily_time_zone`.`schedule_daily_time_id`) AND `schedule_daily_time_zone`.`status` = 1;";
+	$result = $conn->query($query);
+	if ($result){
+		while ($zrow=mysqli_fetch_array($result)) {
+			echo '<option value="'.$zrow['schedule_daily_time_id'].'">'.$zrow['sch_name'].'</option>';
+		}
+	}
+	echo '
+	</select>
+    <div class="help-block with-errors"></div></div>
+	<div class="form-group" class="control-label"><label>'.$lang['low_temp'].'</label> <small class="text-muted">'.$lang['low_temp_info'].'</small>
+        <select class="form-control input-sm" type="text" id="low_temperature" name="low_temperature">';
+        if ($c_f == 0) {
+                echo '<option value="5">5</option>
+                <option value="4">4</option>
+                <option value="3">3</option>
+                <option value="2">2</option>
+                <option value="1">1</option>
+                <option value="0">0</option>
+                <option value="-1">-1</option>
+                <option value="-2">-2</option>
+                <option value="-3">-3</option>
+                <option value="-4">-4</option>
+                <option value="-5">-5</option>';
+        } else {
+                echo '<option value="40">40</option>
+                <option value="39">39</option>
+                <option value="38">38</option>
+                <option value="37">37</option>
+                <option value="36">36</option>
+                <option value="35">35</option>
+                <option value="34">34</option>
+                <option value="33">33</option>
+                <option value="32">32</option>
+                <option value="31">31</option>
+                <option value="30">30</option>
+                <option value="29">29</option>
+                <option value="28">28</option>
+                <option value="27">27</option>
+                <option value="26">26</option>
+                <option value="25">25</option>
+                <option value="24">24</option>
+                <option value="23">23</option>
+                <option value="22">22</option>
+                <option value="21">21</option>
+                <option value="20">20</option>';
+        }
+        echo '</select>
+    <div class="help-block with-errors"></div></div>
+        <div class="form-group" class="control-label"><label>'.$lang['high_temp'].'</label> <small class="text-muted">'.$lang['high_temp_info'].'</small>
+        <select class="form-control input-sm" type="text" id="high_temperature" name="high_temperature">';
+        if ($c_f == 0) {
+                echo '<option value="15">15</option>
+                <option value="14">14</option>
+                <option value="13">13</option>
+                <option value="12">12</option>
+                <option value="11">11</option>
+                <option value="10">10</option>
+                <option value="9">9</option>
+                <option value="8">8</option>
+                <option value="7">7</option>
+                <option value="6">6</option>
+                <option value="5">5</option>';
+        } else {
+                echo '<option value="60">60</option>
+                <option value="59">59</option>
+                <option value="58">58</option>
+                <option value="57">57</option>
+                <option value="56">56</option>
+                <option value="55">55</option>
+                <option value="54">54</option>
+                <option value="53">53</option>
+                <option value="52">52</option>
+                <option value="51">51</option>
+                <option value="50">50</option>
+                <option value="49">49</option>
+                <option value="48">48</option>
+                <option value="47">47</option>
+                <option value="46">46</option>
+                <option value="45">45</option>
+                <option value="44">44</option>
+                <option value="43">43</option>
+                <option value="42">42</option>
+                <option value="41">41</option>
+                <option value="40">40</option>';
+        }
+        echo '</select>
+    <div class="help-block with-errors"></div></div>
+	<div class="form-group" class="control-label"><label>'.$lang['start_time_offset'].'</label> <small class="text-muted">'.$lang['start_time_offset_info'].'</small>
+	<select class="form-control input-sm" type="text" id="start_time_offset" name="start_time_offset">
+	<option value="5">5</option>
+	<option value="10">10</option>
+	<option value="15">15</option>
+	<option value="20">20</option>
+	<option value="25">25</option>
+	<option value="30">30</option>
+	<option value="35">35</option>
+	<option value="40">40</option>
+	<option value="45">45</option>
+	<option value="50">50</option>
+	<option value="55">55</option>
+	<option value="60">60</option>
+	<option value="70">70</option>
+	<option value="80">80</option>
+	<option value="90">90</option>
+	<option value="100">100</option>
+	<option value="110">110</option>
+	<option value="120">120</option>
+	</select>
+    <div class="help-block with-errors"></div></div>
+    <div class="form-group" class="control-label"><label>'.$lang['sensor_name'].'</label> <small class="text-muted">'.$lang['sensor_name_info'].'</small>
+		<select class="form-control input-sm" type="text" id="sensor_id" name="sensor_id">';
+		if ($weather_enabled) { echo '<option value="0">Weather</option>'; }
+		//get list from sensors table to display 
+		$query = "SELECT id, name FROM sensors ORDER BY name ASC;";
+		$result = $conn->query($query);
+		if ($result){
+			while ($srow=mysqli_fetch_array($result)) {
+				echo '<option value="'.$srow['id'].'">'.$srow['name'].'</option>';
+			}
+		}
+		echo '</select>
+	    <div class="help-block with-errors"></div></div>';
+echo '</div>
+            <div class="modal-footer">
+				<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="add_offset()">
+            </div>
+        </div>
+    </div>
+</div>';
+?>
 
 <script>
 $(document).ready(function(){
