@@ -125,6 +125,12 @@ def set_relays(
                 if x.json().get(cmd) == param:  # clear send if response is okay
                     cur.execute("UPDATE `messages_out` set sent=1 where id=%s", [out_id])
                     con.commit()  # commit above
+                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    cur.execute(
+                        "UPDATE `nodes` SET `last_seen`=%s, `sync`=0 WHERE id = %s",
+                        [timestamp, n_id],
+                    )
+                    con.commit()
         except:
            print("\nUnable to communicate with: %s" % url[0:-3])
     elif node_type.find("MQTT") != -1 and MQTT_CONNECTED == 1:  # process MQTT mode
