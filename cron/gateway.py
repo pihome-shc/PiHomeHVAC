@@ -88,6 +88,12 @@ def set_relays(
             "UPDATE `messages_out` set sent=1 where id=%s", [out_id]
         )  # update DB so this message will not be processed in next loop
         con.commit()  # commit above
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        cur.execute(
+            "UPDATE `nodes` SET `last_seen`=%s, `sync`=0 WHERE id = %s",
+            [timestamp, n_id],
+        )
+        con.commit()
     elif node_type.find("GPIO") != -1 and blinka:  # process GPIO mode
         child_id = str(out_child_id)
         if child_id in pindict:  # check if pin exists for this board
@@ -111,6 +117,12 @@ def set_relays(
                 "UPDATE `messages_out` set sent=1 where id=%s", [out_id]
             )  # update DB so this message will not be processed in next loop
             con.commit()  # commit above
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            cur.execute(
+                "UPDATE `nodes` SET `last_seen`=%s, `sync`=0 WHERE id = %s",
+                [timestamp, n_id],
+            )
+            con.commit()
     elif (
         node_type.find("Tasmota") != -1 and network_found == 1 and enable_outgoing == 1
     ):  # only process Sonoff device if connected to the local wlan
@@ -125,6 +137,12 @@ def set_relays(
                 if x.json().get(cmd) == param:  # clear send if response is okay
                     cur.execute("UPDATE `messages_out` set sent=1 where id=%s", [out_id])
                     con.commit()  # commit above
+                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    cur.execute(
+                        "UPDATE `nodes` SET `last_seen`=%s, `sync`=0 WHERE id = %s",
+                        [timestamp, n_id],
+                    )
+                    con.commit()
         except:
            print("\nUnable to communicate with: %s" % url[0:-3])
     elif node_type.find("MQTT") != -1 and MQTT_CONNECTED == 1:  # process MQTT mode
@@ -152,11 +170,23 @@ def set_relays(
             "UPDATE `messages_out` set sent=1 where id=%s", [out_id]
         )  # update DB so this message will not be processed in next loop
         con.commit()  # commit above
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        cur.execute(
+            "UPDATE `nodes` SET `last_seen`=%s, `sync`=0 WHERE id = %s",
+            [timestamp, n_id],
+        )
+        con.commit()
     elif node_type.find("Dummy") != -1 :  # process Dummy mode
         cur.execute(
             "UPDATE `messages_out` set sent=1 where id=%s", [out_id]
         )  # update DB so this message will not be processed in next loop
         con.commit()  # commit above
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        cur.execute(
+            "UPDATE `nodes` SET `last_seen`=%s, `sync`=0 WHERE id = %s",
+            [timestamp, n_id],
+        )
+        con.commit()
 
 # MQTT specific functions
 # Function run when the MQTT client connect to the brooker

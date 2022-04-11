@@ -958,8 +958,11 @@ function GetModal_Sensor_Graph($conn)
                 title: 'Time',
                 type: 'date',
                 tickmode: "linear",
-                tick0: 0,
-                dtick: 2*60*60*1000,
+                <?php if ($pieces[2] == 0) { ?>
+                        dtick: 2*60*60*1000,
+                <?php } else { ?>
+                        dtick: 10*60*1000,
+                <?php } ?>
     		tickformat: '%H:%M'
   		},
   		yaxis: {
