@@ -88,6 +88,12 @@ def set_relays(
             "UPDATE `messages_out` set sent=1 where id=%s", [out_id]
         )  # update DB so this message will not be processed in next loop
         con.commit()  # commit above
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        cur.execute(
+            "UPDATE `nodes` SET `last_seen`=%s, `sync`=0 WHERE id = %s",
+            [timestamp, n_id],
+        )
+        con.commit()
     elif node_type.find("GPIO") != -1 and blinka:  # process GPIO mode
         child_id = str(out_child_id)
         if child_id in pindict:  # check if pin exists for this board
