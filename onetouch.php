@@ -25,6 +25,7 @@ require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 
 if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") { $button_style = "btn-xxl-wide"; } else { $button_style = "btn-xxl"; }
+$page_refresh = settings($conn, 'page_refresh') * 1000;
 ?>
 <div class="panel panel-primary">
 	<div class="panel-heading">
@@ -237,24 +238,27 @@ $(function() {
 
 // update the heating zone temperature every 1 second
 $(document).ready(function(){
- setInterval(function(){//setInterval() method execute on every interval until called clearInterval()
-  $('#load_temp').load("fetch_temp.php").fadeIn("slow");
-  //load() method fetch data from fetch.php page
+  var delay = '<?php echo $page_refresh ?>';
 
-var data2 = '<?php echo $js_button_params ?>';
-var obj2 = JSON.parse(data2)
-//console.log(obj.length);
+  (function loop() {
+    $('#load_temp').load("fetch_temp.php").fadeIn("slow");
+    //load() method fetch data from fetch.php page
 
-for (var y = 0; y < obj2.length; y++) {
-  $('#bs1_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=11").fadeIn("slow");
-  $('#bs2_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=12").fadeIn("slow");
-//   console.log(obj2[y].button_id);
-  //load() method fetch data from fetch.php page
-}
+    var data2 = '<?php echo $js_button_params ?>';
+    var obj2 = JSON.parse(data2)
+    //console.log(obj.length);
 
-  $('#onetouch_date').load("fetch_homelist.php?zone_id=0&type=13").fadeIn("slow");
-  $('#footer_weather').load("fetch_homelist.php?zone_id=0&type=14").fadeIn("slow");
- }, 1000);
+    for (var y = 0; y < obj2.length; y++) {
+      $('#bs1_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=11").fadeIn("slow");
+      $('#bs2_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=12").fadeIn("slow");
+//     console.log(obj2[y].button_id);
+      //load() method fetch data from fetch.php page
+    }
+
+    $('#onetouch_date').load("fetch_homelist.php?zone_id=0&type=13").fadeIn("slow");
+    $('#footer_weather').load("fetch_homelist.php?zone_id=0&type=14").fadeIn("slow");
+    setTimeout(loop, delay);
+  })();
 });
 </script>
 
