@@ -1149,6 +1149,26 @@ var idata="w=set_max_cpu_temp&o=update";
     });
 }
 
+//update the home and onetouch page refresh rate
+function update_refresh(){
+var idata="w=page_refresh_rate&o=update";
+    idata+="&new_refresh="+document.getElementById("new_refresh").value;
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=2"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("page_refresh_rate: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
 //Delete Sensor Limit
 function delete_sensor_limits(wid){
 var idata="w=sensor_limits&o=delete&wid="+wid;
