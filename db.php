@@ -1715,6 +1715,25 @@ if($what=="set_max_cpu_temp"){
         }
 }
 
+//set page refresh rate
+if($what=="page_refresh_rate"){
+        $page_refresh =  $_GET['new_refresh'];
+        $query = "UPDATE system SET page_refresh = ".$page_refresh.";";
+        $update_error=0;
+        if(!$conn->query($query)){
+                $update_error=1;
+        }
+        if($update_error==0){
+                header('Content-type: application/json');
+                echo json_encode(array('Success'=>'Success','Query'=>$query));
+                return;
+        }else{
+                header('Content-type: application/json');
+                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                return;
+        }
+}
+
 //Sensor Limits
 if($what=="sensor_limits"){
         if($opp=="delete"){
