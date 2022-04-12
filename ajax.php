@@ -972,12 +972,14 @@ function GetModal_Sensor_Graph($conn)
                 automargin: true
 	};
 
-	var config = {
-		responsive: true,
-  		displayModeBar: true, // this is the line that hides the bar.
-	};
+        var config = {
+                responsive: true, displayModeBar: true, displaylogo: false, // this is the line that hides the bar.
+        };
 
-	Plotly.newPlot('myChart', data, layout, config);
+        Plotly.react('myChart', data, layout, config);
+        $('#ajaxModal').one('shown.bs.modal', function () {
+                Plotly.relayout('myChart',layout);
+        });
 	</script>
 <?php
         echo '<div class="modal-header">
