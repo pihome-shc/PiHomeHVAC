@@ -839,4 +839,7 @@ $lang['average_count_last24h'] = "Average Number of Readings for this Node per H
 $lang['device_configuration'] = "Device Configuration";
 $lang['graph_1h'] = "Graph 1h";
 $lang['graph_24h'] = "Graph 24h";
+$lang['page_refresh'] = "Page Refresh";
+$lang['change_refresh'] = "Change Page Refresh Period";
+$lang['change_refresh_text'] = "Set the Rate in Seconds for the Update of Data on the Home and OneTouch Pages";
 ?>

@@ -972,12 +972,14 @@ function GetModal_Sensor_Graph($conn)
                 automargin: true
 	};
 
-	var config = {
-		responsive: true,
-  		displayModeBar: true, // this is the line that hides the bar.
-	};
+        var config = {
+                responsive: true, displayModeBar: true, displaylogo: false, // this is the line that hides the bar.
+        };
 
-	Plotly.newPlot('myChart', data, layout, config);
+        Plotly.react('myChart', data, layout, config);
+        $('#ajaxModal').one('shown.bs.modal', function () {
+                Plotly.relayout('myChart',layout);
+        });
 	</script>
 <?php
         echo '<div class="modal-header">
@@ -985,7 +987,7 @@ function GetModal_Sensor_Graph($conn)
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
         </div>
         <div class="modal-body" id="ajaxModalBody">
-		<div id="myChart" style="width:100%;max-width:500px"></div>
+		<div id="myChart" style="width:100%"></div>
     	</div>
     	<div class="modal-footer" id="ajaxModalFooter">
             <button class="btn btn-primary btn-sm" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="'.$ajax_modal.'"  onclick="sensors_Graph(this);">'.$button_name.'</button>

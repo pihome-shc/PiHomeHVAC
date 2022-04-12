@@ -332,6 +332,12 @@ if ($settings_id <= 3) {
                                         <h3 class="degre" ><i class="ionicons ion-thermometer red"></i></h3>
                                         <h3 class="status"></small></h3>
                                         </button>
+
+					<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-toggle="modal" data-target="#change_refresh">
+                                        <h3 class="buttontop"><small><?php echo $lang['page_refresh']; ?></small></h3>
+                                        <h3 class="degre" ><i class="fa fa-refresh"></i></h3>
+                                        <h3 class="status"></small></h3>
+                                        </button>
                                 <?php } ?>
                                 <?php if ($settings_id == 4) { ?>
 					<button class="btn btn-default btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="edit_system_controller.php" data-toggle="modal" data-target="#system_controller">
