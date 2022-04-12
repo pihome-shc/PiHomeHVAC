@@ -976,8 +976,9 @@ function GetModal_Sensor_Graph($conn)
                 responsive: true, displayModeBar: true, displaylogo: false // this is the line that hides the bar.
         };
 
-        $('#ajaxModal').on('shown.bs.modal', function (e) {
-                Plotly.newPlot('myChart', data, layout, config);
+        Plotly.react('myChart', data, layout, config);
+        $('#ajaxModal').one('shown.bs.modal', function () {
+                Plotly.relayout('myChart',layout);
         })
 	</script>
 <?php
