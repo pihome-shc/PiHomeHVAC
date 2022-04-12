@@ -732,6 +732,36 @@ echo '<div class="modal fade" id="max_cpu_temp" tabindex="-1" role="dialog" aria
         </div>
     </div>
 </div>';
+
+//Page Refresh Rate
+echo '<div class="modal fade" id="change_refresh" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['change_refresh'].'</h5>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">'.$lang['change_refresh_text'].'</p>';
+                $query = "SELECT page_refresh FROM system LIMIT 1;";
+                $result = $conn->query($query);
+                $row = mysqli_fetch_array($result);
+                echo '<div class="form-group" class="control-label"><label>'.$lang['seconds'].'</label> <small class="text-muted"> </small>
+                <select class="form-control input-sm" type="text" id="new_refresh" name="new_refresh" >';
+                for ($x = 1; $x <=  15; $x++) {
+                        echo '<option value="'.$x.'" ' . ($x==$row['page_refresh'] ? 'selected' : '') . '>'.$x.'</option>';
+                }
+                echo '</select>
+                        <div class="help-block with-errors"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['cancel'].'</button>
+                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="update_refresh()">
+            </div>
+        </div>
+    </div>
+</div>';
 }
 
 if ($model_num == 3) {
