@@ -128,7 +128,7 @@ require_once(__DIR__ . '/st_inc/functions.php');
 			<a href="javascript:active_schedule(' . $row["time_id"] . ');">
 			<span class="chat-img pull-left">
                         <div class="circle ' . $shactive . '">';
-                                if($row["category"] <> 2 && $row["sensor_type_id"] <> 3 && $row["tz_status"] == 1) {
+                                if($row["category"] <> 2 && $row["sensor_type_id"] <> 3 && $row["tz_status"] == 1 || ($row["tz_status"] == 0 && $row["time_status"] == 1)) {
 					$unit = SensorUnits($conn,$row['sensor_type_id']);
 					echo '<p class="schdegree">' . DispSensor($conn, number_format($row["max_c"], 1), $row["sensor_type_id"]) . $unit . '</p>';
 				}
