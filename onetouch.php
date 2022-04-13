@@ -245,14 +245,16 @@ $(document).ready(function(){
     //load() method fetch data from fetch.php page
 
     var data2 = '<?php echo $js_button_params ?>';
-    var obj2 = JSON.parse(data2)
-    //console.log(obj.length);
+    if (data2.length > 0) {
+            var obj2 = JSON.parse(data2)
+            //console.log(obj.length);
 
-    for (var y = 0; y < obj2.length; y++) {
-      $('#bs1_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=11").fadeIn("slow");
-      $('#bs2_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=12").fadeIn("slow");
-//     console.log(obj2[y].button_id);
-      //load() method fetch data from fetch.php page
+            for (var y = 0; y < obj2.length; y++) {
+              $('#bs1_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=11").fadeIn("slow");
+              $('#bs2_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=12").fadeIn("slow");
+//              console.log(obj2[y].button_id);
+              //load() method fetch data from fetch.php page
+            }
     }
 
     $('#onetouch_date').load("fetch_homelist.php?zone_id=0&type=13").fadeIn("slow");
