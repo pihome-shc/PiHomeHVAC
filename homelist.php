@@ -664,43 +664,50 @@ $(document).ready(function(){
 
   (function loop() {
     var data = '<?php echo $js_zone_params ?>';
-    var obj = JSON.parse(data)
-    //console.log(obj.length);
+    if (data.length > 0) {
+            var obj = JSON.parse(data)
+            //console.log(obj.length);
 
-    for (var i = 0; i < obj.length; i++) {
-      if (obj[i].zone_category == 0 || obj[i].zone_category == 3 || obj[i].zone_category == 4) {
-      	$('#zd_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=1").fadeIn("slow");
-      } else {
-        $('#zd_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=8").fadeIn("slow");
-      }
-      $('#zs1_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=2").fadeIn("slow");
-      $('#zs2_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=3").fadeIn("slow");
-      $('#zs3_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=4").fadeIn("slow");
-      $('#zs4_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=5").fadeIn("slow");
-//     console.log(obj[i].zone_id + ", " + obj[i].zone_category);
+            for (var i = 0; i < obj.length; i++) {
+              if (obj[i].zone_category == 0 || obj[i].zone_category == 3 || obj[i].zone_category == 4) {
+                $('#zd_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=1").fadeIn("slow");
+              } else {
+                $('#zd_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=8").fadeIn("slow");
+              }
+              $('#zs1_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=2").fadeIn("slow");
+              $('#zs2_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=3").fadeIn("slow");
+              $('#zs3_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=4").fadeIn("slow");
+              $('#zs4_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=5").fadeIn("slow");
+        //     console.log(obj[i].zone_id + ", " + obj[i].zone_category);
+            }
     }
+
     var data1 = '<?php echo $js_sensor_params ?>';
-    var obj1 = JSON.parse(data1)
-    //console.log(obj.length);
+    if (data1.length > 0) {
+            var obj1 = JSON.parse(data1)
+            //console.log(obj.length);
 
-    for (var x = 0; x < obj1.length; x++) {
-      $('#sd_' + obj1[x].sensor_id).load("fetch_homelist.php?sensor_id=" + obj1[x].sensor_id + "&type=6").fadeIn("slow");
-      $('#ss1_' + obj1[x].sensor_id).load("fetch_homelist.php?sensor_id=" + obj1[x].sensor_id + "&type=7").fadeIn("slow");
-//     console.log(obj1[i].sensor_id);
-      //load() method fetch data from fetch.php page
+            for (var x = 0; x < obj1.length; x++) {
+              $('#sd_' + obj1[x].sensor_id).load("fetch_homelist.php?sensor_id=" + obj1[x].sensor_id + "&type=6").fadeIn("slow");
+              $('#ss1_' + obj1[x].sensor_id).load("fetch_homelist.php?sensor_id=" + obj1[x].sensor_id + "&type=7").fadeIn("slow");
+        //     console.log(obj1[i].sensor_id);
+              //load() method fetch data from fetch.php page
+            }
+            $('#scd').load("fetch_homelist.php?zone_id=0&type=9").fadeIn("slow");
+            $('#scs').load("fetch_homelist.php?zone_id=0&type=10").fadeIn("slow");
     }
-    $('#scd').load("fetch_homelist.php?zone_id=0&type=9").fadeIn("slow");
-    $('#scs').load("fetch_homelist.php?zone_id=0&type=10").fadeIn("slow");
 
     var data2 = '<?php echo $js_button_params ?>';
-    var obj2 = JSON.parse(data2)
-//  console.log(obj.length);
+    if (data2.length > 0) {
+            var obj2 = JSON.parse(data2)
+        //  console.log(obj.length);
 
-    for (var y = 0; y < obj2.length; y++) {
-      $('#bs1_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=11").fadeIn("slow");
-      $('#bs2_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=12").fadeIn("slow");
-//     console.log(obj2[y].button_id);
-      //load() method fetch data from fetch.php page
+            for (var y = 0; y < obj2.length; y++) {
+              $('#bs1_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=11").fadeIn("slow");
+              $('#bs2_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=12").fadeIn("slow");
+        //     console.log(obj2[y].button_id);
+              //load() method fetch data from fetch.php page
+            }
     }
 
     $('#homelist_date').load("fetch_homelist.php?zone_id=0&type=13").fadeIn("slow");
