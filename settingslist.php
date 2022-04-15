@@ -27,6 +27,8 @@ if(isset($_GET['id'])) {
         $settings_id = $_GET['id'];
 }
 
+$page_refresh = page_refresh($conn);
+
 $sensors_params = [];
 $query = "SELECT id FROM sensors;";
 $results = $conn->query($query);
@@ -98,7 +100,7 @@ if ($settings_id <= 3) {
 		}
 		?>
 		<div class="pull-right">
-			<div class="btn-group"><?php echo date("H:i"); ?>
+			<div class="btn-group" id="settings_date"><?php echo date("H:i"); ?>
 			</div>
 		</div>
         </div>
@@ -467,10 +469,10 @@ if ($settings_id <= 3) {
 	<!-- /.panel-group -->
 
         <div class="panel-footer">
-        	<?php
-            	ShowWeather($conn);
-            	?>
-            	<div class="pull-right">
+        	<div class="btn-group" id="footer_weather">
+                	<?php ShowWeather($conn); ?>
+                </div>
+            	<div class="pull-right" id="footer_all_running_time">
                 	<div class="btn-group">
                     		<?php
                     		echo '<i class="ionicons ion-ios-clock-outline"></i> All Schedule: ' . secondsToWords((array_sum($schedule_time) * 60));
@@ -486,20 +488,29 @@ if ($settings_id <= 3) {
 } ?>
 <script>
 $(document).ready(function(){
-    $('[data-toggle="tooltip"]').tooltip();   
+    $('[data-toggle="tooltip"]').tooltip();
 });
 
+// update page data every x seconds
 $(document).ready(function(){
- setInterval(function(){//setInterval() method execute on every interval until called clearInterval()
-var data = '<?php echo $js_sensor_params ?>';
-var obj = JSON.parse(data)
-//console.log(obj.length);
+  var delay = '<?php echo $page_refresh ?>';
 
-for (var y = 0; y < obj.length; y++) {
-  $('#sensor_temp_' + obj[y].sensor_id).load("fetch_sensor_temp.php?id=" + obj[y].sensor_id).fadeIn("slow");
-//   console.log(obj2[y].button_id);
-  //load() method fetch data from fetch.php page
-}
- }, 1000);
+  (function loop() {
+    var data = '<?php echo $js_sensor_params ?>';
+    if (data.length > 0) {
+            var obj = JSON.parse(data)
+            //console.log(obj.length);
+
+		for (var y = 0; y < obj.length; y++) {
+		  $('#sensor_temp_' + obj[y].sensor_id).load("ajax_fetch_data.php?id=" + obj[y].sensor_id + "&type=16").fadeIn("slow");
+		  //console.log(obj[y].sensor_id);
+		}
+    }
+
+    $('#settings_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
+    $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
+    $('#footer_all_running_time').load("ajax_fetch_data.php?id=0&type=17").fadeIn("slow");
+    setTimeout(loop, delay);
+  })();
 });
 </script>

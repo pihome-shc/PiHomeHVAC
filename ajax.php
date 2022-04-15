@@ -1373,10 +1373,10 @@ function GetModal_Schedule_List($conn)
 			}
 //			$squery = "SELECT * FROM schedule_daily_time_zone_view where zone_id ='{$zone_id}' AND tz_status = 1 AND time_status = '1' AND (WeekDays & (1 << {$dow})) > 0 AND type = 0 ORDER BY start asc";
                         $squery = "SELECT schedule_daily_time.sch_name, schedule_daily_time.start, schedule_daily_time.end,
-                        schedule_daily_time_zone.temperature, schedule_daily_time_zone.id AS tz_id, schedule_daily_time_zone.coop
+                        schedule_daily_time_zone.temperature, schedule_daily_time_zone.id AS tz_id, schedule_daily_time_zone.coop, schedule_daily_time_zone.disabled
                         FROM `schedule_daily_time`, `schedule_daily_time_zone`
                         WHERE (schedule_daily_time.id = schedule_daily_time_zone.schedule_daily_time_id) AND schedule_daily_time.status = 1
-                        AND schedule_daily_time_zone.status = 1 AND schedule_daily_time.type = 0 AND schedule_daily_time_zone.zone_id ='{$zone_id}'
+                        AND (schedule_daily_time_zone.status = 1 OR schedule_daily_time_zone.disabled = 1) AND schedule_daily_time.type = 0 AND schedule_daily_time_zone.zone_id ='{$zone_id}'
                         AND (schedule_daily_time.WeekDays & (1 << {$dow})) > 0
                         ORDER BY schedule_daily_time.start asc;";
 			$sresults = $conn->query($squery);
@@ -1402,7 +1402,11 @@ function GetModal_Schedule_List($conn)
                                                 }
 						//this line to pass unique argument  "?w=schedule_list&o=active&wid=" href="javascript:delete_schedule('.$srow["id"].');"
 						echo '<a href="javascript:schedule_zone('.$srow['tz_id'].');" class="list-group-item">';
-						echo '<div class="circle_list '. $shactive.'"> <p class="schdegree">'.number_format(DispSensor($conn,$srow['temperature'],$sensor_type_id),0).$unit.'</p></div>';
+						if ($srow['disabled'] == 0) {
+							echo '<div class="circle_list '. $shactive.'"> <p class="schdegree">'.number_format(DispSensor($conn,$srow['temperature'],$sensor_type_id),0).$unit.'</p></div>';
+						} else {
+							echo '<div class="circle_list orangesch_list"> <p class="schdegree">D</p></div>';
+						}
 						echo '<span class="label label-info sch_name"> '.$srow['sch_name'].'</span>
 						<span class="pull-right text-muted sch_list"><em>'. $coop. ' '.$srow['start'].' - ' .$srow['end'].'</em></span></a>';
 					}

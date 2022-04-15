@@ -23,6 +23,8 @@ require_once(__DIR__.'/st_inc/session.php');
 confirm_logged_in();
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
+
+$page_refresh = page_refresh($conn);
 ?>
 <div class="panel panel-primary">
 	<div class="panel-heading">
@@ -34,7 +36,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                         <ul class="dropdown-menu">
                                 <li><a href="pdf_download.php?file=setup_override.pdf" target="_blank"><i class="fa fa-file fa-fw"></i><?php echo $lang['setup_override']; ?></a></li>
                         </ul>
-                        <div class="btn-group"><?php echo '&nbsp;&nbsp;'.date("H:i"); ?></div>
+                        <div class="btn-group" id="override_date"><?php echo '&nbsp;&nbsp;'.date("H:i"); ?></div>
                 </div>
 	</div>
 	<!-- /.panel-heading -->
@@ -129,11 +131,24 @@ require_once(__DIR__.'/st_inc/functions.php');
 	</div>
 	<!-- /.panel-body -->
 	<div class="panel-footer">
-		<?php
-		ShowWeather($conn);
-		?>
+	        <div class="btn-group" id="footer_weather">
+                	<?php ShowWeather($conn); ?>
+             	</div>
 	</div>
 	<!-- /.panel-footer -->
 </div>
 <!-- /.panel-primary -->
 <?php if(isset($conn)) { $conn->close();} ?>
+<script>
+// update page data every x seconds
+$(document).ready(function(){
+  var delay = '<?php echo $page_refresh ?>';
+
+  (function loop() {
+    $('#override_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
+    $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
+    setTimeout(loop, delay);
+  })();
+});
+</script>
+

@@ -25,7 +25,7 @@ require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 
 if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") { $button_style = "btn-xxl-wide"; } else { $button_style = "btn-xxl"; }
-$page_refresh = settings($conn, 'page_refresh') * 1000;
+$page_refresh = page_refresh($conn);
 ?>
 <script language='javascript' type='text/javascript'>
 	$('#ajaxModal').on('show.bs.modal', function(e) {
@@ -658,7 +658,7 @@ $page_refresh = settings($conn, 'page_refresh') * 1000;
 <?php if(isset($conn)) { $conn->close();} ?>
 <script language="javascript" type="text/javascript">
 
-// update the heating zone temperature every 1 second
+// update the screen data every x seconds
 $(document).ready(function(){
   var delay = '<?php echo $page_refresh ?>';
 
@@ -670,49 +670,47 @@ $(document).ready(function(){
 
             for (var i = 0; i < obj.length; i++) {
               if (obj[i].zone_category == 0 || obj[i].zone_category == 3 || obj[i].zone_category == 4) {
-                $('#zd_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=1").fadeIn("slow");
+                $('#zd_' + obj[i].zone_id).load("ajax_fetch_data.php?id=" + obj[i].zone_id + "&type=1").fadeIn("slow");
               } else {
-                $('#zd_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=8").fadeIn("slow");
+                $('#zd_' + obj[i].zone_id).load("ajax_fetch_data.php?id=" + obj[i].zone_id + "&type=8").fadeIn("slow");
               }
-              $('#zs1_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=2").fadeIn("slow");
-              $('#zs2_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=3").fadeIn("slow");
-              $('#zs3_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=4").fadeIn("slow");
-              $('#zs4_' + obj[i].zone_id).load("fetch_homelist.php?zone_id=" + obj[i].zone_id + "&type=5").fadeIn("slow");
-        //     console.log(obj[i].zone_id + ", " + obj[i].zone_category);
+              $('#zs1_' + obj[i].zone_id).load("ajax_fetch_data.php?id=" + obj[i].zone_id + "&type=2").fadeIn("slow");
+              $('#zs2_' + obj[i].zone_id).load("ajax_fetch_data.php?id=" + obj[i].zone_id + "&type=3").fadeIn("slow");
+              $('#zs3_' + obj[i].zone_id).load("ajax_fetch_data.php?id=" + obj[i].zone_id + "&type=4").fadeIn("slow");
+              $('#zs4_' + obj[i].zone_id).load("ajax_fetch_data.php?id=" + obj[i].zone_id + "&type=5").fadeIn("slow");
+              // console.log(obj[i].zone_id + ", " + obj[i].zone_category);
             }
     }
 
     var data1 = '<?php echo $js_sensor_params ?>';
     if (data1.length > 0) {
             var obj1 = JSON.parse(data1)
-            //console.log(obj.length);
+            //console.log(obj1.length);
 
             for (var x = 0; x < obj1.length; x++) {
-              $('#sd_' + obj1[x].sensor_id).load("fetch_homelist.php?sensor_id=" + obj1[x].sensor_id + "&type=6").fadeIn("slow");
-              $('#ss1_' + obj1[x].sensor_id).load("fetch_homelist.php?sensor_id=" + obj1[x].sensor_id + "&type=7").fadeIn("slow");
-        //     console.log(obj1[i].sensor_id);
-              //load() method fetch data from fetch.php page
+              $('#sd_' + obj1[x].sensor_id).load("ajax_fetch_data.php?id=" + obj1[x].sensor_id + "&type=6").fadeIn("slow");
+              $('#ss1_' + obj1[x].sensor_id).load("ajax_fetch_data.php?id=" + obj1[x].sensor_id + "&type=7").fadeIn("slow");
+              // console.log(obj1[i].sensor_id);
             }
-            $('#scd').load("fetch_homelist.php?zone_id=0&type=9").fadeIn("slow");
-            $('#scs').load("fetch_homelist.php?zone_id=0&type=10").fadeIn("slow");
+            $('#scd').load("ajax_fetch_data.php?id=0&type=9").fadeIn("slow");
+            $('#scs').load("ajax_fetch_data.php?id=0&type=10").fadeIn("slow");
     }
 
     var data2 = '<?php echo $js_button_params ?>';
     if (data2.length > 0) {
             var obj2 = JSON.parse(data2)
-        //  console.log(obj.length);
+            // console.log(obj2.length);
 
             for (var y = 0; y < obj2.length; y++) {
-              $('#bs1_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=11").fadeIn("slow");
-              $('#bs2_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=12").fadeIn("slow");
-        //     console.log(obj2[y].button_id);
-              //load() method fetch data from fetch.php page
+              $('#bs1_' + obj2[y].button_id).load("ajax_fetch_data.php?id=" + obj2[y].button_id + "&type=11").fadeIn("slow");
+              $('#bs2_' + obj2[y].button_id).load("ajax_fetch_data.php?id=" + obj2[y].button_id + "&type=12").fadeIn("slow");
+              // console.log(obj2[y].button_id);
             }
     }
 
-    $('#homelist_date').load("fetch_homelist.php?zone_id=0&type=13").fadeIn("slow");
-    $('#footer_weather').load("fetch_homelist.php?zone_id=0&type=14").fadeIn("slow");
-    $('#footer_running_time').load("fetch_homelist.php?zone_id=0&type=15").fadeIn("slow");
+    $('#homelist_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
+    $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
+    $('#footer_running_time').load("ajax_fetch_data.php?id=0&type=15").fadeIn("slow");
     setTimeout(loop, delay);
   })();
 });

@@ -178,18 +178,6 @@ $('#nightclimatelist').load('nightclimatelist.php');
 </script>
 
 <script>
-//Automatically refresh following pages after 15 seconds
-$(document).ready(function(){
-	window.AutoInterval=setInterval(function(){
-		$("#schedulelist").load('schedulelist.php');
-		$('#overridelist').load('overridelist.php');
-		$('#boostlist').load('boostlist.php');
-		$('#holidayslist').load('holidayslist.php');
-	}, 15000);
-});
-</script>
-
-<script>
 <?php 
 if ($_SERVER['SCRIPT_NAME'] == '/scheduling.php'){
 	$query = "select * from zone where status = 1;";
