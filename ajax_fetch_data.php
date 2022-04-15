@@ -494,7 +494,7 @@ if ($type <= 5 || $type == 8) {
 	//------------
 	//return time
 	//------------
-	echo date("H:i");
+        if ($id == 0) { echo date("H:i"); } else { echo '&nbsp;&nbsp;'.date("H:i"); }
 } elseif ($type == 14) {
 	//---------------
 	//return weather
