@@ -97,7 +97,7 @@ $lang['ssid_pass_empty'] = "SSID and Password is empty.";
 $lang['one_touch'] = "One Touch";
 $lang['schedule_active_today'] = "Active Schedules for Today.";
 $lang['schedule_not_found'] = "No Schedule Found for ";
-$lang['schedule_disble'] = "You can Disable a Schedule by clicking on the temperature circle OR<br>You can Enable a Schedule by clicking on the 'D' circle.";
+$lang['schedule_disble'] = "You can Disable a Schedule by clicking on the temperature circle OR<br>You can Re-Enable a Schedule by clicking on the 'D' circle.";
 
 $lang['system_controller_no_log'] = "No System Controller log record found.";
 $lang['system_controller_last_records'] = "Last System Controller Log Records.";
