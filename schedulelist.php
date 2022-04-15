@@ -261,7 +261,7 @@ $(document).ready(function(){
                 }
     }
 
-    $('#schedule_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
+    $('#schedule_date').load("ajax_fetch_data.php?id=1&type=13").fadeIn("slow");
     $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
     $('#footer_all_running_time').load("ajax_fetch_data.php?id=0&type=17").fadeIn("slow");
     setTimeout(loop, delay);
