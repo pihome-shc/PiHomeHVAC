@@ -6,9 +6,9 @@
             | |\/| |  / _` | \ \/ /   / /\ \   | | |  __|
             | |  | | | (_| |  >  <   / ____ \  | | | |
             |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|
-	    
+
                    S M A R T   T H E R M O S T A T
-		   
+ 
 *************************************************************************"
 * MaxAir is a Linux based Central Heating Control systems. It runs from *"
 * a web interface and it comes with ABSOLUTELY NO WARRANTY, to the      *"
@@ -23,11 +23,13 @@ require_once(__DIR__.'/st_inc/session.php');
 confirm_logged_in();
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
+
+$page_refresh = page_refresh($conn);
 ?>
                     <div class="panel panel-primary">
                         <div class="panel-heading">
                             <i class="fa fa-rocket fa-fw"></i>  <?php echo $lang['boost']; ?>
-						<div class="pull-right"> <div class="btn-group"><?php echo date("H:i"); ?></div> </div>
+						<div class="pull-right"> <div class="btn-group" id="boost_date"><?php echo date("H:i"); ?></div> </div>
                         </div>
                         <!-- /.panel-heading -->
 <div class="panel-body">
@@ -132,10 +134,22 @@ if ((settings($conn, 'mode') & 0b1) == 0) { // Boiler Mode
 </ul>
 </div>
                         <!-- /.panel-body -->
-						<div class="panel-footer">
-<?php
-ShowWeather($conn);
-?>
+			<div class="panel-footer">
+		                <div class="btn-group" id="footer_weather">
+                		        <?php ShowWeather($conn); ?>
+                		</div>
                         </div>
                     </div>
 <?php if(isset($conn)) { $conn->close();} ?>
+<script>
+// update page data every x seconds
+$(document).ready(function(){
+  var delay = '<?php echo $page_refresh ?>';
+
+  (function loop() {
+    $('#boost_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
+    $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
+    setTimeout(loop, delay);
+  })();
+});
+</script>

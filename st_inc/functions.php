@@ -1044,4 +1044,19 @@ function dec_passwd($e_password) {
 	$plain = openssl_decrypt($e_password, "AES-128-ECB", $key[0]);
         return($plain);
 }
+
+function page_refresh($conn) {
+	$query="SHOW COLUMNS FROM system LIKE 'page_refresh'";
+	$result = $conn->query($query);
+	$rowcount = mysqli_num_rows($result);
+	if ($rowcount > 0) {
+        	$query="SELECT page_refresh FROM system LIMIT 1";
+	        $result = $conn->query($query);
+        	$row = mysqli_fetch_array($result);
+	        return($row['page_refresh'] * 1000);
+	} else {
+		return(5000);
+	}
+}
+
 ?>

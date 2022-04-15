@@ -25,7 +25,7 @@ require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 
 if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") { $button_style = "btn-xxl-wide"; } else { $button_style = "btn-xxl"; }
-$page_refresh = settings($conn, 'page_refresh') * 1000;
+$page_refresh = page_refresh($conn);
 ?>
 <div class="panel panel-primary">
 	<div class="panel-heading">
@@ -196,12 +196,10 @@ $page_refresh = settings($conn, 'page_refresh') * 1000;
 	<!-- /.panel-body -->
                 <div class="panel-footer">
                         <div class="btn-group" id="footer_weather">
-                                <?php
-                                ShowWeather($conn);
-                                ?>
+                                <?php ShowWeather($conn); ?>
                         </div>
 
-		<div class="pull-right">
+		<div class="pull-right"  id="footer_running_time">
 			<div class="btn-group">
 				<?php
 				$query="select date(start_datetime) as date,
@@ -236,29 +234,30 @@ $(function() {
    });
 });
 
-// update the heating zone temperature every 1 second
+// update page data every x seconds
 $(document).ready(function(){
   var delay = '<?php echo $page_refresh ?>';
+  var live_temp_zone_id = '<?php echo $livetemp_zone_id ?>';
 
   (function loop() {
-    $('#load_temp').load("fetch_temp.php").fadeIn("slow");
+    $('#load_temp').load("ajax_fetch_data.php?id=" + live_temp_zone_id + "&type=1").fadeIn("slow");
     //load() method fetch data from fetch.php page
 
     var data2 = '<?php echo $js_button_params ?>';
     if (data2.length > 0) {
             var obj2 = JSON.parse(data2)
-            //console.log(obj.length);
+            //console.log(obj2.length);
 
             for (var y = 0; y < obj2.length; y++) {
-              $('#bs1_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=11").fadeIn("slow");
-              $('#bs2_' + obj2[y].button_id).load("fetch_homelist.php?button_id=" + obj2[y].button_id + "&type=12").fadeIn("slow");
-//              console.log(obj2[y].button_id);
-              //load() method fetch data from fetch.php page
+              $('#bs1_' + obj2[y].button_id).load("ajax_fetch_data.php?id=" + obj2[y].button_id + "&type=11").fadeIn("slow");
+              $('#bs2_' + obj2[y].button_id).load("ajax_fetch_data.php?id=" + obj2[y].button_id + "&type=12").fadeIn("slow");
+	      // console.log(obj2[y].button_id);
             }
     }
 
-    $('#onetouch_date').load("fetch_homelist.php?zone_id=0&type=13").fadeIn("slow");
-    $('#footer_weather').load("fetch_homelist.php?zone_id=0&type=14").fadeIn("slow");
+    $('#onetouch_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
+    $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
+    $('#footer_running_time').load("ajax_fetch_data.php?id=0&type=15").fadeIn("slow");
     setTimeout(loop, delay);
   })();
 });

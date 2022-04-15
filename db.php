@@ -145,7 +145,7 @@ if($what=="schedule_zone"){
 		$row = mysqli_fetch_assoc($results);
 		$da= $row['status'];
 		if($da=="1"){ $set="0"; }else{ $set="1"; }
-		$query  = "UPDATE schedule_daily_time_zone SET sync = '0', status='".$set."' WHERE id = '".$wid."'";
+		$query  = "UPDATE schedule_daily_time_zone SET sync = '0', status='".$set."', disabled = 1 WHERE id = '".$wid."'";
 		$conn->query($query);
 	}
 }

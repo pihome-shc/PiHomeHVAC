@@ -22,6 +22,8 @@ require_once(__DIR__ . '/st_inc/session.php');
 confirm_logged_in();
 require_once(__DIR__ . '/st_inc/connection.php');
 require_once(__DIR__ . '/st_inc/functions.php');
+
+$page_refresh = page_refresh($conn);
 ?>
 <div class="panel panel-primary">
        	<div class="panel-heading">
@@ -37,7 +39,7 @@ require_once(__DIR__ . '/st_inc/functions.php');
                                 <li class="divider"></li>
                         	<li><a href="pdf_download.php?file=away_setup.pdf" target="_blank"><i class="fa fa-file fa-fw"></i><?php echo $lang['away_setup']; ?></a></li>
                         </ul>
-                        <div class="btn-group"><?php echo '&nbsp;&nbsp;'.date("H:i"); ?></div>
+                        <div class="btn-group" id="schedule_date"><?php echo '&nbsp;&nbsp;'.date("H:i"); ?></div>
 		</div>
         </div>
         <!-- /.panel-heading -->
@@ -73,9 +75,10 @@ require_once(__DIR__ . '/st_inc/functions.php');
                 $query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, type, `category`, temperature,
                         FORMAT(max(temperature),2) as max_c, sch_name, sch_type, start_sr, start_ss, start_offset, end_sr, end_ss, end_offset, sensor_type_id, stype
                         FROM schedule_daily_time_zone_view
-                        WHERE holidays_id = 0 AND (tz_status = 1 OR (tz_status = 0 AND time_status = 1))
+                        WHERE holidays_id = 0 AND (tz_status = 1 OR (tz_status = 0 AND disabled = 1))
                         GROUP BY time_id ORDER BY start, sch_name asc";
 		$results = $conn->query($query);
+                $sch_params = [];
 		while ($row = mysqli_fetch_assoc($results)) {
                         $dow = idate('w');
                         $prev_dow = $dow - 1;
@@ -121,22 +124,22 @@ require_once(__DIR__ . '/st_inc/functions.php');
                         if ((($end_time > $start_time && $time > $start_time && $time < $end_time && ($row["WeekDays"]  & (1 << $dow)) > 0) || ($end_time < $start_time && $time < $end_time && ($row["WeekDays"]  & (1 << $prev_dow)) > 0) || ($end_time < $start_time && $time > $start_time && ($row["WeekDays"]  & (1 << $dow)) > 0)) && $row["time_status"]=="1") {
 				if (($sch_type == 1 && $away_status == 1) || ($sch_type == 0 && $away_status == 0)) { $shactive="redsch"; }
                         }
-
+			$sch_params[] = array('time_id' =>$row['time_id']);
 			//time shchedule listing
 			echo '
 			<li class="left clearfix scheduleli animated fadeIn">
-			<a href="javascript:active_schedule(' . $row["time_id"] . ');">
-			<span class="chat-img pull-left">
-                        <div class="circle ' . $shactive . '">';
-                                if($row["category"] <> 2 && $row["sensor_type_id"] <> 3 && $row["tz_status"] == 1) {
-                                        if ($row["tz_status"] == 1 || ($row["tz_status"] == 0 && $row["time_status"] == 1)) {
-                                                $unit = SensorUnits($conn,$row['sensor_type_id']);
-                                                echo '<p class="schdegree">' . DispSensor($conn, number_format($row["max_c"], 1), $row["sensor_type_id"]) . $unit . '</p>';
-                                        }
-                                }
-                        echo ' </div>
-			</span>
-			</a>
+				<a href="javascript:active_schedule(' . $row["time_id"] . ');">
+					<span class="chat-img pull-left" id="sch_status_'.$row["time_id"].'">
+                        			<div class="circle ' . $shactive . '">';
+							if ($row["tz_status"] == 1 || ($row["tz_status"] == 0 && $row["time_status"] == 1)) {
+			        	                        if($row["category"] <> 2 && $row["sensor_type_id"] <> 3) {
+									$unit = SensorUnits($conn,$row['sensor_type_id']);
+									echo '<p class="schdegree">' . DispSensor($conn, number_format($row["max_c"], 1), $row["sensor_type_id"]) . $unit . '</p>';
+								}
+							}
+                        			echo ' </div>
+					</span>
+				</a>
 
 			<a style="color: #333; cursor: pointer; text-decoration: none;" data-toggle="collapse" data-parent="#accordion" href="#collapse' . $row['tz_id'] . '">
                         <div class="chat-body clearfix">
@@ -212,16 +215,17 @@ require_once(__DIR__ . '/st_inc/functions.php');
         	        $schedule_time[$sch_time_index] = $total_time;
                 	$sch_time_index = $sch_time_index + 1;
      		}
-      	} //end of schedule time while loop 
+      	} //end of schedule time while loop
+	$js_sch_params = json_encode($sch_params);
 	?>
         </ul>
         </div>
 	<!-- /.panel-body -->
         <div class="panel-footer">
-        	<?php
-            	ShowWeather($conn);
-            	?>
-            	<div class="pull-right">
+                <div class="btn-group" id="footer_weather">
+                        <?php ShowWeather($conn); ?>
+                </div>
+                <div class="pull-right" id="footer_all_running_time">
                 	<div class="btn-group">
                     		<?php
                     		echo '<i class="ionicons ion-ios-clock-outline"></i> All Schedule: ' . secondsToWords((array_sum($schedule_time) * 60));
@@ -239,5 +243,28 @@ require_once(__DIR__ . '/st_inc/functions.php');
 $('[data-toggle=confirmation]').confirmation({
   rootSelector: '[data-toggle=confirmation]',
   container: 'body'
+});
+
+// update page data every x seconds
+$(document).ready(function(){
+  var delay = '<?php echo $page_refresh ?>';
+
+  (function loop() {
+    var data = '<?php echo $js_sch_params ?>';
+    if (data.length > 0) {
+            var obj = JSON.parse(data)
+            //console.log(obj.length);
+
+                for (var y = 0; y < obj.length; y++) {
+                  $('#sch_status_' + obj[y].time_id).load("ajax_fetch_data.php?id=" + obj[y].time_id + "&type=18").fadeIn("slow");
+                  //console.log(obj[y].time_id);
+                }
+    }
+
+    $('#schedule_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
+    $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
+    $('#footer_all_running_time').load("ajax_fetch_data.php?id=0&type=17").fadeIn("slow");
+    setTimeout(loop, delay);
+  })();
 });
 </script>
