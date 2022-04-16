@@ -596,13 +596,7 @@ if ($type <= 5 || $type == 8) {
         //------------------------------------------------------
         //return the schedule status and temp for schedule by id
         //------------------------------------------------------
-        $dow = idate('w');
         $prev_dow = $dow - 1;
-        //query to check away status
-        $query = "SELECT * FROM away LIMIT 1";
-        $result = $conn->query($query);
-        $away = mysqli_fetch_array($result);
-        $away_status = $away['status'];
 	if ($type == 18) { $holiday_id = 0; } else { $holiday_id = 1; }
         $query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, type, `category`, temperature,
                 FORMAT(max(temperature),2) as max_c, sch_name, sch_type, start_sr, start_ss, start_offset, end_sr, end_ss, end_offset, sensor_type_id, stype
