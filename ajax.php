@@ -1405,7 +1405,7 @@ function GetModal_Schedule_List($conn)
 						if ($srow['disabled'] == 0) {
 							echo '<div class="circle_list '. $shactive.'"> <p class="schdegree">'.number_format(DispSensor($conn,$srow['temperature'],$sensor_type_id),0).$unit.'</p></div>';
 						} else {
-							echo '<div class="circle_list orangesch_list"> <p class="schdegree">D</p></div>';
+							echo '<div class="circle_list bluesch_disable"> <p class="schdegree">D</p></div>';
 						}
 						echo '<span class="label label-info sch_name"> '.$srow['sch_name'].'</span>
 						<span class="pull-right text-muted sch_list"><em>'. $coop. ' '.$srow['start'].' - ' .$srow['end'].'</em></span></a>';
