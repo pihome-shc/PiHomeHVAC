@@ -632,16 +632,26 @@ if ($type <= 5 || $type == 8) {
                         }
                 }
         }
+        $query = "SELECT  * FROM `schedule_daily_time_zone` WHERE `schedule_daily_time_id` = {$id};";
+        $results = $conn->query($query);
+        $count = mysqli_num_rows($results);
+	$query = "SELECT COUNT(*) AS dis_cont FROM `schedule_daily_time_zone` WHERE ((`status` = 0 AND `disabled` = 1) OR (`status` = 0 AND `disabled` = 0)) AND `schedule_daily_time_id` = {$id};";
+        $result = $conn->query($query);
+        $sdrow = mysqli_fetch_array($result);
         if ((($end_time > $start_time && $time > $start_time && $time < $end_time && ($row["WeekDays"]  & (1 << $dow)) > 0) || ($end_time < $start_time && $time < $end_time && ($row["WeekDays"]  & (1 << $prev_dow)) > 0) || ($end_time < $start_time && $time > $start_time && ($row["WeekDays"]  & (1 << $dow)) > 0)) && $row["time_status"]=="1") {
         	if (($sch_type == 1 && $away_status == 1) || ($sch_type == 0 && $away_status == 0)) { $shactive="redsch"; }
         } else {
 	        if($row["time_status"]=="0"){ $shactive="bluesch"; }else{ $shactive="orangesch"; }
 	}
-        echo '<div class="circle ' . $shactive . '">';
-        	if($row["category"] <> 2 && $row["sensor_type_id"] <> 3) {
-                        $unit = SensorUnits($conn,$row['sensor_type_id']);
-                        echo '<p class="schdegree">' . DispSensor($conn, number_format($row["max_c"], 1), $row["sensor_type_id"]) . $unit . '</p>';
-                }
-      	echo ' </div>';
+        if ($row["time_status"] == 0 || $sdrow["dis_cont"] == $count) {
+                echo '<div class="circle bluesch_disable"><p class="schdegree">D</p></div>';
+        } else {
+                echo '<div class="circle ' . $shactive . '">';
+                        if($row["category"] <> 2 && $row["sensor_type_id"] <> 3) {
+                                $unit = SensorUnits($conn,$row['sensor_type_id']);
+                                echo '<p class="schdegree">' . DispSensor($conn, number_format($row["max_c"], 1), $row["sensor_type_id"]) . $unit . '</p>';
+                        }
+                echo ' </div>';
+        }
 }
 ?>

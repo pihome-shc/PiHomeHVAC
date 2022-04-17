@@ -159,9 +159,6 @@ $(document).ready(function(){
 //load overridelist.php
 $('#overridelist').load('overridelist.php');
 
-//load schedulelist.php
-$("#schedulelist").load('schedulelist.php');
-
 //load boostlist.php
 $('#boostlist').load('boostlist.php');
 
