@@ -640,12 +640,7 @@ if ($type <= 5 || $type == 8) {
                 if (($sch_type == 1 && $away_status == 1) || ($sch_type == 0 && $away_status == 0)) { $shactive="redsch"; }
         }
         if ($row["time_status"] == 0 || $sdrow["all_disabled"] == 1) {
-                echo '<div class="circle bluesch_disable">';
-                        if($row["category"] <> 2 && $row["sensor_type_id"] <> 3) {
-                                $unit = SensorUnits($conn,$row['sensor_type_id']);
-                                echo '<p class="schdegree">D</p>';
-                        }
-                echo ' </div>';
+                echo '<div class="circle bluesch_disable"><p class="schdegree">D</p></div>';
         } else {
                 echo '<div class="circle ' . $shactive . '">';
                         if($row["category"] <> 2 && $row["sensor_type_id"] <> 3) {
