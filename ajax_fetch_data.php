@@ -639,7 +639,7 @@ if ($type <= 5 || $type == 8) {
         $result = $conn->query($query);
         $sdrow = mysqli_fetch_array($result);
         if($row["time_status"]=="0"){ $shactive="bluesch"; }else{ $shactive="orangesch"; }
-        if ((($end_time > $start_time && $time > $start_time && $time < $end_time && ($row["WeekDays"]  & (1 << $dow)) > 0) || ($end_time < $start_time && $time < $end_time && ($row["WeekD>
+        if ((($end_time > $start_time && $time > $start_time && $time < $end_time && ($row["WeekDays"]  & (1 << $dow)) > 0) || ($end_time < $start_time && $time < $end_time && ($row["WeekDays"]  & (1 << $prev_dow)) > 0) || ($end_time < $start_time && $time > $start_time && ($row["WeekDays"]  & (1 << $dow)) > 0)) && $row["time_status"]=="1") {
                 if (($sch_type == 1 && $away_status == 1) || ($sch_type == 0 && $away_status == 0)) { $shactive="redsch"; }
         }
         if ($row["time_status"] == 0 || $sdrow["dis_cont"] == $count) {
