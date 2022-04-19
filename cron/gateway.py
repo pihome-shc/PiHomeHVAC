@@ -37,6 +37,7 @@ from datetime import datetime
 import struct
 import requests
 import socket, re
+import math
 try:
     from Pin_Dict import pindict
     import board, digitalio
@@ -260,7 +261,7 @@ def on_message(client, userdata, message):
                 (d[0], i) for i, d in enumerate(cur_mqtt.description)
             )
             last_message_datetime = results[mqtt_message_to_index["datetime"]]
-            last_message_payload = results[mqtt_message_to_index["payload"]]
+            last_message_payload = math.floor(results[mqtt_message_to_index["payload"]]*10)/10
             tdelta = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() -  datetime.strptime(str(last_message_datetime), "%Y-%m-%d %H:%M:%S").timestamp()
         if cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((mqtt_payload != last_message_payload) or tdelta > 3600)):
             print(
