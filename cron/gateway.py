@@ -242,111 +242,126 @@ def on_message(client, userdata, message):
             mqtt_payload = json.loads(message.payload.decode())
             for attribute in child[on_msg_description_to_index["attribute"]].split("."):
                 mqtt_payload = mqtt_payload.get(attribute)
-        print(
-            "5: Adding Temperature Reading From Node ID:",
-            mqtt_node_id,
-            " Child Sensor ID:",
-            mqtt_child_sensor_id,
-            " PayLoad:",
-            mqtt_payload,
-        )
+        # Update node last seen
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        cur_mqtt.execute(
-            "INSERT INTO `messages_in`(`node_id`, `sync`, `purge`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES (%s, 0, 0, %s, 0, %s, %s)",
-            [mqtt_node_id, mqtt_child_sensor_id, mqtt_payload, timestamp],
-        )
-        con_mqtt.commit()
         cur_mqtt.execute(
             'UPDATE `nodes` SET `last_seen`= %s WHERE `node_id`= %s',
             [timestamp, mqtt_node_id],
         )
         con_mqtt.commit()
-        # Check is sensor is attached to a zone which is being graphed
+        # Get previous data for this sensorr
         cur_mqtt.execute(
-            'SELECT sensors.id, sensors.zone_id, nodes.node_id, sensors.sensor_child_id, sensors.name, sensors.graph_num FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = %s AND sensors.sensor_child_id = %s AND sensors.graph_num > 0 LIMIT 1;',
+            'SELECT datetime, payload FROM messages_in_view_24h WHERE node_id = %s AND child_id = %s ORDER BY id DESC LIMIT 1;',
             [mqtt_node_id, mqtt_child_sensor_id],
         )
         results = cur_mqtt.fetchone()
         if cur_mqtt.rowcount > 0:
-            mqtt_sensor_to_index = dict(
+            mqtt_message_to_index = dict(
                 (d[0], i) for i, d in enumerate(cur_mqtt.description)
             )
-            mqtt_sensor_id = int(results[mqtt_sensor_to_index["id"]])
-            mqtt_sensor_name = results[mqtt_sensor_to_index["name"]]
-            mqtt_zone_id = results[mqtt_sensor_to_index["zone_id"]]
-            # type = results[zone_view_to_index['type']]
-            # category = int(results[zone_view_to_index['category']])
-            mqtt_graph_num = int(results[mqtt_sensor_to_index["graph_num"]])
-            if mqtt_graph_num > 0:
-                if c_f:
-                    payload = round((payload * 9/5) + 32, 1)
-                if dbgLevel >= 2 and dbgMsgIn == 1:
-                    print(
-                        "5a: Adding Temperature Reading to Graph Table From Node ID:",
-                        mqtt_node_id,
-                        " Child Sensor ID:",
-                        mqtt_child_sensor_id,
-                        " PayLoad:",
-                        mqtt_payload,
-                    )
-                if mqtt_zone_id == 0:
-                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    cur_mqtt.execute(
-                        'INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
-                        (
-                            0,
-                            0,
-                            mqtt_sensor_id,
-                            mqtt_sensor_name,
-                            "Sensor",
-                            0,
+            last_message_datetime = results[mqtt_message_to_index["datetime"]]
+            last_message_payload = results[mqtt_message_to_index["payload"]]
+            tdelta = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() -  datetime.strptime(str(last_message_datetime), "%Y-%m-%d %H:%M:%S").timestamp()
+        if cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((mqtt_payload != last_message_payload) or tdelta > 3600)):
+            print(
+                "5: Adding Temperature Reading From Node ID:",
+                mqtt_node_id,
+                " Child Sensor ID:",
+                mqtt_child_sensor_id,
+                " PayLoad:",
+                mqtt_payload,
+            )
+            cur_mqtt.execute(
+                "INSERT INTO `messages_in`(`node_id`, `sync`, `purge`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES (%s, 0, 0, %s, 0, %s, %s)",
+                [mqtt_node_id, mqtt_child_sensor_id, mqtt_payload, timestamp],
+            )
+            con_mqtt.commit()
+            # Check is sensor is attached to a zone which is being graphed
+            cur_mqtt.execute(
+                'SELECT sensors.id, sensors.zone_id, nodes.node_id, sensors.sensor_child_id, sensors.name, sensors.graph_num FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = %s AND sensors.sensor_child_id = %s AND sensors.graph_num > 0 LIMIT 1;',
+                [mqtt_node_id, mqtt_child_sensor_id],
+            )
+            results = cur_mqtt.fetchone()
+            if cur_mqtt.rowcount > 0:
+                mqtt_sensor_to_index = dict(
+                    (d[0], i) for i, d in enumerate(cur_mqtt.description)
+                )
+                mqtt_sensor_id = int(results[mqtt_sensor_to_index["id"]])
+                mqtt_sensor_name = results[mqtt_sensor_to_index["name"]]
+                mqtt_zone_id = results[mqtt_sensor_to_index["zone_id"]]
+                # type = results[zone_view_to_index['type']]
+                # category = int(results[zone_view_to_index['category']])
+                mqtt_graph_num = int(results[mqtt_sensor_to_index["graph_num"]])
+                if mqtt_graph_num > 0:
+                    if c_f:
+                        payload = round((payload * 9/5) + 32, 1)
+                    if dbgLevel >= 2 and dbgMsgIn == 1:
+                        print(
+                            "5a: Adding Temperature Reading to Graph Table From Node ID:",
                             mqtt_node_id,
+                            " Child Sensor ID:",
                             mqtt_child_sensor_id,
-                            0,
+                            " PayLoad:",
                             mqtt_payload,
-                            timestamp,
-                        ),
+                        )
+                    if mqtt_zone_id == 0:
+                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        cur_mqtt.execute(
+                            'INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
+                            (
+                                0,
+                                0,
+                                mqtt_sensor_id,
+                                mqtt_sensor_name,
+                                "Sensor",
+                                0,
+                                mqtt_node_id,
+                                mqtt_child_sensor_id,
+                                0,
+                                mqtt_payload,
+                                timestamp,
+                            ),
+                        )
+                        con_mqtt.commit()
+                    else:
+                        cur_mqtt.execute(
+                            'SELECT * FROM `zone_view` where id = %s LIMIT 1;',
+                            [mqtt_zone_id],
+                        )
+                        results = cur_mqtt.fetchone()
+                        if cur_mqtt.rowcount > 0:
+                            mqtt_zone_view_to_index = dict(
+                                (d[0], i) for i, d in enumerate(cur_mqtt.description)
+                            )
+                            mqtt_zone_name = results[mqtt_zone_view_to_index["name"]]
+                            mqtt_type = results[mqtt_zone_view_to_index["type"]]
+                            mqtt_category = int(
+                                results[mqtt_zone_view_to_index["category"]]
+                            )
+                            if mqtt_category != 2:
+                                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                cur_mqtt.execute(
+                                    'INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
+                                    (
+                                        0,
+                                        0,
+                                        mqtt_sensor_id,
+                                        mqtt_zone_name,
+                                        mqtt_type,
+                                        mqtt_category,
+                                        mqtt_node_id,
+                                        mqtt_child_sensor_id,
+                                        0,
+                                        mqtt_payload,
+                                        timestamp,
+                                    ),
+                                )
+                                con_mqtt.commit()
+                    cur_mqtt.execute(
+                        'DELETE FROM zone_graphs WHERE node_id = %s AND child_id = %s AND datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR;',
+                        [mqtt_node_id, mqtt_child_sensor_id],
                     )
                     con_mqtt.commit()
-                else:
-                    cur_mqtt.execute(
-                        'SELECT * FROM `zone_view` where id = %s LIMIT 1;',
-                        [mqtt_zone_id],
-                    )
-                    results = cur_mqtt.fetchone()
-                    if cur_mqtt.rowcount > 0:
-                        mqtt_zone_view_to_index = dict(
-                            (d[0], i) for i, d in enumerate(cur_mqtt.description)
-                        )
-                        mqtt_zone_name = results[mqtt_zone_view_to_index["name"]]
-                        mqtt_type = results[mqtt_zone_view_to_index["type"]]
-                        mqtt_category = int(
-                            results[mqtt_zone_view_to_index["category"]]
-                        )
-                        if mqtt_category != 2:
-                            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                            cur_mqtt.execute(
-                                'INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',
-                                (
-                                    0,
-                                    0,
-                                    mqtt_sensor_id,
-                                    mqtt_zone_name,
-                                    mqtt_type,
-                                    mqtt_category,
-                                    mqtt_node_id,
-                                    mqtt_child_sensor_id,
-                                    0,
-                                    mqtt_payload,
-                                    timestamp,
-                                ),
-                            )
-                            con_mqtt.commit()
-                cur_mqtt.execute(
-                    'DELETE FROM zone_graphs WHERE node_id = %s AND child_id = %s AND datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR;',
-                    [mqtt_node_id, mqtt_child_sensor_id],
-                )
-                con_mqtt.commit()
 
 
 class ProgramKilled(Exception):
