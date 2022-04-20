@@ -869,4 +869,11 @@ $lang['graph_24h'] = "Graph 24h";
 $lang['page_refresh'] = "Page Refresh";
 $lang['change_refresh'] = "Change Page Refresh Period";
 $lang['change_refresh_text'] = "Set the Rate in Seconds for the Update of Data on the Home and OneTouch Pages";
+$lang['sensor_mode'] = "Mode";
+$lang['sensor_mode_info'] = "Sensor Readings Captured either Continuously or Only on Value Change";
+$lang['sensor_timeout'] = "Timeout";
+$lang['sensor_timeout_info'] = "On Change Mode - maximum interval in Minutes between Sensor readings if no Value Change";
+$lang['continous'] = "Continous";
+$lang['onchange'] = "On-Change";
+$lang['correct_factor'] = "Correct Factor";
 ?>
