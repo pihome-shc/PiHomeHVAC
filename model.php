@@ -2681,14 +2681,15 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['sensor_settings_text'].'</p>';
-		$query = "select sensors.id, sensors.name, sensors.sensor_child_id, sensors.correction_factor, sensors.zone_id, sensors.show_it, nodes.node_id, nodes.last_seen from sensors, nodes WHERE sensors.sensor_id = nodes.id order by name asc";
+		$query = "select sensors.id, sensors.name, sensors.sensor_child_id, sensors.correction_factor, sensors.mode, sensors.timeout, sensors.zone_id, sensors.show_it, nodes.node_id, nodes.last_seen from sensors, nodes WHERE sensors.sensor_id = nodes.id order by name asc";
 		$results = $conn->query($query);
 		echo '<table class="table table-bordered">
     			<tr>
                                 <th class="col-md-2"><small>'.$lang['sensor_name'].'</small></th>
                                 <th class="col-md-2"><small>'.$lang['node_id'].'</small></th>
                                 <th class="col-md-1"><small>'.$lang['sensor_child_id'].'</small></th>
-                                <th class="col-md-2"><small>'.$lang['correction_factor'].'</small></th>
+                                <th class="col-md-1"><small>'.$lang['sensor_mode'].'</small></th>
+                                <th class="col-md-1"><small>'.$lang['correct_factor'].'</small></th>
                                 <th class="col-md-2"><small>'.$lang['zone_name'].'</small></th>
                                 <th class="col-md-1"><small>'.$lang['show'].'</small></th>
                                 <th class="col-md-2"></th>
@@ -2710,12 +2711,17 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
     				$check = ($row['show_it'] == 1) ? 'checked' : '';
                                 $cf = ($row['correction_factor'] == 0) ? '0' : $row['correction_factor'];
                                 echo '<tr>
-                                        <td>'.$row["name"].'<br> <small>('.$row["last_seen"].')</small></td>
-                                        <td>'.$row["node_id"].'</td>
-                                        <td>'.$row["sensor_child_id"].'</td>
-                                        <td>'.$cf.'</td>
-            				<td>'.$zone_name.'</td>';
-            				if (empty($row['zone_id'])) { 
+                                        <td style="text-align:center; vertical-align:middle;">'.$row["name"].'<br> <small>('.$row["last_seen"].')</small></td>
+                                        <td style="text-align:center; vertical-align:middle;">'.$row["node_id"].'</td>
+                                        <td style="text-align:center; vertical-align:middle;">'.$row["sensor_child_id"].'</td>';
+					if ($row['mode'] == 0) {
+						echo'<td style="text-align:center; vertical-align:middle;"><i class="fa fa-play green"></i></td>';
+					} else {
+						echo'<td style="text-align:center; vertical-align:middle;">'.$row['timeout'].'</i></td>';
+					}
+                                        echo '<td style="text-align:center; vertical-align:middle;">'.$cf.'</td>
+            				<td style="text-align:center; vertical-align:middle;">'.$zone_name.'</td>';
+            				if (empty($row['zone_id'])) {
 						echo '<td style="text-align:center; vertical-align:middle;">
                 				<input type="checkbox" id="checkbox'.$row["id"].'" name="checkbox'.$row["id"].'" value="1" '.$check.'>
             					</td>';
@@ -2724,8 +2730,8 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
                 				<input type="checkbox" id="checkbox'.$row["id"].'" name="checkbox'.$row["id"].'" value="1" '.$check.' disabled>
                 				</td>';
 	    				}
-	    				echo '<td><a href="sensor.php?id='.$row["id"].'"><button class="btn btn-primary btn-xs"><span class="ionicons ion-edit"></span></button> </a>&nbsp;&nbsp';
-	    				if (empty($row['zone_id'])) { 
+	    				echo '<td style="text-align:center; vertical-align:middle;"><a href="sensor.php?id='.$row["id"].'"><button class="btn btn-primary btn-xs"><span class="ionicons ion-edit"></span></button> </a>&nbsp;&nbsp';
+	    				if (empty($row['zone_id'])) {
 						echo '<a href="javascript:delete_sensor('.$row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="'.$lang['confirmation'].'" data-content="'.$lang['confirm_del_sensor_4'].'"><span class="glyphicon glyphicon-trash"></span></button> </a></td>'; 
 	    				} else {
 						echo '<button class="btn btn-danger btn-xs disabled" data-toggle="tooltip" title="'.$lang['confirm_del_sensor_5'].$zone_name.'"><span class="glyphicon glyphicon-trash"></span></button></td>';

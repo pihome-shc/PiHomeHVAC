@@ -49,13 +49,15 @@ if (isset($_POST['submit'])) {
 	if ($frost_temp == 0) { $frost_controller = 0; } else { $frost_controller = $_POST['frost_controller']; }
         $show_it = $_POST['show_it'];
         $graph_num = $_POST['graph_num'];
+	$mode = $_POST['mode'];
+        $timeout = $_POST['timeout'];
 
 	//Add or Edit Sensor record to sensors Table
-	
+
         if ($id==0){
-                $query = "INSERT INTO `sensors` (`id`, `sync`, `purge`, `zone_id`, `sensor_id`, `sensor_child_id`, `correction_factor`, `sensor_type_id`, `index_id`, `pre_post`, `name`, `graph_num`, `show_it`, `frost_temp`, `frost_controller`) VALUES ('{$id}', '{$sync}', '{$purge}', '0', '{$sensor_id}', '{$sensor_child_id}', '{$correction_factor}', '{$sensor_type_id}', '{$index_id}', '{$pre_post}', '{$name}', '0', '1', '{$frost_temp}', '{$frost_controller}');";
+                $query = "INSERT INTO `sensors` (`id`, `sync`, `purge`, `zone_id`, `sensor_id`, `sensor_child_id`, `correction_factor`, `sensor_type_id`, `index_id`, `pre_post`, `name`, `graph_num`, `show_it`, `frost_temp`, `frost_controller`, `mode`, `timeout`) VALUES ('{$id}', '{$sync}', '{$purge}', '0', '{$sensor_id}', '{$sensor_child_id}', '{$correction_factor}', '{$sensor_type_id}', '{$index_id}', '{$pre_post}', '{$name}', '0', '1', '{$frost_temp}', '{$frost_controller}', '{$mode}', '{$timeout}');";
         } else {
-                $query = "UPDATE `sensors` SET `sync` = '{$sync}',`purge` = '{$purge}',`sensor_id` = '{$sensor_id}',`sensor_child_id` = '{$sensor_child_id}',`correction_factor` = '{$correction_factor}',`sensor_type_id` = '{$sensor_type_id}',`index_id` = '{$index_id}',`pre_post` = '{$pre_post}',`name` = '{$name}',`graph_num` = '{$graph_num}',`show_it` = '{$show_it}',`frost_temp` = '{$frost_temp}',`frost_controller` = '{$frost_controller}' WHERE `id` = {$id};";
+                $query = "UPDATE `sensors` SET `sync` = '{$sync}',`purge` = '{$purge}',`sensor_id` = '{$sensor_id}',`sensor_child_id` = '{$sensor_child_id}',`correction_factor` = '{$correction_factor}',`sensor_type_id` = '{$sensor_type_id}',`index_id` = '{$index_id}',`pre_post` = '{$pre_post}',`name` = '{$name}',`graph_num` = '{$graph_num}',`show_it` = '{$show_it}',`frost_temp` = '{$frost_temp}',`frost_controller` = '{$frost_controller}', `mode` = '{$mode}', `timeout` = '{$timeout}' WHERE `id` = {$id};";
         }
 	$result = $conn->query($query);
         $temp_id = mysqli_insert_id($conn);
@@ -233,6 +235,25 @@ if (isset($_POST['submit'])) {
 							</select>
 							<div class="help-block with-errors"></div>
 						</div>
+
+                                                <!-- Mode -->
+                                                <div class="form-group" class="control-label"><label><?php echo $lang['sensor_mode']; ?></label> <small class="text-muted"><?php echo $lang['sensor_mode_info'];?></small>
+ 							<select class="form-control input-sm" type="text" id="mode" name="mode">
+								<?php echo'<option value=0 ' . ($row['mode']==0 ? 'selected' : '') . '>'.$lang['continous'].'</option>'; ?>
+                                                                <?php echo'<option value=1 ' . ($row['mode']==1 ? 'selected' : '') . '>'.$lang['onchange'].'</option>'; ?>
+	                                                </select>
+                                                        <div class="help-block with-errors"></div>
+                                                </div>
+
+                                                <!-- Timout -->
+                                                <div class="form-group" class="control-label"><label><?php echo $lang['sensor_timeout']; ?></label> <small class="text-muted"><?php echo $lang['sensor_timeout_info'];?></small>
+                                                        <select class="form-control input-sm" type="text" id="timeout" name="timeout">
+					                <?php for ($x = 0; $x <=  120; $x = $x + 10) {
+                        					echo '<option value="'.$x.'" ' . ($x==$row['timeout'] ? 'selected' : '') . '>'.$x.'</option>';
+                					} ?>
+                					</select>
+                                                        <div class="help-block with-errors"></div>
+                                                </div>
 
                                                 <!-- Correction Factor -->
                                                 <div class="form-group" class="control-label"><label><?php echo $lang['sensor_correction_factor']; ?></label> <small class="text-muted"><?php echo $lang['sensor_correction_factor_info'];?></small>
