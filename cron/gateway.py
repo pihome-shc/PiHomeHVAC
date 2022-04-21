@@ -262,6 +262,7 @@ def on_message(client, userdata, message):
         )
         mode = result[sensor_to_index["mode"]]
         sensor_timeout = int(result[sensor_to_index["timeout"]])*60
+        tdelta = 0
         if mode == 1:
             # Get previous data for this sensorr
             cur_mqtt.execute(
@@ -277,6 +278,8 @@ def on_message(client, userdata, message):
                 last_message_payload = math.floor(results[mqtt_message_to_index["payload"]]*10)/10
                 tdelta = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() -  datetime.strptime(str(last_message_datetime), "%Y-%m-%d %H:%M:%S").timestamp()
         if mode == 0 or (cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((mqtt_payload != last_message_payload) or tdelta > sensor_timeout))):
+            if tdelta > sensor_timeout:
+                mqtt_payload = last_message_payload
             print(
                 "5: Adding Temperature Reading From Node ID:",
                 mqtt_node_id,
@@ -975,6 +978,7 @@ try:
                             )
                             mode = results[sensor_to_index["mode"]]
                             sensor_timeout = int(results[sensor_to_index["timeout"]])*60
+                            tdelta = 0
                             if mode == 1:
                                 # Get previous data for this sensorr
                                 cur.execute(
@@ -990,6 +994,8 @@ try:
                                     last_message_payload = math.floor(results[message_to_index["payload"]]*10)/10
                                     tdelta = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() -  datetime.strptime(str(last_message_datetime), "%Y-%m-%d %H:%M:%S").timestamp()
                             if mode == 0 or (cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((payload != last_message_payload) or tdelta > sensor_timeout))):
+                                if tdelta > sensor_timeout:
+                                    payload = last_message_payload
                                 if dbgLevel >= 2 and dbgMsgIn == 1:
                                     print(
                                         "5: Adding Temperature Reading From Node ID:",
