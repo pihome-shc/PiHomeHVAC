@@ -262,6 +262,7 @@ def on_message(client, userdata, message):
         )
         mode = result[sensor_to_index["mode"]]
         sensor_timeout = int(result[sensor_to_index["timeout"]])*60
+        tdelta = 0
         if mode == 1:
             # Get previous data for this sensorr
             cur_mqtt.execute(
@@ -977,6 +978,7 @@ try:
                             )
                             mode = results[sensor_to_index["mode"]]
                             sensor_timeout = int(results[sensor_to_index["timeout"]])*60
+                            tdelta = 0
                             if mode == 1:
                                 # Get previous data for this sensorr
                                 cur.execute(
