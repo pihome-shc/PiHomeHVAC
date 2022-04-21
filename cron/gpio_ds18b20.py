@@ -1,7 +1,8 @@
 #!/usr/bin/python
-import datetime, time, os, fnmatch, MySQLdb as mdb, logging
+import time, os, fnmatch, MySQLdb as mdb, logging
 from decimal import Decimal
 import configparser
+from datetime import datetime
 
 
 class bc:
