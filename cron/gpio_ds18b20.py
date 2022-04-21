@@ -3,7 +3,7 @@ import time, os, fnmatch, MySQLdb as mdb, logging
 from decimal import Decimal
 import configparser
 from datetime import datetime
-
+import math
 
 class bc:
     hed = "\033[0;36;40m"
