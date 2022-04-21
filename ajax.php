@@ -934,6 +934,11 @@ function GetModal_Sensor_Graph($conn)
         <script type="text/javascript" src="js/plugins/plotly/d3.min.js"></script>
 	<script>
 
+        <?php if($type_id == 1) { ?>
+                var ytitle = 'Temperature';
+        <?php } else { ?>
+                var ytitle = 'Humidity';
+        <?php } ?>
         var xValues = [...<?php echo $js_array_x ?>];
         var yValues = [...<?php echo $js_array_y ?>];
 
@@ -966,7 +971,7 @@ function GetModal_Sensor_Graph($conn)
     		tickformat: '%H:%M'
   		},
   		yaxis: {
-    		title: 'Temperature'
+    		title: ytitle
   		},
                 autosize: true,
                 automargin: true
