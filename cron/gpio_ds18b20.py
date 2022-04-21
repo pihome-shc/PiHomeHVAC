@@ -133,6 +133,7 @@ def insertDB(IDs, temperature):
                 bc.ENDC,
             )
 
+            payload = round(temp, 2)
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             mode = results[sensor_to_index["mode"]]
             sensor_timeout = int(results[sensor_to_index["timeout"]])*60
@@ -150,7 +151,9 @@ def insertDB(IDs, temperature):
                     last_message_datetime = results[message_to_index["datetime"]]
                     last_message_payload = math.floor(results[message_to_index["payload"]]*10)/10
                     tdelta = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() -  datetime.strptime(str(last_message_datetime), "%Y-%m-%d %H:%M:%S").timestamp()
-            if mode == 0 or (cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((mqtt_payload != last_message_payload) or tdelta > sensor_timeout))):
+            if mode == 0 or (cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((payload != last_message_payload) or tdelta > sensor_timeout))):
+                if tdelta > sensor_timeout:
+                    payload = last_message_payload
                 cur.execute(
                     "INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s)",
                     (
@@ -159,7 +162,7 @@ def insertDB(IDs, temperature):
                         IDs[i],
                         0,
                         0,
-                        round(temp, 2),
+                        payload,
                         time.strftime("%Y-%m-%d %H:%M:%S"),
                     ),
                 )
@@ -187,7 +190,7 @@ def insertDB(IDs, temperature):
                             + " - Adding Temperature Reading to Graph Table From Node ID:",
                             IDs[i],
                             " PayLoad:",
-                            round(temp, 2),
+                            payload,
                         )
                         if zone_id == 0:
                             category = 0
@@ -204,7 +207,7 @@ def insertDB(IDs, temperature):
                                     IDs[i],
                                     0,
                                     0,
-                                    round(temp, 2),
+                                    payload,
                                     time.strftime("%Y-%m-%d %H:%M:%S"),
                                 ),
                             )
@@ -235,7 +238,7 @@ def insertDB(IDs, temperature):
                                             IDs[i],
                                             0,
                                             0,
-                                            round(temp, 2),
+                                            payload,
                                             time.strftime("%Y-%m-%d %H:%M:%S"),
                                         ),
                                     )
