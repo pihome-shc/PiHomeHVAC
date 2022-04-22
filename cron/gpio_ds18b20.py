@@ -142,7 +142,7 @@ def insertDB(IDs, temperature):
             if mode == 1:
                 # Get previous data for this sensorr
                 cur.execute(
-                    "SELECT datetime, payload FROM messages_in WHERE node_id = '%s' AND child_id = %s ORDER BY id DESC LIMIT 1;",
+                    'SELECT datetime, payload FROM messages_in WHERE node_id = %s AND child_id = %s ORDER BY id DESC LIMIT 1;',
                     (IDs[i], 0),
                 )
                 results = cur.fetchone()
