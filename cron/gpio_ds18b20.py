@@ -139,6 +139,7 @@ def insertDB(IDs, temperature):
             mode = results[sensor_to_index["mode"]]
             sensor_timeout = int(results[sensor_to_index["timeout"]])*60
             tdelta = 0
+            last_message_payload = 0
             if mode == 1:
                 # Get previous data for this sensorr
                 cur.execute(
