@@ -37,6 +37,7 @@ from datetime import datetime
 import struct
 import requests
 import socket, re
+import math
 try:
     from Pin_Dict import pindict
     import board, digitalio
@@ -252,7 +253,7 @@ def on_message(client, userdata, message):
         con_mqtt.commit()
         # Get reading type (continous or on-change)
         cur_mqtt.execute(
-            'SELECT mode, timeout, resolution FROM sensors WHERE sensor_id = %s AND sensor_child_id = %s LIMIT 1;',
+            'SELECT mode, timeout FROM sensors WHERE sensor_id = %s AND sensor_child_id = %s LIMIT 1;',
             [sensors_id, mqtt_child_sensor_id],
         )
         result = cur_mqtt.fetchone()
@@ -261,9 +262,6 @@ def on_message(client, userdata, message):
         )
         mode = result[sensor_to_index["mode"]]
         sensor_timeout = int(result[sensor_to_index["timeout"]])*60
-        tdelta = 0
-        last_message_payload = 0
-        resolution = float(results[sensor_to_index["resolution"]])
         if mode == 1:
             # Get previous data for this sensorr
             cur_mqtt.execute(
@@ -276,11 +274,9 @@ def on_message(client, userdata, message):
                     (d[0], i) for i, d in enumerate(cur_mqtt.description)
                 )
                 last_message_datetime = results[mqtt_message_to_index["datetime"]]
-                last_message_payload = float(results[mqtt_message_to_index["payload"]])
+                last_message_payload = math.floor(results[mqtt_message_to_index["payload"]]*10)/10
                 tdelta = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() -  datetime.strptime(str(last_message_datetime), "%Y-%m-%d %H:%M:%S").timestamp()
-        if mode == 0 or (cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((mqtt_payload < last_message_payload - resolution or mqtt_payload > last_message_payload + resolution) or tdelta > sensor_timeout))):
-            if tdelta > sensor_timeout:
-                mqtt_payload = last_message_payload
+        if mode == 0 or (cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((mqtt_payload != last_message_payload) or tdelta > sensor_timeout))):
             print(
                 "5: Adding Temperature Reading From Node ID:",
                 mqtt_node_id,
@@ -964,7 +960,7 @@ try:
                         con.commit()
                         # Check if this sensor has a correction factor
                         cur.execute(
-                            "SELECT sensors.mode, sensors.timeout, sensors.correction_factor, sensors.resolution FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) AND sensors.sensor_child_id = (%s) LIMIT 1;",
+                            "SELECT sensors.mode, sensors.timeout, sensors.correction_factor FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) AND sensors.sensor_child_id = (%s) LIMIT 1;",
                             (node_id, child_sensor_id),
                         )
                         results = cur.fetchone()
@@ -979,9 +975,6 @@ try:
                             )
                             mode = results[sensor_to_index["mode"]]
                             sensor_timeout = int(results[sensor_to_index["timeout"]])*60
-                            tdelta = 0
-                            last_message_payload = 0
-                            resolution = float(results[sensor_to_index["resolution"]])
                             if mode == 1:
                                 # Get previous data for this sensorr
                                 cur.execute(
@@ -994,11 +987,9 @@ try:
                                         (d[0], i) for i, d in enumerate(cur.description)
                                     )
                                     last_message_datetime = results[message_to_index["datetime"]]
-                                    last_message_payload = float(results[message_to_index["payload"]])
+                                    last_message_payload = math.floor(results[message_to_index["payload"]]*10)/10
                                     tdelta = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() -  datetime.strptime(str(last_message_datetime), "%Y-%m-%d %H:%M:%S").timestamp()
-                            if mode == 0 or (cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((payload < last_message_payload - resolution or payload > last_message_payload + resolution) or tdelta > sensor_timeout))):
-                                if tdelta > sensor_timeout:
-                                    payload = last_message_payload
+                            if mode == 0 or (cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((payload != last_message_payload) or tdelta > sensor_timeout))):
                                 if dbgLevel >= 2 and dbgMsgIn == 1:
                                     print(
                                         "5: Adding Temperature Reading From Node ID:",
