@@ -877,6 +877,6 @@ $lang['continous'] = "Continous";
 $lang['onchange'] = "On-Change";
 $lang['correct_factor'] = "Correct Factor";
 $lang['res'] = "Res +/-";
-$lang['sensor_resolution'] = "Sensor Resolution";
-$lang['sensor_resolution_info'] = "Resolution between +/- 0.0 to 1.0"; 
+$lang['sensor_resolution'] = "On-Change Sensor Resolution";
+$lang['sensor_resolution_info'] = "Set On-Change Resolution between +/- 0.0 to 1.0"; 
 ?>
