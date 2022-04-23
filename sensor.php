@@ -239,16 +239,35 @@ if (isset($_POST['submit'])) {
 
                                                 <!-- Mode -->
                                                 <div class="form-group" class="control-label"><label><?php echo $lang['sensor_mode']; ?></label> <small class="text-muted"><?php echo $lang['sensor_mode_info'];?></small>
- 							<select class="form-control input-sm" type="text" id="mode" name="mode">
+ 							<select class="form-control select2" type="text" id="mode" name="mode" onchange=set_mode(this.options[this.selectedIndex].value)>
 								<?php echo'<option value=0 ' . ($row['mode']==0 ? 'selected' : '') . '>'.$lang['continous'].'</option>'; ?>
                                                                 <?php echo'<option value=1 ' . ($row['mode']==1 ? 'selected' : '') . '>'.$lang['onchange'].'</option>'; ?>
 	                                                </select>
                                                         <div class="help-block with-errors"></div>
                                                 </div>
 
+                                                <script language="javascript" type="text/javascript">
+                                                function set_mode(value) {
+        						switch (value) {
+                						case "0":
+                        						document.getElementById("timeout").style.display = 'none';
+                        						document.getElementById("timeout_label").style.visibility = 'hidden';;
+                                                                        document.getElementById("resolution").style.display = 'none';
+                                                                        document.getElementById("resolution_label").style.visibility = 'hidden';;
+									break;
+                                                                case "1":
+                                                                        document.getElementById("timeout").style.display = 'block';
+                                                                        document.getElementById("timeout_label").style.visibility = 'visible';;
+                                                                        document.getElementById("resolution").style.display = 'block';
+                                                                        document.getElementById("resolution_label").style.visibility = 'visible';;
+                                                                        break;
+							}
+                                                }
+                                                </script>
+
                                                 <!-- Timout -->
-							<div class="form-group" class="control-label"><label><?php echo $lang['sensor_timeout']; ?></label> <small class="text-muted"><?php echo $lang['sensor_timeout_info'];?></small>
-                                                        <select class="form-control input-sm" type="text" id="timeout" name="timeout">
+							<div class="form-group" class="control-label" id="timeout_label" style="display:block"><label><?php echo $lang['sensor_timeout']; ?></label> <small class="text-muted"><?php echo $lang['sensor_timeout_info'];?></small>
+                                                        <select id="timeout" name="timeout" class="form-control select2" autocomplete="off">
 					                <?php for ($x = 0; $x <=  120; $x = $x + 10) {
                         					echo '<option value="'.$x.'" ' . ($x==$row['timeout'] ? 'selected' : '') . '>'.$x.'</option>';
                 					} ?>
@@ -256,20 +275,20 @@ if (isset($_POST['submit'])) {
                                                         <div class="help-block with-errors"></div>
                                                 </div>
 
-                                                <!-- Correction Factor -->
-                                                <div class="form-group" class="control-label"><label><?php echo $lang['sensor_correction_factor']; ?></label> <small class="text-muted"><?php echo $lang['sensor_correction_factor_info'];?></small>
-                                                        <input class="form-control" placeholder="Temperature Sensor Correction Factor" value="<?php if(isset($row['name'])) { echo $row['correction_factor']; } else { echo '0.00'; } ?>" id="correction_factor" name="correction_factor" data-error="<?php echo $lang['sensor_correction_factor_help']; ?>" autocomplete="off" required>
-                                                        <div class="help-block with-errors"></div>
-                                                </div>
-
                                                 <!-- Resolution -->
-							<div class="form-group" class="control-label"><label><?php echo $lang['sensor_resolution']; ?></label> <small class="text-muted"><?php echo $lang['sensor_resolution_info'];?></small>
-                                                        <select class="form-control input-sm" type="text" id="resolution" name="resolution">
+							<div class="form-group" class="control-label" id="resolution_label" style="display:block"><label><?php echo $lang['sensor_resolution']; ?></label> <small class="text-muted"><?php echo $lang['sensor_resolution_info'];?></small>
+                                                        <select id="resolution" name="resolution" class="form-control select2" autocomplete="off">
                                                         <?php for ($x = 0; $x <=  10; $x++) {
-								$y = $x/10;
+                                                                $y = $x/10;
                                                                 echo '<option value="'.$y.'" ' . ($y==$row['resolution'] ? 'selected' : '') . '>'.$y.'</option>';
                                                         } ?>
                                                         </select>
+                                                        <div class="help-block with-errors"></div>
+                                                </div>
+
+                                                <!-- Correction Factor -->
+                                                <div class="form-group" class="control-label"><label><?php echo $lang['sensor_correction_factor']; ?></label> <small class="text-muted"><?php echo $lang['sensor_correction_factor_info'];?></small>
+                                                        <input class="form-control" placeholder="Temperature Sensor Correction Factor" value="<?php if(isset($row['name'])) { echo $row['correction_factor']; } else { echo '0.00'; } ?>" id="correction_factor" name="correction_factor" data-error="<?php echo $lang['sensor_correction_factor_help']; ?>" autocomplete="off" required>
                                                         <div class="help-block with-errors"></div>
                                                 </div>
 
@@ -343,6 +362,12 @@ if (isset($_POST['submit'])) {
                                         'enable_frost_temp("'.$rowtype['id'].'");',
                                         '</script>'
                                         ;
+					if ($id != 0) {
+						echo '<script type="text/javascript">',
+					     	'set_mode("'.$row['mode'].'");',
+     						'</script>'
+						;
+					}
 					ShowWeather($conn);
 					?>
                         		<div class="pull-right">
