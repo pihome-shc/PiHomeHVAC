@@ -2653,7 +2653,7 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
 
 //Sensor model
 echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
@@ -2681,15 +2681,16 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['sensor_settings_text'].'</p>';
-		$query = "select sensors.id, sensors.name, sensors.sensor_child_id, sensors.correction_factor, sensors.mode, sensors.timeout, sensors.zone_id, sensors.show_it, nodes.node_id, nodes.last_seen from sensors, nodes WHERE sensors.sensor_id = nodes.id order by name asc";
+		$query = "select sensors.id, sensors.name, sensors.sensor_child_id, sensors.correction_factor, sensors.mode, sensors.timeout, sensors.resolution, sensors.zone_id, sensors.show_it, nodes.node_id, nodes.last_seen from sensors, nodes WHERE sensors.sensor_id = nodes.id order by name asc";
 		$results = $conn->query($query);
 		echo '<table class="table table-bordered">
     			<tr>
                                 <th class="col-md-2"><small>'.$lang['sensor_name'].'</small></th>
-                                <th class="col-md-2"><small>'.$lang['node_id'].'</small></th>
+                                <th class="col-md-1"><small>'.$lang['node_id'].'</small></th>
                                 <th class="col-md-1"><small>'.$lang['sensor_child_id'].'</small></th>
                                 <th class="col-md-1"><small>'.$lang['sensor_mode'].'</small></th>
                                 <th class="col-md-1"><small>'.$lang['correct_factor'].'</small></th>
+                                <th class="col-md-1"><small>'.$lang['res'].'</small></th>
                                 <th class="col-md-2"><small>'.$lang['zone_name'].'</small></th>
                                 <th class="col-md-1"><small>'.$lang['show'].'</small></th>
                                 <th class="col-md-2"></th>
@@ -2720,6 +2721,7 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
 						echo'<td style="text-align:center; vertical-align:middle;">'.$row['timeout'].'</i></td>';
 					}
                                         echo '<td style="text-align:center; vertical-align:middle;">'.$cf.'</td>
+                                        <td style="text-align:center; vertical-align:middle;">'.$row["resolution"].'</td>
             				<td style="text-align:center; vertical-align:middle;">'.$zone_name.'</td>';
             				if (empty($row['zone_id'])) {
 						echo '<td style="text-align:center; vertical-align:middle;">

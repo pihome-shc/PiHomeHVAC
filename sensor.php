@@ -51,13 +51,14 @@ if (isset($_POST['submit'])) {
         $graph_num = $_POST['graph_num'];
 	$mode = $_POST['mode'];
         $timeout = $_POST['timeout'];
+        $resolution = $_POST['resolution'];
 
 	//Add or Edit Sensor record to sensors Table
 
         if ($id==0){
-                $query = "INSERT INTO `sensors` (`id`, `sync`, `purge`, `zone_id`, `sensor_id`, `sensor_child_id`, `correction_factor`, `sensor_type_id`, `index_id`, `pre_post`, `name`, `graph_num`, `show_it`, `frost_temp`, `frost_controller`, `mode`, `timeout`) VALUES ('{$id}', '{$sync}', '{$purge}', '0', '{$sensor_id}', '{$sensor_child_id}', '{$correction_factor}', '{$sensor_type_id}', '{$index_id}', '{$pre_post}', '{$name}', '0', '1', '{$frost_temp}', '{$frost_controller}', '{$mode}', '{$timeout}');";
+                $query = "INSERT INTO `sensors` (`id`, `sync`, `purge`, `zone_id`, `sensor_id`, `sensor_child_id`, `correction_factor`, `sensor_type_id`, `index_id`, `pre_post`, `name`, `graph_num`, `show_it`, `frost_temp`, `frost_controller`, `mode`, `timeout`, `resolution`) VALUES ('{$id}', '{$sync}', '{$purge}', '0', '{$sensor_id}', '{$sensor_child_id}', '{$correction_factor}', '{$sensor_type_id}', '{$index_id}', '{$pre_post}', '{$name}', '0', '1', '{$frost_temp}', '{$frost_controller}', '{$mode}', '{$timeout}', '{$resolution}');";
         } else {
-                $query = "UPDATE `sensors` SET `sync` = '{$sync}',`purge` = '{$purge}',`sensor_id` = '{$sensor_id}',`sensor_child_id` = '{$sensor_child_id}',`correction_factor` = '{$correction_factor}',`sensor_type_id` = '{$sensor_type_id}',`index_id` = '{$index_id}',`pre_post` = '{$pre_post}',`name` = '{$name}',`graph_num` = '{$graph_num}',`show_it` = '{$show_it}',`frost_temp` = '{$frost_temp}',`frost_controller` = '{$frost_controller}', `mode` = '{$mode}', `timeout` = '{$timeout}' WHERE `id` = {$id};";
+                $query = "UPDATE `sensors` SET `sync` = '{$sync}',`purge` = '{$purge}',`sensor_id` = '{$sensor_id}',`sensor_child_id` = '{$sensor_child_id}',`correction_factor` = '{$correction_factor}',`sensor_type_id` = '{$sensor_type_id}',`index_id` = '{$index_id}',`pre_post` = '{$pre_post}',`name` = '{$name}',`graph_num` = '{$graph_num}',`show_it` = '{$show_it}',`frost_temp` = '{$frost_temp}',`frost_controller` = '{$frost_controller}', `mode` = '{$mode}', `timeout` = '{$timeout}', `resolution` = '{$resolution}' WHERE `id` = {$id};";
         }
 	$result = $conn->query($query);
         $temp_id = mysqli_insert_id($conn);
@@ -246,7 +247,7 @@ if (isset($_POST['submit'])) {
                                                 </div>
 
                                                 <!-- Timout -->
-                                                <div class="form-group" class="control-label"><label><?php echo $lang['sensor_timeout']; ?></label> <small class="text-muted"><?php echo $lang['sensor_timeout_info'];?></small>
+							<div class="form-group" class="control-label"><label><?php echo $lang['sensor_timeout']; ?></label> <small class="text-muted"><?php echo $lang['sensor_timeout_info'];?></small>
                                                         <select class="form-control input-sm" type="text" id="timeout" name="timeout">
 					                <?php for ($x = 0; $x <=  120; $x = $x + 10) {
                         					echo '<option value="'.$x.'" ' . ($x==$row['timeout'] ? 'selected' : '') . '>'.$x.'</option>';
@@ -258,6 +259,17 @@ if (isset($_POST['submit'])) {
                                                 <!-- Correction Factor -->
                                                 <div class="form-group" class="control-label"><label><?php echo $lang['sensor_correction_factor']; ?></label> <small class="text-muted"><?php echo $lang['sensor_correction_factor_info'];?></small>
                                                         <input class="form-control" placeholder="Temperature Sensor Correction Factor" value="<?php if(isset($row['name'])) { echo $row['correction_factor']; } else { echo '0.00'; } ?>" id="correction_factor" name="correction_factor" data-error="<?php echo $lang['sensor_correction_factor_help']; ?>" autocomplete="off" required>
+                                                        <div class="help-block with-errors"></div>
+                                                </div>
+
+                                                <!-- Resolution -->
+							<div class="form-group" class="control-label"><label><?php echo $lang['sensor_resolution']; ?></label> <small class="text-muted"><?php echo $lang['sensor_resolution_info'];?></small>
+                                                        <select class="form-control input-sm" type="text" id="resolution" name="resolution">
+                                                        <?php for ($x = 0; $x <=  10; $x++) {
+								$y = $x/10;
+                                                                echo '<option value="'.$y.'" ' . ($y==$row['resolution'] ? 'selected' : '') . '>'.$y.'</option>';
+                                                        } ?>
+                                                        </select>
                                                         <div class="help-block with-errors"></div>
                                                 </div>
 

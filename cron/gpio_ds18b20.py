@@ -108,7 +108,7 @@ def insertDB(IDs, temperature):
                 con.commit()
             # Check if this sensor has a correction factor
             cur.execute(
-                "SELECT sensors.mode, sensors.timeout, sensors.correction_factor FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) LIMIT 1;",
+                "SELECT sensors.mode, sensors.timeout, sensors.correction_factor, sensors.resolution FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) LIMIT 1;",
                 [IDs[i]],
             )
             results = cur.fetchone()
@@ -140,7 +140,7 @@ def insertDB(IDs, temperature):
             sensor_timeout = int(results[sensor_to_index["timeout"]])*60
             tdelta = 0
             last_message_payload = 0
-            resolution = 0.1
+            resolution = float(results[sensor_to_index["resolution"]])
             if mode == 1:
                 # Get previous data for this sensorr
                 cur.execute(
