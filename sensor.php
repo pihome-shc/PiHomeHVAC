@@ -278,7 +278,7 @@ if (isset($_POST['submit'])) {
                                                 <!-- Resolution -->
 							<div class="form-group" class="control-label" id="resolution_label" style="display:block"><label><?php echo $lang['sensor_resolution']; ?></label> <small class="text-muted"><?php echo $lang['sensor_resolution_info'];?></small>
                                                         <select id="resolution" name="resolution" class="form-control select2" autocomplete="off">
-                                                        <?php for ($x = 0; $x <=  10; $x++) {
+                                                        <?php for ($x = 0; $x <  10; $x++) {
                                                                 $y = $x/10;
                                                                 echo '<option value="'.$y.'" ' . ($y==$row['resolution'] ? 'selected' : '') . '>'.$y.'</option>';
                                                         } ?>
