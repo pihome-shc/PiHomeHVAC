@@ -38,6 +38,9 @@
 | GND           | Common Ground                                                |
 
 **The sketch uses WiFiManager and WebServer_WT32_ETH01 libraries and requires a change to the file MyGatewayTransportEthernet.cpp.**
+
 **In the Arduino IDE install the ZIP library WebServer_WT32_ETH01.zip**
+
 **Copy the folder WiFiManager to ...\Documents\Arduino\libraries**
+
 **Modify the file ...\Documents\Arduino\libraries\MySensors\core\MyGatewayTransportEthernet.cpp as per the instructions at https://www.pihome.eu/2021/10/06/wifimanager-with-mysensors/**
