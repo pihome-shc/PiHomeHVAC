@@ -50,5 +50,5 @@
 **Modify the file ...\Documents\Arduino\libraries\MySensors\core\MyGatewayTransportEthernet.cpp as per the instructions at https://www.pihome.eu/2021/10/06/wifimanager-with-mysensors/**
 
 **Programing mode:**
-![node2](https://user-images.githubusercontent.com/46624596/165150860-83dca036-2a0b-4fa3-9599-fd0ba9f42fa2.JPG)
+![prog_wt32](https://user-images.githubusercontent.com/46624596/165151005-1c7dc885-25be-42cb-b770-7853ee7b7912.JPG)
 
