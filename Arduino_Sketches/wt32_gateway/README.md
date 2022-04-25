@@ -36,3 +36,20 @@
 | 5V            | 5volt Power Input                                            |
 | 3V3           | 3.3volt Power Out to Radio                                   |
 | GND           | Common Ground                                                |
+
+**Install support for ESP32 boards by using Addional Boards Manager URL: https://dl.espressif.com/dl/package_esp32_index.json and searching for esp32**
+
+**Board type to be selected is 'ESP32 Dev Module'**
+
+**The sketch uses WiFiManager and WebServer_WT32_ETH01 libraries and requires a change to the file MyGatewayTransportEthernet.cpp.**
+
+**In the Arduino IDE install the ZIP library WebServer_WT32_ETH01.zip**
+
+**Copy the folder WiFiManager to ...\Documents\Arduino\libraries**
+
+**Modify the file ...\Documents\Arduino\libraries\MySensors\core\MyGatewayTransportEthernet.cpp as per the instructions at https://www.pihome.eu/2021/10/06/wifimanager-with-mysensors/**
+
+**Programing mode:**
+
+![prog_wt32](https://user-images.githubusercontent.com/46624596/165151005-1c7dc885-25be-42cb-b770-7853ee7b7912.JPG)
+
