@@ -221,7 +221,7 @@ if (isset($_POST['submit'])) {
                         $result = $conn->query($query);
                         $sdtzcount = $result->num_rows;
                         if ($sdtzcount == 0) {
-                                $query = "INSERT INTO `schedule_daily_time_zone`(`id`, `sync`, `purge`, `status`, `schedule_daily_time_id`, `zone_id`, `temperature`, `holidays_id`, `coop`, `disabled`) VALUES ('{$tzid}', '0', '0', '{$status}', '{$schedule_daily_time_id}','{$zoneid}','".number_format($temp,1)."',{$holidays_id},{$coop}, {disabled});";
+                                $query = "INSERT INTO `schedule_daily_time_zone`(`id`, `sync`, `purge`, `status`, `schedule_daily_time_id`, `zone_id`, `temperature`, `holidays_id`, `coop`, `disabled`) VALUES ('{$tzid}', '0', '0', '{$status}', '{$schedule_daily_time_id}','{$zoneid}','".number_format($temp,1)."',{$holidays_id},{$coop}, {$disabled});";
                                 $zoneresults = $conn->query($query);
 
                                 if ($zoneresults) {
