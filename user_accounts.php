@@ -93,9 +93,10 @@ if (isset($_POST['submit'])) {
                 $fullname = $_POST['full_name'];
                 $username = $_POST['user_name'];
                 $email = $_POST['user_email'];
+                $persist = isset($_POST['persist']) ? $_POST['persist'] : "0";
 		$cpdate = $account_date = date("Y-m-d H:i:s");
 		if ((!isset($_POST['old_pass'])) || (empty($_POST['old_pass']))) {
-			$query = "UPDATE user SET account_enable = '{$account_enable}',fullname = '{$fullname}',username = '{$username}',email = '{$email}', account_date = '{$account_date}',admin_account = '{$admin_account}' WHERE id = '{$id}' LIMIT 1";
+			$query = "UPDATE user SET account_enable = '{$account_enable}',fullname = '{$fullname}',username = '{$username}',email = '{$email}', account_date = '{$account_date}',admin_account = '{$admin_account}',persist = '{$persist}' WHERE id = '{$id}' LIMIT 1";
 	                if ($conn->query($query)) {
         	                $message_success = "User account successfully edited!!!";
                 	        header("Refresh: 10; url=home.php");
@@ -153,8 +154,9 @@ if (isset($_POST['submit'])) {
                 $fullname = $_POST['full_name'];
                 $username = $_POST['user_name'];
 		$email = $_POST['user_email'];
+                $persist = isset($_POST['persist']) ? $_POST['persist'] : "0";
 		$cpdate = $account_date = date("Y-m-d H:i:s");
-		$query = "INSERT INTO `user`(`account_enable`, `fullname`, `username`, `email`, `password`, `cpdate`, `account_date`, `admin_account`) VALUES (".$account_enable.",'".$fullname."','".$username."','".$email."','".$password."','".$cpdate."','".$account_date."',".$admin_account.");";
+		$query = "INSERT INTO `user`(`account_enable`, `fullname`, `username`, `email`, `password`, `cpdate`, `account_date`, `admin_account`, `persist`) VALUES (".$account_enable.",'".$fullname."','".$username."','".$email."','".$password."','".$cpdate."','".$account_date."',".$admin_account.",".$persist.");";
                 if ($conn->query($query)) {
                         $message_success = "New User account successfully added!!!";
                         header("Refresh: 10; url=home.php");
@@ -173,6 +175,7 @@ $uname = $row['username'];
 $email = $row['email'];
 $pword = $row['password'];
 $aaccount = $row['admin_account'];
+$persist = $row['persist'];
 ?>
 <?php include("header.php"); ?>
 <?php include_once("notice.php"); ?>
@@ -206,6 +209,13 @@ $aaccount = $row['admin_account'];
                                         		<div class="checkbox checkbox-default checkbox-circle">
 								<input id="checkbox1" class="styled" type="checkbox" name="admin_account" value="1" <?php if($aaccount == 1 && $mode != 2) { echo 'checked'; } ?> <?php if($_SESSION['admin'] == 0) { echo 'disabled'; } ?> >
 								<label for="checkbox1"> <?php echo $lang['admin_account']; ?> </label> <br><small class="text-muted"><?php echo $lang['admin_account_info'];?></small>
+                                                		<div class="help-block with-errors"></div>
+                                        		</div>
+						</div>
+						<div class="col-xs-3">
+                                        		<div class="checkbox checkbox-default checkbox-circle">
+								<input id="checkbox2" class="styled" type="checkbox" name="persist" value="1" <?php if($persist == 1 && $mode != 2) { echo 'checked'; } ?> <?php if($_SESSION['admin'] == 0) { echo 'disabled'; } ?> >
+								<label for="checkbox2"> <?php echo $lang['persist']; ?> </label> <br><small class="text-muted"><?php echo $lang['persist_info'];?></small>
                                                 		<div class="help-block with-errors"></div>
                                         		</div>
 						</div>

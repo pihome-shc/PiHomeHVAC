@@ -33,6 +33,7 @@ The various routines will gater the data required to perform the update, this wi
 */
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
+require_once(__DIR__.'/st_inc/session.php');
 
 if(isset($_GET['id'])) { $id = $_GET['id']; }
 if(isset($_GET['type'])) { $type = $_GET['type']; }
@@ -494,7 +495,7 @@ if ($type <= 5 || $type == 8) {
 	//------------
 	//return time
 	//------------
-        if ($id == 0) { echo date("H:i"); } else { echo '&nbsp;&nbsp;'.date("H:i"); }
+        if ($id == 0) { echo $_SESSION['username'].'&nbsp;&nbsp; - '.date("H:i"); } else { echo '&nbsp;&nbsp;'.$_SESSION['username'].'&nbsp;&nbsp; - '.date("H:i"); }
 } elseif ($type == 14) {
 	//---------------
 	//return weather
