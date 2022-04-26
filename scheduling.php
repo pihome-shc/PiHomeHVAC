@@ -212,7 +212,7 @@ if (isset($_POST['submit'])) {
 				$zoneid = $id;
 			}
 			$status = isset($_POST['status'][$id]) ? $_POST['status'][$id] : "0";
-			if ($status == "0" ) { $disabled = "1"; } else { $disabled = "0"; }
+			if ($status == "0" ) { $disabled = 1; } else { $disabled = 0; }
 			$coop = isset($_POST['coop'][$id]) ? $_POST['coop'][$id] : "0";
 			$temp=SensorToDB($conn,$_POST['temp'][$id],$type);
                         $ftemp = number_format($temp,1);
@@ -221,7 +221,7 @@ if (isset($_POST['submit'])) {
                         $result = $conn->query($query);
                         $sdtzcount = $result->num_rows;
                         if ($sdtzcount == 0) {
-                                $query = "INSERT INTO `schedule_daily_time_zone`(`id`, `sync`, `purge`, `status`, `schedule_daily_time_id`, `zone_id`, `temperature`, `holidays_id`, `coop`, `disabled`) VALUES ('{$tzid}', '0', '0', '{$status}', '{$schedule_daily_time_id}','{$zoneid}','".number_format($temp,1)."',{$holidays_id},{$coop}, '{disabled}');";
+                                $query = "INSERT INTO `schedule_daily_time_zone`(`id`, `sync`, `purge`, `status`, `schedule_daily_time_id`, `zone_id`, `temperature`, `holidays_id`, `coop`, `disabled`) VALUES ('{$tzid}', '0', '0', '{$status}', '{$schedule_daily_time_id}','{$zoneid}','".number_format($temp,1)."',{$holidays_id},{$coop}, {disabled});";
                                 $zoneresults = $conn->query($query);
 
                                 if ($zoneresults) {
@@ -230,7 +230,7 @@ if (isset($_POST['submit'])) {
                                         $error = "<p>".$lang['schedule_daily_time_zone_insert_error']." </p> <p>" .mysqli_error($conn). "</p>"."  schedule_daily_time_id: ".$schedule_daily_time_id."  id: ".$id."  tzid: ".$tzid."  zone id: ".$zoneid."  holid: ".$holidays_id;
                                 }
                         } else {
-                                $query = "UPDATE schedule_daily_time_zone SET sync = '0', status = '{$status}', temperature = '{$ftemp}', coop = '{$coop}', disabled = '{$disabled}' WHERE id = '{$id}';";
+                                $query = "UPDATE schedule_daily_time_zone SET sync = '0', status = '{$status}', temperature = '{$ftemp}', coop = '{$coop}', disabled = {$disabled} WHERE id = '{$id}';";
                                 $zoneresults = $conn->query($query);
 
                                 if ($zoneresults) {
