@@ -249,3 +249,9 @@ if (!checkEmail($email)){
 </body>
 </html>
 <?php if(isset($conn)) { $conn->close();} ?>
+
+<script>
+setInterval(function(){
+  $.post('refresh_session.php');
+},600000); //refreshes the session every 10 minutes
+</script>
