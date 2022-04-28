@@ -44,7 +44,7 @@
 #define SKETCH_VERSION "0.1"
 
 // Enables and select radio type (if attached)
-//#define MY_RADIO_NRF24
+//#define MY_RADIO_RF24
 //#define MY_RADIO_RFM69
 #define MY_RADIO_RFM95
 
@@ -81,15 +81,27 @@
   #define MY_RFM69_CS_PIN 15 // NSS. Use MY_RFM69_SPI_CS for older versions (before 2.2.0)
 #endif
 
-#ifdef MY_RADIO_RFM24
-  //#define MY_RF24_PA_LEVEL RF24_PA_MAX
+#ifdef MY_RADIO_RF24
+  #define MY_RF24_PA_LEVEL RF24_PA_MAX
   //#define MY_DEBUG_VERBOSE_RF24
+  //#define MY_RF24_IRQ_PIN 36
+  //#define MY_RF24_IRQ_NUM digitalPinToInterrupt(MY_RF24_IRQ_PIN)
+  //#define MY_RX_MESSAGE_BUFFER_FEATURE
+  //#define MY_RX_MESSAGE_BUFFER_SIZE 5
+
+  // We have to move CE/CSN pins for NRF radio
+  #ifndef MY_RF24_CE_PIN
+    #define MY_RF24_CE_PIN 4
+  #endif
+  #ifndef MY_RF24_CS_PIN
+    #define MY_RF24_CS_PIN 15
+  #endif
 
   // RF channel for the sensor net, 0-127
   #define MY_RF24_CHANNEL 91
 
   //RF24_250KBPS for 250kbs, RF24_1MBPS for 1Mbps, or RF24_2MBPS for 2Mbps
-  //#define MY_RF24_DATARATE RF24_250KBPS
+  #define MY_RF24_DATARATE RF24_250KBPS
 #endif
 
 //#define MY_ENCRYPTION_SIMPLE_PASSWD "maxair2022"
@@ -136,9 +148,9 @@ IPAddress myDNS(8, 8, 8, 8);
 
 // Flash leds on rx/tx/err
 // Uncomment to override default HW configurations
-#define MY_DEFAULT_ERR_LED_PIN 17  // Error led pin
-#define MY_DEFAULT_RX_LED_PIN  5  // Receive led pin
-#define MY_DEFAULT_TX_LED_PIN  33  // the PCB, on board LED
+#define MY_DEFAULT_ERR_LED_PIN 5  // Error led pin
+#define MY_DEFAULT_RX_LED_PIN  17  // Receive led pin
+#define MY_DEFAULT_TX_LED_PIN  33  // Transmit led pin
 
 #define ETH_ONLY 35 // set LOW using jumper to only work in WIFI mode
 #define CLEAR_EEPROM 39 // set LOW using jumper to clear save WIFI credentials

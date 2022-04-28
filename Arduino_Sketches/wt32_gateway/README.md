@@ -23,11 +23,11 @@
 | IO0           | Program Select Jumper (10K Pullup Resistor to 3V3)           |
 | IO2           | Radio MOSI                                                   |
 | IO4           | Radio CE                                                     |
-| TXD (IO5)     | RX LED                                                       |
+| TXD (IO5)     | ERR LED                                                       |
 | IO12          | Radio MISO                                                   |
 | IO14          | Radio SCK                                                    |
 | IO15          | Radio SS                                                     |
-| RXD (IO17)    | ERR LED                                                      |
+| RXD (IO17)    | RX LED                                                      |
 | CFG (IO32)    | Disable Ethernet Interface Jumper (10K Pullup Resistor to 3V3) |
 | 485_EN (IO33) | TX LED                                                       |
 | IO35          | Disable WiFi Interface Jumper (10K Pullup Resistor to 3V3)   |
