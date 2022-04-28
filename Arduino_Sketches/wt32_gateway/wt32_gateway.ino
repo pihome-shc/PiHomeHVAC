@@ -150,7 +150,7 @@ IPAddress myDNS(8, 8, 8, 8);
 // Uncomment to override default HW configurations
 #define MY_DEFAULT_ERR_LED_PIN 5  // Error led pin
 #define MY_DEFAULT_RX_LED_PIN  17  // Receive led pin
-#define MY_DEFAULT_TX_LED_PIN  33  // the PCB, on board LED
+#define MY_DEFAULT_TX_LED_PIN  33  // Transmit led pin
 
 #define ETH_ONLY 35 // set LOW using jumper to only work in WIFI mode
 #define CLEAR_EEPROM 39 // set LOW using jumper to clear save WIFI credentials
