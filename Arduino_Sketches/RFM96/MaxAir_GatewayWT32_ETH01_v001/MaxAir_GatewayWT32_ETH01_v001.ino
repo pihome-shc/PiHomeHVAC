@@ -44,9 +44,9 @@
 #define SKETCH_VERSION "0.1"
 
 // Enables and select radio type (if attached)
-#define MY_RADIO_RF24
+//#define MY_RADIO_RF24
 //#define MY_RADIO_RFM69
-//#define MY_RADIO_RFM95
+#define MY_RADIO_RFM95
 
 #ifdef MY_RADIO_RFM95
   #define MY_TRANSPORT_STATE_TIMEOUT_MS  (3*1000ul)
