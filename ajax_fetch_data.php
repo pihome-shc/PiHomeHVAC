@@ -495,7 +495,8 @@ if ($type <= 5 || $type == 8) {
 	//------------
 	//return time
 	//------------
-        if ($id == 0) { echo $_SESSION['username'].'&nbsp;&nbsp; - '.date("H:i"); } else { echo '&nbsp;&nbsp;'.$_SESSION['username'].'&nbsp;&nbsp; - '.date("H:i"); }
+        $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Logged Out';
+        if ($id == 0) { echo $username.'&nbsp;&nbsp; - '.date("H:i"); } else { echo '&nbsp;&nbsp;'.$username.'&nbsp;&nbsp; - '.date("H:i"); }
 } elseif ($type == 14) {
 	//---------------
 	//return weather
