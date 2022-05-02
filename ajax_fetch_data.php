@@ -495,7 +495,7 @@ if ($type <= 5 || $type == 8) {
 	//------------
 	//return time
 	//------------
-        $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Logged Out';
+        $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Session Timed Out';
         if ($id == 0) { echo $username.'&nbsp;&nbsp; - '.date("H:i"); } else { echo '&nbsp;&nbsp;'.$username.'&nbsp;&nbsp; - '.date("H:i"); }
 } elseif ($type == 14) {
 	//---------------
