@@ -5,6 +5,9 @@
   // if they are set and refresh them as well
   if (isset($_SESSION['persist'])) {
     if ($_SESSION['persist'] == 1) {
+        $_COOKIE['PHPSESSID'] = $_COOKIE['PHPSESSID'];
+        $_COOKIE['user_login'] =  $_COOKIE['user_login'];
+        $_COOKIE['pass_login'] = $_COOKIE['pass_login'];
         $_SESSION['persist'] = $_SESSION['persist'];
         $_SESSION['user_id'] = $_SESSION['user_id'];
         $_SESSION['username'] = $_SESSION['username'];

@@ -88,15 +88,19 @@ if (isset($_POST['submit'])) {
                 } elseif ((!isset($_POST['user_email'])) || (empty($_POST['user_email']))) {
                         $error_message = $lang['email_empty'];
 		}
-		$account_enable = isset($_POST['account_enable']) ? $_POST['account_enable'] : "0";
-                $admin_account = isset($_POST['admin_account']) ? $_POST['admin_account'] : "0";
+		if($id == $_SESSION['user_id']) {
+                        $account_enable = 1; // editting the logged in account
+		} else {
+			$account_enable = isset($_POST['account_enable']) ? $_POST['account_enable'] : 0;
+		}
+                $admin_account = isset($_POST['admin_account']) ? $_POST['admin_account'] : 0;
                 $fullname = $_POST['full_name'];
                 $username = $_POST['user_name'];
                 $email = $_POST['user_email'];
-                $persist = isset($_POST['persist']) ? $_POST['persist'] : "0";
+                $persist = isset($_POST['persist']) ? $_POST['persist'] : 0;
 		$cpdate = $account_date = date("Y-m-d H:i:s");
 		if ((!isset($_POST['old_pass'])) || (empty($_POST['old_pass']))) {
-			$query = "UPDATE user SET account_enable = '{$account_enable}',fullname = '{$fullname}',username = '{$username}',email = '{$email}', account_date = '{$account_date}',admin_account = '{$admin_account}',persist = '{$persist}' WHERE id = '{$id}' LIMIT 1";
+			$query = "UPDATE user SET account_enable = {$account_enable},fullname = '{$fullname}',username = '{$username}',email = '{$email}', account_date = '{$account_date}',admin_account = {$admin_account},persist = {$persist} WHERE id = '{$id}' LIMIT 1";
 	                if ($conn->query($query)) {
         	                $message_success = "User account successfully edited!!!";
                 	        header("Refresh: 10; url=home.php");
@@ -123,7 +127,7 @@ if (isset($_POST['submit'])) {
         	                $error_message = 'Your Old Password is Incorrect!';
                 	} else {
                         	if ( !isset($error_message) && ($new_pass == $con_pass)) {
-                        		$query = "UPDATE user SET account_enable = '{$account_enable}',fullname = '{$fullname}',username = '{$username}',email = '{$email}', password = '{$new_pass}', cpdate = '{$cpdate}', account_date = '{$account_date}', admin_account = '{$admin_account}' WHERE id = '{$id}' LIMIT 1";
+                        		$query = "UPDATE user SET account_enable = {$account_enable},fullname = '{$fullname}',username = '{$username}',email = '{$email}', password = '{$new_pass}', cpdate = '{$cpdate}', account_date = '{$account_date}', admin_account = {$admin_account} WHERE id = '{$id}' LIMIT 1";
         	                        if ($conn->query($query)) {
                 	                        $message_success = "User account and Password successfully edited!!!";
                         	                header("Refresh: 10; url=home.php");
@@ -148,8 +152,8 @@ if (isset($_POST['submit'])) {
                 } elseif($_POST['new_pass'] != $_POST['con_pass']) {
                         $error_message = $lang['conf_password_error2'];
                 }
-		$account_enable = isset($_POST['account_enable']) ? $_POST['account_enable'] : "0";
-                $admin_account = isset($_POST['admin_account']) ? $_POST['admin_account'] : "0";
+		$account_enable = isset($_POST['account_enable']) ? $_POST['account_enable'] : 0;
+                $admin_account = isset($_POST['admin_account']) ? $_POST['admin_account'] : 0;
 		$password = mysqli_real_escape_string($conn,(md5($_POST['new_pass'])));
                 $fullname = $_POST['full_name'];
                 $username = $_POST['user_name'];
