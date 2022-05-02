@@ -152,8 +152,8 @@ if (isset($_POST['submit'])) {
                 } elseif($_POST['new_pass'] != $_POST['con_pass']) {
                         $error_message = $lang['conf_password_error2'];
                 }
-		$account_enable = isset($_POST['account_enable']) ? $_POST['account_enable'] : "0";
-                $admin_account = isset($_POST['admin_account']) ? $_POST['admin_account'] : "0";
+		$account_enable = isset($_POST['account_enable']) ? $_POST['account_enable'] : 0;
+                $admin_account = isset($_POST['admin_account']) ? $_POST['admin_account'] : 0;
 		$password = mysqli_real_escape_string($conn,(md5($_POST['new_pass'])));
                 $fullname = $_POST['full_name'];
                 $username = $_POST['user_name'];
