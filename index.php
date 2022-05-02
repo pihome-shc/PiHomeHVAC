@@ -124,7 +124,7 @@ if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
 				}
 				//$_SESSION['url'] = $_SERVER['REQUEST_URI']; // i.e. "about.php"
 				$lastlogin= date("Y-m-d H:i:s");
-				$query = "UPDATE user SET lastlogin = '{$lastlogin}' WHERE username = '{$username}' LIMIT 1";
+				$query = "UPDATE userhistory SET lastlogin = '{$lastlogin}' WHERE username = '{$username}' LIMIT 1";
 				$result = $conn->query($query);
 				// redirect to home page after successfull login
 				//redirect_to('home.php');
