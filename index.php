@@ -85,6 +85,27 @@ if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
 }
 //$wifi_connected = 0;
  // start process if data is passed from url  http://192.168.99.9/index.php?user=username&pass=password
+if(isset($_COOKIE["maxair_login"])) $s_id = password_hash($_COOKIE["maxair_login"], PASSWORD_DEFAULT); else $s_id="";
+if ($s_id != "") {
+        $query = "SELECT username FROM userhistory WHERE s_id = '{$s_id}' LIMIT 1;";
+        $result = $conn->query($query);
+        if (mysqli_num_rows($result) == 1) {
+		$row =  mysqli_fetch_array($result);
+		$query = "SELECT id, username, admin_account, persist FROM user WHERE username = '{$row['username']}' AND persist = 1 LIMIT 1;";
+	        $result_set = $conn->query($query);
+        	if (mysqli_num_rows($result_set) == 1) {
+        		// username/password authenticated
+	                $found_user = mysqli_fetch_array($result_set);
+        	        // Set username session variable
+                	$_SESSION['user_id'] = $found_user['id'];
+	                $_SESSION['username'] = $found_user['username'];
+        	        $_SESSION['admin'] = $found_user['admin_account'];
+                	$_SESSION['persist'] = $found_user['persist'];
+			header('Location:home.php');
+		}
+	}
+}
+
     if(($no_ap == 0 || $wifi_connected == 1 || $eth_connected == 1 || $ap_mode == 1) && isset($_GET['user']) && isset($_GET['password'])) {
 		$username = $_GET['user'];
 		$password = $_GET['password'];
@@ -180,6 +201,7 @@ if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
 					if(!empty($_POST["remember"])) {
 						setcookie ("user_login",$_POST["username"],time()+ (10 * 365 * 24 * 60 * 60));
 						setcookie ("pass_login",$_POST["password"],time()+ (10 * 365 * 24 * 60 * 60));
+                                                setcookie ("maxair_login",session_id(),time()+ (10 * 365 * 24 * 60 * 60));
 					} else {
 						if(isset($_COOKIE["user_login"])) {
 							// set the expiration date to one hour ago
@@ -189,7 +211,8 @@ if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
 					}
 
 					// add entry to database if login is success
-					$query = "INSERT INTO userhistory(username, password, date, audit, ipaddress) VALUES ('{$username}', '{$password}', '{$lastlogin}', 'Successful', '{$ip}')";
+					$s_id = password_hash(session_id(), PASSWORD_DEFAULT);
+					$query = "INSERT INTO userhistory(username, password, date, audit, ipaddress, s_id) VALUES ('{$username}', '{$password}', '{$lastlogin}', 'Successful', '{$ip}', '{$s_id}')";
 					$conn->query($query);
 					// Set Language cookie if doesn't exist
 					if(!isset($_COOKIE['PiHomeLanguage'])) {
