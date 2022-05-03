@@ -85,25 +85,29 @@ if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
 }
 //$wifi_connected = 0;
  // start process if data is passed from url  http://192.168.99.9/index.php?user=username&pass=password
-if(isset($_COOKIE["maxair_login"])) $s_id = password_hash($_COOKIE["maxair_login"], PASSWORD_DEFAULT); else $s_id="";
+if(isset($_COOKIE["maxair_login"])) $s_id = $_COOKIE["maxair_login"]; else $s_id="";
 if ($s_id != "") {
-        $query = "SELECT username FROM userhistory WHERE s_id = '{$s_id}' LIMIT 1;";
-        $result = $conn->query($query);
-        if (mysqli_num_rows($result) == 1) {
-		$row =  mysqli_fetch_array($result);
-		$query = "SELECT id, username, admin_account, persist FROM user WHERE username = '{$row['username']}' AND persist = 1 LIMIT 1;";
-	        $result_set = $conn->query($query);
-        	if (mysqli_num_rows($result_set) == 1) {
-        		// username/password authenticated
-	                $found_user = mysqli_fetch_array($result_set);
-        	        // Set username session variable
-                	$_SESSION['user_id'] = $found_user['id'];
-	                $_SESSION['username'] = $found_user['username'];
-        	        $_SESSION['admin'] = $found_user['admin_account'];
-                	$_SESSION['persist'] = $found_user['persist'];
-			header('Location:home.php');
-		}
-	}
+        $query = "SELECT username, s_id FROM userhistory ORDER BY id DESC;";
+        $results = $conn->query($query);
+        if (mysqli_num_rows($results) > 0) {
+                while ($row = mysqli_fetch_assoc($results)) {
+                        if (password_verify($s_id, $row['s_id'])) {
+                                $query = "SELECT id, username, admin_account, persist FROM user WHERE username = '{$row['username']}' AND persist = 1 LIMIT 1;";
+                                $result_set = $conn->query($query);
+                                if (mysqli_num_rows($result_set) == 1) {
+                                        // username/password authenticated
+                                        $found_user = mysqli_fetch_array($result_set);
+                                        // Set username session variable
+                                        $_SESSION['user_id'] = $found_user['id'];
+                                        $_SESSION['username'] = $found_user['username'];
+                                        $_SESSION['admin'] = $found_user['admin_account'];
+                                        $_SESSION['persist'] = $found_user['persist'];
+                                        header('Location:home.php');
+                                        exit;
+                                }
+                        }
+                }
+        }
 }
 
     if(($no_ap == 0 || $wifi_connected == 1 || $eth_connected == 1 || $ap_mode == 1) && isset($_GET['user']) && isset($_GET['password'])) {
