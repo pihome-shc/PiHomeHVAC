@@ -84,46 +84,113 @@ if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
 	$no_ap = 0;
 }
 //$wifi_connected = 0;
- // start process if data is passed from url  http://192.168.99.9/index.php?user=username&pass=password
+// start process if data is passed from url  http://192.168.99.9/index.php?user=username&pass=password
+// check session id cookie exists
 if(isset($_COOKIE["maxair_login"])) $s_id = $_COOKIE["maxair_login"]; else $s_id="";
 if ($s_id != "") {
+	// check if a user has logged on with this session id
         $query = "SELECT username, s_id FROM userhistory ORDER BY id DESC;";
         $results = $conn->query($query);
         if (mysqli_num_rows($results) > 0) {
-                while ($row = mysqli_fetch_assoc($results)) {
-                        if (password_verify($s_id, $row['s_id'])) {
-                                $query = "SELECT id, username, admin_account, persist FROM user WHERE username = '{$row['username']}' AND persist = 1 LIMIT 1;";
-                                $result_set = $conn->query($query);
-                                if (mysqli_num_rows($result_set) == 1) {
-                                        // username/password authenticated
-                                        $found_user = mysqli_fetch_array($result_set);
-                                        // Set username session variable
-                                        $_SESSION['user_id'] = $found_user['id'];
-                                        $_SESSION['username'] = $found_user['username'];
-                                        $_SESSION['admin'] = $found_user['admin_account'];
-                                        $_SESSION['persist'] = $found_user['persist'];
-                                        header('Location:home.php');
-                                        exit;
-                                }
-                        }
-                }
-        }
+	        while ($row = mysqli_fetch_assoc($results)) {
+			if (password_verify($s_id, $row['s_id'])) { // check if this session exists in the userhistory table
+				$query = "SELECT id, username, admin_account, persist FROM user WHERE username = '{$row['username']}' AND persist = 1 LIMIT 1;";
+			        $result_set = $conn->query($query);
+        			if (mysqli_num_rows($result_set) == 1) {
+        				// user account found, restore session
+		                	$found_user = mysqli_fetch_array($result_set);
+	        		        // Set session variables
+        	        		$_SESSION['user_id'] = $found_user['id'];
+	        	        	$_SESSION['username'] = $found_user['username'];
+	        		        $_SESSION['admin'] = $found_user['admin_account'];
+        	        		$_SESSION['persist'] = $found_user['persist'];
+					header('Location:home.php');
+					exit;
+				}
+			}
+		}
+	}
 }
 
-    if(($no_ap == 0 || $wifi_connected == 1 || $eth_connected == 1 || $ap_mode == 1) && isset($_GET['user']) && isset($_GET['password'])) {
-		$username = $_GET['user'];
-		$password = $_GET['password'];
-		// perform validations on the form data
-		if( (((!isset($_GET['user'])) || (empty($_GET['user']))) && (((!isset($_GET['password'])) || (empty($_GET['password'])))) )){
+if(($no_ap == 0 || $wifi_connected == 1 || $eth_connected == 1 || $ap_mode == 1) && isset($_GET['user']) && isset($_GET['password'])) {
+	$username = $_GET['user'];
+	$password = $_GET['password'];
+	// perform validations on the form data
+	if( (((!isset($_GET['user'])) || (empty($_GET['user']))) && (((!isset($_GET['password'])) || (empty($_GET['password'])))) )){
+		$error_message = $lang['user_pass_empty'];
+	} elseif ((!isset($_GET['user'])) || (empty($_GET['user']))) {
+		$error_message = $lang['user_empty'];
+	} elseif((!isset($_GET['password'])) || (empty($_GET['password']))) {
+		$error_message = $lang['pass_empty'];
+	}
+
+	$username = mysqli_real_escape_string($conn, $_POST['user']);
+	$password = mysqli_real_escape_string($conn,(md5($_POST['password'])));
+	if ( !isset($error_message) ) {
+		// Check database to see if username and the hashed password exist there.
+		$query = "SELECT id, username, admin_account, persist FROM user WHERE username = '{$username}' AND password = '{$password}' AND account_enable = 1 LIMIT 1;";
+		$result_set = $conn->query($query);
+		if (mysqli_num_rows($result_set) == 1) {
+			// username/password authenticated
+			$found_user = mysqli_fetch_array($result_set);
+			// Set username session variable
+			$_SESSION['user_id'] = $found_user['id'];
+			$_SESSION['username'] = $found_user['username'];
+                        $_SESSION['admin'] = $found_user['admin_account'];
+                        $_SESSION['persist'] = $found_user['persist'];
+
+			if(!empty($_POST["remember"])) {
+				setcookie ("user_login",$_POST["username"],time()+ (10 * 365 * 24 * 60 * 60));
+				setcookie ("pass_login",$_POST["password"],time()+ (10 * 365 * 24 * 60 * 60));
+			} else {
+				if(isset($_COOKIE["user_login"])) {
+					// set the expiration date to one hour ago
+					setcookie("user_login", "", time() - 3600);
+					setcookie("pass_login", "", time() - 3600);
+				}
+			}
+			//$_SESSION['url'] = $_SERVER['REQUEST_URI']; // i.e. "about.php"
+			$lastlogin= date("Y-m-d H:i:s");
+			$query = "UPDATE userhistory SET lastlogin = '{$lastlogin}' WHERE username = '{$username}' LIMIT 1";
+			$result = $conn->query($query);
+			// redirect to home page after successfull login
+			//redirect_to('home.php');
+			if(isset($_SESSION['url'])) {
+				$url = $_SESSION['url']; // holds url for last page visited.
+			}else {
+				$url = "index.php"; // default page for
+			}
+		redirect_to($url);
+		}
+	}
+}
+
+if (isset($_POST['submit'])) {
+	if ($no_ap == 0 || $wifi_connected == 1 || $eth_connected == 1 || $ap_mode == 1) {
+		if( (((!isset($_POST['username'])) || (empty($_POST['username']))) && (((!isset($_POST['password'])) || (empty($_POST['password'])))) )){
 			$error_message = $lang['user_pass_empty'];
-		} elseif ((!isset($_GET['user'])) || (empty($_GET['user']))) {
+		} elseif ((!isset($_POST['username'])) || (empty($_POST['username']))) {
 			$error_message = $lang['user_empty'];
-		} elseif((!isset($_GET['password'])) || (empty($_GET['password']))) {
+		} elseif((!isset($_POST['password'])) || (empty($_POST['password']))) {
 			$error_message = $lang['pass_empty'];
 		}
 
-		$username = mysqli_real_escape_string($conn, $_POST['user']);
+		$username = mysqli_real_escape_string($conn, $_POST['username']);
 		$password = mysqli_real_escape_string($conn,(md5($_POST['password'])));
+
+		//get client ip address
+		if (!empty($_SERVER["HTTP_CLIENT_IP"])){
+			//check for ip from share internet
+			$ip = $_SERVER["HTTP_CLIENT_IP"];
+		}elseif (!empty($_SERVER["HTTP_X_FORWARDED_FOR"])){
+			// Check for the Proxy User
+			$ip = $_SERVER["HTTP_X_FORWARDED_FOR"];
+		}else{
+			$ip = $_SERVER["REMOTE_ADDR"];
+		}
+		//set date and time
+		$lastlogin= date("Y-m-d H:i:s");
+
 		if ( !isset($error_message) ) {
 			// Check database to see if username and the hashed password exist there.
 			$query = "SELECT id, username, admin_account, persist FROM user WHERE username = '{$username}' AND password = '{$password}' AND account_enable = 1 LIMIT 1;";
@@ -133,13 +200,14 @@ if ($s_id != "") {
 				$found_user = mysqli_fetch_array($result_set);
 				// Set username session variable
 				$_SESSION['user_id'] = $found_user['id'];
-				$_SESSION['username'] = $found_user['username'];
-                                $_SESSION['admin'] = $found_user['admin_account'];
-                                $_SESSION['persist'] = $found_user['persist'];
+       				$_SESSION['username'] = $found_user['username'];
+                               	$_SESSION['admin'] = $found_user['admin_account'];
+                               	$_SESSION['persist'] = $found_user['persist'];
 
 				if(!empty($_POST["remember"])) {
 					setcookie ("user_login",$_POST["username"],time()+ (10 * 365 * 24 * 60 * 60));
 					setcookie ("pass_login",$_POST["password"],time()+ (10 * 365 * 24 * 60 * 60));
+                                        setcookie ("maxair_login",session_id(),time()+ (10 * 365 * 24 * 60 * 60));
 				} else {
 					if(isset($_COOKIE["user_login"])) {
 						// set the expiration date to one hour ago
@@ -147,180 +215,113 @@ if ($s_id != "") {
 						setcookie("pass_login", "", time() - 3600);
 					}
 				}
-				//$_SESSION['url'] = $_SERVER['REQUEST_URI']; // i.e. "about.php"
-				$lastlogin= date("Y-m-d H:i:s");
-				$query = "UPDATE userhistory SET lastlogin = '{$lastlogin}' WHERE username = '{$username}' LIMIT 1";
-				$result = $conn->query($query);
-				// redirect to home page after successfull login
-				//redirect_to('home.php');
+
+				// add entry to database if login is success
+				$s_id = password_hash(session_id(), PASSWORD_DEFAULT);
+				$query = "INSERT INTO userhistory(username, password, date, audit, ipaddress, s_id) VALUES ('{$username}', '{$password}', '{$lastlogin}', 'Successful', '{$ip}', '{$s_id}')";
+				$conn->query($query);
+				// Set Language cookie if doesn't exist
+				if(!isset($_COOKIE['PiHomeLanguage'])) {
+					$query = "SELECT language FROM system;";
+					$result = $conn->query($query);
+					$row = mysqli_fetch_assoc($result);
+					if (mysqli_num_rows($result) == 1) {
+						$lang = $row['language'];
+						setcookie("PiHomeLanguage", $lang, time()+(3600*24*90));
+						header("Location: " . $_SERVER['HTTP_REFERER']);
+					}
+				}
+
+        			// Jump to secured page
 				if(isset($_SESSION['url'])) {
 					$url = $_SESSION['url']; // holds url for last page visited.
 				}else {
 					$url = "index.php"; // default page for
 				}
-			redirect_to($url);
+				redirect_to($url);
+			} else {
+				// add entry to database if login is success
+				$query = "INSERT INTO userhistory(username, password, date, audit, ipaddress) VALUES ('{$username}', '{$password}', '{$lastlogin}', 'Failed', '{$ip}')";
+				$result = $conn->query($query);
+				// username/password was not found in the database
+				$error_message = $lang['user_pass_error'];
 			}
 		}
-	}
+	} else {
+		if(empty($_POST["ap_mode"])) { //set the ssid and password if not working in AP mode
+                        if( (((!isset($_POST['ssid'])) || (empty($_POST['ssid']))) && (((!isset($_POST['password'])) || (empty($_POST['password'])))) )){
+       	                        $error_message = $lang['ssid_pass_empty'];
+               	        } elseif ((!isset($_POST['ssid'])) || (empty($_POST['ssid']))) {
+                       	        $error_message = $lang['ssid_empty'];
+                        } elseif((!isset($_POST['password'])) || (empty($_POST['password']))) {
+       	                        $error_message = $lang['pass_empty'];
+               	        }
+			$ssid = mysqli_real_escape_string($conn, $_POST['ssid']);
+                        $password = mysqli_real_escape_string($conn, $_POST['password']);
 
-	if (isset($_POST['submit'])) {
-		if ($no_ap == 0 || $wifi_connected == 1 || $eth_connected == 1 || $ap_mode == 1) {
-			if( (((!isset($_POST['username'])) || (empty($_POST['username']))) && (((!isset($_POST['password'])) || (empty($_POST['password'])))) )){
-				$error_message = $lang['user_pass_empty'];
-			} elseif ((!isset($_POST['username'])) || (empty($_POST['username']))) {
-				$error_message = $lang['user_empty'];
-			} elseif((!isset($_POST['password'])) || (empty($_POST['password']))) {
-				$error_message = $lang['pass_empty'];
-			}
-
-			$username = mysqli_real_escape_string($conn, $_POST['username']);
-			$password = mysqli_real_escape_string($conn,(md5($_POST['password'])));
-
-			//get client ip address
-			if (!empty($_SERVER["HTTP_CLIENT_IP"])){
-				//check for ip from share internet
-				$ip = $_SERVER["HTTP_CLIENT_IP"];
-			}elseif (!empty($_SERVER["HTTP_X_FORWARDED_FOR"])){
-				// Check for the Proxy User
-				$ip = $_SERVER["HTTP_X_FORWARDED_FOR"];
-			}else{
-				$ip = $_SERVER["REMOTE_ADDR"];
-			}
-			//set date and time
-			$lastlogin= date("Y-m-d H:i:s");
-
-			if ( !isset($error_message) ) {
-				// Check database to see if username and the hashed password exist there.
-				$query = "SELECT id, username, admin_account, persist FROM user WHERE username = '{$username}' AND password = '{$password}' AND account_enable = 1 LIMIT 1;";
-				$result_set = $conn->query($query);
-				if (mysqli_num_rows($result_set) == 1) {
-					// username/password authenticated
-					$found_user = mysqli_fetch_array($result_set);
-					// Set username session variable
-					$_SESSION['user_id'] = $found_user['id'];
-        				$_SESSION['username'] = $found_user['username'];
-                                	$_SESSION['admin'] = $found_user['admin_account'];
-                                	$_SESSION['persist'] = $found_user['persist'];
-
-					if(!empty($_POST["remember"])) {
-						setcookie ("user_login",$_POST["username"],time()+ (10 * 365 * 24 * 60 * 60));
-						setcookie ("pass_login",$_POST["password"],time()+ (10 * 365 * 24 * 60 * 60));
-                                                setcookie ("maxair_login",session_id(),time()+ (10 * 365 * 24 * 60 * 60));
-					} else {
-						if(isset($_COOKIE["user_login"])) {
-							// set the expiration date to one hour ago
-							setcookie("user_login", "", time() - 3600);
-							setcookie("pass_login", "", time() - 3600);
-						}
-					}
-
-					// add entry to database if login is success
-					$s_id = password_hash(session_id(), PASSWORD_DEFAULT);
-					$query = "INSERT INTO userhistory(username, password, date, audit, ipaddress, s_id) VALUES ('{$username}', '{$password}', '{$lastlogin}', 'Successful', '{$ip}', '{$s_id}')";
-					$conn->query($query);
-					// Set Language cookie if doesn't exist
-					if(!isset($_COOKIE['PiHomeLanguage'])) {
-						$query = "SELECT language FROM system;";
-						$result = $conn->query($query);
-						$row = mysqli_fetch_assoc($result);
-						if (mysqli_num_rows($result) == 1) {
-							$lang = $row['language'];
-							setcookie("PiHomeLanguage", $lang, time()+(3600*24*90));
-							header("Location: " . $_SERVER['HTTP_REFERER']);
-						}
-					}
-
-        			// Jump to secured page
-					if(isset($_SESSION['url'])) {
-						$url = $_SESSION['url']; // holds url for last page visited.
-					}else {
-						$url = "index.php"; // default page for
-					}
-					redirect_to($url);
-				} else {
-					// add entry to database if login is success
-					$query = "INSERT INTO userhistory(username, password, date, audit, ipaddress) VALUES ('{$username}', '{$password}', '{$lastlogin}', 'Failed', '{$ip}')";
-					$result = $conn->query($query);
-					// username/password was not found in the database
-					$error_message = $lang['user_pass_error'];
+			if ($network_manager == 0) { //not using NetworkManager
+				$wpa_conf='/etc/wpa_supplicant/wpa_supplicant.conf';
+				exec("sudo cat ".$wpa_conf.">myfile1.tmp");
+				$reading = fopen('myfile1.tmp', 'r');
+				$writing = fopen('myfile2.tmp', 'w');
+    				$replaced = false;
+    				while (!feof($reading)) {
+					$line = fgets($reading);
+					if (stristr($line,'ssid="')) {
+       						$line = '    ssid="'.$ssid.'"';
+       						$line = $line."\n";
+        					$replaced = true;
+      					}
+       	        	                if (stristr($line,'psk="')) {
+               	        	                $line = '    psk="'.$password.'"';
+                       	        	        $line = $line."\n";
+                               	        	$replaced = true;
+                                	}
+      					fputs($writing, $line);
 				}
+				fclose($reading); fclose($writing);
+    				// might as well not overwrite the file if we didn't replace anything
+				if ($replaced) {
+					exec("sudo mv myfile2.tmp ".$wpa_conf);
+					exec("sudo rm myfile*.tmp");
+    				} else {
+      					exec("rm myfile*.tmp");
+				}
+        			exec("sudo reboot");
+			} else { //using NetworkManager
+				$profile = "/var/www/add_on/Autohotspot/profile.txt";
+				$writing = fopen($profile, "w");
+				$line = $ssid."\n".$password."\n";
+				fputs($writing, $line);
+				fclose($writing);
+				exec("sudo reboot");
 			}
 		} else {
-			if(empty($_POST["ap_mode"])) { //set the ssid and password if not working in AP mode
-	                        if( (((!isset($_POST['ssid'])) || (empty($_POST['ssid']))) && (((!isset($_POST['password'])) || (empty($_POST['password'])))) )){
-        	                        $error_message = $lang['ssid_pass_empty'];
-                	        } elseif ((!isset($_POST['ssid'])) || (empty($_POST['ssid']))) {
-                        	        $error_message = $lang['ssid_empty'];
-	                        } elseif((!isset($_POST['password'])) || (empty($_POST['password']))) {
-        	                        $error_message = $lang['pass_empty'];
-                	        }
-				$ssid = mysqli_real_escape_string($conn, $_POST['ssid']);
-	                        $password = mysqli_real_escape_string($conn, $_POST['password']);
-
-				if ($network_manager == 0) { //not using NetworkManager
-					$wpa_conf='/etc/wpa_supplicant/wpa_supplicant.conf';
-					exec("sudo cat ".$wpa_conf.">myfile1.tmp");
-    					$reading = fopen('myfile1.tmp', 'r');
-    					$writing = fopen('myfile2.tmp', 'w');
-	    				$replaced = false;
-	    				while (!feof($reading)) {
-      						$line = fgets($reading);
-      						if (stristr($line,'ssid="')) {
-        						$line = '    ssid="'.$ssid.'"';
-        						$line = $line."\n";
-	        					$replaced = true;
-	      					}
-        	        	                if (stristr($line,'psk="')) {
-                	        	                $line = '    psk="'.$password.'"';
-                        	        	        $line = $line."\n";
-                                	        	$replaced = true;
-	                                	}
-	      					fputs($writing, $line);
-    					}
-    					fclose($reading); fclose($writing);
-	    				// might as well not overwrite the file if we didn't replace anything
-    					if ($replaced)
-    						{
-      							exec("sudo mv myfile2.tmp ".$wpa_conf);
-							exec("sudo rm myfile*.tmp");
-    						} else {
-      							exec("rm myfile*.tmp");
-	    					}
-        				exec("sudo reboot");
-				} else { //using NetworkManager
-					$profile = "/var/www/add_on/Autohotspot/profile.txt";
-					$writing = fopen($profile, "w");
-					$line = $ssid."\n".$password."\n";
-					fputs($writing, $line);
-					fclose($writing);
-					exec("sudo reboot");
+			//working in Ap mode set the ap_mode flag in the network settings table
+			$query = "SELECT ap_mode FROM network_settings WHERE interface_type = 'wlan0';";
+			$result_set = $conn->query($query);
+			if (mysqli_num_rows($result_set) == 1) {
+        			$found = mysqli_fetch_array($result_set);
+	       			if ($found['ap_mode'] == 0) {
+					$query = "UPDATE network_settings SET ap_mode = 1 WHERE interface_type = 'wlan0';";
+	       	                        $result = $conn->query($query);
 				}
 			} else {
-				//working in Ap mode set the ap_mode flag in the network settings table
-				$query = "SELECT ap_mode FROM network_settings WHERE interface_type = 'wlan0';";
-				$result_set = $conn->query($query);
-				if (mysqli_num_rows($result_set) == 1) {
-        				$found = mysqli_fetch_array($result_set);
-	        			if ($found['ap_mode'] == 0) {
-						$query = "UPDATE network_settings SET ap_mode = 1 WHERE interface_type = 'wlan0';";
-	        	                        $result = $conn->query($query);
-					}
-				} else {
-                                        $query = "SELECT MAX( interface_num ) AS max_interface_num FROM `network_settings`;";
-                                        $result = $conn->query($query);
-                                        $row = mysqli_fetch_array($result);
-                                        $max_interface_num = $row['max_interface_num'] + 1;
-                                        $query = "INSERT INTO `network_settings`(`sync`, `purge`, `primary_interface`, `ap_mode`, `interface_num`, `interface_type`, `mac_address`, `hostname`, `ip_address`, `gateway_address`, `net_mask`, `dns1_address`, `dns2_address`) VALUES ('0', '0', '0', '1', '{$max_interface_num}', 'wlan0', '', '', '', '', '', '', '');";
-                                        $result = $conn->query($query);
-				}
-				redirect_to('index.php');
+                                $query = "SELECT MAX( interface_num ) AS max_interface_num FROM `network_settings`;";
+                                $result = $conn->query($query);
+                                $row = mysqli_fetch_array($result);
+                                $max_interface_num = $row['max_interface_num'] + 1;
+                                $query = "INSERT INTO `network_settings`(`sync`, `purge`, `primary_interface`, `ap_mode`, `interface_num`, `interface_type`, `mac_address`, `hostname`, `ip_address`, `gateway_address`, `net_mask`, `dns1_address`, `dns2_address`) VALUES ('0', '0', '0', '1', '{$max_interface_num}', 'wlan0', '', '', '', '', '', '', '');";
+                                $result = $conn->query($query);
 			}
-		}
-	} else { // Form has not been submitted.
-		if (isset($_GET['logout']) && $_GET['logout'] == 1) {
-			$info_message = $lang['user_logout'];
+			redirect_to('index.php');
 		}
 	}
+} else { // Form has not been submitted.
+	if (isset($_GET['logout']) && $_GET['logout'] == 1) {
+		$info_message = $lang['user_logout'];
+	}
+}
 ?>
 
 <!DOCTYPE html>
