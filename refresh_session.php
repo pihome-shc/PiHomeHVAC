@@ -24,7 +24,7 @@ if (isset($user_row['persist'])) {
                 $_SESSION['persist'] = $user_row['persist'];
                 $_SESSION['user_id'] = $user_row['id'];
                 $_SESSION['username'] = $user_row['username'];
-                $_SESSION['admin'] = $user_row['admin'];
+                $_SESSION['admin'] = $user_row['admin_account'];
         } else {
                 $query = "UPDATE userhistory SET logged_out = NOW() WHERE id = {$row['id']};";
                 $conn->query($query);
