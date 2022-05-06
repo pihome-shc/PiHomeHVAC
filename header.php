@@ -258,19 +258,24 @@ $rval = getDir('/var/www/code_updates');
                                 <h4 class="modal-title"><?php echo $lang['github_update']; ?></h4>
                         </div>
                         <div class="modal-body">
-                                <p><?php echo $lang['github_update_info']; ?></p>
-                                <ul class="list-group">
                                 <?php
-                                $rval = getDir('/var/www/code_updates');
-                                foreach($rval as $key => $value) {
-                                        echo '<li class="list-group-item" style="height: 25px; border: none">'.$value.'</li>';
-                                }
-                                ?>
+                                if (scan_dir('/var/www/database_updates')) {
+					echo '<p>'.$lang['pending_database_updates'].'</p>';
+                                } else {
+                                        echo '<p>'.$lang['github_update_info'].'</p>';
+                                        echo '<ul class="list-group">';
+                                        $rval = getDir('/var/www/code_updates');
+                                        foreach($rval as $key => $value) {
+                                                echo '<li class="list-group-item" style="height: 25px; border: none">'.$value.'</li>';
+                                        }
+                                } ?>
                                 </ul>
                         </div>
                         <!-- /.modal-body -->
                         <div class="modal-footer">
-                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#confirm_update_Modal"><?php echo $lang['update_code']; ?></button>
+                                <?php if (!scan_dir('/var/www/database_updates')) {
+	                                echo '<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#confirm_update_Modal">'.$lang['update_code'].'</button>';
+				} ?>
                                 <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal"><?php echo $lang['close']; ?></button>
                         </div>
                         <!-- /.modal-footer -->
@@ -420,3 +425,4 @@ echo '<a href="weather.php" class="list-group-item"><img border="0" width="28" h
     </div>
 </div>
 </div>
+
