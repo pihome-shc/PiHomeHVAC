@@ -881,4 +881,5 @@ $lang['sensor_resolution'] = "Sensor Resolution";
 $lang['sensor_resolution_info'] = "Resolution between +/- 0.0 to 1.0"; 
 $lang['persist'] = "Persistent Session";
 $lang['persist_info'] = "Session does not timeout after 24 minutes.";
+$lang['pending_database_updates'] = "Database Updates are Pending, Please Apply these Before Code Updates.";
 ?>
