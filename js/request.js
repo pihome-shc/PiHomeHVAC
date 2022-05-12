@@ -61,7 +61,7 @@ function active_schedule(wid){
 //activate and deactivate schedule 
 function schedule_zone(wid){
 	var quest = "?w=schedule_zone&o=active&wid=" + wid + "&frost_temp=0";
-	request('db.php', 'GET', quest, function(){ $('#homelist').load('homelist.php'); } );
+        request('db.php', 'GET', quest, function(){ $(`#sdtz_` + wid).load("ajax_fetch_data.php?id=" + wid + "&type=20").fadeIn("slow"); } );
 }
 
 //delete schedule 
