@@ -1408,9 +1408,9 @@ function GetModal_Schedule_List($conn)
 						//this line to pass unique argument  "?w=schedule_list&o=active&wid=" href="javascript:delete_schedule('.$srow["id"].');"
 						echo '<a href="javascript:schedule_zone('.$srow['tz_id'].');" class="list-group-item">';
 						if ($srow['disabled'] == 0) {
-							echo '<div class="circle_list '. $shactive.'"> <p class="schdegree">'.number_format(DispSensor($conn,$srow['temperature'],$sensor_type_id),0).$unit.'</p></div>';
+							echo '<div id="sdtz_'.$srow['tz_id'].'"><div class="circle_list '. $shactive.'"> <p class="schdegree">'.number_format(DispSensor($conn,$srow['temperature'],$sensor_type_id),0).$unit.'</p></div></div>';
 						} else {
-							echo '<div class="circle_list bluesch_disable"> <p class="schdegree">D</p></div>';
+							echo '<div id="sdtz_'.$srow['tz_id'].'"><div class="circle_list bluesch_disable"> <p class="schdegree">D</p></div></div>';
 						}
 						echo '<span class="label label-info sch_name"> '.$srow['sch_name'].'</span>
 						<span class="pull-right text-muted sch_list"><em>'. $coop. ' '.$srow['start'].' - ' .$srow['end'].'</em></span></a>';

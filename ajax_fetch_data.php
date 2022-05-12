@@ -654,5 +654,35 @@ if ($type <= 5 || $type == 8) {
                         }
                 echo ' </div>';
         }
+} elseif ($type == 20) {
+        $squery = "SELECT schedule_daily_time.sch_name, schedule_daily_time.start, schedule_daily_time.end,
+        schedule_daily_time_zone.zone_id, schedule_daily_time_zone.temperature, schedule_daily_time_zone.id AS tz_id, schedule_daily_time_zone.coop, schedule_daily_time_zone.disabled
+        FROM `schedule_daily_time`, `schedule_daily_time_zone`
+        WHERE (schedule_daily_time.id = schedule_daily_time_zone.schedule_daily_time_id) AND schedule_daily_time.status = 1
+        AND (schedule_daily_time_zone.status = 1 OR schedule_daily_time_zone.disabled = 1) AND schedule_daily_time.type = 0 AND schedule_daily_time_zone.id ='{$id}'
+        AND (schedule_daily_time.WeekDays & (1 << {$dow})) > 0
+        ORDER BY schedule_daily_time.start asc;";
+        $sresults = $conn->query($squery);
+        $srow = mysqli_fetch_assoc($sresults);
+
+        $shactive="orangesch_list";
+        $time = strtotime(date("G:i:s"));
+        $start_time = strtotime($srow['start']);
+        $end_time = strtotime($srow['end']);
+        if ($time >$start_time && $time <$end_time){$shactive="redsch_list";}
+
+        $query = "SELECT sensor_type_id FROM sensors WHERE zone_id = '{$srow['$zone_id']}' LIMIT 1;";
+        $result = $conn->query($query);
+        $sensor = mysqli_fetch_array($result);
+        $sensor_type_id=$sensor['sensor_type_id'];
+
+        $c_f = settings($conn, 'c_f');
+        if ($c_f == 0) { $units = 'C'; } else { $units = 'F'; }
+
+        if ($srow['disabled'] == 0) {
+                echo '<div class="circle_list '. $shactive.'"> <p class="schdegree">'.number_format(DispSensor($conn,$srow['temperature'],$sensor_type_id),0).$unit.'</p></div>';
+        } else {
+                echo '<div class="circle_list bluesch_disable"> <p class="schdegree">D</p></div>';
+        }
 }
 ?>
