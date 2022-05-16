@@ -222,7 +222,7 @@ echo '
                                 $query = "SELECT name FROM repository WHERE status = 1 LIMIT 1;";
                                 $result = $conn->query($query);
                                 $row = mysqli_fetch_assoc($result);
-                                $file2 = file('https://raw.githubusercontent.com/'.$row['name'].'/PiHomeHVAC/master/st_inc/db_config.ini');
+                                $file2 = file('https://raw.githubusercontent.com/'.$row['name'].'/master/st_inc/db_config.ini');
                                 $pieces =  explode(' ', $file2[count($file2) - 4]);
                                 $code_v_github = array_pop($pieces);
                                 $pieces =  explode(' ', $file2[count($file2) - 3]);
@@ -232,7 +232,7 @@ echo '
                                 $pieces =  explode(' ', $file2[count($file2) - 1]);
                                 $db_b_github = array_pop($pieces);
 
-                                echo '<p class="text-muted"> '.$lang['maxair_versions_text'].' <br>'.$lang['repository'].' - https://github.com/'.$row['name'].'/PiHomeHVAC.git</p>
+                                echo '<p class="text-muted"> '.$lang['maxair_versions_text'].' <br>'.$lang['repository'].' - https://github.com/'.$row['name'].'.git</p>
                                 <table class="table table-bordered">
                                         <tr>
                                                 <th class="col-xs-8"></th>
@@ -687,7 +687,7 @@ echo '<div class="modal fade" id="set_repository" tabindex="-1" role="dialog" ar
                 <select class="form-control input-sm" type="text" id="rep_id" name="rep_id" >';
                 if ($results){
                         while ($frow=mysqli_fetch_array($results)) {
-                                echo '<option value="'.$frow['id'].'" ' . ($frow['status']==1 ? 'selected' : '') . '>https://github.com/'.$frow['name'].'/PiHomeHVAC.git</option>';
+                                echo '<option value="'.$frow['id'].'" ' . ($frow['status']==1 ? 'selected' : '') . '>https://github.com/'.$frow['name'].'.git</option>';
                         }
                 }
                 echo '</select>
