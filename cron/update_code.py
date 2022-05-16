@@ -133,7 +133,7 @@ try:
     result = cursorselect.fetchone()
     cursorselect.close()
     if cursorselect.rowcount > 0:
-        repository = "https://github.com/" + result[name_to_index['name']] + "/PiHomeHVAC.git"
+        repository = "https://github.com/" + result[name_to_index['name']] + ".git"
     else:
         print("Error - Unable to retrieve the GitHub Repository URL.")
         sys.exit(1)
