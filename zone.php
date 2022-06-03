@@ -369,6 +369,23 @@ if (isset($_POST['submit'])) {
 			} else {
 				$error .= "<p>".$lang['zone_night_climate_fail']."</p> <p>" .mysqli_error($conn). "</p>";
 			}
+                        //Add to existing schedules
+                        $query = "SELECT id FROM schedule_daily_time;";
+                        $results = $conn->query($query);
+                        while ($row = mysqli_fetch_assoc($results)) {
+                                $query = "SELECT id FROM schedule_daily_time_zone WHERE schedule_daily_time_id = {$row['id']} AND zone_id = {$zone_id};";
+                                $result = $conn->query($query);
+                                if (mysqli_num_rows($result) == 0) {
+                                        $query = "INSERT INTO `schedule_daily_time_zone`(`sync`, `purge`, `status`, `schedule_daily_time_id`, `zone_id`, `temperature`, `holidays_id`,
+                                        `coop`, `disabled`) VALUES (0,0,0,{$row['id']},{$zone_id},0,0,0,0)";
+                                        $result = $conn->query($query);
+                                        if ($result) {
+                                                $message_success .= "<p>".$lang['schedule_daily_time_zone_insert_success']."</p>";
+                                        } else {
+                                                $error .= "<p>".$lang['schedule_daily_time_zone_insert_error']."</p> <p>" .mysqli_error($conn). "</p>";
+                                        }
+                                }
+                        }
 		}
 	}
 	$date_time = date('Y-m-d H:i:s');
