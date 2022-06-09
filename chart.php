@@ -90,12 +90,12 @@ $grow = mysqli_fetch_assoc($result);
             							<a href="#controller-pills" class="nav-link" data-bs-toggle="tab"><i class="bi bi-list"></i>&nbsp;&nbsp'.$lang['savings'].'</a>
         						</li>';
                                                 }
-                                                if ($grow['mask'] & 0b1000) {
+                                                if ($grow['mask'] & 0b10000) {
         						echo '<li class="nav-item">
             							<a href="#month-pills" class="nav-link" data-bs-toggle="tab"><i class="bi bi-graph-up"></i>&nbsp;&nbsp'.$lang['system_controller'].'</a>
         						</li>';
                                                 }
-                                                if ($grow['mask'] & 0b100) {
+                                                if ($grow['mask'] & 0b100000) {
         						echo '<li class="nav-item">
             							<a href="#battery-pills" class="nav-link" data-bs-toggle="tab">&nbsp&nbsp<i class="bi bi-graph-up"></i>&nbsp;&nbsp'.$lang['battery'].'</a>
         					</li>';
