@@ -23,6 +23,7 @@ require_once(__DIR__.'/st_inc/session.php');
 confirm_logged_in();
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
+$theme = settings($conn, 'theme');
 
 if(isset($_GET['uid'])) {
         $id = $_GET['uid'];
@@ -183,94 +184,97 @@ $persist = $row['persist'];
 ?>
 <?php include("header.php"); ?>
 <?php include_once("notice.php"); ?>
-<div id="page-wrapper">
+<div class="container-fluid">
 	<br>
 	<div class="row">
-        	<div class="panel panel-primary">
-                	<div class="panel-heading">
-                        	<?php echo $title; ?>
-                        </div>
-                        <!-- /.panel-heading -->
-              		<div class="panel-body">
-                                <form method="post" action="<?php $PHP_SELF ?>" data-toggle="validator" role="form" >
+                <div class="col-lg-12">
+		        <div class="card border-<?php echo theme($conn, $theme, 'color'); ?>">
+        		        <div class="card-header <?php echo theme($conn, $theme, 'text_color'); ?> card-header-<?php echo theme($conn, $theme, 'color'); ?>">
+                	        	<?php echo $title; ?>
+                        	</div>
+	                        <!-- /.card-header -->
+        	      		<div class="card-body">
+                	                <form method="post" action="<?php $PHP_SELF ?>" data-bs-toggle="validator" role="form" >
 
-				<div class="form-group"><label><?php echo $info_text; ?></label>
-				<br>
-				<p class="text-danger"> <strong>Do not use any special character i.e
-				' &nbsp;&nbsp; ` &nbsp;&nbsp; , &nbsp;&nbsp; & &nbsp;&nbsp; ? &nbsp;&nbsp; { &nbsp;&nbsp; } &nbsp;&nbsp; [ &nbsp;&nbsp; ] &nbsp;&nbsp; ( &nbsp;&nbsp; ) &nbsp;&nbsp; - &nbsp;&nbsp; &nbsp;&nbsp; ; &nbsp;&nbsp; ! &nbsp;&nbsp; ~ &nbsp;&nbsp; * &nbsp;&nbsp; % &nbsp;&nbsp; \ &nbsp;&nbsp; |</strong></p>
-				</div>
-
-				<?php if($mode != 0) { ?>
-                                	<div class="row">
-                                		<div class="col-xs-3">
-                                        		<div class="checkbox checkbox-default checkbox-circle">
-								<input id="checkbox0" class="styled" type="checkbox" name="account_enable" value="1" <?php if($aenable == 1 && $mode != 2) { echo 'checked'; } ?> <?php if($id == $_SESSION['user_id']) { echo 'disabled'; } ?> >
-								<label for="checkbox0"> <?php echo $lang['account_enable']; ?> </label> <br><small class="text-muted"><?php echo $lang['account_enable_info'];?></small>
-                                                		<div class="help-block with-errors"></div>
-                                        		</div>
-						</div>
-						<div class="col-xs-3">
-                                        		<div class="checkbox checkbox-default checkbox-circle">
-								<input id="checkbox1" class="styled" type="checkbox" name="admin_account" value="1" <?php if($aaccount == 1 && $mode != 2) { echo 'checked'; } ?> <?php if($_SESSION['admin'] == 0) { echo 'disabled'; } ?> >
-								<label for="checkbox1"> <?php echo $lang['admin_account']; ?> </label> <br><small class="text-muted"><?php echo $lang['admin_account_info'];?></small>
-                                                		<div class="help-block with-errors"></div>
-                                        		</div>
-						</div>
-						<div class="col-xs-3">
-                                        		<div class="checkbox checkbox-default checkbox-circle">
-								<input id="checkbox2" class="styled" type="checkbox" name="persist" value="1" <?php if($persist == 1 && $mode != 2) { echo 'checked'; } ?> <?php if($_SESSION['admin'] == 0) { echo 'disabled'; } ?> >
-								<label for="checkbox2"> <?php echo $lang['persist']; ?> </label> <br><small class="text-muted"><?php echo $lang['persist_info'];?></small>
-                                                		<div class="help-block with-errors"></div>
-                                        		</div>
-						</div>
-					</div>
-					<!-- /.row -->
+					<div class="form-group"><label><?php echo $info_text; ?></label>
 					<br>
-				<?php } ?>
-				<div class="form-group"><label><?php echo $lang['fullname']; ?></label>
-                			<input type="text" class="form-control" placeholder="Full Name" value="<?php echo $fname ;?>" id="full_name" name="full_name" data-error="Full Name is Required" autocomplete="off" required <?php echo $dis; ?>>
-	                	</div>
+					<p class="text-danger"> <strong>Do not use any special character i.e
+					' &nbsp;&nbsp; ` &nbsp;&nbsp; , &nbsp;&nbsp; & &nbsp;&nbsp; ? &nbsp;&nbsp; { &nbsp;&nbsp; } &nbsp;&nbsp; [ &nbsp;&nbsp; ] &nbsp;&nbsp; ( &nbsp;&nbsp; ) &nbsp;&nbsp; - &nbsp;&nbsp; &nbsp;&nbsp; ; &nbsp;&nbsp; ! &nbsp;&nbsp; ~ &nbsp;&nbsp; * &nbsp;&nbsp; % &nbsp;&nbsp; \ &nbsp;&nbsp; |</strong></p>
+					</div>
 
-        	        	<div class="form-group"><label><?php echo $lang['username']; ?></label>
-                			<input type="text" class="form-control" placeholder="User Name" value="<?php echo $uname ;?>" id="user_name" name="user_name" data-error="User Name is Required" autocomplete="off" required <?php echo $dis; ?>>
-                		</div>
+					<?php if($mode != 0) { ?>
+        	                        	<div class="row">
+                	                		<div class="col-3">
+                        	                		<div class="form-check">
+									<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="checkbox" value="1" id="checkbox0" name="account_enable" <?php if($aenable == 1 && $mode != 2) { echo 'checked'; } ?> <?php if($id == $_SESSION['user_id']) { echo 'disabled'; } ?> >
+									<label class="form-check-label" for="checkbox0"> <?php echo $lang['account_enable']; ?> </label> <br><small class="text-muted"><?php echo $lang['account_enable_info'];?></small>
+                                                			<div class="help-block with-errors"></div>
+                                        			</div>
+							</div>
+							<div class="col-3">
+                	                        		<div class="form-check">
+									<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="checkbox" value="1" id="checkbox1" name="admin_account" <?php if($aaccount == 1 && $mode != 2) { echo 'checked'; } ?> <?php if($_SESSION['admin'] == 0) { echo 'disabled'; } ?> >
+									<label class="form-check-label" for="checkbox1"> <?php echo $lang['admin_account']; ?> </label> <br><small class="text-muted"><?php echo $lang['admin_account_info'];?></small>
+                                        	        		<div class="help-block with-errors"></div>
+                                        			</div>
+							</div>
+							<div class="col-3">
+                	                        		<div class="form-check">
+									<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="checkbox" value="1" id="checkbox2" name="persist" <?php if($persist == 1 && $mode != 2) { echo 'checked'; } ?> <?php if($_SESSION['admin'] == 0) { echo 'disabled'; } ?> >
+									<label class="form-check-label" for="checkbox2"> <?php echo $lang['persist']; ?> </label> <br><small class="text-muted"><?php echo $lang['persist_info'];?></small>
+                                        	        		<div class="help-block with-errors"></div>
+                                        			</div>
+							</div>
+						</div>
+						<!-- /.row -->
+						<br>
+					<?php } ?>
+					<div class="form-group"><label><?php echo $lang['fullname']; ?></label>
+        	        			<input type="text" class="form-control" placeholder="Full Name" value="<?php echo $fname ;?>" id="full_name" name="full_name" data-bs-error="Full Name is Required" autocomplete="off" required <?php echo $dis; ?>>
+	        	        	</div>
 
-                                <div class="form-group"><label><?php echo $lang['email_address']; ?></label>
-                                        <input type="text" class="form-control" placeholder="Email Address" value="<?php echo $email ;?>" id="user_email" name="user_email" data-error="Email Address is Required" autocomplete="off" required <?php echo $dis; ?>>
-                                </div>
+	        	        	<div class="form-group"><label><?php echo $lang['username']; ?></label>
+        	        			<input type="text" class="form-control" placeholder="User Name" value="<?php echo $uname ;?>" id="user_name" name="user_name" data-bs-error="User Name is Required" autocomplete="off" required <?php echo $dis; ?>>
+                			</div>
 
-				<?php if($mode != 2) {
-	                		echo '<div class="form-group"><label>'.$lang['old_password'].'</label>'; if($mode == 1) { echo '<small class="text-muted">'.$lang['old_password_info'].'</small>'; }
-        	        			echo '<input class="form-control" type="password" class="form-control" placeholder="Old Password" value="" id="old_pass" name="old_pass" data-error="Old Password is Required" autocomplete="off" '.$req.'>
-                			<div class="help-block with-errors"></div>
-					</div>';
-				} ?>
+                        	        <div class="form-group"><label><?php echo $lang['email_address']; ?></label>
+                                	        <input type="text" class="form-control" placeholder="Email Address" value="<?php echo $email ;?>" id="user_email" name="user_email" data-bs-error="Email Address is Required" autocomplete="off" required <?php echo $dis; ?>>
+	                                </div>
 
-	                	<div class="form-group"><label><?php echo $lang['new_password']; ?></label>
-        	        		<input class="form-control" type="password" class="form-control" placeholder="New Password" value="" id="example-progress-bar" name="new_pass" data-error="New Password is Required" autocomplete="off" <?php echo $req; ?>>
-                			<div class="help-block with-errors"></div>
-				</div>
+					<?php if($mode != 2) {
+	        	        		echo '<div class="form-group"><label>'.$lang['old_password'].'</label>'; if($mode == 1) { echo '<small class="text-muted">'.$lang['old_password_info'].'</small>'; }
+        	        				echo '<input class="form-control" type="password" class="form-control" placeholder="Old Password" value="" id="old_pass" name="old_pass" data-bs-error="Old Password is Required" autocomplete="off" '.$req.'>
+                				<div class="help-block with-errors"></div>
+						</div>';
+					} ?>
 
-	                	<div class="form-group"><label><?php echo $lang['confirm_password']; ?></label>
-        	        		<input class="form-control" type="password" class="form-control" placeholder="Confirm New Password" value="" id="con_pass" name="con_pass" data-error="Confirm New Password is Required" autocomplete="off" <?php echo $req; ?>>
-                			<div class="help-block with-errors"></div>
-				</div>
-				<a href="home.php"><button type="button" class="btn btn-primary btn-sm"><?php echo $lang['cancel']; ?></button></a>
-        	        	<input type="submit" name="submit" value="<?php echo $lang['save']; ?>" class="btn btn-default btn-sm">
+		                	<div class="form-group"><label><?php echo $lang['new_password']; ?></label>
+        		        		<input class="form-control" type="password" class="form-control" placeholder="New Password" value="" id="example-progress-bar" name="new_pass" data-bs-error="New Password is Required" autocomplete="off" <?php echo $req; ?>>
+                				<div class="help-block with-errors"></div>
+					</div>
 
-                		</form>
-	           	</div>
-        	        <!-- /.panel-body -->
-			<div class="panel-footer">
-				<?php
-				ShowWeather($conn);
-				?>
-                    	</div>
-			<!-- /.panel-footer -->
-  		</div>
-                <!-- /.panel-primary -->
+		                	<div class="form-group"><label><?php echo $lang['confirm_password']; ?></label>
+        		        		<input class="form-control" type="password" class="form-control" placeholder="Confirm New Password" value="" id="con_pass" name="con_pass" data-bs-error="Confirm New Password is Required" autocomplete="off" <?php echo $req; ?>>
+                				<div class="help-block with-errors"></div>
+					</div>
+					<a href="home.php"><button type="button" class="btn btn-primary-<?php echo theme($conn, $theme, 'color'); ?> btn-sm"><?php echo $lang['cancel']; ?></button></a>
+	        	        	<input type="submit" name="submit" value="<?php echo $lang['save']; ?>" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-sm">
+
+        	        		</form>
+	        	   	</div>
+        	        	<!-- /.card-body -->
+				<div class="card-footer card-footer-<?php echo theme($conn, $theme, 'color'); ?>">
+					<?php
+					ShowWeather($conn);
+					?>
+	                    	</div>
+				<!-- /.card-footer -->
+  			</div>
+	                <!-- /.card -->
+        	</div>
+	        <!-- /.col -->
 	</div>
         <!-- /.row -->
 </div>
-<!-- /#page-wrapper -->
+<!-- /#container-fluid -->
 <?php include("footer.php");  ?>

@@ -1,6 +1,6 @@
 # MaxAir - Smart Thermostat
 
-### Note: Now at Version 1.80.
+### Note: Now at Version 2.02.
 
 The previous version, PiHome, was centered around the creation of zones, this version is more centered around devices.
 
@@ -29,6 +29,12 @@ Version 1.71 Introduces an option to display a graph when either a Zone or Stand
 
 Version 1.80 Introduces a revised Home screen, which no longer auto-refreshes. The data and indicator fields on the screen are updated individually once every second. The result is that now any pop-up windows that are opened, will remain displayed until closed by the user. 
 
+Version 2.01 Major update that introduces 'Colour Themes' and a new look based around the use of Bootstrap Version 5.2. Six different colour themes are available, Amber, Blue, Orange, Red, Teal and Violet.
+
+Version 2.02 Introduces a simplified 'theme' definition, adds theme coloring to dropdown lists and adds a Dark theme.
+
+![theme_colours](https://user-images.githubusercontent.com/46624596/172785208-723ea90c-88cd-4223-a5c2-b101647eb899.png)
+
 ## Setup:
 
 * Add Nodes (as per PiHome)
@@ -38,17 +44,17 @@ Version 1.80 Introduces a revised Home screen, which no longer auto-refreshes. T
 * Temperature Measurement devices can be displayed without the need to be allocated to a 'zombie' zone
 
 * The Temperature Measurement and Relay devices can be created from the One Touch menu
-[![deploy1](https://user-images.githubusercontent.com/46624596/97433327-3a6a8880-1915-11eb-93b0-feac36159403.JPG)](https://user-images.githubusercontent.com/46624596/97433327-3a6a8880-1915-11eb-93b0-feac36159403.JPG)
+![doc1](https://user-images.githubusercontent.com/46624596/171923125-a4895306-a295-4c14-a2dc-f2c685e3aa1e.JPG)
 
 * New configuration GUIs are available for the Relays and Sensors devices
-[![deploy2](https://user-images.githubusercontent.com/46624596/97433533-946b4e00-1915-11eb-942b-75e2637affc8.JPG)](https://user-images.githubusercontent.com/46624596/97433533-946b4e00-1915-11eb-942b-75e2637affc8.JPG)
+![doc2](https://user-images.githubusercontent.com/46624596/171923178-8066063f-4e21-4e96-8649-a37da18db888.JPG)
 
 * Part of the reason for this version is to support HVAC systems and hence the system can be configured to work in either the existing Boiler or HVAC mode. The mode is selected from settings/system configuration menu
-[![deploy3](https://user-images.githubusercontent.com/46624596/97433816-fe83f300-1915-11eb-9ae8-5b8b38f535ee.JPG)](https://user-images.githubusercontent.com/46624596/97433816-fe83f300-1915-11eb-9ae8-5b8b38f535ee.JPG)
+![doc3](https://user-images.githubusercontent.com/46624596/171923242-5b36b742-b8bb-4090-9146-935aae59c03e.JPG)
 
 * The home screen will show the mode of operation
-[![deploy4](https://user-images.githubusercontent.com/46624596/97433953-33904580-1916-11eb-816c-0e33535a6831.JPG)](https://user-images.githubusercontent.com/46624596/97433953-33904580-1916-11eb-816c-0e33535a6831.JPG)
-[![deploy5](https://user-images.githubusercontent.com/46624596/97434180-8964ed80-1916-11eb-9ccf-9962900bc8f4.JPG)](https://user-images.githubusercontent.com/46624596/97434180-8964ed80-1916-11eb-9ccf-9962900bc8f4.JPG)
+![doc4](https://user-images.githubusercontent.com/46624596/171923332-72295169-8899-4d93-a675-d3fea62c4713.JPG)
+![doc5](https://user-images.githubusercontent.com/46624596/171923351-65b4df03-78b9-4278-a503-47125d04507d.JPG)
 
 * The 'MODE' button will cycle through the various modes of operation, for Boiler mode this is OFF, TIMER, CE, HW or BOTH, for HVAC the modes are OFF, TIMER, AUTO, HEAT, COOL or FAN.
 
@@ -93,10 +99,8 @@ The core requirements for the SBC are as stated above, MaxAir has been successfu
 
 ## Secial Thanks to
 
-* [SB Admin 2 Template](http://startbootstrap.com/template-overviews/sb-admin-2 "SB Admin 2 Template ")
+* [Bootstrap](https://getbootstrap.com/ "Bootstrap ")
 * [Pretty Checkbox](http://www.cssscript.com/pretty-checkbox-radio-inputs-bootstrap-awesome-bootstrap-checkbox-css "Pretty Checkbox ")
-* [Font-Awesome](https://fortawesome.github.io/Font-Awesome "Font-Awesome")
-* [Ionicons](http://ionicons.com "Ionicons ")
 * [Box Shadow CSS](http://www.cssmatic.com/box-shadow "Box Shadow CSS")
 * [AnimateCSS](https://daneden.github.io/animate.css "Animate.css ")
 * [MySensors](https://www.mysensors.org "MySensors")

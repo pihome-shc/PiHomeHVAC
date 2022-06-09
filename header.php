@@ -27,6 +27,7 @@ confirm_logged_in();
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 
+$theme = settings($conn, 'theme');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -54,16 +55,13 @@ require_once(__DIR__.'/st_inc/functions.php');
 	<!-- animate CSS -->
 	<link href="css/plugins/animate/animate.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link href="css/sb-admin-2.css" rel="stylesheet">
+    <link href="css/maxair.css" rel="stylesheet">
 
 	<!-- Datetimepicker CSS -->
 	<link href="css/plugins/datepicker/bootstrap-datetimepicker.css" rel="stylesheet">
 
-	<!-- Custom Fonts awesome-->
-    <link href="fonts/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-
-	<!-- Custom Fonts ionicons-->
-	<link rel="stylesheet" type="text/css" media="screen" href="fonts/ionicons-2.0.1/css/ionicons.min.css">
+    	<!-- Bootstrap Font Icon CSS -->
+        <link href="fonts/bootstrap-icons-1.8.1/bootstrap-icons.css" rel="stylesheet" type="text/css">
 
 	<!-- bootstrap-slider
     <link href="css/plugins/slider/bootstrap-slider.min.css" rel="stylesheet">-->
@@ -99,15 +97,13 @@ require_once(__DIR__.'/st_inc/functions.php');
     </script>
 </head>
 <body>
-    <div id="wrapper">
-        <!-- Navigation -->
-        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
-		<a class="navbar-brand" href="home.php"><img src="images/ivory-billed-woodpecker.png" width="42"></a>
+<nav class="navbar navbar-light navbar-static-top navbar-expand bg-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" role="navigation" style="margin-bottom: 0;">
+	<div class="container-fluid">
             <!-- /.navbar-header -->
-            <ul class="nav navbar-top-links navbar-right">
-               <li class="dropdown">
-                    <a href="index.php">
-                        <i class="fa fa-home fa-lg"></i>
+             <ul class="navbar-nav ms-auto">
+               <li class="nav-item">
+                    <a class="nav-link" href="index.php">
+                        <i class="bi bi-house-fill <?php echo theme($conn, settings($conn, 'theme'), 'text_color'); ?>" style="font-size: 1.2rem;"></i>
                     </a>
                 </li>
 				<?php // Alert icon need some thinking: May be table with list of alerts and one cron job to check if any thing not communicating.
@@ -118,78 +114,79 @@ require_once(__DIR__.'/st_inc/functions.php');
                 </li>
 				*/
 				?>
-                <li class="dropdown">
-                    <a class="dropdown-toggle" href="schedule.php">
-                        <i class="fa fa-clock-o fa-lg"></i>
+                <li class="nav-item">
+                    <a class="nav-link" href="schedule.php">
+                        <i class="bi bi-clock <?php echo theme($conn, settings($conn, 'theme'), 'text_color'); ?>" style="font-size: 1.2rem;"></i>
                     </a>
                 </li>
-                <li class="dropdown">
-                    <a class="dropdown-toggle" href="chart_open.php">
-                        <i class="fa fa-bar-chart fa-lg"></i>
+                <li class="nav-item">
+                    <a class="nav-link" href="chart_open.php">
+                        <i class="bi bi-graph-up <?php echo theme($conn, settings($conn, 'theme'), 'text_color'); ?>" style="font-size: 1.2rem;"></i>
                     </a>
                 </li>
 
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="modal" href="#weather" data-backdrop="static" data-keyboard="false">
-                        <i class="fa fa-sun-o fa-lg"></i>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="modal" href="#weather" data-bs-backdrop="static" data-bs-keyboard="false">
+                        <i class="bi bi-cloud-sun-fill <?php echo theme($conn, settings($conn, 'theme'), 'text_color'); ?>" style="font-size: 1.2rem;"></i>
                     </a>
                 </li>
 
 		<?php if ($_SESSION['admin'] == 1) { ?>
                 	<!-- /.dropdown-settings -->
-                	<li class="dropdown">
-                    		<a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        		<i class="fa fa-cog fa-lg fa-fw"></i><i class="fa fa-caret-down"></i>
+                	<li class="nav-item dropdown">
+                    		<a class="nav-link dropdown-toggle <?php echo theme($conn, settings($conn, 'theme'), 'text_color'); ?>" data-bs-toggle="dropdown" href="#">
+                        		<i class="bi bi-gear-fill <?php echo theme($conn, settings($conn, 'theme'), 'text_color'); ?>" style="font-size: 1.2rem"></i>
                     		</a>
-                    		<ul class="dropdown-menu dropdown-user">
-                        		<li><a href="settings.php?s_id=1"><i class="fa fa-tachometer orange"></i> <?php echo $lang['system_status']; ?> </a></li>
-                        		<li class="divider"></li>
-                                        <li><a href="settings.php?s_id=2"><i class="fa fa-wrench red"></i> <?php echo $lang['system_maintenance']; ?> </a></li>
-                                        <li class="divider"></li>
-                        		<li><a href="settings.php?s_id=3"><i class="fa fa-cogs green"></i> <?php echo $lang['system_configuration']; ?></a></li>
-                                        <li class="divider"></li>
-                                       	<li><a href="settings.php?s_id=4"><i class="fa fa-cog red"></i> <?php echo $lang['system_controller_configuration']; ?> </a></li>
-                                        <li class="divider"></li>
-                                        <li><a href="settings.php?s_id=5"><i class="fa fa-sitemap blue""></i> <?php echo $lang['node_zone_configuration']; ?> </a></li>
-                                        <li class="divider"></li>
-                                        <li><a href="settings.php?s_id=6"><i class="fa fa-plug green""></i> <?php echo $lang['device_configuration']; ?> </a></li>
-                                        <li class="divider"></li>
+                    		<ul class="dropdown-menu dropdown-menu-end dropdown-menu-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>">
+                        		<li><a class="dropdown-item float-right" href="settings.php?s_id=1"><i class="bi bi-speedometer" style="font-size: 1rem; color: orange;"></i> <?php echo $lang['system_status']; ?> </a></li>
+                        		<li class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="settings.php?s_id=2"><i class="bi bi-wrench" style="font-size: 1rem; color: red;"></i> <?php echo $lang['system_maintenance']; ?> </a></li>
+                                        <li class="dropdown-divider"></li>
+                        		<li><a class="dropdown-item" href="settings.php?s_id=3"><i class="bi bi-gear-wide-connected" style="font-size: 1rem; color: green;"></i> <?php echo $lang['system_configuration']; ?></a></li>
+                                        <li class="dropdown-divider"></li>
+                                       	<li><a class="dropdown-item" href="settings.php?s_id=4"><i class="bi bi-gear" style="font-size: 1rem; color: red;"></i> <?php echo $lang['system_controller_configuration']; ?> </a></li>
+                                        <li class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="settings.php?s_id=5"><i class="bi bi-diagram-3-fill" style="font-size: 1rem; color: blue;"></i> <?php echo $lang['node_zone_configuration']; ?> </a></li>
+                                        <li class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="settings.php?s_id=6"><i class="bi bi-plug-fill" style="font-size: 1rem; color: green;"></i> <?php echo $lang['device_configuration']; ?> </a></li>
+                                        <li class="dropdown-divider"></li>
                      		</ul>
                     	<!-- /.dropdown-settings -->
                 	</li>
 		<?php } ?>
 
 		    <!-- /.dropdown-user -->
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-user fa-lg fa-fw"></i><i class="fa fa-caret-down"></i>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle <?php echo theme($conn, settings($conn, 'theme'), 'text_color'); ?>" data-bs-toggle="dropdown" href="#">
+                        <i class="bi bi-person-fill <?php echo theme($conn, settings($conn, 'theme'), 'text_color'); ?>" style="font-size: 1.2rem;"></i>
                     </a>
-                    <ul class="dropdown-menu dropdown-user">
-                        <li><a href="user_accounts.php"><i class="fa fa-user fa-key"></i> <?php echo $lang['user_change_password']; ?> </a></li>
-                        <li class="divider"></li>
-                        <li><a href="logout.php"><i class="fa fa-sign-out"></i> <?php echo $lang['user_logout']; ?></a></li>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>">
+                        <li><a class="dropdown-item" href="user_accounts.php"><i class="bi bi-person-fill" style="font-size: 1.2rem;"></i> <?php echo $lang['user_change_password']; ?> </a></li>
+                        <li class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="logout.php"><i class="bi bi-box-arrow-right" style="font-size: 1.2rem;"></i> <?php echo $lang['user_logout']; ?></a></li>
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>
  
                 <?php if ($_SESSION['admin'] == 1 && scan_dir('/var/www/code_updates')) { ?>
-                        <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="modal" href="#code_update_Modal" data-backdrop="static" data-keyboard="false">
-                                <i class="fa fa-download fa-lg"></i>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="modal" href="#code_update_Modal" data-bs-backdrop="static" data-bs-keyboard="false">
+                                <i class="bi bi-download <?php echo theme($conn, settings($conn, 'theme'), 'text_color'); ?>" style="font-size: 1.2rem;"></i>
                             </a>
                         </li>
                 <?php } ?>
 
                 <?php if ($_SESSION['admin'] == 1 && scan_dir('/var/www/database_updates')) { ?>
-                        <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="modal" href="#database_update_Modal" data-backdrop="static" data-keyboard="false">
-                                <i class="fa fa-database fa-lg"></i>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="modal" href="#database_update_Modal" data-bs-backdrop="static" data-bs-keyboard="false">
+                                <i class="bi bi-server <?php echo theme($conn, settings($conn, 'theme'), 'text_color'); ?>" style="font-size: 1.2rem;"></i>
                             </a>
                         </li>
                 <?php } ?>
                 <!-- /.dropdown -->
             </ul>
-        </nav>
+	</div>
+</nav>
 <?php
 $user_id = $_SESSION['user_id'];
 $query = "select * from user where id = '{$user_id}' LIMIT 1;";
@@ -200,8 +197,8 @@ $fullname = $row['fullname'];
 <div id="user_email_Modal" class="modal fade">
 	<div class="modal-dialog">
         	<div class="modal-content">
-            		<div class="modal-header">
-                		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            		<div class="modal-header <?php echo theme($conn, $theme, 'text_color')?> bg-<?php echo theme($conn, $theme, 'color') ?>">
+                		<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
                 		<h4 class="modal-title">Missing e-mail address!!!</h4>
             		</div>
             		<div class="modal-body">
@@ -213,7 +210,7 @@ $fullname = $row['fullname'];
             		</div>
 			<!-- /.modal-body -->
             		<div class="modal-footer">
-                		<input type="button" name="submit" value="<?php echo $lang['save'] ?>" class="btn btn-default login btn-sm" onclick="update_email()">
+                		<input type="button" name="submit" value="<?php echo $lang['save'] ?>" class="btn btn-bm-<?php echo theme($conn, $theme, 'color')?> login btn-sm" onclick="update_email()">
             		</div>
 			<!-- /.modal-footer -->
         	</div>
@@ -253,30 +250,29 @@ $rval = getDir('/var/www/code_updates');
 <div id="code_update_Modal" class="modal fade">
         <div class="modal-dialog">
                 <div class="modal-content">
-                        <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <div class="modal-header <?php echo theme($conn, $theme, 'text_color')?> bg-<?php echo theme($conn, $theme, 'color') ?>">
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
                                 <h4 class="modal-title"><?php echo $lang['github_update']; ?></h4>
                         </div>
                         <div class="modal-body">
                                 <?php
-                                if (scan_dir('/var/www/database_updates')) {
-					echo '<p>'.$lang['pending_database_updates'].'</p>';
-                                } else {
-                                        echo '<p>'.$lang['github_update_info'].'</p>';
-                                        echo '<ul class="list-group">';
-                                        $rval = getDir('/var/www/code_updates');
-                                        foreach($rval as $key => $value) {
-                                                echo '<li class="list-group-item" style="height: 25px; border: none">'.$value.'</li>';
-                                        }
-                                } ?>
+                                echo '<p>'.$lang['github_update_info'].'</p>';
+                                echo '<ul class="list-group">';
+                                $rval = getDir('/var/www/code_updates');
+                                foreach($rval as $key => $value) {
+                                	echo '<li class="list-group-item" style="height: 25px; border: none">'.$value.'</li>';
+                                }
+                                ?>
                                 </ul>
                         </div>
                         <!-- /.modal-body -->
                         <div class="modal-footer">
-                                <?php if (!scan_dir('/var/www/database_updates')) {
-	                                echo '<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#confirm_update_Modal">'.$lang['update_code'].'</button>';
+                                <?php if (scan_dir('/var/www/database_updates')) {
+					echo '<p>'.$lang['pending_database_updates'].'</p>';
+				} else {
+	                                echo '<button type="button" class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-sm" data-bs-toggle="modal" data-bs-target="#confirm_update_Modal">'.$lang['update_code'].'</button>';
 				} ?>
-                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal"><?php echo $lang['close']; ?></button>
+                                <button type="button" class="btn btn-primary-<?php echo theme($conn, $theme, 'color') ?> btn-sm" data-bs-dismiss="modal"><?php echo $lang['close']; ?></button>
                         </div>
                         <!-- /.modal-footer -->
                 </div>
@@ -288,8 +284,8 @@ $rval = getDir('/var/www/code_updates');
 <div id="confirm_update_Modal" class="modal fade">
         <div class="modal-dialog">
                 <div class="modal-content">
-                        <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <div class="modal-header <?php echo theme($conn, $theme, 'text_color')?> bg-<?php echo theme($conn, $theme, 'color') ?>">
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
                                 <h4 class="modal-title"><?php echo $lang['confirm_update']; ?></h4>
                         </div>
                         <div class="modal-body">
@@ -298,7 +294,7 @@ $rval = getDir('/var/www/code_updates');
                         <!-- /.modal-body -->
                         <div class="modal-footer">
                                 <input type="button" name="submit" value="<?php echo $lang['yes'] ?>" class="btn btn-danger btn-sm" onclick="code_update()">
-                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal"><?php echo $lang['no']; ?></button>
+                                <button type="button" class="btn btn-primary-<?php echo theme($conn, $theme, 'color')?> btn-sm" data-bs-dismiss="modal"><?php echo $lang['no']; ?></button>
                         </div>
                         <!-- /.modal-footer -->
                 </div>
@@ -310,8 +306,8 @@ $rval = getDir('/var/www/code_updates');
 <div id="database_update_Modal" class="modal fade">
         <div class="modal-dialog">
                 <div class="modal-content">
-                        <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <div class="modal-header <?php echo theme($conn, $theme, 'text_color')?> bg-<?php echo theme($conn, $theme, 'color') ?>">
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
                                 <h4 class="modal-title"><?php echo $lang['github_db_update']; ?></h4>
                         </div>
                         <div class="modal-body">
@@ -327,8 +323,8 @@ $rval = getDir('/var/www/code_updates');
                         </div>
                         <!-- /.modal-body -->
                         <div class="modal-footer">
-                                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#confirm_db_update_Modal"><?php echo $lang['db_update_install']; ?></button>
-                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal"><?php echo $lang['close']; ?></button>
+                                <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color')?> btn-sm" data-bs-toggle="modal" data-bs-target="#confirm_db_update_Modal"><?php echo $lang['db_update_install']; ?></button>
+                                <button type="button" class="btn btn-primary-<?php echo theme($conn, $theme, 'color')?> btn-sm" data-bs-dismiss="modal"><?php echo $lang['close']; ?></button>
                         </div>
                         <!-- /.modal-footer -->
                 </div>
@@ -340,17 +336,23 @@ $rval = getDir('/var/www/code_updates');
 <div id="confirm_db_update_Modal" class="modal fade">
         <div class="modal-dialog">
                 <div class="modal-content">
-                        <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <div class="modal-header <?php echo theme($conn, $theme, 'text_color')?> bg-<?php echo theme($conn, $theme, 'color') ?>">
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">&times;</button>
                                 <h4 class="modal-title"><?php echo $lang['confirm_db_update']; ?></h4>
                         </div>
                         <div class="modal-body">
                                 <p><?php echo $lang['confirm_db_update_info']; ?></p>
+                                <?php if (scan_dir('/var/www/code_updates')) {
+					 echo '<p>'.$lang['confirm_code_update_info'].'</p>';
+                                } ?>
                         </div>
                         <!-- /.modal-body -->
                         <div class="modal-footer">
-                                <input type="button" name="submit" value="<?php echo $lang['yes'] ?>" class="btn btn-danger btn-sm" onclick="database_update()">
-                                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal"><?php echo $lang['no']; ?></button></span></p>
+				<?php if (scan_dir('/var/www/code_updates')) {
+	                                echo '<input type="button" name="submit" value="'.$lang['db_code_update'].'" class="btn btn-danger btn-sm" onclick="database_update(); code_update();">';
+				} ?>
+                                <input type="button" name="submit" value="<?php echo $lang['db_only_update'] ?>" class="btn btn-danger btn-sm" onclick="database_update()">
+                                <button type="button" class="btn btn-primary-<?php echo theme($conn, $theme, 'color')?> btn-sm" data-bs-dismiss="modal"><?php echo $lang['no']; ?></button></span></p>
                         </div>
                         <!-- /.modal-footer -->
                 </div>
@@ -377,52 +379,56 @@ else
 ?>
 
 <div class="modal fade" id="weather" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" >
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title"><i class="fa fa-sun-o fa-fw"></i> <?php echo $weather['location'] ;?> <?php echo $lang['weather']; ?></h5>
-            </div>
-            <div class="modal-body">
-			<div class="row">
-				<div class="col-xs-10 col-sm-10 col-md-10">
-<h5><span><img border="0" src="images/<?php echo $weather['img'];?>.png" title="<?php echo $weather['title'];?> -
-<?php echo $weather['description'];?>"></span> <span><?php echo $weather['title'];?> -
-<?php echo $weather['description'];?></span></h5>
+	<div class="modal-dialog">
+        	<div class="modal-content">
+            		<div class="modal-header  <?php echo theme($conn, settings($conn, 'theme'), 'text_color'); ?> bg-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>">
+				<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                		<h5 class="modal-title"><i class="bi bi-sun <?php echo theme($conn, settings($conn, 'theme'), 'text_color'); ?>" style="font-size: 1.2rem;"></i> <?php echo $weather['location'] ;?> <?php echo $lang['weather']; ?></h5>
+            		</div>
+            		<div class="modal-body">
+				<div class="row">
+					<div class="col-10 col-md-10 col-lg-10">
+						<h5><span><img border="0" src="images/<?php echo $weather['img'];?>.png" title="<?php echo $weather['title'];?> -
+						<?php echo $weather['description'];?>"></span> <span><?php echo $weather['title'];?> -
+						<?php echo $weather['description'];?></span></h5>
+					</div>
+            				<div class="col-7 col-md-6 col-lg-6 wdata">
+			        	        <?php echo $lang['sunrise']; ?>: <?php echo date('H:i', $weather['sunrise']);?> <br>
+			                	<?php echo $lang['sunset']; ?>: <?php echo date('H:i', $weather['sunset']);?> <br>
+				                <?php echo $lang['wind']; ?>: <?php echo $weather['wind_speed'] . '&nbsp;' . $WUnit;?>
+						<?php //date_sun_info( int $weather['sunrise'], float $weather['lat'] , float $weather['lon']) ;?>
+					</div>
+				    	<div class="col-5 col-md-6 col-lg-6">
+                				<span class="float-right degrees"><?php echo DispSensor($conn,$weather['c'],1) . '&deg;&nbsp;' . $TUnit;?></span>
+	            			</div>
+        			</div>
+				<br>
+				<div class="row">
+					<div class="col-xl-12">
+						<?php if(filesize('weather_6days.json')>0) { ?>
+							<h4 class="text-center"><?php echo $lang['weather_six_day']; ?></h4>
+							<div class="list-group">
+								<?php
+								$weather_api = file_get_contents('weather_6days.json');
+								$weather_data = json_decode($weather_api, true);
+								//echo '<pre>' . print_r($weather_data, true) . '</pre>';
+								foreach($weather_data['list'] as $day => $value) {
+        								echo '<a href="weather.php" class="d-flex justify-content-between list-group-item list-group-item-action">
+									<span img border="0" width="28" height="28" src="images/'.$value['weather'][0]['icon'].'.png">
+									'.$value['weather'][0]['main']." - " .$value['weather'][0]['description'].
+									'</span>
+									<span class="float-right text-muted small"><em>'.round($value['main']['temp_min'],0)."&deg; - ".round($value['main']['temp_max'],0).'&deg;</em>
+									</span></a>';
+								}
+								?>
+							</div>
+						<?php } //end of filesize if ?>
+						<a href="weather.php" button type="button" class="btn btn-bm-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?> login btn-sm btn-edit"><?php echo $lang['weather_3_hour']; ?></a>
+						<button type="button" class="btn btn-primary-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?> btn-sm" data-bs-dismiss="modal"><?php echo $lang['close']; ?></button>
+        				</div>
 				</div>
-            <div class="col-xs-7 col-sm-6 col-md-6 wdata">
-                <?php echo $lang['sunrise']; ?>: <?php echo date('H:i', $weather['sunrise']);?> <br>
-                <?php echo $lang['sunset']; ?>: <?php echo date('H:i', $weather['sunset']);?> <br>
-                <?php echo $lang['wind']; ?>: <?php echo $weather['wind_speed'] . '&nbsp;' . $WUnit;?>
-			<?php //date_sun_info( int $weather['sunrise'], float $weather['lat'] , float $weather['lon']) ;?>
 			</div>
-            <div class="col-xs-5 col-sm-6 col-md-6">
-                <span class="pull-right degrees"><?php echo DispSensor($conn,$weather['c'],1) . '&deg;&nbsp;' . $TUnit;?></span>
-            </div>
-        </div>
-		<br>
-			<div class="row">
-			<div class="col-lg-12">
-			<?php if(filesize('weather_6days.json')>0) { ?>
-			<h4 class="text-center"><?php echo $lang['weather_six_day']; ?></h4>
-	<div class="list-group">
-<?php
-$weather_api = file_get_contents('weather_6days.json');
-$weather_data = json_decode($weather_api, true);
-//echo '<pre>' . print_r($weather_data, true) . '</pre>';
-foreach($weather_data['list'] as $day => $value) {
-echo '<a href="weather.php" class="list-group-item"><img border="0" width="28" height="28" src="images/'.$value['weather'][0]['icon'].'.png">
-'.$value['weather'][0]['main']." - " .$value['weather'][0]['description'].'<span class="pull-right text-muted small"><em>'.round($value['main']['temp_min'],0)."&deg; - ".round($value['main']['temp_max'],0).'&deg;</em></span></a>';
-}
-?>
-</div>
-<?php } //end of filesize if ?>
-<a href="weather.php" button type="button" class="btn btn-default login btn-sm btn-edit"><?php echo $lang['weather_3_hour']; ?></a>
-<button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><?php echo $lang['close']; ?></button>
-        </div></div>
-</div>
-        </div>
-    </div>
-</div>
+        	</div>
+    	</div>
 </div>
 

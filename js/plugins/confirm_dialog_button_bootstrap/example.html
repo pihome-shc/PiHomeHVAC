@@ -1,0 +1,290 @@
+<html>
+    <head>
+        <title>Testing confirm button</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icon-css@4.1.5/css/flag-icons.css">
+        <script src="confirmbutton.js"></script>
+        <style type="text/css">
+        li[confirm] {
+            cursor: hand;
+        }
+        code {
+            display: block;
+            white-space: pre !important;
+            background-color: #eee;
+            padding: 10px;
+            border: 1px solid #ccc;
+            color: #333;
+            overflow: auto;
+        }
+        i.flag-icon {
+            border-radius: 50%;
+        }
+        </style>
+        <script>
+        function spanish() {
+            // Modal dialog texts in Spanish
+            window.confirmation.config({
+                titletxt: "Esta acción requiere confirmación",
+                confirmtxt: "Confirmar",
+                canceltxt: "Cancelar",
+                confirm: "Por favor confirme la acción"
+            });
+        }
+        function english() {
+            // Modal dialog texts in English
+            window.confirmation.config({
+                titletxt: "This action requires confirmation",
+                confirmtxt: "Confirm",
+                canceltxt: "Cancel",
+                confirm: "Please confirm your action"
+            });
+        }
+        function french() {
+            // Modal dialog texts in French
+            window.confirmation.config({
+                titletxt: "Cette action nécessite votre confirmation",
+                confirmtxt: "Confirmer",
+                canceltxt: "Annuler",
+                confirm: "Veuillez confirmer votre action"
+            });
+        }
+        </script>
+    </head>
+    <body class="w-75 mx-auto py-5">
+        <h3>Dummy button that asks for confirmation but does nothing.</h3>
+        <example>
+<p class="small">The "confirm" attribute is set.</p>
+<button type="button" class="btn btn-primary" data-confirm="Are your sure?">clickme</button>
+        </example>
+        <h3>Simple button that shows an alert upon confirming.</h3>
+        <example>
+<p class="small">The "confirm" attribute is set, and a click handler is also set.</p>
+<button type="button" class="first btn btn-primary" onclick="alert('confirmed');">clickme</button>
+<script>
+    window.confirmation.addConfirmation(document.querySelector('button.first'), {
+        confirm: "Are you really sure?"
+    })
+</script>
+</example>
+        <h3>Simple button that shows an alert upon confirming (using jQuery)</h3>
+<example>
+        <p class="small">The "confirm" attribute is set, and a click handler is also set.</p>
+        <button type="button" class="second btn btn-primary" onclick="alert('confirmed');">clickme</button>
+<script>
+$(function() {
+    $('button.second').confirmButton({
+        confirm: "Are you really sure?"
+    });
+});
+</script>
+</example>
+        <h3>Pair of buttons that have onclick property and other jquery click handlers</h3>
+        <example>
+<p class="small">The "confirm" attribute is set for each button, and they have click handlers and onclick handler.</p>
+<button type="button" class="third btn btn-primary" data-confirm="Are your sure?" onclick="alert('confirmed');">clickme</button>
+<button type="button" class="fourth btn btn-secondary disabled" confirm onclick="alert('I confirm too');">clickme too</button>
+<script>
+    $(function() {
+        $('button.third').click(function() {
+            $('button.fourth').removeClass("disabled");
+            $(this).addClass("disabled");
+        })
+        $('button.fourth').click(function() {
+            $('button.third').removeClass("disabled");
+            $(this).addClass("disabled");
+        })
+    });
+</script>
+</example>
+        <h3>Form that asks for confirmation prior to submitting</h3>
+<example>
+<p class="small">The "confirm" attribute is set to the submit button.</p>
+<form>
+    <input type="text" name="name" placeholder="name to submit">
+    <button type="submit" class="btn btn-success" data-confirm="Want to submit?">submit</button>
+</form>
+</example>
+        <h3>Custom dialog</h3>
+<example>
+<p class="small">A bootstrap modal dialog is created. The "confirm" attribute is set to empty, and the data-dialog is set to a selector that obtains the dialog; then the data-confirmbtn is set to a selector to get the "save" button from the dialog.</p>
+<div class="modal" tabindex="-1" id="myconfirmdlg" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Confirm saving</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <h3>Are you sure you want to save data?</h3>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary save">Save changes</button>
+        </div>
+        </div>
+    </div>
+</div>
+<form>
+    <input type="text" name="q">
+    <button class="btn btn-success" confirm data-dialog="#myconfirmdlg" data-confirmbtn="button.save" type="submit">Send</button>
+</form>
+</example>
+<h3>Internationalization (locally, per element) using declarative mechanism</h3>
+<example>
+<p class="small">Each of the texts in the dialog is customized for each language.</p>
+<button type="button" class="btn btn-primary" onclick="alert('confirm');" data-confirm="Please confirm your action" data-confirmtxt="Confirm" data-canceltxt="Cancel" data-titletxt="This action requires confirmation">press me <i class="flag-icon flag-icon-squared flag-icon-gb"></i></button>
+<button type="button" class="btn btn-primary" onclick="alert('confirmado');" data-confirm="Por favor confirme su acción" data-confirmtxt="Confirmar" data-canceltxt="Cancelar" data-titletxt="Esta acción requiere confirmación">púlsame <i class="flag-icon flag-icon-squared flag-icon-es"></i></button>
+<button type="button" class="btn btn-primary" onclick="alert('confirmer');" data-confirm="Veuillez confirmer votre action" data-confirmtxt="Confirmer" data-canceltxt="Annuler" data-titletxt="Cette action nécessite votre confirmation">presse moi <i class="flag-icon flag-icon-squared flag-icon-fr"></i></button>
+</example>
+        <h3>Internationalization (globally) using library configuration</h3>
+<example>
+<p class="small">Each link calls to a function that will configure the library globally</p>
+<a href="#" onclick="english();return false;" data-confirm="Want to set the texts of the library to english?"><i class="flag-icon flag-icon-squared flag-icon-gb"></i></a> |
+<a href="#" onclick="spanish();return false;" data-confirm="¿Quiere utilizar los textos de la librería en español?"><i class="flag-icon flag-icon-squared flag-icon-es"></i></a> |
+<a href="#" onclick="french();return false;" data-confirm="Vous souhaitez utiliser les textes de la librairie en français?"><i class="flag-icon flag-icon-squared flag-icon-fr"></i></a>
+<script>
+function spanish() {
+    // Modal dialog texts in Spanish
+    window.confirmation.config({
+        titletxt: "Esta acción requiere confirmación",
+        confirmtxt: "Confirmar",
+        canceltxt: "Cancelar",
+        confirm: "Por favor confirme la acción"
+    });
+}
+function english() {
+    // Modal dialog texts in English
+    window.confirmation.config({
+        titletxt: "This action requires confirmation",
+        confirmtxt: "Confirm",
+        canceltxt: "Cancel",
+        confirm: "Please confirm your action"
+    });
+}
+function french() {
+    // Modal dialog texts in French
+    window.confirmation.config({
+        titletxt: "Cette action nécessite votre confirmation",
+        confirmtxt: "Confirmer",
+        canceltxt: "Annuler",
+        confirm: "Veuillez confirmer votre action"
+    });
+}
+</script>
+</example>
+        <h3>Confirmation in a link</h3>
+<example>
+<p class="small">The "confirm" attribute is set to the &lt;a&gt; tag</p>
+<a href="https://www.google.es" data-confirm="Want to go to google?">clickme</a>
+</example>
+        <h3>Confirmation of elements in a list</h3>
+<example>
+<p class="small">The "confirm" attribute is set to the different &lt;li&gt; items.</p>
+<ul>
+    <li data-confirm="Confirm item 1">item 1</li>
+    <li data-confirm="Confirm item 2">item 2</li>
+    <li data-confirm="Confirm item 3">item 3</li>
+</ul>
+</example>
+    <h3>Confirmation of an image</h3>
+<example>
+<p class="small">The "confirm" attribute is set to the svg image.</p>
+<svg data-confirm="thank you for clicking!" width="250" height="85" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+    <g class="layer">
+        <path d="m3.597496,42.999994c0,-21.21685 52.091728,-38.402498 116.402503,-38.402498c64.310775,0 116.402503,17.185648 116.402503,38.402498c0,21.21685 -52.091728,38.402498 -116.402503,38.402498c-64.310775,0 -116.402503,-17.185648 -116.402503,-38.402498z" fill="#00bfbf" id="svg_7" stroke="#000000" stroke-dasharray="null" stroke-linecap="null" stroke-linejoin="null" stroke-width="5"/>
+        <text fill="#000000" font-family="Sans-serif" font-size="29" id="svg_8" stroke="#000000" stroke-dasharray="null" stroke-linecap="null" stroke-linejoin="null" stroke-width="0" text-anchor="middle" x="121.5" xml:space="preserve" y="51.5">Touch me</text>
+    </g>
+</svg>    
+</example>
+        <h3>Verification button</h3>
+<example>
+<p class="small">The data-verify attribute is set and contains a bit of javascript code that returns true or elsething.</p>
+<button type="button" class="btn btn-outline-primary" onclick="alert('verification suceeded')" data-verify="return (Math.random() > 0.5);">Verify</button>
+</example>
+        <h3>Verification button with custom dialog</h3>
+<example>
+<p class="small">A bootstrap modal dialog is created. The data-dialog is set to a selector that obtains the dialog.</p>
+<div class="modal" tabindex="-1" id="myacceptmdlg" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">It is not valid</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <h3>Do you acknowledge that is not valid?</h3>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" >Confirm</button>
+        </div>
+        </div>
+    </div>
+</div>
+<button type="button" data-verify="return (Math.random() > 0.5);" data-errordialog="#myacceptmdlg" onclick="alert('verification suceeded')" class="btn btn-outline-primary">Verify</button>
+</example>
+
+        <h3>Verification in other elements (e.g. links)</h3>
+<example>
+<p class="small">The verification can also be used in links, images or other elements</p>
+<a href="https://www.google.es" target="_blank" data-verify="return (Math.random() > 0.5);">Go to Google</a>
+</example>
+<example>
+<svg data-verify="return Math.random() > 0.5" width="250" height="85" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+    <g class="layer">
+        <path d="m3.597496,42.999994c0,-21.21685 52.091728,-38.402498 116.402503,-38.402498c64.310775,0 116.402503,17.185648 116.402503,38.402498c0,21.21685 -52.091728,38.402498 -116.402503,38.402498c-64.310775,0 -116.402503,-17.185648 -116.402503,-38.402498z" fill="#00bfbf" id="svg_7" stroke="#000000" stroke-dasharray="null" stroke-linecap="null" stroke-linejoin="null" stroke-width="5"/>
+        <text fill="#000000" font-family="Sans-serif" font-size="29" id="svg_8" stroke="#000000" stroke-dasharray="null" stroke-linecap="null" stroke-linejoin="null" stroke-width="0" text-anchor="middle" x="121.5" xml:space="preserve" y="51.5">Touch me</text>
+    </g>
+</svg>
+</example>
+    <h3>Using verification and confirmation together</h3>
+<example>
+<p class="small">The verification can be used together with a confirmation dialog (*). It is just needed to include both data-verify and data-confirm together.</p>
+<p class="small">(*) Verification happens before</p>
+<button type="button" data-verify="return Math.random() > 0.5;" data-confirm="Are your sure?" class="btn btn-outline-secondary">clickme</button>
+<p class="small">If wanted to confirm first, use data-verify-after-confirm, instead data-verify.</p>
+<button type="button" data-verify-after-confirm="return false;" data-confirm="Are your sure?" class="btn btn-outline-secondary">clickme</button>
+</example>
+<h3>Working with verification and confirmation</h3>
+        <example>
+<p class="small">In the declarative method, verification happens always before</p>
+<button type="button" data-verify="return (Math.random() > 0.5);" data-confirm="Are your sure?" onclick="alert('verified and confirmed');" class="btn btn-primary">clickme</button>
+<p class="small">If wanted to confirm before, it is needed the programmatical method</p>
+<button type="button" data-confirm="Are your sure?" onclick="console.log('verified and confirmed');" class="firstconfirm btn btn-primary">clickme</button>
+<script>
+$(function() {
+    $('button.firstconfirm').verifyButton({
+        verify: function() {
+            let v = (Math.random() > 0.5);
+            console.log(v);
+            return v;
+        }
+    })
+})
+</script>
+        </example>
+        </body>
+        <script>
+        $(function() {
+            $('example').each(function() {
+                // This is the code that should be included in the page
+                let $codeinhtml = $(this).clone();
+                let $code = $("<code>").append($($(this).clone().html()));
+                $code.find('p').remove();
+                $code.text($code.html().trim().split('\n').filter((x) => x.trim() != '').join('\n'));
+
+                $(this).replaceWith($code);
+                let $newcode = $($codeinhtml.html()).insertBefore($code);
+            })
+            // I have to re-initialize the buttons because they have been removed from the DOM and created later
+            $('[data-verify]').verifyButton();
+            $('[data-confirm]').confirmButton();
+            $('[data-verify-after-confirm]').each(function() {
+                let code = $(this).data('verify-after-confirm');
+                $(this).verifyButton({verify: code });
+            });
+        })
+        </script>
+</html>

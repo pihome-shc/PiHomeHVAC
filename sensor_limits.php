@@ -24,6 +24,7 @@ require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 
 $date_time = date('Y-m-d H:i:s');
+$theme = settings($conn, 'theme');
 
 if(isset($_GET['id'])) {
 	$id = $_GET['id'];
@@ -78,31 +79,33 @@ if (isset($_POST['submit'])) {
 ?>
 
 <!-- Title (e.g. Add or Edit Sensor Limits) -->
-<div id="page-wrapper">
+<div class="container-fluid">
 	<br>
 	<div class="row">
         	<div class="col-lg-12">
-                	<div class="panel panel-primary">
-                        	<div class="panel-heading">
-					<?php if ($id != 0) { echo $lang['edit_sensor_limits'] . ": " . $row['name']; }else{
-                            		echo "<i class=\"fa fa-plus fa-1x\"></i>" ." ". $lang['add_sensor_limits'];} ?>
-					<div class="pull-right"> 
-						<div class="btn-group"><?php echo date("H:i"); ?></div>
-					</div>
-                        	</div>
-                        	<!-- /.panel-heading -->
-				<div class="panel-body">
-					<form data-toggle="validator" role="form" method="post" action="<?php $_SERVER['PHP_SELF'];?>" id="form-join">
+                	<div class="card <?php echo theme($conn, $theme, 'border_color'); ?>">
+                        	<div class="card-header <?php echo theme($conn, $theme, 'text_color'); ?> <?php echo theme($conn, $theme, 'background_color'); ?>">
+	                                <div class="d-flex justify-content-between">
+        	                         	<div>
+                	                        	<?php if ($id != 0) { echo $lang['edit_sensor_limits'] . ": " . $row['name']; }else{
+							echo '<i class="bi bi-plus-square" style="font-size: 1.2rem;"></i>&nbsp&nbsp'.$lang['add_sensor_limits'];} ?>
+                                	        </div>
+                                		<div class="btn-group"><?php echo date("H:i"); ?></div>
+                                	</div>
+				</div>
+                        	<!-- /.card-header -->
+				<div class="card-body">
+					<form data-bs-toggle="validator" role="form" method="post" action="<?php $_SERVER['PHP_SELF'];?>" id="form-join">
 						<!-- Enabled -->
-						<div class="checkbox checkbox-default checkbox-circle">
-							<input id="checkbox0" class="styled" type="checkbox" name="status" value="1" <?php $check = ($rowlimits['status'] == 1) ? 'checked' : ''; echo $check; ?>>>
-							<label for="checkbox0"> <?php echo $lang['enabled']; ?> </label> <small class="text-muted"><?php echo $lang['sensor_limits_info'];?></small>
+						<div class="form-check">
+							<input class="form-check-input form-check-input-<?php echo explode('-', theme($conn, settings($conn, 'theme'), 'background_color'))[1]; ?>" id="checkbox0" class="styled" type="checkbox" name="status" value="1" <?php $check = ($rowlimits['status'] == 1) ? 'checked' : ''; echo $check; ?>>
+							<label class="form-check-label" for="checkbox0"> <?php echo $lang['enabled']; ?> </label> <small class="text-muted"><?php echo $lang['sensor_limits_info'];?></small>
 							<div class="help-block with-errors"></div>
 						</div>
 
 						<!-- Sensor Name -->
 						<div class="form-group" class="control-label" id="sensor_name_label" style="display:block"><label><?php echo $lang['sensor_name']; ?></label> <small class="text-muted"><?php echo $lang['sensor_limits_name_info'];?></small>
-							<select id="sensor_name" onchange=set_sensor(this.options[this.selectedIndex].value) name="sensor_name" class="form-control select2" data-error="<?php echo $lang['sensor_name_error']; ?>" autocomplete="off" required>
+							<select id="sensor_name" onchange=set_sensor(this.options[this.selectedIndex].value) name="sensor_name" class="form-control select2" data-bs-error="<?php echo $lang['sensor_name_error']; ?>" autocomplete="off" required>
                                                                 <?php 
 								if(isset($row['name'])) { echo '<option selected >'.$row['name'].'</option>'; }
 								$query = "SELECT id, name FROM sensors ORDER BY name ASC;";
@@ -127,41 +130,37 @@ if (isset($_POST['submit'])) {
 
                                                 <!-- Minimum Value -->
                                                 <div class="form-group" class="control-label"><label><?php echo $lang['min_val']; ?></label> <small class="text-muted"><?php echo $lang['min_val_info'];?></small>
-                                                        <input class="form-control" placeholder="Sensor Minimum Value" value="<?php if(isset($rowlimits['min'])) { echo $rowlimits['min']; } else { echo '0.00'; } ?>" id="min_val" name="min_val" data-error="<?php echo $lang['min_val_help']; ?>" autocomplete="off" required>
+                                                        <input class="form-control" placeholder="Sensor Minimum Value" value="<?php if(isset($rowlimits['min'])) { echo $rowlimits['min']; } else { echo '0.00'; } ?>" id="min_val" name="min_val" data-bs-error="<?php echo $lang['min_val_help']; ?>" autocomplete="off" required>
                                                         <div class="help-block with-errors"></div>
                                                 </div>
 
                                                 <!-- Maximum Value -->
                                                 <div class="form-group" class="control-label"><label><?php echo $lang['max_val']; ?></label> <small class="text-muted"><?php echo $lang['max_val_info'];?></small>
-                                                        <input class="form-control" placeholder="Sensor Maximum Value" value="<?php if(isset($rowlimits['max'])) { echo $rowlimits['max']; } else { echo '0.00'; } ?>" id="max_val" name="max_val" data-error="<?php echo $lang['max_val_help']; ?>" autocomplete="off" required>
+                                                        <input class="form-control" placeholder="Sensor Maximum Value" value="<?php if(isset($rowlimits['max'])) { echo $rowlimits['max']; } else { echo '0.00'; } ?>" id="max_val" name="max_val" data-bs-error="<?php echo $lang['max_val_help']; ?>" autocomplete="off" required>
                                                         <div class="help-block with-errors"></div>
                                                 </div>
 
 						<br>
 						<!-- Buttons -->
-						<input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn btn-default btn-sm">
-						<a href="home.php"><button type="button" class="btn btn-primary btn-sm"><?php echo $lang['cancel']; ?></button></a>
+						<input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn <?php echo theme($conn, settings($conn, 'theme'), 'btn_style'); ?> btn-sm">
+						<a href="home.php"><button type="button" class="btn <?php echo theme($conn, settings($conn, 'theme'), 'btn_primary'); ?> btn-sm"><?php echo $lang['cancel']; ?></button></a>
 					</form>
 				</div>
-                		<!-- /.panel-body -->
-				<div class="panel-footer">
+                		<!-- /.card-body -->
+				<div class="card-footer <?php echo theme($conn, $theme, 'footer_color'); ?>">
 					<?php
 					ShowWeather($conn);
 					?>
-                        		<div class="pull-right">
-                        			<div class="btn-group">
-                        			</div>
-					</div>
 				</div>
-				<!-- /.panel-footer -->
+				<!-- /.card-footer -->
 			</div>
-			<!-- /.panel panel-primary -->
+			<!-- /.panel card -->
 		</div>
                 <!-- /.col-lg-4 -->
 	</div>
         <!-- /.row -->
 </div>
-<!-- /#page-wrapper -->
+<!-- /#container -->
 <?php }  ?>
 <?php include("footer.php");  ?>
 

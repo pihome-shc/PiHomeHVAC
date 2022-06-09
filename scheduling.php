@@ -21,6 +21,8 @@ confirm_logged_in();
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 
+$theme = settings($conn, 'theme');
+
 $time_id = 0;
 if(isset($_GET['hol_id'])) {
         $holidays_id = $_GET['hol_id'];
@@ -300,55 +302,59 @@ if(!isset($_GET['nid'])) {
 }?>
 
 <!-- Title (e.g. Add Schedule or Edit Schedule) -->
-<div id="page-wrapper">
+<div class="container-fluid">
 	<br>
  	<div class="row">
         	<div class="col-lg-12">
-			<div class="panel panel-primary">
-			       	<div class="panel-heading">
-			        	<i class="fa fa-clock-o fa-fw"></i>
-                                        <?php if(isset($_GET['nid'])) {
-                                        	echo $lang['night_climate'];
-                                     	} elseif ($time_id != 0) {
-                                        	echo $lang['schedule_edit'] . ": " . $time_row['sch_name'];
-                                        } else {
-                                        	echo $lang['schedule_add'];
-                                    	} ?>
-					<div class="dropdown pull-right">
-						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
-							<i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
-						</a>
-			                        <ul class="dropdown-menu">
-							<?php if(!isset($_GET['nid'])) {
-	                					echo '<li><a href="pdf_download.php?file=setup_guide_scheduling.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_scheduling'].'</a></li>
-				                                <li class="divider"></li>
-                	        				<li><a href="pdf_download.php?file=start_time_offset.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_start_time_offset'].'</a></li>';
-			                                } else {
-                        					echo '<li><a href="pdf_download.php?file=setup_guide_night_climate_scheduling.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_guide_night_climate_scheduling'].'</a></li>';
-							} ?>
-			                        </ul>
-                        			<div class="btn-group"><?php echo '&nbsp;&nbsp;'.date("H:i"); ?></div>
+			<div class="card border-<?php echo theme($conn, $theme, 'color'); ?>"">
+			       	<div class="card-header <?php echo theme($conn, $theme, 'text_color'); ?> card-header-<?php echo theme($conn, $theme, 'color'); ?>">
+					<div class="d-flex justify-content-between">
+						<div>
+					        	<i class="bi bi-clock icon-fw"></i>
+                		                        <?php if(isset($_GET['nid'])) {
+                                	        		echo $lang['night_climate'];
+                                     			} elseif ($time_id != 0) {
+		                                        	echo $lang['schedule_edit'] . ": " . $time_row['sch_name'];
+                		                        } else {
+                                		        	echo $lang['schedule_add'];
+                                    			} ?>
+						</div>
+						<div class="dropdown">
+							<a class="" data-bs-toggle="dropdown" href="#">
+								<i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
+							</a>
+				                        <ul class="dropdown-menu">
+								<?php if(!isset($_GET['nid'])) {
+	                						echo '<li><a class="dropdown-item" href="pdf_download.php?file=setup_guide_scheduling.pdf" target="_blank"><i class="bi bi-file-earmark-pdf icon-fw"></i>&nbsp'.$lang['setup_scheduling'].'</a></li>
+				                	                <li class="dropdown-divider"></li>
+                	        					<li><a class="dropdown-item" href="pdf_download.php?file=start_time_offset.pdf" target="_blank"><i class="bi bi-file-earmark-pdf icon-fw"></i>&nbsp'.$lang['setup_start_time_offset'].'</a></li>';
+				                                } else {
+        	                					echo '<li><a class="dropdown-item" href="pdf_download.php?file=setup_guide_night_climate_scheduling.pdf" target="_blank"><i class="bi bi-file-earmark-pdf icon-fw"></i>&nbsp'.$lang['setup_guide_night_climate_scheduling'].'</a></li>';
+								} ?>
+				                        </ul>
+                        				<div class="btn-group"><?php echo '&nbsp;&nbsp;'.date("H:i"); ?></div>
+						</div>
 					</div>
 			        </div>
-                        	<!-- /.panel-heading -->
-                        	<div class="panel-body">
+                        	<!-- /.card-header -->
+                        	<div class="card-body">
 
-            				<form data-toggle="validator" role="form" method="post" action="<?php $_SERVER['PHP_SELF'];?>" id="form-join">
+            				<form data-bs-toggle="validator" role="form" method="post" action="<?php $_SERVER['PHP_SELF'];?>" id="form-join">
 
                                         <div class="row">
 	                                        <!-- Enable Schedule -->
-                                                <div class="col-xs-2">
-							<div class="checkbox checkbox-default checkbox-circle">
-								<input id="checkbox0" class="styled" type="checkbox" name="sc_en" value="1" <?php $check = ($time_row['status'] == 1) ? 'checked' : ''; echo $check; ?>>
-								<label for="checkbox0"> <?php echo $lang['schedule_enable']; ?></label>
+                                                <div class="col-5">
+							<div class="form-check"">
+								<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" style="accent-color: #ff8839;" type="checkbox" value="1" id="checkbox0" name="sc_en" <?php $check = ($time_row['status'] == 1) ? 'checked' : ''; echo $check; ?>>
+								<label class="form-check-label" for="checkbox0"> <?php echo $lang['schedule_enable']; ?></label>
 							</div>
 						</div>
 
 	                                        <!-- Enable Away Schedule -->
-                                                <div class="col-xs-2">
-		                                        <div class="checkbox checkbox-default checkbox-circle">
-                				                <input id="checkbox1" class="styled" type="checkbox" name="aw_en" value="1" <?php $check = ($time_row['type'] == 1) ? 'checked' : ''; echo $check. " ".$away_disabled ; ?>>
-                                		                <label for="checkbox1"> <?php echo $lang['away_enable']; ?></label>
+                                                <div class="col-7">
+		                                        <div class="form-check">
+								<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="checkbox" value="1" id="checkbox1" name="aw_en" <?php $check = ($time_row['type'] == 1) ? 'checked' : ''; echo $check. " ".$away_disabled ; ?>>
+                                		                <label class="form-check-label" for="checkbox1"> <?php echo $lang['away_enable']; ?></label>
                                         		</div>
 						</div>
 					</div>
@@ -356,54 +362,59 @@ if(!isset($_GET['nid'])) {
 
 					<!-- Day Selector -->
 					<div class="row">
-						<div class="col-xs-3">
-							<div class="checkbox checkbox-default checkbox-circle">
-    								<input id="checkbox2" class="styled" type="checkbox" name="Sunday_en" value="1" <?php $check = (($time_row['WeekDays'] & 1) > 0) ? 'checked' : ''; echo $check; ?>>
-    								<label for="checkbox2"> <?php echo $lang['sun']; ?></label>
+						<div class="col-3">
+							<div class="form-check">
+    								<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="checkbox" value="1" id="checkbox2" name="Sunday_en" <?php $check = (($time_row['WeekDays'] & 1) > 0) ? 'checked' : ''; echo $check; ?>>
+    								<label class="form-check-label" for="checkbox2"> <?php echo $lang['sun']; ?></label>
 							</div>
 						</div>
 
-						<div class="col-xs-3">
-							<div class="checkbox checkbox-default checkbox-circle">
-    								<input id="checkbox3" class="styled" type="checkbox" name="Monday_en" value="1" <?php $check = (($time_row['WeekDays'] & 2) > 0) ? 'checked' : ''; echo $check; ?>>
-    								<label for="checkbox3"> <?php echo $lang['mon']; ?></label>
+						<div class="col-3">
+							<div class="form-check">
+    								<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="checkbox" value="1" id="checkbox3" name="Monday_en" <?php $check = (($time_row['WeekDays'] & 2) > 0) ? 'checked' : ''; echo $check; ?>>
+    								<label class="form-check-label" for="checkbox3"> <?php echo $lang['mon']; ?></label>
 							</div>
 						</div>
 
-        					<div class="col-xs-3">
-							<div class="checkbox checkbox-default checkbox-circle">
-    								<input id="checkbox4" class="styled" type="checkbox" name="Tuesday_en" value="1" <?php $check = (($time_row['WeekDays'] & 4) > 0) ? 'checked' : ''; echo $check; ?>>
-    								<label for="checkbox4"> <?php echo $lang['tue']; ?></label>
+        					<div class="col-3">
+							<div class="form-check">
+    								<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="checkbox" value="1" id="checkbox4" name="Tuesday_en" <?php $check = (($time_row['WeekDays'] & 4) > 0) ? 'checked' : ''; echo $check; ?>>
+    								<label class="form-check-label" for="checkbox4"> <?php echo $lang['tue']; ?></label>
 							</div>
 						</div>
 
-						<div class="col-xs-3">
-							<div class="checkbox checkbox-default checkbox-circle">
-    								<input id="checkbox5" class="styled" type="checkbox" name="Wednesday_en" value="1" <?php $check = (($time_row['WeekDays'] & 8) > 0) ? 'checked' : ''; echo $check; ?>>
-    								<label for="checkbox5"> <?php echo $lang['wed']; ?></label>
+						<div class="col-3">
+							<div class="form-check">
+    								<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="checkbox" value="1" id="checkbox5" name="Wednesday_en" <?php $check = (($time_row['WeekDays'] & 8) > 0) ? 'checked' : ''; echo $check; ?>>
+    								<label class="form-check-label" for="checkbox5"> <?php echo $lang['wed']; ?></label>
 							</div>
 						</div>
 
-        					<div class="col-xs-3">
-							<div class="checkbox checkbox-default checkbox-circle">
-    								<input id="checkbox6" class="styled" type="checkbox" name="Thursday_en" value="1" <?php $check = (($time_row['WeekDays'] & 16) > 0) ? 'checked' : ''; echo $check; ?>>
-	    							<label for="checkbox6"> <?php echo $lang['thu']; ?></label>
+        					<div class="col-3">
+							<div class="form-check">
+    								<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="checkbox" value="1" id="checkbox6" name="Thursday_en" <?php $check = (($time_row['WeekDays'] & 16) > 0) ? 'checked' : ''; echo $check; ?>>
+	    							<label class="form-check-label" for="checkbox6"> <?php echo $lang['thu']; ?></label>
 							</div>
 						</div>
 
-						<div class="col-xs-3">
-							<div class="checkbox checkbox-default checkbox-circle">
-    								<input id="checkbox7" class="styled" type="checkbox" name="Friday_en" value="1" <?php $check = (($time_row['WeekDays'] & 32) > 0) ? 'checked' : ''; echo $check; ?>>
-    								<label for="checkbox7"> <?php echo $lang['fri']; ?></label>
+						<div class="col-3">
+							<div class="form-check">
+    								<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="checkbox" value="1" id="checkbox7" name="Friday_en" <?php $check = (($time_row['WeekDays'] & 32) > 0) ? 'checked' : ''; echo $check; ?>>
+    								<label class="form-check-label" for="checkbox7"> <?php echo $lang['fri']; ?></label>
 							</div>
 						</div>
 
-						<div class="col-xs-3">
-							<div class="checkbox checkbox-default checkbox-circle">
-    								<input id="checkbox8" class="styled" type="checkbox" name="Saturday_en" value="1" <?php $check = (($time_row['WeekDays'] & 64) > 0) ? 'checked' : ''; echo $check; ?>>
-    								<label for="checkbox8"> <?php echo $lang['sat']; ?></label>
+						<div class="col-3">
+							<div class="form-check">
+    								<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="checkbox" value="1" id="checkbox8" name="Saturday_en" <?php $check = (($time_row['WeekDays'] & 64) > 0) ? 'checked' : ''; echo $check; ?>>
+    								<label class="form-check-label" for="checkbox8"> <?php echo $lang['sat']; ?></label>
 							</div>
 						</div>
+						<div class="col-3">
+                					<div class="d-flex justify-content-end">
+								<input type="button" value="<?php echo $lang['toggle_days']; ?>" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> login btn-sm" onclick="toggle_days()">
+							</div>
+                                                </div>
 					</div>
 					<!-- /.row -->
 
@@ -411,7 +422,7 @@ if(!isset($_GET['nid'])) {
                         		<?php if(!isset($_GET['nid'])) {
                         		echo '<div class="form-group" class="control-label">
                                 		<label><'.$lang['sch_name'].'></label>
-                                		<input class="form-control input-sm" type="text" id="sch_name" name="sch_name" value="'.$time_row["sch_name"].'" placeholder="Schedule Name">
+                                		<input class="form-control" type="text" id="sch_name" name="sch_name" value="'.$time_row["sch_name"].'" placeholder="Schedule Name">
                                 		<div class="help-block with-errors"></div>
                         		</div>'; } ?>
 
@@ -452,19 +463,19 @@ if(!isset($_GET['nid'])) {
 					?>
                                         <input type="hidden" id="start_time_state" name="start_time_state" value="<?php echo $start_mode; ?>">
                                         <div class="form-group" class="control-label"><label><?php echo $lang['start_time']; ?></label>
-                        			<input class="form-control input-sm" type="time" id="start_time" name="start_time" value="<?php echo $time_row["start"];?>" placeholder="Start Time" required>
+                        			<input class="form-control" type="time" id="start_time" name="start_time" value="<?php echo $time_row["start"];?>" placeholder="Start Time" required>
 						<?php if ($sun_enabled && !isset($_GET['nid'])) { ?>
 			                                <br>
         	                                        &nbsp;<img src="./images/sunset.png">
-							<i class="fa fa-info-circle fa-lg text-info" data-container="body" data-toggle="popover" data-placement="right" data-content="<?php echo $lang['start_time_enable_info']; ?>"></i>
-							<label class="radio-inline">
-								<input type="radio" name="radioGroup1" id="radio1" value="option1" <?php echo $start_n_check; ?>  onchange="update_start_time('00:00', '0')" > Normal
+							<i class="bi bi-info-circle icon-lg text-info" data-container="body" data-bs-toggle="popover" data-bs-placement="right" data-bs-content="<?php echo $lang['start_time_enable_info']; ?>"></i>
+							<label class="form_check form-check-inline">
+								<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="radio" name="radioGroup1" id="radio1" value="option1" <?php echo $start_n_check; ?>  onchange="update_start_time('00:00', '0')" > Normal
 							</label>
-							<label class="radio-inline">
-								<input type="radio" name="radioGroup1" id="radio2" value="option2" <?php echo $start_sr_check; ?> onchange="update_start_time(<?php echo $sunrise_time; ?>, '1')" > Sunrise
+							<label class="form-check form-check-inline">
+								<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="radio" name="radioGroup1" id="radio2" value="option2" <?php echo $start_sr_check; ?> onchange="update_start_time(<?php echo $sunrise_time; ?>, '1')" > Sunrise
 							</label>
-							<label class="radio-inline">
-								<input type="radio" name="radioGroup1" id="radio3" value="option3"  <?php echo $start_ss_check; ?>  onchange="update_start_time(<?php echo $sunset_time; ?>, '2')" > Sunset
+							<label class="form-check form-check-inline">
+								<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="radio" name="radioGroup1" id="radio3" value="option3"  <?php echo $start_ss_check; ?>  onchange="update_start_time(<?php echo $sunset_time; ?>, '2')" > Sunset
 							</label>
                                 	                <input class="styled" type="text" id="start_time_offset" name="start_time_offset" style="width: 40px" value="<?php echo $start_offset; ?>"/>
 						 <?php } ?>
@@ -507,19 +518,19 @@ if(!isset($_GET['nid'])) {
                                         ?>
                                         <input type="hidden" id="end_time_state" name="end_time_state" value="<?php echo $end_mode; ?>">
 					<div class="form-group" class="control-label"><label><?php echo $lang['end_time']; ?></label>
-						<input class="form-control input-sm" type="time" id="end_time" name="end_time" value="<?php echo $time_row["end"];?>" placeholder="End Time" required>
+						<input class="form-control" type="time" id="end_time" name="end_time" value="<?php echo $time_row["end"];?>" placeholder="End Time" required>
 						<?php if ($sun_enabled && !isset($_GET['nid'])) { ?>
                                                 	<br>
 	                                                &nbsp;<img src="./images/sunset.png">
-							 <i class="fa fa-info-circle fa-lg text-info" data-container="body" data-toggle="popover" data-placement="right" data-content="<?php echo $lang['end_time_enable_info']; ?>"></i>
-                	                                <label class="radio-inline">
-                        	                                <input type="radio" name="radioGroup2" id="radio3" value="option1" <?php echo $end_n_check; ?>  onchange="update_end_time('00:00', '0')" > Normal
+							 <i class="bi bi-info-circle icon-lg text-info" data-container="body" data-bs-toggle="popover" data-bs-placement="right" data-bs-content="<?php echo $lang['end_time_enable_info']; ?>"></i>
+                	                                <label class="form-check form-check-inline">
+                        	                                <input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="radio" name="radioGroup2" id="radio3" value="option1" <?php echo $end_n_check; ?>  onchange="update_end_time('00:00', '0')" > Normal
                                 	                </label>
-                                        	        <label class="radio-inline">
-								<input type="radio" name="radioGroup2" id="radio4" value="option2"  <?php echo $end_sr_check; ?>  onchange="update_end_time(<?php echo $sunrise_time; ?>, '1')" > Sunrise
+                                        	        <label class="form-check form-check-inline">
+								<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="radio" name="radioGroup2" id="radio4" value="option2"  <?php echo $end_sr_check; ?>  onchange="update_end_time(<?php echo $sunrise_time; ?>, '1')" > Sunrise
 	                                                </label>
-        	                                        <label class="radio-inline">
-								<input type="radio" name="radioGroup2" id="radio5" value="option3"  <?php echo $end_ss_check; ?>  onchange="update_end_time(<?php echo $sunset_time; ?>, '2')" > Sunset
+        	                                        <label class="form-check form-check-inline">
+								<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="radio" name="radioGroup2" id="radio5" value="option3"  <?php echo $end_ss_check; ?>  onchange="update_end_time(<?php echo $sunset_time; ?>, '2')" > Sunset
                         	                        </label>
                                 	                <input class="styled" type="text" id="end_time_offset" name="end_time_offset" style="width: 40px" value="<?php echo $end_offset; ?>"/>
 						<?php } ?>
@@ -540,9 +551,9 @@ if(!isset($_GET['nid'])) {
 							echo '<input type="hidden" name="zoneid['.$row["tz_id"].']" value="'.$row["zone_id"].'">';
 						}?>
 						<!-- Zone Enable Checkbox -->
-						<div class="checkbox checkbox-default  checkbox-circle">
-							<input id="checkbox<?php echo $row["tz_id"];?>" class="styled" type="checkbox" name="status[<?php echo $row["tz_id"];?>]" value="1" <?php if($time_id != 0){ $check = ($row['tz_status'] == 1) ? 'checked' : ''; echo $check;} ?> onclick="$('#<?php echo $row["tz_id"];?>').toggle();">
-    							<label for="checkbox<?php echo $row["tz_id"];?>"><?php echo $row["zone_name"];?></label>
+						<div class="form-check">
+							<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="checkbox" value="1" id="<?php echo $row["tz_id"];?>" name="status[<?php echo $row["tz_id"];?>]" <?php if($time_id != 0){ $check = ($row['tz_status'] == 1) ? 'checked' : ''; echo $check;} ?> onclick="$('#collapse_<?php echo $row["tz_id"];?>').collapse('toggle');">
+    							<label class="form-check-label" for="checkbox<?php echo $row["tz_id"];?>"><?php echo $row["zone_name"];?></label>
 
     							<div class="help-block with-errors"></div>
 						</div>
@@ -552,11 +563,11 @@ if(!isset($_GET['nid'])) {
 						if (($row["category"] == 0 || $row["category"] == 1 || $row["category"] == 3|| $row["category"] == 4) && $row["sensor_type_id"] <> 3) {
 							if($row['tz_status'] == 1 AND $time_id != 0){
 								//if($time_id != 0){
-								$style_text = "";
+								$show = "show";
 							}else{
-								$style_text = "display:none !important;";
+								$show = "";
 							}
-							 echo '<div id="'.$row["tz_id"].'" style="'.$style_text.'">
+							 echo '<div class="collapse '.$show.'" id="collapse_'.$row["tz_id"].'">
 								<div class="form-group" class="control-label">';
 //                                                                        if($row["type"]=='HVAC' || $row["type"]=='HVAC-M') {
 									if(strpos($row["type"], 'HVAC') !== false) {
@@ -581,10 +592,10 @@ if(!isset($_GET['nid'])) {
 										if ((settings($conn, 'mode')  & 0b1) == 0 && $row['sensor_type_id'] == 1) {
 											//<!-- Zone Coop Enable Checkbox -->
 										       	if($time_id != 0){ $check = ($row['coop'] == 1) ? 'checked' : ''; }
-										        echo '<div class="checkbox checkbox-default  checkbox-circle">
-												<input id="coop'.$row["tz_id"].'" class="styled" type="checkbox" name="coop['.$row["tz_id"].']" value="1" '.$check.'>
-											        <label for="coop'.$row["tz_id"].'">Coop Start</label> <i class="glyphicon glyphicon-leaf green"></i>
-											        <i class="fa fa-info-circle fa-lg text-info" data-container="body" data-toggle="popover" data-placement="right" data-content="'.$lang['schedule_coop_help'].'"></i>
+										        echo '<div class="form-check">
+												<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" value="1" id="coop'.$row["tz_id"].'" name="coop['.$row["tz_id"].']" '.$check.'>
+											        <label class="form-check-label" for="coop'.$row["tz_id"].'">Coop Start</label> <i class="bi bi-tree-fill green" style="font-size: 1.2rem;"></i>
+											        <i class="bi bi-info-circle icon-lg text-info" data-container="body" data-bs-toggle="popover" data-bs-placement="right" data-bs-content="'.$lang['schedule_coop_help'].'"></i>
 												<div class="help-block with-errors"></div>
 											</div>';
 										}
@@ -617,25 +628,27 @@ if(!isset($_GET['nid'])) {
                                         }?> <!-- End of Zone List Loop  -->
                                         <br>
 					<!-- Buttons -->
-					<a href="<?php echo $return_url ?>"><button type="button" class="btn btn-primary btn-sm" ><?php echo $lang['cancel']; ?></button></a>
-                			<input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn btn-default btn-sm login">
+					<a href="<?php echo $return_url ?>"><button type="button" class="btn btn-primary-<?php echo theme($conn, $theme, 'color'); ?> btn-sm" ><?php echo $lang['cancel']; ?></button></a>
+                			<input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-sm login">
 					</form>
 				</div>
-                        	<!-- /.panel-body -->
-				<div class="panel-footer">
-					<?php
-					ShowWeather($conn);
-					?>
+                        	<!-- /.card-body -->
+				<div class="card-footer card-footer-<?php echo theme($conn, $theme, 'color'); ?>">
+                                        <div class="text-start">
+						<?php
+						ShowWeather($conn);
+						?>
+					</div>
                         	</div>
-				<!-- /.panel-footer -->
+				<!-- /.card-footer -->
                     	</div>
-			<!-- /.panel-primary -->
+			<!-- /.card -->
 		</div>
                 <!-- /.col-lg-12 -->
 	</div>
         <!-- /.row -->
 </div>
-<!-- /#page-wrapper -->
+<!-- /#container-fluid -->
 <?php }  ?>
 <?php include("footer.php"); ?>
 
@@ -686,6 +699,18 @@ var EndTime = ehours + ':' + eminutes.substr(-2);
  document.getElementById('end_time_state').value = mode;
 
 }
+</script>
 
+<script>
+function toggle_days()
+{
+  for (let i = 2; i <= 8; i++) {
+    if (document.getElementById("checkbox" + i).checked) {
+        document.getElementById("checkbox" + i).checked = false;
+    } else {
+        document.getElementById("checkbox" + i).checked = true;
+    }
+  }
+}
 </script>
 

@@ -201,6 +201,19 @@ function settings($db, $svalue){
 	return $rValue;
 }
 
+// Return Systems setting from settings table function
+function theme($db, $id, $svalue){
+        $rValue = "";
+        $query="SELECT * FROM theme WHERE id = {$id} LIMIT 1;";
+        $result = $db->query($query);
+        if ($row = mysqli_fetch_array($result))
+    {
+        if(isset($row[$svalue]))
+            $rValue = $row[$svalue];
+    }
+        return $rValue;
+}
+
 // Return MySensors Logs from gateway_log function
 function gw_logs($db, $value){
 	$rValue = "";
@@ -428,7 +441,7 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
 		else{
 			$status='orange';
 		}
-        $scactive='fa fa-circle-o-notch';
+        $scactive='bi bi-power';
         $sccolor='';
 	}
 	//running
@@ -453,48 +466,48 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
 		$shactive='';
 		$shcolor='';
 		$target='';     //show no target temperature
-	        $scactive='fa fa-circle-o-notch';
+	        $scactive='bi bi-power';
         	$sccolor='';
 	}
 	//fault
 	else if($zone_mode_main == 10){
-		$shactive='ion-android-cancel';
+		$shactive='bi-x-circle-fill';
 		$shcolor='red';
 		$target='';     //show no target temperature
-                $scactive='ionicons ion-android-cancel';
+                $scactive='bi bi-x-circle-fill';
                 $sccolor='red';
 	}
 	//frost
 	else if($zone_mode_main == 20){
-		$shactive='ion-ios-snowy';
+		$shactive='bi-snow';
        		$shcolor='';
 		$target=number_format(DispTemp($conn,$zone_temp_target),1) . '&deg;';
-                $scactive='ionicons ion-flame';
-                $sccolor='red';
+                $scactive='flame.svg';
+                $sccolor='colorize-red';
 	}
 	//overtemperature
 	else if($zone_mode_main == 30){
-		$shactive='ion-thermometer';
+		$shactive='bi-thermometer-high';
 		$shcolor='red';
 		$target=number_format(DispTemp($conn,$zone_temp_target),1) . '&deg;';
 	}
 	//holiday
 	else if($zone_mode_main == 40){
-		$shactive='fa-paper-plane';
+		$shactive='bi-send-fill';
 		$shcolor='';
 		$target='';     //show no target temperature
-                $scactive='fa fa-circle-o-notch';
+                $scactive='bi bi-power';
                 $sccolor='';
 	}
 	//nightclimate
 	else if($zone_mode_main == 50){
-		$shactive='fa-bed';
+		$shactive='bi-moon-fill';
 		$shcolor='';
 		$target=number_format(DispTemp($conn,$zone_temp_target),1) . '&deg;';
 	}
 	//boost
 	else if($zone_mode_main == 60){
-		$shactive='fa-rocket';
+		$shactive='rocket.svg';
 		$shcolor='';
                 if($zone_mode_sub == 4 || $zone_mode_sub == 7){
                         $target='';     //show no target temperature
@@ -502,26 +515,26 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
                         $target=number_format(DispTemp($conn,$zone_temp_target),1) . '&deg;';
                 }
                 if($zone_mode_sub == 1){
-                        $scactive='ionicons ion-flame';
-                        $sccolor='red';
+                        $scactive='flame.svg';
+                        $sccolor='colorize-red';
                         $status='red';
                 } elseif($zone_mode_sub == 6){
-                        $scactive='fa fa-snowflake-o';
+                        $scactive='bi bi-snow';
                         $sccolor='blueinfo';
                         $status='blue';
                 } elseif($zone_mode_sub == 3){
-                        $scactive='ionicons ion-flame';
-                        $sccolor='blue';
+                        $scactive='flame.svg';
+                        $sccolor='colorize-blue';
                         $status='blue';
                 } else {
-                        $scactive='fa fa-circle-o-notch';
+                        $scactive='bi bi-power';
                         $sccolor='blue';
                         $status='';
                 }
 	}
         //override
         else if($zone_mode_main == 70){
-                $shactive='fa-refresh';
+                $shactive='bi-arrow-repeat';
                 $shcolor='';
                 // category 2 zone in manual overrride mode
                 if($zone_mode_sub >= 4){
@@ -546,28 +559,28 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
 	}*/
 	//away
 	else if($zone_mode_main == 90){
-		$shactive='fa-sign-out';
+		$shactive='bi-box-arrow-right';
 		$shcolor='';
 		if($zone_mode_sub == 0){
 			$target='';     //show no target temperature
 		} else {
 			$target=number_format(DispTemp($conn,$zone_temp_target),1) . '&deg;';
 		}
-                $scactive='fa fa-circle-o-notch';
+                $scactive='bi bi-power';
                 $sccolor='';
 	}
 	//hysteresis
 	else if($zone_mode_main == 100){
-		$shactive='fa-hourglass';
+		$shactive='bi-hourglass-split';
 		$shcolor='';
 		$target='';     //show no target temperature
 	}
         //Add-On
         else if($zone_mode_main == 110){
                 if($zone_mode_sub == 1){
-                        $shactive='ion-ios-clock-outline';
+                        $shactive='bi-clock';
                 } else {
-                        $shactive='fa fa-power-off';
+                        $shactive='bi bi-power';
                 }
                 //add-on swtched OFF
                 if($zone_mode_sub == 0){
@@ -582,31 +595,31 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
 	//HVAC
         else if($zone_mode_main == 80 || $zone_mode_main == 120){
                 if($zone_mode_sub == 1){
-                        $scactive='ionicons ion-flame';
-                        $sccolor='red';
+                        $scactive='flame.svg';
+                        $sccolor='colorize-red';
                         $status='red';
                 } elseif($zone_mode_sub == 6){
-                        $scactive='fa fa-snowflake-o';
+                        $scactive='bi bi-snow';
                         $sccolor='blueinfo';
                         $status='blue';
                 } elseif($zone_mode_sub == 3){
-                        $scactive='ionicons ion-flame';
-                        $sccolor='blue';
+                        $scactive='flame.svg';
+                        $sccolor='colorize-blue';
                         $status='blue';
                 } else {
-                        $scactive='fa fa-circle-o-notch';
+                        $scactive='bi bi-power';
                         $sccolor='blue';
                         $status='';
                 }
  		if($zone_mode_main == 80){
                 	//if not coop start waiting for the system_controller
                 	if($zone_mode_sub <> 3){
-                        	$shactive='ion-ios-clock-outline';
+                        	$shactive='bi-clock';
                 		$shcolor='';
                 	}
                 	//if coop start waiting for the system_controller
                 	else{
-                        	$shactive='ion-leaf';
+                        	$shactive='bi bi-tree-fill';
                         	$shcolor='green';
                 	}
 		}
@@ -614,36 +627,36 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
         }
         //undertemperature
         else if($zone_mode_main == 130){
-                $shactive='ion-thermometer';
+                $shactive='bi-thermometer-snow';
                 $shcolor='blue';
                 $target=number_format(DispTemp($conn,$zone_temp_target),1) . '&deg;';
         }
         //manual
         else if($zone_mode_main == 140){
                 if($zone_mode_sub == 1){
-                        $scactive='ionicons ion-flame';
-                        $sccolor='red';
+                        $scactive='flame.svg';
+                        $sccolor='colorize-red';
                         $status='red';
                 } elseif($zone_mode_sub == 6){
-                        $scactive='fa fa-snowflake-o';
+                        $scactive='bi bi-snow';
                         $sccolor='blueinfo';
                         $status='blue';
                 } elseif($zone_mode_sub == 3){
-                        $scactive='ionicons ion-flame';
-                        $sccolor='blue';
+                        $scactive='flame.svg';
+                        $sccolor='colorize-blue';
                         $status='blue';
                 } else {
-                        $scactive='fa fa-circle-o-notch';
+                        $scactive='bi bi-power';
                         $sccolor='blue';
                         $status='';
                 }
-                $shactive='ion-ios-loop-strong';
+                $shactive='bi-arrow-repeat';
                 $shcolor='';
                 $target=number_format(DispTemp($conn,$zone_temp_target),1) . '&deg;';
         }
 	//shouldn't get here
 	else {
-		$shactive='fa-question';
+		$shactive='bi-question';
 		$shcolor='';
 		$target='';     //show no target temperature
 	}
@@ -884,13 +897,12 @@ function boost($conn,$button) {
         $query = "SELECT status FROM boost WHERE status = '1' LIMIT 1";
         $result = $conn->query($query);
         $boost_status=mysqli_num_rows($result);
-        if ($boost_status ==1) {$boost_status='red';} else {$boost_status='blue';}
-        echo '<a style="font-style: normal; color: #777; cursor: pointer; text-decoration: none;" href="boost.php">
-        <button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">
+        if ($boost_status ==1) {$boost_status='red';} else {$boost_status='blueinfo';}
+        echo '<button type="button" class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-circle no-shadow '.$button_style.' mainbtn" onclick="relocate_page(`boost.php`)">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
-        <h3 class="degre"><i class="fa fa-rocket fa-1x"></i></h3>
-        <h3 class="status"><small class="statuscircle" id="bs1_1"><i class="fa fa-circle fa-fw '.$boost_status.'"></i></small>
-        </h3></button></a>';
+        <h3 class="degre"><img src="images/rocket.svg" style="margin-top: -5px;" width="25" height="25" alt=""></h3>
+        <h3 class="status"><small class="statuscircle" id="bs1_1"><i class="bi bi-circle-fill '.$rval['status'].'" style="font-size: 0.55rem"></i></small>
+        </h3></button>';
 
 }
 
@@ -900,13 +912,12 @@ function override($conn,$button) {
         $query = "SELECT status FROM override WHERE status = '1' LIMIT 1";
         $result = $conn->query($query);
         $override_status=mysqli_num_rows($result);
-        if ($override_status==1) {$override_status='red';}else{$override_status='blue';}
-        echo '<a style="font-style: normal; color: #777; cursor: pointer; text-decoration: none;" href="override.php">
-        <button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">
+        if ($override_status==1) {$override_status='red';}else{$override_status='blueinfo';}
+        echo '<button type="button" class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-circle no-shadow '.$button_style.' mainbtn" onclick="relocate_page(`override.php`)">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
-        <h3 class="degre"><i class="fa fa-refresh fa-1x"></i></h3>
-        <h3 class="status"><small class="statuscircle" id="bs1_2"><i class="fa fa-circle fa-fw '.$override_status.'"></i></small>
-        </h3></button></a>';
+        <h3 class="degre"><i class="bi bi-arrow-repeat"  style="font-size: 1.4rem; color: black"></i></h3>
+        <h3 class="status"><small class="statuscircle" id="bs1_2"><i class="bi bi-circle-fill '.$override_status.'" style="font-size: 0.55rem;"></i></small>
+        </h3></button>';
 }
 
 function offset($conn,$button) {
@@ -914,7 +925,7 @@ function offset($conn,$button) {
         global $button_style;
 
 	$start_time_temp_offset = "";
-	$offset_status='blue';
+	$offset_status='blueinfo';
         $query = "SELECT id FROM zone;";
         $zresults = $conn->query($query);
         $rowcount=mysqli_num_rows($zresults);
@@ -968,10 +979,10 @@ function offset($conn,$button) {
 		}
 	}
 	echo '<div style="font-style: normal;"
-	<button class="btn btn-default btn-circle '.$button_style.' mainbtn animated fadeIn" data-toggle="modal" href="#offset_setup" data-backdrop="static" data-keyboard="false">
+	<button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-circle no-shadow '.$button_style.' mainbtn animated fadeIn" data-bs-toggle="modal" href="#offset_setup" data-bs-backdrop="static" data-bs-keyboard="false">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
-        <h3 class="degre"><i class="fa fa-clock-o fa-1x"></i></h3>
-        <h3 class="status"><small class="statuscircle" id="bs1_3"><i class="fa fa-circle fa-fw '.$offset_status.'"></i></small><small class="statuszoon" id=bs2_3">'.$start_time_temp_offset.'&nbsp</small>
+        <h3 class="degre"><i class="bi bi-clock"  style="font-size: 1.4rem; color: black"></i></h3>
+        <h3 class="status"><small class="statuscircle" id="bs1_3"><i class="bi bi-circle-fill '.$offset_status.'" style="font-size: 0.55rem;"></i></small><small class="statuszoon" id=bs2_3">'.$start_time_temp_offset.'&nbsp</small>
         </h3></button></div>';
 }
 
@@ -981,13 +992,12 @@ function night_climate($conn,$button) {
         $query = "SELECT * FROM schedule_night_climate_time LIMIT 1";
         $results = $conn->query($query);
         $row = mysqli_fetch_assoc($results);
-        if ($row['status'] == 1) {$night_status='red';}else{$night_status='blue';}
-        echo '<a style="font-style: normal; color: #777; cursor: pointer; text-decoration: none;" href="scheduling.php?nid=0">
-        <button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">
+        if ($row['status'] == 1) {$night_status='red';}else{$night_status='blueinfo';}
+        echo '<button type="button" class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-circle no-shadow '.$button_style.' mainbtn" onclick="relocate_page(`scheduling.php?nid=0`)">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
-        <h3 class="degre"><i class="fa fa-bed fa-1x"></i></h3>
-        <h3 class="status"><small class="statuscircle" id="bs1_4"><i class="fa fa-circle fa-fw '.$night_status.'"></i></small>
-        </h3></button></a>';
+        <h3 class="degre"><i class="bi bi-moon-fill" style="font-size: 1.4rem; color: black"></i></h3>
+        <h3 class="status"><small class="statuscircle" id="bs1_4"><i class="bi bi-circle-fill '.$night_status.'" style="font-size: 0.55rem;"></i></small>
+        </h3></button>';
 }
 
 function away($conn,$button) {
@@ -1001,13 +1011,16 @@ function away($conn,$button) {
         $query = "SELECT * FROM away LIMIT 1";
         $result = $conn->query($query);
         $away = mysqli_fetch_array($result);
-        if ($away['status']=='1') { $awaystatus="red"; } elseif ( $away['status']=='0' || $sc_mode == 0) { $awaystatus="blue"; }
-        if ($sc_mode != 0 ) { echo '<a style="font-style: normal;" href="javascript:active_away();">'; }
-        echo '<button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">
-        <h3 class="buttontop"><small>'.$button.'</small></h3>
-        <h3 class="degre"><i class="fa fa-sign-out fa-1x"></i></h3>
-        <h3 class="status"><small class="statuscircle" id="bs1_5"><i class="fa fa-circle fa-fw '.$awaystatus.'"></i></small>
-        </h3></button></a>';
+        if ($away['status']=='1') { $awaystatus="red"; } elseif ( $away['status']=='0' || $sc_mode == 0) { $awaystatus="blueinfo"; }
+        if ($sc_mode != 0 ) {
+	        echo '<button type="button" class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-circle no-shadow '.$button_style.' mainbtn" onclick="active_away()">';
+	} else {
+                echo '<button type="button" class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-circle no-shadow '.$button_style.' mainbtn">';
+	}
+        echo '<h3 class="buttontop"><small>'.$button.'</small></h3>
+        <h3 class="degre"><i class="bi bi-box-arrow-right" style="font-size: 1.4rem; color: black"></i></h3>
+        <h3 class="status"><small class="statuscircle" id="bs1_5"><i class="bi bi-circle-fill '.$awaystatus.'" style="font-size: 0.55rem;"></i></small>
+        </h3></button>';
 }
 
 function holidays($conn,$button) {
@@ -1016,13 +1029,12 @@ function holidays($conn,$button) {
         $query = "SELECT status FROM holidays WHERE NOW() between start_date_time AND end_date_time AND status = '1' LIMIT 1";
         $result = $conn->query($query);
         $holidays_status=mysqli_num_rows($result);
-        if ($holidays_status=='1'){$holidaystatus="red";}elseif ($holidays_status=='0'){$holidaystatus="blue";}
-        echo '<a style="font-style: normal; color: #777; cursor: pointer; text-decoration: none;" href="holidays.php">
-        <button type="button" class="btn btn-default btn-circle '.$button_style.' mainbtn">
+        if ($holidays_status=='1'){$holidaystatus="red";}elseif ($holidays_status=='0'){$holidaystatus="blueinfo";}
+        echo '<button type="button" class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-circle no-shadow '.$button_style.' mainbtn" onclick="relocate_page(`holidays.php`)">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
-        <h3 class="degre"><i class="fa fa-paper-plane fa-1x"></i></h3>
-        <h3 class="status"><small class="statuscircle" style="color:#048afd;" id="bs1_6"><i class="fa fa-circle fa-fw '.$holidaystatus.'"></i></small>
-        </h3></button></a>';
+        <h3 class="degre"><i class="bi bi-send-fill" style="font-size: 1.4rem; color: black"></i></h3>
+        <h3 class="status"><small class="statuscircle" style="color:#048afd;" id="bs1_6"><i class="bi bi-circle-fill '.$holidaystatus.'" style="font-size: 0.55rem;"></i></small>
+        </h3></button>';
 }
 
 function enc_passwd($plain_password) {

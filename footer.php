@@ -20,7 +20,7 @@
     </div>
     <!-- /#wrapper -->
     <!-- jQuery -->
-    <script src="js/jquery.js"></script>
+    <script src="js/jquery.min.js"></script>
     <script type="text/javascript">
         $.ajaxSetup ({
             // Disable caching of AJAX responses
@@ -28,6 +28,7 @@
         });
     </script>
     <!-- Bootstrap Core JavaScript -->
+    <script src="js/popper.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
 
     <!-- Metis Menu Plugin JavaScript -->
@@ -36,9 +37,7 @@
 	<!-- bootstrap datepicker JavaScript -->
 	<script src="js/plugins/datepicker/bootstrap-datetimepicker.js"></script>
 
-
     <!-- Custom Theme JavaScript -->
-    <script src="js/sb-admin-2.js"></script>
 	<script src="js/validator.min.js"></script>
 	<script type="text/javascript" src="js/request.js"></script>
 	<!-- bootstrap waiting for JavaScript -->
@@ -48,13 +47,14 @@
 	<script src="js/plugins/slider/bootstrap-slider.min.js"></script>
 
         <!-- bootstrap confirmation -->
-        <script src="js/plugins/confirmation/bootstrap-confirmation.min.js"></script>
+	<script src="js/plugins/confirm_dialog_button_bootstrap/confirmbutton.js"></script>
 
         <!-- jquery knob -->
         <script src="js/plugins/knob/jquery.knob.js"></script>
 
 <script>
 $(document).ready(function() {
+    console.log('Bootstrap ' + $.fn.popover.Constructor.VERSION);
     var maxField = 10; //Input fields increment limitation
     var addButton = $('.add_button'); //Add button selector
     var wrapper = $('.controler_id_wrapper'); //Input field wrapper
@@ -66,7 +66,7 @@ $(document).ready(function() {
 			<div class="form-group" class="control-label" id="controler_id_label" style="display:block"><label><?php echo $lang['zone_controller_id']; ?></label> <small class="text-muted"><?php echo $lang['zone_controler_id_info'];?></small>
 	        	        <input type="hidden" id="selected_controler_id[]" name="selected_controler_id[]" value="<?php echo $zone_controllers[$i]['controller_relay_id']?>"/>
 				<div class="entry input-group col-xs-12" id="cnt_id - <?php echo $i ?>">
-					<select id="controler_idx" onchange="ControllerIDList(this.options[this.selectedIndex].value)" name="controler_idx" class="form-control select2" data-error="<?php echo $lang['zone_controller_id_error']; ?>" autocomplete="off">
+					<select id="controler_idx" onchange="ControllerIDList(this.options[this.selectedIndex].value)" name="controler_idx" class="form-select" data-bs-error="<?php echo $lang['zone_controller_id_error']; ?>" autocomplete="off">
 						<?php if(isset($zone_controllers[$i]["zone_controller_name"])) { echo '<option selected >'.$zone_controllers[$i]["zone_controller_name"].'</option>'; } ?>
 						<?php  $query = "SELECT id, name, type FROM relays WHERE type = 0 OR type = 5 ORDER BY id ASC;";
 						$result = $conn->query($query);
@@ -76,13 +76,15 @@ $(document).ready(function() {
 						} ?>
 					</select>
 					<div class="help-block with-errors"></div>
-					<span class="input-group-btn">
-                                                <?php if ($i == 0) {
-                                                        echo '<a href="javascript:void(0);" class="add_button" title="Add field"><img src="./images/add-icon.png"/></a>';
-                                                } else {
-                                                        echo '<a href="javascript:void(0);" class="remove_button"><img src="./images/remove-icon.png"/></a>';
-                                                } ?>
-					</span>
+					<div class="input-group-append">
+						<span class="input-group-btn">
+                                                	<?php if ($i == 0) {
+                                                        	echo '<a href="javascript:void(0);" class="add_button"><button class="btn btn-outline" data-bs-toggle="tooltip" title="'.$lang['add_controller'].'"><img src="./images/add-icon.png"/></a>';
+                                                	} else {
+                                                        	echo '<a href="javascript:void(0);" class="remove_button"><button class="btn btn-outline" data-bs-toggle="tooltip" title="'.$lang['remove_controller'].'"><img src="./images/remove-icon.png"/></a>';
+                                                	} ?>
+						</span>
+					</div>
 				</div>
     			</div>
 		</div>
@@ -98,6 +100,13 @@ $(document).ready(function() {
             $(wrapper).append(temp_HTML); //Add field html
             x++; //Increment field counter
 	    document.getElementById("controller_count").value = x;
+            //enable a tooltip for this addition
+            $('[data-bs-toggle="tooltip"]').tooltip({
+                trigger : 'hover'
+            });
+            $('[data-bs-toggle="tooltip"]').on('click', function () {
+                $(this).tooltip('hide')
+            });
         }
     });
 
@@ -206,9 +215,11 @@ if ($_SERVER['SCRIPT_NAME'] == '/scheduling.php'){
 
 <script>
 <?php if (($_SERVER['SCRIPT_NAME'] == '/scheduling.php') OR ($_SERVER['SCRIPT_NAME'] == '/schedule.php')){ ?>
-	 // popover
-	$("[data-toggle=popover]")
-		.popover()
+      // popover
+      var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+      var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+      return new bootstrap.Popover(popoverTriggerEl);
+    });
 <?php } ?>
 </script>
 

@@ -61,7 +61,7 @@ function active_schedule(wid){
 //activate and deactivate schedule 
 function schedule_zone(wid){
 	var quest = "?w=schedule_zone&o=active&wid=" + wid + "&frost_temp=0";
-        request('db.php', 'GET', quest, function(){ $(`#sdtz_` + wid).load("ajax_fetch_data.php?id=" + wid + "&type=20").fadeIn("slow"); } );
+	request('db.php', 'GET', quest, function(){ $(`#sdtz_` + wid).load("ajax_fetch_data.php?id=" + wid + "&type=20").fadeIn("slow"); } );
 }
 
 //delete schedule 
@@ -1182,6 +1182,80 @@ var idata="w=sensor_limits&o=delete&wid="+wid;
     .fail(function( jqXHR, textStatus, errorThrown ){
         if(jqXHR==401 || jqXHR==403) return;
         console.log("delete_sensor_limits: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//set theme
+function set_theme(){
+//var x = document.getElementsByTagName("input");
+var x = document.getElementById("theme").querySelectorAll("input");
+var i;
+var idata="w=set_theme&o=update";
+    idata+="&theme_id="+$("#theme_id").val();
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=2"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("set_theme: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//Delete Theme
+function delete_theme(wid){
+var idata="w=theme&o=delete&wid="+wid;
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=3"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("delete_theme: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+function relocate_page(page)
+{
+     location.href = page;
+}
+
+//Update Auto Backup
+function set_auto_backup(){
+//var x = document.getElementsByTagName("input");
+var x = document.getElementById("auto_backup").querySelectorAll("input");
+var i;
+var idata="w=auto_backup&o=update";
+    for (i = 0; i < x.length; i++) {
+        if(x[i].name == "ab_enabled" || x[i].name == "ab_email_database" || x[i].name == "ab_email_confirmation")
+             idata+="&"+x[i].id+"="+x[i].checked;
+        else
+             idata+="&"+x[i].id+"="+x[i].value;
+    }
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=2"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("auto_backup_graphs: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
     })
     .always(function() {
     });

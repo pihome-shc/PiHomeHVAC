@@ -25,63 +25,76 @@ require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 
 $page_refresh = page_refresh($conn);
+$theme = settings($conn, 'theme');
+
 ?>
-<div class="panel panel-primary">
-	<div class="panel-heading">
-		<i class="fa fa-paper-plane fa-1x"></i> <?php echo $lang['holidays']; ?>
-			<div class="pull-right"> <div class="btn-group" id="holiday_date"><?php echo date("H:i"); ?></div> </div>
+<div class="card border-<?php echo theme($conn, $theme, 'color'); ?>">
+        <div class="card-header <?php echo theme($conn, $theme, 'text_color'); ?> card-header-<?php echo theme($conn, $theme, 'color'); ?>">
+                <div class="d-flex justify-content-between">
+                        <div>
+                                <i class="bi bi-send-fill" style="font-size: 1.2rem;"></i> <?php echo $lang['holidays']; ?>
+                        </div>
+			<div>
+                                <div class="btn-group" id="holiday_date"><?php echo '&nbsp;&nbsp;'.date("H:i"); ?></div>
+                        </div>
+		</div>
      	</div>
-        <!-- /.panel-heading -->
- 	<div class="panel-body">
- 		<ul class="chat">
- 		<li class="left clearfix">
-                <a href="holiday.php" style="color: #777; cursor: pointer;" ><span class="chat-img pull-left">
-                <div class="circle orangesch"> <i class="ionicons ion-plus"></i> </div>
-                </span>
-                <div class="chat-body clearfix">
-                	<div class="header">
-                       		<strong class="primary-font">   </strong>
-				<small class="pull-right text-muted">
-				<?php echo $lang['holidays_add']; ?> <i class="fa fa-chevron-right fa-fw"></i></a>
-                             	</small>
-                         </div>
-                </div>
-                </li>
+        <!-- /.card-header -->
+ 	<div class="card-body">
+                <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                                <a href="holiday.php" class="d-flex justify-content-between list-group-item list-group-item-action">
+                                        <span class="circle orangesch"><i class="bi bi-plus-lg" style="font-size: 1.2rem;"></i></span>
+                                        <span class="header">
+                                                <strong class="primary-font"> </strong>
+                                                <small class="text-muted">
+                                                        <?php echo $lang['holidays_add']; ?> <i class="bi bi-chevron-right icon-fw"></i>
+                                                </small>
+                                        </span>
+                                </a>
+                        </li>
 		<?php
 
-		//get the current holidays
-		$query = "SELECT * FROM holidays ORDER BY start_date_time asc";
-		$hol_results = $conn->query($query);
-		while ($hol_row = mysqli_fetch_assoc($hol_results)) {
-			echo '
-			<li class="left clearfix holidaysli">
-			<a href="javascript:active_holidays('.$hol_row["id"].');">
-
-			<span class="chat-img pull-left">';
-			if($hol_row["status"]=="0"){ $shactive="bluesch"; }else{ $shactive="orangesch"; }
-			$time = strtotime(date("G:i:s"));
-			$start_date_time = strtotime($hol_row['start_date_time']);
-			$end_date_time = strtotime($hol_row['end_date_time']);
-			if ($time >$start_date_time && $time <$end_date_time && $hol_row["status"]=="1"){$shactive="redsch";}
-			echo '<div class="circle '. $shactive.'"> <i class="fa fa-paper-plane"></i></div>
-                     	</span></a>
-
-			<a style="color: #333; cursor: pointer; text-decoration: none;" data-toggle="collapse" data-parent="#accordion" href="#collapse'.$hol_row['id'].'">
-
-			<a href="scheduling.php?hol_id='.$hol_row["id"].'" style="color: #777; cursor: pointer;" ><small class="pull-right text-muted">
-			'.$lang['schedule_add'].' <i class="fa fa-chevron-right fa-fw"></i></a>
-			</small>
-
-			<div class="header">
-				<div class="text-info">&nbsp;&nbsp;&nbsp;&nbsp;From: '.$hol_row['start_date_time'].' </div> 
-				<div class="text-info">&nbsp;&nbsp;&nbsp;&nbsp;Until:&nbsp; '.$hol_row['end_date_time'].'</div></a>
-
-
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<a href="javascript:delete_holidays('.$hol_row["id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="ARE YOU SURE?" data-content="You are about to DELETE this SCHEDULE"><span class="glyphicon glyphicon-trash"></span></button> </a>
-				<a href="holiday.php?id='.$hol_row["id"].'" class="btn btn-default btn-xs login"><span class="ionicons ion-edit"></span></a>
-        			<a href="scheduling.php?hol_id='.$hol_row["id"].'" class="btn btn-default btn-xs login"><span class="fa fa-clock-o fa-lg fa-fw"></span></a>
-    			</div></li>';
+			//get the current holidays
+			$query = "SELECT * FROM holidays ORDER BY start_date_time asc";
+			$hol_results = $conn->query($query);
+			while ($hol_row = mysqli_fetch_assoc($hol_results)) {
+				if($hol_row["status"]=="0"){ $shactive="bluesch"; }else{ $shactive="orangesch"; }
+				$time = strtotime(date("G:i:s"));
+				$start_date_time = strtotime($hol_row['start_date_time']);
+				$end_date_time = strtotime($hol_row['end_date_time']);
+				if ($time >$start_date_time && $time <$end_date_time && $hol_row["status"]=="1"){$shactive="redsch";}
+                	        echo '<li class="list-group-item">
+                                        <div class="d-flex justify-content-between">
+                                                <span>
+                                                        <div class="d-flex justify-content-start">
+					                        <a href="javascript:active_holidays('.$hol_row["id"].');">
+        		                				<span>
+										<div class="circle '. $shactive.'"> <i class="bi bi-send-fill blueinfo"></i></div>
+                     							</span>
+								</a>
+                                                        	<a style="color: #333; cursor: pointer; text-decoration: none;" data-bs-toggle="collapse" href="#collapse' . $hol_row['id'] . '">
+                                                                        <span class="header text-info">&nbsp;&nbsp
+                                                                                Start: '.$hol_row['start_date_time'].'<br>&nbsp;&nbsp; End: '. $hol_row['end_date_time'].'
+                                                                        </span>
+                                                                </a>
+                                                        </div>
+						</span>
+						<a href="scheduling.php?hol_id='.$hol_row["id"].'"style=" text-decoration: none;">
+							<span class="header">
+		                                                <strong class="primary-font"> </strong>
+        		                                        <small class="text-muted">
+                		                                        '.$lang['schedule_add'].'<i class="bi bi-chevron-right icon-fw"></i>
+                        		                        </small>
+							</span>
+						</a>
+					</div>
+					<div class="d-flex justify-content-end">
+						<button class="btn warning btn-danger btn-sm" onclick="delete_holidays('.$hol_row["id"].');" data-confirm="ARE YOU SURE?"><span class="bi bi-trash-fill"></span></button>&nbsp;&nbsp;
+						<a href="holiday.php?id='.$hol_row["id"].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-sm login"><span class="bi bi-pencil"></span></a>&nbsp;&nbsp;
+		        			<a href="scheduling.php?hol_id='.$hol_row["id"].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-sm login"><span class="bi bi-clock"></span></a>&nbsp;&nbsp;
+					</div>
+				</li>';
 			//following variable set to 0 on start for array index. 
 			$sch_time_index = '0';
 			//$query = "SELECT time_id, time_status, `start`, `end`, tz_id, tz_status, zone_id, index_id, zone_name, temperature, max(temperature) as max_c FROM schedule_daily_time_zone_view group by time_id ORDER BY start asc";
@@ -93,82 +106,113 @@ $page_refresh = page_refresh($conn);
 			if ($rowcount=mysqli_num_rows($results) > 0) {
 				$hol_params = [];
 				while ($row = mysqli_fetch_assoc($results)) {
-				        if($row["WeekDays"]  & (1 << 0)){ $Sunday_status_icon="ion-checkmark-circled"; $Sunday_status_color="orangefa"; }else{ $Sunday_status_icon="ion-close-circled"; $Sunday_status_color="bluefa"; }
-				        if($row["WeekDays"]  & (1 << 1)){ $Monday_status_icon="ion-checkmark-circled"; $Monday_status_color="orangefa"; }else{ $Monday_status_icon="ion-close-circled"; $Monday_status_color="bluefa"; }
-				        if($row["WeekDays"]  & (1 << 2)){ $Tuesday_status_icon="ion-checkmark-circled"; $Tuesday_status_color="orangefa"; }else{ $Tuesday_status_icon="ion-close-circled"; $Tuesday_status_color="bluefa"; }
-				        if($row["WeekDays"]  & (1 << 3)){ $Wednesday_status_icon="ion-checkmark-circled"; $Wednesday_status_color="orangefa"; }else{ $Wednesday_status_icon="ion-close-circled"; $Wednesday_status_color="bluefa"; }
-			        	if($row["WeekDays"]  & (1 << 4)){ $Thursday_status_icon="ion-checkmark-circled"; $Thursday_status_color="orangefa"; }else{ $Thursday_status_icon="ion-close-circled"; $Thursday_status_color="bluefa"; }
-				        if($row["WeekDays"]  & (1 << 5)){ $Friday_status_icon="ion-checkmark-circled"; $Friday_status_color="orangefa"; }else{ $Friday_status_icon="ion-close-circled"; $Friday_status_color="bluefa"; }
-				        if($row["WeekDays"]  & (1 << 6)){ $Saturday_status_icon="ion-checkmark-circled"; $Saturday_status_color="orangefa"; }else{ $Saturday_status_icon="ion-close-circled"; $Saturday_status_color="bluefa"; }
+				if($row["WeekDays"]  & (1 << 0)){ $Sunday_status_icon="bi-check-circle-fill"; $Sunday_status_color="orangefa"; }else{ $Sunday_status_icon="bi-x-circle-fill"; $Sunday_status_color="bluefa"; }
+				        if($row["WeekDays"]  & (1 << 1)){ $Monday_status_icon="bi-check-circle-fill"; $Monday_status_color="orangefa"; }else{ $Monday_status_icon="bi-x-circle-fill"; $Monday_status_color="bluefa"; }
+				        if($row["WeekDays"]  & (1 << 2)){ $Tuesday_status_icon="bi-check-circle-fill"; $Tuesday_status_color="orangefa"; }else{ $Tuesday_status_icon="bi-x-circle-fill"; $Tuesday_status_color="bluefa"; }
+				        if($row["WeekDays"]  & (1 << 3)){ $Wednesday_status_icon="bi-check-circle-fill"; $Wednesday_status_color="orangefa"; }else{ $Wednesday_status_icon="bi-x-circle-fill"; $Wednesday_status_color="bluefa"; }
+			        	if($row["WeekDays"]  & (1 << 4)){ $Thursday_status_icon="bi-check-circle-fill"; $Thursday_status_color="orangefa"; }else{ $Thursday_status_icon="bi-x-circle-fill"; $Thursday_status_color="bluefa"; }
+				        if($row["WeekDays"]  & (1 << 5)){ $Friday_status_icon="bi-check-circle-fill"; $Friday_status_color="orangefa"; }else{ $Friday_status_icon="bi-x-circle-fill"; $Friday_status_color="bluefa"; }
+				        if($row["WeekDays"]  & (1 << 6)){ $Saturday_status_icon="bi-check-circle-fill"; $Saturday_status_color="orangefa"; }else{ $Saturday_status_icon="bi-x-circle-fill"; $Saturday_status_color="bluefa"; }
 
 					if($row["time_status"]=="0"){ $shactive="bluesch"; }else{ $shactive="orangesch"; }
 					$time = strtotime(date("G:i:s"));
 					$start_time = strtotime($row['start']);
 					$end_time = strtotime($row['end']);
 					if($row["WeekDays"]  & (1 << idate('w'))){if ($time >$start_time && $time <$end_time && $row["time_status"]=="1"){$shactive="redsch";}}
-
 					//time shchedule listing
-					$unit = SensorUnits($conn,$row['sensor_type_id']);
-					echo '
-					<div class="header">
-						<li class="left clearfix scheduleli animated fadeIn">
-						<a href="javascript:active_schedule('.$row["time_id"].');">
-							<span class="chat-img pull-left" id="hol_status_'.$row["time_id"].'">
-								<div class="circle '. $shactive.'">';
-		                                                        if($row["category"] <> 2 && $row["sensor_type_id"] <> 3 && $row["tz_status"] == 1) {
-                		                                                if ($row["tz_status"] == 1 || ($row["tz_status"] == 0 && $row["time_status"] == 1)) {
-                                		                                        $unit = SensorUnits($conn,$row['sensor_type_id']);
-                                                			                echo '<p class="schdegree">' . DispSensor($conn, number_format($row["max_c"], 1), $row["sensor_type_id"]) . $unit . '</p>';
-                                                                		}
-                                                        		}
-								echo '</div>
-							</span>
-						</a>
-						<a style="color: #333; cursor: pointer; text-decoration: none;" data-toggle="collapse" data-parent="#accordion" href="#collapse'.$row['tz_id'].'">
-						<div class="chat-body clearfix">
-							<div class="header text-info">&nbsp;&nbsp; <span class="label label-info">' . $row['sch_name'] . '</span><br>&nbsp;&nbsp; '. $row['start'] . ' - ' . $row['end'] . ' &nbsp;&nbsp;
-								<small class="pull-right pull-right-days">
-								&nbsp;&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;M&nbsp;&nbsp;&nbsp;T&nbsp;&nbsp;W&nbsp;&nbsp;&nbsp;T&nbsp;&nbsp;&nbsp;F&nbsp;&nbsp;&nbsp;S<br>
-								&nbsp;&nbsp;&nbsp;
-								<i class="ionicons '.$Sunday_status_icon.' fa-lg '.$Sunday_status_color.'"></i>
-								<i class="ionicons '.$Monday_status_icon.' fa-lg '.$Monday_status_color.'"></i>
-								<i class="ionicons '.$Tuesday_status_icon.' fa-lg '.$Tuesday_status_color.'"></i>
-								<i class="ionicons '.$Wednesday_status_icon.' fa-lg '.$Wednesday_status_color.'"></i>
-								<i class="ionicons '.$Thursday_status_icon.' fa-lg '.$Thursday_status_color.'"></i>
-								<i class="ionicons '.$Friday_status_icon.' fa-lg '.$Friday_status_color.'"></i>
-								<i class="ionicons '.$Saturday_status_icon.' fa-lg '.$Saturday_status_color.'"></i>
-
-								</small>
+				echo '<li class="list-group-item">
+					<div class="d-flex justify-content-between">
+						<span>
+							<div class="d-flex justify-content-start">
+								<a href="javascript:active_holidays('.$hol_row["id"].');" style="text-decoration: none;">
+									<span class="" id="sch_status_'.$row["time_id"].'">
+                	        						<div class="circle ' . $shactive . '">';
+											if ($row["tz_status"] == 1 || ($row["tz_status"] == 0 && $row["time_status"] == 1)) {
+			        		        	                		if($row["category"] <> 2 && $row["sensor_type_id"] <> 3) {
+													$unit = SensorUnits($conn,$row['sensor_type_id']);
+													echo '<p class="schdegree">' . DispSensor($conn, number_format($row["max_c"], 1), $row["sensor_type_id"]) . $unit . '</p>';
+												}
+											}
+		                        					echo ' </div>
+									</span>
+								</a>
+                        					<a style="color: #333; cursor: pointer; text-decoration: none;" data-bs-toggle="collapse" href="#collapse' . $row['tz_id'] . '">
+				        	                        <span class="header text-info">&nbsp;&nbsp;
+                                					        <span class="label bg-info text-light">' . $sch_name . '</span>';
+					                	        	if($row["category"] == 2 && $sr_ss == 1) { echo '&nbsp;&nbsp;<img src="./images/sunset.png">'; }
+                                        					echo '<br>&nbsp;&nbsp; '. $row['start'] . ' - ' . $row['end'] . '
+									</span>
+								</a>
 							</div>
-						</div></a>
-						<div id="collapse'.$row["tz_id"].'" class="panel-collapse collapse">
-							<br>';
+						</span>
+						<span>
+							<a style="color: #333; cursor: pointer; text-decoration: none;" data-bs-toggle="collapse" href="#collapse' . $row['tz_id'] . '">
+                        				        <span class="header text-info">
+									<small>
+									&nbsp;&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;M&nbsp;&nbsp;&nbsp;T&nbsp;&nbsp;W&nbsp;&nbsp;&nbsp;T&nbsp;&nbsp;&nbsp;F&nbsp;&nbsp;&nbsp;S<br>
+									&nbsp;&nbsp;&nbsp;
+									<i class="bi ' . $Sunday_status_icon . ' ' . $Sunday_status_color . '" style="font-size: 0.9rem;"></i>
+									<i class="bi ' . $Monday_status_icon . ' ' . $Monday_status_color . '" style="font-size: 0.9rem;"></i>
+									<i class="bi ' . $Tuesday_status_icon . ' ' . $Tuesday_status_color . '" style="font-size: 0.9rem;"></i>
+									<i class="bi ' . $Wednesday_status_icon . ' ' . $Wednesday_status_color . '" style="font-size: 0.9rem;"></i>
+									<i class="bi ' . $Thursday_status_icon . ' ' . $Thursday_status_color . '" style="font-size: 0.9rem;"></i>
+									<i class="bi ' . $Friday_status_icon . ' ' . $Friday_status_color . '" style="font-size: 0.9rem;"></i>
+									<i class="bi ' . $Saturday_status_icon . ' ' . $Saturday_status_color . '" style="font-size: 0.9rem;"></i>
+									</small>
+								</span>
+							</a>
+						<span>
+					</div>
+					<div class="collapse" id="collapse' . $row["tz_id"] . '">
+						<br>';
 
-							//zone listing of each time schedule
-							$query="SELECT * FROM  schedule_daily_time_zone_view WHERE time_id = {$row['time_id']} order by index_id";
-							$result = $conn->query($query);
-							while ($datarw=mysqli_fetch_array($result)) {
-								if($datarw["tz_status"]=="0"){ $status_icon="ion-close-circled"; $status_color="bluefa"; }else{ $status_icon="ion-checkmark-circled"; $status_color="orangefa"; }
-								$unit = SensorUnits($conn,$datarw['sensor_type_id']);
-								echo '
-								<div class="list-group">
-									<div class="list-group-item">
-										<i class="ionicons '.$status_icon.' fa-lg '.$status_color.'"></i>  '.$datarw['zone_name'].'<span class="pull-right text-muted small"><em>'.number_format(DispSensor($conn,$datarw['temperature'],$datarw['sensor_type_id']),1). $unit .'</em></span>
-									</div>';
-								}
+						//zone listing of each time schedule
+						$query="SELECT * FROM  schedule_daily_time_zone_view WHERE time_id = {$row['time_id']} order by index_id";
+						$result = $conn->query($query);
+						while ($datarw = mysqli_fetch_array($result)) {
+							if ($datarw["tz_status"] == "0") {
+								$status_icon = "bi-x-circle-fill";
+								$status_color = "bluefa";
+							} else {
+								$status_icon = "bi-check-circle-fill";
+								$status_color = "orangefa";
+							}
+							if ($datarw["coop"] == "1") {
+								$coop = '<i class="bi bi-tree-fill green" data-container="body" data-bs-toggle="popover" data-bs-placement="right" data-bs-content="' . $lang['schedule_coop_help'] . '"></i>';
+							} else {
+								$coop = '';
+							}
 
-								//delete and edit button for each schedule
-								echo '
-								<div class="list-group-item">
-									<a href="javascript:delete_schedule('.$row["time_id"].');"><button class="btn btn-danger btn-xs" data-toggle="confirmation" data-title="ARE YOU SURE?" data-content="You are about to DELETE this SCHEDULE"><span class="glyphicon glyphicon-trash"></span></button> </a>	
-									<a href="scheduling.php?id='.$row["time_id"].'&hol_id='.$hol_row["id"].'" class="btn btn-default btn-xs login"><span class="ionicons ion-edit"></span></a>
-								</div>
-							</div>
-						<!-- /.panel-colapse -->
- 						</div>
-			 		</div>
-					<!-- /.header -->
-					</li>';
+							echo '<ul class="list-group">
+								<li class="list-group-item">
+									<div class="d-flex justify-content-between">';
+	        	                                        	        if ($datarw["category"] <> 2 && $datarw["sensor_type_id"] <> 3) {
+        	        	                        				$unit = SensorUnits($conn,$datarw['sensor_type_id']);
+											echo '<span>
+												<i class="bi ' . $status_icon . ' ' . $status_color . '"></i>  ' . $datarw['zone_name'] . ' ' . $coop;
+											echo '</span>
+											<span class="text-muted small"><em>' . number_format(DispSensor($conn, $datarw['temperature'],$datarw['sensor_type_id']), 1) . $unit .'</em></span>';
+										} else {
+											echo '<span>
+												<i class="bi ' . $status_icon . ' ' . $status_color . '"></i>  ' . $datarw['zone_name'] . '
+											</span>';
+										}
+									echo '</div>
+								</li>
+							</ul>';
+						} // end while loop
+
+						//delete and edit button for each schedule
+						echo '<div class="row mt-2"></div>
+						<div class="d-flex justify-content-end">
+						<button class="btn warning btn-danger btn-sm" onclick="delete_schedule(' . $row["time_id"] . ');"><span class="bi bi-trash-fill"></span></button> </a> &nbsp;&nbsp;
+						<a href="scheduling.php?id='.$row["time_id"].'&hol_id='.$hol_row["id"].'" class="btn btn-default btn-sm login"><span class="bi bi-pencil"></span></a>
+						</div>
+					</div>
+					<!-- /.collapse -->
+				</li>
+				<!-- /.panel-colapse -->
+				';
 					//calculate total time of day schedule using array schedule_time with index as sch_time_index variable
 					if($row["time_status"]=="1"){
 						$total_time=$end_time-$start_time;
@@ -185,29 +229,26 @@ $page_refresh = page_refresh($conn);
 		?>
 		</ul>
 	</div>
-        <!-- /.panel-body -->
-	<div class="panel-footer">
-                <div class="btn-group" id="footer_weather">
-                        <?php ShowWeather($conn); ?>
-                </div>
-                <div class="pull-right" id="footer_running_time">
-				<?php
-				echo '<i class="ionicons ion-ios-clock-outline"></i> Holiday Schedule: '.secondsToWords((array_sum($schedule_time)*60));
-				?>
+        <!-- /.card-body -->
+        <div class="card-footer card-footer-<?php echo theme($conn, $theme, 'color'); ?>">
+                <div class="d-flex justify-content-between">
+                        <div class="btn-group" id="footer_weather">
+                                <?php ShowWeather($conn); ?>
                         </div>
-		</div>
-	</div>
-	<!-- /.panel-footer -->
+                        <div class="btn-group">
+                                <?php
+                                echo '<i class="bi bi-clock"></i>&nbspHoliday Schedule:&nbsp' . secondsToWords((array_sum($schedule_time) * 60));
+                                ?>
+                        </div>
+                </div>
+        </div>
+        <!-- /.card-footer -->
 </div>
-<!-- /.panel-primary -->
+<!-- /.card -->
 
 <?php if(isset($conn)) { $conn->close();} ?>
-<script>
-$('[data-toggle=confirmation]').confirmation({
-  rootSelector: '[data-toggle=confirmation]',
-  container: 'body'
-});
 
+<script>
 // update page data every x seconds
 $(document).ready(function(){
   var delay = '<?php echo $page_refresh ?>';
@@ -231,3 +272,12 @@ $(document).ready(function(){
   })();
 });
 </script>
+
+<script>
+$(function() {
+    $('button.warning').confirmButton({
+        titletxt: "Confirmation",
+    });
+});
+</script>
+

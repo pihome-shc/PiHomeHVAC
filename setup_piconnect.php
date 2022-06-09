@@ -28,7 +28,7 @@ require_once(__DIR__.'/st_inc/functions.php');
                 <div class="col-lg-12">
 				<div class="panel panel-primary">
                         <div class="panel-heading">
-                            <div class="Light"><i class="fa fa-plug fa-fw"></i> Setup PiConnect
+                            <div class="Light"><i class="bi bi-plug icon-fw"></i> Setup PiConnect
 						<div class="pull-right"> <div class="btn-group"><?php echo date("H:i"); ?></div> </div>
                         </div></div>
                         <!-- /.panel-heading -->

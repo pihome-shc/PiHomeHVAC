@@ -224,7 +224,7 @@ if ($results) {
 
 // Add System table data 
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Creating System Table.  \n";
-$query_system = "REPLACE INTO `system` (`id`, `sync`, `purge`, `name`, `version`, `build`, `update_location`, `update_file`, `update_alias`, `country`, `language`, `city`, `zip`, `openweather_api`, `backup_email`, `ping_home`, `timezone`, `shutdown`, `reboot`, `c_f`, `mode`) VALUES (2, 1, 0, 'MaxAir - Smart Thermostat', 'version_val', 'build_val', 'http://www.pihome.eu/updates/', 'current-release-versions.php', 'pihome', 'IE', 'en', 'Portlaoise', NULL, 'aa22d10d34b1e6cb32bd6a5f2cb3fb46', '', b'1', 'Europe/Dublin', 0, 0, 0, 0);";
+$query_system = "REPLACE INTO `system` (`id`, `sync`, `purge`, `name`, `version`, `build`, `update_location`, `update_file`, `update_alias`, `country`, `language`, `city`, `zip`, `openweather_api`, `backup_email`, `ping_home`, `timezone`, `shutdown`, `reboot`, `c_f`, `mode`, `max_cpu_temp`, `page_refresh`, 'theme`) VALUES (2, 1, 0, 'MaxAir - Smart Thermostat', 'version_val', 'build_val', 'http://www.pihome.eu/updates/', 'current-release-versions.php', 'pihome', 'IE', 'en', 'Portlaoise', NULL, 'aa22d10d34b1e6cb32bd6a5f2cb3fb46', '', b'1', 'Europe/Dublin', 0, 0, 0, 0, 50, 2, 3);";
 $query_system = str_replace("version_val",$version,$query_system);
 $query_system = str_replace("build_val",$build,$query_system);
 $results = $conn->query($query_system);
