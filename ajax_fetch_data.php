@@ -186,16 +186,20 @@ if ($type <= 5 || $type == 8) {
         	        }
                 	break;
 	        case 2:
-        		echo '<i class="fa fa-circle fa-fw ' . $rval['status'] . '">';
+        		echo '<i class="bi bi-circle-fill '.$rval['status'].'" style="font-size: 0.55rem;">';
                 	break;
 	        case 3:
         	       	if ($sensor_type_id != 3) { echo $rval['target']; }
                 	break;
 	        case 4:
-        	        echo '<i class="fa ' . $rval['shactive'] . ' ' . $rval['shcolor'] . ' fa-fw">';
+			if ($zone_mode_main == 60) {
+				echo '<img src="images/'.$rval['shactive'].'" width="10" height="10" alt="">';
+			} else {
+	        	        echo '<i class="bi ' . $rval['shactive'] . ' ' . $rval['shcolor'] . ' bi-fw">';
+			}
                 	break;
 	        case 5:
-        	        if($overrun == 1) { echo '<i class="fa ion-ios-play-outline orange fa-fw">'; }
+        	        if($overrun == 1) { echo '<i class="bi bi-play orange">'; }
                 	break;
 	        case 8:
         	        if (($zone_category == 1 && $sensor_type_id != 3)) {
@@ -204,7 +208,7 @@ if ($type <= 5 || $type == 8) {
 	                } elseif ($zone_category == 1 && $sensor_type_id == 3) {
         	        	if ($add_on_active == 0) { echo 'OFF'; } else { echo 'ON'; }
                 	} else {
-                        	echo '<i class="fa fa-power-off fa-1x '.$add_on_colour.'">';
+                        	echo '<i class="bi bi-power '.$add_on_colour.'" style="font-size: 1.4rem;">';
 	                }
         	        break;
 	        default:
@@ -223,7 +227,7 @@ if ($type <= 5 || $type == 8) {
 	$node_seen = $row['last_seen'];
 	$node_notice = $row['notice_interval'];
 	$sensor_type_id = $row['sensor_type_id'];
-	$shcolor = "green";
+	$shcolor = "#00C853";
 	if($node_notice > 0){
 		$now=strtotime(date('Y-m-d H:i:s'));
 	        $node_seen_time = strtotime($node_seen);
@@ -248,7 +252,7 @@ if ($type <= 5 || $type == 8) {
         	        }
                 	break;
 	        case 7:
-                        echo '<i class="fa fa-circle fa-fw '.$shcolor.'">';
+                        echo '<i class="bi bi-circle-fill" style="font-size: 0.55rem; color: '.$shcolor.';">';
         	        break;
 	        default:
 	}
@@ -309,15 +313,15 @@ if ($type <= 5 || $type == 8) {
 			if ($system_controller_mode == 1) {
         	        	switch ($sc_mode) {
                 	        	case 0:
-                        	        	echo '<i class="fa fa-circle-o-notch">';
+                        	        	echo '<i class="bi bi-power" style="font-size: 1.4rem;">';
                                 	        break;
 	                                case 1:
 						if ($active_schedule) {
-                	                               	if ($hvac_relays_state & 0b100) { $system_controller_colour="red"; } else { $system_controller_colour="blue"; }
+                	                               	if ($hvac_relays_state & 0b100) { $system_controller_colour="colorize-red"; } else { $system_controller_colour="colorize-blue"; }
 						} else {
 							$system_controller_colour="";
 						}
-	                                        echo '<i class="ionicons ion-flame fa-1x '.$system_controller_colour.'">';
+						echo '<img src="images/flame.svg" class="'.$system_controller_colour.'" style="margin-top: -5px" style="margin-top: -5px" width="25" height="25" alt="">';
 						break;
 					case 2:
                         	                if ($active_schedule) {
@@ -325,60 +329,60 @@ if ($type <= 5 || $type == 8) {
                                         	} else {
                                                 	$system_controller_colour="";
 	                                        }
-        	                                echo '<i class="fa fa-snowflake-o fa-1x '.$system_controller_colour.'">';
+        	                                echo '<i class="bi bi-snow '.$system_controller_colour.'" style="font-size: 1.4rem;">';
                 	                        break;
                         	        case 3:
 						if ($hvac_relays_state == 0b000) {
                                 			if ($sc_active_status==1) {
-                                       				$system_controller_colour="green";
+                                       				$system_controller_colour="#00C853";
 	                                		} elseif ($sc_active_status==0) {
         	                               			$system_controller_colour="";
                 	                		}
-							echo '<i class="fa fa-circle-o-notch fa-1x '.$system_controller_colour.'">';
+							echo '<i class="bi bi-power '.$system_controller_colour.'" style="font-size: 1.4rem;">';
 						} elseif ($hvac_relays_state & 0b100) {
-							echo '<i class="ionicons ion-flame fa-1x red">';
+							echo '<img src="images/flame.svg" class="colorize-red" style="margin-top: -5px" width="25" height="25" alt="">';
 						} elseif ($hvac_relays_state & 0b010) {
-							echo '<i class="fa fa-snowflake-o fa-1x blueinfo">';
+							echo '<i class="bi bi-snow blueinfo" style="font-size: 1.4rem;">';
 						}
 						break;
                                 	case 4:
                                         	if ($hvac_relays_state == 0b000) {
-                                              		$system_controller_colour="green";
-	                                                echo '<i class="fa fa-circle-o-notch fa-1x '.$system_controller_colour.'">';
+                                              		$system_controller_colour="#00C853";
+	                                                echo '<i class="bi bi-power '.$system_controller_colour.'" style="font-size: 1.4rem;">';
         	                                } elseif ($hvac_relays_state & 0b100) {
-                	                                echo '<i class="ionicons ion-flame fa-1x red">';
+                	                                echo '<img src="images/flame.svg" class="colorize-red" style="margin-top: -5px" width="25" height="25" alt="">';
                         	                } elseif ($hvac_relays_state & 0b010) {
-                                	                echo '<i class="fa fa-snowflake-o fa-1x blueinfo">';
+                                	                echo '<i class="bi bi-snow blueinfo" style="font-size: 1.4rem;">';
                                         	}
 	                                        break;
         	                        case 5:
                 	                        echo '<img src="images/hvac_fan_30.png" border="0"></h3>';
                         	                break;
                                 	case 6:
-						if ($hvac_relays_state & 0b100) { $system_controller_colour = "red"; } else { $system_controller_colour = "blue"; }
-	                                        echo '<i class="ionicons ion-flame fa-1x '.$system_controller_colour.'">';
+						if ($hvac_relays_state & 0b100) { $system_controller_colour = "colorize-red"; } else { $system_controller_colour = "colorize-blue"; }
+						echo '<img src="images/flame.svg" class="'.$system_controller_colour.'" style="margin-top: -5px" width="25" height="25" alt="">';
         	                                break;
                 	                case 7:
                         	                if ($hvac_relays_state & 0b010) { $system_controller_colour = "blueinfo"; } else { $system_controller_colour = ""; }
-                                	        echo '<i class="fa fa-snowflake-o fa-1x '.$system_controller_colour.'">';
+                                	        echo '<i class="bi bi-snow '.$system_controller_colour.'" style="font-size: 1.4rem;">';
                                         	break;
 					default:
-        	                                echo '<i class="fa fa-circle-o-notch">';
+        	                                echo '<i class="bi bi-power" style="font-size: 1.4rem;">';
                 	                }
 			} else {
         	               	if ($sc_active_status==1) {
-					$system_controller_colour="red";
+					$system_controller_colour="colorize-red";
 				} elseif ($sc_active_status==0) {
-					$system_controller_colour="blue";
+					$system_controller_colour="colorize-blue";
 				}
 				if ($sc_mode==0) {
                 	               	$system_controller_colour="";
                         	}
-	                        echo '<i class="ionicons ion-flame fa-1x '.$system_controller_colour.'">';
+	                        echo '<img src="images/flame.svg" class="'.$system_controller_colour.'" style="margin-top: -5px" width="25" height="25" alt="">';
 			}
 		} elseif ($type == 10) {
-			if($system_controller_fault=='1') {echo'<i class="fa ion-android-cancel fa-1x red">';}
-			elseif($hysteresis=='1') {echo'<i class="fa fa-hourglass fa-1x orange">';}
+			if($system_controller_fault=='1') {echo'<i class="bi bi-x-circle-fill red">';}
+			elseif($hysteresis=='1') {echo'<i class="bi bi-hourglass icon-1x orange">';}
 			else { echo'';}
 		}
 	}
@@ -391,19 +395,19 @@ if ($type <= 5 || $type == 8) {
         		$query = "SELECT status FROM boost WHERE status = '1' LIMIT 1";
         		$result = $conn->query($query);
         		$boost_status=mysqli_num_rows($result);
-        		if ($boost_status ==1) {$boost_status='red';} else {$boost_status='blue';}
-        		echo '<i class="fa fa-circle fa-fw '.$boost_status.'">';
+        		if ($boost_status ==1) {$boost_status='red';} else {$boost_status='blueinfo';}
+        		echo '<i class="bi bi-circle-fill '.$boost_status.'" style="font-size: 0.55rem;">';
 			break;
                 case 2:
         		$query = "SELECT status FROM override WHERE status = '1' LIMIT 1";
         		$result = $conn->query($query);
         		$override_status=mysqli_num_rows($result);
-        		if ($override_status==1) {$override_status='red';}else{$override_status='blue';}
-        		echo '<i class="fa fa-circle fa-fw '.$override_status.'">';
+        		if ($override_status==1) {$override_status='red';}else{$override_status='blueinfo';}
+        		echo '<i class="bi bi-circle-fill '.$override_status.'" style="font-size: 0.55rem;">';
                         break;
                 case 3:
 			$start_time_temp_offset = "";
-			$offset_status='blue';
+			$offset_status='blueinfo';
 		        $query = "SELECT id FROM zone;";
 		        $zresults = $conn->query($query);
 		        $rowcount=mysqli_num_rows($zresults);
@@ -457,7 +461,7 @@ if ($type <= 5 || $type == 8) {
 				}
 			}
 			if ($type == 11) {
-				echo '<i class="fa fa-circle fa-fw '.$offset_status.'">';
+				echo '<i class="bi bi-circle-fill '.$offset_status.'" style="font-size: 0.55rem;">';
 			} elseif ($type == 12) {
 				echo $start_time_temp_offset.'&nbsp';
 			}
@@ -467,8 +471,8 @@ if ($type <= 5 || $type == 8) {
 		        $query = "SELECT * FROM schedule_night_climate_time LIMIT 1";
 		        $results = $conn->query($query);
 		        $row = mysqli_fetch_assoc($results);
-		        if ($row['status'] == 1) {$night_status='red';}else{$night_status='blue';}
-        		echo '<i class="fa fa-circle fa-fw '.$night_status.'">';
+		        if ($row['status'] == 1) {$night_status='red';}else{$night_status='blueinfo';}
+        		echo '<i class="bi bi-circle-fill '.$night_status.'" style="font-size: 0.55rem;">';
                         break;
                 case 5:
 		        $query = "SELECT * FROM system_controller LIMIT 1";
@@ -479,16 +483,16 @@ if ($type <= 5 || $type == 8) {
 		        $query = "SELECT * FROM away LIMIT 1";
 		        $result = $conn->query($query);
 		        $away = mysqli_fetch_array($result);
-		        if ($away['status']=='1') { $awaystatus="red"; } elseif ( $away['status']=='0' || $sc_mode == 0) { $awaystatus="blue"; }
-		        if ($sc_mode != 0 ) { echo '<a style="font-style: normal;" href="javascript:active_away();">'; }
-        		echo '<i class="fa fa-circle fa-fw '.$awaystatus.'">';
+		        if ($away['status']=='1') { $awaystatus="red"; } elseif ( $away['status']=='0' || $sc_mode == 0) { $awaystatus="blueinfo"; }
+//		        if ($sc_mode != 0 ) { echo '<a style="font-style: normal;" href="javascript:active_away();">'; }
+        		echo '<i class="bi bi-circle-fill '.$awaystatus.'" style="font-size: 0.55rem;">';
                         break;
                 case 6:
 		        $query = "SELECT status FROM holidays WHERE NOW() between start_date_time AND end_date_time AND status = '1' LIMIT 1";
 		        $result = $conn->query($query);
 		        $holidays_status=mysqli_num_rows($result);
-		        if ($holidays_status=='1'){$holidaystatus="red";}elseif ($holidays_status=='0'){$holidaystatus="blue";}
-        		echo '<i class="fa fa-circle fa-fw '.$holidaystatus.'">';
+		        if ($holidays_status=='1'){$holidaystatus="red";}elseif ($holidays_status=='0'){$holidaystatus="blueinfo";}
+        		echo '<i class="bi bi-circle-fill '.$holidaystatus.'" style="font-size: 0.55rem;">';
                         break;
 	}
 } elseif ($type == 13) {
@@ -521,7 +525,7 @@ if ($type <= 5 || $type == 8) {
        	$system_controller_time_total = $system_controller_time['total_minuts'];
         $system_controller_time_on = $system_controller_time['on_minuts'];
         $system_controller_time_save = $system_controller_time['save_minuts'];
-        if($system_controller_time_on >0){      echo ' <i class="ionicons ion-ios-clock-outline"></i> '.secondsToWords(($system_controller_time_on)*60);}
+        if($system_controller_time_on >0){      echo ' <i class="bi bi-clock"></i>&nbsp'.secondsToWords(($system_controller_time_on)*60);}
 } elseif ($type == 16) {
 	//----------------------
 	//process sensors by id
@@ -543,7 +547,7 @@ if ($type <= 5 || $type == 8) {
 	$sensor_c = $row['payload'];
 	$unit = SensorUnits($conn,$sensor_type_id);
 	//echo number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit;
-	echo '&nbsp&nbsp<i class="ionicons ion-thermometer red"></i> - '.number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit;
+	echo '&nbsp&nbsp<i class="bi bi-thermometer-half red"></i> - '.number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit;
 } elseif ($type == 17) {
         //---------------------------------------
         //process running time for All Schedules
@@ -593,7 +597,7 @@ if ($type <= 5 || $type == 8) {
                 	$sch_time_index = $sch_time_index + 1;
 	        }
 	} //end of schedule time while loop
-	echo ' <i class="ionicons ion-ios-clock-outline"></i> All Schedule: ' .secondsToWords((array_sum($schedule_time) * 60));
+	echo ' <i class="bi bi-clock"></i>&nbspAll Schedule:&nbsp' .secondsToWords((array_sum($schedule_time) * 60));
 } elseif ($type == 18 || $type == 19) {
         //------------------------------------------------------
         //return the schedule status and temp for schedule by id
@@ -655,7 +659,7 @@ if ($type <= 5 || $type == 8) {
                 echo ' </div>';
         }
 } elseif ($type == 20) {
-        $squery = "SELECT schedule_daily_time.sch_name, schedule_daily_time.start, schedule_daily_time.end,
+	$squery = "SELECT schedule_daily_time.sch_name, schedule_daily_time.start, schedule_daily_time.end,
         schedule_daily_time_zone.zone_id, schedule_daily_time_zone.temperature, schedule_daily_time_zone.id AS tz_id, schedule_daily_time_zone.coop, schedule_daily_time_zone.disabled
         FROM `schedule_daily_time`, `schedule_daily_time_zone`
         WHERE (schedule_daily_time.id = schedule_daily_time_zone.schedule_daily_time_id) AND schedule_daily_time.status = 1
@@ -663,7 +667,7 @@ if ($type <= 5 || $type == 8) {
         AND (schedule_daily_time.WeekDays & (1 << {$dow})) > 0
         ORDER BY schedule_daily_time.start asc;";
         $sresults = $conn->query($squery);
-        $srow = mysqli_fetch_assoc($sresults);
+	$srow = mysqli_fetch_assoc($sresults);
 
         $shactive="orangesch_list";
         $time = strtotime(date("G:i:s"));
@@ -679,10 +683,10 @@ if ($type <= 5 || $type == 8) {
         $c_f = settings($conn, 'c_f');
         if ($c_f == 0) { $units = 'C'; } else { $units = 'F'; }
 
-        if ($srow['disabled'] == 0) {
-                echo '<div class="circle_list '. $shactive.'"> <p class="schdegree">'.number_format(DispSensor($conn,$srow['temperature'],$sensor_type_id),0).$unit.'</p></div>';
-        } else {
-                echo '<div class="circle_list bluesch_disable"> <p class="schdegree">D</p></div>';
-        }
+	if ($srow['disabled'] == 0) {
+		echo '<div class="circle_list '. $shactive.'"> <p class="schdegree">'.number_format(DispSensor($conn,$srow['temperature'],$sensor_type_id),0).$unit.'</p></div>';
+	} else {
+		echo '<div class="circle_list bluesch_disable"> <p class="schdegree">D</p></div>';
+	}
 }
 ?>

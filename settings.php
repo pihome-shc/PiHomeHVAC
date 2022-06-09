@@ -60,19 +60,22 @@ $frost_temp = $frosttemp['temperature'];
 ?>
 <?php include("header.php");  ?>
 <?php include("notice.php");  ?>
-<div id="page-wrapper">
-<br>
-            <div class="row">
-                <div class="col-lg-12">
-                  	<div id="settingslist" >
-                                   <div class="text-center"><br><br><p><?php echo $lang['please_wait_text']; ?></p>
-				   <br><br><img src="images/loader.gif">
-				   </div>
-				   </div>
+<div class="container-fluid">
+	<br>
+        <div class="row">
+        	<div class="col-lg-12">
+                	<div id="settingslist" >
+                                <div class="d-flex justify-content-center" style="margin-top:10px"><?php echo $lang['please_wait_text']; ?></div>
+                                <div class="d-flex justify-content-center" style="margin-top:10px">
+                                        <div class="spinner-border text-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>"
+                                                role="status">
+                                        </div>
+                                </div>
+			</div>
                 </div>
                 <!-- /.col-lg-4 -->
-            </div>
-            <!-- /.row -->
         </div>
-        <!-- /#page-wrapper -->
+        <!-- /.row -->
+</div>
+<!-- /.container -->
 <?php include("footer.php");  ?>

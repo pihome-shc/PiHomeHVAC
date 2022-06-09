@@ -23,18 +23,18 @@ require_once(__DIR__.'/st_inc/session.php');
 confirm_logged_in();
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
+$theme = settings($conn, 'theme');
+
 ?>
-<div class="panel panel-primary">
-	<div class="panel-heading">
-		<div class="Light"><i class="fa fa-home fa-fw"></i> <?php echo $lang['home']; ?>
-			<div class="pull-right">
-				<div class="btn-group"><?php echo date("H:i"); ?>
-				</div>
-			</div>
-		</div>
+<div class="card border-<?php echo theme($conn, $theme, 'color'); ?>">
+        <div class="card-header <?php echo theme($conn, $theme, 'text_color'); ?> card-header-<?php echo theme($conn, $theme, 'color'); ?>">
+        	<div class="d-flex justify-content-between">
+                	<div class="Light"><i class="bi bi-house-fill"></i> <?php echo $lang['home']; ?></div>
+                        <div class="btn-group" id="mode_date"><?php echo date("H:i"); ?></div>
+        	</div>
 	</div>
-	<!-- /.panel-heading -->
-	<div class="panel-body">
+	<!-- /.card-header -->
+	<div class="card-body">
 		<?php
 		//Mode 0 is EU Boiler Mode, Mode 1 is US HVAC Mode
 		$system_controller_mode = settings($conn, 'mode') & 0b1;
@@ -75,14 +75,14 @@ require_once(__DIR__.'/st_inc/functions.php');
 					$color[5] = "";
                                         $color[6] = "";
                                         $color[7] = "";
-                                        $button[0] = "fa-square";
-                                        $button[1] = "fa-square-o";
-                                        $button[2] = "fa-square-o";
-                                        $button[3] = "fa-square-o";
-                                        $button[4] = "fa-square-o";
-                                        $button[5] = "fa-square-o";
-                                        $button[6] = "fa-square-o";
-                                        $button[7] = "fa-square-o";
+                                        $button[0] = "bi-square-fill";
+                                        $button[1] = "bi-square";
+                                        $button[2] = "bi-square";
+                                        $button[3] = "bi-square";
+                                        $button[4] = "bi-square";
+                                        $button[5] = "bi-square";
+                                        $button[6] = "bi-square";
+                                        $button[7] = "bi-square";
                                         break;
                                 case 1:
                                         $color[0] = "";
@@ -93,14 +93,14 @@ require_once(__DIR__.'/st_inc/functions.php');
                                         $color[5] = "";
                                         $color[6] = "";
                                         $color[7] = "";
-                                        $button[0] = "fa-square-o";
-                                        $button[1] = "fa-square";
-                                        $button[2] = "fa-square-o";
-                                        $button[3] = "fa-square-o";
-                                        $button[4] = "fa-square-o";
-                                        $button[5] = "fa-square-o";
-                                        $button[6] = "fa-square-o";
-                                        $button[7] = "fa-square-o";
+                                        $button[0] = "bi-square";
+                                        $button[1] = "bi-square-fill";
+                                        $button[2] = "bi-square";
+                                        $button[3] = "bi-square";
+                                        $button[4] = "bi-square";
+                                        $button[5] = "bi-square";
+                                        $button[6] = "bi-square";
+                                        $button[7] = "bi-square";
                                         break;
                                 case 2:
                                         $color[0] = "";
@@ -111,14 +111,14 @@ require_once(__DIR__.'/st_inc/functions.php');
                                         $color[5] = "";
                                         $color[6] = "";
                                         $color[7] = "";
-                                        $button[0] = "fa-square-o";
-                                        $button[1] = "fa-square-o";
-                                        $button[2] = "fa-square";
-                                        $button[3] = "fa-square-o";
-                                        $button[4] = "fa-square-o";
-                                        $button[5] = "fa-square-o";
-                                        $button[6] = "fa-square-o";
-                                        $button[7] = "fa-square-o";
+                                        $button[0] = "bi-square";
+                                        $button[1] = "bi-square";
+                                        $button[2] = "bi-square-fill";
+                                        $button[3] = "bi-square";
+                                        $button[4] = "bi-square";
+                                        $button[5] = "bi-square";
+                                        $button[6] = "bi-square";
+                                        $button[7] = "bi-square";
                                         break;
                                 case 3:
                                         $color[0] = "";
@@ -129,14 +129,14 @@ require_once(__DIR__.'/st_inc/functions.php');
                                         $color[5] = "";
                                         $color[6] = "";
                                         $color[7] = "";
-                                        $button[0] = "fa-square-o";
-                                        $button[1] = "fa-square-o";
-                                        $button[2] = "fa-square-o";
-                                        $button[3] = "fa-square";
-                                        $button[4] = "fa-square-o";
-                                        $button[5] = "fa-square-o";
-                                        $button[6] = "fa-square-o";
-                                        $button[7] = "fa-square-o";
+                                        $button[0] = "bi-square";
+                                        $button[1] = "bi-square";
+                                        $button[2] = "bi-square";
+                                        $button[3] = "bi-square-fill";
+                                        $button[4] = "bi-square";
+                                        $button[5] = "bi-square";
+                                        $button[6] = "bi-square";
+                                        $button[7] = "bi-square";
                                         break;
                                 case 4:
                                         $color[0] = "";
@@ -147,14 +147,14 @@ require_once(__DIR__.'/st_inc/functions.php');
                                         $color[5] = "";
                                         $color[6] = "";
                                         $color[7] = "";
-                                        $button[0] = "fa-square-o";
-                                        $button[1] = "fa-square-o";
-                                        $button[2] = "fa-square-o";
-                                        $button[3] = "fa-square-o";
-                                        $button[4] = "fa-square";
-                                        $button[5] = "fa-square-o";
-                                        $button[6] = "fa-square-o";
-                                        $button[7] = "fa-square-o";
+                                        $button[0] = "bi-square";
+                                        $button[1] = "bi-square";
+                                        $button[2] = "bi-square";
+                                        $button[3] = "bi-square";
+                                        $button[4] = "bi-square-fill";
+                                        $button[5] = "bi-square";
+                                        $button[6] = "bi-square";
+                                        $button[7] = "bi-square";
                                         break;
                                 case 5:
                                         $color[0] = "";
@@ -165,14 +165,14 @@ require_once(__DIR__.'/st_inc/functions.php');
                                         $color[5] = "green";
                                         $color[6] = "";
                                         $color[7] = "";
-                                        $button[0] = "fa-square-o";
-                                        $button[1] = "fa-square-o";
-                                        $button[2] = "fa-square-o";
-                                        $button[3] = "fa-square-o";
-                                        $button[4] = "fa-square-o";
-                                        $button[5] = "fa-square";
-                                        $button[6] = "fa-square-o";
-                                        $button[7] = "fa-square-o";
+                                        $button[0] = "bi-square";
+                                        $button[1] = "bi-square";
+                                        $button[2] = "bi-square";
+                                        $button[3] = "bi-square";
+                                        $button[4] = "bi-square";
+                                        $button[5] = "bi-square-fill";
+                                        $button[6] = "bi-square";
+                                        $button[7] = "bi-square";
                                         break;
                                 case 6:
                                         $color[0] = "";
@@ -183,14 +183,14 @@ require_once(__DIR__.'/st_inc/functions.php');
                                         $color[5] = "";
                                         $color[6] = "green";
                                         $color[7] = "";
-                                        $button[0] = "fa-square-o";
-                                        $button[1] = "fa-square-o";
-                                        $button[2] = "fa-square-o";
-                                        $button[3] = "fa-square-o";
-                                        $button[4] = "fa-square-o";
-                                        $button[5] = "fa-square-o";
-                                        $button[6] = "fa-square";
-                                        $button[7] = "fa-square-o";
+                                        $button[0] = "bi-square";
+                                        $button[1] = "bi-square";
+                                        $button[2] = "bi-square";
+                                        $button[3] = "bi-square";
+                                        $button[4] = "bi-square";
+                                        $button[5] = "bi-square";
+                                        $button[6] = "bi-square-fill";
+                                        $button[7] = "bi-square";
                                         break;
                                 case 7:
                                         $color[0] = "";
@@ -201,14 +201,14 @@ require_once(__DIR__.'/st_inc/functions.php');
                                         $color[5] = "";
                                         $color[6] = "";
                                         $color[7] = "green";
-                                        $button[0] = "fa-square-o";
-                                        $button[1] = "fa-square-o";
-                                        $button[2] = "fa-square-o";
-                                        $button[3] = "fa-square-o";
-                                        $button[4] = "fa-square-o";
-                                        $button[5] = "fa-square-o";
-                                        $button[6] = "fa-square-o";
-                                        $button[7] = "fa-square";
+                                        $button[0] = "bi-square";
+                                        $button[1] = "bi-square";
+                                        $button[2] = "bi-square";
+                                        $button[3] = "bi-square";
+                                        $button[4] = "bi-square";
+                                        $button[5] = "bi-square";
+                                        $button[6] = "bi-square";
+                                        $button[7] = "bi-square-fill";
                                         break;
                                 default:
                                         $color[0] = "green";
@@ -217,14 +217,14 @@ require_once(__DIR__.'/st_inc/functions.php');
                                         $color[3] = "";
                                         $color[4] = "";
                                         $color[5] = "";
-                                        $button[0] = "fa-square";
-                                        $button[1] = "fa-square-o";
-                                        $button[2] = "fa-square-o";
-                                        $button[3] = "fa-square-o";
-                                        $button[4] = "fa-square-o";
-                                        $button[5] = "fa-square-o";
-                                        $button[6] = "fa-square-o";
-                                        $button[7] = "fa-square-o";
+                                        $button[0] = "bi-square-fill";
+                                        $button[1] = "bi-square";
+                                        $button[2] = "bi-square";
+                                        $button[3] = "bi-square";
+                                        $button[4] = "bi-square";
+                                        $button[5] = "bi-square";
+                                        $button[6] = "bi-square";
+                                        $button[7] = "bi-square";
                         }
                 } else {
                         switch ($sc_mode) {
@@ -234,11 +234,11 @@ require_once(__DIR__.'/st_inc/functions.php');
                                         $color[2] = "";
                                         $color[3] = "";
                                         $color[4] = "";
-                                        $button[0] = "fa-square";
-                                        $button[1] = "fa-square-o";
-                                        $button[2] = "fa-square-o";
-                                        $button[3] = "fa-square-o";
-                                        $button[4] = "fa-square-o";
+                                        $button[0] = "bi-square-fill";
+                                        $button[1] = "bi-square";
+                                        $button[2] = "bi-square";
+                                        $button[3] = "bi-square";
+                                        $button[4] = "bi-square";
                                         break;
                                 case 1:
                                         $color[0] = "";
@@ -246,11 +246,11 @@ require_once(__DIR__.'/st_inc/functions.php');
                                         $color[2] = "";
                                         $color[3] = "";
                                         $color[4] = "";
-                                        $button[0] = "fa-square-o";
-                                        $button[1] = "fa-square";
-                                        $button[2] = "fa-square-o";
-                                        $button[3] = "fa-square-o";
-                                        $button[4] = "fa-square-o";
+                                        $button[0] = "bi-square";
+                                        $button[1] = "bi-square-fill";
+                                        $button[2] = "bi-square";
+                                        $button[3] = "bi-square";
+                                        $button[4] = "bi-square";
                                         break;
                                 case 2:
                                         $color[0] = "";
@@ -258,11 +258,11 @@ require_once(__DIR__.'/st_inc/functions.php');
                                         $color[2] = "green";
                                         $color[3] = "";
                                         $color[4] = "";
-                                        $button[0] = "fa-square-o";
-                                        $button[1] = "fa-square-o";
-                                        $button[2] = "fa-square";
-                                        $button[3] = "fa-square-o";
-                                        $button[4] = "fa-square-o";
+                                        $button[0] = "bi-square";
+                                        $button[1] = "bi-square";
+                                        $button[2] = "bi-square-fill";
+                                        $button[3] = "bi-square";
+                                        $button[4] = "bi-square";
                                         break;
                                 case 3:
                                         $color[0] = "";
@@ -270,11 +270,11 @@ require_once(__DIR__.'/st_inc/functions.php');
                                         $color[2] = "";
                                         $color[3] = "green";
                                         $color[4] = "";
-                                        $button[0] = "fa-square-o";
-                                        $button[1] = "fa-square-o";
-                                        $button[2] = "fa-square-o";
-                                        $button[3] = "fa-square";
-                                        $button[4] = "fa-square-o";
+                                        $button[0] = "bi-square";
+                                        $button[1] = "bi-square";
+                                        $button[2] = "bi-square";
+                                        $button[3] = "bi-square-fill";
+                                        $button[4] = "bi-square";
                                         break;
                                 case 4:
                                         $color[0] = "";
@@ -282,11 +282,11 @@ require_once(__DIR__.'/st_inc/functions.php');
                                         $color[2] = "";
                                         $color[3] = "";
                                         $color[4] = "green";
-                                        $button[0] = "fa-square-o";
-                                        $button[1] = "fa-square-o";
-                                        $button[2] = "fa-square-o";
-                                        $button[3] = "fa-square-o";
-                                        $button[4] = "fa-square";
+                                        $button[0] = "bi-square";
+                                        $button[1] = "bi-square";
+                                        $button[2] = "bi-square";
+                                        $button[3] = "bi-square";
+                                        $button[4] = "bi-square-fill";
                                         break;
                                 default:
                                         $color[0] = "green";
@@ -294,20 +294,20 @@ require_once(__DIR__.'/st_inc/functions.php');
                                         $color[2] = "";
                                         $color[3] = "";
                                         $color[4] = "";
-                                        $button[0] = "fa-square";
-                                        $button[1] = "fa-square-o";
-                                        $button[2] = "fa-square-o";
-                                        $button[3] = "fa-square-o";
-                                        $button[4] = "fa-square-o";
+                                        $button[0] = "bi-square-fill";
+                                        $button[1] = "bi-square";
+                                        $button[2] = "bi-square";
+                                        $button[3] = "bi-square";
+                                        $button[4] = "bi-square";
                         }
                 }
 
                 if($_SESSION['admin'] == 1) {
 			for ($x = 0; $x <=  4 + ($system_controller_mode * 3); $x++) { ?>
 	                        <a style="color: #777; cursor: pointer; text-decoration: none;" href="javascript:set_sc_mode(<?php echo $x; ?>)">
-        	                <button type="button" class="btn btn-default btn-circle btn-xxl mainbtn">
+        	                <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle btn-xxl mainbtn">
                 	        <h3 class="buttontop"><small><?php echo $legend[$x]; ?></small></h3>
-                        	<h3 class="buttonmode" ><i class="fa <?php echo $button[$x]; ?> fa-2x <?php echo $color[$x]; ?>"></i></h3>
+                        	<h3 class="buttonmode" ><i class="bi <?php echo $button[$x]; ?> icon-2x <?php echo $color[$x]; ?>"></i></h3>
 	                        <?php if ($system_controller_mode == 1) {
         	                        switch ($x) {
                 	                        case 1: ?>
@@ -330,32 +330,51 @@ require_once(__DIR__.'/st_inc/functions.php');
 		} ?>
 
 	</div>
-	<!-- /.panel-body -->
-	<div class="panel-footer">
-		<?php
-		ShowWeather($conn);
-		?>
-
-		<div class="pull-right">
-			<div class="btn-group">
-				<?php
-				$query="select date(start_datetime) as date,
-				sum(TIMESTAMPDIFF(MINUTE, start_datetime, expected_end_date_time)) as total_minuts,
-				sum(TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime)) as on_minuts,
-				(sum(TIMESTAMPDIFF(MINUTE, start_datetime, expected_end_date_time)) - sum(TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime))) as save_minuts
-				from system_controller_logs WHERE date(start_datetime) = CURDATE() GROUP BY date(start_datetime) asc";
-				$result = $conn->query($query);
-				$system_controller_time = mysqli_fetch_array($result);
-				$system_controller_time_total = $system_controller_time['total_minuts'];
-				$system_controller_time_on = $system_controller_time['on_minuts'];
-				$system_controller_time_save = $system_controller_time['save_minuts'];
-				if($system_controller_time_on >0){	echo ' <i class="ionicons ion-ios-clock-outline"></i> '.secondsToWords(($system_controller_time_on)*60);}
-				?>
+	<!-- /.card-body -->
+	<div class="card-footer card-footer-<?php echo theme($conn, $theme, 'color'); ?>">
+        	<div class="d-flex justify-content-between">
+                	<div class="btn-group" id="footer_weather">
+                        	<?php
+                                ShowWeather($conn);
+                        ?>
                         </div>
-                 </div>
+
+                        <div class="btn-group" id="footer_all_running_time">
+                        	<?php
+                                $query="select date(start_datetime) as date,
+                                sum(TIMESTAMPDIFF(MINUTE, start_datetime, expected_end_date_time)) as total_minuts,
+                                sum(TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime)) as on_minuts,
+                                (sum(TIMESTAMPDIFF(MINUTE, start_datetime, expected_end_date_time)) - sum(TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime))) as save_minuts
+                                from controller_zone_logs WHERE date(start_datetime) = CURDATE() AND zone_id = ".$system_controller_id." GROUP BY date(start_datetime) asc";
+                                $result = $conn->query($query);
+                                $system_controller_time = mysqli_fetch_array($result);
+                                $system_controller_time_total = $system_controller_time['total_minuts'];
+                                $system_controller_time_on = $system_controller_time['on_minuts'];
+                                $system_controller_time_save = $system_controller_time['save_minuts'];
+                                if($system_controller_time_on >0){ echo ' <i class="bi bi-clock"></i> '.secondsToWords(($system_controller_time_on)*60);}
+                                ?>
+                        </div>
+        	</div>
 	</div>
-	<!-- /.panel-footer -->
+	<!-- /.card-footer -->
 </div>
-<!-- /.panel-primary -->
+<!-- /.card -->
 <?php if(isset($conn)) { $conn->close();} ?>
+
+<script>
+
+// update page data every x seconds
+$(document).ready(function(){
+  var delay = '<?php echo $page_refresh ?>';
+
+  (function loop() {
+    var data = '<?php echo $js_sch_params ?>';
+
+    $('#mode_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
+    $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
+    $('#footer_all_running_time').load("ajax_fetch_data.php?id=0&type=17").fadeIn("slow");
+    setTimeout(loop, delay);
+  })();
+});
+</script>
 

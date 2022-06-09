@@ -33,6 +33,9 @@ if (logged_in()) {
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 
+$theme = settings($conn, 'theme');
+$theme_name = explode(' ',theme($conn, $theme, 'name'))[0];
+$logo = "maxair_logo_".theme($conn, $theme, 'color').".png";
 //$lang = settings($conn, 'language');
 //setcookie("PiHomeLanguage", $lang, time()+(3600*24*90));
 //require_once (__DIR__.'/languages/'.$_COOKIE['PiHomeLanguage'].'.php');
@@ -326,180 +329,146 @@ if (isset($_POST['submit'])) {
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<meta name="description" content="">
-<meta name="author" content="">
-<title><?php  echo settings($conn, 'name') ;?></title>
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<link rel="shortcut icon" href="images/favicon.ico">
-<link rel="apple-touch-icon" href="images/apple-touch-icon.png"/>
-<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
-<META HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE">
 
-<!-- Bootstrap Core CSS -->
-<link href="css/bootstrap.min.css" rel="stylesheet">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title><?php  echo settings($conn, 'name') ;?></title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="fonts/bootstrap-icons-1.8.1/bootstrap-icons.css" rel="stylesheet" type="text/css">
+        <link href="css/maxair.css" rel="stylesheet">
+    </head>
 
-<!-- MetisMenu CSS -->
-<link href="css/plugins/metisMenu/metisMenu.min.css" rel="stylesheet">
-
-<!-- Custom CSS -->
-<link href="css/sb-admin-2.css" rel="stylesheet">
-
-<!-- Morris Charts CSS -->
-<link href="css/plugins/morris.css" rel="stylesheet">
-
-<!-- Custom Fonts -->
-<link href="fonts/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-
-<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-<!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-<![endif]-->
-<script type='text/javascript' src='http://code.jquery.com/jquery-1.7.2.min.js'></script>
-<script>
-    if(("standalone" in window.navigator) && window.navigator.standalone){
-	// If you want to prevent remote links in standalone web apps opening Mobile Safari, change 'remotes' to true
-	var noddy, remotes = true;
-	document.addEventListener('click', function(event) {
-		noddy = event.target;
-		// Bubble up until we hit link or top HTML element. Warning: BODY element is not compulsory so better to stop on HTML
-		while(noddy.nodeName !== "A" && noddy.nodeName !== "HTML") {
-	        noddy = noddy.parentNode;
-	    }
-		if('href' in noddy && noddy.href.indexOf('http') !== -1 && (noddy.href.indexOf(document.location.host) !== -1 || remotes))
-		{
-			event.preventDefault();
-			document.location.href = noddy.href;
-		}
-	},false);
-}
-</script> 
-</head>
-<style type="text/css" >
-html {
-    height: 100%;
-}
-</style>
-<body>
-	<div class="container">
-        	<div class="row">
-			<br><br>
-			<h6 class="text-center"><img src="images/maxair_logo.png" height="28"> <br></h6>
-            		<div class="col-md-4 col-md-offset-4">
-                		<div class="login-panel panel panel-primary">
-                    			<?php 
-					if ($no_ap == 0 || $wifi_connected == 1 || $eth_connected == 1) {
-						echo '<div class="panel-heading">'.$lang['sign_in'].'</div>';
-					} else {
-                                                echo '<div class="panel-heading">'.$lang['wifi_connect'].'</div>';
-					}
-           				echo '<div class="panel-body">
-						<div class="row">
-                        				<form method="post" action="'.$_SERVER['PHP_SELF'].'" role="form">';
-								include("notice.php");
-								echo '<br>
-                            					<fieldset>
-                                					<div class="form-group">';
-										if ($no_ap == 0 || $wifi_connected == 1 || $eth_connected == 1 || $ap_mode == 1) {
-											echo '<input class="form-control" placeholder="User Name" name="username" type="input" value="';
-											if(isset($_COOKIE["user_login"])) { echo $_COOKIE["user_login"]; }
-											echo '" autofocus>';
-										} else {
-											$output = array();
-											echo '<select class="form-control input-sm" type="text" id="ssid" name="ssid" >';
-											if ($network_manager == 0) { //not using NetworkManager
-												$command= "sudo /sbin/iwlist wlan0 scan | grep ESSID";
-											} else {
-												$command= "cat /var/www/add_on/Autohotspot/ssid.txt";
-											}
-											exec("$command 2>&1 &", $output);
-											$arrayLength = count($output);
-        										$i = 0;
-        										while ($i < $arrayLength) {
-												if ($network_manager == 0) {
-                											preg_match('/"([^"]+)"/', trim($output[$i]), $result);
-													echo '<option value="'.$result[1].'">'.$result[1].'</option>';
-												} else {
-													echo '<option value="'.trim($output[$i]).'">'.trim($output[$i]).'</option>';
-												}
-                										$i++;
-        										}
-											echo '</select>';
-										}
-									echo '</div>
-
-                                					<div class="form-group">
-                                						<input class="form-control" placeholder="Password" name="password" type="password" value="';
-										if(isset($_COOKIE["pass_login"])) { echo $_COOKIE["pass_login"]; }
-                                					echo '"></div>';
-                                        				if ($no_ap == 0 || $wifi_connected == 1 || $eth_connected == 1 || $ap_mode == 1) {
-										echo '<div class="field-group">
-											<div class="checkbox checkbox-default checkbox-circle">
-												<input id="checkbox1" class="styled" type="checkbox" name="remember" ';
-												if(isset($_COOKIE["user_login"])) { echo 'checked >'; } else {  echo '>'; }
-													echo '<label for="checkbox1"> Remember me</label>';
-											echo '</div>
-										</div>
-										<input type="submit" name="submit" value="'.$lang['login'].'" class="btn btn-block btn-default btn-block login"/>';
-									} else {
-                                                                                echo '<div class="field-group">
-                                                                                        <div class="checkbox checkbox-default checkbox-circle">
-                                                                                                <input id="checkbox2" class="styled" type="checkbox" name="ap_mode" >';
-                                                                                                        echo '<label for="checkbox2"> AP Mode</label>';
-                                                                                        echo '</div>
-                                                                                </div>
-                                                                                <input type="submit" name="submit" value="'.$lang['set_reboot'].'" class="btn btn-block btn-default btn-block login"/>';
-									}
-                            					echo '</fieldset>
-                        				</form><br>'; ?>
-                    				</div>
-					</div>
-					<!--<div class="panel-footer">	
-					</div> -->
-                 		</div>
-        		</div>
-    		</div>
-		<div class="col-md-8 col-md-offset-2">
-			<div class="login-panel-foother">
-			<?php 
-				echo '<h3>
-						<small>';
-							$languages = ListLanguages(settings($conn, 'language'));
-							for ($x = 0; $x <= count($languages) - 1; $x++) {
-								echo '<a class="text-info" style="text-decoration: none;" href="languages.php?lang='.$languages[$x][0].'" title="'.$languages[$x][1].'">'.$languages[$x][1].'</a>';
-								if ($x <= count($languages) - 2) { echo '&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;&nbsp;'; }
-							} ?>
-						</small>
-						</h3><br><br>
-				<h6><?php echo settings($conn, 'name').' '.settings($conn, 'version')."&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;".$lang['build']." ".settings($conn, 'build'); ?></h6>
-				<br><br>
-                                <h6><?php echo "&copy;&nbsp;".$lang['copyright']; ?></h6>
-			</div>
-		</div>
-	</div>
-
+    <body>
+        <div class="container-fluid vh-100" style="margin-top:50px">
+	    <div class="d-flex justify-content-center"><img src="images/<?php echo $logo; ?>" height="80"></div>
+            <div class="" style="margin-top:40px">
+                <div class="rounded d-flex justify-content-center">
+                    <div class="col-md-4 col-sm-12 shadow-lg p-5 bg-light">
+                        <div class="text-center">
+                            <?php
+                            if ($no_ap == 0 || $wifi_connected == 1 || $eth_connected == 1) {
+                                echo '<h3 class="text-'.theme($conn, settings($conn, 'theme'), 'color').'">'.$lang['sign_in'].'</h3>';
+                            } else {
+                                echo '<h3 class="text-'.theme($conn, settings($conn, 'theme'), 'color').'">'.$lang['wifi_connect'].'</h3>';
+                            }
+                        echo '</div>
+                        <form method="post" action="'.$_SERVER['PHP_SELF'].'" role="form">';
+			    include("notice.php");
+                            echo '<div class="p-4">';
+				if ($no_ap == 0 || $wifi_connected == 1 || $eth_connected == 1 || $ap_mode == 1) {
+                                    echo '<div class="input-group mb-3">
+                                        <span class="input-group-text bg-'.theme($conn, $theme, 'color').'"><i class="bi bi-person-plus-fill text-white"></i></span>
+                                        <input type="text" class="form-control" placeholder="Username" name="username" value="';
+				        if(isset($_COOKIE["user_login"])) { echo $_COOKIE["user_login"]; }
+				        echo '">
+                                    </div>';
+                                } else {
+                                    $output = array();
+                                    echo '<div class="input-group mb-3">
+                                        <select class="form-control input-sm" type="text" id="ssid" name="ssid" >';
+                                            if ($network_manager == 0) { //not using NetworkManager
+                                                $command= "sudo /sbin/iwlist wlan0 scan | grep ESSID";
+                                            } else {
+                                                $command= "cat /var/www/add_on/Autohotspot/ssid.txt";
+                                            }
+                                            exec("$command 2>&1 &", $output);
+                                            $arrayLength = count($output);
+                                            $i = 0;
+                                            while ($i < $arrayLength) {
+                                                if ($network_manager == 0) {
+                                                    preg_match('/"([^"]+)"/', trim($output[$i]), $result);
+                                                    echo '<option value="'.$result[1].'">'.$result[1].'</option>';
+                                                } else {
+                                                    echo '<option value="'.trim($output[$i]).'">'.trim($output[$i]).'</option>';
+                                                }
+                                                $i++;
+                                            }
+                                        echo '</select>
+                                    </div>';
+                                }
+                                echo '<div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-'.theme($conn, $theme, 'color').'" id="basic-addon1"><i class="bi bi-key-fill text-white"></i></span>
+                                    </div>
+                                    <input name="password" type="password" value="" class="input form-control" id="password" placeholder="password" required="true" aria-label="password" aria-describedby="basic-addon1" />
+                                    <div class="input-group-append">
+                                        <span class="input-group-text" onclick="password_show_hide();">
+                                            <i class="bi bi-eye-fill" id="show_eye"></i>
+                                            <i class="bi bi-eye-slash-fill d-none" id="hide_eye"></i>
+                                        </span>
+                                     </div>
+                                </div>';
+                                if ($no_ap == 0 || $wifi_connected == 1 || $eth_connected == 1 || $ap_mode == 1) {
+                                    echo '<div class="form-check">
+                                        <input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" value="1" name="remember" ';
+				        if(isset($_COOKIE["user_login"])) { echo 'checked >'; } else {  echo '>'; }
+                                        echo '<label class="form-check-label" for="remember">
+                                            Remember Me
+                                        </label>
+                                    </div>
+				    <input type="submit" name="submit" value="'.$lang['login'].'" class="btn btn-primary-'.theme($conn, $theme, 'color').' text-center mt-2"/>';
+                                } else {
+                                    echo '<div class="form-check">
+                                        <input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" value="1" name="ap_mode">
+                                        <label class="form-check-label" for="ap_mode">
+                                            AP Mode
+                                        </label>
+                                    </div>
+                                    <input type="submit" name="submit" value="'.$lang['set_reboot'].'" class="btn btn-primary-'.theme($conn, $theme, 'color').' text-center mt-2"/>';
+                                }
+                            echo '</div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center" style="margin-top:20px">
+                <small>';
+                    $languages = ListLanguages(settings($conn, 'language'));
+                        for ($x = 0; $x <= count($languages) - 1; $x++) {
+                            echo '<a class="" style="text-decoration: none;" href="languages.php?lang='.$languages[$x][0].'" title="'.$languages[$x][1].'">'.$languages[$x][1].'</a>';
+                            if ($x <= count($languages) - 2) { echo '&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;&nbsp;'; }
+                    }
+                echo '</small>
+            </div>
+            <div class="d-flex justify-content-center" style="margin-top:20px">'.settings($conn, 'name').' '.settings($conn, 'version')."&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;".$lang['build']." ".settings($conn, 'build').'</div>
+	    <div class="d-flex justify-content-center" style="margin-top:10px">&copy;&nbsp;'.$lang['copyright'].'</div>
+        </div>';
+    ?>
     <!-- jQuery -->
-    <script src="js/jquery.js"></script>
+    <script src="js/jquery.min.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
     <script src="js/bootstrap.min.js"></script>
+    <script>
+    //Automatically close alert message  after 5 seconds
+    window.setTimeout(function() {
+        $(".alert").fadeTo(1500, 0).slideUp(500, function(){
+            $(this).remove();
+        });
+    }, 10000);
+    </script>
 
-    <!-- Custom Theme JavaScript -->
-    <script src="js/sb-admin-2.js"></script>
-<script>
-//Automatically close alert message  after 5 seconds
-window.setTimeout(function() {
-    $(".alert").fadeTo(1500, 0).slideUp(500, function(){
-        $(this).remove(); 
-    });
-}, 10000);
-</script>
-</body>
+    <script>
+    function password_show_hide() {
+      var x = document.getElementById("password");
+      var show_eye = document.getElementById("show_eye");
+      var hide_eye = document.getElementById("hide_eye");
+      hide_eye.classList.remove("d-none");
+      if (x.type === "password") {
+        x.type = "text";
+        show_eye.style.display = "none";
+        hide_eye.style.display = "block";
+      } else {
+        x.type = "password";
+        show_eye.style.display = "block";
+        hide_eye.style.display = "none";
+      }
+    }
+    </script>
+    </body>
+
 </html>
 <?php if(isset($conn)) { $conn->close();} ?>
+

@@ -38,8 +38,8 @@ function GetModal_OpenWeather($conn){
 	global $lang;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
 
-    echo '<div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+    echo '<div class="modal-header '.theme($conn, settings($conn, 'theme'), 'text_color').' bg-'.theme($conn, settings($conn, 'theme'), 'color').'">
+            <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
             <h5 class="modal-title" id="ajaxModalLabel">'.$lang['openweather_settings'].'</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">
@@ -327,8 +327,8 @@ function GetModal_OpenWeather($conn){
             </form>';
     echo '</div>';      //close class="modal-body">
     echo '<div class="modal-footer" id="ajaxModalFooter">
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['cancel'].'</button>
-            <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-default login btn-sm" onclick="update_openweather()">
+            <button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['cancel'].'</button>
+            <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' login btn-sm" onclick="update_openweather()">
         </div>';      //close class="modal-footer">
 
     echo '<script language="javascript" type="text/javascript">
@@ -386,8 +386,8 @@ function GetModal_System($conn)
         global $lang;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
     //System temperature
-    echo '<div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+    echo '<div class="modal-header '.theme($conn, settings($conn, 'theme'), 'text_color').' bg-'.theme($conn, settings($conn, 'theme'), 'color').'">
+            <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
             <h5 class="modal-title" id="ajaxModalLabel">'.$lang['cpu_temperature'].'</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">
@@ -396,15 +396,19 @@ function GetModal_System($conn)
     $results = $conn->query($query);
     echo '<div class="list-group">';
     while ($row = mysqli_fetch_assoc($results)) {
-        echo '<span class="list-group-item">
-        <i class="fa fa-server fa-1x green"></i> '.$row['datetime'].'
-        <span class="pull-right text-muted small"><em>'.number_format(DispSensor($conn,$row['payload'],1),1).'&deg;</em></span>
-        </span>';
+        echo '<div class="list-group-item">
+		<div class="d-flex justify-content-between">
+			<span>
+        			<i class="bi bi-hdd-stack green"></i> '.$row['datetime'].'
+			</span>
+        		<span class="text-muted small"><em>'.number_format(DispSensor($conn,$row['payload'],1),1).'&deg;</em></span>
+        	</div>
+	</div>';
     }
     echo '</div>';      //close class="list-group">';
     echo '</div>';      //close class="modal-body">
     echo '<div class="modal-footer" id="ajaxModalFooter">
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+            <button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
     return;
 }
@@ -421,17 +425,17 @@ function GetModal_MQTT($conn)
         global $lang;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
 
-    echo '<div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+    echo '<div class="modal-header '.theme($conn, settings($conn, 'theme'), 'text_color').' bg-'.theme($conn, settings($conn, 'theme'), 'color').'">
+            <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
             <h5 class="modal-title" id="ajaxModalLabel">'.$lang['mqtt_connections'].'</h5>
-            <div class="dropdown pull-right">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-file fa-fw"></i><i class="fa fa-caret-down"></i>
+            <div class="dropdown float-right">
+                <a class="" data-bs-toggle="dropdown" href="#">
+                        <i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
                 </a>
-                <ul class="dropdown-menu">
-                        <li><a href="pdf_download.php?file=setup_guide_mqtt.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_guide_mqtt'].'</a></li>
-                        <li class="divider"></li>
-                        <li><a href="pdf_download.php?file=setup_zigbee2mqtt.pdf" target="_blank"><i class="fa fa-file fa-fw"></i>'.$lang['setup_zigbee2mqtt'].'</a></li>
+                <ul class="dropdown-menu dropdown-menu-'.theme($conn, settings($conn, 'theme'), 'color').'">
+                        <li><a class="dropdown-item" href="pdf_download.php?file=setup_guide_mqtt.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_guide_mqtt'].'</a></li>
+                        <li class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="pdf_download.php?file=setup_zigbee2mqtt.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_zigbee2mqtt'].'</a></li>
                 </ul>
              </div>
         </div>
@@ -439,35 +443,53 @@ function GetModal_MQTT($conn)
     $query = "SELECT * FROM `mqtt` ORDER BY `name`;";
     $results = $conn->query($query);
     echo '<div class="list-group">';
-    echo '<span class="list-group-item" style="height:40px;">&nbsp;';
-    echo '<span class="pull-right text-muted small"><button type="button" class="btn btn-primary btn-sm" 
-             data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_MQTTAdd" onclick="mqtt_AddEdit(this);">'.$lang['add'].'</button></span>';
+    echo '<span class="list-group-item text-end" style="height:50px;">';
+    echo '<span class="text-muted small"><button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" 
+             data-bs-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_MQTTAdd" onclick="mqtt_AddEdit(this);">'.$lang['add'].'</button></span>';
     echo '</span>';
     while ($row = mysqli_fetch_assoc($results)) {
-        echo '<span class="list-group-item">';
-        echo $row['name'] . ($row['enabled'] ? '' : ' (Disabled)');
-        echo '<span class="pull-right text-muted small" style="width:200px;text-align:right;">Username:&nbsp;' . $row['username'] . '</span>';
-        echo '<br/><span class="text-muted small">Type:&nbsp;';
-        if($row['type']==0) echo 'Default, monitor.';
-        else if($row['type']==1) echo 'Sonoff Tasmota.';
-        else if($row['type']==2) echo 'MQTT Node.';
-        else if($row['type']==3) echo 'Home Assistant.';
-        else echo 'Unknown.';
-        echo '</span>';
-        echo '<span class="pull-right text-muted small" style="width:200px;text-align:right;">Password:&nbsp;' . dec_passwd($row['password']) . '</span>';
-        echo '<br/><span class="text-muted small">' . $row['ip'] . '&nbsp;:&nbsp;' . $row['port'] . '</span>';
-
-        echo '<span class="pull-right text-muted small" style="width:200px;text-align:right;">';
-        echo '<button class="btn btn-default btn-xs" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_MQTTEdit&id=' . $row['id'] . '" onclick="mqtt_AddEdit(this);">
-            <span class="ionicons ion-edit"></span></button>&nbsp;&nbsp;
-		<button class="btn btn-danger btn-xs" onclick="mqtt_delete(' . $row['id'] . ');"><span class="glyphicon glyphicon-trash"></span></button>';
-        echo '</span>';
-        echo '</span>';
+        echo '<span class="list-group-item">
+		<div class="d-flex justify-content-between">
+			<div>';
+        			echo $row['name'] . ($row['enabled'] ? '' : ' (Disabled)');
+			echo '</div>
+			<div>
+        			<span class="text-muted small" style="width:200px;text-align:right;">Username:&nbsp;' . $row['username'] . '</span>
+			</div>
+		</div>
+                <div class="d-flex justify-content-between">
+			<div>
+				<span class="text-muted small">Type:&nbsp;';
+        				if($row['type']==0) echo 'Default, monitor.';
+        				else if($row['type']==1) echo 'Sonoff Tasmota.';
+        				else if($row['type']==2) echo 'MQTT Node.';
+        				else if($row['type']==3) echo 'Home Assistant.';
+        				else echo 'Unknown.';
+        			echo '</span>
+			</div>
+			<div>
+        			<span class="text-muted small" style="width:200px;text-align:right;">Password:&nbsp;' . dec_passwd($row['password']) . '</span>
+			</div>
+		</div>
+                <div class="d-flex justify-content-between">
+                        <div>
+        			<span class="text-muted small">' . $row['ip'] . '&nbsp;:&nbsp;' . $row['port'] . '</span>
+			</div>
+			<div>
+        			<span class="text-muted small" style="width:200px;text-align:right;">
+        				<button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-xs" data-bs-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_MQTTEdit&id=' . $row['id'] . '" onclick="mqtt_AddEdit(this);">
+            					<span class="bi bi-pencil"></span>
+					</button>&nbsp;&nbsp;
+					<button class="btn btn-danger btn-xs" onclick="mqtt_delete(' . $row['id'] . ');"><span class="bi bi-trash-fill"></span></button>
+        			</span>
+        		</div>
+		</div>
+	</span>';
     }
     echo '</div>';      //close class="list-group">';
     echo '</div>';      //close class="modal-body">
     echo '<div class="modal-footer" id="ajaxModalFooter">
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+            <button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
     echo '<script language="javascript" type="text/javascript">
         mqtt_AddEdit=function(ithis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(ithis)); }).modal("hide");};
@@ -492,8 +514,8 @@ function GetModal_MQTTAddEdit($conn)
         $IsAdd=false;
     }
 
-    echo '<div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+    echo '<div class="modal-header '.theme($conn, settings($conn, 'theme'), 'text_color').' bg-'.theme($conn, settings($conn, 'theme'), 'color').'">
+            <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
             <h5 class="modal-title" id="ajaxModalLabel">' . ($IsAdd ? $lang['add_mqtt_connection'] : $lang['edit_mqtt_connection']) . '</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">';
@@ -540,9 +562,9 @@ function GetModal_MQTTAddEdit($conn)
             </form>';
     echo '</div>';      //close class="modal-body">
     echo '<div class="modal-footer" id="ajaxModalFooter">' . ($IsAdd ?
-            '<button type="button" class="btn btn-warning btn-sm" data-dismiss="modal" onclick="mqtt_add()">'.$lang['add_conn'].'</button>'
-            : '<button type="button" class="btn btn-warning btn-sm" data-dismiss="modal" onclick="mqtt_edit()">'.$lang['edit_conn'].'</button>') . '
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+            '<button type="button" class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal" onclick="mqtt_add()">'.$lang['add_conn'].'</button>'
+            : '<button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal" onclick="mqtt_edit()">'.$lang['edit_conn'].'</button>') . '
+            <button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
     echo '<script language="javascript" type="text/javascript">
         mqtt_add=function(){
@@ -595,64 +617,68 @@ function GetModal_Services($conn)
 	global $lang;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
 
-    echo '<div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-            <h5 class="modal-title" id="ajaxModalLabel">'.$lang['services'].'</h5>
+    	echo '<div class="modal-header '.theme($conn, settings($conn, 'theme'), 'text_color').' bg-'.theme($conn, settings($conn, 'theme'), 'color').'">
+            	<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+            	<h5 class="modal-title" id="ajaxModalLabel">'.$lang['services'].'</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">';
-    $SArr=[['name'=>'Apache','service'=>'apache2.service'],
-           ['name'=>'MySQL','service'=>'mysql.service'],
-           ['name'=>'MariaDB','service'=>'mariadb.service'],
-           ['name'=>'PiHome JOBS','service'=>'pihome_jobs_schedule.service'],
-           ['name'=>'HomeAssistant Integration','service'=>'HA_integration.service'],
-	   ['name'=>'Amazon Echo','service'=>'pihome_amazon_echo.service'],
-           ['name'=>'Homebridge','service'=>'homebridge.service'],
-           ['name'=>'Autohotspot','service'=>'autohotspot.service']];
-    echo '<div class="list-group">';
-    foreach($SArr as $SArrKey=>$SArrVal) {
-        echo '<span class="list-group-item">';
-        echo $SArrVal['name'];
-        $rval=my_exec("/bin/systemctl status " . $SArrVal['service']);
-        echo '<span class="pull-right text-muted small">';
-        if($rval['stdout']=='') {
-            echo 'Error: ' . $rval['stderr'];
-        } else {
-            $stat='Status: Unknown';
-            $rval['stdout']=explode(PHP_EOL,$rval['stdout']);
-            foreach($rval['stdout'] as $line) {
-                if(strstr($line,'Loaded:')) {
-                    if(strstr($line,'disabled;')) {
-                        $stat='Status: Disabled';
-                        break;
-                    }
-                }
-                if(strstr($line,'Active:')) {
-                    if(strstr($line,'active (running)')) {
-                        $stat=trim($line);
-                        break;
-                    } else if(strstr($line,'(dead)')) {
-                        $stat='Status: Dead';
-                        break;
-                    }
-                }
-            }
-            echo $stat;
-        }
-        echo '</span>';
-        echo '<br/>&nbsp;<span class="pull-right text-muted small" style="width:200px;text-align:right;">';
-        echo '<button class="btn btn-default btn-xs" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_ServicesInfo&id=' . $SArrVal['service'] . '" onclick="services_Info(this);">
-            <span class="ionicons ion-ios-information-outline"></span></button>';
-        echo '</span>';
-        echo '</span>';
-    }
-    echo '</div>';      //close class="list-group">';
-    echo '</div>';      //close class="modal-body">
-    echo '<div class="modal-footer" id="ajaxModalFooter">
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+    		$SArr=[['name'=>'Apache','service'=>'apache2.service'],
+           		['name'=>'MySQL','service'=>'mysql.service'],
+           		['name'=>'MariaDB','service'=>'mariadb.service'],
+           		['name'=>'PiHome JOBS','service'=>'pihome_jobs_schedule.service'],
+           		['name'=>'HomeAssistant Integration','service'=>'HA_integration.service'],
+	   		['name'=>'Amazon Echo','service'=>'pihome_amazon_echo.service'],
+           		['name'=>'Homebridge','service'=>'homebridge.service'],
+           		['name'=>'Autohotspot','service'=>'autohotspot.service']];
+    		echo '<div class="list-group">';
+    			foreach($SArr as $SArrKey=>$SArrVal) {
+        			echo '<span class="list-group-item">
+					<div class="d-flex justify-content-start">';
+        					echo $SArrVal['name'];
+					echo '</div>';
+        				$rval=my_exec("/bin/systemctl status " . $SArrVal['service']);
+					echo '<div class="d-flex justify-content-between">
+        					<span class="text-muted small">';
+			        			if($rval['stdout']=='') {
+            							echo 'Error: ' . $rval['stderr'];
+        						} else {
+            							$stat='Status: Unknown';
+            							$rval['stdout']=explode(PHP_EOL,$rval['stdout']);
+            							foreach($rval['stdout'] as $line) {
+                							if(strstr($line,'Loaded:')) {
+                    								if(strstr($line,'disabled;')) {
+                        								$stat='Status: Disabled';
+                       				 					break;
+                    								}
+                							}
+                							if(strstr($line,'Active:')) {
+                    								if(strstr($line,'active (running)')) {
+                        								$stat=trim($line);
+                        								break;
+                    								} else if(strstr($line,'(dead)')) {
+                        								$stat='Status: Dead';
+                        								break;
+                    								}
+                							}
+            							}
+            							echo $stat;
+        						}
+        					echo '</span>
+        					<span class="text-muted small" style="width:200px;text-align:right;">
+        						<button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-xs" data-bs-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_ServicesInfo&id=' . $SArrVal['service'] . '" onclick="services_Info(this);">
+            						<span class="bi bi-info-circle"></span></button>';
+        					echo '</span>
+        				</div>
+				</span>';
+    			}
+    		echo '</div>';      //close class="list-group">';
+    	echo '</div>';      //close class="modal-body">
+    	echo '<div class="modal-footer" id="ajaxModalFooter">
+        	<button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
-    echo '<script language="javascript" type="text/javascript">
-        services_Info=function(ithis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(ithis)); }).modal("hide");};
-    </script>';
+    	echo '<script language="javascript" type="text/javascript">
+        	services_Info=function(ithis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(ithis)); }).modal("hide");};
+    	</script>';
     return;
 }
 if($_GET['Ajax']=='GetModal_Services')
@@ -665,8 +691,8 @@ function GetModal_ServicesInfo($conn)
         global $lang;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
 
-    echo '<div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+    echo '<div class="modal-header '.theme($conn, settings($conn, 'theme'), 'text_color').' bg-'.theme($conn, settings($conn, 'theme'), 'color').'">
+            <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
             <h5 class="modal-title" id="ajaxModalLabel">'.$lang['services_info'].'</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">';
@@ -729,15 +755,15 @@ function GetModal_ServicesInfo($conn)
     echo '</span>';
 
     if(substr($_GET['id'],0,7)=='pihome.' or substr($_GET['id'],0,7)=='pihome_' or substr($_GET['id'],0,10)=='homebridge' or substr($_GET['id'],0,11)=='autohotspot' or substr($_GET['id'],0,14)=='HA_integration') {
-        echo '<span class="list-group-item" style="height:40px;">&nbsp;';
-        echo '<span class="pull-right text-muted small">
-              <button class="btn btn-warning btn-xs" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_ServicesInfo&id=' . $_GET['id'] . '&Action=start" onclick="services_Info(this);">
+        echo '<span class="list-group-item" style="height:55px;">&nbsp;';
+        echo '<span class="float-right text-muted small">
+              <button class="btn btn-warning btn-xs" data-bs-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_ServicesInfo&id=' . $_GET['id'] . '&Action=start" onclick="services_Info(this);">
                 Start</button>
-              <button class="btn btn-warning btn-xs" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_ServicesInfo&id=' . $_GET['id'] . '&Action=stop" onclick="services_Info(this);">
+              <button class="btn btn-warning btn-xs" data-bs-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_ServicesInfo&id=' . $_GET['id'] . '&Action=stop" onclick="services_Info(this);">
                 Stop</button>
-              <button class="btn btn-warning btn-xs" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_ServicesInfo&id=' . $_GET['id'] . '&Action=enable" onclick="services_Info(this);">
+              <button class="btn btn-warning btn-xs" data-bs-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_ServicesInfo&id=' . $_GET['id'] . '&Action=enable" onclick="services_Info(this);">
                 Enable</button>
-              <button class="btn btn-warning btn-xs" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_ServicesInfo&id=' . $_GET['id'] . '&Action=disable" onclick="services_Info(this);">
+              <button class="btn btn-warning btn-xs" data-bs-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_ServicesInfo&id=' . $_GET['id'] . '&Action=disable" onclick="services_Info(this);">
                 Disable</button>
               </span>';
         echo '</span>';
@@ -751,14 +777,14 @@ function GetModal_ServicesInfo($conn)
         $rval['stdout']='www-data cannot access journalctl.<br/><br/>If you would like it to be able to, run<br/><code>sudo usermod -a -G systemd-journal www-data</code><br/>and then reboot the RPi.';
     }
     echo '<span class="list-group-item" style="overflow:hidden;">&nbsp;';
-    echo 'Status: <i class="ion-ios-refresh-outline" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_ServicesInfo&id=' . $_GET['id'] . '" onclick="services_Info(this);"></i><br/>';
+    echo 'Status: <i class="bi-bootstrap-reboot" data-bs-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_ServicesInfo&id=' . $_GET['id'] . '" onclick="services_Info(this);"></i><br/>';
     echo '<span class="text-muted small">';
     echo Convert_CRLF($rval['stdout'],'<br/>');
     echo '</span></span>';
 
     if($_GET['id']=='pihome_amazon_echo.service') {
         echo '<span class="list-group-item" style="overflow:hidden;">Install Service:';
-        echo '<span class="pull-right text-muted small">Edit /lib/systemd/system/' . $_GET['id'] . '<br/>
+        echo '<span class="float-right text-muted small">Edit /lib/systemd/system/' . $_GET['id'] . '<br/>
 <code>sudo nano /lib/systemd/system/' . $_GET['id'] . '</code><br/>
 Put the following contents in the file:<br/>
 (make sure the -u is supplied to python<br/>
@@ -799,7 +825,7 @@ Refer to: <a href="www.freedesktop.org/software/systemd/man/journald.conf.html">
     echo '</div>';      //close class="list-group">';
     echo '</div>';      //close class="modal-body">
     echo '<div class="modal-footer" id="ajaxModalFooter">
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+            <button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
     echo '<script language="javascript" type="text/javascript">
         services_Info=function(ithis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(ithis)); }).modal("hide");};
@@ -819,16 +845,16 @@ function GetModal_Uptime($conn)
         global $lang;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
 
-    echo '<div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+    echo '<div class="modal-header '.theme($conn, settings($conn, 'theme'), 'text_color').' bg-'.theme($conn, settings($conn, 'theme'), 'color').'">
+            <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
             <h5 class="modal-title" id="ajaxModalLabel">'.$lang['system_uptime'].'</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">
 			<p class="text-muted"> '.$lang['system_uptime_text'].' </p>
-			<i class="fa fa-clock-o fa-1x red"></i>';
+			<i class="bi bi-clock red"></i>';
     $uptime = (exec ("cat /proc/uptime"));
     $uptime=substr($uptime, 0, strrpos($uptime, ' '));
-    echo secondsToWords($uptime) . '<br/><br/>';
+    echo '&nbsp'.secondsToWords($uptime) . '<br/><br/>';
 
     echo '<div class="list-group">';
     echo '<span class="list-group-item" style="overflow:hidden;"><pre>';
@@ -845,17 +871,17 @@ function GetModal_Uptime($conn)
 /*    while ($row = mysqli_fetch_assoc($results)) {
         echo '<span class="list-group-item">';
         echo $row['name'] . ($row['enabled'] ? '' : ' (Disabled)');
-        echo '<span class="pull-right text-muted small" style="width:200px;text-align:right;">Username:&nbsp;' . $row['username'] . '</span>';
+        echo '<span class="float-right text-muted small" style="width:200px;text-align:right;">Username:&nbsp;' . $row['username'] . '</span>';
         echo '<br/><span class="text-muted small">Type:&nbsp;';
         if($row['type']==0) echo 'Default, monitor.';
         else if($row['type']==1) echo 'Sonoff Tasmota.';
         else echo 'Unknown.';
         echo '</span>';
-        echo '<span class="pull-right text-muted small" style="width:200px;text-align:right;">Password:&nbsp;' . $row['password'] . '</span>';
+        echo '<span class="float-right text-muted small" style="width:200px;text-align:right;">Password:&nbsp;' . $row['password'] . '</span>';
         echo '<br/><span class="text-muted small">' . $row['ip'] . '&nbsp;:&nbsp;' . $row['port'] . '</span>';
 
-        echo '<span class="pull-right text-muted small" style="width:200px;text-align:right;">';
-        echo '<button class="btn btn-default btn-xs" data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_MQTTEdit&id=' . $row['id'] . '" onclick="mqtt_AddEdit(this);">
+        echo '<span class="float-right text-muted small" style="width:200px;text-align:right;">';
+        echo '<button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-xs" data-bs-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_MQTTEdit&id=' . $row['id'] . '" onclick="mqtt_AddEdit(this);">
             <span class="ionicons ion-edit"></span></button>&nbsp;&nbsp;
 		<button class="btn btn-danger btn-xs" onclick="mqtt_delete(' . $row['id'] . ');"><span class="glyphicon glyphicon-trash"></span></button>';
         echo '</span>';
@@ -864,7 +890,7 @@ function GetModal_Uptime($conn)
     echo '</div>';      //close class="list-group">';
     echo '</div>';      //close class="modal-body">
     echo '<div class="modal-footer" id="ajaxModalFooter">
-            <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+            <button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
     return;
 }
@@ -987,16 +1013,16 @@ function GetModal_Sensor_Graph($conn)
         });
 	</script>
 <?php
-        echo '<div class="modal-header">
+        echo '<div class="modal-header '.theme($conn, settings($conn, 'theme'), 'text_color').' bg-'.theme($conn, settings($conn, 'theme'), 'color').'">
             <h5 class="modal-title" id="ajaxModalLabel">'.$title.'</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+            <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
         </div>
         <div class="modal-body" id="ajaxModalBody">
 		<div id="myChart" style="width:100%"></div>
     	</div>
     	<div class="modal-footer" id="ajaxModalFooter">
-            <button class="btn btn-primary btn-sm" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="'.$ajax_modal.'"  onclick="sensors_Graph(this);">'.$button_name.'</button>
-            <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+            <button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-toggle="modal" data-bs-remote="false" data-bs-target="#ajaxModal" data-ajax="'.$ajax_modal.'"  onclick="sensors_Graph(this);">'.$button_name.'</button>
+            <button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
         echo '<script language="javascript" type="text/javascript">
                 sensors_Graph=function(gthis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(gthis)); })};
@@ -1014,15 +1040,15 @@ function GetModal_Sensors($conn)
 	global $lang;
 	//foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
 
-	echo '<div class="modal-header">
-        	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+	echo '<div class="modal-header '.theme($conn, settings($conn, 'theme'), 'text_color').' bg-'.theme($conn, settings($conn, 'theme'), 'color').'">
+        	<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
             	<h5 class="modal-title" id="ajaxModalLabel">'.$lang['temperature_sensor'].'</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">
                 <p class="text-muted"> '.$lang['temperature_sensor_text'].' </p>';
                 $query = "SELECT * FROM sensors ORDER BY sensor_id asc;";
 		$results = $conn->query($query);
-		echo '<div class=\"list-group\">';
+		echo '<div class="list-group">';
 			while ($row = mysqli_fetch_assoc($results)) {
 				$query = "SELECT * FROM nodes where id = {$row['sensor_id']} LIMIT 1;";
 				$nresult = $conn->query($query);
@@ -1037,22 +1063,24 @@ function GetModal_Sensors($conn)
 				$unit = SensorUnits($conn,$row['sensor_type_id']);
 				if ($mcount > 0) { $mrow = mysqli_fetch_array($mresult); }
 				echo '<div class="list-group-item">
-                                        <div class="form-group row" style="height: 10px;">
-                                                <div class="col-xs-12">&nbsp&nbsp'.$nrow['node_id'].'_'.$row['sensor_child_id'].' - '.$row['name'].'</div>
+                                        <div class="form-group row">
+                                                <div class="text-start">&nbsp&nbsp'.$nrow['node_id'].'_'.$row['sensor_child_id'].' - '.$row['name'].'</div>
                                         </div>
-					<div class="form-group row" style="height: 10px;">';
-						if ($bcount > 0) { echo '<div class="col-xs-12">&nbsp&nbsp<i class="fa fa-battery-full"></i> '.round($brow ['bat_level'],0).'% - '.$brow ['bat_voltage'].'</div>'; } else { echo '<div class="col-xs-12">&nbsp&nbsp<i class="fa fa-battery-full"></i></div>'; }
+					<div class="form-group row">';
+						if ($bcount > 0) { echo '<div class="text-start">&nbsp&nbsp<i class="bi bi-battery-half"></i> '.round($brow ['bat_level'],0).'% - '.$brow ['bat_voltage'].'</div>'; } else { echo '<div class="text-start">&nbsp&nbsp<i class="bi bi-battery-half"></i></div>'; }
 					echo '</div>
-					<div class="form-group row" style="height: 10px;">';
-						if ($mcount > 0) { echo '<div class="col-xs-6" id="sensor_temp_'.$row['id'].'">&nbsp&nbsp<i class="ionicons ion-thermometer red"></i> - '.$mrow['payload'].$unit.'</div>'; } else { echo '<div class="col-xs-6">&nbsp&nbsp<i class="ionicons ion-thermometer red"></i></div>'; }
-                                                echo '<div class="col-xs-6"><span class="pull-right text-muted small"><button type="button"  data-remote="false" data-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_SensorsInfo&id=' . $nrow['node_id'] . '" onclick="sensors_Info(this);"><em>'.$nrow['last_seen'].'&nbsp</em></span></button>&nbsp&nbsp</div>
+					<div class="form-group row">
+						<div class="d-flex justify-content-between">';
+							if ($mcount > 0) { echo '<span class="text" id="sensor_temp_'.$row['id'].'">&nbsp&nbsp<i class="bi bi-thermometer-half red"></i> - '.$mrow['payload'].$unit.'</span>'; } else { echo '<span class="text" id="sensor_temp_'.$row['id'].'">&nbsp&nbsp<i class="bi bi-thermometer-half red"></i></span>'; }
+        	                                        echo '<span class="text-muted small"><button type="button"  data-bs-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_SensorsInfo&id=' . $row['id'] . '" onclick="sensors_Info(this);"><em>'.$nrow['last_seen'].'&nbsp</em></button>&nbsp</span>
+						</div>
 					</div>
 				</div> ';
 			}
 		echo '</div>'; //close class=\"list-group\">
     	echo '</div>';      //close class="modal-body">
     	echo '<div class="modal-footer" id="ajaxModalFooter">
-		<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+		<button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
     	echo '<script language="javascript" type="text/javascript">
         	sensors_Info=function(ithis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(ithis)); }).modal("hide");};
@@ -1067,45 +1095,40 @@ if($_GET['Ajax']=='GetModal_Sensors')
 function GetModal_SensorsInfo($conn)
 {
         global $lang;
-        $query = "SELECT COUNT(DISTINCT `child_id`) AS TotalRows FROM `messages_in` WHERE `node_id` = '{$_GET['id']}';";
-        $result = $conn->query($query);
-        $num_child = mysqli_fetch_assoc($result);
-        $query = "SELECT * FROM messages_in_view_24h WHERE node_id = '{$_GET['id']}'";
+	$query = "SELECT name, sensor_id, sensor_child_id FROM sensors WHERE id = {$_GET['id']}";
+	$sresult = $conn->query($query);
+	$srow = mysqli_fetch_assoc($sresult);
+	$s_name = $srow['name'];
+        $sensor_id = $srow['sensor_id'];
+        $sensor_child_id = $srow['sensor_child_id'];
+	$query = "SELECT node_id FROM nodes WHERE id = {$sensor_id}";
+        $nresult = $conn->query($query);
+        $nrow = mysqli_fetch_assoc($nresult);
+	$node_id = $nrow['node_id'];
+        $query = "SELECT * FROM messages_in_view_24h WHERE node_id = '{$node_id}' AND child_id = {$sensor_child_id};";
         $results = $conn->query($query);
         $count = mysqli_num_rows($results);
 
-        echo '<div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title" id="ajaxModalLabel">'.$lang['sensor_last24h'].$_GET['id'].'&nbsp('.$num_child['TotalRows'].')</h5>
+        echo '<div class="modal-header '.theme($conn, settings($conn, 'theme'), 'text_color').' bg-'.theme($conn, settings($conn, 'theme'), 'color').'">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title" id="ajaxModalLabel">'.$lang['sensor_last24h'].$node_id.'&nbsp('.$sensor_child_id.')</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">';
-                echo '<p class="text-muted">'.$lang['node_count_last24h'].$count.'<br>';
-                echo $lang['average_count_last24h'].intval((($count/$num_child['TotalRows'])/24)).'</p>';
+                echo '<p class="text-muted">'.$lang['sensor_count_last24h'].$count.'<br>';
+                echo $lang['average_count_last24h'].intval($count/24).'</p>';
                 if ($count > 0) {
                 	echo '<table class="table table-fixed">
                         	<thead>
                                 	<tr>
-                                        	<th class="col-xs-6"><small>'.$lang['sensor_name'].'</small></th>
-                                        	<th style="text-align:center; vertical-align:middle;" class="col-xs-6"><small>'.$lang['last_seen'].'</small></th>
+                                        	<th class="col-6"><small>'.$lang['sensor_name'].'</small></th>
+                                        	<th style="text-align:center; vertical-align:middle;" class="col-6"><small>'.$lang['last_seen'].'</small></th>
                                 	</tr>
                         	</thead>
                         	<tbody>';
 	                		while ($row = mysqli_fetch_assoc($results)) {
-						$query = "SELECT id FROM nodes WHERE node_id = {$row['node_id']} LIMIT 1;";
-						$result = $conn->query($query);
-						$nodes_row = mysqli_fetch_assoc($result);
-                                		$query = "SELECT name FROM sensors WHERE sensor_id = {$nodes_row['id']} AND sensor_child_id = {$row['child_id']} LIMIT 1;";
-	                                	$s_result = $conn->query($query);
-						$scount=mysqli_num_rows($s_result);
-						if ($scount > 0) {
-							$sensor_row = mysqli_fetch_assoc($s_result);
-							$s_name = $sensor_row['name'];
-						} else {
-							$s_name = $lang['unallocated_sensor'].$row['child_id'];
-						}
                         	        	echo '<tr>
-                                	        	<td class="col-xs-6">'.$s_name.'</td>
-                                        		<td style="text-align:center; vertical-align:middle;" class="col-xs-6">'.$row["datetime"].'</td>
+                                	        	<td class="col-6">'.$s_name.'</td>
+                                        		<td style="text-align:center; vertical-align:middle;" class="col-6">'.$row["datetime"].'</td>
                                 		</tr>';
 					}
 			 	echo '</tbody>
@@ -1113,7 +1136,7 @@ function GetModal_SensorsInfo($conn)
 		}
     	echo '</div>
     	<div class="modal-footer" id="ajaxModalFooter">
-            	<button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+            	<button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
     	echo '<script language="javascript" type="text/javascript">
         	services_Info=function(ithis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(ithis)); }).modal("hide");};
@@ -1143,8 +1166,8 @@ function GetModal_SystemController($conn)
         $system_controller_node_id = $system_controller_node['node_id'];
         $system_controller_seen = $system_controller_node['last_seen'];
 
-        echo '<div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+        echo '<div class="modal-header '.theme($conn, settings($conn, 'theme'), 'text_color').' bg-'.theme($conn, settings($conn, 'theme'), 'color').'">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title" id="ajaxModalLabel">'.$system_controller_name.' - '.$lang['system_controller_recent_logs'].'</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">';
@@ -1155,14 +1178,20 @@ function GetModal_SystemController($conn)
 			$interval  = abs($datetime2 - $datetime1);
 			$ctr_minutes   = round($interval / 60);
 			echo '
-				<ul class="chat">
-					<li class="left clearfix">
+				<ul class="list-group list-group-flush">
+					<li class="list-group-item">
 						<div class="header">
-							<strong class="primary-font red">System Controller Fault!!!</strong>
-							<small class="pull-right text-muted">
-							<i class="fa fa-clock-o fa-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
-							</small>
-							<br><br>
+							<div class="d-flex justify-content-between">
+								<span>
+									<strong class="primary-font red">System Controller Fault!!!</strong>
+								</span>
+								<span>
+									<small class="text-muted">
+										<i class="bi bi-clock icon-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
+									</small>
+								</span>
+							</div>
+							<br>
 							<p>Node ID '.$system_controller_node_id.' last seen at '.$system_controller_seen.' </p>
 							<p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
 						</div>
@@ -1173,21 +1202,35 @@ function GetModal_SystemController($conn)
 		from controller_zone_logs WHERE zone_id = ".$system_controller_id." order by id desc limit 5";
 		$bresults = $conn->query($bquery);
 		if (mysqli_num_rows($bresults) == 0){
-			echo '<div class=\"list-group\">
-				<a href="#" class="list-group-item"><i class="fa fa-exclamation-triangle red"></i>&nbsp;&nbsp;'.$lang['system_controller_no_log'].'</a>
+			echo '<div class="list-group">
+				<a href="#" class="list-group-item"><i class="bi bi-exclamation-triangle red"></i>&nbsp;&nbsp;'.$lang['system_controller_no_log'].'</a>
 			</div>';
 		} else {
 			echo '<p class="text-muted">'. mysqli_num_rows($bresults) .' '.$lang['system_controller_last_records'].'</p>
-			<div class=\"list-group\">' ;
-				echo '<a href="#" class="list-group-item"> <i class="ionicons ion-flame fa-1x red"></i> Start &nbsp; - &nbsp;End <span class="pull-right text-muted"><em> '.$lang['system_controller_on_minuts'].' </em></span></a>';
+			<div class="list-group">' ;
+                        	echo '<a href="#" class="d-flex justify-content-between list-group-item list-group-item-action">
+                                	<span>
+                                        	<img src="images/flame.svg" class="colorize-red" width="20" height="20" alt=""> Start &nbsp; - &nbsp;End
+                                        </span>
+                                        <span class="text-muted small">
+                                         	<em>'.$lang['system_controller_on_minuts'].'&nbsp;</em>
+                                        </span>
+                                </a>';
 				while ($brow = mysqli_fetch_assoc($bresults)) {
-					echo '<a href="#" class="list-group-item"> <i class="ionicons ion-flame fa-1x red"></i> '. $brow['start_datetime'].' - ' .$brow['stop_datetime'].' <span class="pull-right text-muted"><em> '.$brow['on_minuts'].'&nbsp;</em></span></a>';
+                                	echo '<a href="#" class="d-flex justify-content-between list-group-item list-group-item-action">
+                                        	<span>
+							<img src="images/flame.svg" class="colorize-red" width="20" height="20" alt=""> '. $brow['start_datetime'].' - ' .$brow['stop_datetime'].'
+                                                </span>
+                                            	<span class="text-muted small">
+							<em>'.$brow['on_minuts'].'&nbsp;</em>
+						</span>
+					</a>';
 				}
 			 echo '</div>';
 		}
         echo '</div>
         <div class="modal-footer" id="ajaxModalFooter">
-                <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+                <button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
         return;
 }
@@ -1287,9 +1330,9 @@ function GetModal_Schedule_List($conn)
         $ajax_modal_24h = "ajax.php?Ajax=GetModal_Sensor_Graph,".$sensor['id'].",0";
         $ajax_modal_1h = "ajax.php?Ajax=GetModal_Sensor_Graph,".$sensor['id'].",1";
 
-        echo '<div class="modal-header">
+        echo '<div class="modal-header '.theme($conn, settings($conn, 'theme'), 'text_color').' bg-'.theme($conn, settings($conn, 'theme'), 'color').'">
             <h5 class="modal-title" id="ajaxModalLabel">'.$zone_name.'</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+            <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
         </div>
         <div class="modal-body" id="ajaxModalBody">';
   		if ($system_controller_fault == '1') {
@@ -1299,14 +1342,20 @@ function GetModal_Schedule_List($conn)
 			$interval  = abs($datetime2 - $datetime1);
 			$ctr_minutes   = round($interval / 60);
 			echo '
-			<ul class="chat">
-				<li class="left clearfix">
+			<ul class="list-group">
+				<li class="list-group-item">
 					<div class="header">
-						<strong class="primary-font red">System Controller Fault!!!</strong>
-						<small class="pull-right text-muted">
-						<i class="fa fa-clock-o fa-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
-						</small>
-						<br><br>
+						<div class="d-flex justify-content-between">
+							<span>
+								<strong class="primary-font red">System Controller Fault!!!</strong>
+							</span>
+							<span>
+								<small class="text-muted">
+									<i class="bi bi-clock icon-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
+								</small>
+							</span>
+						</div>
+						<br>
 						<p>Node ID '.$system_controller_node_id.' last seen at '.$system_controller_seen.' </p>
 						<p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
 					</div>
@@ -1317,10 +1366,9 @@ function GetModal_Schedule_List($conn)
 			$date_time = date('Y-m-d H:i:s');
 			$datetime1 = strtotime("$date_time");
 			echo '
-			<ul class="chat">
-				<li class="left clearfix">
-					<div class="header">
-						<strong class="primary-font red">Controller Fault!!!</strong>';
+			<ul class="list-group">
+				<li class="list-group-item">
+					<div class="header">';
 						$cquery = "SELECT `zone_relays`.`zone_id`, `zone_relays`.`zone_relay_id`, n.`last_seen`, n.`notice_interval` FROM `zone_relays`
 						LEFT JOIN `relays` r on `zone_relays`.`zone_relay_id` = r.`id`
 						LEFT JOIN `nodes` n ON r.`relay_id` = n.`id`
@@ -1331,11 +1379,18 @@ function GetModal_Schedule_List($conn)
 							$interval  = abs($datetime2 - $datetime1);
 							$ctr_minutes   = round($interval / 60);
 							$zone_relay_id = $crow['zone_relay_id'];
-							echo '<small class="pull-right text-muted">
-								<i class="fa fa-clock-o fa-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
-								</small>
-								<br><br>
-								<p>Controller ID '.$zone_relay_id.' last seen at '.$crow['last_seen'].' </p>';
+        	                                        echo '<div class="d-flex justify-content-between">
+	                                                        <span>
+                                                  	              <strong class="primary-font red">Controller Fault!!!</strong>
+                                                        	</span>
+                                                        	<span>
+                                                                	<small class="text-muted">
+                                                                        	<i class="bi bi-clock icon-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
+                                                                	</small>
+                                                        	</span>
+                                                	</div>
+                                                	<br>
+                                                	<p>Controller ID '.$zone_relay_id.' last seen at '.$crow['last_seen'].' </p>';
 						}
 						echo '<p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
 					</div>
@@ -1349,14 +1404,20 @@ function GetModal_Schedule_List($conn)
 			$interval  = abs($datetime2 - $datetime1);
 			$sensor_minutes   = round($interval / 60);
 			echo '
-			<ul class="chat">
-				<li class="left clearfix">
+			<ul class="list-group">
+				<li class="list-group-item">
 					<div class="header">
-						<strong class="primary-font red">Sensor Fault!!!</strong>
-						<small class="pull-right text-muted">
-						<i class="fa fa-clock-o fa-fw"></i> '.secondsToWords(($sensor_minutes)*60).' ago
-						</small>
-						<br><br>
+						<div class="d-flex justify-content-between">
+							<span>
+								<strong class="primary-font red">Sensor Fault!!!</strong>
+							</span>
+							<span>
+								<small class="text-muted">
+									<i class="bi bi-clock icon-fw"></i> '.secondsToWords(($sensor_minutes)*60).' ago
+								</small>
+							</span>
+						</div>
+						<br>
 						<p>Sensor ID '.$zone_node_id.' last seen at '.$sensor_seen.' <br>Last Temperature reading received at '.$temp_reading_time.' </p>
 						<p class="text-info"> Heating system will resume for this zone its normal operation once this issue is fixed. </p>
 					</div>
@@ -1386,14 +1447,14 @@ function GetModal_Schedule_List($conn)
                         ORDER BY schedule_daily_time.start asc;";
 			$sresults = $conn->query($squery);
 			if (mysqli_num_rows($sresults) == 0){
-				echo '<div class=\"list-group\">
-					<a href="#" class="list-group-item"><i class="fa fa-exclamation-triangle red"></i>&nbsp;&nbsp;'.$lang['schedule_active_today'].' '.$zone_name.'!!! </a>
+				echo '<div class="list-group">
+					<a href="#" class="list-group-item"><i class="bi bi-exclamation-triangle red"></i>&nbsp;&nbsp;'.$lang['schedule_active_today'].' '.$zone_name.'!!! </a>
 				</div>';
 			} else {
 				//echo '<h4>'.mysqli_num_rows($sresults).' Schedule Records found.</h4>';
 				echo '<p>'.$lang['schedule_disble'].'</p>
 				<br>
-				<div class=\"list-group\">' ;
+				<div class="list-group">' ;
 					while ($srow = mysqli_fetch_assoc($sresults)) {
 						$shactive="orangesch_list";
 						$time = strtotime(date("G:i:s"));
@@ -1401,30 +1462,39 @@ function GetModal_Schedule_List($conn)
 						$end_time = strtotime($srow['end']);
 						if ($time >$start_time && $time <$end_time){$shactive="redsch_list";}
                                                 if ($srow['coop'] == "1") {
-							$coop = '<i class="glyphicon glyphicon-leaf green" data-container="body" data-toggle="popover" data-placement="right" data-content="' . $lang['schedule_coop_help'] . '"></i>';
+							$coop = '<i class="bi bi-tree-fill green" data-container="body" data-bs-toggle="popover" data-placement="right" data-content="' . $lang['schedule_coop_help'] . '"></i>';
                                                 } else {
                                                         $coop = '';
                                                 }
 						//this line to pass unique argument  "?w=schedule_list&o=active&wid=" href="javascript:delete_schedule('.$srow["id"].');"
-						echo '<a href="javascript:schedule_zone('.$srow['tz_id'].');" class="list-group-item">';
-						if ($srow['disabled'] == 0) {
-							echo '<div id="sdtz_'.$srow['tz_id'].'"><div class="circle_list '. $shactive.'"> <p class="schdegree">'.number_format(DispSensor($conn,$srow['temperature'],$sensor_type_id),0).$unit.'</p></div></div>';
-						} else {
-							echo '<div id="sdtz_'.$srow['tz_id'].'"><div class="circle_list bluesch_disable"> <p class="schdegree">D</p></div></div>';
-						}
-						echo '<span class="label label-info sch_name"> '.$srow['sch_name'].'</span>
-						<span class="pull-right text-muted sch_list"><em>'. $coop. ' '.$srow['start'].' - ' .$srow['end'].'</em></span></a>';
+		                                echo '<li class="list-group-item">
+                		                        <div class="d-flex justify-content-between">
+                                		                <span>
+                                                		        <div class="d-flex justify-content-start">
+										<a href="javascript:schedule_zone('.$srow['tz_id'].');" style="text-decoration: none;">';
+											if ($srow['disabled'] == 0) {
+												echo '<div id="sdtz_'.$srow['tz_id'].'"><div class="circle_list '. $shactive.'"> <p class="schdegree">'.number_format(DispSensor($conn,$srow['temperature'],$sensor_type_id),0).$unit.'</p></div></div>';
+											} else {
+												echo '<div id="sdtz_'.$srow['tz_id'].'"><div class="circle_list bluesch_disable"> <p class="schdegree">D</p></div></div>';
+											}
+										echo '</a>
+										<span class="label text-info">&nbsp&nbsp'.$srow['sch_name'].'</span>
+									</div>
+								</span>
+								<span class="text-muted"><em>'. $coop. '&nbsp'.$srow['start'].' - ' .$srow['end'].'</em></span>';
+							echo '</div>
+						</li>';
 					}
 				echo '</div>';
 			}
 		}
     	echo '</div>
     	<div class="modal-footer" id="ajaxModalFooter">
-            <button class="btn btn-primary btn-sm" data-toggle="modal" data-remote="false" data-target="#ajaxModal" data-ajax="'.$ajax_modal_24h.'" onclick="graph_sensor(this);">'.$lang['graph_24h'].'</button>
-            <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">'.$lang['close'].'</button>
+            <button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-toggle="modal" data-bs-remote="false" data-bs-target="#ajaxModal" data-ajax="'.$ajax_modal_24h.'" onclick="graph_sensor(this);">'.$lang['graph_24h'].'</button>
+            <button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
         echo '<script language="javascript" type="text/javascript">
-               graph_sensor=function(zgthis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(zgthis)); })};
+               graph_sensor=function(ithis){ $("#ajaxModal").one("hidden.bs.modal", function() { $("#ajaxModal").modal("show",$(ithis)); })};
         </script>';
     return;
 }
@@ -1433,3 +1503,4 @@ if(explode(',', $_GET['Ajax'])[0]=='GetModal_Schedule_List')
     GetModal_Schedule_List($conn);
     return;
 }
+?>

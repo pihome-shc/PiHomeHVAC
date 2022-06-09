@@ -26,6 +26,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 $gw_script_txt = 'python3 /var/www/cron/gateway.py';
 
 $date_time = date('Y-m-d H:i:s');
+$theme = settings($conn, 'theme');
 
 if(isset($_GET['id'])) {
 	$id = $_GET['id'];
@@ -135,24 +136,26 @@ if (isset($_POST['submit'])) {
 ?>
 
 <!-- Title (e.g. Add Sensor or Edit Sensor) -->
-<div id="page-wrapper">
+<div class="container-fluid">
 	<br>
 	<div class="row">
         	<div class="col-lg-12">
-                	<div class="panel panel-primary">
-                        	<div class="panel-heading">
-					<?php if ($id != 0) { echo $lang['mqtt_edit_device'] . ": " . $row['name']; }else{
-                            		echo "<i class=\"fa fa-plus fa-1x\"></i>" ." ". $lang['mqtt_add_device'];} ?>
-					<div class="pull-right">
+                        <div class="card border-<?php echo theme($conn, $theme, 'color'); ?>">
+                                <div class="card-header <?php echo theme($conn, $theme, 'text_color'); ?> card-header-<?php echo theme($conn, $theme, 'color'); ?>">
+					<div class="d-flex justify-content-between">
+						<div>
+							<?php if ($id != 0) { echo $lang['mqtt_edit_device'] . ": " . $row['name']; }else{
+        	                                	echo '<i class="bi bi-plus-square" style="font-size: 1.2rem;"></i>&nbsp&nbsp'.$lang['mqtt_add_device'];} ?>
+						</div>
 						<div class="btn-group"><?php echo date("H:i"); ?></div>
 					</div>
                         	</div>
-                        	<!-- /.panel-heading -->
-				<div class="panel-body">
-					<form data-toggle="validator" role="form" method="post" action="<?php $_SERVER['PHP_SELF'];?>" id="form-join">
+                        	<!-- /.card-header -->
+				<div class="card-body">
+					<form data-bs-toggle="validator" role="form" method="post" action="<?php $_SERVER['PHP_SELF'];?>" id="form-join">
 						<!-- Node Type -->
 						<div class="form-group" class="control-label" style="display:block"><label><?php echo $lang['node_type']; ?></label> <small class="text-muted"><?php echo $lang['mqtt_node_type_info'];?></small>
-							<select class="form-control select2" type="number" id="type" name="type" onchange=sensor_controller(this.options[this.selectedIndex].value)>
+							<select class="form-select" type="number" id="type" name="type" onchange=sensor_controller(this.options[this.selectedIndex].value)>
 							<option></option>
 							<?php if ($id != 0) {
 								echo '<option selected value='.$row['type'].'>'.$rownode['name'].'</option>';
@@ -190,69 +193,67 @@ if (isset($_POST['submit'])) {
 
                                                 <!-- MQTT Name -->
 					                <div class="form-group" class="control-label"><label><?php echo $lang['mqtt_name']; ?></label> <small class="text-muted"><?php echo $lang['mqtt_name_info'];?></small>
-                                                        <input class="form-control" placeholder="eg. Bathroom_TRV_Temp" value="<?php if(isset($row['name'])){ echo $row['name']; } ?>" id="mqtt_name" name="mqtt_name" data-error="<?php echo $lang['mqtt_name_help']; ?>" autocomplete="off" required>
+                                                        <input class="form-control" placeholder="eg. Bathroom_TRV_Temp" value="<?php if(isset($row['name'])){ echo $row['name']; } ?>" id="mqtt_name" name="mqtt_name" data-bs-error="<?php echo $lang['mqtt_name_help']; ?>" autocomplete="off" required>
                                                         <div class="help-block with-errors"></div>
                                                 </div>
 
 						<!-- MQTT Device Child ID   -->
                                                 	<div class="form-group" class="control-label"><label><?php echo $lang['mqtt_child_id'];?></label> <small class="text-muted"><?php echo $lang['mqtt_child_id_info'];?></small>
-							<input class="form-control input-sm" type="text" value="<?php if(isset($row['name'])){ echo $row['child_id']; } else { echo $new_child_id_sensor; }?>" id="child_id" name="child_id" readonly="readonly" data-error="<?php echo $lang['mqtt_child_id_error']; ?>" autocomplete="off" required>
+							<input class="form-control" type="text" value="<?php if(isset($row['name'])){ echo $row['child_id']; } else { echo $new_child_id_sensor; }?>" id="child_id" name="child_id" readonly="readonly" data-bs-error="<?php echo $lang['mqtt_child_id_error']; ?>" autocomplete="off" required>
                                                         <div class="help-block with-errors"></div>
                                                 </div>
 
 						<!-- MQTT Topic -->
 							<div class="form-group" class="control-label"><label><?php echo $lang['mqtt_topic']; ?></label> <small class="text-muted"><?php echo $lang['mqtt_topic_info'];?></small>
-							<input class="form-control" placeholder="eg. zigbee2mqtt/Bathroom_TRV" value="<?php if(isset($row['mqtt_topic'])) { echo $row['mqtt_topic']; } ?>" id="mqtt_topic" name="mqtt_topic" data-error="<?php echo $lang['mqtt_topic_help']; ?>" autocomplete="off" required>
+							<input class="form-control" placeholder="eg. zigbee2mqtt/Bathroom_TRV" value="<?php if(isset($row['mqtt_topic'])) { echo $row['mqtt_topic']; } ?>" id="mqtt_topic" name="mqtt_topic" data-bs-error="<?php echo $lang['mqtt_topic_help']; ?>" autocomplete="off" required>
 							<div class="help-block with-errors"></div>
 						</div>
 
                                                 <!-- JSON Attribute -->
 							<div class="form-group" class="control-label" id="json_attribute_label" style="display:block"><label><?php echo $lang['mqtt_json_attribute']; ?></label> <small class="text-muted"><?php echo $lang['mqtt_json_attribute_info'];?></small>
-                                                        <input class="form-control" placeholder="eg. local_temperature" value="<?php if(isset($row['attribute'])) { echo $row['attribute']; } ?>" id="json_attribute" name="json_attribute" data-error="<?php echo $lang['mqtt_json_attribute_help']; ?>" autocomplete="off">
+                                                        <input class="form-control" placeholder="eg. local_temperature" value="<?php if(isset($row['attribute'])) { echo $row['attribute']; } ?>" id="json_attribute" name="json_attribute" data-bs-error="<?php echo $lang['mqtt_json_attribute_help']; ?>" autocomplete="off">
                                                         <div class="help-block with-errors"></div>
                                                 </div>
 
                                                 <!-- ON Message -->
 							<div class="form-group" class="control-label" id="on_message_label" style="display:block"><label><?php echo $lang['mqtt_on_message']; ?></label> <small class="text-muted"><?php echo $lang['mqtt_on_message_info'];?></small>
-                                                        <input class="form-control" placeholder='eg. {"force": "open"}' value='<?php if(isset($row['on_payload'])) { echo $row['on_payload']; } ?>' id="on_message" name="on_message" data-error="<?php echo $lang['mqtt_on_message_help']; ?>" autocomplete="off" required>
+                                                        <input class="form-control" placeholder='eg. {"force": "open"}' value='<?php if(isset($row['on_payload'])) { echo $row['on_payload']; } ?>' id="on_message" name="on_message" data-bs-error="<?php echo $lang['mqtt_on_message_help']; ?>" autocomplete="off" required>
                                                         <div class="help-block with-errors"></div>
                                                 </div>
 
                                                 <!-- OFF Message -->
 							<div class="form-group" class="control-label" id="off_message_label" style="display:block"><label><?php echo $lang['mqtt_off_message']; ?></label> <small class="text-muted"><?php echo $lang['mqtt_off_message_info'];?></small>
-                                                        <input class="form-control" placeholder='eg. {"force": "close"}' value='<?php if(isset($row['off_payload'])) { echo $row['off_payload']; } ?>' id="off_message" name="off_message" data-error="<?php echo $lang['mqtt_off_message_help']; ?>" autocomplete="off" required>
+                                                        <input class="form-control" placeholder='eg. {"force": "close"}' value='<?php if(isset($row['off_payload'])) { echo $row['off_payload']; } ?>' id="off_message" name="off_message" data-bs-error="<?php echo $lang['mqtt_off_message_help']; ?>" autocomplete="off" required>
                                                         <div class="help-block with-errors"></div>
                                                 </div>
 
 						<br>
 						<!-- Buttons -->
-						<input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn btn-default btn-sm">
-						<a href="home.php"><button type="button" class="btn btn-primary btn-sm"><?php echo $lang['cancel']; ?></button></a>
+						<input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-sm">
+						<a href="home.php"><button type="button" class="btn btn-primary-<?php echo theme($conn, $theme, 'color'); ?> btn-sm"><?php echo $lang['cancel']; ?></button></a>
 					</form>
 				</div>
-                		<!-- /.panel-body -->
-				<div class="panel-footer">
-					<?php
-					echo '<script type="text/javascript">',
-     					'sensor_controller("'.$row['type'].'");',
-     					'</script>'
-					;
-					ShowWeather($conn);
-					?>
-                        		<div class="pull-right">
-                        			<div class="btn-group">
-                        			</div>
+                		<!-- /.card-body -->
+				<div class="card-footer card-footer-<?php echo theme($conn, $theme, 'color'); ?>">
+					<div class="text-start">
+						<?php
+						echo '<script type="text/javascript">',
+     						'sensor_controller("'.$row['type'].'");',
+     						'</script>'
+						;
+						ShowWeather($conn);
+						?>
 					</div>
 				</div>
-				<!-- /.panel-footer -->
+				<!-- /.card-footer -->
 			</div>
-			<!-- /.panel panel-primary -->
+			<!-- /.card -->
 		</div>
                 <!-- /.col-lg-4 -->
 	</div>
         <!-- /.row -->
 </div>
-<!-- /#page-wrapper -->
+<!-- /#container -->
 <?php }  ?>
 <?php include("footer.php");  ?>
 

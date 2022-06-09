@@ -35,7 +35,7 @@ from controller_zone_logs WHERE start_datetime >= NOW() - INTERVAL 30 DAY  AND z
 
 $result = $conn->query($query);
 echo '<table id="example" class="table table-bordered table-hover dt-responsive" width="100%">';
-echo '<thead><tr><th>Date</th><th>T. Min</th><th class="all">On Min</th><th>S. Min</th><th> <i class="glyphicon glyphicon-leaf green"></th></tr></thead><tbody>';
+echo '<thead><tr><th>Date</th><th>T. Min</th><th class="all">On Min</th><th>S. Min</th><th> <i class="bi bi-tree-fill green"></th></tr></thead><tbody>';
 while ($row = mysqli_fetch_assoc($result)) {
         echo '
         <tr>

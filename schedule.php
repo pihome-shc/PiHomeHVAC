@@ -23,22 +23,26 @@ require_once(__DIR__.'/st_inc/session.php');
 confirm_logged_in();
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
+
 ?>
 <?php include("header.php");  ?>
 <?php include_once("notice.php"); ?>
-<div id="page-wrapper">
+<div class="container-fluid">
 	<br>
       	<div class="row">
         	<div class="col-lg-12">
                 	<div id="schedulelist" >
-				<div class="text-center"><br><br><p><?php echo $lang['please_wait_text']; ?></p>
-				 	<br><br><img src="images/loader.gif">
-				</div>
+                                <div class="d-flex justify-content-center" style="margin-top:10px"><?php echo $lang['please_wait_text']; ?></div>
+                                <div class="d-flex justify-content-center" style="margin-top:10px">
+                                        <div class="spinner-border text-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>"
+                                                role="status">
+                                        </div>
+                                </div>
 			</div>
 		</div>
                 <!-- /.col-lg-12 -->
 	</div>
 	<!-- /.row -->
 </div>
-<!-- /#page-wrapper -->
+<!-- /#container-fluid -->
 <?php include("footer.php");  ?>

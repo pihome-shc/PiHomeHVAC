@@ -24,6 +24,7 @@ require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 
 $date_time = date('Y-m-d H:i:s');
+$theme = settings($conn, 'theme');
 
 if(isset($_GET['id'])) {
 	$id = $_GET['id'];
@@ -105,25 +106,27 @@ if (isset($_POST['submit'])) {
 ?>
 
 <!-- Title (e.g. Add Sensor or Edit Sensor) -->
-<div id="page-wrapper">
+<div class="container-fluid">
 	<br>
 	<div class="row">
         	<div class="col-lg-12">
-                	<div class="panel panel-primary">
-                        	<div class="panel-heading">
-					<?php if ($id != 0) { echo $lang['sensor_edit'] . ": " . $row['name']; }else{
-                            		echo "<i class=\"fa fa-plus fa-1x\"></i>" ." ". $lang['sensor_add'];} ?>
-					<div class="pull-right"> 
+                        <div class="card border-<?php echo theme($conn, $theme, 'color'); ?>">
+                                <div class="card-header <?php echo theme($conn, $theme, 'text_color'); ?> card-header-<?php echo theme($conn, $theme, 'color'); ?>">
+					<div class="d-flex justify-content-between">
+						<div>
+							<?php if ($id != 0) { echo $lang['sensor_edit'] . ": " . $row['name']; }else{
+                		                        echo '<i class="bi bi-plus-square" style="font-size: 1.2rem;"></i>&nbsp&nbsp'.$lang['sensor_add'];} ?>
+						</div>
 						<div class="btn-group"><?php echo date("H:i"); ?></div>
 					</div>
                         	</div>
-                        	<!-- /.panel-heading -->
-				<div class="panel-body">
-					<form data-toggle="validator" role="form" method="post" action="<?php $_SERVER['PHP_SELF'];?>" id="form-join">
+                        	<!-- /.card-header -->
+				<div class="card-body">
+					<form data-bs-toggle="validator" role="form" method="post" action="<?php $_SERVER['PHP_SELF'];?>" id="form-join">
 						<!-- Before or After System Controller Icon -->
-						<div class="checkbox checkbox-default checkbox-circle">
-							<input id="checkbox0" class="styled" type="checkbox" name="pre_post" value="1" <?php $check = ($row['pre_post'] == 1) ? 'checked' : ''; echo $check; ?>>>
-							<label for="checkbox0"> <?php echo $lang['pre_sc_tile']; ?> </label> <small class="text-muted"><?php echo $lang['pre_sc_tile_info'];?></small>
+                                                <div class="form-check">
+							<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="checkbox" value="1" id="checkbox0" name="pre_post" <?php $check = ($row['pre_post'] == 1) ? 'checked' : ''; echo $check; ?>>
+							<label class="form-check-label" for="checkbox0"> <?php echo $lang['pre_sc_tile']; ?> </label> <small class="text-muted"><?php echo $lang['pre_sc_tile_info'];?></small>
 							<div class="help-block with-errors"></div>
 						</div>
 
@@ -135,13 +138,13 @@ if (isset($_POST['submit'])) {
 						$new_index_id = $found_product['index_id']+1;
 						?>
 						<div class="form-group" class="control-label"><label><?php echo $lang['temp_sensor_index_number']; ?>  </label> <small class="text-muted"><?php echo $lang['temp_sensor_index_number_info'];?></small>
-							<input class="form-control" placeholder="<?php echo $lang['temp_sensor_index_number']; ?>r" value="<?php if(isset($row['index_id'])) { echo $row['index_id']; }else {echo $new_index_id; }  ?>" id="index_id" name="index_id" data-error="<?php echo $lang['temp_sensor_index_number_help']; ?>" autocomplete="off" required>
+							<input class="form-control" placeholder="<?php echo $lang['temp_sensor_index_number']; ?>r" value="<?php if(isset($row['index_id'])) { echo $row['index_id']; }else {echo $new_index_id; }  ?>" id="index_id" name="index_id" data-bs-error="<?php echo $lang['temp_sensor_index_number_help']; ?>" autocomplete="off" required>
 							<div class="help-block with-errors"></div>
 						</div>
 
 						<!-- Sensor Type -->
 						<div class="form-group" class="control-label" style="display:block"><label><?php echo $lang['sensor_type']; ?></label> <small class="text-muted"><?php echo $lang['sensor_type_info'];?></small>
-							<select class="form-control select2" type="number" id="type" name="type" onchange=enable_frost_temp(this.options[this.selectedIndex].value)>
+							<select class="form-select" type="number" id="type" name="type" onchange=enable_frost_temp(this.options[this.selectedIndex].value)>
 
 							<?php if(isset($rowtype['type'])) { 
 								echo '<option selected value='.$rowtype['id'].'>'.$rowtype['type'].'</option>'; 
@@ -174,13 +177,13 @@ if (isset($_POST['submit'])) {
 
 						<!-- Sensor Name -->
 						<div class="form-group" class="control-label"><label><?php echo $lang['sensor_name']; ?></label> <small class="text-muted"><?php echo $lang['sensor_name_info'];?></small>
-							<input class="form-control" placeholder="Temperature Sensor Name" value="<?php if(isset($row['name'])) { echo $row['name']; } ?>" id="name" name="name" data-error="<?php echo $lang['sensor_name_help']; ?>" autocomplete="off" required>
+							<input class="form-control" placeholder="Temperature Sensor Name" value="<?php if(isset($row['name'])) { echo $row['name']; } ?>" id="name" name="name" data-bs-error="<?php echo $lang['sensor_name_help']; ?>" autocomplete="off" required>
 							<div class="help-block with-errors"></div>
 						</div>
 
 						<!-- Temperature Sensor ID -->
 						<div class="form-group" class="control-label" id="sensor_id_label" style="display:block"><label><?php echo $lang['sensor_id']; ?></label> <small class="text-muted"><?php echo $lang['zone_sensor_id_info'];?></small>
-							<select id="sensor_id" onchange=SensorChildList(this.options[this.selectedIndex].value) name="sensor_id" class="form-control select2" data-error="<?php echo $lang['sensor_id_error']; ?>" autocomplete="off" required>
+							<select id="sensor_id" onchange=SensorChildList(this.options[this.selectedIndex].value) name="sensor_id" class="form-control select2" data-bs-error="<?php echo $lang['sensor_id_error']; ?>" autocomplete="off" required>
                                                                 <?php if(isset($rownode['node_id'])) {
                                                                         echo '<option selected >'.$rownode['node_id'].' - '.$rownode['name'].'</option>';
                                                 			$query = "SELECT node_id, name, max_child_id FROM nodes where (name LIKE '%Sensor' OR name LIKE 'Switch%')AND id <> ".$rownode['id']." ORDER BY node_id ASC;";
@@ -227,7 +230,7 @@ if (isset($_POST['submit'])) {
 
 						<!-- Temperature Sensor Child ID -->
 						<div class="form-group" class="control-label" id="sensor_child_id_label" style="display:block"><label><?php echo $lang['sensor_child_id']; ?></label> <small class="text-muted"><?php echo $lang['sensor_child_id_info'];?></small>
-							<select id="sensor_child_id" name="sensor_child_id" class="form-control select2" data-error="<?php echo $lang['sensor_child_id_error']; ?>" autocomplete="off" required>
+							<select id="sensor_child_id" name="sensor_child_id" class="form-control select2" data-bs-error="<?php echo $lang['sensor_child_id_error']; ?>" autocomplete="off" required>
 								<?php if(isset($row['sensor_child_id'])) { echo '<option selected >'.$row['sensor_child_id'].'</option>';
 								for ($x = 0; $x <= $rownode['max_child_id']; $x++) {
         								echo "<option value=".$x.">".$x."</option>";
@@ -239,7 +242,7 @@ if (isset($_POST['submit'])) {
 
                                                 <!-- Mode -->
                                                 <div class="form-group" class="control-label"><label><?php echo $lang['sensor_mode']; ?></label> <small class="text-muted"><?php echo $lang['sensor_mode_info'];?></small>
- 							<select class="form-control select2" type="text" id="mode" name="mode" onchange=set_mode(this.options[this.selectedIndex].value)>
+ 							<select class="form-select" type="text" id="mode" name="mode" onchange=set_mode(this.options[this.selectedIndex].value)>
 								<?php echo'<option value=0 ' . ($row['mode']==0 ? 'selected' : '') . '>'.$lang['continous'].'</option>'; ?>
                                                                 <?php echo'<option value=1 ' . ($row['mode']==1 ? 'selected' : '') . '>'.$lang['onchange'].'</option>'; ?>
 	                                                </select>
@@ -288,13 +291,13 @@ if (isset($_POST['submit'])) {
 
                                                 <!-- Correction Factor -->
                                                 <div class="form-group" class="control-label"><label><?php echo $lang['sensor_correction_factor']; ?></label> <small class="text-muted"><?php echo $lang['sensor_correction_factor_info'];?></small>
-                                                        <input class="form-control" placeholder="Temperature Sensor Correction Factor" value="<?php if(isset($row['name'])) { echo $row['correction_factor']; } else { echo '0.00'; } ?>" id="correction_factor" name="correction_factor" data-error="<?php echo $lang['sensor_correction_factor_help']; ?>" autocomplete="off" required>
+                                                        <input class="form-control" placeholder="Temperature Sensor Correction Factor" value="<?php if(isset($row['name'])) { echo $row['correction_factor']; } else { echo '0.00'; } ?>" id="correction_factor" name="correction_factor" data-bs-error="<?php echo $lang['sensor_correction_factor_help']; ?>" autocomplete="off" required>
                                                         <div class="help-block with-errors"></div>
                                                 </div>
 
 						<!-- Frost Temperature -->
 						<div class="form-group" class="control-label" id="frost_protection_label" style="display:block"><label><?php echo $lang['frost_protection']; ?></label> <small class="text-muted"><?php echo $lang['frost_protection_text'];?></small>
-							<select class="form-control select2" type="number" id="frost_temp" name="frost_temp" onchange=enable_frost()>
+							<select class="form-select" type="number" id="frost_temp" name="frost_temp" onchange=enable_frost()>
                 						<?php if(isset($row['frost_temp'])) { 
 									echo '<option selected >'.$row['frost_temp'].'</option>';
 								} else {
@@ -330,7 +333,7 @@ if (isset($_POST['submit'])) {
 						</script>
 						<!-- Frost Controller -->
 						<div class="form-group"  id="frost_controller_label" style="display:block"><label><?php echo $lang['frost_controller']; ?></label> <small class="text-muted"><?php echo $lang['frost_controller_text'];?></small>
-                                                        <select class="form-control select2" type="number" id="frost_controller" name="frost_controller" >
+                                                        <select class="form-select" type="number" id="frost_controller" name="frost_controller" >
                                                                 <?php if(isset($rowcontroller['id'])) {
                                                                         echo '<option selected value='.$rowcontroller['id'].'>'.$rowcontroller['name'].'</option>';
                                                         		$query = "SELECT id, name, type FROM relays WHERE type <> 1 AND id <> ".$rowcontroller['id']." ORDER BY id ASC;";
@@ -347,43 +350,41 @@ if (isset($_POST['submit'])) {
 
 						<br>
 						<!-- Buttons -->
-						<input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn btn-default btn-sm">
-						<a href="home.php"><button type="button" class="btn btn-primary btn-sm"><?php echo $lang['cancel']; ?></button></a>
+						<input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-sm">
+						<a href="home.php"><button type="button" class="btn btn-primary-<?php echo theme($conn, $theme, 'color'); ?> btn-sm"><?php echo $lang['cancel']; ?></button></a>
 					</form>
 				</div>
-                		<!-- /.panel-body -->
-				<div class="panel-footer">
-					<?php
-					echo '<script type="text/javascript">',
-     					'enable_frost("'.$row['frost_temp'].'");',
-     					'</script>'
-					;
-                                        echo '<script type="text/javascript">',
-                                        'enable_frost_temp("'.$rowtype['id'].'");',
-                                        '</script>'
-                                        ;
-					if ($id != 0) {
+                		<!-- /.card-body -->
+				<div class="card-footer card-footer-<?php echo theme($conn, $theme, 'color'); ?>">
+					<div class="text-start">
+						<?php
 						echo '<script type="text/javascript">',
-					     	'set_mode("'.$row['mode'].'");',
+     						'enable_frost("'.$row['frost_temp'].'");',
      						'</script>'
 						;
-					}
-					ShowWeather($conn);
-					?>
-                        		<div class="pull-right">
-                        			<div class="btn-group">
-                        			</div>
+                                        	echo '<script type="text/javascript">',
+	                                        'enable_frost_temp("'.$rowtype['id'].'");',
+        	                                '</script>'
+                	                        ;
+						if ($id != 0) {
+							echo '<script type="text/javascript">',
+						     	'set_mode("'.$row['mode'].'");',
+     							'</script>'
+							;
+						}
+						ShowWeather($conn);
+						?>
 					</div>
 				</div>
-				<!-- /.panel-footer -->
+				<!-- /.card-footer -->
 			</div>
-			<!-- /.panel panel-primary -->
+			<!-- /.card -->
 		</div>
                 <!-- /.col-lg-4 -->
 	</div>
         <!-- /.row -->
 </div>
-<!-- /#page-wrapper -->
+<!-- /#container -->
 <?php }  ?>
 <?php include("footer.php");  ?>
 
