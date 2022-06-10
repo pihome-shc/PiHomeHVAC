@@ -580,6 +580,16 @@ echo '<div class="modal fade" id="auto_backup" tabindex="-1" role="dialog" aria-
             	<div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
                 	<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
                 	<h5 class="modal-title">'.$lang['auto_backup'].'</h5>
+	                <div class="dropdown float-right">
+        	                <a class="" data-bs-toggle="dropdown" href="#">
+                	                <i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
+                        	</a>
+	                        <ul class="dropdown-menu dropdown-menu-'.theme($conn, settings($conn, 'theme'), 'color').'">
+        	                        <li><a class="dropdown-item" href="pdf_download.php?file=setup_database_backup.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_database_backup'].'</a></li>
+                	                <li class="dropdown-divider"></li>
+					<li><a class="dropdown-item" href="pdf_download.php?file=setup_email_notifications.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_email_notifications'].'</a></li>
+                        	</ul>
+                	</div>
             	</div>
             	<div class="modal-body">
                         <p class="text-muted">'.$lang['auto_backup_text'].'</p>';
