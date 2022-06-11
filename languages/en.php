@@ -908,6 +908,7 @@ $lang['default'] = "Default";
 $lang['primary'] = "Primary";
 $lang['orange'] = "Orange";
 $lang['red'] = "Red";
+$lang['orange_red'] = "Burnt Orange";
 $lang['amber'] = "Amber";
 $lang['blue'] = "Blue";
 $lang['violet'] = "Violet";
@@ -947,4 +948,6 @@ $lang['destination'] = "Destination";
 $lang['destination_info'] = "(Set the Folder Path for where the Backup File will be Saved.)";
 $lang['value'] = "Value";
 $lang['no_email'] = "IT APPEARS THAT YOU HAVE NOT CONFIGURED YOUR EMAIL SETTINGS.";
+$lang['configure_themes'] = "Configure Themes";
+$lang['status_indicators'] = "Status Indicators";
 ?>

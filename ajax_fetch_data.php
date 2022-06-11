@@ -199,7 +199,7 @@ if ($type <= 5 || $type == 8) {
 			}
                 	break;
 	        case 5:
-        	        if($overrun == 1) { echo '<i class="bi bi-play orange">'; }
+        	        if($overrun == 1) { echo '<i class="bi bi-play-fill orange-red">'; }
                 	break;
 	        case 8:
         	        if (($zone_category == 1 && $sensor_type_id != 3)) {
@@ -325,7 +325,7 @@ if ($type <= 5 || $type == 8) {
 						break;
 					case 2:
                         	                if ($active_schedule) {
-                                	               	if ($hvac_relays_state & 0b010) { $system_controller_colour="blueinfo"; } else { $system_controller_colour="orange"; }
+                                	               	if ($hvac_relays_state & 0b010) { $system_controller_colour="blueinfo"; } else { $system_controller_colour="orange-red"; }
                                         	} else {
                                                 	$system_controller_colour="";
 	                                        }
@@ -382,7 +382,7 @@ if ($type <= 5 || $type == 8) {
 			}
 		} elseif ($type == 10) {
 			if($system_controller_fault=='1') {echo'<i class="bi bi-x-circle-fill red">';}
-			elseif($hysteresis=='1') {echo'<i class="bi bi-hourglass icon-1x orange">';}
+			elseif($hysteresis=='1') {echo'<i class="bi bi-hourglass-split orange-red">';}
 			else { echo'';}
 		}
 	}

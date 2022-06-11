@@ -182,6 +182,11 @@ color:#dc0000;
 .orange {
 color:#F0AD4E;
 }
+
+.orange-red {
+color:#FF4500;
+}
+
 .green {
 color:#0bb71b;
 }
@@ -453,6 +458,7 @@ color:#2196F3 !important;
 :root {
   --bm-purple: 260, 90%, 43%;
   --bm-orange: 27, 98%, 54%;
+  --bm-orange-red: 16, 100%, 50%;
   --bm-red: 4, 100%, 50%;
   --bm-blue: 216, 98%, 52%;
   --bm-amber: 45, 100%, 51%;
@@ -612,6 +618,83 @@ color:#2196F3 !important;
   --l: 100%; /*the initial lightness*/
   --bs-dropdown-link-hover-bg:  hsl(var(--bm-orange),calc(var(--l) - 70%)) !important;
   --bs-dropdown-link-active-bg: hsl(var(--bm-orange), var(--l)) !important;
+}
+
+ .btn-bm-orange-red {
+  --l: 100%; /*the initial lightness*/
+  --bs-btn-color: #333;
+  --bs-btn-bg: hsl(var(--bm-orange-red),calc(var(--l) - 95%));
+  --bs-btn-border-color:  hsl(var(--bm-orange-red), var(--l));
+  --bs-btn-hover-color: #333;
+  --bs-btn-hover-bg:  hsl(var(--bm-orange-red),calc(var(--l) - 85%));
+  --bs-btn-hover-border-color:  hsl(var(--bm-orange-red), var(--l));
+  --bs-btn-focus-box-shadow: 0 0 0 0.25rem hsl(var(--bm-orange-red),calc(var(--l) - 75%));
+  --bs-btn-active-color: #333;
+  --bs-btn-active-bg:  hsl(var(--bm-orange-red),calc(var(--l) - 85%));
+  --bs-btn-active-border-color: hsl(var(--bm-orange-red), var(--l));
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #333;
+  --bs-btn-disabled-bg:  hsl(var(--bm-orange-red), var(--l));
+  --bs-btn-disabled-border-color:  hsl(var(--bm-orange-red), var(--l));
+}
+
+.btn-primary-orange-red {
+  --l: 100%; /*the initial lightness*/
+  --bs-btn-color: #fff;
+  --bs-btn-bg: hsl(var(--bm-orange-red),calc(var(--l) - 10%));
+  --bs-btn-border-color:  hsl(var(--bm-orange-red), var(--l));
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg:  hsl(var(--bm-orange-red),calc(var(--l) - 20%));
+  --bs-btn-hover-border-color:  hsl(var(--bm-orange-red), var(--l));
+  --bs-btn-focus-box-shadow: 0 0 0 0.25rem hsl(var(--bm-orange-red), var(--l));
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg:  hsl(var(--bm-orange-red),calc(var(--l) - 20%));
+  --bs-btn-active-border-color: hsl(var(--bm-orange-red), var(--l));
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg:  hsl(var(--bm-orange-red), var(--l));
+  --bs-btn-disabled-border-color:  hsl(var(--bm-orange-red), var(--l));
+}
+
+.bg-orange-red {
+  --l: 100%; /*the initial lightness*/
+  background-color: hsl(var(--bm-orange-red), var(--l)) !important;
+  border-color: hsl(var(--bm-orange-red), var(--l)) !important;
+}
+
+.text-orange-red {
+  --l: 100%; /*the initial lightness*/
+  color: hsl(var(--bm-orange-red), var(--l));
+}
+
+.border-orange-red {
+  --l: 100%; /*the initial lightness*/
+  --bs-border-opacity: 1;
+  border-color:  hsl(var(--bm-orange-red), var(--l));
+}
+
+.card-header-orange-red {
+  --l: 100%; /*the initial lightness*/
+  background-color: hsl(var(--bm-orange-red), var(--l)) !important;
+  border-bottom: hsl(var(--bm-orange-red), var(--l)) !important;
+}
+
+.card-footer-orange-red{
+  --l: 100%; /*the initial lightness*/
+  background-color: hsl(var(--bm-orange-red),calc(var(--l) - 70%));
+  border-top:0px solid hsl(var(--bm-orange-red), var(--l));
+}
+
+.form-check-input-orange-red:checked {
+   --l: 85%; /*the initial lightness*/
+  background-color: hsl(var(--bm-orange-red), var(--l)) !important;
+  border-color:  hsl(var(--bm-orange-red), var(--l)) !important;
+}
+
+.dropdown-menu-orange-red {
+  --l: 100%; /*the initial lightness*/
+  --bs-dropdown-link-hover-bg:  hsl(var(--bm-orange-red),calc(var(--l) - 70%)) !important;
+  --bs-dropdown-link-active-bg: hsl(var(--bm-orange-red), var(--l)) !important;
 }
 
 .btn-bm-red {

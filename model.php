@@ -450,6 +450,14 @@ echo '<div class="modal fade" id="theme" tabindex="-1" role="dialog" aria-labell
             <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
                         <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title">'.$lang['theme'].'</h5>
+                <div class="dropdown float-right">
+                        <a class="" data-bs-toggle="dropdown" href="#">
+                                <i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-'.theme($conn, settings($conn, 'theme'), 'color').'">
+				<li><a class="dropdown-item" href="pdf_download.php?file=configure_themes.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['configure_themes'].'</a></li>
+                        </ul>
+                </div>
             </div>
             <div class="modal-body">
                 <p class="text-muted">'.$lang['change_theme_settings_text'].'</p>';
@@ -1765,19 +1773,7 @@ echo '<div class="modal fade" id="add_theme" tabindex="-1" role="dialog" aria-la
                                 <i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-'.theme($conn, settings($conn, 'theme'), 'color').'">
-                                <li><a class="dropdown-item" href="pdf_download.php?file=sensor_types.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['sensor_types'].'</a></li>
-                                <li class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="pdf_download.php?file=humidity_sensors.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['humidity_sensors'].'</a></li>
-				<li class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="pdf_download.php?file=ds18b20_temperature_sensor.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['ds18b20_temperature_sensor'].'</a></li>
-                                <li class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="pdf_download.php?file=import_sensor_readings.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['import_sensor_readings'].'</a></li>
-                                <li class="dropdown-divider"></li>
-				<li><a class="dropdown-item" href="pdf_download.php?file=delete_zones_relays_sensors_nodes.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['delete_zones_relays_sensors_nodes'].'</a></li>
-                                <li class="dropdown-divider"></li>
-				<li><a class="dropdown-item" href="pdf_download.php?file=setup_guide_sensors.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_guide_sensors'].'</a></li>
-                                <li class="dropdown-divider"></li>
-				<li><a class="dropdown-item" href="pdf_download.php?file=setup_sensor_notifications.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_sensor_notifications'].'</a></li>
+                                <li><a class="dropdown-item" href="pdf_download.php?file=configure_themes.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['configure_themes'].'</a></li>
                     	</ul>
                 </div>
             </div>

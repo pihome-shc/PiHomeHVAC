@@ -114,6 +114,7 @@ if (isset($_POST['submit'])) {
                                                         <select class="form-select" type="text" id="theme_color" name="theme_color" >
 						    		<?php echo'<option value="red" ' . ($row['color']=="red" ? 'selected' : '') . '>'.$lang['red'].'</option>'; ?>
                                                                 <?php echo'<option value="orange" ' . ($row['color']=="orange" ? 'selected' : '') . '>'.$lang['orange'].'</option>'; ?>
+                                                                <?php echo'<option value="orange-red" ' . ($row['color']=="orange-red" ? 'selected' : '') . '>'.$lang['orange_red'].'</option>'; ?>
 		                                                <?php echo'<option value="amber" ' . ($row['color']=="amber" ? 'selected' : '') . '>'.$lang['amber'].'</option>'; ?>
                                					<?php echo'<option value="blue" ' . ($row['color']=="blue" ? 'selected' : '') . '>'.$lang['blue'].'</option>'; ?>
 		                                                <?php echo'<option value="black" ' . ($row['color']=="black" ? 'selected' : '') . '>'.$lang['black'].'</option>'; ?>
