@@ -336,7 +336,7 @@ $page_refresh = page_refresh($conn);
 						}
 			                        //Overrun Icon
                 			        if($overrun == 1) {
-		        	                    echo '<small class="statuszoon" id="zs4_'.$zone_id.'"><i class="bi bi-play orange"></i></small>';
+		        	                    echo '<small class="statuszoon" id="zs4_'.$zone_id.'"><i class="bi bi-play-fill orange-red"></i></small>';
                 			        }
 		                        	echo '</h3></button>';      //close out status and button
 						$zone_params[] = array('zone_id' =>$row['id'], 'zone_name' =>$row['name'], 'zone_category' =>$row['category']);
@@ -416,7 +416,7 @@ $page_refresh = page_refresh($conn);
 									break;
 								case 2:
         	        		                                if ($active_schedule) {
-                	                		                	if ($hvac_relays_state & 0b010) { $system_controller_colour="blueinfo"; } else { $system_controller_colour="orange"; }
+                	                		                	if ($hvac_relays_state & 0b010) { $system_controller_colour="blueinfo"; } else { $system_controller_colour="orange-red"; }
                         	                        		} else {
 		                	                                        $system_controller_colour="";
                 		        	                        }
@@ -473,7 +473,7 @@ $page_refresh = page_refresh($conn);
 						}
 
 						if($system_controller_fault=='1') {echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 70px;" class="statuszoon" id="scs"><i class="bi bi-x-circle-fill red"></i> </small>';}
-						elseif($hysteresis=='1') {echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 70px;" class="statuszoon" id="scs"><i class="bi bi-hourglass-split orange"></i> </small>';}
+						elseif($hysteresis=='1') {echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 70px;" class="statuszoon" id="scs"><i class="bi bi-hourglass-split orange-red"></i> </small>';}
 						else { echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 48px;" class="statuszoon" id="scs"></small>';}
 						echo '</h3></button>';
 					}
