@@ -31,9 +31,9 @@ Version 1.80 Introduces a revised Home screen, which no longer auto-refreshes. T
 
 Version 2.01 Major update that introduces 'Colour Themes' and a new look based around the use of Bootstrap Version 5.2. Six different colour themes are available, Amber, Blue, Orange, Red, Teal and Violet.
 
-Version 2.02 Introduces a simplified 'theme' definition, adds theme coloring to dropdown lists and adds a Dark theme.
+Version 2.02 Introduces a simplified 'theme' definition, adds theme coloring to dropdown lists and adds Dark and Burnt Orange themes.
 
-![theme_colours](https://user-images.githubusercontent.com/46624596/172785208-723ea90c-88cd-4223-a5c2-b101647eb899.png)
+![theme_colours](https://user-images.githubusercontent.com/46624596/173180055-25914223-90f9-40e9-9a09-6c9854efd4d6.png)
 
 ## Setup:
 
