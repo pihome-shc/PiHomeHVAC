@@ -25,7 +25,7 @@ print("********************************************************")
 print("*        Script Backup Database to a gz file and       *")
 print("*                send as an Email message.             *")
 print("*                Build Date: 26/10/2019                *")
-print("*      Version 0.04 - Last Modified 26/10/2020         *")
+print("*      Version 0.05 - Last Modified 12/06/2022         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" ")
@@ -92,13 +92,26 @@ try:
         in enumerate(cursorselect.description)
     )
     results = cursorselect.fetchone()
-    cursorselect.close()
     if cursorselect.rowcount > 0:
         TO = results[name_to_index['backup_email']]
     else:
         print("Error - No Backup Email Account Found in Database.")
-        sys.exit(1)       
-        
+        sys.exit(1)
+
+    query = ("SELECT destination FROM auto_backup LIMIT 1;")
+    cursorselect.execute(query)
+    destination_to_index = dict(
+        (d[0], i)
+        for i, d
+        in enumerate(cursorselect.description)
+    )
+    result = cursorselect.fetchone()
+    if cursorselect.rowcount > 0 and len(result[destination_to_index['destination']]) > 0:
+        destination = result[destination_to_index['destination']]
+    else:
+        destination = "/var/www/MySQL_Database/database_backups/"
+    cursorselect.close()
+
 except mdb.Error as e:
     print("Error %d: %s" % (e.args[0], e.args[1]))
     sys.exit(1)
@@ -111,7 +124,7 @@ print("------------------------------------------------------------------")
 
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Creating Database Backup SQL File")
 print("------------------------------------------------------------------")
-dumpfname = dbname + "_" + datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + ".sql";
+dumpfname = destination + dbname + "_" + datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + ".sql";
 cmd = "mysqldump --ignore-table=" + dbname + ".backup --add-drop-table --host=" + dbhost +" --user=" + dbuser + " --password=" + dbpass + " " + dbname + " > " + dumpfname
 os.system(cmd)
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Database Backup SQL File Created")

@@ -426,7 +426,6 @@ echo '
 
 <a href="https://blog.getbootstrap.com/" class="list-group-item"><i class="bi bi-life-preserver blueinfo"></i> Bootstrap <span class="float-right text-muted small"><em>...</em></span></a>
 <a href="http://www.cssscript.com/pretty-checkbox-radio-inputs-bootstrap-awesome-bootstrap-checkbox-css" class="list-group-item"><i class="bi bi-life-preserver blueinfo"></i> Pretty Checkbox <span class="float-right text-muted small"><em>...</em></span></a>
-<a href="http://ionicons.com" class="list-group-item"><i class="bi bi-life-preserver blueinfo"></i> Ionicons <span class="float-right text-muted small"><em>...</em></span></a>
 <a href="http://www.cssmatic.com/box-shadow" class="list-group-item"><i class="bi bi-life-preserver blueinfo"></i> Box Shadow CSS <span class="float-right text-muted small"><em>...</em></span></a>
 <a href="https://daneden.github.io/animate.css" class="list-group-item"><i class="bi bi-life-preserver blueinfo"></i> Animate.css <span class="float-right text-muted small"><em>...</em></span></a>
 <a href="https://www.mysensors.org" class="list-group-item"><i class="bi bi-life-preserver blueinfo"></i> MySensors <span class="float-right text-muted small"><em>...</em></span></a>
