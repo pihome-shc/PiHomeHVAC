@@ -563,6 +563,7 @@ echo '
                 </div>
             </div>
             <div class="modal-body">
+                        <p class="text-muted"> '.$lang['backup_location_text'].' </p>
                         <p class="text-muted"> '.$lang['pihome_backup_text'].' </p>
                         <form data-bs-toggle="validator" role="form" method="post" action="#" id="form-join">
                         <div class="form-group" class="control-label"><label>'.$lang['email_address'].'</label> <small class="text-muted">'.$lang['pihome_backup_email_info'].'</small>

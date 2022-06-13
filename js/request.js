@@ -574,11 +574,11 @@ function shutdown() {
     //window.location="settings.php?status=reboot";  
 }
 
-//start database backup <--- this function need some work. 
-function db_backup() {  
+//start database backup <--- this function need some work.
+function db_backup() {
   	var quest = "?w=db_backup" + "&o=0" + "&frost_temp=0" + "&wid=0";
-	request('db.php', 'GET', quest, function(){ window.location="settings.php?db_backup"; });
-    //window.location="settings.php?status=reboot";  
+	request('db.php', 'GET', quest, function(){ window.location="settings.php?s_id=2"; });
+    //window.location="settings.php?status=reboot";
 }
 
 //update backup email adress 

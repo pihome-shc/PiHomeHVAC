@@ -933,4 +933,5 @@ $lang['value'] = "Value";
 $lang['no_email'] = "IT APPEARS THAT YOU HAVE NOT CONFIGURED YOUR EMAIL SETTINGS.";
 $lang['configure_themes'] = "Configure Themes";
 $lang['status_indicators'] = "Status Indicators";
+$lang['backup_location_text'] = "By default Backups are stored in the folder `/var/www/MySQL_Database/database_backups`, or the Destination Folder set for `Auto Backup` (if it has been configured).";
 ?>
