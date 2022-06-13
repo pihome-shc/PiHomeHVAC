@@ -382,7 +382,7 @@ $lang['confirm_db_update'] = "Confirm Update Database";
 $lang['confirm_db_update_info'] = "SELECTING YES WILL:<br><br>1. INSTALL THE DATABASE UPDATE FILES<br>2. BACKUP THE EXISTING DATABASE<br>3. UPDATE THE DATABASE STRUCTURE";
 $lang['confirm_proceed'] = "PROCEED";
 $lang['pihome_backup'] = "Database Backup";
-$lang['pihome_backup_text'] = "Full database backup takes quite a while to complete. Backup will be sent to the below email address.";
+$lang['pihome_backup_text'] = "Full database backup takes quite a while to complete, once started the process will run in the background.<br><br>Backup will be sent to the below email address.";
 $lang['pihome_backup_email_info'] = "If you changed your email address make sure to click save first";
 $lang['backup_start'] = "Start Backup";
 $lang['reboot_system'] = "Reboot System";
@@ -950,4 +950,5 @@ $lang['value'] = "Value";
 $lang['no_email'] = "IT APPEARS THAT YOU HAVE NOT CONFIGURED YOUR EMAIL SETTINGS.";
 $lang['configure_themes'] = "Configure Themes";
 $lang['status_indicators'] = "Status Indicators";
+$lang['backup_location_text'] = "By default Backups are stored in the folder `/var/www/MySQL_Database/database_backups`, or the Destination Folder set for `Auto Backup` (if it has been configured).";
 ?>
