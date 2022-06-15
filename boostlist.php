@@ -29,7 +29,7 @@ $theme = settings($conn, 'theme');
 
 ?>
 <div class="card border-<?php echo theme($conn, $theme, 'color'); ?>">
-	<div class="card-header card-header-<?php echo theme($conn, $theme, 'text_color'); ?> <?php echo theme($conn, $theme, 'color'); ?>">
+        <div class="card-header <?php echo theme($conn, $theme, 'text_color'); ?> card-header-<?php echo theme($conn, $theme, 'color'); ?>">
 		<div class="d-flex justify-content-between">
 			<div>
                             	<img src="images/rocket.svg" width="20" height="20" alt="">&nbsp&nbsp<?php echo $lang['boost']; ?>
