@@ -25,7 +25,7 @@ print("********************************************************")
 print("*    Script Auto Backup Database to a gz file and      *")
 print("*                send as an Email message.             *")
 print("*                Build Date: 07/06/2022                *")
-print("*      Version 0.02 - Last Modified 08/06/2022         *")
+print("*      Version 0.03 - Last Modified 14/06/2022         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" ")
@@ -68,16 +68,16 @@ if ab_result[backup_to_index['enabled']] == 1:
     frequency = ab_result[backup_to_index['frequency']]
     f = frequency.split(" ")
     if f[1] == "DAY" :
-        freq = int(f[0]) * 24 * 60 * 60 * 60
+        freq = int(f[0]) * 24 * 60 * 60
     else :
-        freq = int(f[0]) * 7 * 24 * 60 * 60 * 60
+        freq = int(f[0]) * 7 * 24 * 60 * 60
 
     rotation = ab_result[backup_to_index['rotation']]
     r = rotation.split(" ")
     if r[1] == "DAY" :
-        rot = int(r[0]) * 24 * 60 * 60 * 60
+        rot = int(r[0]) * 24 * 60 * 60
     else :
-        rot = int(r[0]) * 7 * 24 * 60 * 60 * 60
+        rot = int(r[0]) * 7 * 24 * 60 * 60
 
     if ab_result[backup_to_index['email_backup']] == 1 or ab_result[backup_to_index['email_confirmation']] == 1:
         # Create the container (outer) email message.
@@ -151,7 +151,11 @@ if ab_result[backup_to_index['enabled']] == 1:
     if not list_of_files or (elapsed_time >= freq):
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Creating Database Backup SQL File")
         print("------------------------------------------------------------------")
-        dumpfname = dbname + "_" + datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + ".sql";
+        # Temporary file storage path
+        tempPath = "/var/www/MySQL_Database/database_backups/"
+        # Backup file path
+        dumpfname = tempPath + dbname + "_" + datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + ".sql";
+        # Create the backup
         cmd = "mysqldump --ignore-table=" + dbname + ".backup --add-drop-table --host=" + dbhost +" --user=" + dbuser + " --password=" + dbpass + " " + dbname + " > " + dumpfname
         os.system(cmd)
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Database Backup SQL File Created")
@@ -237,12 +241,19 @@ if ab_result[backup_to_index['enabled']] == 1:
 
             print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Email Sent")
             print("------------------------------------------------------------------")
-        # Move the local archive copy to the destination
-        print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Move Archive File to Destination Folder")
+        # Copy the local archive copy to the destination
+        print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Copying Archive File to Destination Folder")
         print("------------------------------------------------------------------")
-        cmd = "mv " + zipfname  + " " + destination
+        cmd = "cp " + zipfname  + " " + destination
         os.system(cmd)
-        print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Moved to - " + destination)
+        print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Copied to - " + destination)
+        print("------------------------------------------------------------------")
+        # Delete the local archive copy
+        print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Deleting Local Archive File")
+        print("------------------------------------------------------------------")
+        cmd = "rm -f ./" + zipfname
+        os.system(cmd)
+        print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Deleted - " + zipfname)
         print("------------------------------------------------------------------")
     else :
             print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Backup Not Yet Scheduled")
