@@ -200,7 +200,7 @@ def insertDB(IDs, temperature):
                             category = 0
                             type = "Sensor"
                             cur.execute(
-                                "INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                                "INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                                 (
                                     0,
                                     0,
@@ -231,7 +231,7 @@ def insertDB(IDs, temperature):
                                 category = int(results[zone_view_to_index["category"]])
                                 if category != 2:
                                     cur.execute(
-                                        "INSERT INTO zone_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                                        "INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                                         (
                                             0,
                                             0,
@@ -248,7 +248,7 @@ def insertDB(IDs, temperature):
                                     )
                                     con.commit()
                         cur.execute(
-                            "DELETE FROM zone_graphs WHERE node_id = (%s) AND datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR;",
+                            "DELETE FROM sensor_graphs WHERE node_id = (%s) AND datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR;",
                             [IDs[i]],
                         )
                         con.commit()

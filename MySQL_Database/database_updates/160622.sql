@@ -1,0 +1,1 @@
+RENAME TABLE zone_graphs TO sensor_graphs;
