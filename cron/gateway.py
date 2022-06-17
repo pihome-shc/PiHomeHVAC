@@ -756,6 +756,11 @@ try:
                 gatewayenableoutgoing,
             )
 
+        # remove any sensor_graphs table records older than 24 hours
+        cur.execute(
+            'DELETE FROM sensor_graphs WHERE datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR;',
+        )
+
         ## Incoming messages
         if gatewaytype != "virtual":
             if gatewaytype == "serial":
@@ -962,7 +967,7 @@ try:
                             (payload, node_id),
                         )
                         con.commit()
-                    
+
                         # ..::Step Three ::..
                         # Add Nodes Sketch Version to Nodes Table.
                     if (
@@ -1529,10 +1534,6 @@ try:
                         else:
                             print(bc.WARN + "All exiting IDs are assigned: " + bc.ENDC)
                     # end if not gpio output 
-        # remove any sensor_graphs table records older than 24 hours
-        cur_mqtt.execute(
-            'DELETE FROM sensor_graphs WHERE datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR;',
-        )
         time.sleep(0.1)
 
 except configparser.Error as e:
