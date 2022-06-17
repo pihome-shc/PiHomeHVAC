@@ -37,7 +37,7 @@ var humidity_level_dataset = [
         $id=$row['id'];
         $graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
         $graph_num = $row['graph_num'];
-        $query="select * from zone_graphs where zone_id = {$id};";
+        $query="select * from sensor_graphs where zone_id = {$id};";
         $result = $conn->query($query);
         // create array of pairs of x and y values for every zone
         $humidity_level = array();

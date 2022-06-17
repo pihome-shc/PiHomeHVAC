@@ -62,7 +62,7 @@ if ($grow['mask'] & 0b1) {
 	  	$graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
         	$graph_num = $row['graph_num'];
                 if(strpos($name, 'Water') !== false) { $graph_water = $graph_num; }
-		$query="select * from zone_graphs where zone_id = {$id};";
+		$query="select * from sensor_graphs where zone_id = {$id};";
         	$result = $conn->query($query);
 	        // create array of pairs of x and y values for every zone
         	$graph1_temp = array();
