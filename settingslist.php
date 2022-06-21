@@ -323,13 +323,19 @@ if ($settings_id <= 3) {
 
 					       	<button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#backup_image">
 					        <h3 class="buttontop"><small><?php echo $lang['backup']; ?></small></h3>
-					       	<h3 class="degre" ><i class="bi bi-back blue" style="font-size: 1.5rem;"></i> </h3>
+						<h3 class="degre" ><h3 class="degre" ><img src="images/backup_database.svg" class="colorize-blue" style="margin-top: -5px;" width="25" height="25" alt=""></h3></h3>
         					<h3 class="status"></small></h3>
 				                </button>
 
                                                 <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#auto_backup">
                                                 <h3 class="buttontop"><small><?php echo $lang['auto_backup']; ?></small></h3>
-                                                <h3 class="degre" ><i class="bi bi-calendar-day" style="font-size: 1.5rem;"></i> </h3>
+						<h3 class="degre" ><h3 class="degre" ><img src="images/backup_auto.svg" style="margin-top: -5px;" width="35" height="35" alt=""></h3></h3>
+                                                <h3 class="status"></small></h3>
+                                                </button>
+
+                                                <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#backup_restore">
+                                                <h3 class="buttontop"><small><?php echo $lang['restore_db']; ?></small></h3>
+						<h3 class="degre" ><h3 class="degre" ><img src="images/backup_database.svg" class="colorize-green" style="margin-top: -5px;" width="25" height="25" alt=""></h3></h3>
                                                 <h3 class="status"></small></h3>
                                                 </button>
 

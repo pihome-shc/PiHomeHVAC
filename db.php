@@ -1815,5 +1815,12 @@ if($what=="auto_backup"){
         	}
         }
 }
+
+//Restore Database
+if($what=="database_restore"){
+        $filePath =  $_GET['wid'];
+        shell_exec("nohup php restore_database.php ".$filePath.">/dev/null 2>&1 &");
+        $info_message = "Database Restore Request Started, This process may take some time complete..." ;
+}
 ?>
 <?php if(isset($conn)) { $conn->close();} ?>

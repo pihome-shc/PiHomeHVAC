@@ -1261,3 +1261,9 @@ var idata="w=auto_backup&o=update";
     });
 }
 
+//restore_db
+function restore_db(wid){
+        var quest = "?w=database_restore" + "&o=0" + "&frost_temp=0" + "&wid="+wid;
+        request('db.php', 'GET', quest, function(){ window.location="settings.php?s_id=2"; });
+}
+

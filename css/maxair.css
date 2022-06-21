@@ -1085,3 +1085,7 @@ color:#2196F3 !important;
   filter: invert(77%) sepia(41%) saturate(7087%) hue-rotate(194deg) brightness(97%) contrast(90%);
 }
 
+.colorize-green {
+   -webkit-filter: invert(38%) sepia(98%) saturate(2289%) hue-rotate(108deg) brightness(95%) contrast(101%);
+   filter: invert(38%) sepia(98%) saturate(2289%) hue-rotate(108deg) brightness(95%) contrast(101%);
+}
