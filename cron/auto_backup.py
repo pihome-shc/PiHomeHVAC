@@ -154,9 +154,10 @@ if ab_result[backup_to_index['enabled']] == 1:
         # Temporary file storage path
         tempPath = "/var/www/MySQL_Database/database_backups/"
         # Backup file path
-        dumpfname = tempPath + dbname + "_" + datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + ".sql";
+        dumpfname = dbname + "_" + datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + ".sql";
+        tempfname = tempPath + dumpfname
         # Create the backup
-        cmd = "mysqldump --ignore-table=" + dbname + ".backup --add-drop-table --host=" + dbhost +" --user=" + dbuser + " --password=" + dbpass + " " + dbname + " > " + dumpfname
+        cmd = "mysqldump --ignore-table=" + dbname + ".backup --add-drop-table --host=" + dbhost +" --user=" + dbuser + " --password=" + dbpass + " " + dbname + " > " + tempfname
         os.system(cmd)
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Database Backup SQL File Created")
         print("------------------------------------------------------------------")
@@ -165,8 +166,8 @@ if ab_result[backup_to_index['enabled']] == 1:
         print("------------------------------------------------------------------")
 
         # Create a local copy of the backup
-        zipfname = dumpfname + ".gz"
-        cmd = "gzip " + dumpfname
+        zipfname = tempfname + ".gz"
+        cmd = "gzip " + tempfname
         os.system(cmd)
 
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - ZIP Archive Created")
@@ -218,7 +219,7 @@ if ab_result[backup_to_index['enabled']] == 1:
             msg['Subject'] = 'MaxAir Database Backup Confirmation'
             me = FROM
             to = [TO]
-            Body = 'Database Backup Created - ' + dumpfname
+            Body = 'Database Backup Created - ' + destination + dumpfname + ".gz"
             msg['From'] = me
             msg['To'] =  ', '.join(to)
             msg.preamble = 'Database Backup Created'
