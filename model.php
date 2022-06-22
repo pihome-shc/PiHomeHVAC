@@ -736,6 +736,7 @@ echo '
 					if ($rowcount > 0) {
 					        $auto_backup = mysqli_fetch_array($result);
 				        	$destination = $auto_backup['destination'];
+                                                if (strcmp(substr($destination, -1), "/") !== 0) { $destination = $destination."/"; }
 					        $files = glob($destination.'*.gz');
 					        foreach ($files as $file)  {
                 					$fileList[filemtime($file)] = $file;;
