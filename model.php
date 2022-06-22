@@ -703,6 +703,70 @@ echo '<div class="modal fade" id="auto_backup" tabindex="-1" role="dialog" aria-
     </div>
 </div>';
 
+//restore backup
+echo '
+<div class="modal fade" id="backup_restore" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                                        <h5 class="modal-title">'.$lang['restore_db'].'</h5>
+                        <div class="dropdown float-right">
+                                <a class="" data-bs-toggle="dropdown" href="#">
+                                        <i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-'.theme($conn, settings($conn, 'theme'), 'color').'">
+                                        <li><a class="dropdown-item" href="pdf_download.php?file=setup_database_restore.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_database_restore'].'</a></li>
+                                </ul>
+                        </div>
+                        </div>
+                        <div class="modal-body">
+                                <p class="text-muted"> '.$lang['restore_db_text'].' </p>';
+                                echo '<ul class="list-group">';
+					$fileList = array();
+
+					//default update and backup directory
+					$dir = "/var/www/MySQL_Database/database_backups";
+
+					//check if Auto Backup directory has been configured
+					$query = "SELECT destination FROM auto_backup LIMIT 1";
+					$result = $conn->query($query);
+					$rowcount=mysqli_num_rows($result);
+					//if configured get .gz files into array
+					if ($rowcount > 0) {
+					        $auto_backup = mysqli_fetch_array($result);
+				        	$destination = $auto_backup['destination'];
+                                                if (strcmp(substr($destination, -1), "/") !== 0) { $destination = $destination."/"; }
+					        $files = glob($destination.'*.gz');
+					        foreach ($files as $file)  {
+                					$fileList[filemtime($file)] = $file;;
+					        }
+					}
+
+					//check the default update and backup folder and find any .zip (update) or .gz (backup) files and add to array
+					$files = glob('/var/www/MySQL_Database/database_backups/*.zip');
+					foreach ($files as $file) {
+					    $fileList[filemtime($file)] = $file;;
+					}
+					$files = glob('/var/www/MySQL_Database/database_backups/*.gz');
+					foreach ($files as $file) {
+					    $fileList[filemtime($file)] = $file;
+					}
+
+					//sort the array by date
+					ksort($fileList);
+					$fileList = array_reverse($fileList, TRUE);
+					foreach ($fileList as $file) {
+						echo '<button type="button" class="warning list-group-item list-group-item-action" style="font-size: 0.6rem;" onclick="restore_db(`'.$file.'`);" data-confirm="'.$lang['restore_db_warning'].'">'.$file.'</button>';
+					}
+				echo '</ul>
+			</div>
+            		<div class="modal-footer">
+                		<button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+            		</div>
+        	</div>
+    	</div>
+</div>';
 //user accounts model
 echo '
 <div class="modal fade" id="user_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -732,7 +796,7 @@ echo '
                 						<div class="text-muted small">
 									<a href="user_accounts.php?uid='.$row["id"].'" style="text-decoration: none;"><button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-xs login"><span class="bi bi-pencil"></span></button>&nbsp</a>';
                 								if ($_SESSION['user_id'] != $row['id']) {
-                        								echo '<button class="first btn btn-danger btn-xs" onclick="del_user('.$row["id"].');" data-confirm="'.$content_msg.'"><span class="bi bi-trash-fill black"></span></button></a>';
+											echo '<button class="first btn btn-danger btn-xs" onclick="del_user('.$row["id"].');" data-confirm="'.$content_msg.'"><span class="bi bi-trash-fill black"></span></button></a>';
                 								} else {
                         								echo '<button class="btn btn-danger btn-xs disabled"><span class="bi bi-trash-fill black"></span></button>';
                 								}
@@ -2520,7 +2584,7 @@ echo '
                 <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title">'.$lang['zone_type'].'</h5>
                 <div class="dropdown float-right">
-                        <a class="" data-bs-toggle="dropdown" href="#">
+                        <a class="" data-bs-toggle="dropdown" <a href="javascript:delete_theme('.$row["id"].');"<a href="javascript:delete_theme('.$row["id"].');"href="#">
                                 <i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-'.theme($conn, settings($conn, 'theme'), 'color').'">

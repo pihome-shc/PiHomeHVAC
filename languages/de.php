@@ -917,4 +917,8 @@ $lang['no_email'] = "IT APPEARS THAT YOU HAVE NOT CONFIGURED YOUR EMAIL SETTINGS
 $lang['configure_themes'] = "Configure Themes";
 $lang['status_indicators'] = "Status Indicators";
 $lang['backup_location_text'] = "By default Backups are stored in the folder `/var/www/MySQL_Database/database_backups`, or the Destination Folder set for `Auto Backup` (if it has been configured).";
+$lang['restore_db'] = "Restore DB";
+$lang['restore_db_text'] = "Restore a Backup Created by the Backup Database Process (.gz file), or one Created by the Database Update Process (.zip file).<br><br>Available Backups are Shown in Date Order. Click to Select.";
+$lang['restore_db_warning'] = "This Action will Overwrite Your Current DB. DO YOU REALLY WANT TO DO THIS !!";
+$lang['setup_database_restore'] = "Setup Database Restore";
 ?>
