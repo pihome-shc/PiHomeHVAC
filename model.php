@@ -152,10 +152,16 @@ echo '<div class="modal" id="documentation" tabindex="-1">
         <div class="list-group">';
                 $path = '/var/www/documentation/pdf_format';
                 $allFiles = array_diff(scandir($path . "/"), [".", ".."]); // Use array_diff to remove both period values eg: ("." , "..")
-                foreach ($allFiles as $value) {
-			$title = substr($value, 0, -4);
-        		echo '<a href="pdf_download.php?file='.$value.'" target="_blank" class="d-flex justify-content-between list-group-item list-group-item-action">
-          			<span class=""><i class="bi bi-file-earmark-pdf" style="font-size: 1.5rem;"></i>&nbsp&nbsp'.$lang[$title].'</span>
+		// Sort by document title
+		$tmp = array();
+		foreach ($allFiles as $file) {
+		        $tmp[] = array('pdf' => $file, 'title' => $lang[substr($file, 0, -4)]);
+		}
+		$columns = array_column($tmp, 'title');
+		array_multisort($columns, SORT_ASC, $tmp);
+                foreach ($tmp as $doc) {
+        		echo '<a href="pdf_download.php?file='.$doc['pdf'].'" target="_blank" class="d-flex justify-content-between list-group-item list-group-item-action">
+          			<span class=""><i class="bi bi-file-earmark-pdf" style="font-size: 1.5rem;"></i>&nbsp&nbsp'.$doc['title'].'</span>
 			</a>';
                 }
         echo '</div>
@@ -736,7 +742,7 @@ echo '
 					if ($rowcount > 0) {
 					        $auto_backup = mysqli_fetch_array($result);
 				        	$destination = $auto_backup['destination'];
-                                                if (strcmp(substr($destination, -1), "/") !== 0) { $destination = $destination."/"; }
+						if (strcmp(substr($destination, -1), "/") !== 0) { $destination = $destination."/"; }
 					        $files = glob($destination.'*.gz');
 					        foreach ($files as $file)  {
                 					$fileList[filemtime($file)] = $file;;
