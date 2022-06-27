@@ -84,7 +84,7 @@ if (isset($_POST['submit'])) {
 	<div class="row">
         	<div class="col-lg-12">
                 	<div class="card <?php echo theme($conn, $theme, 'border_color'); ?>">
-                        	<div class="card-header <?php echo theme($conn, $theme, 'text_color'); ?> <?php echo theme($conn, $theme, 'background_color'); ?>">
+                                <div class="card-header <?php echo theme($conn, $theme, 'text_color'); ?> card-header-<?php echo theme($conn, $theme, 'color'); ?>">
 	                                <div class="d-flex justify-content-between">
         	                         	<div>
                 	                        	<?php if ($id != 0) { echo $lang['edit_sensor_limits'] . ": " . $row['name']; }else{
@@ -142,12 +142,12 @@ if (isset($_POST['submit'])) {
 
 						<br>
 						<!-- Buttons -->
-						<input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn <?php echo theme($conn, settings($conn, 'theme'), 'btn_style'); ?> btn-sm">
-						<a href="home.php"><button type="button" class="btn <?php echo theme($conn, settings($conn, 'theme'), 'btn_primary'); ?> btn-sm"><?php echo $lang['cancel']; ?></button></a>
+						<input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-sm">
+						<a href="home.php"><button type="button" class="btn btn-primary-<?php echo theme($conn, $theme, 'color'); ?> btn-sm"><?php echo $lang['cancel']; ?></button></a>
 					</form>
 				</div>
                 		<!-- /.card-body -->
-				<div class="card-footer <?php echo theme($conn, $theme, 'footer_color'); ?>">
+                                <div class="card-footer card-footer-<?php echo theme($conn, $theme, 'color'); ?>">
 					<?php
 					ShowWeather($conn);
 					?>
