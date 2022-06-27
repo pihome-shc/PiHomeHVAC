@@ -83,7 +83,7 @@ if (isset($_POST['submit'])) {
 	<br>
 	<div class="row">
         	<div class="col-lg-12">
-                	<div class="card <?php echo theme($conn, $theme, 'border_color'); ?>">
+                        <div class="card border-<?php echo theme($conn, $theme, 'color'); ?>">
                                 <div class="card-header <?php echo theme($conn, $theme, 'text_color'); ?> card-header-<?php echo theme($conn, $theme, 'color'); ?>">
 	                                <div class="d-flex justify-content-between">
         	                         	<div>
