@@ -64,6 +64,7 @@ backup_to_index = dict(
 ab_result = cursorselect.fetchone()
 cursorselect.close()
 if ab_result[backup_to_index['enabled']] == 1:
+    backup_id = ab_result[backup_to_index['id']]
     destination = ab_result[backup_to_index['destination']]
     frequency = ab_result[backup_to_index['frequency']]
     f = frequency.split(" ")
@@ -78,6 +79,9 @@ if ab_result[backup_to_index['enabled']] == 1:
         rot = int(r[0]) * 24 * 60 * 60
     else :
         rot = int(r[0]) * 7 * 24 * 60 * 60
+
+    # Get datetime of last backup
+    last_backup = ab_result[backup_to_index['last_backup']]
 
     if ab_result[backup_to_index['email_backup']] == 1 or ab_result[backup_to_index['email_confirmation']] == 1:
         # Create the container (outer) email message.
@@ -138,17 +142,10 @@ if ab_result[backup_to_index['enabled']] == 1:
     print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Database Backup Script Started")
     print("------------------------------------------------------------------")
 
-    # Get datetime of lastest backup file
-    list_of_files = glob.glob(destination + 'maxair_*.gz')
-    if list_of_files:
-        latest_file = max(list_of_files, key=os.path.getctime)
-        latest_datetime = latest_file[len(destination)+13:-4]
-        c_time = os.path.getctime(latest_file)
-        dt_c = datetime.datetime.fromtimestamp(c_time)
-        elapsed_time = datetime.datetime.now() - dt_c
-        elapsed_time = elapsed_time.total_seconds()
     # Check if new backup is required
-    if not list_of_files or (elapsed_time >= freq):
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    elapsed_time = datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() - datetime.datetime.strptime(str(last_backup), "%Y-%m-%d %H:%M:%S").timestamp()
+    if elapsed_time >= freq:
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Creating Database Backup SQL File")
         print("------------------------------------------------------------------")
         # Temporary file storage path
@@ -164,7 +161,16 @@ if ab_result[backup_to_index['enabled']] == 1:
 
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Creating ZIP Archive of SQL File")
         print("------------------------------------------------------------------")
-
+        # Record datetime of backup creation
+        con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+        cursorupdate = con.cursor()
+        cursorupdate.execute(
+            "UPDATE `auto_backup` SET `last_backup`=%s, `sync`=0 WHERE `id` = %s",
+            [timestamp, backup_id],
+        )
+        con.commit()
+        cursorupdate.close()
+        con.close()
         # Create a local copy of the backup
         zipfname = tempfname + ".gz"
         cmd = "gzip " + tempfname
@@ -262,6 +268,7 @@ if ab_result[backup_to_index['enabled']] == 1:
 
     print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Checking for Rotation Deletions")
     print("------------------------------------------------------------------")
+    list_of_files = glob.glob(destination + 'maxair_*.gz')
     for f in list_of_files:
         c_time = os.path.getctime(f)
         dt_c = datetime.datetime.fromtimestamp(c_time)
