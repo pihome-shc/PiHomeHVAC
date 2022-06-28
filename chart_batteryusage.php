@@ -39,7 +39,7 @@ var bat_level_dataset = [
                 $name = $temp_sensor_row['name'];
                 $label = $name ." - ID ".$id;
                 $graph_id = $id.".0"; //assume battery node colour same as child_id = 0
-		$query="SELECT bat_voltage, bat_level, `update`  FROM nodes_battery WHERE node_id = '{$node_id}' GROUP BY Week(`update`), Day(`update`) ORDER BY `update` ASC;";
+		$query="SELECT bat_voltage, bat_level, `update`  FROM nodes_battery WHERE node_id = '{$node_id}' AND NOT ISNULL(`bat_level`) GROUP BY Week(`update`), Day(`update`) ORDER BY `update` ASC;";
         	$result = $conn->query($query);
         	// create array of pairs of x and y values for every zone
         	$bat_level = array();
