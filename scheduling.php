@@ -214,7 +214,7 @@ if (isset($_POST['submit'])) {
 				$zoneid = $id;
 			}
 			$status = isset($_POST['status'][$id]) ? $_POST['status'][$id] : "0";
-			if ($status == "0" ) { $disabled = 1; } else { $disabled = 0; }
+			$disabled = 0;
 			$coop = isset($_POST['coop'][$id]) ? $_POST['coop'][$id] : "0";
 			$temp=SensorToDB($conn,$_POST['temp'][$id],$type);
                         $ftemp = number_format($temp,1);
