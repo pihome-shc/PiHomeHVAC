@@ -940,7 +940,7 @@ try:
                         and sub_type == 24
                     ):
                         cur.execute(
-                            "SELECT COUNT(*) FROM `nodes` where node_id = (%s)", (node_id,)
+                            "SELECT min_value FROM `nodes` where node_id = (%s)", (node_id,)
                         )
                         row = cur.fetchone()
                         row = int(row[0])
