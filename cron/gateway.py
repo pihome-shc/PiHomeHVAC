@@ -939,18 +939,24 @@ try:
                         and message_type == 1
                         and sub_type == 24
                     ):
-                        if dbgLevel >= 2 and dbgMsgIn == 1:
-                            print(
-                                "4: Adding Node's min_value for Node ID:",
-                                node_id,
-                                " min_value:",
-                                payload,
-                            )
                         cur.execute(
-                            "UPDATE nodes SET min_value = %s where node_id = %s",
-                            (payload, node_id),
+                            "SELECT COUNT(*) FROM `nodes` where node_id = (%s)", (node_id,)
                         )
-                        con.commit()
+                        row = cur.fetchone()
+                        row = int(row[0])
+                        if row == 0:
+                            if dbgLevel >= 2 and dbgMsgIn == 1:
+                                print(
+                                    "4: Adding Node's min_value for Node ID:",
+                                    node_id,
+                                    " min_value:",
+                                    payload,
+                                )
+                            cur.execute(
+                                "UPDATE nodes SET min_value = %s where node_id = %s",
+                                (payload, node_id),
+                            )
+                            con.commit()
 
                         # ..::Step Two ::..
                         # Add Nodes Name i.e. Relay, Temperature Sensor etc. to Nodes Table.
