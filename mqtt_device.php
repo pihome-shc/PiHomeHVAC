@@ -37,17 +37,17 @@ if(isset($_GET['id'])) {
 if (isset($_POST['submit'])) {
 	$mqtt_child_id = intval($_POST['child_id']);
 	$mqtt_type_id = $_POST['type'];
-    if ($mqtt_type_id == 0) { $node_name = "MQTT Sensor"; } else { $node_name = "MQTT Controller"; }
-    $query = "SELECT id FROM nodes WHERE name = '{$node_name}' LIMIT 1;";
-    $result = $conn->query($query);
-    $found_product = mysqli_fetch_array($result);
-    $nodes_id = $found_product['id'];
-    $purge= '0';
+    	if ($mqtt_type_id == 0) { $node_name = "MQTT Sensor"; } else { $node_name = "MQTT Controller"; }
+    	$query = "SELECT id FROM nodes WHERE name = '{$node_name}' LIMIT 1;";
+    	$result = $conn->query($query);
+    	$found_product = mysqli_fetch_array($result);
+    	$nodes_id = $found_product['id'];
+    	$purge= '0';
 	$mqtt_name = $_POST['mqtt_name'];
-    $mqtt_topic = $_POST['mqtt_topic'];
-    $mqtt_on_message = $_POST['on_message'];
-    $mqtt_off_message = $_POST['off_message'];
-    $mqtt_json_attribute = $_POST['json_attribute'];
+    	$mqtt_topic = $_POST['mqtt_topic'];
+    	$mqtt_on_message = $_POST['on_message'];
+    	$mqtt_off_message = $_POST['off_message'];
+    	$mqtt_json_attribute = $_POST['json_attribute'];
 
 	//Add or Edit MQTT Device record to mqtt_devices Table
 	if ($id == 0) {
@@ -215,17 +215,19 @@ if (isset($_POST['submit'])) {
                                                         <div class="help-block with-errors"></div>
                                                 </div>
 
-                                                <!-- ON Message -->
+						<?php if ($id == 0 || ($id != 0 && $row['type'] == 1)) { ?>
+	                                                <!-- ON Message -->
 							<div class="form-group" class="control-label" id="on_message_label" style="display:block"><label><?php echo $lang['mqtt_on_message']; ?></label> <small class="text-muted"><?php echo $lang['mqtt_on_message_info'];?></small>
-                                                        <input class="form-control" placeholder='eg. {"force": "open"}' value='<?php if(isset($row['on_payload'])) { echo $row['on_payload']; } ?>' id="on_message" name="on_message" data-bs-error="<?php echo $lang['mqtt_on_message_help']; ?>" autocomplete="off" required>
-                                                        <div class="help-block with-errors"></div>
-                                                </div>
+                	                                        <input class="form-control" placeholder='eg. {"force": "open"}' value='<?php if(isset($row['on_payload'])) { echo $row['on_payload']; } ?>' id="on_message" name="on_message" data-bs-error="<?php echo $lang['mqtt_on_message_help']; ?>" autocomplete="off" required>
+                        	                                <div class="help-block with-errors"></div>
+                                	                </div>
 
-                                                <!-- OFF Message -->
-							<div class="form-group" class="control-label" id="off_message_label" style="display:block"><label><?php echo $lang['mqtt_off_message']; ?></label> <small class="text-muted"><?php echo $lang['mqtt_off_message_info'];?></small>
-                                                        <input class="form-control" placeholder='eg. {"force": "close"}' value='<?php if(isset($row['off_payload'])) { echo $row['off_payload']; } ?>' id="off_message" name="off_message" data-bs-error="<?php echo $lang['mqtt_off_message_help']; ?>" autocomplete="off" required>
-                                                        <div class="help-block with-errors"></div>
-                                                </div>
+                                        	        <!-- OFF Message -->
+								<div class="form-group" class="control-label" id="off_message_label" style="display:block"><label><?php echo $lang['mqtt_off_message']; ?></label> <small class="text-muted"><?php echo $lang['mqtt_off_message_info'];?></small>
+                                                        	<input class="form-control" placeholder='eg. {"force": "close"}' value='<?php if(isset($row['off_payload'])) { echo $row['off_payload']; } ?>' id="off_message" name="off_message" data-bs-error="<?php echo $lang['mqtt_off_message_help']; ?>" autocomplete="off" required>
+	                                                        <div class="help-block with-errors"></div>
+        	                                        </div>
+						<?php } ?>
 
 						<br>
 						<!-- Buttons -->
