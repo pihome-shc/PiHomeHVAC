@@ -218,13 +218,13 @@ if (isset($_POST['submit'])) {
 						<?php if ($id == 0 || ($id != 0 && $row['type'] == 1)) { ?>
 	                                                <!-- ON Message -->
 							<div class="form-group" class="control-label" id="on_message_label" style="display:block"><label><?php echo $lang['mqtt_on_message']; ?></label> <small class="text-muted"><?php echo $lang['mqtt_on_message_info'];?></small>
-                	                                        <input class="form-control" placeholder='eg. {"force": "open"}' value='<?php if(isset($row['on_payload'])) { echo $row['on_payload']; } ?>' id="on_message" name="on_message" data-bs-error="<?php echo $lang['mqtt_on_message_help']; ?>" autocomplete="off" required>
+                	                                        <input class="form-control" placeholder='eg. {"force": "open"}' value='<?php if(isset($row['on_payload'])) { echo $row['on_payload']; } ?>' id="on_message" name="on_message" data-bs-error="<?php echo $lang['mqtt_on_message_help']; ?>" autocomplete="off">
                         	                                <div class="help-block with-errors"></div>
                                 	                </div>
 
                                         	        <!-- OFF Message -->
 								<div class="form-group" class="control-label" id="off_message_label" style="display:block"><label><?php echo $lang['mqtt_off_message']; ?></label> <small class="text-muted"><?php echo $lang['mqtt_off_message_info'];?></small>
-                                                        	<input class="form-control" placeholder='eg. {"force": "close"}' value='<?php if(isset($row['off_payload'])) { echo $row['off_payload']; } ?>' id="off_message" name="off_message" data-bs-error="<?php echo $lang['mqtt_off_message_help']; ?>" autocomplete="off" required>
+                                                        	<input class="form-control" placeholder='eg. {"force": "close"}' value='<?php if(isset($row['off_payload'])) { echo $row['off_payload']; } ?>' id="off_message" name="off_message" data-bs-error="<?php echo $lang['mqtt_off_message_help']; ?>" autocomplete="off">
 	                                                        <div class="help-block with-errors"></div>
         	                                        </div>
 						<?php } ?>
