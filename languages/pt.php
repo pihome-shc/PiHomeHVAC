@@ -963,4 +963,5 @@ $lang['restore_db'] = "Restore DB";
 $lang['restore_db_text'] = "Restore a Backup Created by the Backup Database Process (.gz file), or one Created by the Database Update Process (.zip file).<br><br>Available Backups are Shown in Date Order. Click to Select.";
 $lang['restore_db_warning'] = "This Action will Overwrite Your Current DB. DO YOU REALLY WANT TO DO THIS !!";
 $lang['setup_database_restore'] = "Setup Database Restore";
+$lang['message_queues_technical'] = "Message Queues Technical";
 ?>
