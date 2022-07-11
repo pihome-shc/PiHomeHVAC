@@ -36,14 +36,16 @@ if (isset($_POST['submit'])) {
 	$name = $_POST['name'];
         $type = $_POST['type_id'];
 	$selected_relay_id = $_POST['selected_relay_id'];
-        $query = "SELECT id FROM nodes WHERE node_id = '".$selected_relay_id."' LIMIT 1;";
+        $query = "SELECT id, node_id FROM nodes WHERE node_id = '".$selected_relay_id."' LIMIT 1;";
         $result = $conn->query($query);
         $row = mysqli_fetch_array($result);
         $relay_id = $row['id'];
+	$node_id = $row['node_id'];
 	$relay_child_id = $_POST['relay_child_id'];
 	$on_trigger = $_POST['trigger'];
         $sync = '0';
         $purge= '0';
+	$m_out_id = $_POST['m_out_id'];
 
 	//Add or Edit relay record to relays Table
 	$query = "INSERT INTO `relays` (`id`, `sync`, `purge`, `relay_id`, `relay_child_id`, `name`, `type`, `on_trigger`) VALUES ('{$id}', '{$sync}', '{$purge}', '{$relay_id}', '{$relay_child_id}', '{$name}', '{$type}', '{$on_trigger}') ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), relay_id='{$relay_id}', relay_child_id='{$relay_child_id}', name=VALUES(name), type=VALUES(type), on_trigger=VALUES(on_trigger);";
@@ -58,7 +60,19 @@ if (isset($_POST['submit'])) {
 	} else {
 		$error = "<p>".$lang['relay_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
 	}
-	$message_success .= "<p>".$lang['do_not_refresh']."</p>";
+
+        //Update the entry in the messages out if required
+	if ($id != 0 && $m_out_id != 0){
+		$query = "UPDATE `messages_out` SET `node_id` = '{$node_id}', `child_id` = {$relay_child_id} WHERE `id` = {$m_out_id};";
+		$result = $conn->query($query);
+                if ($result) {
+                	$message_success .= "<p>".$lang['messages_out_update_success']."</p>";
+                } else {
+                       	$error .= "<p>".$lang['messages_out_fail']."</p> <p>" .mysqli_error($conn). "</p>";
+                }
+	}
+        $message_success .= "<p>".$lang['do_not_refresh']."</p>";
+
 	header("Refresh: 10; url=home.php");
 	// After update on all required tables, set $id to mysqli_insert_id.
 	if ($id==0){$id=$temp_id;}
@@ -73,13 +87,18 @@ if (isset($_POST['submit'])) {
 
 <!-- If the request is to EDIT, retrieve selected items from DB   -->
 <?php if ($id != 0) {
-        $query = "SELECT * FROM `relays` WHERE `id` = {$id} limit 1;";
+        $query = "SELECT * FROM `relays` WHERE `id` = {$id} LIMIT 1;";
 	$result = $conn->query($query);
 	$row = mysqli_fetch_assoc($result);
 
 	$query = "SELECT * FROM nodes WHERE id = '{$row['relay_id']}' LIMIT 1;";
 	$result = $conn->query($query);
 	$rownode = mysqli_fetch_assoc($result);
+
+        //check if this relay has an entry in the messages_out table
+        $query = "SELECT * FROM `messages_out` WHERE `node_id` = '{$rownode['node_id']}' AND child_id = {$row['relay_child_id']} LIMIT 1;";
+        $result = $conn->query($query);
+        $row_messages_out = mysqli_fetch_assoc($result);
 }
 ?>
 
@@ -101,6 +120,10 @@ if (isset($_POST['submit'])) {
                         	<!-- /.card-header -->
 				<div class="card-body">
 					<form data-bs-toggle="validator" role="form" method="post" action="<?php $_SERVER['PHP_SELF'];?>" id="form-join">
+
+						<!-- messagaes_out table id -->
+						<input type="hidden" id="m_out_id" name="m_out_id" value="<?php if(isset($row_messages_out['id'])) { echo $row_messages_out['id']; } else { echo '0'; }?>"/>
+
 						<!-- Controller Type -->
 						<div class="form-group" class="control-label"><label><?php echo $lang['controller_type']; ?></label> <small class="text-muted"><?php echo $lang['controller_type_info'];?></small>
 							<select class="form-select" type="text" id="type" name="type" onchange=RelayTypeID(this.options[this.selectedIndex].value)>
