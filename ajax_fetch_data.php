@@ -76,7 +76,7 @@ if ($type <= 5 || $type == 8) {
 	if ($type == 8) {
 		$query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$id} AND (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 1 OR `zone_type`.`category` = 2) LIMIT 1;";
 	} else {
-                $query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$id} AND (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 0 OR `zone_type`.`category` = 3 OR `zone_type`.`category` = 4) LIMIT 1;";
+                $query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$id} AND (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 0 OR `zone_type`.`category` = 3 OR `zone_type`.`category` = 4 OR `zone_type`.`category` = 5) LIMIT 1;";
 	}
 	$result = $conn->query($query);
 	$row = mysqli_fetch_assoc($result);
@@ -159,7 +159,7 @@ if ($type <= 5 || $type == 8) {
 	        6 - cooling running
 		7 - fan running*/
         //get the current zone schedule status
-        if ($zone_category == 1 || $zone_category == 2 || $zone_category == 5) {
+        if ($zone_category == 1 || $zone_category == 2) {
                 if ($sch_status =='1') {
                         $add_on_mode = $zone_current_state['mode'];
                 } else {
