@@ -56,12 +56,14 @@ $theme = settings($conn, 'theme');
 					$sensor_type_id = $pi_device["sensor_type_id"];
 					if ($zone_status != 0) {
 						if($row["status"]=="0"){ $shactive="bluesch"; $status="Off"; }else{ $shactive="redsch"; $status="On"; }
-			                        if($row["status"]=="0" && $type=="Heating"){ $pi_image = "radiator.png";  }
-                			        elseif($row["status"]=="0" && $type=="Water"){ $pi_image = "off_hot_water.png";  }
-		        	                elseif($row["status"]=="1" && $type=="Heating"){ $pi_image = "radiator1.png";  }
-                			        elseif($row["status"]=="1" && $type=="Water"){ $pi_image = "hot_water.png"; }
-		                        	elseif($row["status"]=="0" && $category == 2){ $pi_image = "icons8-light-off-30.png";  }
-	                		        elseif($row["status"]=="1" && $category == 2){ $pi_image = "icons8-light-automation-30.png";  }
+			                        if($row["status"]=="0" && $type=="Heating"){ $pi_image = '<em> <img src="images/radiator.png" border="0"></em>';  }
+                			        elseif($row["status"]=="0" && $type=="Water"){ $pi_image = '<em> <img src="images/off_hot_water.png" border="0"></em>';  }
+		        	                elseif($row["status"]=="1" && $type=="Heating"){ $pi_image = '<em> <img src="images/radiator1.png" border="0"></em>';  }
+                			        elseif($row["status"]=="1" && $type=="Water"){ $pi_image = '<em> <img src="images/hot_water.png" border="0"></em>'; }
+		                        	elseif($row["status"]=="0" && $category == 2){ $pi_image = '<em> <img src="images/icons8-light-off-30.png" border="0"></em>';  }
+	                		        elseif($row["status"]=="1" && $category == 2){ $pi_image = '<em> <img src="images/icons8-light-automation-30.png" border="0"></em>';  }
+                                                elseif($row["status"]=="0" && $category == 5){ $pi_image = '<i class="bi-snow" style="font-size: 1.5rem;"></i>';  }
+                                                elseif($row["status"]=="1" && $category == 5){ $pi_image = '<i class="bi-snow" style="font-size: 1.5rem; color: cornflowerblue;"></i>';  }
 			                        $phpdate = strtotime($row['time']);
                 			        $boost_time = $phpdate + ($row['minute'] * 60);
 						echo '<li class="list-group-item">
@@ -84,9 +86,9 @@ $theme = settings($conn, 'theme');
 										echo '<span>
 									</div>
 								</span>
-								<span>
-									<em> <img src="images/'.$pi_image.'" border="0"></em>
-								</span>
+								<span>';
+									echo $pi_image;
+								echo '</span>
 							</div>
 						</li>';
 					}
@@ -103,12 +105,12 @@ $theme = settings($conn, 'theme');
 			                $zone_status = $pi_device['status'];
 			                $sensor_type_id = $pi_device["sensor_type_id"];
 			                if($row["status"]=="0"){ $shactive="bluesch"; $status="Off"; }else{ $shactive="redsch"; $status="On"; }
-			                if($row["status"]=="0" && $hvac_mode == 3){ $pi_image = "hvac_fan_stop_30.png"; $device = 'FAN'; }
-			                elseif($row["status"]=="1" && $hvac_mode == 3){ $pi_image = "hvac_fan_start_40.png"; $device = 'FAN'; }
-			                elseif($row["status"]=="0" && $hvac_mode == 4){ $pi_image = "hvac_heat_off_30.png"; $device = 'HEAT'; }
-			                elseif($row["status"]=="1" && $hvac_mode == 4){ $pi_image = "hvac_heat_on_30.png"; $device = 'HEAT'; }
-			                elseif($row["status"]=="0" && $hvac_mode == 5){ $pi_image = "hvac_cool_off_30.png"; $device = 'COOL'; }
-			                elseif($row["status"]=="1" && $hvac_mode == 5){ $pi_image = "hvac_cool_on_30.png"; $device = 'COOL'; }
+			                if($row["status"]=="0" && $hvac_mode == 3){ $pi_image = '<em> <img src="hvac_fan_stop_30.png" border="0"></em>'; $device = 'FAN'; }
+			                elseif($row["status"]=="1" && $hvac_mode == 3){ $pi_image = '<em> <img src="hvac_fan_start_40.png" border="0"></em>'; $device = 'FAN'; }
+			                elseif($row["status"]=="0" && $hvac_mode == 4){ $pi_image = '<em> <img src="hvac_heat_off_30.png" border="0"></em>'; $device = 'HEAT'; }
+			                elseif($row["status"]=="1" && $hvac_mode == 4){ $pi_image = '<em> <img src="hvac_heat_on_30.png" border="0"></em>'; $device = 'HEAT'; }
+			                elseif($row["status"]=="0" && $hvac_mode == 5){ $pi_image = '<em> <img src="hvac_cool_off_30.png" border="0"></em>'; $device = 'COOL'; }
+			                elseif($row["status"]=="1" && $hvac_mode == 5){ $pi_image = '<em> <img src="hvac_cool_on_30.png" border="0"></em>'; $device = 'COOL'; }
 			                $phpdate = strtotime($row['time']);
 			                $boost_time = $phpdate + ($row['minute'] * 60);
 			                if ($zone_status != 0) {
@@ -132,9 +134,9 @@ $theme = settings($conn, 'theme');
                                                                                 echo '<span>
                                                                         </div>
                                                                 </span>
-                                                                <span>
-                                                                        <em> <img src="images/'.$pi_image.'" border="0"></em>
-                                                                </span>
+                                                                <span>';
+                                                                        echo $pi_image;
+                                                                echo '</span>
                                                         </div>
                                                 </li>';
                 			}
