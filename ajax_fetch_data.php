@@ -73,11 +73,12 @@ if ($type <= 5 || $type == 8) {
 	//process  zones
 	//---------------
 	$active_schedule = 0;
-	if ($type == 8) {
-		$query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$id} AND (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 1 OR `zone_type`.`category` = 2 OR `zone_type`.`category` = 5) LIMIT 1;";
-	} else {
-                $query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$id} AND (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 0 OR `zone_type`.`category` = 3 OR `zone_type`.`category` = 4) LIMIT 1;";
-	}
+//	if ($type == 8) {
+//		$query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$id} AND (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 1 OR `zone_type`.`category` = 2 OR `zone_type`.`category` = 5) LIMIT 1;";
+//	} else {
+//                $query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$id} AND (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 0 OR `zone_type`.`category` = 3 OR `zone_type`.`category` = 4) LIMIT 1;";
+//	}
+	$query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$id} AND `zone`.`type_id` = `zone_type`.`id`;";
 	$result = $conn->query($query);
 	$row = mysqli_fetch_assoc($result);
 	$zone_id=$row['id'];
@@ -102,7 +103,7 @@ if ($type <= 5 || $type == 8) {
 	$overrun= $zone_current_state['overrun'];
 	if ($zone_category == 1 || $zone_category == 2  || $zone_category == 5) {
         	if ($zone_current_state['mode'] == 0) { $add_on_active = 0; } else { $add_on_active = 1; }
-                if ($add_on_active == 1){$add_on_colour = "green";} elseif ($add_on_active == 0){$add_on_colour = "black";}
+                if ($add_on_active == 1 && $zone_category != 5) { $add_on_colour = "green"; } elseif ($add_on_active == 0 || ($add_on_active == 1 && $zone_category == 5)) {$add_on_colour = "black"; }
 	}
 
         //get the current zone schedule status
@@ -159,9 +160,17 @@ if ($type <= 5 || $type == 8) {
 	        6 - cooling running
 		7 - fan running*/
         //get the current zone schedule status
-        if ($zone_category == 1 || $zone_category == 2 || $zone_category == 5) {
+	if ($zone_category == 5) {
+		$add_on_mode = $zone_mode;
                 if ($sch_status =='1') {
-                        $add_on_mode = $zone_current_state['mode'];
+                        $add_on_mode = $add_on_mode - 30;
+                } else {
+	                if ($away_status == 1 && $away_sch == 1 ) { $add_on_mode = 90; }
+		}
+                $rval=getIndicators($conn, $add_on_mode, $zone_temp_target);
+        } elseif ($zone_category == 1 || $zone_category == 2) {
+                if ($sch_status =='1') {
+                        $add_on_mode = $zone_mode;
                 } else {
                         if ($add_on_active == 0) { $add_on_mode = 0; } else { $add_on_mode = 114; }
                 }

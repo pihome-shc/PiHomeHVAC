@@ -535,6 +535,8 @@ $page_refresh = page_refresh($conn);
 		                        	$temperature_sensor_id=$sensor['sensor_id'];
 	                		        $temperature_sensor_child_id=$sensor['sensor_child_id'];
 			                        $sensor_type_id=$sensor['sensor_type_id'];
+                                                $ajax_modal_24h = "ajax.php?Ajax=GetModal_Sensor_Graph,".$sensor['id'].",0";
+                                                $ajax_modal_1h = "ajax.php?Ajax=GetModal_Sensor_Graph,".$sensor['id'].",1";
 
                 			        //get the node id
 		        	                $query = "SELECT node_id FROM nodes WHERE id = '{$temperature_sensor_id}' LIMIT 1;";
@@ -559,8 +561,11 @@ $page_refresh = page_refresh($conn);
 			                        $zone_current_state = mysqli_fetch_array($result);
                 			        if ($zone_current_state['mode'] == 0) { $add_on_active = 0; } else { $add_on_active = 1; }
 
-			                        if ($add_on_active == 1){$add_on_colour = "green";} elseif ($add_on_active == 0){$add_on_colour = "black";}
-        	        		        if ($zone_category == 2) {
+			                        if ($add_on_active == 1) { $add_on_colour = "green"; } elseif ($add_on_active == 0) { $add_on_colour = "black"; }
+                                                if ($zone_category == 5) {
+							$add_on_colour = "black";
+	 						echo '<button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-circle no-shadow '.$button_style.' mainbtn animated fadeIn" data-bs-href="#" data-bs-toggle="modal" data-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Schedule_List,'.$zone_id.'">';
+        	        		        } elseif ($zone_category == 2) {
 							$link = 'update_add_on('.$row['id'].')';
 		        	                	echo '<button type="button" class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-circle no-shadow '.$button_style.' mainbtn" onclick="'.$link.'">';
 						} else {
