@@ -222,7 +222,7 @@ $page_refresh = page_refresh($conn);
 					//loop through zones
 					$active_schedule = 0;
 					$zone_params = [];
-					$query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 0 OR `zone_type`.`category` = 3 OR `zone_type`.`category` = 4 OR `zone_type`.`category` = 5) ORDER BY `zone`.`index_id` ASC;";
+					$query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 0 OR `zone_type`.`category` = 3 OR `zone_type`.`category` = 4) ORDER BY `zone`.`index_id` ASC;";
 					$results = $conn->query($query);
 					while ($row = mysqli_fetch_assoc($results)) {
 						$zone_id=$row['id'];
@@ -518,7 +518,7 @@ $page_refresh = page_refresh($conn);
 					$js_sensor_params = json_encode($sensor_params);
 
                 			// Add-On buttons
-		        	        $query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 1 OR `zone_type`.`category` = 2) ORDER BY `zone`.`index_id` ASC;";
+		        	        $query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 1 OR `zone_type`.`category` = 2 OR `zone_type`.`category` = 5) ORDER BY `zone`.`index_id` ASC;";
 
 	                		$results = $conn->query($query);
 			                while ($row = mysqli_fetch_assoc($results)) {
@@ -567,7 +567,7 @@ $page_refresh = page_refresh($conn);
 	   						echo '<button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-circle no-shadow '.$button_style.' mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#'.$zone_type.''.$zone_id.'" data-bs-backdrop="static" data-bs-keyboard="false">';
 						}
         	        		        echo '<h3 class="text-nowrap buttontop"><small>'.$row['name'].'</small></h3>';
-			                        if (($zone_category == 1 && $sensor_type_id != 3)) {
+			                        if (($zone_category == 1 || $zone_category == 5) && $sensor_type_id != 3) {
                 			                $unit = SensorUnits($conn,$sensor_type_id);
                                 			echo '<h3 class="degre" id="zd_'.$zone_id.'">'.number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit.'</h3>';
 		                        	} elseif ($zone_category == 1 && $sensor_type_id == 3) {
@@ -678,7 +678,7 @@ $(document).ready(function(){
             //console.log(obj.length);
 
             for (var i = 0; i < obj.length; i++) {
-              if (obj[i].zone_category == 0 || obj[i].zone_category == 3 || obj[i].zone_category == 4|| obj[i].zone_category == 5) {
+              if (obj[i].zone_category == 0 || obj[i].zone_category == 3 || obj[i].zone_category == 4) {
                 $('#zd_' + obj[i].zone_id).load("ajax_fetch_data.php?id=" + obj[i].zone_id + "&type=1").fadeIn("slow");
               } else {
                 $('#zd_' + obj[i].zone_id).load("ajax_fetch_data.php?id=" + obj[i].zone_id + "&type=8").fadeIn("slow");
