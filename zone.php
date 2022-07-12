@@ -53,14 +53,17 @@ if (isset($_POST['submit'])) {
                 $min_c = 0;
 	        $max_c = SensorToDB($conn,$_POST['max_c'],$sensor_type_id);
         	$default_c = SensorToDB($conn,$_POST['default_c'],$sensor_type_id);
+		$boost_c = $max_c;
 	} elseif ($zone_category == 3  || $zone_category == 4 || $zone_category == 5) {
 	        $min_c = SensorToDB($conn,$_POST['min_c'],$sensor_type_id);
         	$max_c = SensorToDB($conn,$_POST['max_c'],$sensor_type_id);
                 $default_c = SensorToDB($conn,$_POST['default_c'],$sensor_type_id);
+		if ($zone_category == 5) { $boost_c = $max_c; } else { $boost_c = $min_c; }
 	} else {
                 $min_c = 0;
 		$max_c = 0;
                 $default_c = 0;
+                $boost_c = 0;
 	}
 //	Removed 29/01/2022 by twa as these 2 parameters are never used, default values used to populate database in case decide to re-implement at some future date
 	if ($no_max_op_hys == 1) {
@@ -247,7 +250,7 @@ if (isset($_POST['submit'])) {
 
 		//Add Zone to boost table at same time
 		if ((settings($conn, 'mode') & 0b1) == 0) { //boiler mode
-			$query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `boost_button_id`, `boost_button_child_id`, `hvac_mode`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$max_c}','{$max_operation_time}', '{$boost_button_id}', '{$boost_button_child_id}', '0');";
+			$query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `boost_button_id`, `boost_button_child_id`, `hvac_mode`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$boost_c}','{$max_operation_time}', '{$boost_button_id}', '{$boost_button_child_id}', '0');";
 	                $result = $conn->query($query);
         	        if ($result) {
                 	        $message_success .= "<p>".$lang['zone_boost_success']."</p>";
