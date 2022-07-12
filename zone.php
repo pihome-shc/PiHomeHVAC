@@ -53,7 +53,7 @@ if (isset($_POST['submit'])) {
                 $min_c = 0;
 	        $max_c = SensorToDB($conn,$_POST['max_c'],$sensor_type_id);
         	$default_c = SensorToDB($conn,$_POST['default_c'],$sensor_type_id);
-	} elseif ($zone_category == 3  || $zone_category == 4) {
+	} elseif ($zone_category == 3  || $zone_category == 4 || $zone_category == 5) {
 	        $min_c = SensorToDB($conn,$_POST['min_c'],$sensor_type_id);
         	$max_c = SensorToDB($conn,$_POST['max_c'],$sensor_type_id);
                 $default_c = SensorToDB($conn,$_POST['default_c'],$sensor_type_id);
@@ -195,7 +195,7 @@ if (isset($_POST['submit'])) {
 		}
 	}
 
-        if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3 || $zone_category == 4) {
+        if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3 || $zone_category == 4 || $zone_category == 5) {
                 //Add or Edit Zone record to Zone_Sensor Table
                 if ($id==0){
                         $query = "INSERT INTO `zone_sensors` (`sync`, `purge`, `zone_id`, `min_c`, `max_c`, `default_c`, `hysteresis_time`, `sp_deadband`, `zone_sensor_id`) VALUES ('{$sync}', '{$purge}', '{$cnt_id}', '{$min_c}', '{$max_c}', '{$default_c}', '{$hysteresis_time}', '{$sp_deadband}', '{$zone_sensor_id}');";
@@ -344,7 +344,7 @@ if (isset($_POST['submit'])) {
 		}
 	}
 
-	if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3 || $zone_category == 4) {
+	if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3 || $zone_category == 4 || $zone_category == 5) {
 		//Add Zone to schedule_night_climat_zone table at same time
 		if ($id==0){
 			$query = "SELECT * FROM schedule_night_climate_time;";
@@ -609,7 +609,8 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 						                        document.getElementById("system_controller_id").required = true;
 						                        break;
 						                case "1":
-						                        if (document.getElementById("selected_zone_type").value === "Immersion") {
+                                                                case "5":
+						                        if (document.getElementById("selected_zone_type").value === "Immersion" || document.getElementById("selected_zone_type").value === "Cooling") {
 							                        document.getElementById("default_c_label_1").style.visibility = 'visible';
 						        	                document.getElementById("default_c_label_2").style.visibility = 'visible';;
 							                        document.getElementById("default_c").style.display = 'block';
@@ -631,13 +632,15 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 						                        	        document.getElementById("default_c_label_2").innerHTML = document.getElementById("default_c_label_info").value;;
 						                        	}
 									}
-						                        document.getElementById("min_c").style.display = 'none';
-						                        document.getElementById("min_c_label").style.visibility = 'hidden';;
 						                        if (document.getElementById("selected_zone_type").value === "Immersion") {
+        	                                                                document.getElementById("min_c").style.display = 'none';
+	                                                                        document.getElementById("min_c_label").style.visibility = 'hidden';;
 							                        document.getElementById("max_c_label_1").style.visibility = 'visible';
 						        	                document.getElementById("max_c_label_2").style.visibility = 'visible';
 							                        document.getElementById("max_c").style.display = 'block';
 									} else {
+        	                                                                document.getElementById("min_c").style.display = 'block';
+	                                                                        document.getElementById("min_c_label").style.visibility = 'visible';;
 						                                document.getElementById("max_c_label_1").style.visibility = 'hidden';
 						                                document.getElementById("max_c_label_2").style.visibility = 'hidden';
 							                        document.getElementById("max_c").style.display = 'none';
@@ -649,7 +652,7 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 						                                document.getElementById("max_c_label_1").innerHTML = document.getElementById("max_c_label_text").value;
 						                                document.getElementById("max_c_label_2").innerHTML = document.getElementById("max_c_label_info").value;;
 						                        }
-						                        if (document.getElementById("selected_zone_type").value === "Immersion") {
+						                        if (document.getElementById("selected_zone_type").value === "Immersion" || document.getElementById("selected_zone_type").value === "Cooling") {
 //	                        						document.getElementById("hysteresis_time").style.display = 'block';
 //        	                						document.getElementById("hysteresis_time_label").style.visibility = 'visible';;
 						                	        document.getElementById("sp_deadband").style.display = 'block';
@@ -665,7 +668,7 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 						                        document.getElementById("sensor_id_label_2").style.visibility = 'visible';;
 						                        document.getElementById("system_controller_id").style.display = 'none';
 						                        document.getElementById("system_controller_id_label").style.visibility = 'hidden';;
-						                        if (document.getElementById("selected_zone_type").value === "Immersion") {
+						                        if (document.getElementById("selected_zone_type").value === "Immersion" || document.getElementById("selected_zone_type").value === "Cooling") {
 							                        document.getElementById("boost_button_id").style.display = 'block';
 						        	                document.getElementById("boost_button_id_label").style.visibility = 'visible';;
 						                	        document.getElementById("boost_button_child_id").style.display = 'block';

@@ -560,7 +560,7 @@ if(!isset($_GET['nid'])) {
 
 						<!-- Group Zone Settings -->
 						<?php
-						if (($row["category"] == 0 || $row["category"] == 1 || $row["category"] == 3|| $row["category"] == 4) && $row["sensor_type_id"] <> 3) {
+						if (($row["category"] == 0 || $row["category"] == 1 || $row["category"] == 3 || $row["category"] == 4 || $row["category"] == 5) && $row["sensor_type_id"] <> 3) {
 							if($row['tz_status'] == 1 AND $time_id != 0){
 								//if($time_id != 0){
 								$show = "show";
@@ -577,11 +577,11 @@ if(!isset($_GET['nid'])) {
                                                                                 $c_f = settings($conn, 'c_f');
                                                                                 if(($c_f==1 || $c_f=='1') AND ($row["type"]=='Heating')) {
                                                                                         $min = 50;
-                                                                                }elseif (($c_f==1 || $c_f=='1') AND ($row["type"]=='Water' OR $row["type"]=='Immersion')) {
+                                                                                }elseif (($c_f==1 || $c_f=='1') AND ($row["type"]=='Water' OR $row["type"]=='Immersion' OR $row["type"]=='Cooling')) {
                                                                                         $min = 50;
                                                                                 }elseif (($c_f==0 || $c_f=='0') AND ($row["type"]=='Heating')) {
                                                                                         $min = 10;
-                                                                                }elseif (($c_f==0 || $c_f=='0') AND ($row["type"]=='Water' OR $row["type"]=='Immersion')) {
+                                                                                }elseif (($c_f==0 || $c_f=='0') AND ($row["type"]=='Water' OR $row["type"]=='Immersion' OR $row["type"]=='Cooling')) {
                                                                                         $min = 10;
                                                                                 } else {
                                                                                         $min = 20;

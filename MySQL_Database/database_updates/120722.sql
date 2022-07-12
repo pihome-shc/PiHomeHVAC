@@ -1,0 +1,1 @@
+INSERT INTO `zone_type`(`sync`, `purge`, `type`, `category`) VALUES (0, 0, 'Cooling', 5);

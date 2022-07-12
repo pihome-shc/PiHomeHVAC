@@ -100,7 +100,7 @@ if ($type <= 5 || $type == 8) {
 	$sensor_seen = $zone_current_state['sensor_seen_time'];
 	$temp_reading_time= $zone_current_state['sensor_reading_time'];
 	$overrun= $zone_current_state['overrun'];
-	if ($zone_category == 1 || $zone_category == 2) {
+	if ($zone_category == 1 || $zone_category == 2  || $zone_category == 5) {
         	if ($zone_current_state['mode'] == 0) { $add_on_active = 0; } else { $add_on_active = 1; }
                 if ($add_on_active == 1){$add_on_colour = "green";} elseif ($add_on_active == 0){$add_on_colour = "black";}
 	}
@@ -159,7 +159,7 @@ if ($type <= 5 || $type == 8) {
 	        6 - cooling running
 		7 - fan running*/
         //get the current zone schedule status
-        if ($zone_category == 1 || $zone_category == 2) {
+        if ($zone_category == 1 || $zone_category == 2 || $zone_category == 5) {
                 if ($sch_status =='1') {
                         $add_on_mode = $zone_current_state['mode'];
                 } else {
