@@ -68,22 +68,15 @@ if ($rowcount > 0) {
         $holidays_status = 0;
 }
 
-if ($type <= 5 || $type == 8) {
+if ($type <= 5) {
 	//---------------
 	//process  zones
 	//---------------
 	$active_schedule = 0;
-//	if ($type == 8) {
-//		$query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$id} AND (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 1 OR `zone_type`.`category` = 2 OR `zone_type`.`category` = 5) LIMIT 1;";
-//	} else {
-//                $query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$id} AND (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 0 OR `zone_type`.`category` = 3 OR `zone_type`.`category` = 4) LIMIT 1;";
-//	}
-	$query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$id} AND `zone`.`type_id` = `zone_type`.`id`;";
+	$query = "SELECT `zone`.`id`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$id} AND `zone`.`type_id` = `zone_type`.`id`;";
 	$result = $conn->query($query);
 	$row = mysqli_fetch_assoc($result);
 	$zone_id=$row['id'];
-	$zone_name=$row['name'];
-	$zone_type=$row['type'];
 	$zone_category=$row['category'];
 
 	//query to get zone current state
@@ -162,11 +155,8 @@ if ($type <= 5 || $type == 8) {
         //get the current zone schedule status
 	if ($zone_category == 5) {
 		$add_on_mode = $zone_mode;
-                if ($sch_status =='1') {
-                        $add_on_mode = $add_on_mode - 30;
-                } else {
-	                if ($away_status == 1 && $away_sch == 1 ) { $add_on_mode = 90; }
-		}
+		if ($add_on_mode > 0) { $add_on_mode = $add_on_mode - 30; }
+                if ($sch_status == '0' && $away_status == 1 && $away_sch == 1) { $add_on_mode = 90; }
                 $rval=getIndicators($conn, $add_on_mode, $zone_temp_target);
         } elseif ($zone_category == 1 || $zone_category == 2) {
                 if ($sch_status =='1') {
@@ -185,15 +175,16 @@ if ($type <= 5 || $type == 8) {
 	//process return strings by type
 	//-------------------------------
 	switch ($type) {
-        	case 1:
-                	// return the temperature string to 1 decimal place
-	                if ($sensor_type_id == 3) {
-        	                if ($zone_c == 0) { echo 'OFF'; } else { echo 'ON'; }
-                	} else {
-                        	$unit = SensorUnits($conn,$sensor_type_id);
-	                        echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit;
-        	        }
-                	break;
+                case 1:
+                        if ($zone_category != 2 && $sensor_type_id != 3) {
+                                $unit = SensorUnits($conn,$sensor_type_id);
+                                echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit;
+                        } elseif ($zone_category == 1 && $sensor_type_id == 3) {
+                                if ($add_on_active == 0) { echo 'OFF'; } else { echo 'ON'; }
+                        } else {
+                                echo '<i class="bi bi-power '.$add_on_colour.'" style="font-size: 1.4rem;">';
+                        }
+                        break;
 	        case 2:
         		echo '<i class="bi bi-circle-fill '.$rval['status'].'" style="font-size: 0.55rem;">';
                 	break;
@@ -210,16 +201,6 @@ if ($type <= 5 || $type == 8) {
 	        case 5:
         	        if($overrun == 1) { echo '<i class="bi bi-play-fill orange-red">'; }
                 	break;
-	        case 8:
-        	        if (($zone_category == 1 || $zone_category == 5) && $sensor_type_id != 3) {
-               			$unit = SensorUnits($conn,$sensor_type_id);
-                        	echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit;
-	                } elseif ($zone_category == 1 && $sensor_type_id == 3) {
-        	        	if ($add_on_active == 0) { echo 'OFF'; } else { echo 'ON'; }
-                	} else {
-                        	echo '<i class="bi bi-power '.$add_on_colour.'" style="font-size: 1.4rem;">';
-	                }
-        	        break;
 	        default:
 	}
 } elseif ($type == 6 || $type == 7)  {

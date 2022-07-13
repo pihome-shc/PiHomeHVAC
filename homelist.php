@@ -683,11 +683,7 @@ $(document).ready(function(){
             //console.log(obj.length);
 
             for (var i = 0; i < obj.length; i++) {
-              if (obj[i].zone_category == 0 || obj[i].zone_category == 3 || obj[i].zone_category == 4) {
-                $('#zd_' + obj[i].zone_id).load("ajax_fetch_data.php?id=" + obj[i].zone_id + "&type=1").fadeIn("slow");
-              } else {
-                $('#zd_' + obj[i].zone_id).load("ajax_fetch_data.php?id=" + obj[i].zone_id + "&type=8").fadeIn("slow");
-              }
+              $('#zd_' + obj[i].zone_id).load("ajax_fetch_data.php?id=" + obj[i].zone_id + "&type=1").fadeIn("slow");
               $('#zs1_' + obj[i].zone_id).load("ajax_fetch_data.php?id=" + obj[i].zone_id + "&type=2").fadeIn("slow");
               $('#zs2_' + obj[i].zone_id).load("ajax_fetch_data.php?id=" + obj[i].zone_id + "&type=3").fadeIn("slow");
               $('#zs3_' + obj[i].zone_id).load("ajax_fetch_data.php?id=" + obj[i].zone_id + "&type=4").fadeIn("slow");
