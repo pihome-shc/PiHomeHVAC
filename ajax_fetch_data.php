@@ -153,22 +153,18 @@ if ($type <= 5) {
 	        6 - cooling running
 		7 - fan running*/
         //get the current zone schedule status
-	if ($zone_category == 5) {
-		$add_on_mode = $zone_mode;
-		if ($add_on_mode > 0) { $add_on_mode = $add_on_mode - 30; }
-                if ($sch_status == '0' && $away_status == 1 && $away_sch == 1) { $add_on_mode = 90; }
-                $rval=getIndicators($conn, $add_on_mode, $zone_temp_target);
-        } elseif ($zone_category == 1 || $zone_category == 2) {
+        if ($zone_category == 1 || $zone_category == 2) {
                 if ($sch_status =='1') {
                         $add_on_mode = $zone_mode;
                 } else {
                         if ($add_on_active == 0) { $add_on_mode = 0; } else { $add_on_mode = 114; }
                 }
-
                 if ($away_status == 1 && $away_sch == 1 ) { $zone_mode = 90; }
                 $rval=getIndicators($conn, $add_on_mode, $zone_temp_target);
         } else {
-                if ($away_status == 1 && $away_sch == 1 ) { $zone_mode = $zone_mode + 10; }
+                if ($away_status == 1 && $away_sch == 1 ) {
+                        if ($zone_category == 5) { $zone_mode = 90; } else { $zone_mode = $zone_mode + 10; }
+                }
                 $rval=getIndicators($conn, $zone_mode, $zone_temp_target);
         }
 	//-------------------------------
