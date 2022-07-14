@@ -577,13 +577,13 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
 	}
         //Add-On
         else if($zone_mode_main == 110){
-                if($zone_mode_sub == 1){
+                if($zone_mode_sub <= 3){
                         $shactive='bi-clock';
                 } else {
                         $shactive='bi bi-power';
                 }
                 //add-on swtched OFF
-                if($zone_mode_sub == 0){
+                if($zone_mode_sub <= 3){
                         $shcolor='black';
                 }
                 //add-on switched ON
@@ -611,7 +611,7 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
                         $sccolor='blue';
                         $status='';
                 }
- 		if($zone_mode_main == 80){
+ 		if($zone_mode_main == 80 || $zone_mode_main == 110){
                 	//if not coop start waiting for the system_controller
                 	if($zone_mode_sub <> 3){
                         	$shactive='bi-clock';
