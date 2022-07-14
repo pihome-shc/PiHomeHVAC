@@ -590,7 +590,11 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
                 else{
                         $shcolor='green';
                 }
-                $target='';     //show no target temperature
+                if($zone_mode_sub <= 3){
+                        $target=number_format(DispTemp($conn,$zone_temp_target),1) . '&deg;';
+                } else {
+                        $target='';     //show no target temperature
+                }
         }
 	//HVAC
         else if($zone_mode_main == 80 || $zone_mode_main == 120){
@@ -611,7 +615,7 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
                         $sccolor='blue';
                         $status='';
                 }
- 		if($zone_mode_main == 80 || $zone_mode_main == 110){
+ 		if($zone_mode_main == 80){
                 	//if not coop start waiting for the system_controller
                 	if($zone_mode_sub <> 3){
                         	$shactive='bi-clock';
