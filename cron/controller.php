@@ -1498,14 +1498,14 @@ while ($row = mysqli_fetch_assoc($results)) {
 								}
 								if (($sch_status =='1') && ($zone_c <= $temp_cut_out_falling) && ($zone_c > $temp_cut_out)){
 									$zone_status=$zone_status_prev;
-									$zone_mode = 82 - $zone_status_prev;
+									$zone_mode = 112 - $zone_status_prev;
 									$add_on_start_cause="Schedule Target Deadband";
 									$add_on_stop_cause="Schedule Target Deadband";
 									$zone_state = $zone_status_prev;
 								}
 								if (($sch_status =='1') && ($zone_c <= $temp_cut_out)){
 									$zone_status="0";
-									$zone_mode = 80;
+									$zone_mode = 110;
 									$add_on_stop_cause="Schedule Target C Achieved";
 									$zone_state = 0;
 								}
