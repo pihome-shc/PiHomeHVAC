@@ -572,10 +572,10 @@ $page_refresh = page_refresh($conn);
 	   						echo '<button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-circle no-shadow '.$button_style.' mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#'.$zone_type.''.$zone_id.'" data-bs-backdrop="static" data-bs-keyboard="false">';
 						}
         	        		        echo '<h3 class="text-nowrap buttontop"><small>'.$row['name'].'</small></h3>';
-			                        if (($zone_category == 1 || $zone_category == 5) && $sensor_type_id != 3) {
+			                        if ($zone_category == 1 || $zone_category == 5) {
                 			                $unit = SensorUnits($conn,$sensor_type_id);
                                 			echo '<h3 class="degre" id="zd_'.$zone_id.'">'.number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit.'</h3>';
-		                        	} elseif ($zone_category == 1 && $sensor_type_id == 3) {
+		                        	} elseif ($zone_category == 6) {
 							if ($add_on_active == 0) { echo '<h3 class="degre" id="zd_'.$zone_id.'">OFF</h3>'; } else { echo '<h3 class="degre" id="zd_'.$zone_id.'">ON</h3>'; }
 						} else {
         	        		        	echo '<h3 class="degre" id="zd_'.$zone_id.'"><i class="bi bi-power '.$add_on_colour.'" style="font-size: 1rem;"></i></h3>';
