@@ -950,5 +950,5 @@ $lang['restore_db_warning'] = "This Action will Overwrite Your Current DB. DO YO
 $lang['setup_database_restore'] = "Setup Database Restore";
 $lang['zone_category5'] = "Controller, Sensor and NO System Control (Negative Sensor Gradient)";
 $lang['zone_category6'] = "Controller, Binary Sensor and NO System Control";
-$lang['cooling_zone'] = "Cooling Type Zone";
+$lang['negative_gradient_zone'] = "Zones With a Negative Control Gradient";
 ?>
