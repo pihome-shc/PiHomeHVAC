@@ -1571,7 +1571,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 					$add_on_stop_cause="Away Active";
 					$zone_state = 0;
 				}
-			} else { // process Zone Category 2 or 4 zone
+			} else { // process Zone Category 2 Switch type zone
 				if ($away_status=='1' && $away_sch == 0){
 					$zone_status="0";
 					$zone_mode = 90;
