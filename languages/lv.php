@@ -920,5 +920,6 @@ $lang['restore_db_text'] = "Restore a Backup Created by the Backup Database Proc
 $lang['restore_db_warning'] = "This Action will Overwrite Your Current DB. DO YOU REALLY WANT TO DO THIS !!";
 $lang['setup_database_restore'] = "Setup Database Restore";
 $lang['zone_category5'] = "Controller, Sensor and NO System Control (Negative Sensor Gradient)";
+$lang['zone_category6'] = "Controller, Binary Sensor and NO System Control";
 $lang['cooling_zone'] = "Cooling Type Zone";
 ?>
