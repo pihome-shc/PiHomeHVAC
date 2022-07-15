@@ -1250,7 +1250,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                                         $zone_state = 0;
                                 }
 			//process Zones with NO System Controller and a Positive Sensor Gradient
-			} elseif ($zone_category == 1 && strpos($zone_type, 'Binary') === false) {
+			} elseif ($zone_category == 1) {
 				if ($frost_active == 1){
 					$zone_status="1";
 					$zone_mode = 21;
@@ -1381,7 +1381,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 					$zone_state = 0;
 				}
 			// process Binary type zone
-			} elseif ($zone_category == 1 && strpos($zone_type, 'Binary') !== false) {
+			} elseif ($zone_category == 6) {
 	                        //check system controller not in OFF mode
         	                if ($sc_mode != 0) {
 					if ($active_sc_mode == 4 || $active_sc_mode == 2){
