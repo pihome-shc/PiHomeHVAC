@@ -94,7 +94,7 @@ if ($type <= 5) {
 	$sensor_seen = $zone_current_state['sensor_seen_time'];
 	$temp_reading_time= $zone_current_state['sensor_reading_time'];
 	$overrun= $zone_current_state['overrun'];
-	if ($zone_category == 1 || $zone_category == 2  || $zone_category == 5) {
+	if ($zone_category == 1 || $zone_category == 2  || $zone_category == 5 || $zone_category == 6) {
         	if ($zone_current_state['mode'] == 0) { $add_on_active = 0; } else { $add_on_active = 1; }
                 if ($add_on_active == 1 && $zone_category != 5) { $add_on_colour = "green"; } elseif ($add_on_active == 0 || ($add_on_active == 1 && $zone_category == 5)) {$add_on_colour = "black"; }
 	}
@@ -153,7 +153,7 @@ if ($type <= 5) {
 	        6 - cooling running
 		7 - fan running*/
         //get the current zone schedule status
-        if ($zone_category == 1 || $zone_category == 2) {
+        if ($zone_category == 1 || $zone_category == 2 || $zone_category == 6) {
                 if ($sch_status =='1') {
                         $add_on_mode = $zone_mode;
                 } else {
@@ -175,7 +175,7 @@ if ($type <= 5) {
                         if ($zone_category != 2 && $sensor_type_id != 3) {
                                 $unit = SensorUnits($conn,$sensor_type_id);
                                 echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit;
-                        } elseif ($zone_category == 1 && $sensor_type_id == 3) {
+                        } elseif ($zone_category == 6) {
                                 if ($add_on_active == 0) { echo 'OFF'; } else { echo 'ON'; }
                         } else {
                                 echo '<i class="bi bi-power '.$add_on_colour.'" style="font-size: 1.4rem;">';
