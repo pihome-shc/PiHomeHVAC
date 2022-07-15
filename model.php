@@ -2164,7 +2164,7 @@ while ($row = mysqli_fetch_assoc($results)) {
             <tr>
             	<th scope="row"><small>'.$row['name'].'</small></th>
             	<td><input id="minute'.$row["id"].'" type="text" class="float-left text" style="border: none" name="minute" size="3" value="'.$minute.'" placeholder="Minutes" required></td>';
-	    	if($row["category"] < 2) {
+	    	if($row["category"] < 2 || $row["category"] == 5) {
             		echo '<td><input id="temperature'.$row["id"].'" type="text" class="float-left text" style="border: none" name="temperature" size="3" value="'.DispSensor($conn,$row["temperature"],$row["sensor_type_id"]).'" placeholder="Temperature" required></td>
             		<td><input id="boost_button_id'.$row["id"].'" type="text" class="float-left text" style="border: none" name="button_id"  size="3" value="'.$boost_button_id.'" placeholder="Button ID" required></td>
             		<td><input id="boost_button_child_id'.$row["id"].'" type="text" class="float-left text" style="border: none" name="button_child_id" size="3" value="'.$boost_button_child_id.'" placeholder="Child ID" required></td>';
@@ -2657,6 +2657,8 @@ echo '<p class="text-muted">'.$lang['zone_type_add_info_text'].'</p>
         <select class="form-select" type="text" id="category" name="category">
         <option value=0 selected>'.$lang['zone_category0'].'</option>
         <option value=1>'.$lang['zone_category1'].'</option>
+        <option value=5>'.$lang['zone_category5'].'</option>
+        <option value=6>'.$lang['zone_category6'].'</option>
         <option value=2>'.$lang['zone_category2'].'</option>
         <option value=3>'.$lang['zone_category3'].'</option>
         <option value=4>'.$lang['zone_category4'].'</option>
@@ -2691,6 +2693,8 @@ echo '
                                 <li><a class="dropdown-item" href="pdf_download.php?file=switch_zones.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['switch_zones'].'</a></li>
                                 <li class="dropdown-divider"></li>
                         	<li><a class="dropdown-item" href="pdf_download.php?file=switch_zone_state_control.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['switch_zone_state_control'].'</a></li>
+                                <li class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="pdf_download.php?file=negative_gradient_zone.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['negative_gradient_zone'].'</a></li>
                         </ul>
                 </div>
             </div>
@@ -2720,6 +2724,8 @@ echo '
 									echo '<span>&nbsp;&nbsp;<small> '.$lang['controller'].': '.$vrow['relay_type'].': '.$vrow['relay_id'].'-'.$vrow['relay_child_id'].'&nbsp</small></span>';
 								} elseif ($vrow['category'] == 3) {
 									echo '<span><em>&nbsp;&nbsp;<small> '.$lang['min'].' '.DispSensor($conn,$vrow['min_c'],$vrow['sensor_type_id']).$unit.', '.$lang['max'].' '.$vrow['max_c'].$unit.' </em> - '.$lang['sensor'].': '.$vrow['sensors_id'].'&nbsp</small></span>';
+                						} elseif ($vrow['category'] == 5) {
+                        						echo '<span><em>&nbsp;&nbsp;<small> '.$lang['min'].' '.DispSensor($conn,$vrow['min_c'],$vrow['sensor_type_id']).$unit.' </em> - '.$lang['sensor'].': '.$vrow['sensors_id'].' - '.$vrow['relay_type'].': '.$vrow['relay_id'].'-'.$vrow['relay_child_id'].'&nbsp</small></span>';
                 						} else {
                         						echo '<span><em>&nbsp;&nbsp;<small> '.$lang['max'].' '.DispSensor($conn,$vrow['max_c'],$vrow['sensor_type_id']).$unit.' </em> - '.$lang['sensor'].': '.$vrow['sensors_id'].' - '.$vrow['relay_type'].': '.$vrow['relay_id'].'-'.$vrow['relay_child_id'].'&nbsp</small></span>';
                 						}
@@ -2732,6 +2738,8 @@ echo '
                 						        echo '<span>&nbsp;&nbsp;<small> '.$lang['controller'].': '.$vrow['relay_type'].': '.$vrow['relay_id'].'-'.$vrow['relay_child_id'].'&nbsp</small></span>';
 		                                                } elseif ($vrow['category'] == 3) {
 						                        echo '<span><em>&nbsp;&nbsp;<small> '.$lang['min'].' '.DispSensor($conn,$vrow['min_c'],$vrow['sensor_type_id']).$unit.', '.$lang['max'].' '.$vrow['max_c'].$unit.' </em> - '.$lang['sensor'].': '.$vrow['sensors_id'].'&nbsp</small></span>';
+                                                		} elseif ($vrow['category'] == 5) {
+					                        	echo '<span><em>&nbsp;&nbsp;<small> '.$lang['min'].' '.DispSensor($conn,$vrow['min_c'],$vrow['sensor_type_id']).$unit.' </em> - '.$lang['sensor'].': '.$vrow['sensors_id'].' - '.$vrow['relay_type'].': '.$vrow['relay_id'].'-'.$vrow['relay_child_id'].'&nbsp</small></span>';
                                                 		} else {
 					                        	echo '<span><em>&nbsp;&nbsp;<small> '.$lang['max'].' '.DispSensor($conn,$vrow['max_c'],$vrow['sensor_type_id']).$unit.' </em> - '.$lang['sensor'].': '.$vrow['sensors_id'].' - '.$vrow['relay_type'].': '.$vrow['relay_id'].'-'.$vrow['relay_child_id'].'&nbsp</small></span>';
 								}

@@ -173,7 +173,7 @@ $lang['zone_type_add_info_text'] = "You can Add New Zone Types.";
 $lang['zone_type_info'] = "Zone you want to make available for Zone controller";
 $lang['category'] = "Category";
 $lang['zone_category0'] = "Controller, Sensor and System Control";
-$lang['zone_category1'] = "Controller, Sensor and NO System Control";
+$lang['zone_category1'] = "Controller, Sensor and NO System Control (Positive Sensor Gradient)";
 $lang['zone_category2'] = "Controller, NO Sensor and NO System Control";
 $lang['zone_category3'] = "NO Controller, Sensor and System Control (HVAC)";
 $lang['zone_category4'] = "Controller, Sensor and System Control (HVAC Multi Zone)";
@@ -956,4 +956,7 @@ $lang['restore_db_text'] = "Restore a Backup Created by the Backup Database Proc
 $lang['restore_db_warning'] = "This Action will Overwrite Your Current DB. DO YOU REALLY WANT TO DO THIS !!";
 $lang['setup_database_restore'] = "Setup Database Restore";
 $lang['message_queues_technical'] = "Message Queues Technical";
+$lang['zone_category5'] = "Controller, Sensor and NO System Control (Negative Sensor Gradient)";
+$lang['zone_category6'] = "Controller, Binary Sensor and NO System Control";
+$lang['negative_gradient_zone'] = "Zones With a Negative Control Gradient";
 ?>

@@ -1428,7 +1428,7 @@ function GetModal_Schedule_List($conn)
 				//if temperature control active display cut in and cut out levels
                                 $c_f = settings($conn, 'c_f');
                                 if ($c_f == 0) { $units = 'C'; } else { $units = 'F'; }
-				if (($zone_category <= 1) && (($zone_mode_main == 20 ) || ($zone_mode_main == 50 ) || ($zone_mode_main == 60 ) || ($zone_mode_main == 70 )||($zone_mode_main == 80 ))){
+				if (($zone_category <= 1 || $zone_category == 5) && (($zone_mode_main == 20 ) || ($zone_mode_main == 50 ) || ($zone_mode_main == 60 ) || ($zone_mode_main == 70 ) || ($zone_mode_main == 80 ) || ($zone_mode_main == 110 ))){
                                 	echo '<p>Cut In Temperature : '.DispSensor($conn,$zone_temp_cut_in,$sensor_type_id).'&deg'.$units.'</p>
                                         <p>Cut Out Temperature : ' .DispSensor($conn,$zone_temp_cut_out,$sensor_type_id).'&deg'.$units.'</p>';
 				}

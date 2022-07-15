@@ -145,7 +145,7 @@ $lang['zone_type_add_info_text'] = "Sie können neue Zonentypen hinzufügen.";
 $lang['zone_type_info'] = "Zone, die Sie für den Zonencontroller verfügbar machen möchten";
 $lang['category'] = "Kategorie";
 $lang['zone_category0'] = "Sensor- und Kesselsteuerung";
-$lang['zone_category1'] = "Sensor und KEINE Kesselsteuerung";
+$lang['zone_category1'] = "Sensor und KEINE Kesselsteuerung (Positive Sensor Gradient)";
 $lang['zone_category2'] = "KEIN Sensor und KEINE Kesselsteuerung";
 $lang['zone_category_info'] = "Wählen Sie Zonentypkategorie für die Prozesssteuerung";
 $lang['zone_type_heating'] = "Heizung";
@@ -921,5 +921,7 @@ $lang['restore_db'] = "Restore DB";
 $lang['restore_db_text'] = "Restore a Backup Created by the Backup Database Process (.gz file), or one Created by the Database Update Process (.zip file).<br><br>Available Backups are Shown in Date Order. Click to Select.";
 $lang['restore_db_warning'] = "This Action will Overwrite Your Current DB. DO YOU REALLY WANT TO DO THIS !!";
 $lang['setup_database_restore'] = "Setup Database Restore";
-$lang['message_queues_technical'] = "Message Queues Technical";
+$lang['zone_category5'] = "Controller, Sensor and NO System Control (Negative Sensor Gradient)";
+$lang['zone_category6'] = "Controller, Binary Sensor and NO System Control";
+$lang['negative_gradient_zone'] = "Zones With a Negative Control Gradient";
 ?>

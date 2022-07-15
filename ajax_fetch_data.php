@@ -68,21 +68,15 @@ if ($rowcount > 0) {
         $holidays_status = 0;
 }
 
-if ($type <= 5 || $type == 8) {
+if ($type <= 5) {
 	//---------------
 	//process  zones
 	//---------------
 	$active_schedule = 0;
-	if ($type == 8) {
-		$query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$id} AND (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 1 OR `zone_type`.`category` = 2) LIMIT 1;";
-	} else {
-                $query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$id} AND (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 0 OR `zone_type`.`category` = 3 OR `zone_type`.`category` = 4) LIMIT 1;";
-	}
+	$query = "SELECT `zone`.`id`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$id} AND `zone`.`type_id` = `zone_type`.`id`;";
 	$result = $conn->query($query);
 	$row = mysqli_fetch_assoc($result);
 	$zone_id=$row['id'];
-	$zone_name=$row['name'];
-	$zone_type=$row['type'];
 	$zone_category=$row['category'];
 
 	//query to get zone current state
@@ -100,9 +94,9 @@ if ($type <= 5 || $type == 8) {
 	$sensor_seen = $zone_current_state['sensor_seen_time'];
 	$temp_reading_time= $zone_current_state['sensor_reading_time'];
 	$overrun= $zone_current_state['overrun'];
-	if ($zone_category == 1 || $zone_category == 2) {
+	if ($zone_category == 1 || $zone_category == 2  || $zone_category == 5 || $zone_category == 6) {
         	if ($zone_current_state['mode'] == 0) { $add_on_active = 0; } else { $add_on_active = 1; }
-                if ($add_on_active == 1){$add_on_colour = "green";} elseif ($add_on_active == 0){$add_on_colour = "black";}
+                if ($add_on_active == 1 && $zone_category != 5) { $add_on_colour = "green"; } elseif ($add_on_active == 0 || ($add_on_active == 1 && $zone_category == 5)) {$add_on_colour = "black"; }
 	}
 
         //get the current zone schedule status
@@ -159,32 +153,34 @@ if ($type <= 5 || $type == 8) {
 	        6 - cooling running
 		7 - fan running*/
         //get the current zone schedule status
-        if ($zone_category == 1 || $zone_category == 2) {
+        if ($zone_category == 1 || $zone_category == 2 || $zone_category == 6) {
                 if ($sch_status =='1') {
-                        $add_on_mode = $zone_current_state['mode'];
+                        $add_on_mode = $zone_mode;
                 } else {
                         if ($add_on_active == 0) { $add_on_mode = 0; } else { $add_on_mode = 114; }
                 }
-
                 if ($away_status == 1 && $away_sch == 1 ) { $zone_mode = 90; }
                 $rval=getIndicators($conn, $add_on_mode, $zone_temp_target);
         } else {
-                if ($away_status == 1 && $away_sch == 1 ) { $zone_mode = $zone_mode + 10; }
+                if ($away_status == 1 && $away_sch == 1 ) {
+                        if ($zone_category == 5) { $zone_mode = 90; } else { $zone_mode = $zone_mode + 10; }
+                }
                 $rval=getIndicators($conn, $zone_mode, $zone_temp_target);
         }
 	//-------------------------------
 	//process return strings by type
 	//-------------------------------
 	switch ($type) {
-        	case 1:
-                	// return the temperature string to 1 decimal place
-	                if ($sensor_type_id == 3) {
-        	                if ($zone_c == 0) { echo 'OFF'; } else { echo 'ON'; }
-                	} else {
-                        	$unit = SensorUnits($conn,$sensor_type_id);
-	                        echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit;
-        	        }
-                	break;
+                case 1:
+                        if ($zone_category != 2 && $sensor_type_id != 3) {
+                                $unit = SensorUnits($conn,$sensor_type_id);
+                                echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit;
+                        } elseif ($zone_category == 6) {
+                                if ($add_on_active == 0) { echo 'OFF'; } else { echo 'ON'; }
+                        } else {
+                                echo '<i class="bi bi-power '.$add_on_colour.'" style="font-size: 1.4rem;">';
+                        }
+                        break;
 	        case 2:
         		echo '<i class="bi bi-circle-fill '.$rval['status'].'" style="font-size: 0.55rem;">';
                 	break;
@@ -201,16 +197,6 @@ if ($type <= 5 || $type == 8) {
 	        case 5:
         	        if($overrun == 1) { echo '<i class="bi bi-play-fill orange-red">'; }
                 	break;
-	        case 8:
-        	        if (($zone_category == 1 && $sensor_type_id != 3)) {
-               			$unit = SensorUnits($conn,$sensor_type_id);
-                        	echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit;
-	                } elseif ($zone_category == 1 && $sensor_type_id == 3) {
-        	        	if ($add_on_active == 0) { echo 'OFF'; } else { echo 'ON'; }
-                	} else {
-                        	echo '<i class="bi bi-power '.$add_on_colour.'" style="font-size: 1.4rem;">';
-	                }
-        	        break;
 	        default:
 	}
 } elseif ($type == 6 || $type == 7)  {

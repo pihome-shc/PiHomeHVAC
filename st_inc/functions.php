@@ -577,20 +577,24 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
 	}
         //Add-On
         else if($zone_mode_main == 110){
-                if($zone_mode_sub == 1){
+                if($zone_mode_sub <= 3){
                         $shactive='bi-clock';
                 } else {
                         $shactive='bi bi-power';
                 }
                 //add-on swtched OFF
-                if($zone_mode_sub == 0){
+                if($zone_mode_sub <= 3){
                         $shcolor='black';
                 }
                 //add-on switched ON
                 else{
                         $shcolor='green';
                 }
-                $target='';     //show no target temperature
+                if($zone_mode_sub <= 3){
+                        $target=number_format(DispTemp($conn,$zone_temp_target),1) . '&deg;';
+                } else {
+                        $target='';     //show no target temperature
+                }
         }
 	//HVAC
         else if($zone_mode_main == 80 || $zone_mode_main == 120){
