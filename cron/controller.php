@@ -1249,7 +1249,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                                         $stop_cause="Zone Reached its Min Temperature ".$zone_min_c;
                                         $zone_state = 0;
                                 }
-			//process Immersion Zone Type
+			//process Zones with NO System Controller and a Positive Sensor Gradient
 			} elseif ($zone_category == 1 && strpos($zone_type, 'Binary') === false) {
 				if ($frost_active == 1){
 					$zone_status="1";
@@ -1458,7 +1458,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 					$add_on_stop_cause="System is OFF";
 					$zone_state = 0;
 				}
-			//process Cooling Zone Type
+			//process Zones with NO System Controller and a Negative Sensor Gradient
 			} elseif ($zone_category == 5) {
 				if ($away_status=='0' || ($away_status=='1' && $away_sch == 1)) {
 					if (($holidays_status=='0') || ($sch_holidays=='1')) {
