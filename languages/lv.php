@@ -144,7 +144,7 @@ $lang['zone_type_add_info_text'] ="Jūs varat pievienot jaunus zonas veidus.";
 $lang['zone_type_info'] = "Zonas tips, t.i., apkure, karstais ūdens vai elektriskā iegremdēšana";
 $lang['category'] ="Kategorija";
 $lang['zone_category0'] ="Sensora un katla vadība";
-$lang['zone_category1'] ="Sensora un NAV katla vadība";
+$lang['zone_category1'] ="Sensora un NAV katla vadība (Positive Sensor Gradient)";
 $lang['zone_category2'] ="NAV sensora un NAV katla vadība";
 $lang['zone_category_info'] ="Procesa vadībai atlasiet Zonas tipa kategoriju";
 $lang['zone_type_heating'] = "Apkure";
@@ -919,6 +919,6 @@ $lang['restore_db'] = "Restore DB";
 $lang['restore_db_text'] = "Restore a Backup Created by the Backup Database Process (.gz file), or one Created by the Database Update Process (.zip file).<br><br>Available Backups are Shown in Date Order. Click to Select.";
 $lang['restore_db_warning'] = "This Action will Overwrite Your Current DB. DO YOU REALLY WANT TO DO THIS !!";
 $lang['setup_database_restore'] = "Setup Database Restore";
-$lang['zone_category5'] = "Controller, Sensor and NO System Control (Negative Temperature Profile)";
+$lang['zone_category5'] = "Controller, Sensor and NO System Control (Negative Sensor Gradient)";
 $lang['cooling_zone'] = "Cooling Type Zone";
 ?>

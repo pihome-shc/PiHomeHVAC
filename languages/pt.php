@@ -400,7 +400,7 @@ $lang['zone_type_add'] = "Add Type";
 $lang['zone_type_add_info_text'] = "You can Add New Zone Types.";
 $lang['category'] = "Category";
 $lang['zone_category0'] = "Controller, Sensor and System Control";
-$lang['zone_category1'] = "Controller, Sensor and NO System Control";
+$lang['zone_category1'] = "Controller, Sensor and NO System Control (Positive Sensor Gradient)";
 $lang['zone_category2'] = "Controller, NO Sensor and NO System Control";
 $lang['zone_category3'] = "NO Controller, Sensor and System Control (HVAC)";
 $lang['zone_category4'] = "Controller, Sensor and System Control (HVAC Multi Zone)";
@@ -963,6 +963,6 @@ $lang['restore_db'] = "Restore DB";
 $lang['restore_db_text'] = "Restore a Backup Created by the Backup Database Process (.gz file), or one Created by the Database Update Process (.zip file).<br><br>Available Backups are Shown in Date Order. Click to Select.";
 $lang['restore_db_warning'] = "This Action will Overwrite Your Current DB. DO YOU REALLY WANT TO DO THIS !!";
 $lang['setup_database_restore'] = "Setup Database Restore";
-$lang['zone_category5'] = "Controller, Sensor and NO System Control (Negative Temperature Profile)";
+$lang['zone_category5'] = "Controller, Sensor and NO System Control (Negative Sensor Gradient)";
 $lang['cooling_zone'] = "Cooling Type Zone";
 ?>
