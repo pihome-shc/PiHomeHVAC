@@ -590,7 +590,7 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
                 else{
                         $shcolor='green';
                 }
-                if($zone_mode_sub <= 3){
+                if($zone_mode_sub <= 3 && strlen($zone_temp_target) > 0){
                         $target=number_format(DispTemp($conn,$zone_temp_target),1) . '&deg;';
                 } else {
                         $target='';     //show no target temperature

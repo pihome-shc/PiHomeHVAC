@@ -85,7 +85,7 @@ if ($type <= 5) {
 	$zone_current_state = mysqli_fetch_array($result);
 	$zone_mode = $zone_current_state['mode'];
 	$zone_temp_reading = $zone_current_state['temp_reading'];
-	$zone_temp_target = $zone_current_state['temp_target'];
+        if ($zone_category == 2) { $zone_temp_target = ""; } else { $zone_temp_target = $zone_current_state['temp_target']; }
 	$zone_temp_cut_in = $zone_current_state['temp_cut_in'];
 	$zone_temp_cut_out = $zone_current_state['temp_cut_out'];
 	$zone_ctr_fault = $zone_current_state['controler_fault'];
