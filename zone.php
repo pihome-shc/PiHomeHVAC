@@ -613,7 +613,7 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 						                        break;
 						                case "1":
                                                                 case "5":
-                                                                case "6":
+								case "6":
 						                        if (valuetext == "1" || valuetext == "5") {
 							                        document.getElementById("default_c_label_1").style.visibility = 'visible';
 						        	                document.getElementById("default_c_label_2").style.visibility = 'visible';;
@@ -642,7 +642,7 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 							                        document.getElementById("max_c_label_1").style.visibility = 'visible';
 						        	                document.getElementById("max_c_label_2").style.visibility = 'visible';
 							                        document.getElementById("max_c").style.display = 'block';
-                                                                        } elseif (valuetext == "5") {
+                                                                        } else if (valuetext == "5") {
                                                                                 document.getElementById("min_c").style.display = 'block';
                                                                                 document.getElementById("min_c_label").style.visibility = 'visible';;
                                                                                 document.getElementById("max_c_label_1").style.visibility = 'visible';
