@@ -64,6 +64,8 @@ null_value = None
 # Initialise a dictionary to hold the relay id for Adafruit Blinka
 relay_dict = {}
 
+# Initialise MQTT connection status
+MQTT_CONNECTED = 0
 
 def set_relays(
     msg,
