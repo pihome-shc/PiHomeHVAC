@@ -2658,7 +2658,6 @@ echo '<p class="text-muted">'.$lang['zone_type_add_info_text'].'</p>
         <option value=0 selected>'.$lang['zone_category0'].'</option>
         <option value=1>'.$lang['zone_category1'].'</option>
         <option value=5>'.$lang['zone_category5'].'</option>
-        <option value=6>'.$lang['zone_category6'].'</option>
         <option value=2>'.$lang['zone_category2'].'</option>
         <option value=3>'.$lang['zone_category3'].'</option>
         <option value=4>'.$lang['zone_category4'].'</option>
