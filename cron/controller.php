@@ -1382,7 +1382,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 					$zone_state = 0;
 				}
 			// process Binary type zone
-			} elseif (($zone_category == 1 || ($zone_category == 5) && $sensor_type_id == 3) {
+			} elseif (($zone_category == 1 || $zone_category == 5) && $sensor_type_id == 3) {
 	                        //check system controller not in OFF mode
         	                if ($sc_mode != 0) {
 					if ($active_sc_mode == 4 || $active_sc_mode == 2){
