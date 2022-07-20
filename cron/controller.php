@@ -385,7 +385,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 
 	// process if a sensor is attached to this zone
 	if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3 || $zone_category == 4 || $zone_category == 5) {
-                $query = "SELECT zone_sensors.*, sensors.sensor_id, sensors.sensor_child_id, sensors.frost_controller FROM  zone_sensors, sensors WHERE (zone_sensors.zone_sensor_id = sensors.id) AND zone_sensors.zone_id = '{$zone_id}' LIMIT 1;";
+                $query = "SELECT zone_sensors.*, sensors.sensor_id, sensors.sensor_child_id, sensors.sensor_type_id, sensors.frost_controller FROM  zone_sensors, sensors WHERE (zone_sensors.zone_sensor_id = sensors.id) AND zone_sensors.zone_id = '{$zone_id}' LIMIT 1;";
                 $result = $conn->query($query);
                 $sensor = mysqli_fetch_array($result);
                 $zone_min_c=$sensor['min_c'];
@@ -395,6 +395,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 	        $zone_sensor_id=$sensor['sensor_id'];
         	$zone_sensor_child_id=$sensor['sensor_child_id'];
 		$default_c =$sensor['default_c'];
+		$sensor_type_id = $sensor['sensor_type_id']
                 $hvac_frost_controller = $sensor['frost_controller'];
 
                 $query = "SELECT node_id, name FROM nodes WHERE id = '{$zone_sensor_id}' LIMIT 1;";
@@ -1250,7 +1251,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                                         $zone_state = 0;
                                 }
 			//process Zones with NO System Controller and a Positive Sensor Gradient
-			} elseif ($zone_category == 1) {
+			} elseif ($zone_category == 1 && $sensor_type_id <> 3) {
 				if ($frost_active == 1){
 					$zone_status="1";
 					$zone_mode = 21;
@@ -1381,7 +1382,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 					$zone_state = 0;
 				}
 			// process Binary type zone
-			} elseif ($zone_category == 6) {
+			} elseif (($zone_category == 1 || ($zone_category == 5) && $sensor_type_id == 3) {
 	                        //check system controller not in OFF mode
         	                if ($sc_mode != 0) {
 					if ($active_sc_mode == 4 || $active_sc_mode == 2){
@@ -1459,7 +1460,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 					$zone_state = 0;
 				}
 			//process Zones with NO System Controller and a Negative Sensor Gradient
-			} elseif ($zone_category == 5) {
+			} elseif ($zone_category == 5 && $sensor_type_id <> 3) {
 				if ($away_status=='0' || ($away_status=='1' && $away_sch == 1)) {
 					if (($holidays_status=='0') || ($sch_holidays=='1')) {
                                                	if (($sch_active) && ($zone_override_status=='1')) {

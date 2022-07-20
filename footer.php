@@ -63,7 +63,7 @@ $(document).ready(function() {
     var controller_HTML = `
 		<div class="wrap" id>
 			<!-- Zone Controller ID -->
-			<div class="form-group" class="control-label" id="controler_id_label" style="display:block"><label><?php echo $lang['zone_controller_id']; ?></label> <small class="text-muted"><?php echo $lang['zone_controler_id_info'];?></small>
+			<div class="form-group" class="control-label" id="controler_id" style="display:block"><label><?php echo $lang['zone_controller_id']; ?></label id="controler_id_label"> <small class="text-muted"><?php echo $lang['zone_controler_id_info'];?></small>
 	        	        <input type="hidden" id="selected_controler_id[]" name="selected_controler_id[]" value="<?php echo $zone_controllers[$i]['controller_relay_id']?>"/>
 				<div class="entry input-group col-xs-12" id="cnt_id - <?php echo $i ?>">
 					<select id="controler_idx" onchange="ControllerIDList(this.options[this.selectedIndex].value)" name="controler_idx" class="form-select" data-bs-error="<?php echo $lang['zone_controller_id_error']; ?>" autocomplete="off">

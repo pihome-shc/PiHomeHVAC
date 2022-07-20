@@ -188,7 +188,7 @@ if (isset($_POST['submit'])) {
                                                                         echo '<option selected >'.$rownode['node_id'].' - '.$rownode['name'].'</option>';
                                                 			$query = "SELECT node_id, name, max_child_id FROM nodes where (name LIKE '%Sensor' OR name LIKE 'Switch%')AND id <> ".$rownode['id']." ORDER BY node_id ASC;";
                                                                 } else {
-                                                                        $query = "SELECT node_id, name, max_child_id FROM nodes where name LIKE '%Sensor' ORDER BY node_id ASC;";
+                                                                        $query = "SELECT node_id, name, max_child_id FROM nodes where name LIKE '%Sensor' OR name LIKE 'Switch%' ORDER BY node_id ASC;";
                                                                 }
 								$result = $conn->query($query);
 								echo "<option></option>";

@@ -922,6 +922,6 @@ $lang['restore_db_text'] = "Restore a Backup Created by the Backup Database Proc
 $lang['restore_db_warning'] = "This Action will Overwrite Your Current DB. DO YOU REALLY WANT TO DO THIS !!";
 $lang['setup_database_restore'] = "Setup Database Restore";
 $lang['zone_category5'] = "Controller, Sensor and NO System Control (Negative Sensor Gradient)";
-$lang['zone_category6'] = "Controller, Binary Sensor and NO System Control";
 $lang['negative_gradient_zone'] = "Zones With a Negative Control Gradient";
+$lang['zone_min_humidity_info'] = "Minimum Humidity this Zone can reach before Zone Relay will shut-off for safety";
 ?>
