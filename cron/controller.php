@@ -395,7 +395,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 	        $zone_sensor_id=$sensor['sensor_id'];
         	$zone_sensor_child_id=$sensor['sensor_child_id'];
 		$default_c =$sensor['default_c'];
-		$sensor_type_id = $sensor['sensor_type_id']
+		$sensor_type_id = $sensor['sensor_type_id'];
                 $hvac_frost_controller = $sensor['frost_controller'];
 
                 $query = "SELECT node_id, name FROM nodes WHERE id = '{$zone_sensor_id}' LIMIT 1;";
