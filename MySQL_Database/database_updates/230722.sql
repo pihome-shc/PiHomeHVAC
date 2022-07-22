@@ -1,1 +1,1 @@
-ALTER TABLE http_messages DROP COLUMN zone_name;
+ALTER TABLE http_messages DROP IF EXISTS zone_name;
