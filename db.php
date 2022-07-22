@@ -456,9 +456,10 @@ if($what=="http_msg"){
                 $http_parameter = $_GET['http_parameter'];
                 if ($wid == 1) {
                         $add_on_zone_name = $http_id;
-                        $query = "SELECT relay_id FROM zone_view WHERE name = '".$add_on_zone_name."' LIMIT 1";
-                        $results = $conn->query($query);
-                        $row = mysqli_fetch_assoc($results);
+                        $query = "SELECT id, relay_id FROM zone_view WHERE name = '".$add_on_zone_name."' LIMIT 1";
+                        $result = $conn->query($query);
+                        $row = mysqli_fetch_assoc($result);
+                        $zone_id = $row['id'];
                         $relay_id = $row['relay_id'];
                         $query = "SELECT node_id FROM nodes WHERE id = ".$relay_id." LIMIT 1";
                         $nresult = $conn->query($query);
@@ -467,10 +468,11 @@ if($what=="http_msg"){
                 } else {
                         $node_id = $http_id;
                         $add_on_zone_name = "";
+			$zone_id = 0;
                 }
 
                 //Add record to http_messages table
-                $query = "INSERT INTO `http_messages`(`sync`, `purge`, `zone_name`, `node_id`, `message_type`, `command`, `parameter`) VALUES ('0', '0', '{$add_on_zone_name}', '{$node_id}', '{$add_msg_type}', '{$http_command}', '{$http_parameter}')";
+                $query = "INSERT INTO `http_messages`(`sync`, `purge`, `zone_id`, `zone_name`, `node_id`, `message_type`, `command`, `parameter`) VALUES ('0', '0', '{$zone_id}', '{$add_on_zone_name}', '{$node_id}', '{$add_msg_type}', '{$http_command}', '{$http_parameter}')";
                 if($conn->query($query)){
                         header('Content-type: application/json');
                         echo json_encode(array('Success'=>'Success','Query'=>$query));
