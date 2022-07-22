@@ -97,7 +97,7 @@ function process_pump_relays($command, $relay_id)
 	Sonoff Switch Section: Tasmota WiFi Relay module for your Zone control.
 	*************************************************************************************/
 	if ( $relay_node_type == 'Tasmota'){
-       		$query = "SELECT * FROM http_messages WHERE zone_name = '$zone_name' AND message_type = '$command' LIMIT 1;";
+       		$query = "SELECT * FROM http_messages WHERE zone_id = '$zone_id' AND message_type = '$command' LIMIT 1;";
               	$result = $conn->query($query);
        	        $http = mysqli_fetch_array($result);
         	$add_on_msg = $http['command'].' '.$http['parameter'];
@@ -516,7 +516,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                                                 if ($base_addr == '000.000.000.000') {
                                                         echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - NO Gateway Address is Set \n";
                                                 } else {
-                                                        $query = "SELECT * FROM http_messages WHERE zone_name = '{$zone_name}' AND message_type = 1 LIMIT 1;";
+                                                        $query = "SELECT * FROM http_messages WHERE zone_id = '{$zone_id}' AND message_type = 1 LIMIT 1;";
                                                         $result = $conn->query($query);
                                                         $http = mysqli_fetch_array($result);
                                                         $url = "http://".$base_addr.$zone_controler_child_id."/cm?cmnd=power";
@@ -1926,7 +1926,7 @@ for ($row = 0; $row < count($zone_commands); $row++){
 				Sonoff Switch Section: Tasmota WiFi Relay module for your Zone control.
 				****************************************************************************************/
         			if ($zone_controller_type == 'Tasmota'){
-                			$query = "SELECT * FROM http_messages WHERE zone_name = '$zone_name' AND message_type = '$zone_command' LIMIT 1;";
+                			$query = "SELECT * FROM http_messages WHERE zone_id = '$zone_id' AND message_type = '$zone_command' LIMIT 1;";
 	                		$result = $conn->query($query);
 		        	        $http = mysqli_fetch_array($result);
         		        	$add_on_msg = $http['command'].' '.$http['parameter'];
