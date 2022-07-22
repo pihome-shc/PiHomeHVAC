@@ -986,7 +986,7 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 					</form>
 				</div>
                         	<!-- /.card-body -->
-				<div class="card-footer card_footer-<?php echo theme($conn, $theme, 'color'); ?>">
+				<div class="card-footer card-footer-<?php echo theme($conn, $theme, 'color'); ?>">
 					<div class="text-start">
 						<?php
 						if ($id != 0) {
