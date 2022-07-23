@@ -3369,7 +3369,10 @@ echo '
 if ($zcount + $ncount > 0) {
         echo '<p class="text-muted"> '.$lang['add_on_settings_text'].' </p>';
 
-        $query = "SELECT http_messages.*, nodes.type FROM http_messages, nodes WHERE http_messages.node_id = nodes.node_id;";
+        $query = "SELECT zn.name AS zone_name, message_type, command, parameter, nid.type
+        FROM http_messages
+        LEFT JOIN nodes nid ON http_messages.node_id = nid.node_id
+        LEFT JOIN zone zn ON http_messages.zone_id = zn.id;";
         $results = $conn->query($query);
         echo '<table class="table table-bordered">
         <tr>

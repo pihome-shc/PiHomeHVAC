@@ -472,7 +472,7 @@ if($what=="http_msg"){
                 }
 
                 //Add record to http_messages table
-                $query = "INSERT INTO `http_messages`(`sync`, `purge`, `zone_id`, `zone_name`, `node_id`, `message_type`, `command`, `parameter`) VALUES ('0', '0', '{$zone_id}', '{$add_on_zone_name}', '{$node_id}', '{$add_msg_type}', '{$http_command}', '{$http_parameter}')";
+                $query = "INSERT INTO `http_messages`(`sync`, `purge`, `zone_id`, `node_id`, `message_type`, `command`, `parameter`) VALUES ('0', '0', '{$zone_id}', '{$node_id}', '{$add_msg_type}', '{$http_command}', '{$http_parameter}')";
                 if($conn->query($query)){
                         header('Content-type: application/json');
                         echo json_encode(array('Success'=>'Success','Query'=>$query));
