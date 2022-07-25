@@ -9,4 +9,8 @@ CREATE TABLE IF NOT EXISTS `sensor_messages` (
   `sub_type` tinyint(4) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-INSERT INTO `sensor_type` VALUES (4,0,0,'Message','');
+INSERT INTO `sensor_type`(`id`, `sync`, `purge`, `type`, `units`)
+SELECT * FROM (SELECT '4' AS `id`, '0' AS `sync`, '0' AS `purge`, 'Message' AS `type`, '' AS `units`) AS tmp
+WHERE NOT EXISTS (
+    SELECT `id` FROM `sensor_type` WHERE `id` = 4
+) LIMIT 1;
