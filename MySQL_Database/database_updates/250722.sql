@@ -9,3 +9,4 @@ CREATE TABLE IF NOT EXISTS `sensor_messages` (
   `sub_type` tinyint(4) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+INSERT INTO `sensor_type` VALUES (4,0,0,'Message','');
