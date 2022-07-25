@@ -201,7 +201,7 @@ if ($type <= 5) {
                 	break;
 	        default:
 	}
-} elseif ($type == 6 || $type == 7)  {
+} elseif ($type == 6 || $type == 7 || $type == 8)  {
 	//---------------------------
 	//process standalone sensors
 	//---------------------------
@@ -226,22 +226,44 @@ if ($type <= 5) {
 	$result = $conn->query($query);
 	$sensor = mysqli_fetch_array($result);
 	$sensor_c = $sensor['payload'];
+        if ($sensor_type_id == 4) {
+                //query to get status from messages_in_view_24h table view
+                $query = "SELECT * FROM messages_in WHERE node_id = '{$node_id}' AND child_id = '{$sensor_child_id}' AND sub_type = 1 ORDER BY id desc LIMIT 1;";
+                $result = $conn->query($query);
+                $status_msg = mysqli_fetch_array($result);
+                $s_msg = $status_msg['payload'];
+        }
         //-------------------------------
         //process return strings by type
         //-------------------------------
 	switch ($type) {
         	case 6:
                 	// return the temperature string to 1 decimal place
-	                if ($sensor_type_id == 3) {
-        	                if ($sensor_c == 0) { echo 'OFF'; } else { echo 'ON'; }
-                	} else {
-                        	$unit = SensorUnits($conn,$sensor_type_id);
-	                        echo number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit;
-        	        }
+                        if ($sensor_type_id == 3) {
+                                if ($sensor_c == 0) { echo 'OFF'; } else { echo 'ON'; }
+                        } elseif ($sensor_type_id == 4) {
+                                $deg_msg = floor($sensor_c);
+                                $query = "SELECT message FROM sensor_messages WHERE message_id = {$deg_msg} AND sub_type = 0 LIMIT 1;";
+                                $result = $conn->query($query);
+                                $sensor_message = mysqli_fetch_array($result);
+                                echo $sensor_message['message'];
+                        } else {
+                                $unit = SensorUnits($conn,$sensor_type_id);
+                                echo number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit;
+                        }
                 	break;
 	        case 7:
                         echo '<i class="bi bi-circle-fill" style="font-size: 0.55rem; color: '.$shcolor.';">';
         	        break;
+                case 8:
+                        if ($sensor_type_id == 4) {
+                                $s_msg = floor($s_msg);
+                                $query = "SELECT message FROM sensor_messages WHERE message_id = {$s_msg} AND sub_type = 1 LIMIT 1;";
+                                $result = $conn->query($query);
+                                $middle_message = mysqli_fetch_array($result);
+                                echo $middle_message['message'];
+                        }
+                        break;
 	        default:
 	}
 } elseif ($type == 9 || $type == 10) {
