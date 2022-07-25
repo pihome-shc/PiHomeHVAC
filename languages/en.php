@@ -959,5 +959,5 @@ $lang['message_queues_technical'] = "Message Queues Technical";
 $lang['zone_category5'] = "Controller, Sensor and NO System Control (Negative Sensor Gradient)";
 $lang['negative_gradient_zone'] = "Zones With a Negative Control Gradient";
 $lang['zone_min_humidity_info'] = "Minimum Humidity this Zone can reach before Zone Relay will shut-off for safety";
-$lang['custom_sensors'] = "Custom Sensors";
+$lang['sensor_message'] = "Sensor Msg";
 ?>
