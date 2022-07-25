@@ -375,8 +375,10 @@ $page_refresh = page_refresh($conn);
         		                		echo '<h3 class="degre" id="sd_'.$sensor_id.'">'.number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit.'</h3>';
 						}
                 			        echo '<h3 class="status">
-		                        	<small class="statuscircle" id="ss1_'.$sensor_id.'"><i class="bi bi-circle-fill '.$shcolor.'" style="font-size: 0.55rem;"></i></small>
-	                		        </h3></button>';      //close out status and button
+		                        	<small class="statuscircle" id="ss1_'.$sensor_id.'"><i class="bi bi-circle-fill '.$shcolor.'" style="font-size: 0.55rem;"></i></small>';
+                                                //Right Lower Message
+                                                if ($sensor_type_id != 3) { echo '<small class="statuszoon" id="ss2_'.$sensor_id.'">' . $rval['target'] .'</small>'; }
+	                		        echo '</h3></button>';      //close out status and button
 						$sensor_params[] = array('sensor_id' =>$row['id'], 'sensor_name' =>$row['name']);
                 			}
 
@@ -511,8 +513,10 @@ $page_refresh = page_refresh($conn);
         	                			echo '<h3 class="degre" id="sd_'.$sensor_id.'">'.number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit.'</h3>';
 						}
         	        		        echo '<h3 class="status">
-			                        <small class="statuscircle" id="ss1_'.$sensor_id.'"><i class="bi bi-circle-fill '.$shcolor.'" style="font-size: 0.55rem;"></i></small>
-                			        </h3></button>';      //close out status and button
+			                        <small class="statuscircle" id="ss1_'.$sensor_id.'"><i class="bi bi-circle-fill '.$shcolor.'" style="font-size: 0.55rem;"></i></small>';
+                                                //Right Lower Message
+                                                if ($sensor_type_id != 3) { echo '<small class="statuszoon" id="ss2_'.$sensor_id.'"> </small>'; }
+                			        echo '</h3></button>';      //close out status and button
 						$sensor_params[] = array('sensor_id' =>$row['id'], 'sensor_name' =>$row['name']);
 	 				}
 					$js_sensor_params = json_encode($sensor_params);
@@ -700,6 +704,7 @@ $(document).ready(function(){
             for (var x = 0; x < obj1.length; x++) {
               $('#sd_' + obj1[x].sensor_id).load("ajax_fetch_data.php?id=" + obj1[x].sensor_id + "&type=6").fadeIn("slow");
               $('#ss1_' + obj1[x].sensor_id).load("ajax_fetch_data.php?id=" + obj1[x].sensor_id + "&type=7").fadeIn("slow");
+              $('#ss2_' + obj1[x].sensor_id).load("ajax_fetch_data.php?id=" + obj1[x].sensor_id + "&type=8").fadeIn("slow");
               // console.log(obj1[i].sensor_id);
             }
             $('#scd').load("ajax_fetch_data.php?id=0&type=9").fadeIn("slow");
