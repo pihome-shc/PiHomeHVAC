@@ -35,7 +35,7 @@ Version 2.02 Introduces a simplified 'theme' definition, adds theme coloring to 
 
 Version 2.03 Introduces 'Cooling' type zones that work witha temperture sensor, zone relay/s and operature againt a negative temperature profile.
 
-Version 2.04 Introduces Message Sensors, to allow Home Screen display of custom messages (example boiler status passed from external interface).
+Version 2.04 Introduces 'Message Sensors', to allow Home Screen display of custom messages (example boiler status passed from external interface).
 
 ![theme_colours](https://user-images.githubusercontent.com/46624596/173180055-25914223-90f9-40e9-9a09-6c9854efd4d6.png)
 
