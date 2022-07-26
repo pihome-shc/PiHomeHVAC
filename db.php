@@ -1842,12 +1842,13 @@ if($what=="sensor_message"){
                 }
         }
         if($opp=="add"){
+                $msg_sensor_id = $_GET['msg_sensor_id'];
                 $msg_id = $_GET['msg_id'];
                 $msg_type_id = $_GET['msg_type_id'];
                 $msg_text = $_GET['msg_text'];
                 $msg_status_color = $_GET['msg_status_color'];
                 //Add record to sensor_messages table
-                $query = "INSERT INTO `sensor_messages`(`sync`, `purge`, `message_id`, `message`, `status_color`, `sub_type`) VALUES ('0', '0', '{$msg_id}', '{$msg_text}', '{$msg_status_co$
+                $query = "INSERT INTO `sensor_messages`(`sync`, `purge`, `sensor_id`, `message_id`, `message`, `status_color`, `sub_type`) VALUES ('0', '0', '{$msg_id}', '{$msg_sensor_id}', '{$msg_text}', '{$msg_status_co$
                 if($conn->query($query)){
                         header('Content-type: application/json');
                         echo json_encode(array('Success'=>'Success','Query'=>$query));
