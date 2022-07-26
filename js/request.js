@@ -1269,7 +1269,8 @@ function restore_db(wid){
 
 //Add Sensor Message
 function add_sensor_message(){
-var idata="w=sensor_message&o=add&msg_id="+document.getElementById("msg_id").value;
+var idata="w=sensor_message&o=add&msg_sensor_id="+document.getElementById("msg_sensor_id").value;
+    idata+="&msg_id="+document.getElementById("msg_id").value;
     idata+="&msg_type_id="+document.getElementById("msg_type_id").value;
     idata+="&msg_text="+document.getElementById("msg_text").value;
     idata+="&msg_status_color="+document.getElementById("msg_status_color").value;
