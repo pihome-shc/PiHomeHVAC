@@ -228,7 +228,7 @@ if ($type <= 5) {
 	$sensor_c = $sensor['payload'];
         if ($sensor_type_id == 4) {
                 //query to get status from messages_in_view_24h table view
-                $query = "SELECT * FROM messages_in WHERE node_id = '{$node_id}' AND child_id = '{$sensor_child_id}' AND sub_type = 1 ORDER BY id desc LIMIT 1;";
+                $query = "SELECT * FROM messages_in WHERE node_id = '{$node_id}' AND child_id = '{$sensor_child_id}' AND sub_type = 1 AND sensor_id = {$sensor_id} ORDER BY id desc LIMIT 1;";
                 $result = $conn->query($query);
                 $status_msg = mysqli_fetch_array($result);
                 $s_msg = $status_msg['payload'];
@@ -237,13 +237,13 @@ if ($type <= 5) {
         //process return strings by type
         //-------------------------------
 	switch ($type) {
-        	case 6:
-                	// return the temperature string to 1 decimal place
+                case 6:
+                        // return the temperature string to 1 decimal place
                         if ($sensor_type_id == 3) {
                                 if ($sensor_c == 0) { echo 'OFF'; } else { echo 'ON'; }
                         } elseif ($sensor_type_id == 4) {
                                 $deg_msg = floor($sensor_c);
-                                $query = "SELECT message FROM sensor_messages WHERE message_id = {$deg_msg} AND sub_type = 0 LIMIT 1;";
+                                $query = "SELECT message FROM sensor_messages WHERE message_id = {$deg_msg} AND sub_type = 0 AND sensor_id = {$sensor_id} LIMIT 1;";
                                 $result = $conn->query($query);
                                 $sensor_message = mysqli_fetch_array($result);
                                 echo $sensor_message['message'];
@@ -251,14 +251,21 @@ if ($type <= 5) {
                                 $unit = SensorUnits($conn,$sensor_type_id);
                                 echo number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit;
                         }
-                	break;
-	        case 7:
+                        break;
+                case 7:
+                        if ($sensor_type_id == 4) {
+                                $s_color = floor($sensor_c);
+                                $query = "SELECT status_color FROM sensor_messages WHERE message_id = {$s_color} AND sub_type = 0 AND sensor_id = {$sensor_id} LIMIT 1;";
+                                $result = $conn->query($query);
+                                $sensor_message = mysqli_fetch_array($result);
+                                $shcolor = $sensor_message['status_color'];
+                        }
                         echo '<i class="bi bi-circle-fill" style="font-size: 0.55rem; color: '.$shcolor.';">';
-        	        break;
+                        break;
                 case 8:
                         if ($sensor_type_id == 4) {
                                 $s_msg = floor($s_msg);
-                                $query = "SELECT message FROM sensor_messages WHERE message_id = {$s_msg} AND sub_type = 1 LIMIT 1;";
+                                $query = "SELECT message FROM sensor_messages WHERE message_id = {$s_msg} AND sub_type = 1 AND sensor_id = {$sensor_id} LIMIT 1;";
                                 $result = $conn->query($query);
                                 $middle_message = mysqli_fetch_array($result);
                                 echo $middle_message['message'];
