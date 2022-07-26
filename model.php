@@ -3277,20 +3277,22 @@ echo '
 
 echo '<table class="table table-bordered">
     <tr>
+        <th class="col-2"><small>'.$lang['sensor'].'</small></th>
         <th class="col-2"><small>'.$lang['msg_id'].'</small></th>
         <th class="col-2"><small>'.$lang['type'].'</small></th>
-        <th class="col-4"><small>'.$lang['message'].'</small></th>
-        <th class="col-3"><small>'.$lang['color'].'</small></th>
+        <th class="col-3"><small>'.$lang['message'].'</small></th>
+        <th class="col-2"><small>'.$lang['color'].'</small></th>
        <th class="col-1"></th>
     </tr>';
 
 $content_msg = "DELETE This Message";
 
-$query = "SELECT * FROM sensor_messages where `purge`=0;";
+$query = "SELECT sensor_messages.*, sensors.name FROM sensor_messages, sensors WHERE (sensor_messages.sensor_id = sensors.id) AND sensor_messages.purge = 0;";
 $results = $conn->query($query);
 while ($row = mysqli_fetch_assoc($results)) {
     echo '
         <tr>
+            <td>'.$row["name"].'</td>
             <td>'.$row["message_id"].'</td>
             <td>'.$row["sub_type"].'</td>
             <td>'.$row["message"].'</td>
@@ -3317,8 +3319,19 @@ echo '
                 <h5 class="modal-title">'.$lang['add_message'].'</h5>
             </div>
             <div class="modal-body">';
-echo '<p class="text-muted">'.$lang['add_message_info_text'].'</p>
+		$query = "SELECT id, name FROM sensors WHERE sensor_type_id = 4;";
+		$results = $conn->query($query);
+
+	echo '<p class="text-muted">'.$lang['add_message_info_text'].'</p>
         <form data-bs-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
+        <div class="form-group" class="control-label"><label>'.$lang['sensor'].'</label> <small class="text-muted">'.$lang['msg_sensor_id_info'].'</small>
+	        <select class="form-select" type="text" id="msg_sensor_id" name="msg_sensor_id">';
+        		while ($srow=mysqli_fetch_array($results)) {
+                		echo '<option value="'.$srow['id'].'">'.$srow['name'].'</option>';
+        		}
+        	echo '</select>
+        	<div class="help-block with-errors"></div>
+	</div>
         <div class="form-group" class="control-label"><label>'.$lang['msg_id'].'</label> <small class="text-muted">'.$lang['msg_id_info'].'</small>
         	<input class="form-control" type="text" id="msg_id" name="msg_id" value="" placeholder="'.$lang['msg_id'].'">
         	<div class="help-block with-errors"></div>

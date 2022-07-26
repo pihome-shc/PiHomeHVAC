@@ -168,9 +168,36 @@ if (isset($_POST['submit'])) {
                                                         if (valuetext == 2) {
                                                                 document.getElementById("frost_temp").style.display = 'none';
                                                                 document.getElementById("frost_protection_label").style.visibility = 'hidden';
+                                                                document.getElementById("resolution").style.display = 'block';
+                                                                document.getElementById("resolution_label").style.visibility = 'visible';
+                                                                document.getElementById("timeout").style.display = 'block';
+                                                                document.getElementById("timeout_label").style.visibility = 'visible';
+                                                                document.getElementById("correction_factor").style.display = 'block';
+                                                                document.getElementById("correction_factor_label").style.visibility = 'visible';
+                                                                document.getElementById("mode").style.display = 'block';
+                                                                document.getElementById("mode_label").style.visibility = 'visible';
+                                                        } else if (valuetext == 4) {
+                                                                document.getElementById("frost_temp").style.display = 'none';
+                                                                document.getElementById("frost_protection_label").style.visibility = 'hidden';
+                                                                document.getElementById("resolution").style.display = 'none';
+                                                                document.getElementById("resolution_label").style.visibility = 'hidden';
+                                                                document.getElementById("timeout").style.display = 'none';
+                                                                document.getElementById("timeout_label").style.visibility = 'hidden';
+                                                                document.getElementById("correction_factor").style.display = 'none';
+                                                                document.getElementById("correction_factor_label").style.visibility = 'hidden';
+                                                                document.getElementById("mode").style.display = 'none';
+                                                                document.getElementById("mode_label").style.visibility = 'hidden';
                                                         } else {
                                                                 document.getElementById("frost_temp").style.display = 'block';
                                                                 document.getElementById("frost_protection_label").style.visibility = 'visible';
+                                                                document.getElementById("resolution").style.display = 'block';
+                                                                document.getElementById("resolution_label").style.visibility = 'visible';
+                                                                document.getElementById("timeout").style.display = 'block';
+                                                                document.getElementById("timeout_label").style.visibility = 'visible';
+                                                                document.getElementById("correction_factor").style.display = 'block';
+                                                                document.getElementById("correction_factor_label").style.visibility = 'visible';
+                                                                document.getElementById("mode").style.display = 'block';
+                                                                document.getElementById("mode_label").style.visibility = 'visible';
                                                         }
                                                 }
                                                 </script>
@@ -241,7 +268,7 @@ if (isset($_POST['submit'])) {
 						</div>
 
                                                 <!-- Mode -->
-                                                <div class="form-group" class="control-label"><label><?php echo $lang['sensor_mode']; ?></label> <small class="text-muted"><?php echo $lang['sensor_mode_info'];?></small>
+                                                <div class="form-group" class="control-label" id="mode_label" style="display:block"><label><?php echo $lang['sensor_mode']; ?></label> <small class="text-muted"><?php echo $lang['sensor_mode_info'];?></small>
  							<select class="form-select" type="text" id="mode" name="mode" onchange=set_mode(this.options[this.selectedIndex].value)>
 								<?php echo'<option value=0 ' . ($row['mode']==0 ? 'selected' : '') . '>'.$lang['continous'].'</option>'; ?>
                                                                 <?php echo'<option value=1 ' . ($row['mode']==1 ? 'selected' : '') . '>'.$lang['onchange'].'</option>'; ?>
@@ -254,15 +281,15 @@ if (isset($_POST['submit'])) {
         						switch (value) {
                 						case "0":
                         						document.getElementById("timeout").style.display = 'none';
-                        						document.getElementById("timeout_label").style.visibility = 'hidden';;
+                        						document.getElementById("timeout_label").style.visibility = 'hidden';
                                                                         document.getElementById("resolution").style.display = 'none';
-                                                                        document.getElementById("resolution_label").style.visibility = 'hidden';;
+                                                                        document.getElementById("resolution_label").style.visibility = 'hidden';
 									break;
                                                                 case "1":
                                                                         document.getElementById("timeout").style.display = 'block';
-                                                                        document.getElementById("timeout_label").style.visibility = 'visible';;
+                                                                        document.getElementById("timeout_label").style.visibility = 'visible';
                                                                         document.getElementById("resolution").style.display = 'block';
-                                                                        document.getElementById("resolution_label").style.visibility = 'visible';;
+                                                                        document.getElementById("resolution_label").style.visibility = 'visible';
                                                                         break;
 							}
                                                 }
@@ -290,7 +317,7 @@ if (isset($_POST['submit'])) {
                                                 </div>
 
                                                 <!-- Correction Factor -->
-                                                <div class="form-group" class="control-label"><label><?php echo $lang['sensor_correction_factor']; ?></label> <small class="text-muted"><?php echo $lang['sensor_correction_factor_info'];?></small>
+                                                <div class="form-group" class="control-label" id="correction_factor_label" style="display:block"><label><?php echo $lang['sensor_correction_factor']; ?></label> <small class="text-muted"><?php echo $lang['sensor_correction_factor_info'];?></small>
                                                         <input class="form-control" placeholder="Temperature Sensor Correction Factor" value="<?php if(isset($row['name'])) { echo $row['correction_factor']; } else { echo '0.00'; } ?>" id="correction_factor" name="correction_factor" data-bs-error="<?php echo $lang['sensor_correction_factor_help']; ?>" autocomplete="off" required>
                                                         <div class="help-block with-errors"></div>
                                                 </div>
