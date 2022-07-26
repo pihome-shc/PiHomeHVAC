@@ -1267,3 +1267,42 @@ function restore_db(wid){
         request('db.php', 'GET', quest, function(){ window.location="settings.php?s_id=2"; });
 }
 
+//Add Sensor Message
+function add_sensor_message(){
+var idata="w=sensor_message&o=add&msg_id="+document.getElementById("msg_id").value;
+    idata+="&msg_type_id="+document.getElementById("msg_type_id").value;
+    idata+="&msg_text="+document.getElementById("msg_text").value;
+    idata+="&msg_status_color="+document.getElementById("msg_status_color").value;
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=6"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("add_sensor_message: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//Delete Sensor Message
+function delete_sensor_message(wid){
+var idata="w=sensor_message&o=delete&wid="+wid;
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=6"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("delete_sensor_message: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
