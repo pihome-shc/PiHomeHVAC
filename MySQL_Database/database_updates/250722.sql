@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS `sensor_messages` (
   `message` char(10) COLLATE utf8_bin,
   `status_color` char(10) COLLATE utf8_bin,
   `sub_type` tinyint(4) NOT NULL,
+  `sensor_id` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 INSERT INTO `sensor_type`(`id`, `sync`, `purge`, `type`, `units`)
