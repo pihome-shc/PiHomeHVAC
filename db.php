@@ -1824,5 +1824,40 @@ if($what=="database_restore"){
         shell_exec("nohup php restore_database.php ".$filePath.">/dev/null 2>&1 &");
         $info_message = "Database Restore Request Started, This process may take some time complete..." ;
 }
+
+//Sensor Messages
+if($what=="sensor_message"){
+        if($opp=="delete"){
+                //Delete from Sensor Type
+                $query = "DELETE FROM sensor_messages WHERE id = '".$wid."';";
+                $conn->query($query);
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+        if($opp=="add"){
+                $msg_id = $_GET['msg_id'];
+                $msg_type_id = $_GET['msg_type_id'];
+                $msg_text = $_GET['msg_text'];
+                $msg_status_color = $_GET['msg_status_color'];
+                //Add record to sensor_messages table
+                $query = "INSERT INTO `sensor_messages`(`sync`, `purge`, `message_id`, `message`, `status_color`, `sub_type`) VALUES ('0', '0', '{$msg_id}', '{$msg_text}', '{$msg_status_co$
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+}
 ?>
 <?php if(isset($conn)) { $conn->close();} ?>
