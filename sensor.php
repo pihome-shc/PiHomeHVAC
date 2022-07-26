@@ -144,7 +144,7 @@ if (isset($_POST['submit'])) {
 
 						<!-- Sensor Type -->
 						<div class="form-group" class="control-label" style="display:block"><label><?php echo $lang['sensor_type']; ?></label> <small class="text-muted"><?php echo $lang['sensor_type_info'];?></small>
-							<select class="form-select" type="number" id="type" name="type" onchange=enable_frost_temp(this.options[this.selectedIndex].value)>
+							<select class="form-select" type="number" id="type" name="type" onchange=enable_fields(this.options[this.selectedIndex].value)>
 
 							<?php if(isset($rowtype['type'])) { 
 								echo '<option selected value='.$rowtype['id'].'>'.$rowtype['type'].'</option>'; 
@@ -162,7 +162,7 @@ if (isset($_POST['submit'])) {
 						</div>
 
                                                 <script language="javascript" type="text/javascript">
-                                                function enable_frost_temp(value)
+                                                function enable_fields(value)
                                                 {
                                                         var valuetext = value;
                                                         if (valuetext == 2) {
@@ -390,10 +390,14 @@ if (isset($_POST['submit'])) {
      						'</script>'
 						;
                                         	echo '<script type="text/javascript">',
-	                                        'enable_frost_temp("'.$rowtype['id'].'");',
+	                                        'enable_fields("'.$rowtype['id'].'");',
         	                                '</script>'
                 	                        ;
 						if ($id != 0) {
+	                                                echo '<script type="text/javascript">',
+        	                                        'enable_fields("'.$rowtype['id'].'");',
+                	                                '</script>'
+                        	                        ;
 							echo '<script type="text/javascript">',
 						     	'set_mode("'.$row['mode'].'");',
      							'</script>'
