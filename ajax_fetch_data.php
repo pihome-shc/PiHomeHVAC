@@ -228,7 +228,7 @@ if ($type <= 5) {
 	$sensor_c = $sensor['payload'];
         if ($sensor_type_id == 4) {
                 //query to get status from messages_in_view_24h table view
-                $query = "SELECT * FROM messages_in WHERE node_id = '{$node_id}' AND child_id = '{$sensor_child_id}' AND sub_type = 1 AND sensor_id = {$sensor_id} ORDER BY id desc LIMIT 1;";
+                $query = "SELECT * FROM messages_in WHERE node_id = '{$node_id}' AND child_id = '{$sensor_child_id}' AND sub_type = 1 ORDER BY id desc LIMIT 1;";
                 $result = $conn->query($query);
                 $status_msg = mysqli_fetch_array($result);
                 $s_msg = $status_msg['payload'];
