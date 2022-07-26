@@ -975,4 +975,5 @@ $lang['msg_type_info'] = "Use '0' for Centre Text, '1' for Lower Right Text";
 $lang['msg_text_info'] = "Centre Message Text to be displayed";
 $lang['status_color_info'] = "Lower Left Status Icon Colour";
 $lang['status_color_type1'] = "Leave Blank for Type 1 Messages";
+$lang['msg_sensor_id_info'] = "Select Message Sensor to which this Message will be attached";
 ?>
