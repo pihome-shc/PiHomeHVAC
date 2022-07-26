@@ -3255,6 +3255,98 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
     </div>
 </div>';
 
+//Sensor Message
+echo '
+<div class="modal fade" id="sensor_messages" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['custom_sensor_messages'].'</h5>
+                <div class="dropdown float-right">
+                        <a class="" data-bs-toggle="dropdown" href="#">
+                                <i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-'.theme($conn, settings($conn, 'theme'), 'color').'">
+                                <li><a class="dropdown-item" href="pdf_download.php?file=custom_sensor_messages.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['custom_sensor_messages'].'</a></li>
+                        </ul>
+                </div>
+            </div>
+            <div class="modal-body">
+<p class="text-muted"> '.$lang['custom_sensor_messages_info'].' </p>';
+
+echo '<table class="table table-bordered">
+    <tr>
+        <th class="col-2"><small>'.$lang['msg_id'].'</small></th>
+        <th class="col-2"><small>'.$lang['type'].'</small></th>
+        <th class="col-4"><small>'.$lang['message'].'</small></th>
+        <th class="col-3"><small>'.$lang['color'].'</small></th>
+       <th class="col-1"></th>
+    </tr>';
+
+$content_msg = "DELETE This Message";
+
+$query = "SELECT * FROM sensor_messages where `purge`=0;";
+$results = $conn->query($query);
+while ($row = mysqli_fetch_assoc($results)) {
+    echo '
+        <tr>
+            <td>'.$row["message_id"].'</td>
+            <td>'.$row["sub_type"].'</td>
+            <td>'.$row["message"].'</td>
+            <td>'.$row["status_color"].'</td>
+            <td><button class="btn warning btn-danger btn-xs" onclick="delete_sensor_message('.$row["id"].');" data-confirm="'.$content_msg.'"><span class="bi bi-trash-fill black"></span></button> </a></td>
+        </tr>';
+}
+echo '</table></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                <button type="button" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" data-bs-href="#" data-bs-toggle="modal" data-bs-target="#add_sensor_messages">'.$lang['msg_add'].'</button>
+            </div>
+        </div>
+    </div>
+</div>';
+
+//Add Sensor Message
+echo '
+<div class="modal fade" id="add_sensor_messages" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['add_message'].'</h5>
+            </div>
+            <div class="modal-body">';
+echo '<p class="text-muted">'.$lang['add_message_info_text'].'</p>
+        <form data-bs-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
+        <div class="form-group" class="control-label"><label>'.$lang['msg_id'].'</label> <small class="text-muted">'.$lang['msg_id_info'].'</small>
+        	<input class="form-control" type="text" id="msg_id" name="msg_id" value="" placeholder="'.$lang['msg_id'].'">
+        	<div class="help-block with-errors"></div>
+	</div>
+        <div class="form-group" class="control-label"><label>'.$lang['type'].'</label> <small class="text-muted">'.$lang['msg_type_info'].'</small>
+	        <select <input class="form-select" type="text" id="msg_type_id" name="msg_type_id" value="" placeholder="'.$lang['message_type'].'">
+        		<option selected value="0">0 </option>
+        		<option value="1">1 </option>
+        	</select>
+        	<div class="help-block with-errors"></div>
+	</div>
+        <div class="form-group" class="control-label"><label>'.$lang['msg_text'].'</label> <small class="text-muted">'.$lang['msg_text_info'].'</small>
+                <input class="form-control" type="text" id="msg_text" name="msg_text" value="" placeholder="'.$lang['msg_text'].'">
+                <div class="help-block with-errors"></div>
+        </div>
+        <div class="form-group" class="control-label"><label>'.$lang['status_color'].'</label> <small class="text-muted">'.$lang['status_color_info'].'</small>
+        	<input class="form-control" type="text" id="msg_status_color" name="msg_status_color" value="" placeholder="'.$lang['status_color_type1'].'">
+        	<div class="help-block with-errors"></div>
+	</div>
+</div>
+            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="add_sensor_message()">
+            </div>
+        </div>
+    </div>
+</div>';
+
 //Sensor Type
 echo '
 <div class="modal fade" id="sensor_types" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
