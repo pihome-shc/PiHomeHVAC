@@ -1,6 +1,6 @@
 # MaxAir - Smart Thermostat
 
-### Note: Now at Version 2.03.
+### Note: Now at Version 2.04.
 
 The previous version, PiHome, was centered around the creation of zones, this version is more centered around devices.
 
@@ -34,6 +34,8 @@ Version 2.01 Major update that introduces 'Colour Themes' and a new look based a
 Version 2.02 Introduces a simplified 'theme' definition, adds theme coloring to dropdown lists and adds Dark and Burnt Orange themes.
 
 Version 2.03 Introduces 'Cooling' type zones that work witha temperture sensor, zone relay/s and operature againt a negative temperature profile.
+
+Version 2.04 Introduces 'Message Sensors', to allow Home Screen display of custom messages (example boiler status passed from external interface).
 
 ![theme_colours](https://user-images.githubusercontent.com/46624596/173180055-25914223-90f9-40e9-9a09-6c9854efd4d6.png)
 

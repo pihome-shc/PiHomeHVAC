@@ -611,6 +611,20 @@ try:
                 out_ack = msg[msg_to_index["ack"]]
                 out_type = msg[msg_to_index["type"]]
                 out_payload = msg[msg_to_index["payload"]]
+                # catch any missing HTTP type messages
+                if node_type.find("Tasmota") != -1 and len(out_payload) == 1:
+                    cur.execute("SELECT `command`, `parameter` FROM `http_messages` where node_id = (%s) AND message_type = 0 LIMIT 1", (node_id,))
+                    if cur.rowcount > 0:
+                        http_msg = cur.fetchone()
+                        http_msg_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                        out_payload = http_msg[http_msg_to_index["command"]] + " " + http_msg[http_msg_to_index["parameter"]]
+                    else:
+                        out_payload = "Power OFF"
+                    cur.execute(
+                        "UPDATE messages_out SET payload = %s WHERE node_id = %s AND child_id = %s",
+                        (out_payload, node_id, out_child_id),
+                    )
+                    con.commit()
                 msg = str(node_id)  # Node ID
                 msg += ";"  # Separator
                 msg += str(out_child_id)  # Child ID of the Node.
