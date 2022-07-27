@@ -1848,7 +1848,8 @@ if($what=="sensor_message"){
                 $msg_text = $_GET['msg_text'];
                 $msg_status_color = $_GET['msg_status_color'];
                 //Add record to sensor_messages table
-                $query = "INSERT INTO `sensor_messages`(`sync`, `purge`, `sensor_id`, `message_id`, `message`, `status_color`, `sub_type`) VALUES ('0', '0', '{$msg_id}', '{$msg_sensor_id}', '{$msg_text}', '{$msg_status_co$
+                $query = "INSERT INTO `sensor_messages`(`sync`, `purge`, `sensor_id`, `message_id`, `message`, `status_color`, `sub_type`)
+                        VALUES ('0', '0', '{$msg_sensor_id}', '{$msg_id}', '{$msg_text}', '{$msg_status_color}', '{$msg_type_id}'; ";
                 if($conn->query($query)){
                         header('Content-type: application/json');
                         echo json_encode(array('Success'=>'Success','Query'=>$query));
