@@ -268,8 +268,8 @@ if ($type <= 5) {
                                 $s_msg = floor($sensor_r);
                                 $query = "SELECT message FROM sensor_messages WHERE message_id = {$s_msg} AND sub_type = 1 AND sensor_id = {$sensor_id} LIMIT 1;";
                                 $result = $conn->query($query);
-                                $middle_message = mysqli_fetch_array($result);
-                                echo $middle_message['message'];
+                                $right_message = mysqli_fetch_array($result);
+                                echo $right_message['message'];
                         }
                         break;
 	        default:
