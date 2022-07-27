@@ -221,40 +221,41 @@ if ($type <= 5) {
 	        $node_seen_time = strtotime($node_seen);
         	if ($node_seen_time  < ($now - ($node_notice*60))) { $shcolor = "red"; }
 	}
-	//query to get temperature from messages_in_view_24h table view
-	$query = "SELECT * FROM messages_in WHERE node_id = '{$node_id}' AND child_id = '{$sensor_child_id}' ORDER BY id desc LIMIT 1;";
-	$result = $conn->query($query);
-	$sensor = mysqli_fetch_array($result);
-	$sensor_c = $sensor['payload'];
-        if ($sensor_type_id == 4) {
-                //query to get status from messages_in_view_24h table view
+        //query to get sensor reading from messages_in table
+        if ($type == 8) {
                 $query = "SELECT * FROM messages_in WHERE node_id = '{$node_id}' AND child_id = '{$sensor_child_id}' AND sub_type = 1 ORDER BY id desc LIMIT 1;";
-                $result = $conn->query($query);
-                $status_msg = mysqli_fetch_array($result);
-                $s_msg = $status_msg['payload'];
+        } else {
+                if ($sensor_type_id == 4) {
+                        $query = "SELECT * FROM messages_in WHERE node_id = '{$node_id}' AND child_id = '{$sensor_child_id}' AND sub_type = 0 ORDER BY id desc LIMIT 1;";
+                } else {
+                        $query = "SELECT * FROM messages_in WHERE node_id = '{$node_id}' AND child_id = '{$sensor_child_id}' ORDER BY id desc LIMIT 1;";
+                }
         }
+        $result = $conn->query($query);
+        $sensor = mysqli_fetch_array($result);
+        $sensor_r = $sensor['payload'];
         //-------------------------------
         //process return strings by type
         //-------------------------------
-	switch ($type) {
+        switch ($type) {
                 case 6:
                         // return the temperature string to 1 decimal place
                         if ($sensor_type_id == 3) {
-                                if ($sensor_c == 0) { echo 'OFF'; } else { echo 'ON'; }
+                                if ($sensor_r == 0) { echo 'OFF'; } else { echo 'ON'; }
                         } elseif ($sensor_type_id == 4) {
-                                $deg_msg = floor($sensor_c);
+                                $deg_msg = floor($sensor_r);
                                 $query = "SELECT message FROM sensor_messages WHERE message_id = {$deg_msg} AND sub_type = 0 AND sensor_id = {$sensor_id} LIMIT 1;";
                                 $result = $conn->query($query);
                                 $sensor_message = mysqli_fetch_array($result);
                                 echo $sensor_message['message'];
                         } else {
                                 $unit = SensorUnits($conn,$sensor_type_id);
-                                echo number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit;
+                                echo number_format(DispSensor($conn,$sensor_r,$sensor_type_id),1).$unit;
                         }
                         break;
                 case 7:
                         if ($sensor_type_id == 4) {
-                                $s_color = floor($sensor_c);
+                                $s_color = floor($sensor_r);
                                 $query = "SELECT status_color FROM sensor_messages WHERE message_id = {$s_color} AND sub_type = 0 AND sensor_id = {$sensor_id} LIMIT 1;";
                                 $result = $conn->query($query);
                                 $sensor_message = mysqli_fetch_array($result);
@@ -264,7 +265,7 @@ if ($type <= 5) {
                         break;
                 case 8:
                         if ($sensor_type_id == 4) {
-                                $s_msg = floor($s_msg);
+                                $s_msg = floor($sensor_r);
                                 $query = "SELECT message FROM sensor_messages WHERE message_id = {$s_msg} AND sub_type = 1 AND sensor_id = {$sensor_id} LIMIT 1;";
                                 $result = $conn->query($query);
                                 $middle_message = mysqli_fetch_array($result);
