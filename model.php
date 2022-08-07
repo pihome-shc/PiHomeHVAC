@@ -3651,6 +3651,108 @@ echo '<div class="modal fade" id="mqtt_devices" tabindex="-1" role="dialog" aria
 </div>';
 }
 
+//EBus Commands
+echo '
+<div class="modal fade" id="ebus_commands" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['ebus_commands'].'</h5>
+                <div class="dropdown float-right">
+                        <a class="" data-bs-toggle="dropdown" href="#">
+                                <i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-'.theme($conn, settings($conn, 'theme'), 'color').'">
+                                <li><a class="dropdown-item" href="pdf_download.php?file=setup_ebus_communication.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_ebus_communication'].'</a></li>
+                                <li class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="pdf_download.php?file=custom_sensor_messages.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['custom_sensor_messages'].'</a></li>
+                        </ul>
+                </div>
+            </div>
+            <div class="modal-body">
+<p class="text-muted"> '.$lang['ebus_commands_info'].' </p>';
+
+echo '<table class="table table-bordered">
+    <tr>
+        <th class="col-3"><small>'.$lang['ebus_message'].'</small></th>
+        <th class="col-3"><small>'.$lang['ebus_message_position'].'</small></th>
+        <th class="col-2"><small>'.$lang['ebus_message_offset'].'</small></th>
+        <th class="col-3"><small>'.$lang['sensor'].'</small></th>
+       <th class="col-1"></th>
+    </tr>';
+
+$content_msg = "DELETE This Message";
+
+$query = "SELECT ebus_messages.*, sensors.name FROM ebus_messages, sensors WHERE (ebus_messages.sensor_id = sensors.id) AND ebus_messages.purge = 0;";
+$results = $conn->query($query);
+while ($row = mysqli_fetch_assoc($results)) {
+    if ($row["position"] == 0 || $row["position"] == '0') { $pos = $lang['centre']; } else { $pos = $lang['lower_right']; }
+    echo '
+        <tr>
+            <td>'.$row["message"].'</td>
+            <td>'.$pos.'</td>
+            <td>'.$row["offset"].'</td>
+            <td>'.$row["name"].'</td>
+            <td><button class="btn warning btn-danger btn-xs" onclick="delete_ebus_command('.$row["id"].');" data-confirm="'.$content_msg.'"><span class="bi bi-trash-fill black"></span></button> </a></td>
+        </tr>';
+}
+echo '</table></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                <button type="button" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" data-bs-href="#" data-bs-toggle="modal" data-bs-target="#add_ebus_command">'.$lang['command_add'].'</button>
+            </div>
+        </div>
+    </div>
+</div>';
+
+//Add EBus Command
+echo '
+<div class="modal fade" id="add_ebus_command" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['ebus_add_command'].'</h5>
+            </div>
+            <div class="modal-body">';
+		$query = "SELECT id, name FROM sensors;";
+		$results = $conn->query($query);
+
+	echo '<p class="text-muted">'.$lang['ebus_add_command_info_text'].'</p>
+        <form data-bs-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
+        <div class="form-group" class="control-label"><label>'.$lang['sensor'].'</label> <small class="text-muted">'.$lang['ebus_sensor_id_info'].'</small>
+	        <select class="form-select" type="text" id="ebus_sensor_id" name="ebus_sensor_id">';
+        		while ($srow=mysqli_fetch_array($results)) {
+                		echo '<option value="'.$srow['id'].'">'.$srow['name'].'</option>';
+        		}
+        	echo '</select>
+        	<div class="help-block with-errors"></div>
+	</div>
+        <div class="form-group" class="control-label"><label>'.$lang['msg_text'].'</label> <small class="text-muted">'.$lang['ebus_message_info'].'</small>
+                <input class="form-control" type="text" id="ebus_msg" name="ebus_msg" value="" placeholder="'.$lang['msg_text'].'">
+                <div class="help-block with-errors"></div>
+        </div>
+        <div class="form-group" class="control-label"><label>'.$lang['ebus_message_position'].'</label> <small class="text-muted">'.$lang['ebus_position_info'].'</small>
+	        <select <input class="form-select" type="text" id="ebus_position" name="ebus_position" value="" placeholder="'.$lang['message_type'].'">
+        		<option selected value="0">'.$lang['centre'].'</option>
+        		<option value="1">'.$lang['lower_right'].'</option>
+        	</select>
+        	<div class="help-block with-errors"></div>
+	</div>
+        <div class="form-group" class="control-label"><label>'.$lang['ebus_message_offset'].'</label> <small class="text-muted">'.$lang['ebus_message_offset_info'].'</small>
+                <input class="form-control" type="text" id="ebus_offset" name="ebus_offset" value="0">
+                <div class="help-block with-errors"></div>
+        </div>
+</div>
+            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="add_ebus_command()">
+            </div>
+        </div>
+    </div>
+</div>';
+
 // Reboot Modal
 echo '
 <div class="modal fade" id="reboot_system" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
