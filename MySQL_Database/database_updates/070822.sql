@@ -9,4 +9,8 @@ CREATE TABLE IF NOT EXISTS `ebus_messages` (
   `offset` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-INSERT INTO `jobs`(`job_name`, `script`, `enabled`, `log_it`, `time`, `output`, `datetime`) VALUES ('ebus','/var/www/cron/check_ebus.php',0,0,60,'',now());
+INSERT INTO `jobs`(`job_name`, `script`, `enabled`, `log_it`, `time`, `output`, `datetime`)
+SELECT * FROM (SELECT 'ebus' AS `job_name`, '/var/www/cron/check_ebus.php' AS `script`, '0' AS `enabled`, '0' AS `log_it`, '60' as `time`, '' AS `output`, now() AS `datetime`) AS tmp
+WHERE NOT EXISTS (
+    SELECT `job_name` FROM `jobs` WHERE `job_name` = 'ebus'
+) LIMIT 1;
