@@ -455,6 +455,12 @@ if ($settings_id <= 3) {
 						<h3 class="degre" ><?php echo $lang['mqtt']; ?></h3>
        				                <h3 class="status"></small></h3>
                                 	        </button>
+
+                                                <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#ebus_commands">
+                                                <h3 class="buttontop"><small><?php echo $lang['ebus_commands']; ?></small></h3>
+                                                <h3 class="degre" ><?php echo $lang['ebus']; ?></h3>
+                                                <h3 class="status"></small></h3>
+                                                </button>
                			        <?php } ?>
         		</div>
          		<!-- /.row -->
