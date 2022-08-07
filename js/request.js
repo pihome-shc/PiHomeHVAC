@@ -1307,3 +1307,43 @@ var idata="w=sensor_message&o=delete&wid="+wid;
     .always(function() {
     });
 }
+
+//Add EBus Command
+function add_ebus_command(){
+var idata="w=ebus_command&o=add&ebus_sensor_id="+document.getElementById("ebus_sensor_id").value;
+    idata+="&ebus_msg="+document.getElementById("ebus_msg").value;
+    idata+="&ebus_position="+document.getElementById("ebus_position").value;
+    idata+="&ebus_offset="+document.getElementById("ebus_offset").value;
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=6"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("add_ebus_comand: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//Delete EBus Command
+function delete_ebus_command(wid){
+var idata="w=ebus_command&o=delete&wid="+wid;
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=6"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("delete_ebus_command: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
