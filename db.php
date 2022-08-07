@@ -1861,5 +1861,41 @@ if($what=="sensor_message"){
                 }
         }
 }
+
+//EBus Command
+if($what=="ebus_command"){
+        if($opp=="delete"){
+                //Delete from Sensor Type
+                $query = "DELETE FROM ebus_messages WHERE id = '".$wid."';";
+                $conn->query($query);
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+        if($opp=="add"){
+                $ebus_sensor_id = $_GET['ebus_sensor_id'];
+                $ebus_msg = $_GET['ebus_msg'];
+                $ebus_position = $_GET['ebus_position'];
+                $ebus_offset = $_GET['ebus_offset'];
+                //Add record to ebus_messages table
+                $query = "INSERT INTO `ebus_messages`(`sync`, `purge`, `message`, `sensor_id`, `position`, `offset`)
+                        VALUES ('0', '0', '{$ebus_msg}', '{$ebus_sensor_id}', '{$ebus_position}', '{$ebus_offset}'); ";
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+}
 ?>
 <?php if(isset($conn)) { $conn->close();} ?>
