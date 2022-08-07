@@ -200,7 +200,6 @@ def boiler():
             except :
                pass
             if graph_num > 0 :
-               print(id,sensor_name,node_id,sensor_child_id,response)
                cursorinsert = cnx.cursor()
                cursorinsert.execute('INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', (0,0,id,sensor_name,"Sensor",0,node_id,sensor_child_id,0,response,datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
                cursorinsert.close()
