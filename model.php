@@ -3336,13 +3336,13 @@ echo '
         	<input class="form-control" type="text" id="msg_id" name="msg_id" value="" placeholder="'.$lang['msg_id'].'">
         	<div class="help-block with-errors"></div>
 	</div>
-        <div class="form-group" class="control-label"><label>'.$lang['type'].'</label> <small class="text-muted">'.$lang['msg_type_info'].'</small>
-	        <select <input class="form-select" type="text" id="msg_type_id" name="msg_type_id" value="" placeholder="'.$lang['message_type'].'">
-        		<option selected value="0">0 </option>
-        		<option value="1">1 </option>
-        	</select>
-        	<div class="help-block with-errors"></div>
-	</div>
+        <div class="form-group" class="control-label"><label>'.$lang['message_position'].'</label> <small class="text-muted">'.$lang['message_position_info'].'</small>
+                <select <input class="form-select" type="text" id="msg_type_id" name="msg_type_id" value="" placeholder="'.$lang['message_type'].'">
+                        <option selected value="0">'.$lang['centre'].'</option>
+                        <option value="1">'.$lang['lower_right'].'</option>
+                </select>
+                <div class="help-block with-errors"></div>
+        </div>
         <div class="form-group" class="control-label"><label>'.$lang['msg_text'].'</label> <small class="text-muted">'.$lang['msg_text_info'].'</small>
                 <input class="form-control" type="text" id="msg_text" name="msg_text" value="" placeholder="'.$lang['msg_text'].'">
                 <div class="help-block with-errors"></div>
@@ -3733,7 +3733,7 @@ echo '
                 <input class="form-control" type="text" id="ebus_msg" name="ebus_msg" value="" placeholder="'.$lang['msg_text'].'">
                 <div class="help-block with-errors"></div>
         </div>
-        <div class="form-group" class="control-label"><label>'.$lang['ebus_message_position'].'</label> <small class="text-muted">'.$lang['ebus_position_info'].'</small>
+        <div class="form-group" class="control-label"><label>'.$lang['message_position'].'</label> <small class="text-muted">'.$lang['message_position_info'].'</small>
 	        <select <input class="form-select" type="text" id="ebus_position" name="ebus_position" value="" placeholder="'.$lang['message_type'].'">
         		<option selected value="0">'.$lang['centre'].'</option>
         		<option value="1">'.$lang['lower_right'].'</option>
