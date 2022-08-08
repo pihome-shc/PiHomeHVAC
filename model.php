@@ -3279,7 +3279,7 @@ echo '<table class="table table-bordered">
     <tr>
         <th class="col-2"><small>'.$lang['sensor'].'</small></th>
         <th class="col-2"><small>'.$lang['msg_id'].'</small></th>
-        <th class="col-2"><small>'.$lang['type'].'</small></th>
+        <th class="col-2"><small>'.$lang['message_position'].'</small></th>
         <th class="col-3"><small>'.$lang['message'].'</small></th>
         <th class="col-2"><small>'.$lang['color'].'</small></th>
        <th class="col-1"></th>
@@ -3290,11 +3290,12 @@ $content_msg = "DELETE This Message";
 $query = "SELECT sensor_messages.*, sensors.name FROM sensor_messages, sensors WHERE (sensor_messages.sensor_id = sensors.id) AND sensor_messages.purge = 0;";
 $results = $conn->query($query);
 while ($row = mysqli_fetch_assoc($results)) {
+    if ($row["sub_type"] == 0 || $row["sub_type"] == '0') { $pos = $lang['centre']; } else { $pos = $lang['lower_right']; }
     echo '
         <tr>
             <td>'.$row["name"].'</td>
             <td>'.$row["message_id"].'</td>
-            <td>'.$row["sub_type"].'</td>
+            <td>'.$pos.'</td>
             <td>'.$row["message"].'</td>
             <td>'.$row["status_color"].'</td>
             <td><button class="btn warning btn-danger btn-xs" onclick="delete_sensor_message('.$row["id"].');" data-confirm="'.$content_msg.'"><span class="bi bi-trash-fill black"></span></button> </a></td>
@@ -3337,12 +3338,12 @@ echo '
         	<div class="help-block with-errors"></div>
 	</div>
         <div class="form-group" class="control-label"><label>'.$lang['message_position'].'</label> <small class="text-muted">'.$lang['message_position_info'].'</small>
-                <select <input class="form-select" type="text" id="msg_type_id" name="msg_type_id" value="" placeholder="'.$lang['message_type'].'">
+	        <select <input class="form-select" type="text" id="msg_type_id" name="msg_type_id" value="" placeholder="'.$lang['message_type'].'">
                         <option selected value="0">'.$lang['centre'].'</option>
                         <option value="1">'.$lang['lower_right'].'</option>
-                </select>
-                <div class="help-block with-errors"></div>
-        </div>
+        	</select>
+        	<div class="help-block with-errors"></div>
+	</div>
         <div class="form-group" class="control-label"><label>'.$lang['msg_text'].'</label> <small class="text-muted">'.$lang['msg_text_info'].'</small>
                 <input class="form-control" type="text" id="msg_text" name="msg_text" value="" placeholder="'.$lang['msg_text'].'">
                 <div class="help-block with-errors"></div>
