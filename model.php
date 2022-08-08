@@ -3675,8 +3675,8 @@ echo '
 
 echo '<table class="table table-bordered">
     <tr>
-        <th class="col-3"><small>'.$lang['ebus_message'].'</small></th>
-        <th class="col-3"><small>'.$lang['ebus_message_position'].'</small></th>
+        <th class="col-3"><small>'.$lang['message'].'</small></th>
+        <th class="col-3"><small>'.$lang['message_position'].'</small></th>
         <th class="col-2"><small>'.$lang['ebus_message_offset'].'</small></th>
         <th class="col-3"><small>'.$lang['sensor'].'</small></th>
        <th class="col-1"></th>
