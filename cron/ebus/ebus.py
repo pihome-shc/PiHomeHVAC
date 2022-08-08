@@ -22,7 +22,7 @@ print("   |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
 print(" ")
 print("             " +bc.SUB + "S M A R T   THERMOSTAT " + bc.ENDC)
 print("********************************************************")
-print("*  Script to read data from an EBus Boiler interface   *")
+print("*  Script to read data from an eBUS Boiler interface   *")
 print("*             and store in message_in queue.           *")
 print("*                Build Date: 05/08/2022                *")
 print("*      Version 0.01 - Last Modified 06/08/2022         *")
@@ -106,7 +106,7 @@ def Transact(command):
           fault = 0
           return [fault, response]
     else:
-       print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - EBus Daemon Connection Lost")
+       print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - eBUS Daemon Connection Lost")
        print("------------------------------------------------------------------")
        quit()
 
@@ -244,7 +244,7 @@ def boiler():
          print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Number of unknown Faults is %d" % error_count)
 
 def main() :
-   print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - EBus Data Capture Script Started")
+   print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - eBUS Data Capture Script Started")
    print("------------------------------------------------------------------")
 
    # *************
@@ -281,7 +281,7 @@ def main() :
         schedule.run_pending()
         time.sleep(1)
    else :
-      print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - EBus Daemon is NOT running")
+      print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - eBUS Daemon is NOT running")
       print("------------------------------------------------------------------")
 
 
