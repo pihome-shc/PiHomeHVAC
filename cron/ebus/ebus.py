@@ -32,7 +32,7 @@ print(" ")
 print(" " + bc.ENDC)
 
 import time
-import datetime
+from datetime import datetime
 import string
 import os
 import sys
@@ -106,7 +106,7 @@ def Transact(command):
           fault = 0
           return [fault, response]
     else:
-       print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - EBus Daemon Connection Lost")
+       print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - EBus Daemon Connection Lost")
        print("------------------------------------------------------------------")
        quit()
 
@@ -168,11 +168,12 @@ def boiler():
             if cursorselect.rowcount > 0 :
                node_id = int(result[0])
 
-         response = 0
+         no_reading = True
          status = Transact(message)
          if status[0] == 0 :
             response = status[1]
             if len(response) > 0:
+               no_reading = False
                if ";" in response:
                   response = response.split(";")[0]
                elif " " in response:
@@ -184,51 +185,66 @@ def boiler():
                else:
                   response = response.rstrip()
                response = float(response) +  offset
-            else:
-               response = 0
          else :
             fault = 1
 
-         # Update if data has changed
-         if last_readings[message] != response :
-            print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - " + message + ", " + str(response))
-            try :
-               cursorinsert = cnx.cursor()
-               cursorinsert.execute('INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`) VALUES(%s,%s,%s,%s,%s,%s)', (0,0,node_id,sensor_child_id,position,response))
-               cursorinsert.close()
-               cnx.commit()
-            except :
-               pass
-            if graph_num > 0 :
-               cursorinsert = cnx.cursor()
-               cursorinsert.execute('INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', (0,0,id,sensor_name,"Sensor",0,node_id,sensor_child_id,0,response,datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-               cursorinsert.close()
-               cnx.commit()
-               cursordelete = cnx.cursor()
-               cursordelete.execute('DELETE FROM sensor_graphs WHERE node_id = (%s) AND child_id = (%s) AND datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR;',(node_id, sensor_child_id))
-               cursordelete.close()
-               cnx.commit()
+         if no_reading :
+            print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - No Response Message")
          else :
-            print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - No Change")
-         last_readings[message] = response
+            # Update if data has changed
+            if last_readings[message] != response :
+               print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - " + message + ", " + str(response))
+               try :
+                  cursorinsert = cnx.cursor()
+                  cursorinsert.execute('INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`) VALUES(%s,%s,%s,%s,%s,%s)', (0,0,node_id,sensor_child_id,position,response))
+                  cursorinsert.close()
+                  cnx.commit()
+               except :
+                  pass
+               try :
+                  timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                  cursorupdate = cnx.cursor()
+                  cursorupdate.execute(
+                     "UPDATE `nodes` SET `last_seen`=%s, `sync`=0 WHERE id = %s",
+                     [timestamp, sensor_id],
+                  )
+                  cursorupdate.close()
+                  cnx.commit()
+               except :
+                  pass
+               if graph_num > 0 :
+                  try :
+                     cursorinsert = cnx.cursor()
+                     cursorinsert.execute('INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', (0,0,id,sensor_name,"Sensor",0,node_id,sensor_child_id,0,response,datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+                     cursorinsert.close()
+                     cnx.commit()
+                     cursordelete = cnx.cursor()
+                     cursordelete.execute('DELETE FROM sensor_graphs WHERE node_id = (%s) AND child_id = (%s) AND datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR;',(node_id, sensor_child_id))
+                     cursordelete.close()
+                     cnx.commit()
+                  except :
+                     pass
+            else :
+               print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - No Change")
+            last_readings[message] = response
 
 
       #  Display Current Number of Faults
       if sync_error_count > 0 :
-         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Number of Sync Faults is %d" % sync_error_count)
+         print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Number of Sync Faults is %d" % sync_error_count)
       if timeout_error_count > 0 :
-         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Number of Timeout Faults is %d" % timeout_error_count)
+         print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Number of Timeout Faults is %d" % timeout_error_count)
       if symbol_error_count > 0 :
-         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Number of Symbol Faults is %d" % symbol_error_count)
+         print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Number of Symbol Faults is %d" % symbol_error_count)
       if element_error_count > 0 :
-         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Number of Element Not Found Faults is %d" % element_error_count)
+         print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Number of Element Not Found Faults is %d" % element_error_count)
       if nosignal_error_count > 0 :
-         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Number of No Signal Faults is %d" % nosignal_error_count)
+         print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Number of No Signal Faults is %d" % nosignal_error_count)
       if error_count > 0 :
-         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Number of unknown Faults is %d" % error_count)
+         print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Number of unknown Faults is %d" % error_count)
 
 def main() :
-   print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - EBus Data Capture Script Started")
+   print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - EBus Data Capture Script Started")
    print("------------------------------------------------------------------")
 
    # *************
@@ -265,7 +281,7 @@ def main() :
         schedule.run_pending()
         time.sleep(1)
    else :
-      print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - EBus Daemon is NOT running")
+      print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - EBus Daemon is NOT running")
       print("------------------------------------------------------------------")
 
 
