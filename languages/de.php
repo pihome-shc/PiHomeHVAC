@@ -944,7 +944,6 @@ $lang['ebus'] = "eBUS";
 $lang['ebus_commands'] = "eBUS Daemon";
 $lang['command_add'] = "Add Command";
 $lang['ebus_commands_info'] = "Attach eBUS Command Messages to a Sensor";
-$lang['ebus_message'] = "Message";
 $lang['message_position'] = "Text Position";
 $lang['ebus_message_offset'] = "Offset";
 $lang['ebus_add_command'] = "Add eBUS Command";
