@@ -39,7 +39,7 @@ Version 2.03 Introduces 'Cooling' type zones that work witha temperture sensor, 
 
 Version 2.04 Introduces 'Message Sensors', to allow Home Screen display of custom messages (example boiler status passed from external interface).
 
-Version 2.05 Introduces 'eBUS Communication', to allow MaxAir to capture data from eBus compliant Boilers.
+Version 2.05 Introduces 'eBUS Communication', to allow MaxAir to capture data from eBUS compliant Boilers.
 
 ## Setup:
 
