@@ -3668,6 +3668,8 @@ echo '
                                 <li><a class="dropdown-item" href="pdf_download.php?file=setup_ebus_communication.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_ebus_communication'].'</a></li>
                                 <li class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="pdf_download.php?file=custom_sensor_messages.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['custom_sensor_messages'].'</a></li>
+                                <li class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="pdf_download.php?file=import_sensor_readings.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['import_sensor_readings'].'</a></li>
                         </ul>
                 </div>
             </div>
