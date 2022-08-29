@@ -1081,7 +1081,7 @@ try:
                                     last_message_datetime = results[message_to_index["datetime"]]
                                     last_message_payload = float(results[message_to_index["payload"]])
                                     tdelta = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() -  datetime.strptime(str(last_message_datetime), "%Y-%m-%d %H:%M:%S").timestamp()
-                            if mode == 0 or (cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((payload < last_message_payload - resolution or payload > last_message_payload + resolution) or tdelta > sensor_timeout))):
+                            if mode == 0 or (cur.rowcount == 0 or (cur.rowcount > 0 and ((payload < last_message_payload - resolution or payload > last_message_payload + resolution) or tdelta > sensor_timeout))):
                                 if tdelta > sensor_timeout:
                                     payload = last_message_payload
                                 if dbgLevel >= 2 and dbgMsgIn == 1:
