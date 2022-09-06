@@ -36,11 +36,20 @@ if (isset($_POST['submit'])) {
 	$name = $_POST['name'];
         $type = $_POST['type_id'];
 	$selected_relay_id = $_POST['selected_relay_id'];
-        $query = "SELECT id, node_id FROM nodes WHERE node_id = '".$selected_relay_id."' LIMIT 1;";
+        $query = "SELECT id, type, node_id FROM nodes WHERE node_id = '".$selected_relay_id."' LIMIT 1;";
         $result = $conn->query($query);
         $row = mysqli_fetch_array($result);
         $relay_id = $row['id'];
 	$node_id = $row['node_id'];
+        $node_type = $row['type'];
+	if(strpos($node_type, 'Tasmota') !== false) {
+	        $query = "SELECT * FROM http_messages WHERE node_id = '{$node_id}' AND message_type = 0 LIMIT 1;";
+        	$result = $conn->query($query);
+	        $found_product = mysqli_fetch_array($result);
+		$payload = $found_product['command']." ".$found_product['parameter'];
+	} else {
+		$payload = 0;
+	}
 	$relay_child_id = $_POST['relay_child_id'];
 	$on_trigger = $_POST['trigger'];
         $sync = '0';
@@ -48,7 +57,10 @@ if (isset($_POST['submit'])) {
 	$m_out_id = $_POST['m_out_id'];
 
 	//Add or Edit relay record to relays Table
-	$query = "INSERT INTO `relays` (`id`, `sync`, `purge`, `relay_id`, `relay_child_id`, `name`, `type`, `on_trigger`) VALUES ('{$id}', '{$sync}', '{$purge}', '{$relay_id}', '{$relay_child_id}', '{$name}', '{$type}', '{$on_trigger}') ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), relay_id='{$relay_id}', relay_child_id='{$relay_child_id}', name=VALUES(name), type=VALUES(type), on_trigger=VALUES(on_trigger);";
+	$query = "INSERT INTO `relays` (`id`, `sync`, `purge`, `relay_id`, `relay_child_id`, `name`, `type`, `on_trigger`)
+		VALUES ('{$id}', '{$sync}', '{$purge}', '{$relay_id}', '{$relay_child_id}', '{$name}', '{$type}', '{$on_trigger}')
+		ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), relay_id='{$relay_id}', relay_child_id='{$relay_child_id}', name=VALUES(name),
+		type=VALUES(type), on_trigger=VALUES(on_trigger);";
 	$result = $conn->query($query);
         $temp_id = mysqli_insert_id($conn);
 	if ($result) {
@@ -61,16 +73,21 @@ if (isset($_POST['submit'])) {
 		$error = "<p>".$lang['relay_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
 	}
 
-        //Update the entry in the messages out if required
-	if ($id != 0 && $m_out_id != 0){
-		$query = "UPDATE `messages_out` SET `node_id` = '{$node_id}', `child_id` = {$relay_child_id} WHERE `id` = {$m_out_id};";
-		$result = $conn->query($query);
-                if ($result) {
-                	$message_success .= "<p>".$lang['messages_out_update_success']."</p>";
-                } else {
-                       	$error .= "<p>".$lang['messages_out_fail']."</p> <p>" .mysqli_error($conn). "</p>";
-                }
-	}
+        //Add or Edit messages_out record to messages_out Table
+	$query = "INSERT INTO `messages_out` (`id`, `sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`)
+		VALUES ('{$m_out_id}', '0', '0', '{$node_id}',{$relay_child_id}, '1', '1', '2', '{$payload}', '0', now(), 0)
+		ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), node_id='{$node_id}', child_id='{$relay_child_id}', sub_type=VALUES(sub_type),
+		ack=VALUES(ack), type=VALUES(type), payload=VALUES(payload), sent=VALUES(sent), datetime=VALUES(datetime), zone_id=VALUES(zone_id);";
+	$result = $conn->query($query);
+        if ($result) {
+		if ($m_out_id==0){
+               		$message_success .= "<p>".$lang['messages_out_add_success']."</p>";
+		} else {
+                        $message_success .= "<p>".$lang['messages_out_update_success']."</p>";
+		}
+        } else {
+               	$error .= "<p>".$lang['messages_out_fail']."</p> <p>" .mysqli_error($conn). "</p>";
+        }
         $message_success .= "<p>".$lang['do_not_refresh']."</p>";
 
 	header("Refresh: 10; url=home.php");
