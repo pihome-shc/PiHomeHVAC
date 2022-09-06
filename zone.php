@@ -91,7 +91,6 @@ if (isset($_POST['submit'])) {
 	$boost_button_id = $_POST['boost_button_id'];
 	$boost_button_child_id = $_POST['boost_button_child_id'];
 	if ($_POST['zone_gpio'] == 0){$gpio_pin='0';} else {$gpio_pin = $_POST['zone_gpio'];}
-	$message_id =  $_POST['message_out_id'];
 	$sync = '0';
 	$purge= '0';
 
@@ -151,29 +150,13 @@ if (isset($_POST['submit'])) {
 	        if ($id!=0){ //if in edit mode delete existing zone controller records for the current zone
         		$query = "DELETE FROM `zone_relays` WHERE `zone_id` = '{$cnt_id}';";
 	        	$result = $conn->query($query);
-	        	//delete existing messages_out records for the current zone
-		        $query = "DELETE FROM `messages_out` WHERE `zone_id` = '{$cnt_id}';";
-        		$result = $conn->query($query);
 		}
 		//loop through zone controller for the current zone and replace zone_controllers and messages_out records to cope with individual deleted zone controllers
 	        for ($i = 0; $i < count($controllers); $i++)  {
 			//Re-add Zones Controllers Table
 			$zone_relay_id = $controllers[$i][0];
-                	//query to search relays for zone relay child id
-	                $query = "SELECT relay_id, relay_child_id FROM relays WHERE id = '{$zone_relay_id}' LIMIT 1;";
-        	        $result = $conn->query($query);
-                	$found_product = mysqli_fetch_array($result);
-                        $relay_id = $found_product['relay_id'];
-	                $relay_child_id = $found_product['relay_child_id'];
-
-                        //query to search node id for zone controller
-                        $query = "SELECT * FROM nodes WHERE id = '{$relay_id}' LIMIT 1;";
-                        $result = $conn->query($query);
-                        $found_product = mysqli_fetch_array($result);
-                        $controller_type = $found_product['type'];
-                        $controler_node_id = intval($found_product['node_id']);
-
-			$query = "INSERT INTO `zone_relays` (`sync`, `purge`, `state`, `current_state`, `zone_id`, `zone_relay_id`) VALUES ('0', '0', '0', '0', '{$cnt_id}', '{$zone_relay_id}');";
+			$query = "INSERT INTO `zone_relays` (`sync`, `purge`, `state`, `current_state`, `zone_id`, `zone_relay_id`) 
+				VALUES ('0', '0', '0', '0', '{$cnt_id}', '{$zone_relay_id}');";
 			$result = $conn->query($query);
 	       		if ($result) {
         	       		if ($id==0){
@@ -184,24 +167,6 @@ if (isset($_POST['submit'])) {
 		        } else {
        			        $error .= "<p>".$lang['zone_relay_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
 		        }
-
-        	        //Re-add Controller to message out table at same time to send out instructions to controller for each zone.
-        		if(strpos($controller_type, 'Tasmota') !== false) { 
-	                	$query = "SELECT * FROM http_messages WHERE node_id = '{$controler_node_id}' AND message_type = 0 LIMIT 1;";
-	        	        $result = $conn->query($query);
-        	        	$found_product = mysqli_fetch_array($result);
-	        	        $payload = $found_product['command']." ".$found_product['parameter'];
-			} else {
-				$payload = 0;
-			}
-
-	               	$query = "INSERT INTO `messages_out` (`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`) VALUES ('0', '0', '{$controler_node_id}','{$relay_child_id}', '1', '1', '2', '{$payload}', '0', '{$date_time}', '{$cnt_id}');";
-        	        $result = $conn->query($query);
-                	if ($result) {
-                      		$message_success .= "<p>".$lang['messages_out_add_success']."</p>";
-	                } else {
-        	                $error .= "<p>".$lang['messages_out_fail']."</p> <p>" .mysqli_error($conn). "</p>";
-                	}
 		}
 	}
 
@@ -482,14 +447,6 @@ if (isset($_POST['submit'])) {
                 	$index = $index + 1;
 	        }
 		$controller_count = $index;
-
-		$query = "SELECT * FROM nodes WHERE id = '{$rowrelays['relay_id']}' LIMIT 1;";
-		$result = $conn->query($query);
-		$rowcont = mysqli_fetch_assoc($result);
-
-	        $query = "SELECT id FROM messages_out WHERE node_id = '{$rowcont['node_id']}' AND child_id = '{$rowrelays['relay_child_id']}' AND zone_id  = {$id} LIMIT 1;";
-        	$result = $conn->query($query);
-        	$rowmount = mysqli_fetch_assoc($result);
 	}
 
 	$query = "SELECT * FROM boost WHERE zone_id = '{$row['id']}' LIMIT 1;";
@@ -530,7 +487,6 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 				<div class="card-body">
 					<form data-bs-toggle="validator" role="form" method="post" action="<?php $_SERVER['PHP_SELF'];?>" id="form-join">
 						<!-- Enable Zone -->
-						<input type="hidden" id="message_out_id" name="message_out_id" value="<?php if(isset($rowmount['id'])) { echo $rowmount['id']; } ?>"/>
 				                <div class="form-check">
                                 			<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="checkbox" value="1" id="checkbox0" name="zone_status" <?php $check = ($row['status'] == 1) ? 'checked' : ''; echo $check; ?>>
 				                        <label class="form-check-label" for="checkbox0"><?php echo $lang['zone_enable']; ?></label> <small class="text-muted"><?php echo $lang['zone_enable_info'];?></small>
