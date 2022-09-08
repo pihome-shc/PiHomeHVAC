@@ -520,16 +520,25 @@ while ($row = mysqli_fetch_assoc($results)) {
                                                         $result = $conn->query($query);
                                                         $http = mysqli_fetch_array($result);
                                                         $url = "http://".$base_addr.$zone_controler_child_id."/cm?cmnd=power";
-                                                        $contents = file_get_contents($url);
-                                                        $contents = utf8_encode($contents);
-                                                        $resp = json_decode($contents, true);
-                                                        if ($resp[strtoupper($http['command'])] == 'ON' ) {
-                                                                $new_add_on_state = 1;
-                                                        } else {
-                                                                $new_add_on_state = 0;
-                                                        }
-                                                        if ($manual_button_override == 0 && $current_state != $new_add_on_state) {
-                                                                $manual_button_override = 1;
+                                                        $ch=curl_init();
+                                                        $timeout=1;
+                                                        curl_setopt($ch, CURLOPT_URL, $url);
+                                                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                                                        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+                                                        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+                                                        $result=curl_exec($ch);
+                                                        curl_close($ch);
+                                                        if (strlen($result) > 0) {
+                                                                $result = utf8_encode($result);
+                                                                $resp = json_decode($result, true);
+                                                                if ($resp[strtoupper($http['command'])] == 'ON' ) {
+                                                                        $new_add_on_state = 1;
+                                                                } else {
+                                                                        $new_add_on_state = 0;
+                                                                }
+                                                                if ($manual_button_override == 0 && $current_state != $new_add_on_state) {
+                                                                        $manual_button_override = 1;
+                                                                }
                                                         }
                                                 }
                                         }
