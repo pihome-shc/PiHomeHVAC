@@ -571,13 +571,12 @@ echo '
             <div class="modal-body">
                         <p class="text-muted"> '.$lang['backup_location_text'].' </p>
                         <p class="text-muted"> '.$lang['pihome_backup_text'].' </p>
-                        <form data-bs-toggle="validator" role="form" method="post" action="#" id="form-join">
+                        <form data-bs-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
                         <div class="form-group" class="control-label"><label>'.$lang['email_address'].'</label> <small class="text-muted">'.$lang['pihome_backup_email_info'].'</small>
-        			<input class="form-control" type="text" id="backup_email" name="backup_email" value="'.settings($conn, backup_email).'" placeholder="Email Address to Receive your Backup file">
-                        <div class="help-block with-errors"></div>
+        			<input class="form-control" type="text" id="backup_email" name="backup_email" value="'.settings($conn, 'backup_email').'" placeholder="Email Address to Receive your Backup file">
+                        	<div class="help-block with-errors"></div>
                         </div>
-                        </form>';
-echo '     </div>
+            </div>
             <div class="modal-footer">
                         <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
                         <button class="btn warning btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="backup_email_update()" data-confirm="'.$lang['update_email_address'].'">'.$lang['save'].'</button>
