@@ -90,35 +90,38 @@ $page_refresh = page_refresh($conn);
 
 					//GET BOILER DATA AND FAIL ZONES IF SYSTEM CONTROLLER COMMS TIMEOUT
 					//query to get last system_controller operation time and hysteresis time
-					$query = "SELECT * FROM system_controller LIMIT 1";
-					$result = $conn->query($query);
-					$row = mysqli_fetch_array($result);
-					$sc_count=$result->num_rows;
-		                	$system_controller_id = $row['id'];
-					$system_controller_name = $row['name'];
-					$system_controller_max_operation_time = $row['max_operation_time'];
-					$system_controller_hysteresis_time = $row['hysteresis_time'];
-					$sc_mode  = $row['sc_mode'];
-                			$sc_active_status  = $row['active_status'];
-					$hvac_relays_state = $row['hvac_relays_state'];
+                                        $query = "SELECT * FROM system_controller LIMIT 1";
+                                        $result = $conn->query($query);
+                                        $row = mysqli_fetch_array($result);
+                                        $sc_count=$result->num_rows;
+                                        $system_controller_id = $row['id'];
+                                        $system_controller_node_id = $row['node_id'];
+                                        $system_controller_name = $row['name'];
+                                        $system_controller_max_operation_time = $row['max_operation_time'];
+                                        $system_controller_hysteresis_time = $row['hysteresis_time'];
+                                        $sc_mode  = $row['sc_mode'];
+                                        $sc_active_status  = $row['active_status'];
+                                        $hvac_relays_state = $row['hvac_relays_state'];
 
-					//Get data from nodes table
-					$query = "SELECT * FROM nodes WHERE id = {$row['node_id']} AND status IS NOT NULL LIMIT 1";
-					$result = $conn->query($query);
-					$system_controller_node = mysqli_fetch_array($result);
-					$system_controller_node_id = $system_controller_node['node_id'];
-					$system_controller_seen = $system_controller_node['last_seen'];
-					$system_controller_notice = $system_controller_node['notice_interval'];
+                                        if (!empty($system_controller_node_id)) {
+                                                //Get data from nodes table
+                                                $query = "SELECT * FROM nodes WHERE id = {$system_controller_node_id} AND status IS NOT NULL LIMIT 1";
+                                                $result = $conn->query($query);
+                                                $system_controller_node = mysqli_fetch_array($result);
+                                                $system_controller_node_id = $system_controller_node['node_id'];
+                                                $system_controller_seen = $system_controller_node['last_seen'];
+                                                $system_controller_notice = $system_controller_node['notice_interval'];
 
-					//Check System Controller Fault
-					$system_controller_fault = 0;
-					if($system_controller_notice > 0){
-						$now=strtotime(date('Y-m-d H:i:s'));
-					  	$system_controller_seen_time = strtotime($system_controller_seen);
-					  	if ($system_controller_seen_time  < ($now - ($system_controller_notice*60))){
-    							$system_controller_fault = 1;
-		  				}
-					}
+                                                //Check System Controller Fault
+                                                $system_controller_fault = 0;
+                                                if($system_controller_notice > 0){
+                                                        $now=strtotime(date('Y-m-d H:i:s'));
+                                                        $system_controller_seen_time = strtotime($system_controller_seen);
+                                                        if ($system_controller_seen_time  < ($now - ($system_controller_notice*60))){
+                                                                $system_controller_fault = 1;
+                                                        }
+                                                }
+                                        }
 
 			                //if in HVAC mode display the mode selector
                 			if ($system_controller_mode == 1) {
