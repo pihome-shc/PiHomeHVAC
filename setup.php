@@ -13,7 +13,7 @@ echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
 echo "\033[31m";
 echo "***************************************************************\n";
 echo "*   MaxAir Datase Script Version 0.01 Build Date 20/12/2020   *\n";
-echo "*   Last Modified on 14/08/2021                               *\n";
+echo "*   Last Modified on 08/09/2022                               *\n";
 echo "*                                      Have Fun - PiHome.eu   *\n";
 echo "***************************************************************\n";
 echo "\033[0m";
@@ -26,8 +26,8 @@ $date_time = date('Y-m-d H:i:s');
 
 //Check php version before doing anything else 
 $version = explode('.', PHP_VERSION);
-if ($version[0] > 7){
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - PiHome Supported on php version 5.x you are running version \033[41m".phpversion()."\033[0m \n"; 
+if ($version[0] > 8){
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - PiHome Supported on php version 5.x to version 8.x you are running version \033[41m".phpversion()."\033[0m \n"; 
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Please visit http://www.pihome.eu/2017/10/11/apache-php-mysql-raspberry-pi-lamp/ to install correction version. \n";
 	exit();
 }else {
