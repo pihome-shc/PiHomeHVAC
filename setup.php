@@ -56,8 +56,10 @@ if ($conn->connect_error){
 }
 
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Checking if Database Exits \n";
-$db_selected = mysqli_select_db($conn, $dbname);
-if (!$db_selected) {
+$query = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{$dbname}' LIMIT 1;";
+$result = $conn->query($query);
+$rowcount=mysqli_num_rows($result);
+if ($rowcount == 0) {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - MySQL DataBase \033[41m".$dbname."\033[0m Does not Exist \n"; 
 	$query = "CREATE DATABASE {$dbname};";
 	$result = $conn->query($query);
