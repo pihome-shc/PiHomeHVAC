@@ -25,6 +25,7 @@ require_once(__DIR__ . '/st_inc/functions.php');
 
 $page_refresh = page_refresh($conn);
 $theme = settings($conn, 'theme');
+$schedule_time = [];
 ?>
 <div class="card border-<?php echo theme($conn, $theme, 'color'); ?>">
        	<div class="card-header <?php echo theme($conn, $theme, 'text_color'); ?> card-header-<?php echo theme($conn, $theme, 'color'); ?>">
