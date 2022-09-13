@@ -630,6 +630,7 @@ $page_refresh = page_refresh($conn);
 		                        	$query = "SELECT * FROM zone_current_state WHERE zone_id =  '{$row['id']}' LIMIT 1;";
 	                		        $result = $conn->query($query);
 			                        $zone_current_state = mysqli_fetch_array($result);
+                                                $zone_temp_target = $zone_current_state['temp_target'];
                 			        if ($zone_current_state['mode'] == 0) { $add_on_active = 0; } else { $add_on_active = 1; }
 
 			                        if ($add_on_active == 1) { $add_on_colour = "green"; } elseif ($add_on_active == 0) { $add_on_colour = "black"; }
