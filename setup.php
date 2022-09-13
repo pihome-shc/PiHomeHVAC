@@ -13,7 +13,7 @@ echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
 echo "\033[31m";
 echo "***************************************************************\n";
 echo "*   MaxAir Datase Script Version 0.01 Build Date 20/12/2020   *\n";
-echo "*   Last Modified on 08/09/2022                               *\n";
+echo "*   Last Modified on 13/09/2022                               *\n";
 echo "*                                      Have Fun - PiHome.eu   *\n";
 echo "***************************************************************\n";
 echo "\033[0m";
@@ -415,6 +415,23 @@ if ($ffs) {
 	}
 } else {
        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - There are No Database Updates to Apply.\n";
+}
+
+// Check if running Orange Pi OS and if so create a symlink for Adafruit Platform  Detect
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Check if Running Orange Pi OS.  \n";
+
+$target = '/etc/orangepi-release';
+$link = '/etc/armbian-release';
+
+if (file_exists($target) && !file_exists($link)) {
+    symlink($target, $link);
+    echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Symlink \033[41m".$link."\033[0m Created. \n";
+} else {
+        if (file_exists($link)) {
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Symlink already created.\n";
+        } else {
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Not running Orange Pi OS - symlink not required.\n";
+        }
 }
 
 //
