@@ -2469,7 +2469,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                 while ($r_row = mysqli_fetch_assoc($r_results)) {
 			switch ($r_row["type"]) {
 				case 0:
-					$query = "SELECT zone.name FROM zone_controllers, zone where (zone.id = zone_controllers.zone_id) AND zone_relays.zone_relay_id = {$r_row['id']} LIMIT 1;";
+					$query = "SELECT zone.name FROM zone_relays, zone where (zone.id = zone_relays.zone_id) AND zone_relays.zone_relay_id = {$r_row['id']} LIMIT 1;";
 					break;
                                 case 1:
                                 case 2:
@@ -2544,6 +2544,7 @@ echo '<p class="text-muted">'.$lang['node_add_info_text'].'</p>
 	<select class="form-select" type="text" id="node_type" onchange=show_hide_devices() name="node_type">
 	<option value="I2C" selected="selected">I2C</option>
 	<option value="GPIO">GPIO</option>
+        <option value="Gateway">Gateway</option>
         <option value="Tasmota">Tasmota</option>
         <option value="Dummy">Dummy</option>
         <option value="Switch">Switch</option>
