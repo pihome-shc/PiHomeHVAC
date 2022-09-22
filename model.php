@@ -2469,7 +2469,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                 while ($r_row = mysqli_fetch_assoc($r_results)) {
 			switch ($r_row["type"]) {
 				case 0:
-					$query = "SELECT zone.name FROM zone_controllers, zone where (zone.id = zone_controllers.zone_id) AND zone_relays.zone_relay_id = {$r_row['id']} LIMIT 1;";
+					$query = "SELECT zone.name FROM zone_relays, zone where (zone.id = zone_relays.zone_id) AND zone_relays.zone_relay_id = {$r_row['id']} LIMIT 1;";
 					break;
                                 case 1:
                                 case 2:
