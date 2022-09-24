@@ -36,10 +36,9 @@ if (isset($_POST['submit'])) {
 	$name = $_POST['name'];
         $type = $_POST['type_id'];
 	$selected_relay_id = $_POST['selected_relay_id'];
-        $query = "SELECT id, type, node_id FROM nodes WHERE node_id = '".$selected_relay_id."' LIMIT 1;";
+        $query = "SELECT type, node_id FROM nodes WHERE id = '".$selected_relay_id."' LIMIT 1;";
         $result = $conn->query($query);
         $row = mysqli_fetch_array($result);
-        $relay_id = $row['id'];
 	$node_id = $row['node_id'];
         $node_type = $row['type'];
 	if(strpos($node_type, 'Tasmota') !== false) {
@@ -58,8 +57,8 @@ if (isset($_POST['submit'])) {
 
 	//Add or Edit relay record to relays Table
 	$query = "INSERT INTO `relays` (`id`, `sync`, `purge`, `relay_id`, `relay_child_id`, `name`, `type`, `on_trigger`)
-		VALUES ('{$id}', '{$sync}', '{$purge}', '{$relay_id}', '{$relay_child_id}', '{$name}', '{$type}', '{$on_trigger}')
-		ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), relay_id='{$relay_id}', relay_child_id='{$relay_child_id}', name=VALUES(name),
+		VALUES ('{$id}', '{$sync}', '{$purge}', '{$selected_relay_id}', '{$relay_child_id}', '{$name}', '{$type}', '{$on_trigger}')
+		ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), relay_id='{$selected_relay_id}', relay_child_id='{$relay_child_id}', name=VALUES(name),
 		type=VALUES(type), on_trigger=VALUES(on_trigger);";
 	$result = $conn->query($query);
         $temp_id = mysqli_insert_id($conn);
@@ -74,9 +73,9 @@ if (isset($_POST['submit'])) {
 	}
 
         //Add or Edit messages_out record to messages_out Table
-	$query = "INSERT INTO `messages_out` (`id`, `sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`)
-		VALUES ('{$m_out_id}', '0', '0', '{$node_id}',{$relay_child_id}, '1', '1', '2', '{$payload}', '0', now(), 0)
-		ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), node_id='{$node_id}', child_id='{$relay_child_id}', sub_type=VALUES(sub_type),
+	$query = "INSERT INTO `messages_out` (`id`, `sync`, `purge`, `n_id`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`)
+		VALUES ('{$m_out_id}', '0', '0', '{$selected_relay_id}', '{$node_id}', '{$relay_child_id}', '1', '1', '2', '{$payload}', '0', now(), 0)
+		ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), n_id='{$selected_relay_id}', node_id='{$node_id}', child_id='{$relay_child_id}', sub_type=VALUES(sub_type),
 		ack=VALUES(ack), type=VALUES(type), payload=VALUES(payload), sent=VALUES(sent), datetime=VALUES(datetime), zone_id=VALUES(zone_id);";
 	$result = $conn->query($query);
         if ($result) {
@@ -197,8 +196,8 @@ if (isset($_POST['submit'])) {
 						<!-- Relay ID -->
 						<div class="form-group" class="control-label" id="relay_id_label" style="display:block"><label><?php echo $lang['relay_id']; ?></label> <small class="text-muted"><?php echo $lang['relay_id_info'];?></small>
 							<select id="relay_id" onchange=RelayChildList(this.options[this.selectedIndex].value) name="relay_id" class="form-control select2" data-bs-error="<?php echo $lang['relay_id_error']; ?>" autocomplete="off" required>
-								<?php if(isset($rownode['node_id'])) {
-								        echo '<option selected >'.$rownode['node_id']." - ".$rownode['name'].'</option>';
+								<?php if(isset($rownode['id'])) {
+								        echo '<option selected >'.$rownode['id']." - ".$rownode['name'].'</option>';
 								        $query = "SELECT id, node_id, name, max_child_id FROM nodes WHERE (name LIKE '%Controller%' OR name LIKE '%Relay%') AND id <> ".$rownode['id']." ORDER BY node_id ASC;";
 								} else {
 							        	$query = "SELECT id, node_id, name, max_child_id FROM nodes WHERE name LIKE '%Controller%' OR name LIKE '%Relay%' ORDER BY node_id ASC;";
@@ -207,7 +206,7 @@ if (isset($_POST['submit'])) {
 								echo "<option></option>";
 								while ($datarw=mysqli_fetch_array($result)) {
 							        if(strpos($datarw['name'], 'Add-On') !== false) { $max_child_id = 0; } else { $max_child_id = $datarw['max_child_id']; }
-							        echo "<option value=".$datarw['max_child_id'].">".$datarw['node_id']." - ".$datarw['name']."</option>"; } ?>
+							        echo "<option value=".$datarw['max_child_id'].">".$datarw['id']." - ".$datarw['name']."</option>"; } ?>
 							</select>
 							<div class="help-block with-errors"></div>
 						</div>
@@ -248,7 +247,7 @@ if (isset($_POST['submit'])) {
 								}
 							}
 						</script>
-						<input type="hidden" id="selected_relay_id" name="selected_relay_id" value="<?php echo $rownode['node_id']?>"/>
+						<input type="hidden" id="selected_relay_id" name="selected_relay_id" value="<?php echo $rownode['id']?>"/>
 
 						<!-- Relay Child ID -->
 						<input type="hidden" id="gpio_pin_list" name="gpio_pin_list" value="<?php echo implode(",", array_filter(Get_GPIO_List()))?>"/>
