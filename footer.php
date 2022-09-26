@@ -76,13 +76,13 @@ $(document).ready(function() {
 						} ?>
 					</select>
 					<div class="help-block with-errors"></div>
-                                        <span class="input-group-btn">
-                                                <?php if ($i == 0) {
-                					echo '<button class="btn btn-outline add_button" type="button" data-bs-toggle="tooltip" title="'.$lang['add_controller'].'"><img src="./images/add-icon.png"/></button>';
+					<span class="input-group-btn">
+                                        	<?php if ($i == 0) {
+							echo '<button class="btn btn-outline add_button" type="button" data-bs-toggle="tooltip" title="'.$lang['add_controller'].'"><img src="./images/add-icon.png"/></button>';
                                                 } else {
-                					echo '<button class="btn btn-outline remove_button" type="button" data-bs-toggle="tooltip" title="'.$lang['remove_controller'].'"><img src="./images/remove-icon.png"/></but>
+							echo '<button class="btn btn-outline remove_button" type="button" data-bs-toggle="tooltip" title="'.$lang['remove_controller'].'"><img src="./images/remove-icon.png"/></button>';
                                                 } ?>
-                                        </span>
+					</span>
 				</div>
     			</div>
 		</div>
