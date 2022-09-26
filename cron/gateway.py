@@ -697,10 +697,11 @@ try:
             sent = msg[
                 msg_to_index["sent"]
             ]  # Status of message either its sent or not. (1 for sent, 0 for not sent yet)
-            cur.execute("SELECT type, sketch_version FROM `nodes` where id = (%s)", (n_id,))
+            cur.execute("SELECT type, name, sketch_version FROM `nodes` where id = (%s)", (n_id,))
             nd = cur.fetchone()
             node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
             node_type = nd[node_to_index["type"]]
+            node_name = nd[node_to_index["name"]]
             sketch_version = float(nd[node_to_index["sketch_version"]])
             if sketch_version > 0:
                 sketch_version = int(sketch_version * 100)
@@ -731,7 +732,7 @@ try:
             if gatewayenableoutgoing == 1 or (
                 node_type.find("GPIO") != -1 and gatewayenableoutgoing == 0 and blinka
             ):
-                if node_type.find("MySensor") != -1 and sketch_version >= 34:
+                if node_type.find("MySensor") != -1 and node_name.find("Controller") != -1 and sketch_version >= 34:
                     out_payload = XNOR(out_on_trigger, out_payload)
                 if dbgLevel >= 1 and dbgMsgOut == 1:  # Debug print to screen
                     print(
