@@ -77,13 +77,13 @@ $(document).ready(function() {
 					</select>
 					<div class="help-block with-errors"></div>
 					<div class="input-group-append">
-						<span class="input-group-btn">
-                                                	<?php if ($i == 0) {
-                                                        	echo '<a href="javascript:void(0);" class="add_button"><button class="btn btn-outline" data-bs-toggle="tooltip" title="'.$lang['add_controller'].'"><img src="./images/add-icon.png"/></a>';
-                                                	} else {
-                                                        	echo '<a href="javascript:void(0);" class="remove_button"><button class="btn btn-outline" data-bs-toggle="tooltip" title="'.$lang['remove_controller'].'"><img src="./images/remove-icon.png"/></a>';
-                                                	} ?>
-						</span>
+                                        <span class="input-group-btn">
+                                                <?php if ($i == 0) {
+                					echo '<button class="btn btn-outline add_button" type="button" data-bs-toggle="tooltip" title="'.$lang['add_controller'].'"><img src="./images/add-icon.png"/></button>';
+                                                } else {
+                					echo '<button class="btn btn-outline remove_button" type="button" data-bs-toggle="tooltip" title="'.$lang['remove_controller'].'"><img src="./images/remove-icon.png"/></but>
+                                                } ?>
+                                        </span>
 					</div>
 				</div>
     			</div>
