@@ -1,4 +1,4 @@
-y<?php
+<?php
 /*
              __  __                             _
             |  \/  |                    /\     (_)
@@ -71,6 +71,10 @@ if (isset($_POST['submit'])) {
         	        $default_c = 0;
                 	$boost_c = 0;
 		}
+	} elseif ($zone_category == 2 ){
+        	$max_c = 0;
+                $default_c = 0;
+                $boost_c = 0;
 	}
 //	Removed 29/01/2022 by twa as these 2 parameters are never used, default values used to populate database in case decide to re-implement at some future date
 	if ($no_max_op_hys == 1) {
@@ -207,11 +211,58 @@ if (isset($_POST['submit'])) {
         }
 
 
-        if ($id==0){
-		//If boost button console isnt installed and editing existing zone, then no need to add this to message_out
-		if ($boost_button_id != 0){
-			//Add Zone Boost Button Console to messageout table at same time
-			$query = "INSERT INTO `messages_out` (`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`,  `datetime`, `zone_id`) VALUES ('0', '0', '{$boost_button_id}','{$boost_button_child_id}', '2', '0', '0', '2', '1', '{$date_time}', '{$zone_id}');";
+        if ($zone_category <> 2) {
+	        if ($id==0){
+			//If boost button console isnt installed and editing existing zone, then no need to add this to message_out
+			if ($boost_button_id != 0){
+				//Add Zone Boost Button Console to messageout table at same time
+				$query = "INSERT INTO `messages_out` (`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`,  `datetime`, `zone_id`) VALUES ('0', '0', '{$boost_button_id}','{$boost_button_child_id}', '2', '0', '0', '2', '1', '{$date_time}', '{$zone_id}');";
+				$result = $conn->query($query);
+				if ($result) {
+					$message_success .= "<p>".$lang['zone_button_message_success']."</p>";
+				} else {
+					$error .= "<p>".$lang['zone_button_message_fail']."</p> <p>" .mysqli_error($conn). "</p>";
+				}
+			}
+
+			//Add Zone to boost table at same time
+			if ((settings($conn, 'mode') & 0b1) == 0) { //boiler mode
+				$query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `boost_button_id`, `boost_button_child_id`, `hvac_mode`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$boost_c}','{$max_operation_time}', '{$boost_button_id}', '{$boost_button_child_id}', '0');";
+		                $result = $conn->query($query);
+        		        if ($result) {
+                		        $message_success .= "<p>".$lang['zone_boost_success']."</p>";
+	                	} else {
+        	                	$error .= "<p>".$lang['zone_boost_fail']."</p> <p>" .mysqli_error($conn). "</p>";
+	                	}
+			} else {
+				//insert the 3 HVAC functions FAN, HEAT and COOL
+				for ($i = 3; $i <= 5; $i++) {
+					if ($i == 3) {
+						$temp = '0';
+					} elseif ($i == 4) {
+						$temp = $max_c;
+					} else {
+                        	                $temp = $min_c;
+					}
+	                        	$query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `boost_button_id`, `boost_button_child_id`, `hvac_mode`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$temp}','{$max_operation_time}', '0', '0', '{$i}');";
+			                $result = $conn->query($query);
+                			if ($result) {
+		        	                $message_success .= "<p>".$lang['zone_boost_success']."</p>";
+                			} else {
+		                        	$error .= "<p>".$lang['zone_boost_fail']."</p> <p>" .mysqli_error($conn). "</p>";
+	                		}
+				}
+			}
+		} elseif ($boost_button_id != 0) { // editing so update boost console in boost and messages_out Tables
+        		$query = "UPDATE boost SET `boost_button_id` = {$boost_button_id}, `boost_button_child_id` = {$boost_button_child_id} WHERE `zone_id` = '{$id}';";
+			$result = $conn->query($query);
+			if ($result) {
+				$message_success .= "<p>".$lang['zone_boost_update_success']."</p>";
+			} else {
+				$error .= "<p>".$lang['zone_boost_update_fail']."</p> <p>" .mysqli_error($conn). "</p>";
+			}
+			//Add New Zone Boost Button Console to message_out table at same time
+			$query = "INSERT INTO `messages_out` (`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`,  `datetime`, `zone_id`) VALUES ('0', '0', '{$boost_button_id}','{$boost_button_child_id}', '2', '0', '0', '2', '1', '{$date_time}', '{$id}');";
 			$result = $conn->query($query);
 			if ($result) {
 				$message_success .= "<p>".$lang['zone_button_message_success']."</p>";
@@ -219,53 +270,7 @@ if (isset($_POST['submit'])) {
 				$error .= "<p>".$lang['zone_button_message_fail']."</p> <p>" .mysqli_error($conn). "</p>";
 			}
 		}
-
-		//Add Zone to boost table at same time
-		if ((settings($conn, 'mode') & 0b1) == 0) { //boiler mode
-			$query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `boost_button_id`, `boost_button_child_id`, `hvac_mode`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$boost_c}','{$max_operation_time}', '{$boost_button_id}', '{$boost_button_child_id}', '0');";
-	                $result = $conn->query($query);
-        	        if ($result) {
-                	        $message_success .= "<p>".$lang['zone_boost_success']."</p>";
-	                } else {
-        	                $error .= "<p>".$lang['zone_boost_fail']."</p> <p>" .mysqli_error($conn). "</p>";
-                	}
-		} else {
-			//insert the 3 HVAC functions FAN, HEAT and COOL
-			for ($i = 3; $i <= 5; $i++) {
-				if ($i == 3) {
-					$temp = '0';
-				} elseif ($i == 4) {
-					$temp = $max_c;
-				} else {
-                                        $temp = $min_c;
-				}
-                        	$query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `boost_button_id`, `boost_button_child_id`, `hvac_mode`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$temp}','{$max_operation_time}', '0', '0', '{$i}');";
-		                $result = $conn->query($query);
-                		if ($result) {
-		                        $message_success .= "<p>".$lang['zone_boost_success']."</p>";
-                		} else {
-		                        $error .= "<p>".$lang['zone_boost_fail']."</p> <p>" .mysqli_error($conn). "</p>";
-                		}
-			}
-		}
-	} elseif ($boost_button_id != 0) { // editing so update boost console in boost and messages_out Tables
-        	$query = "UPDATE boost SET `boost_button_id` = {$boost_button_id}, `boost_button_child_id` = {$boost_button_child_id} WHERE `zone_id` = '{$id}';";
-		$result = $conn->query($query);
-		if ($result) {
-			$message_success .= "<p>".$lang['zone_boost_update_success']."</p>";
-		} else {
-			$error .= "<p>".$lang['zone_boost_update_fail']."</p> <p>" .mysqli_error($conn). "</p>";
-		}
-		//Add New Zone Boost Button Console to message_out table at same time
-		$query = "INSERT INTO `messages_out` (`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`,  `datetime`, `zone_id`) VALUES ('0', '0', '{$boost_button_id}','{$boost_button_child_id}', '2', '0', '0', '2', '1', '{$date_time}', '{$id}');";
-		$result = $conn->query($query);
-		if ($result) {
-			$message_success .= "<p>".$lang['zone_button_message_success']."</p>";
-		} else {
-			$error .= "<p>".$lang['zone_button_message_fail']."</p> <p>" .mysqli_error($conn). "</p>";
-		}
 	}
-
 	//Add or Edit Zone to override table at same time
 	if ($id==0){
 		if ((settings($conn, 'mode') & 0b1) == 0) { //boiler mode
@@ -558,6 +563,7 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 						        var zone_cat = zone_category;
                                                         if (zone_cat.length == 0) { zone_cat = document.getElementById("selected_zone_category").value; }
 							var sensor_type = sensor_type_id;
+                                                        if (sensor_type.length == 0) { zone_cat = document.getElementById("selected_sensor_type_id").value; }
 							var str_1 = "";
 						        var str_2 = "";
 							var map_bin = 0b0;
