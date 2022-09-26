@@ -432,13 +432,17 @@ if (isset($_POST['submit'])) {
 	$result = $conn->query($query);
 	$row = mysqli_fetch_assoc($result);
 
-        $query = "SELECT sensors.*, sensor_type.type FROM sensors, sensor_type WHERE (sensors.sensor_type_id = sensor_type.id) AND zone_id = '{$row['id']}' LIMIT 1;";
-        $result = $conn->query($query);
-        $rowtempsensors = mysqli_fetch_assoc($result);
+        if($row['category'] <> 2) {
+        	$query = "SELECT sensors.*, sensor_type.type FROM sensors, sensor_type WHERE (sensors.sensor_type_id = sensor_type.id) AND zone_id = '{$row['id']}' LIMIT 1;";
+        	$result = $conn->query($query);
+        	$rowtempsensors = mysqli_fetch_assoc($result);
 
-	$query = "SELECT zone_sensors.*, sensors.sensor_type_id FROM zone_sensors, sensors WHERE (zone_sensors.zone_sensor_id = sensors.id) AND zone_sensors.zone_id = '{$row['id']}' LIMIT 1;";
-        $result = $conn->query($query);
-        $rowzonesensors = mysqli_fetch_assoc($result);
+		$query = "SELECT zone_sensors.*, sensors.sensor_type_id FROM zone_sensors, sensors WHERE (zone_sensors.zone_sensor_id = sensors.id) AND zone_sensors.zone_id = '{$row['id']}' LIMIT 1;";
+        	$result = $conn->query($query);
+        	$rowzonesensors = mysqli_fetch_assoc($result);
+        } else {
+                $s_type_id = "1";
+        }
 
         if($zone_category <> 3) {
 	        $query = "SELECT * FROM zone_relays WHERE zone_id = '{$row['id']}' LIMIT 1;";
@@ -953,7 +957,7 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 						<?php
 						if ($id != 0) {
 							echo '<script type="text/javascript">',
-						     	'page_map("'.$row['category'].'", "'.$rowzonesensors['sensor_type_id'].'");',
+						     	'page_map("'.$row['category'].'", "'.$s_type_id.'");',
      							'</script>'
 							;
 						}
