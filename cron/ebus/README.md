@@ -19,7 +19,8 @@ The 'ebus.py' Python script is used to capture eBUS values and populate the MaxA
 3. Process the response message to capture the the first item in any multi-part response and convert any text response to a numeric value, e.g 'off' will be converted to 0 and 'on' to 1.
 4. Add any required offset value to the response value.
 5. Add the response value to the 'messages_in' queue.
-6. Check if the associated sensor is to be graphed and if so add the response value to the 'sensor_graphs' table. 
+6. Update the associated 'nodes' table 'last_seen' field.
+7. Check if the associated sensor is to be graphed and if so add the response value to the 'sensor_graphs' table. 
 
 ## ebus_readall.sh
 This shell script can be used to read all the values for a selected device ID, e.g

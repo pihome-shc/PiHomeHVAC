@@ -520,16 +520,25 @@ while ($row = mysqli_fetch_assoc($results)) {
                                                         $result = $conn->query($query);
                                                         $http = mysqli_fetch_array($result);
                                                         $url = "http://".$base_addr.$zone_controler_child_id."/cm?cmnd=power";
-                                                        $contents = file_get_contents($url);
-                                                        $contents = utf8_encode($contents);
-                                                        $resp = json_decode($contents, true);
-                                                        if ($resp[strtoupper($http['command'])] == 'ON' ) {
-                                                                $new_add_on_state = 1;
-                                                        } else {
-                                                                $new_add_on_state = 0;
-                                                        }
-                                                        if ($manual_button_override == 0 && $current_state != $new_add_on_state) {
-                                                                $manual_button_override = 1;
+                                                        $ch=curl_init();
+                                                        $timeout=1;
+                                                        curl_setopt($ch, CURLOPT_URL, $url);
+                                                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                                                        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+                                                        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+                                                        $result=curl_exec($ch);
+                                                        curl_close($ch);
+                                                        if (strlen($result) > 0) {
+                                                                $result = utf8_encode($result);
+                                                                $resp = json_decode($result, true);
+                                                                if ($resp[strtoupper($http['command'])] == 'ON' ) {
+                                                                        $new_add_on_state = 1;
+                                                                } else {
+                                                                        $new_add_on_state = 0;
+                                                                }
+                                                                if ($manual_button_override == 0 && $current_state != $new_add_on_state) {
+                                                                        $manual_button_override = 1;
+                                                                }
                                                         }
                                                 }
                                         }
@@ -1697,7 +1706,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                 } elseif ($zone_category == 2) {
                         $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}' WHERE zone_id ={$zone_id} LIMIT 1;";
                 } elseif ($zone_category == 1) {
-                        $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}', sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
+                        $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', temp_target = {$target_c}, controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}', sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
 		} else {
 	                $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', temp_target = {$target_c},temp_cut_in = {$temp_cut_in}, temp_cut_out = {$temp_cut_out}, controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}', sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
 		}

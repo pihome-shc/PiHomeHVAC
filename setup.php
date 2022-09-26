@@ -13,7 +13,7 @@ echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
 echo "\033[31m";
 echo "***************************************************************\n";
 echo "*   MaxAir Datase Script Version 0.01 Build Date 20/12/2020   *\n";
-echo "*   Last Modified on 14/08/2021                               *\n";
+echo "*   Last Modified on 13/09/2022                               *\n";
 echo "*                                      Have Fun - PiHome.eu   *\n";
 echo "***************************************************************\n";
 echo "\033[0m";
@@ -26,8 +26,8 @@ $date_time = date('Y-m-d H:i:s');
 
 //Check php version before doing anything else 
 $version = explode('.', PHP_VERSION);
-if ($version[0] > 7){
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - PiHome Supported on php version 5.x you are running version \033[41m".phpversion()."\033[0m \n"; 
+if ($version[0] > 8){
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - PiHome Supported on php version 5.x to version 8.x you are running version \033[41m".phpversion()."\033[0m \n"; 
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Please visit http://www.pihome.eu/2017/10/11/apache-php-mysql-raspberry-pi-lamp/ to install correction version. \n";
 	exit();
 }else {
@@ -56,8 +56,10 @@ if ($conn->connect_error){
 }
 
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Checking if Database Exits \n";
-$db_selected = mysqli_select_db($conn, $dbname);
-if (!$db_selected) {
+$query = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{$dbname}' LIMIT 1;";
+$result = $conn->query($query);
+$rowcount=mysqli_num_rows($result);
+if ($rowcount == 0) {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - MySQL DataBase \033[41m".$dbname."\033[0m Does not Exist \n"; 
 	$query = "CREATE DATABASE {$dbname};";
 	$result = $conn->query($query);
@@ -413,6 +415,23 @@ if ($ffs) {
 	}
 } else {
        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - There are No Database Updates to Apply.\n";
+}
+
+// Check if running Orange Pi OS and if so create a symlink for Adafruit Platform  Detect
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Check if Running Orange Pi OS.  \n";
+
+$target = '/etc/orangepi-release';
+$link = '/etc/armbian-release';
+
+if (file_exists($target) && !file_exists($link)) {
+    symlink($target, $link);
+    echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Symlink \033[41m".$link."\033[0m Created. \n";
+} else {
+        if (file_exists($link)) {
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Symlink already created.\n";
+        } else {
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Not running Orange Pi OS - symlink not required.\n";
+        }
 }
 
 //

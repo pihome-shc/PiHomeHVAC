@@ -33,13 +33,13 @@ Version 2.01 Major update that introduces 'Colour Themes' and a new look based a
 
 Version 2.02 Introduces a simplified 'theme' definition, adds theme coloring to dropdown lists and adds Dark and Burnt Orange themes.
 
+![theme_colours](https://user-images.githubusercontent.com/46624596/173180055-25914223-90f9-40e9-9a09-6c9854efd4d6.png)
+
 Version 2.03 Introduces 'Cooling' type zones that work witha temperture sensor, zone relay/s and operature againt a negative temperature profile.
 
 Version 2.04 Introduces 'Message Sensors', to allow Home Screen display of custom messages (example boiler status passed from external interface).
 
-Version 2.05 Introduces 'eBUS Communication', to allow MaxAir to capture data from eBus compliant Boilers.
-
-![theme_colours](https://user-images.githubusercontent.com/46624596/173180055-25914223-90f9-40e9-9a09-6c9854efd4d6.png)
+Version 2.05 Introduces 'eBUS Communication', to allow MaxAir to capture data from eBUS compliant Boilers.
 
 ## Setup:
 

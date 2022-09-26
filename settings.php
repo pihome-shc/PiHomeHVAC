@@ -52,11 +52,6 @@ if(isset($_GET["find_gw"])) {
 //	include("start_backup.php");
  }
 
-//query to frost protection temperature
-$query = "SELECT * FROM frost_protection LIMIT 1 ";
-$result = $conn->query($query);
-$frosttemp = mysqli_fetch_array($result);
-$frost_temp = $frosttemp['temperature'];
 ?>
 <?php include("header.php");  ?>
 <?php include("notice.php");  ?>

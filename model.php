@@ -571,13 +571,12 @@ echo '
             <div class="modal-body">
                         <p class="text-muted"> '.$lang['backup_location_text'].' </p>
                         <p class="text-muted"> '.$lang['pihome_backup_text'].' </p>
-                        <form data-bs-toggle="validator" role="form" method="post" action="#" id="form-join">
+                        <form data-bs-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
                         <div class="form-group" class="control-label"><label>'.$lang['email_address'].'</label> <small class="text-muted">'.$lang['pihome_backup_email_info'].'</small>
-        			<input class="form-control" type="text" id="backup_email" name="backup_email" value="'.settings($conn, backup_email).'" placeholder="Email Address to Receive your Backup file">
-                        <div class="help-block with-errors"></div>
+        			<input class="form-control" type="text" id="backup_email" name="backup_email" value="'.settings($conn, 'backup_email').'" placeholder="Email Address to Receive your Backup file">
+                        	<div class="help-block with-errors"></div>
                         </div>
-                        </form>';
-echo '     </div>
+            </div>
             <div class="modal-footer">
                         <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
                         <button class="btn warning btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="backup_email_update()" data-confirm="'.$lang['update_email_address'].'">'.$lang['save'].'</button>
@@ -2470,7 +2469,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                 while ($r_row = mysqli_fetch_assoc($r_results)) {
 			switch ($r_row["type"]) {
 				case 0:
-					$query = "SELECT zone.name FROM zone_controllers, zone where (zone.id = zone_controllers.zone_id) AND zone_relays.zone_relay_id = {$r_row['id']} LIMIT 1;";
+					$query = "SELECT zone.name FROM zone_relays, zone where (zone.id = zone_relays.zone_id) AND zone_relays.zone_relay_id = {$r_row['id']} LIMIT 1;";
 					break;
                                 case 1:
                                 case 2:
@@ -3668,6 +3667,8 @@ echo '
                                 <li><a class="dropdown-item" href="pdf_download.php?file=setup_ebus_communication.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_ebus_communication'].'</a></li>
                                 <li class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="pdf_download.php?file=custom_sensor_messages.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['custom_sensor_messages'].'</a></li>
+                                <li class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="pdf_download.php?file=import_sensor_readings.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['import_sensor_readings'].'</a></li>
                         </ul>
                 </div>
             </div>
