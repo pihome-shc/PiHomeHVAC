@@ -658,6 +658,9 @@ try:
     else:
         ping_timer = time.time()
 
+    # initialise heartbeat pulse to the gateway every 30 seconds
+    wifi_gateway_heartbeat = time.time()
+
     while 1:
         ## Terminate gateway script if no route to network gateway
         if gatewaytype == "wifi":
@@ -668,6 +671,19 @@ try:
                 )
                 if not gateway_up:
                     break
+
+            # Sent heartbeat message to wifi gateway
+            if time.time() - wifi_gateway_heartbeat >= 30:
+                wifi_gateway_heartbeat = time.time()
+                msg = "0;0;0;0;24;Gateway Script Heartbeat \n"
+                if dbgLevel >= 3 and dbgMsgOut == 1:
+                    print(bc.grn + "\nHeatbeat Message to Gateway", bc.ENDC)
+                    print("Date & Time:                 ", time.ctime())
+                    print(
+                        "Full Message to Send:        ", msg.replace("\n", "\\n")
+                    )
+                gw.write(msg.encode("utf-8"))
+
         ## Outgoing messages
         con.commit()
         cur.execute(
