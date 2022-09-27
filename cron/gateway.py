@@ -26,7 +26,7 @@ print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
 print("* Script to communicate with MySensors Nodes, for more *")
 print("* info please check MySensors API.                     *")
 print("*      Build Date: 18/09/2017                          *")
-print("*      Version 0.13 - Last Modified 24/09/2022         *")
+print("*      Version 0.13 - Last Modified 27/09/2022         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -994,13 +994,13 @@ try:
                                     node_id,
                                     0,
                                     0,
-                                    null_value,
+                                    "Gateway",
                                     timestamp,
                                     0,
                                     0,
                                     "Active",
                                     payload,
-                                    null_value,
+                                    "0.00",
                                     1,
                                 ),
                             )
