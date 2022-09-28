@@ -660,17 +660,32 @@ try:
 
     # initialise heartbeat pulse to the gateway every 30 seconds
     wifi_gateway_heartbeat = time.time()
+    heartbeat_timer = time.time()
 
     while 1:
         ## Terminate gateway script if no route to network gateway
         if gatewaytype == "wifi":
-            if time.time() - ping_timer >= 60:
-                ping_timer = time.time()
-                gateway_up = (
-                    True if os.system("ping -c 1 " + gatewaylocation) == 0 else False
-                )
-                if not gateway_up:
+            cur.execute(
+                "SELECT COUNT(*) FROM `nodes` WHERE `node_id` = '0' AND `name` LIKE '%Gateway%' AND `sketch_version` > 0.35"
+            )  # MySQL query statement
+            count = cur.fetchone()  # Grab all messages from database for Outgoing.
+            count = count[
+                0
+            ]  # Parse first and the only one part of data table named "count" - there is number of records grabbed in SELECT above
+            if count == 0:
+                if time.time() - ping_timer >= 60:
+                    ping_timer = time.time()
+                    gateway_up = (
+                        True if os.system("ping -c 1 " + gatewaylocation) == 0 else False
+                    )
+                    if not gateway_up:
+                        break
+            else:
+                if time.time() - heartbeat_timer >= 60:
+                    heartbeat_timer = time.time()
+                    print(bc.grn + "\nNO Heatbeat Message from Gateway", bc.ENDC)
                     break
+
 
             # Sent heartbeat message to wifi gateway
             if time.time() - wifi_gateway_heartbeat >= 30:
@@ -1736,6 +1751,7 @@ try:
                             [timestamp, node_id],
                         )
                         con.commit()
+                        heartbeat_timer = time.time()
                     # end if not gpio output 
         time.sleep(0.1)
 
