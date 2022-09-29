@@ -180,15 +180,15 @@ IPAddress myDNS(8, 8, 8, 8);
 #include <WebServer_WT32_ETH01.h>
 #include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
 
-#define NOT_SEQUENTIAL_PINOUT
-#include "PCF8575.h"  // https://github.com/xreef/PCF8575_library
-#define SDA_0 32 //i2c data uses CFG (IO32) pin
-#define SCL_0 3  //i2c clock uses RX (IO3) pin
-TwoWire I2C_0 = TwoWire(0);
-
 #if defined(PCF8575_ATTACHED)
-  // Set i2c address
-  PCF8575 pcf8575(&I2C_0, 0x20, SDA_0, SCL_0);
+   #define NOT_SEQUENTIAL_PINOUT
+   #include "PCF8575.h"  // https://github.com/xreef/PCF8575_library
+   #define SDA_0 32 //i2c data uses CFG (IO32) pin
+   #define SCL_0 3  //i2c clock uses RX (IO3) pin
+   TwoWire I2C_0 = TwoWire(0);
+
+   // Set i2c address
+   PCF8575 pcf8575(&I2C_0, 0x20, SDA_0, SCL_0);
 #endif
 
 //for LED status
