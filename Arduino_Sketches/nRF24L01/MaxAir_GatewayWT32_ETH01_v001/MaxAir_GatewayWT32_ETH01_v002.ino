@@ -47,7 +47,7 @@
 #define PCF8575_ATTACHED
 
 //Define for version 1 PCB
-//#define PCB_VERSION_1
+#define PCB_VERSION_1
 
 #ifdef PCB_VERSION_1 
   #define SKETCH_NAME "Gateway"
