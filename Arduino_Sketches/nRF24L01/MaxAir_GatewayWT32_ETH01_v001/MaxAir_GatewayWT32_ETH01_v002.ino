@@ -40,15 +40,20 @@
 
 // Enable debug prints to serial monitor
 #define MY_DEBUG
-#define SKETCH_NAME "Gateway Controller Relay"
 //Define Sketch Version
 #define SKETCH_VERSION "0.36"
 
 //Define PCF8575 Installed
-//#define PCF8575_ATTACHED
+#define PCF8575_ATTACHED
 
 //Define for version 1 PCB
-#define PCB_VERSION_1
+//#define PCB_VERSION_1
+
+#ifdef PCB_VERSION_1 
+  #define SKETCH_NAME "Gateway"
+#else
+  #define SKETCH_NAME "Gateway Controller Relay"
+#endif
 
 // Enables and select radio type (if attached)
 #define MY_RADIO_RF24
@@ -155,7 +160,11 @@ IPAddress myDNS(8, 8, 8, 8);
 
 // Flash leds on rx/tx/err
 // Uncomment to override default HW configurations
-#define MY_DEFAULT_ERR_LED_PIN 35  // Error led pin
+#if defined(PCB_VERSION_1)
+  #define MY_DEFAULT_ERR_LED_PIN 5  // Error led pin
+#else
+  #define MY_DEFAULT_ERR_LED_PIN 35  // Error led pin
+#endif
 #define MY_DEFAULT_RX_LED_PIN  17  // Receive led pin
 #define MY_DEFAULT_TX_LED_PIN  33  // the PCB, on board LED
 
@@ -181,14 +190,14 @@ IPAddress myDNS(8, 8, 8, 8);
 #include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
 
 #if defined(PCF8575_ATTACHED)
-   #define NOT_SEQUENTIAL_PINOUT
-   #include "PCF8575.h"  // https://github.com/xreef/PCF8575_library
-   #define SDA_0 32 //i2c data uses CFG (IO32) pin
-   #define SCL_0 3  //i2c clock uses RX (IO3) pin
-   TwoWire I2C_0 = TwoWire(0);
+  #define NOT_SEQUENTIAL_PINOUT
+  #include "PCF8575.h"  // https://github.com/xreef/PCF8575_library
+  #define SDA_0 32 //i2c data uses CFG (IO32) pin
+  #define SCL_0 3  //i2c clock uses RX (IO3) pin
+  TwoWire I2C_0 = TwoWire(0);
 
-   // Set i2c address
-   PCF8575 pcf8575(&I2C_0, 0x20, SDA_0, SCL_0);
+  // Set i2c address
+  PCF8575 pcf8575(&I2C_0, 0x20, SDA_0, SCL_0);
 #endif
 
 //for LED status
@@ -197,8 +206,8 @@ Ticker ticker;
 
 void tick(){
   //toggle state
-  int state = digitalRead(5);  // get the current state of GPIO1 pin
-  digitalWrite(5, !state);     // set pin to the opposite state
+  int state = digitalRead(MY_DEFAULT_ERR_LED_PIN);  // get the current state of ERR LED pin
+  digitalWrite(MY_DEFAULT_ERR_LED_PIN, !state);     // set pin to the opposite state
 }
 
 //gets called when WiFiManager enters configuration mode
