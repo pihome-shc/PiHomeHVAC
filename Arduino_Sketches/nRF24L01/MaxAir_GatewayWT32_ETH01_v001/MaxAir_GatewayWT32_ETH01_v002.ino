@@ -44,7 +44,7 @@
 #define SKETCH_VERSION "0.36"
 
 //Define PCF8575 Installed
-#define PCF8575_ATTACHED
+//#define PCF8575_ATTACHED
 
 //Define for version 1 PCB
 #define PCB_VERSION_1
