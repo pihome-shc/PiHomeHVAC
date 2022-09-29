@@ -26,7 +26,7 @@ print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
 print("* Script to communicate with MySensors Nodes, for more *")
 print("* info please check MySensors API.                     *")
 print("*      Build Date: 18/09/2017                          *")
-print("*      Version 0.12 - Last Modified 31/01/2022         *")
+print("*      Version 0.13 - Last Modified 27/09/2022         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -66,6 +66,12 @@ relay_dict = {}
 
 # Initialise MQTT connection status
 MQTT_CONNECTED = 0
+
+def XNOR(a,b):
+    if(int(a) == int(b)):
+        return 1
+    else:
+        return 0
 
 def set_relays(
     msg,
@@ -600,8 +606,8 @@ try:
             node_id = nd[node_to_index["node_id"]]
             node_type = nd[node_to_index["type"]]
             cur.execute(
-                "SELECT `sub_type`, `ack`, `type`, `payload`, `id` FROM `messages_out` where node_id = (%s) AND child_id = (%s) ORDER BY id DESC LIMIT 1",
-                (node_id, out_child_id),
+                "SELECT `sub_type`, `ack`, `type`, `payload`, `id` FROM `messages_out` where n_id = (%s) AND child_id = (%s) ORDER BY id DESC LIMIT 1",
+                (n_id, out_child_id),
             )
             if cur.rowcount > 0:
                 msg = cur.fetchone()
@@ -621,10 +627,11 @@ try:
                     else:
                         out_payload = "Power OFF"
                     cur.execute(
-                        "UPDATE messages_out SET payload = %s WHERE node_id = %s AND child_id = %s",
-                        (out_payload, node_id, out_child_id),
+                        "UPDATE messages_out SET payload = %s WHERE n_id = %s AND child_id = %s",
+                        (out_payload, out_id, out_child_id),
                     )
                     con.commit()
+
                 msg = str(node_id)  # Node ID
                 msg += ";"  # Separator
                 msg += str(out_child_id)  # Child ID of the Node.
@@ -651,16 +658,47 @@ try:
     else:
         ping_timer = time.time()
 
+    # initialise heartbeat pulse to the gateway every 30 seconds
+    wifi_gateway_heartbeat = time.time()
+    heartbeat_timer = time.time()
+
     while 1:
         ## Terminate gateway script if no route to network gateway
         if gatewaytype == "wifi":
-            if time.time() - ping_timer >= 60:
-                ping_timer = time.time()
-                gateway_up = (
-                    True if os.system("ping -c 1 " + gatewaylocation) == 0 else False
-                )
-                if not gateway_up:
+            cur.execute(
+                "SELECT COUNT(*) FROM `nodes` WHERE `node_id` = '0' AND `name` LIKE '%Gateway%' AND `sketch_version` > 0.35"
+            )  # MySQL query statement
+            count = cur.fetchone()  # Grab all messages from database for Outgoing.
+            count = count[
+                0
+            ]  # Parse first and the only one part of data table named "count" - there is number of records grabbed in SELECT above
+            if count == 0:
+                if time.time() - ping_timer >= 60:
+                    ping_timer = time.time()
+                    gateway_up = (
+                        True if os.system("ping -c 1 " + gatewaylocation) == 0 else False
+                    )
+                    if not gateway_up:
+                        break
+            else:
+                if time.time() - heartbeat_timer >= 60:
+                    heartbeat_timer = time.time()
+                    print(bc.grn + "\nNO Heatbeat Message from Gateway", bc.ENDC)
                     break
+
+
+            # Sent heartbeat message to wifi gateway
+            if time.time() - wifi_gateway_heartbeat >= 30:
+                wifi_gateway_heartbeat = time.time()
+                msg = "0;0;0;0;24;Gateway Script Heartbeat \n"
+                if dbgLevel >= 3 and dbgMsgOut == 1:
+                    print(bc.grn + "\nHeatbeat Message to Gateway", bc.ENDC)
+                    print("Date & Time:                 ", time.ctime())
+                    print(
+                        "Full Message to Send:        ", msg.replace("\n", "\\n")
+                    )
+                gw.write(msg.encode("utf-8"))
+
         ## Outgoing messages
         con.commit()
         cur.execute(
@@ -678,6 +716,7 @@ try:
             # Grab first record and build a message: if you change table fields order you need to change following lines as well.
             msg_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
             out_id = int(msg[msg_to_index["id"]])  # Record ID - only DB info,
+            n_id = msg[msg_to_index["n_id"]]  # Node Table ID
             node_id = msg[msg_to_index["node_id"]]  # Node ID
             out_child_id = msg[
                 msg_to_index["child_id"]
@@ -689,11 +728,14 @@ try:
             sent = msg[
                 msg_to_index["sent"]
             ]  # Status of message either its sent or not. (1 for sent, 0 for not sent yet)
-            cur.execute("SELECT id, type FROM `nodes` where node_id = (%s)", (node_id,))
+            cur.execute("SELECT type, name, sketch_version FROM `nodes` where id = (%s)", (n_id,))
             nd = cur.fetchone()
             node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-            n_id = nd[node_to_index["id"]]
             node_type = nd[node_to_index["type"]]
+            node_name = nd[node_to_index["name"]]
+            sketch_version = float(nd[node_to_index["sketch_version"]])
+            if sketch_version > 0:
+                sketch_version = int(sketch_version * 100)
             # Get the trigger level if the node/child is present in the relays table
             cur.execute(
                 "SELECT COUNT(*) FROM `relays` where relay_id = (%s) AND relay_child_id = (%s) LIMIT 1",
@@ -717,9 +759,12 @@ try:
                 r = cur.fetchone()
                 relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
                 out_on_trigger = r[relay_to_index["on_trigger"]]
+
             if gatewayenableoutgoing == 1 or (
                 node_type.find("GPIO") != -1 and gatewayenableoutgoing == 0 and blinka
             ):
+                if node_type.find("MySensor") != -1 and node_name.find("Controller") != -1 and sketch_version >= 34:
+                    out_payload = XNOR(out_on_trigger, out_payload)
                 if dbgLevel >= 1 and dbgMsgOut == 1:  # Debug print to screen
                     print(
                         bc.grn + "\nTotal Messages to Sent:      ", count, bc.ENDC
@@ -802,7 +847,8 @@ try:
                     msgcount += 1
 
             if (
-                not sys.getsizeof(in_str) <= 25 and in_str[:1] != "0"
+#                not sys.getsizeof(in_str) <= 25 and in_str[:1] != "0"
+                not sys.getsizeof(in_str) <= 25
             ):  # here is the line where sensor are processed
                 if dbgLevel >= 1 and dbgMsgIn == 1:  # Debug print to screen
                     print(
@@ -838,7 +884,7 @@ try:
                         # ..::Step One::..
                         # First time Temperature Sensors Node Comes online: Add Node to The Nodes Table.
                     if (
-                        node_id != 0
+                        node_id != '0'
                         and child_sensor_id == 255
                         and message_type == 0
                         and sub_type == 17
@@ -894,7 +940,7 @@ try:
                             # ..::Step One B::..
                             # First time Node Comes online with Repeater Feature Enabled: Add Node to The Nodes Table.
                     if (
-                        node_id != 0
+                        node_id != '0'
                         and child_sensor_id == 255
                         and message_type == 0
                         and sub_type == 18
@@ -948,9 +994,65 @@ try:
                             con.commit()
 
                             # ..::Step One C::..
+                            # First time a Gateway Controller Node Comes online: Add Node to The Nodes Table.
+                    if (
+                        node_id == '0'
+                        and child_sensor_id == 255
+                        and message_type == 0
+                        and sub_type == 18
+                    ):
+                        # if (child_sensor_id != 255 and message_type == 0):
+                        cur.execute(
+                            "SELECT COUNT(*) FROM `nodes` where type = 'MySensor' AND node_id = (%s)", (node_id,)
+                        )
+                        row = cur.fetchone()
+                        row = int(row[0])
+                        if row == 0:
+                            if dbgLevel >= 2 and dbgMsgIn == 1:
+                                print(
+                                    "1-C: Adding Node ID:",
+                                    node_id,
+                                    "MySensors Version:",
+                                    payload,
+                                )
+                            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            cur.execute(
+                                "INSERT INTO nodes(`sync`, `purge`, `type`, `node_id`, `max_child_id`, `sub_type`, `name`, `last_seen`, `notice_interval`, `min_value`, `status`, `ms_version`, `sketch_version`, `repeater`) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                (
+                                    0,
+                                    0,
+                                    "MySensor",
+                                    node_id,
+                                    0,
+                                    0,
+                                    "Gateway",
+                                    timestamp,
+                                    0,
+                                    0,
+                                    "Active",
+                                    payload,
+                                    "0.00",
+                                    1,
+                                ),
+                            )
+                            con.commit()
+                        else:
+                            if dbgLevel >= 2 and dbgMsgIn == 1:
+                                print(
+                                    "1-C: Node ID:",
+                                    node_id,
+                                    " Already Exist In Node Table, Updating MS Version",
+                                )
+                            cur.execute(
+                                "UPDATE nodes SET ms_version = %s where type = 'MySensor' AND node_id = %s",
+                                (payload, node_id),
+                            )
+                            con.commit()
+
+                            # ..::Step One D::..
                             # First time Node Comes online set the min_value.
                     if (
-                        node_id != 0
+                        node_id != '0'
                         and child_sensor_id != 255
                         and message_type == 1
                         and sub_type == 24
@@ -963,7 +1065,7 @@ try:
                         if row == 0:
                             if dbgLevel >= 2 and dbgMsgIn == 1:
                                 print(
-                                    "4: Adding Node's min_value for Node ID:",
+                                    "1-D: Adding Node's min_value for Node ID:",
                                     node_id,
                                     " min_value:",
                                     payload,
@@ -974,12 +1076,17 @@ try:
                             )
                             con.commit()
 
-                        # ..::Step Two ::..
+                        # ..::Step Two A::..
                         # Add Nodes Name i.e. Relay, Temperature Sensor etc. to Nodes Table.
-                    if child_sensor_id == 255 and message_type == 3 and sub_type == 11:
+                    if (
+                        node_id != '0'
+                        and child_sensor_id == 255
+                        and message_type == 3
+                        and sub_type == 11
+                    ):
                         if dbgLevel >= 2 and dbgMsgIn == 1:
                             print(
-                                "2: Update Node Record for Node ID:",
+                                "2-A: Update Node Record for Node ID:",
                                 node_id,
                                 " Sensor Type:",
                                 payload,
@@ -990,17 +1097,38 @@ try:
                         )
                         con.commit()
 
-                        # ..::Step Three ::..
+                        # ..::Step Two B::..
+                        # Add Gateway Nodes Name.
+                    if (
+                        node_id == '0'
+                        and child_sensor_id == 255
+                        and message_type == 3
+                        and sub_type == 11
+                    ):
+                        if dbgLevel >= 2 and dbgMsgIn == 1:
+                            print(
+                                "2-B: Update Node Record for Node ID:",
+                                node_id,
+                                " Sensor Type:",
+                                payload,
+                            )
+                        cur.execute(
+                            "UPDATE nodes SET name = %s where type = 'MySensor' AND node_id = %s",
+                            (payload, node_id),
+                        )
+                        con.commit()
+
+                        # ..::Step Three A::..
                         # Add Nodes Sketch Version to Nodes Table.
                     if (
-                        node_id != 0
+                        node_id != '0'
                        and child_sensor_id == 255
                         and message_type == 3
                         and sub_type == 12
                     ):
                         if dbgLevel >= 2 and dbgMsgIn == 1:
                             print(
-                                "3: Update Node ID: ",
+                                "3-A: Update Node ID: ",
                                 node_id,
                                 " Node Sketch Version: ",
                                 payload,
@@ -1011,18 +1139,39 @@ try:
                         )
                         con.commit()
 
-                        # ..::Step Four::..
+                        # ..::Step Three B::..
+                        # Add Gateway Controller Nodes Sketch Version to Nodes Table.
+                    if (
+                        node_id == '0'
+                       and child_sensor_id == 255
+                        and message_type == 3
+                        and sub_type == 12
+                    ):
+                        if dbgLevel >= 2 and dbgMsgIn == 1:
+                            print(
+                                "3-B: Update Node ID: ",
+                                node_id,
+                                " Node Sketch Version: ",
+                                payload,
+                            )
+                        cur.execute(
+                            "UPDATE nodes SET sketch_version = %s where type = 'MySensor' AND node_id = %s",
+                            (payload, node_id),
+                        )
+                        con.commit()
+
+                        # ..::Step Four A::..
                         # Add Node Child ID to Node Table
                         # 25;0;0;0;6;
                     if (
-                        node_id != 0
+                        node_id != '0'
                         and child_sensor_id != 255
                         and message_type == 0
                         and (sub_type == 3 or sub_type == 6)
                     ):
                         if dbgLevel >= 2 and dbgMsgIn == 1:
                             print(
-                                "4: Adding Node's Max Child ID for Node ID:",
+                                "4-A: Adding Node's Max Child ID for Node ID:",
                                 node_id,
                                 " Child Sensor ID:",
                                 child_sensor_id,
@@ -1033,10 +1182,32 @@ try:
                         )
                         con.commit()
 
+                        # ..::Step Four A::..
+                        # Add Node Child ID to Node Table
+                        # 25;0;0;0;6;
+                    if (
+                        node_id == '0'
+                        and child_sensor_id != 255
+                        and message_type == 0
+                        and (sub_type == 3 or sub_type == 6)
+                    ):
+                        if dbgLevel >= 2 and dbgMsgIn == 1:
+                            print(
+                                "4-B: Adding Node's Max Child ID for Gateway Controller Node ID:",
+                                node_id,
+                                " Child Sensor ID:",
+                                child_sensor_id,
+                            )
+                        cur.execute(
+                            "UPDATE nodes SET max_child_id = %s WHERE type = 'MySensor' AND node_id = %s",
+                            (child_sensor_id, node_id),
+                        )
+                        con.commit()
+
                         # ..::Step Five::..
                         # Add Temperature Reading to database
                     if (
-                        node_id != 0
+                        node_id != '0'
                         and child_sensor_id != 255
                         and message_type == 1
                         and sub_type == 0
@@ -1181,7 +1352,7 @@ try:
                         # ..::Step Six ::..
                         # Add Humidity Reading to database
                     if (
-                        node_id != 0
+                        node_id != '0'
                         and child_sensor_id != 255
                         and message_type == 1
                         and sub_type == 1
@@ -1283,7 +1454,7 @@ try:
                         # ..::Step Seven ::..
                         # Add Switch Reading to database
                     if (
-                        node_id != 0
+                        node_id != '0'
                         and child_sensor_id != 255
                         and message_type == 1
                         and sub_type == 16
@@ -1313,7 +1484,7 @@ try:
                         # Add Battery Voltage Nodes Battery Table
                         # Example: 25;1;1;0;38;4.39
                     if (
-                        node_id != 0
+                        node_id != '0'
                         and child_sensor_id != 255
                         and message_type == 1
                         and sub_type == 38
@@ -1338,7 +1509,7 @@ try:
                         # Add Battery Level Nodes Battery Table
                         # Example: 25;255;3;0;0;104
                     if (
-                        node_id != 0
+                        node_id != '0'
                         and child_sensor_id == 255
                         and message_type == 3
                        and sub_type == 0
@@ -1382,7 +1553,7 @@ try:
                         # ..::Step Ten::..
                         # Add Boost Status Level to Database/Relay Last seen gets added here as well when ACK is set to 1 in messages_out table.
                     if (
-                        node_id != 0
+                        node_id != '0'
                         and child_sensor_id != 255
                         and message_type == 1
                        and sub_type == 2
@@ -1410,7 +1581,7 @@ try:
                         # ..::Step Eleven::..
                         # Add Away Status Level to Database
                     if (
-                        node_id != 0
+                        node_id != '0'
                         and child_sensor_id != 255
                         and child_sensor_id == 4
                         and message_type == 1
@@ -1441,7 +1612,7 @@ try:
                         # ..::Step Twelve::..
                         # When Gateway Startup Completes
                     if (
-                        node_id == 0
+                        node_id == '0'
                         and child_sensor_id == 255
                         and message_type == 0
                         and sub_type == 18
@@ -1454,7 +1625,7 @@ try:
                         # ..::Step Thirteen::.. 40;0;3;0;1;02:27
                         # When client is requesting time
                     if (
-                        node_id != 0
+                        node_id != '0'
                         and child_sensor_id == 255
                         and message_type == 3
                         and sub_type == 1
@@ -1469,7 +1640,7 @@ try:
 
                         # ..::Step Fourteen::.. 40;0;3;0;1;02:27
                         # When client is requesting text
-                    if node_id != 0 and message_type == 2 and sub_type == 47:
+                    if node_id != '0' and message_type == 2 and sub_type == 47:
                         if dbgLevel >= 2 and dbgMsgIn == 1:
                             print(
                                 "14: Node ID: ",
@@ -1486,7 +1657,7 @@ try:
                         # ..::Step Fiveteen::.. 255;18;3;0;3;
                         # When Node is requesting ID
                     if (
-                        node_id != 0 and message_type == 3 and sub_type == 3
+                        node_id != '0' and message_type == 3 and sub_type == 3
                     ):  # best is to check node_id is 255 but i can not get to work with that.
                         if dbgLevel >= 2 and dbgMsgIn == 1:
                             print(
@@ -1555,6 +1726,32 @@ try:
                                 con.commit()  # commit above
                         else:
                             print(bc.WARN + "All exiting IDs are assigned: " + bc.ENDC)
+
+                        # ..::Step Sixteen::..
+                        # Update Gateway Relay Controller last seen
+                    if (
+                        node_id == '0'
+                        and child_sensor_id == 255
+                        and message_type == 1
+                        and sub_type == 47
+                        and payload == 'Heartbeat'
+                    ):
+                        if dbgLevel >= 2 and dbgMsgIn == 1:
+                            print(
+                                "16: Updating last seen for Gateway Relay Controller:",
+                                node_id,
+                                " Child Sensor ID:",
+                                child_sensor_id,
+                                " PayLoad:",
+                                payload,
+                            )
+                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        cur.execute(
+                            "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE type = 'MySensor' AND node_id = %s",
+                            [timestamp, node_id],
+                        )
+                        con.commit()
+                        heartbeat_timer = time.time()
                     # end if not gpio output 
         time.sleep(0.1)
 
