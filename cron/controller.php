@@ -1777,6 +1777,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 		//Pass data to zone commands loop
                 $zone_commands[$command_index] = (array('controllers' =>$zone_controllers, 'zone_id' =>$zone_id, 'zone_name' =>$zone_name, 'zone_category' =>$zone_category, 'zone_status'=>$zone_status, 'zone_status_prev'=>$zone_status_prev, 'zone_overrun_prev'=>$zone_overrun_prev, 'zone_override_status'=>$zone_override_status));
 		$command_index = $command_index+1;
+                $system_controller = (array) null;
 		//process Zone Cat 0 logs
 		if ($zone_category == 0 OR $zone_category == 3 || $zone_category == 4){
 			//all zone status to system controller array and increment array index
@@ -1945,7 +1946,7 @@ for ($row = 0; $row < count($zone_commands); $row++){
 
 				if ($zone_category <> 3) {
 					if ($zone_override_status == 0) {
-						$query = "UPDATE zone_controllers SET state = {$zone_command}, current_state = {$zone_command} WHERE id = {$zc_id} LIMIT 1;";
+						$query = "UPDATE zone_relays SET state = {$zone_command}, current_state = {$zone_command} WHERE id = {$zc_id} LIMIT 1;";
 						$conn->query($query);
 					}
 				}
