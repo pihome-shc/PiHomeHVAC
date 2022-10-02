@@ -322,10 +322,17 @@ if (mysqli_num_rows($result) > 0){
 //query to check the live temperature status
 $query = "SELECT * FROM livetemp LIMIT 1";
 $result = $conn->query($query);
-$livetemp = mysqli_fetch_array($result);
-$livetemp_zone_id = $livetemp['zone_id'];
-$livetemp_active = $livetemp['active'];
-$livetemp_c = $livetemp['temperature'];
+$rowcount=mysqli_num_rows($result);
+if ($rowcount > 0) {
+        $livetemp = mysqli_fetch_array($result);
+        $livetemp_zone_id = $livetemp['zone_id'];
+        $livetemp_active = $livetemp['active'];
+        $livetemp_c = $livetemp['temperature'];
+} else {
+        $livetemp_zone_id = "";
+        $livetemp_active = 0;
+        $livetemp_c = 0;
+}
 
 //following variable set to 0 on start for array index.
 $system_controller_index = '0';
