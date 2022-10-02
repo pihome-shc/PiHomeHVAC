@@ -701,7 +701,6 @@ DELETE FROM override WHERE `purge`= 1  LIMIT 1;
 DELETE FROM schedule_daily_time_zone WHERE `purge`= 1;
 DELETE FROM schedule_night_climat_zone WHERE `purge`= 1;
 DELETE FROM controller_zone_logs WHERE `purge`= 1;
-DELETE FROM add_on_zone_logs WHERE `purge`= 1;
 DELETE FROM zone_sensors WHERE `purge`= 1;
 DELETE FROM zone_relays WHERE `purge`= 1;
 DELETE FROM livetemp WHERE `purge`= 1 LIMIT 1;

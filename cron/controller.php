@@ -322,10 +322,17 @@ if (mysqli_num_rows($result) > 0){
 //query to check the live temperature status
 $query = "SELECT * FROM livetemp LIMIT 1";
 $result = $conn->query($query);
-$livetemp = mysqli_fetch_array($result);
-$livetemp_zone_id = $livetemp['zone_id'];
-$livetemp_active = $livetemp['active'];
-$livetemp_c = $livetemp['temperature'];
+$rowcount=mysqli_num_rows($result);
+if ($rowcount > 0) {
+        $livetemp = mysqli_fetch_array($result);
+        $livetemp_zone_id = $livetemp['zone_id'];
+        $livetemp_active = $livetemp['active'];
+        $livetemp_c = $livetemp['temperature'];
+} else {
+        $livetemp_zone_id = "";
+        $livetemp_active = 0;
+        $livetemp_c = 0;
+}
 
 //following variable set to 0 on start for array index.
 $system_controller_index = '0';
@@ -1777,6 +1784,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 		//Pass data to zone commands loop
                 $zone_commands[$command_index] = (array('controllers' =>$zone_controllers, 'zone_id' =>$zone_id, 'zone_name' =>$zone_name, 'zone_category' =>$zone_category, 'zone_status'=>$zone_status, 'zone_status_prev'=>$zone_status_prev, 'zone_overrun_prev'=>$zone_overrun_prev, 'zone_override_status'=>$zone_override_status));
 		$command_index = $command_index+1;
+                $system_controller = (array) null;
 		//process Zone Cat 0 logs
 		if ($zone_category == 0 OR $zone_category == 3 || $zone_category == 4){
 			//all zone status to system controller array and increment array index
@@ -1945,7 +1953,7 @@ for ($row = 0; $row < count($zone_commands); $row++){
 
 				if ($zone_category <> 3) {
 					if ($zone_override_status == 0) {
-						$query = "UPDATE zone_controllers SET state = {$zone_command}, current_state = {$zone_command} WHERE id = {$zc_id} LIMIT 1;";
+						$query = "UPDATE zone_relays SET state = {$zone_command}, current_state = {$zone_command} WHERE id = {$zc_id} LIMIT 1;";
 						$conn->query($query);
 					}
 				}
