@@ -567,7 +567,7 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 						        var zone_cat = zone_category;
                                                         if (zone_cat.length == 0) { zone_cat = document.getElementById("selected_zone_category").value; }
 							var sensor_type = sensor_type_id;
-                                                        if (sensor_type.length == 0) { zone_cat = document.getElementById("selected_sensor_type_id").value; }
+                                                        if (sensor_type.length == 0) { sensor_type = document.getElementById("selected_sensor_type_id").value; }
 							var str_1 = "";
 						        var str_2 = "";
 							var map_bin = 0b0;
