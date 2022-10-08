@@ -796,7 +796,7 @@ function get_schedule_status($conn,$zone_id,$holidays_status,$away_status){
 		$away_sch = 0;
 		while ($row = mysqli_fetch_assoc($results)) {
 	                // check each schedule for this zone
-                  	$tz = settings($conn, 'timezone');
+                  	$tz = timezone_open(settings($conn, 'timezone'));
                   	$time_offset = timezone_offset_get($tz, date_create("now"));
                   	$time_offset = $time_offset - (3600 * Date('I'));
         	        $time = strtotime(date("G:i:s"));
