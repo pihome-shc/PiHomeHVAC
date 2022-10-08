@@ -217,6 +217,8 @@ $theme = settings($conn, 'theme');
                                         $color[3] = "";
                                         $color[4] = "";
                                         $color[5] = "";
+                                        $color[6] = "";
+                                        $color[7] = "";
                                         $button[0] = "bi-square-fill";
                                         $button[1] = "bi-square";
                                         $button[2] = "bi-square";
@@ -311,13 +313,13 @@ $theme = settings($conn, 'theme');
 	                        <?php if ($system_controller_mode == 1) {
         	                        switch ($x) {
                 	                        case 1: ?>
-                                                        <h3 class="statusdegree"><small><?php echo $lang['mode_heat']; ?></small></h3>
+                                                        <h3 <small class="status"><small class="statuszoon" style="margin-top:-10px"><?php echo $lang['mode_heat']; ?></small></h3>
                                                         <?php break;
                                                 case 2: ?>
-                                                        <h3 class="statusdegree"><small><?php echo $lang['mode_cool']; ?></small></h3>
+                                                        <h3 <small class="status"><small class="statuszoon" style="margin-top:-10px"><?php echo $lang['mode_cool']; ?></small></h3>
                                                         <?php break;
                                                 case 3: ?>
-                                                        <h3 class="statusdegree"><small><?php echo $lang['mode_auto']; ?></small></h3>
+                                                        <h3 <small class="status"><small class="statuszoon" style="margin-top:-10px"><?php echo $lang['mode_auto']; ?></small></h3>
                                                         <?php break;
                                                 default: ?>
                                                         <h3 class="statusdegree"><small>&nbsp</small></h3>
