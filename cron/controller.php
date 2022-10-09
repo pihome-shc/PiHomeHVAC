@@ -335,6 +335,7 @@ if ($rowcount > 0) {
 }
 
 //following variable set to 0 on start for array index.
+$system_controller = (array) null;
 $system_controller_index = '0';
 $command_index = '0';
 $current_time = date('H:i:s');
@@ -1784,7 +1785,6 @@ while ($row = mysqli_fetch_assoc($results)) {
 		//Pass data to zone commands loop
                 $zone_commands[$command_index] = (array('controllers' =>$zone_controllers, 'zone_id' =>$zone_id, 'zone_name' =>$zone_name, 'zone_category' =>$zone_category, 'zone_status'=>$zone_status, 'zone_status_prev'=>$zone_status_prev, 'zone_overrun_prev'=>$zone_overrun_prev, 'zone_override_status'=>$zone_override_status));
 		$command_index = $command_index+1;
-                $system_controller = (array) null;
 		//process Zone Cat 0 logs
 		if ($zone_category == 0 OR $zone_category == 3 || $zone_category == 4){
 			//all zone status to system controller array and increment array index
