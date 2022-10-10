@@ -120,7 +120,7 @@ $theme = settings($conn, 'theme');
 	        		        $row = mysqli_fetch_array($result);
 		        	        $zone_mode = $row['mode'];
                 			$zone_mode_main=floor($zone_mode/10)*10;
-		                        $query = "SELECT min_c, max_c, default_c FROM zone_view WHERE id =  ".$livetemp_zone_id." LIMIT 1";
+		                        $query = "SELECT name, min_c, max_c, default_c FROM zone_view WHERE id =  ".$livetemp_zone_id." LIMIT 1";
                 		        $zresult = $conn->query($query);
 		                        $zrow = mysqli_fetch_array($zresult);
                 		        if ($zone_mode == 0) {
@@ -164,7 +164,7 @@ $theme = settings($conn, 'theme');
                 		                        <div class="modal-body">
                                 		                <div style="text-align:center;">';
                                                 		        if ($rowcount > 0) {
-                                                                		echo '<h4><br><p>Heating Zone '.$current_mode.' Temperature Control</p></h4><br>
+                                                                		echo '<h4><br><p>'.$zrow["name"].' Zone '.$current_mode.' Temperature Control</p></h4><br>
 		                                                                <input type="text" value="'.DispSensor($conn, $set_temp, 1).'" class="dial" id="livetemp_c" name="live_temp">
                 		                                                <div style="float:right;">
                                 		                                        <textarea id="load_temp" class="temperature-box card-footer-'.theme($conn, settings($conn, 'theme'), 'color').'" readonly="readonly" row="0" col="0" ></textarea>
