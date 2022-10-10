@@ -1347,3 +1347,23 @@ var idata="w=ebus_command&o=delete&wid="+wid;
     .always(function() {
     });
 }
+
+//Update Live Temperature Zone
+function update_livetemp_zone(){
+    var idata="w=livetemp_zone&o=update";
+    idata+="&val="+$("#livetemp_zone").val();
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=3"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("update_livetemp_zone: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
