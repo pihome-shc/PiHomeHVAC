@@ -799,7 +799,7 @@ function get_schedule_status($conn,$zone_id,$holidays_status,$away_status){
                   	$tz = timezone_open(settings($conn, 'timezone'));
                   	$time_offset = timezone_offset_get($tz, date_create("now"));
                   	$time_offset = $time_offset - (3600 * Date('I'));
-//			$time_offset = 0;
+			$time_offset = 0;
         	        $time = strtotime(date("G:i:s"));
                 	$time_id = $row['time_id'];
 	                $start_time = strtotime($row['start']) + $time_offset;
