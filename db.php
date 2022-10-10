@@ -1931,7 +1931,7 @@ if($what=="ebus_command"){
 }
 
 //update livetemp zone
-if($what=="livetemp_zone"){
+if($what=="update_livetemp_zone"){
         if($opp=="update"){
                 $query = "UPDATE `livetemp` SET `zone_id`=" . $_GET['zone_id'] . ";";
                 if($conn->query($query)){
