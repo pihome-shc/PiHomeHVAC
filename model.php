@@ -1302,7 +1302,7 @@ echo '
             <div class="modal-body">
                 <form data-bs-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
                 <div class="form-group" class="control-label"><label>'.$lang['zone'].'</label>
-                        <select class="form-select" type="text" id="livetemp_zone" name="livetemp_zone" >';
+                        <select class="form-select" type="text" id="livetemp_zone_id" name="livetemp_zone_id" >';
                                 //get the id of the zone currently attached to the live temperature control
                                 $query = "SELECT zone_id FROM livetemp LIMIT 1;";
                                 $result = $conn->query($query);
