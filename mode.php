@@ -44,6 +44,7 @@ $theme = settings($conn, 'theme');
                 $result = $conn->query($query);
                 $row = mysqli_fetch_array($result);
                 $sc_mode  = $row['sc_mode'];
+		$system_controller_id = $row['id'];
 
                 $legend = array();
                 if ($system_controller_mode == 0) {

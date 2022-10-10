@@ -160,11 +160,7 @@ IPAddress myDNS(8, 8, 8, 8);
 
 // Flash leds on rx/tx/err
 // Uncomment to override default HW configurations
-#if defined(PCB_VERSION_1)
-  #define MY_DEFAULT_ERR_LED_PIN 5  // Error led pin
-#else
-  #define MY_DEFAULT_ERR_LED_PIN 35  // Error led pin
-#endif
+#define MY_DEFAULT_ERR_LED_PIN 5  // Error led pin
 #define MY_DEFAULT_RX_LED_PIN  17  // Receive led pin
 #define MY_DEFAULT_TX_LED_PIN  33  // the PCB, on board LED
 
@@ -174,7 +170,7 @@ IPAddress myDNS(8, 8, 8, 8);
   #define DISABLE_ETH 32 // set LOW using jumper to disable the Ethernet Interface
 #else
   #define ADC_39 39 // used to determine if WiFi or Ethernet interfaces are disabled
-  #define TRIGGER 5 // set LOW to indicate the relays are posotive level triggered
+  #define TRIGGER 35 // set LOW to indicate the relays are posotive level triggered
   #define CLEAR_EEPROM 32 // set LOW using jumper to clear save WIFI credentials (pin later used as i2c data)
 #endif
 
