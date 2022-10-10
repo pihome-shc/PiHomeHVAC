@@ -1350,8 +1350,8 @@ var idata="w=ebus_command&o=delete&wid="+wid;
 
 //Update Live Temperature Zone
 function update_livetemp_zone(){
-    var idata="w=livetemp_zone&o=update";
-    idata+="&zone_id="+document.getElementById("livetemp_zone").value;
+    var idata="w=update_livetemp_zone&o=update";
+    idata+="&zone_id="+document.getElementById("livetemp_zone_id").value;
     idata+="&wid=0";
     $.get('db.php',idata)
     .done(function(odata){
