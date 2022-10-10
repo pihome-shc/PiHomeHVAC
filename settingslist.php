@@ -296,11 +296,11 @@ if ($settings_id <= 3) {
                         			<h3 class="status"></small></h3>
 			                	</button>
 
-                                                <?php if ($c_f == 0) { $icon = 'thermostat_30_C.png'; } else { $icon = 'thermostat_30_F.png'; } ?>
-                                                <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animate> data-bs-toggle="modal" data-bs-target="#livetemp_zone">
-                                                <h3 class="buttontop"><small><?php echo $lang['live_temp']; ?></small></h3>
-                                                <h3 class="degre" style="margin-top:5px;"><img src="images/<?php echo $icon; ?>" border="0"></h3>
-                                                <h3 class="status"><small class="statuscircle"><i class="bi bi-circle-fill '.$lt_status.'" style="font-size: 0.55rem;"></i></small></h3>
+						<?php if ($c_f == 0) { $icon = 'thermostat_30_C.png'; } else { $icon = 'thermostat_30_F.png'; } ?>
+                                                <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#livetemp_zone">
+                                		<h3 class="buttontop"><small><?php echo $lang['live_temp']; ?></small></h3>
+                                		<h3 class="degre" style="margin-top:5px;"><img src="images/<?php echo $icon; ?>" border="0"></h3>
+                                		<h3 class="status"><small class="statuscircle"><i class="bi bi-circle-fill '.$lt_status.'" style="font-size: 0.55rem;"></i></small></h3>
                                                 </button>
                         		<?php } ?>
 			                <?php if ($settings_id == 2) { ?>

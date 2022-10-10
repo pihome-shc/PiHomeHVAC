@@ -1933,17 +1933,17 @@ if($what=="ebus_command"){
 //update livetemp zone
 if($what=="update_livetemp_zone"){
         if($opp=="update"){
-                $query = "UPDATE `livetemp` SET `zone_id`=" . $_GET['zone_id'] . ";";
-                if($conn->query($query)){
-                        header('Content-type: application/json');
-                        echo json_encode(array('Success'=>'Success','Query'=>$query));
-                        return;
-                }else{
-                        header('Content-type: application/json');
-                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
-                        return;
-                }
-        }
+	        $query = "UPDATE `livetemp` SET `zone_id`=" . $_GET['zone_id'] . ";";
+        	if($conn->query($query)){
+	        	header('Content-type: application/json');
+        	    	echo json_encode(array('Success'=>'Success','Query'=>$query));
+	            	return;
+        	}else{
+            		header('Content-type: application/json');
+            		echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+            		return;
+        	}
+	}
 }
 ?>
 <?php if(isset($conn)) { $conn->close();} ?>
