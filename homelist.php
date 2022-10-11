@@ -657,7 +657,13 @@ $page_refresh = page_refresh($conn);
 			                        if ($sch_status =='1') {
         	        		                $add_on_mode = $zone_current_state['mode'];
 			                        } else {
-                			                if ($add_on_active == 0) { $add_on_mode = 0; } else { $add_on_mode = 114; }
+                			                if ($add_on_active == 0) {
+								$add_on_mode = 0;
+							} elseif ($zone_category == 1) {
+								$add_on_mode = $zone_current_state['mode'];
+							} else {
+								$add_on_mode = 114;
+							}
 		                	        }
 
 						if ($away_status == 1 && $away_sch == 1 ) { $zone_mode = 90; }

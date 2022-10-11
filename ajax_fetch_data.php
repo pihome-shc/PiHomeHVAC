@@ -157,7 +157,13 @@ if ($type <= 5) {
                 if ($sch_status =='1') {
                         $add_on_mode = $zone_mode;
                 } else {
-                        if ($add_on_active == 0) { $add_on_mode = 0; } else { $add_on_mode = 114; }
+                	if ($add_on_active == 0) {
+                        	$add_on_mode = 0;
+                        } elseif ($zone_category == 1) {
+                        	$add_on_mode = $zone_current_state['mode'];
+                      	} else {
+                        	$add_on_mode = 114;
+                        }
                 }
                 if ($away_status == 1 && $away_sch == 1 ) { $zone_mode = 90; }
                 $rval=getIndicators($conn, $add_on_mode, $zone_temp_target);
@@ -629,9 +635,13 @@ if ($type <= 5) {
         $result = $conn->query($query);
 	$row = mysqli_fetch_array($result);
         $sch_type = $row['sch_type'];
+        $tz = timezone_open(settings($conn, 'timezone'));
+        $time_offset = timezone_offset_get($tz, date_create("now"));
+        $time_offset = $time_offset - (3600 * Date('I'));
+        $time_offset = 0;
         $time = strtotime(date("G:i:s"));
-        $start_time = strtotime($row['start']);
-        $end_time = strtotime($row['end']);
+        $start_time = strtotime($row['start']) + $time_offset;
+        $end_time = strtotime($row['end']) + $time_offset;
         $start_sr = $row['start_sr'];
         $start_ss = $row['start_ss'];
         $start_offset = $row['start_offset'];
@@ -688,9 +698,12 @@ if ($type <= 5) {
 	$srow = mysqli_fetch_assoc($sresults);
 
         $shactive="orangesch_list";
+        $tz = timezone_open(settings($conn, 'timezone'));
+        $time_offset = timezone_offset_get($tz, date_create("now"));
+        $time_offset = $time_offset - (3600 * Date('I'));
         $time = strtotime(date("G:i:s"));
-        $start_time = strtotime($srow['start']);
-        $end_time = strtotime($srow['end']);
+        $start_time = strtotime($srow['start']) + $time_offset;
+        $end_time = strtotime($srow['end']) + $time_offset;
         if ($time >$start_time && $time <$end_time){$shactive="redsch_list";}
 
         $query = "SELECT sensor_type_id FROM sensors WHERE zone_id = '{$srow['$zone_id']}' LIMIT 1;";
