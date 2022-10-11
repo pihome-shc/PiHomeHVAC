@@ -75,7 +75,7 @@ while ($zrow = mysqli_fetch_assoc($zresults)) {
                         $start_time = strtotime($row['start']);
                         $end_time = strtotime($row['end']);
                         echo "-----------------------------------------------\n";
-                        echo "Zone Name: ".$zrow["name"];
+                        echo "Zone Name: ".$zrow["name"]."\n";
                         echo "Time: ".date('m/d/Y H:i:s', $time)."\n";
                         echo "Start Time: ".date('m/d/Y H:i:s', $start_time)."\n";
                         echo "End Time: ".date('m/d/Y H:i:s', $end_time)."\n";
