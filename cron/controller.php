@@ -1873,28 +1873,30 @@ while ($row = mysqli_fetch_assoc($results)) {
 			// Process Logs Category 1, 2 and 4 logs if zone status has changed
 			// zone switching ON
                         if ($zone_current_mode != $zone_mode) {
-                                $query = "UPDATE add_on_logs SET stop_datetime = '{$date_time}', stop_cause = '{$add_on_stop_cause}'
-                                          WHERE `zone_id` = '{$zone_id}' ORDER BY id DESC LIMIT 1";
-                                $result = $conn->query($query);
-                                if ($result) {
-                                        if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table updated Successfully. \n"; }
-                                }else {
-                                        if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table update failed. \n"; }
-                                }
-                                if($zone_mode == 111 || $zone_mode == 114 || $zone_mode == 21 ||  $zone_mode == 10) {
-                                        $query = "INSERT INTO `add_on_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`,
-                                                   `expected_end_date_time`) VALUES ('0', '0', '{$zone_id}', '{$date_time}', '{$add_on_start_cause}', NULL, NULL,
-                                                   '{$expected_end_date_time}');";
-                                } else {
-                                        $query = "INSERT INTO `add_on_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`,
-                                                   `expected_end_date_time`) VALUES ('0', '0', '{$zone_id}', '{$date_time}', '{$add_on_start_cause}', NULL, NULL, NULL);";
-                                }
-                                $result = $conn->query($query);
-                                if ($result) {
-                                        if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table updated Successfully. \n"; }
-                                }else {
-                                        if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table update failed. \n"; }
-                                }
+				if (floor($zone_mode/10)*10 != floor($zone_current_mode/10)*10) {
+                                	$query = "UPDATE add_on_logs SET stop_datetime = '{$date_time}', stop_cause = '{$add_on_stop_cause}'
+                                        	  WHERE `zone_id` = '{$zone_id}' ORDER BY id DESC LIMIT 1";
+                                	$result = $conn->query($query);
+                                	if ($result) {
+                                        	if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table updated Successfully. \n"; }
+                                	}else {
+                                        	if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table update failed. \n"; }
+                                	}
+                                	if($zone_mode == 111 || $zone_mode == 114 || $zone_mode == 21 ||  $zone_mode == 10) {
+                                        	$query = "INSERT INTO `add_on_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`,
+                                                   	  `expected_end_date_time`) VALUES ('0', '0', '{$zone_id}', '{$date_time}', '{$add_on_start_cause}', NULL, NULL,
+                                                   	  '{$expected_end_date_time}');";
+                                	} else {
+                                        	$query = "INSERT INTO `add_on_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`,
+                                                   	  `expected_end_date_time`) VALUES ('0', '0', '{$zone_id}', '{$date_time}', '{$add_on_start_cause}', NULL, NULL, NULL);";
+                                	}
+                                	$result = $conn->query($query);
+                                	if ($result) {
+                                        	if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table updated Successfully. \n"; }
+                                	}else {
+                                        	if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Add-On Log table update failed. \n"; }
+                                	}
+				}
 			} elseif($zone_status_prev == '0' &&  ($zone_status == '1' || $zone_state  == '1')) {
 				if($zone_mode == 111 || $zone_mode == 114 || $zone_mode == 21 ||  $zone_mode == 10 ||  $zone_mode == 141) {
 					$aoquery = "INSERT INTO `add_on_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`, `expected_end_date_time`) VALUES ('0', '0', '{$zone_id}', '{$date_time}', '{$add_on_start_cause}', NULL, NULL, NULL);";
