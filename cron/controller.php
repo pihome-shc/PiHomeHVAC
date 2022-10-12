@@ -1322,21 +1322,21 @@ while ($row = mysqli_fetch_assoc($results)) {
                         	                                        if ($zone_c < $temp_cut_out_rising){
                                 	                                	$zone_status="1";
                                         	                                $zone_mode = 71;
-                                                	                        $start_cause="Schedule Override Started";
+                                                	                        $add_on_start_cause="Schedule Override Started";
                                                         	                $expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
                                                                 	        $zone_state = 1;
 	                                                                }
         	                                                       	if ($zone_c >= $temp_cut_out_rising && ($zone_c < $temp_cut_out)){
                 	                                                	$zone_status=$zone_status_prev;
                         	                                                $zone_mode = 72 - $zone_status_prev;
-                                	                                        $start_cause="Schedule Override Target Deadband";
-                                        	                                $stop_cause="Schedule Override Target Deadband";
+                                	                                        $add_on_start_cause="Schedule Override Target Deadband";
+                                        	                                $add_on_stop_cause="Schedule Override Target Deadband";
                                                 	                        $zone_state = $zone_status_prev;
                                                         	        }
                                                                 	if ($zone_c >= $temp_cut_out){
                                                                			$zone_status="0";
 	                                                                        $zone_mode = 70;
-        	                                                                $stop_cause="Schedule Override Target C Achieved";
+        	                                                                $add_on_stop_cause="Schedule Override Target C Achieved";
                 	                                                        $zone_state = 0;
                         	                                        }
                                 	                        } elseif($boost_status=='0'){
@@ -1347,6 +1347,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 											$zone_status="1";
 											$zone_mode = 111;
 											$add_on_start_cause = "Schedule Started";
+											$add_on_stop_cause="Schedule Started";
 											$expected_end_date_time=date('Y-m-d '.$sch_end_time.'');
 											$zone_state = 1;
 										}
