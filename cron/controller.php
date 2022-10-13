@@ -1300,6 +1300,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                                 			                        $zone_status="1";
                                                 			        $zone_mode = 141;
 		                                        	                $add_on_start_cause="Maintain Default Start";
+										$add_on_stop_cause="Maintain Default Start";
                 		                                	        $zone_state = 1;
 	                                		                }
         	                                        		if (($zone_c >= $temp_cut_out_rising) && ($zone_c < $temp_cut_out)){
@@ -1312,6 +1313,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                                 		                	if (($zone_c >= $temp_cut_out)){
                                                 		        	$zone_status="0";
 			                                                        $zone_mode = 140;
+										$add_on_start_cause="Maintain Default Target C Achieved";
         	        		                                        $add_on_stop_cause="Maintain Default Target C Achieved";
                 	                		                        $zone_state = 0;
                         	                        		}
