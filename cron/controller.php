@@ -1872,8 +1872,10 @@ while ($row = mysqli_fetch_assoc($results)) {
 		} else {
 			// Process Logs Category 1, 2 and 4 logs if zone status has changed
 			// zone switching ON
+                        $mode_1 = floor($zone_current_mode/10)*10;
+                        $mode_2 = floor($zone_mode/10)*10;
                         if ($zone_current_mode != $zone_mode) {
-				if (floor($zone_mode/10)*10 != floor($zone_current_mode/10)*10) {
+				if (($mode_1 == 110 && $mode_2== 140) || ($mode_1 == 140 && $mode_2== 110)) {
                                 	$query = "UPDATE add_on_logs SET stop_datetime = '{$date_time}', stop_cause = '{$add_on_stop_cause}'
                                         	  WHERE `zone_id` = '{$zone_id}' ORDER BY id DESC LIMIT 1";
                                 	$result = $conn->query($query);
