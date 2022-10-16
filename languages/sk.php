@@ -982,4 +982,7 @@ $lang['message_position_info'] = "Select position on tile for text, either Cente
 $lang['ebus_message_offset_info'] = "Numeric Offset Value to be added to the eBUS returned value.";
 $lang['ebus_message_info']= "eBUS Message to be sent to the ebusd Daemon";
 $lang['setup_ebus_communication'] = "Setup eBUS Communication";
+$lang['change_livetemp_zone'] = "Change Zone Attached to Live Temperature Control";
+$lang['maintain_default_temperature'] = "Maintain Default Temperature";
+$lang['maintain_default_temperature_info'] = "Maintain Zone Default Temperature when no Schedule is Active";
 ?>

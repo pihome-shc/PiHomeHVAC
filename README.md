@@ -1,6 +1,6 @@
 # MaxAir - Smart Thermostat
 
-### Note: Now at Version 2.05.
+### Note: Now at Version 2.06.
 
 The previous version, PiHome, was centered around the creation of zones, this version is more centered around devices.
 
@@ -40,6 +40,8 @@ Version 2.03 Introduces 'Cooling' type zones that work witha temperture sensor, 
 Version 2.04 Introduces 'Message Sensors', to allow Home Screen display of custom messages (example boiler status passed from external interface).
 
 Version 2.05 Introduces 'eBUS Communication', to allow MaxAir to capture data from eBUS compliant Boilers.
+
+Version 2.06 Introduces the ability to attach the Live Temperature Control to any desired zone and the ability to configure any 'Immersion' or 'Cooling'zone (zone types with no System Controller attached) to maintain the set default temperature when there is no active schedule.
 
 ## Setup:
 

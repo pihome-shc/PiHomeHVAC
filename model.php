@@ -1290,6 +1290,43 @@ echo '
     </div>
 </div>';
 
+//livetemp zone
+echo '
+<div class="modal fade" id="livetemp_zone" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['change_livetemp_zone'].'</h5>
+            </div>
+            <div class="modal-body">
+            	<form data-bs-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
+                <div class="form-group" class="control-label"><label>'.$lang['zone'].'</label>
+                        <select class="form-select" type="text" id="livetemp_zone_id" name="livetemp_zone_id" >';
+				//get the id of the zone currently attached to the live temperature control
+				$query = "SELECT zone_id FROM livetemp LIMIT 1;";
+				$result = $conn->query($query);
+				$lrow=mysqli_fetch_array($result);
+                                //get list of zone names to display
+                                $query = "SELECT id, name FROM zone;";
+                                $results = $conn->query($query);
+                                if ($results){
+                                       	while ($zrow=mysqli_fetch_array($results)) {
+						echo '<option value="'.$zrow['id'].'" ' . ($zrow['id']==$lrow['zone_id'] ? 'selected' : '') . '>'.$zrow['name'].'</option>';
+                                        }
+                                }
+                       	echo '</select>
+                	<div class="help-block with-errors"></div>
+		</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['cancel'].'</button>
+                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="update_livetemp_zone()">
+            </div>
+        </div>
+    </div>
+</div>';
+
 //network settings model
 echo '
 <div class="modal fade" id="network_setting" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">

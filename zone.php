@@ -43,6 +43,7 @@ if (isset($_POST['submit'])) {
 	$result = $conn->query($query);
 	$found_product = mysqli_fetch_array($result);
 	$sensor_type_id = $found_product['sensor_type_id'];
+	if($zone_category <> 2) { $maintain_default =  $_POST['maintain_default']; } else { $maintain_default = 0; }
 
 	$zone_category = $_POST['selected_zone_category'];
 	$zone_status = isset($_POST['zone_status']) ? $_POST['zone_status'] : "0";
@@ -177,9 +178,9 @@ if (isset($_POST['submit'])) {
         if ($zone_category <> 2) {
                 //Add or Edit Zone record to Zone_Sensor Table
                 if ($id==0){
-                        $query = "INSERT INTO `zone_sensors` (`sync`, `purge`, `zone_id`, `min_c`, `max_c`, `default_c`, `hysteresis_time`, `sp_deadband`, `zone_sensor_id`) VALUES ('{$sync}', '{$purge}', '{$cnt_id}', '{$min_c}', '{$max_c}', '{$default_c}', '{$hysteresis_time}', '{$sp_deadband}', '{$zone_sensor_id}');";
+                        $query = "INSERT INTO `zone_sensors` (`sync`, `purge`, `zone_id`, `min_c`, `max_c`, `default_c`, `default_m`, `hysteresis_time`, `sp_deadband`, `zone_sensor_id`) VALUES ('{$sync}', '{$purge}', '{$cnt_id}', '{$min_c}', '{$max_c}', '{$default_c}', '{$maintain_default}', '{$hysteresis_time}', '{$sp_deadband}', '{$zone_sensor_id}');";
                 } else {
-                        $query = "UPDATE `zone_sensors` SET `sync` = 0, `min_c` ='{$min_c}', `max_c` ='{$max_c}', `default_c` ='{$default_c}', `hysteresis_time` = '{$hysteresis_time}', `sp_deadband` = '{$sp_deadband}', `zone_sensor_id` = '{$zone_sensor_id}' WHERE zone_id='{$id}';";
+                        $query = "UPDATE `zone_sensors` SET `sync` = 0, `min_c` ='{$min_c}', `max_c` ='{$max_c}', `default_c` ='{$default_c}', `default_m` ='{$maintain_default}', `hysteresis_time` = '{$hysteresis_time}', `sp_deadband` = '{$sp_deadband}', `zone_sensor_id` = '{$zone_sensor_id}' WHERE zone_id='{$id}';";
                 }
                 $result = $conn->query($query);
                 if ($result) {
@@ -583,31 +584,32 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 						        // bit 8        -       Boost Button ID
 						        // bit 9        -       Boost Button Child ID
 						        // bit 10       -       System Controller ID
+							// bit 11	-	Maintain Default
 
 							switch(zone_cat) {
 						  		case "0":
-						    			map_bin = 0b1111111010;
+						    			map_bin = 0b01111111010;
 						    			break;
 						  		case "1":
-						    			map_bin = 0b0111111011;
+						    			map_bin = 0b10111111011;
 						    			break;
 						                case "2":
-						                        map_bin = 0b0001000000;
+						                        map_bin = 0b00001000000;
 						                        break;
 						                case "3":
-						                        map_bin = 0b1110111110;
+						                        map_bin = 0b01110111110;
 						                        break;
 						                case "4":
-						                        map_bin = 0b1111111110;
+						                        map_bin = 0b01111111110;
 						                        break;
 						                case "5":
-						                        map_bin = 0b0111111111;
+						                        map_bin = 0b10111111111;
 						                        break;
 						  		default:
 						    			// code block
 							}
 							// mask out sensor temperture fields for 'Binary' type sensors
-							if ((zone_cat === "1" || zone_cat === "5") && sensor_type === "3") { map_bin = map_bin & 0b0111100001; }
+							if ((zone_cat === "1" || zone_cat === "5") && sensor_type === "3") { map_bin = map_bin & 0b00111100001; }
                                                         //console.log(zone_cat, sensor_type, map_bin);
 
 						        if (map_bin & 0b1) {
@@ -743,6 +745,17 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 						                document.getElementById("system_controller_id_label").style.visibility = 'hidden';
 						                document.getElementById("system_controller_id").required = false;
 						        }
+                                                        if (map_bin & 0b10000000000 && sensor_type === "1") {
+                                                                document.getElementById("default_m_label_1").style.visibility = 'visible';
+								document.getElementById("default_m_label_2").style.visibility = 'visible';
+                                                                document.getElementById("m_default").style.display = 'block';
+                                                                document.getElementById("m_default").required = true;
+                                                        } else {
+                                                                document.getElementById("m_default").style.display = 'none';
+                                                                document.getElementById("default_m_label_1").style.visibility = 'hidden';
+								document.getElementById("default_m_label_2").style.visibility = 'hidden';
+                                                                document.getElementById("m_default").required = false;
+                                                        }
 
 							// re-build the sensor list based on the zone type (1 = temperature, 2 = humidity)
 						 	var opt = document.getElementById("zone_sensor_id").getElementsByTagName("option");
@@ -784,6 +797,27 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 							<input class="form-control" placeholder="<?php echo $lang['zone_default_temperature_help']; ?>" value="<?php if(isset($rowzonesensors['default_c'])) { echo DispSensor($conn,$rowzonesensors['default_c'],$rowzonesensors['sensor_type_id']); } else {echo DispSensor($conn,'25',$rowzonesensors['sensor_type_id']);}  ?>" id="default_c" name="default_c" data-bs-error="<?php echo $lang['zone_default_temperature_error']; ?>"  autocomplete="off" required>
 							<div class="help-block with-errors"></div>
 						</div>
+
+						<!-- Maintain Default  -->
+						<div class="form-group" class="control-label" style="display:block"><label id="default_m_label_1"><?php echo $lang['maintain_default_temperature']; ?></label> <small class="text-muted" id="default_m_label_2"><?php echo $lang['maintain_default_temperature_info'];?></small>
+	                                                <select class="form-select" type="text" id="m_default" name="m_default" onchange=set_default_m(this.options[this.selectedIndex].value)>
+								<?php
+                	                                        echo '
+								<option value="0" ' . ($rowzonesensors["default_m"]=='0' ? 'selected' : '') . '>'.$lang['no'].'</option>
+                                	                        <option value="1" ' . ($rowzonesensors["default_m"]=='1' ? 'selected' : '') . '>'.$lang['yes'].'</option>
+								';
+								?>
+                                                	</select>
+							<div class="help-block with-errors"></div>
+						</div>
+                                                <script language="javascript" type="text/javascript">
+                                                function set_default_m(value)
+                                                {
+                                                        var valuetext = value;
+                                                        document.getElementById("maintain_default").value = valuetext;
+                                                }
+                                                </script>
+                                                <input type="hidden" id="maintain_default" name="maintain_default" value="<?php echo $rowzonesensors["default_m"]?>"/>
 
 						<!-- Minimum Temperature -->
                                                 <input type="hidden" id="min_c_label_text" name="min_c_label_text" value="<?php echo $lang['min_temperature']; ?>"/>
