@@ -597,7 +597,7 @@ try:
             out_child_id = x[relay_to_index["relay_child_id"]]
             out_on_trigger = x[relay_to_index["on_trigger"]]
             cur.execute(
-                "SELECT `id`, `node_id`, `type` FROM `nodes` where id = (%s) LIMIT 1",
+                "SELECT `id`, `node_id`, `type`, `name`, `sketch_version` FROM `nodes` where id = (%s) LIMIT 1",
                 (controler_id,),
             )
             nd = cur.fetchone()
@@ -605,6 +605,11 @@ try:
             n_id = nd[node_to_index["id"]]
             node_id = nd[node_to_index["node_id"]]
             node_type = nd[node_to_index["type"]]
+            node_name = nd[node_to_index["name"]]
+            sketch_version = float(nd[node_to_index["sketch_version"]])
+            if sketch_version > 0:
+                sketch_version = int(sketch_version * 100)
+
             cur.execute(
                 "SELECT `sub_type`, `ack`, `type`, `payload`, `id` FROM `messages_out` where n_id = (%s) AND child_id = (%s) ORDER BY id DESC LIMIT 1",
                 (n_id, out_child_id),
@@ -617,6 +622,9 @@ try:
                 out_ack = msg[msg_to_index["ack"]]
                 out_type = msg[msg_to_index["type"]]
                 out_payload = msg[msg_to_index["payload"]]
+                # action trigger setting for MySensor relays attached to the combined gateway/controller
+                if node_type.find("MySensor") != -1 and node_name.find("Controller") != -1 and sketch_version >= 34:
+                    out_payload = XNOR(out_on_trigger, out_payload)
                 # catch any missing HTTP type messages
                 if node_type.find("Tasmota") != -1 and len(out_payload) == 1:
                     cur.execute("SELECT `command`, `parameter` FROM `http_messages` where node_id = (%s) AND message_type = 0 LIMIT 1", (node_id,))
