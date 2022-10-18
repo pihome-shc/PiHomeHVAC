@@ -18,9 +18,8 @@
 * WHAT YOU ARE DOING                                                    *"
 *************************************************************************"
 */
-require_once(__DIR__.'/st_inc/session.php');
-require_once(__DIR__.'/st_inc/connection.php');
-require_once(__DIR__.'/st_inc/functions.php');
+require_once('/var/www/st_inc/connection.php');
+require_once('/var/www/st_inc/functions.php');
 
 // get current day number
 $dow = idate('w');
