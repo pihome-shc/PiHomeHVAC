@@ -259,6 +259,8 @@ const char* host = "maxairgw";
 long double send_heartbeat_time = millis();
 long double recieve_heartbeat_time = millis();
 long double HEARTBEAT_TIME = 30000;
+int trigger;
+
 #define CHILD_ID_TXT 255
 MyMessage msgTxt(CHILD_ID_TXT, V_TEXT);
 
@@ -270,9 +272,9 @@ int enable_wifi = 1;
 bool xnor(int a, int b)
 {
   if (a == b) {
-    return 1;
-  } else {
     return 0;
+  } else {
+    return 1;
   }
 }
 
@@ -292,6 +294,9 @@ void before(){
 
 void setup()
 {
+    //set led pin as output
+    pinMode(MY_DEFAULT_ERR_LED_PIN, OUTPUT);
+
     pinMode(CLEAR_EEPROM, INPUT);
     #if defined(PCB_VERSION_1)
       pinMode(ETH_ONLY, INPUT);
@@ -304,7 +309,8 @@ void setup()
       }
     #else
       pinMode(TRIGGER, INPUT);
-
+      trigger = digitalRead(TRIGGER);
+  
       // read ADC on pin 39
       int adc1 = analogRead(ADC_39);
       Serial.print("ADC Reading: ");
@@ -375,10 +381,12 @@ void setup()
     }
 
     #if defined(PCF8575_ATTACHED)
+      Serial.print("TRIGGER: ");
+      Serial.println(trigger);
       // Initialize the PCF8575 I/O Expander Connected Relays
       pcf8575.begin();
       for(int i=0;i<NUMBER_OF_RELAYS;i++) {
-        pcf8575.digitalWrite(i, xnor(digitalRead(TRIGGER), RELAY_OFF));
+        pcf8575.digitalWrite(i, xnor(trigger, RELAY_OFF));
       }
    #endif
     
@@ -413,7 +421,7 @@ void loop()
     #if defined(PCF8575_ATTACHED)
       // If it exceeds the heartbeat time then set all relays OFF
       for(int i=0;i<NUMBER_OF_RELAYS;i++) {
-        pcf8575.digitalWrite(i, xnor(digitalRead(TRIGGER), RELAY_OFF));
+        pcf8575.digitalWrite(i, xnor(trigger, RELAY_OFF));
       }
     #endif
     recieve_heartbeat_time = millis();
