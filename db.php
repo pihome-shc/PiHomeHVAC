@@ -420,7 +420,20 @@ if($what=="offset"){
 //Software Install
 if($what=="sw_install"){
         if($opp=="add"){
-                $query = "INSERT INTO `sw_install` (`script`, `pid`, `start_datetime`, `stop_datetime`) VALUES ('{$wid}', NULL, NULL, NULL);";
+                $restart_schedule = 0;
+                $installpath = $wid;
+                if (file_exists($installpath)) {
+                        $contents = file_get_contents($installpath);
+                        $searchfor = 'restart_scheduler';
+                        $pattern = preg_quote($searchfor, '/');
+                        $pattern = "/^.*$pattern.*\$/m";
+                        if(preg_match_all($pattern, $contents, $matches)){
+                                $str = implode("\n", $matches[0]);
+                                $status = explode(':',$str)[1];
+                        }
+                        if(strpos($status, 'yes') !== false) { $restart_schedule = 1; }
+                }
+		$query = "INSERT INTO `sw_install` (`script`, `pid`, `start_datetime`, `stop_datetime`, `restart_schedule`) VALUES ('{$installpath}', NULL, NULL, NULL, {$restart_schedule});";
                 if($conn->query($query)){
                         header('Content-type: application/json');
                         echo json_encode(array('Success'=>'Success','Query'=>$query));

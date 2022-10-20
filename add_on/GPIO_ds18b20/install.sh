@@ -2,12 +2,10 @@
 
 #app_name:Install GPIO 1-Wire Sensor
 #app_description:Install Support for DS18b20 1-Wire Temperature Sensor
+#restart_scheduler:yes
 
 echo "Updating the Jobs in the database"
 python3 db_config.py
-
-echo "Restarting scheduler"
-systemctl restart pihome_jobs_schedule.service
 
 if lsmod | grep w1_gpio &> /dev/null ;
 then
