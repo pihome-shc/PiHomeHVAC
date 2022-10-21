@@ -8,7 +8,7 @@ If you want any further information about the scripts then visit https://forums.
 1. Execute the install.sh bash script this will:
    * Update the MaxAir database to add a new table 'auto_image', which will detail the last execution of the image process.
    * Add a new Job Schedule to check on a daily basis if a image file is to be created.
-   * Download the 'Image Tools' from the GitHub repository and store in directory '/usr/local/bin'.
+   * Copy the files from the 'image_utils' directory to '/usr/local/bin' and set ownership/permissions.
    * Enable a new 'System Image' option in the Settings/System Maintenance menu.
    * Execution will create a multi gigabyte image file, which will typically be written to a NAS drive.
    * A folder will be needed in directory /mnt or /media as these aren’t included in the backup.
