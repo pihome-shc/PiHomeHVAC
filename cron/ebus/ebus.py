@@ -25,7 +25,7 @@ print("********************************************************")
 print("*  Script to read data from an eBUS Boiler interface   *")
 print("*             and store in message_in queue.           *")
 print("*                Build Date: 05/08/2022                *")
-print("*      Version 0.01 - Last Modified 06/08/2022         *")
+print("*      Version 0.01 - Last Modified 21/10/2022         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" ")
@@ -144,14 +144,13 @@ def boiler():
 
       cursorselect = cnx.cursor()
       cursorselect.execute('SELECT * FROM sensor_messages;')
-      ebus_message_to_index = dict(
+      sensor_message_to_index = dict(
          (d[0], i) for i, d in enumerate(cursorselect.description)
       )
       for msg in cursorselect.fetchall():
-         message = msg[ebus_message_to_index["message"]]
-         position = msg[ebus_message_to_index["position"]]
-         offset = int(msg[ebus_message_to_index["offset"]])
-         sensors_id = msg[ebus_message_to_index["sensor_id"]]
+         message = msg[sensor_message_to_index["message"]]
+         position = msg[sensor_message_to_index["sub_type"]]
+         sensors_id = msg[sensor_message_to_index["sensor_id"]]
          cursorselect.execute('SELECT * FROM sensors WHERE id = (%s)', (sensors_id, ))
          sensor_to_index = dict(
             (d[0], i) for i, d in enumerate(cursorselect.description)
@@ -184,7 +183,7 @@ def boiler():
                   response = 1
                else:
                   response = response.rstrip()
-               response = float(response) +  offset
+               response = float(response)
          else :
             fault = 1
 
@@ -259,11 +258,11 @@ def main() :
       # Clear the last message seen dictionary to -1, for first pass through initialisation
       cursorselect = cnx.cursor()
       cursorselect.execute('SELECT * FROM sensor_messages;')
-      ebus_message_to_index = dict(
+      sensor_message_to_index = dict(
          (d[0], i) for i, d in enumerate(cursorselect.description)
       )
       for msg in cursorselect.fetchall():
-         message = msg[ebus_message_to_index["message"]]
+         message = msg[sensor_message_to_index["message"]]
          last_readings[message] = -1
 
       cursorselect.close()
