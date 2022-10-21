@@ -8,7 +8,7 @@ echo "Create 'auto_image' table and default entry. Updating the Job in the datab
 cd /var/www/add_on/Image_Tools
 python3 db_config.py
 
-echo "Download tools from GitHub to /var/www/cron/image_tools and set permisions"
+echo "Download tools from GitHub to /usr/local/bin and set permisions"
 mkdir ./tools
 git clone https://github.com/scruss/RonR-RaspberryPi-image-utils.git "./tools"
 
