@@ -1000,4 +1000,7 @@ $lang['setup_ebus_communication'] = "Setup eBUS Communication";
 $lang['change_livetemp_zone'] = "Change Zone Attached to Live Temperature Control";
 $lang['maintain_default_temperature'] = "Maintain Default Temperature";
 $lang['maintain_default_temperature_info'] = "Maintain Zone Default Temperature when no Schedule is Active";
+$lang['auto_image'] = "Image System";
+$lang['auto_image_text'] = "Set Frequency and Rotation Period<br>Choose to Email Confirmation if Required";
+$lang['setup_image_file_creation'] = "Setup System Image File Creation";
 ?>

@@ -420,20 +420,20 @@ if($what=="offset"){
 //Software Install
 if($what=="sw_install"){
         if($opp=="add"){
-                $restart_schedule = 0;
-                $installpath = $wid;
-                if (file_exists($installpath)) {
-                        $contents = file_get_contents($installpath);
-                        $searchfor = 'restart_scheduler';
-                        $pattern = preg_quote($searchfor, '/');
-                        $pattern = "/^.*$pattern.*\$/m";
-                        if(preg_match_all($pattern, $contents, $matches)){
-                                $str = implode("\n", $matches[0]);
-                                $status = explode(':',$str)[1];
-                        }
-                        if(strpos($status, 'yes') !== false) { $restart_schedule = 1; }
-                }
-		$query = "INSERT INTO `sw_install` (`script`, `pid`, `start_datetime`, `stop_datetime`, `restart_schedule`) VALUES ('{$installpath}', NULL, NULL, NULL, {$restart_schedule});";
+		$restart_schedule = 0;
+		$installpath = $wid;
+		if (file_exists($installpath)) {
+        		$contents = file_get_contents($installpath);
+        		$searchfor = 'restart_scheduler';
+        		$pattern = preg_quote($searchfor, '/');
+        		$pattern = "/^.*$pattern.*\$/m";
+        		if(preg_match_all($pattern, $contents, $matches)){
+                		$str = implode("\n", $matches[0]);
+                		$status = explode(':',$str)[1];
+        		}
+			if(strpos($status, 'yes') !== false) { $restart_schedule = 1; }
+		}
+                $query = "INSERT INTO `sw_install` (`script`, `pid`, `start_datetime`, `stop_datetime`, `restart_schedule`) VALUES ('{$installpath}', NULL, NULL, NULL, {$restart_schedule});";
                 if($conn->query($query)){
                         header('Content-type: application/json');
                         echo json_encode(array('Success'=>'Success','Query'=>$query));
@@ -1957,6 +1957,33 @@ if($what=="update_livetemp_zone"){
             		return;
         	}
 	}
+}
+
+//Auto Image
+if($what=="auto_image"){
+        if($opp=="update"){
+                $frequency = $_GET['fval1']." ".$_GET['set_f'];
+                $rotation = $_GET['rval1']." ".$_GET['set_r'];
+                $destination = $_GET['dest'];
+                $enabled = $_GET['checkbox1'];
+                if ($enabled=='true'){$enabled = '1';} else {$enabled = '0';}
+                $email_confirmation = $_GET['checkbox3'];
+                if ($email_confirmation=='true'){$email_confirmation = '1';} else {$email_confirmation = '0';}
+                $query = "UPDATE auto_image SET enabled = {$enabled}, frequency = '{$frequency}', rotation = '{$rotation}', destination = '{$destination}', email_confirmation = {$email_confirmation};";
+                $update_error=0;
+                if(!$conn->query($query)){
+                        $update_error=1;
+                }
+                if($update_error==0){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
 }
 ?>
 <?php if(isset($conn)) { $conn->close();} ?>

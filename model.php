@@ -772,6 +772,117 @@ echo '
         	</div>
     	</div>
 </div>';
+
+//Setup Auto Image
+if (file_exists("/usr/local/bin/image-backup")) {
+	echo '<div class="modal fade" id="auto_image" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+        		<div class="modal-content">
+	            		<div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+        	        		<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                			<h5 class="modal-title">'.$lang['auto_image'].'</h5>
+	                		<div class="dropdown float-right">
+        	                		<a class="" data-bs-toggle="dropdown" href="#">
+                	                		<i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
+	                        		</a>
+		                        	<ul class="dropdown-menu dropdown-menu-'.theme($conn, settings($conn, 'theme'), 'color').'">
+        		                        	<li><a class="dropdown-item" href="pdf_download.php?file=setup_image_file_creation.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_image_file_creation'].'</a></li>
+                		                	<li class="dropdown-divider"></li>
+							<li><a class="dropdown-item" href="pdf_download.php?file=setup_email_notifications.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_email_notifications'].'</a></li>
+	                        		</ul>
+        	        		</div>
+            			</div>
+	            		<div class="modal-body">
+        	                	<p class="text-muted">'.$lang['auto_image_text'].'</p>';
+	                	        $query = "SELECT * FROM email LIMIT 1;";
+        	                	$result = $conn->query($query);
+					if (mysqli_num_rows($result) == 0) {
+						$disabled = "disabled";
+	        	        	        echo '<p class="text-info"><small>'.$lang['no_email'].'</small></p>';
+					} else {
+						$disabled = "";
+					}
+
+		        	        $query = "SELECT * FROM auto_image LIMIT 1;";
+        		        	$result = $conn->query($query);
+	                		$row = mysqli_fetch_assoc($result);
+					$f = explode(' ',$row['frequency']);
+        		                $r = explode(' ',$row['rotation']);
+
+		        	        echo '<hr></hr><div class="form-group" class="control-label">
+						<div class="row mb-3">
+							<div class="col-3">
+                						<div class="form-check">';
+                							if ($row['enabled'] == '1'){
+										echo '<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" value="1" id="checkbox1" name="ai_enabled" checked>';
+	                        					} else {
+										echo '<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" value="1" id="checkbox1" name="ai_enabled">';
+			                        			}
+        			                			echo '<label class="form-check-label" for="checkbox1">'.$lang['enabled'].'</label>
+								</div>
+							</div>
+                                	        	<div class="col-4">
+                                        	        	<div class="form-check">';
+                                                	        	if ($row['email_confirmation'] == '1'){
+										echo '<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" value="1" id="checkbox3" name="ai_email_confirmation" checked '.$disabled.'>';
+		                                                        } else {
+										echo '<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" value="1" id="checkbox3" name="ai_email_confirmation" '.$disabled.'>';
+                		                                        }
+                        		                                echo '<label class="form-check-label" for="checkbox3">'.$lang['email_confirmation'].'</label>
+                                		                </div>
+                                        		</div>
+	        	                	</div>
+        	     			</div>
+	        	        	<div class="form-group" class="control-label"><label><h5>'.$lang['frequency'].'</h5></label><small class="text-muted">&nbsp'.$lang['frequency_info'].'</small>
+        	        	        	<div class="row mb-3">
+                	        	        	<div class="col-2">
+								<input class="form-control" placeholder="0" value="'.$f[0].'" id="fval1" name="fval1" autocomplete="off" required>
+                                	        		<div class="help-block with-errors"></div>
+		                                	</div>
+        		                        	<div class="col-4">
+								<select class="form-select" type="text" id="fval2" name="fval2" onchange=set_frequency(this.options[this.selectedIndex].value)>
+        	        		                        	<option value="DAY" ' . ($f[1]=='DAY' ? 'selected' : '') . '>'.$lang['DAY'].'</option>
+		                        		                <option value="WEEK" ' . ($f[1]=='WEEK' ? 'selected' : '') . '>'.$lang['WEEK'].'</option>
+								</select>
+								<input type="hidden" id="set_f" name="set_f" value="'.$f[1].'">
+								<div class="help-block with-errors"></div>
+							</div>
+						</div>
+					</div>
+	        	        	<div class="form-group" class="control-label"><label><h5>'.$lang['rotation'].'</h5></label><small class="text-muted">&nbsp'.$lang['rotation_info'].'</small>
+        	        	        	<div class="row mb-3">
+                	        	        	<div class="col-2">
+								<input class="form-control" placeholder="0" value="'.$r[0].'" id="rval1" name="rval1" autocomplete="off" required>
+	                                	        	<div class="help-block with-errors"></div>
+		                                	</div>
+	        		                        <div class="col-4">
+        	        		                        <select class="form-select" type="text" id="rval2" name="rval2" onchange=set_rotation(this.options[this.selectedIndex].value)>
+                	        		                        <option value="DAY" ' . ($r[1]=='DAY' ? 'selected' : '') . '>'.$lang['DAY'].'</option>
+                        	        		                <option value="WEEK" ' . ($r[1]=='WEEK' ? 'selected' : '') . '>'.$lang['WEEK'].'</option>
+                                	        		</select>
+                                        	        	<input type="hidden" id="set_r" name="set_r" value="'.$r[1].'">
+			                                	<div class="help-block with-errors"></div>
+		        	                        </div>
+			                        </div>
+                			</div>
+	                		<div class="form-group" class="control-label"><label><h5>'.$lang['destination'].'</h5></label><small class="text-muted">&nbsp'.$lang['destination_info'].'</small>
+        	                		<div class="row mb-3">
+                	                		<div class="col-12">
+                        	                		<input class="form-control" placeholder="" value="'.$row['destination'].'" id="dest" name="dest" autocomplete="off" required>
+		                                	        <div class="help-block with-errors"></div>
+        		                        	</div>
+						</div>
+					</div>
+		            	</div>
+				<div class="modal-footer">
+               				<button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+		                        <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="set_auto_image()">
+	        		</div>
+        		</div>
+    		</div>
+	</div>';
+}
+
 //user accounts model
 echo '
 <div class="modal fade" id="user_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -865,6 +976,7 @@ echo '
                                         $path = '/var/www/add_on';
                                         $dir = new DirectoryIterator($path);
                                         foreach ($dir as $fileinfo) {
+						$installed = 0;
                                                 if ($fileinfo->isDir() && !$fileinfo->isDot()) {
                                                         $installpath = $path."/".$fileinfo->getFilename()."/install.sh";
                                                         if (file_exists($installpath)) {
