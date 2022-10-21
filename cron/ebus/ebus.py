@@ -143,7 +143,7 @@ def boiler():
       cnx = MySQLdb.connect(host=servername, user=username, passwd=password, db=dbname)
 
       cursorselect = cnx.cursor()
-      cursorselect.execute('SELECT * FROM ebus_messages;')
+      cursorselect.execute('SELECT * FROM sensor_messages;')
       ebus_message_to_index = dict(
          (d[0], i) for i, d in enumerate(cursorselect.description)
       )
@@ -258,7 +258,7 @@ def main() :
 
       # Clear the last message seen dictionary to -1, for first pass through initialisation
       cursorselect = cnx.cursor()
-      cursorselect.execute('SELECT * FROM ebus_messages;')
+      cursorselect.execute('SELECT * FROM sensor_messages;')
       ebus_message_to_index = dict(
          (d[0], i) for i, d in enumerate(cursorselect.description)
       )
