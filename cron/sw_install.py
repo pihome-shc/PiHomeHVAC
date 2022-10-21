@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import subprocess
 import sys
+import os
 import time, os, fnmatch, MySQLdb as mdb, logging
 from datetime import datetime
 import configparser
@@ -61,7 +62,7 @@ try:
 		id = row[sw_to_index["id"]]
 		script = row[sw_to_index["script"]]
 		pid = row[sw_to_index["pid"]]
-                restart_schedule = row[sw_to_index["restart_schedule"]]
+		restart_schedule = row[sw_to_index["restart_schedule"]]
 		if pid is None:
 			print("Starting Execution of script: ", script)
 			command = '/bin/bash ' + script
@@ -77,11 +78,11 @@ try:
 			cur.execute('UPDATE `sw_install` SET `stop_datetime` = %s WHERE id = %s', [timestamp, id])
 			con.commit()
 			con.close()
-                        if restart_schedule == 1:
-                                print('Restarting Job Scheduler')
-                                cmd = "sudo systemctl restart pihome_jobs_schedule.service > /dev/null 2>&1 &"
-                                os.system(cmd)
-                        print("Finished Executing script: ", script)
+			if restart_schedule == 1:
+				print('Restarting Job Scheduler')
+				cmd = "sudo systemctl restart pihome_jobs_schedule.service > /dev/null 2>&1 &"
+				os.system(cmd)
+			print("Finished Executing script: ", script)
 		else:
 			print("Executing script: ", script)
 	else:
