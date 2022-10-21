@@ -219,7 +219,7 @@ fi
 ROOT_PART="$(mount | sed -n 's|^\(/dev/.*\) on / .*|\1|p')"
 ROOT_DEV_P="$(sed 's/[0-9]\+$//' <<< "${ROOT_PART}")"
 ROOT_DEV="${ROOT_DEV_P}"
-if [ "${ROOT_DEV}" = "/dev/mmcblk0p" ]; then
+if [[ "${ROOT_DEV}" = /dev/mmcblk*p ]]; then
   ROOT_DEV="${ROOT_DEV:0:(${#ROOT_DEV} - 1)}"
 fi
 ROOT_TYPE=$(blkid "${ROOT_PART}" | sed -n 's|^.*TYPE="\(\S\+\)".*|\1|p')
