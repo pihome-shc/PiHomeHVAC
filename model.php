@@ -976,6 +976,7 @@ echo '
                                         $path = '/var/www/add_on';
                                         $dir = new DirectoryIterator($path);
                                         foreach ($dir as $fileinfo) {
+						$installed = 0;
                                                 if ($fileinfo->isDir() && !$fileinfo->isDot()) {
                                                         $installpath = $path."/".$fileinfo->getFilename()."/install.sh";
                                                         if (file_exists($installpath)) {
