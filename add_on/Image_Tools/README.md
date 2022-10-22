@@ -4,6 +4,8 @@ Rather than remove the sd card, copy it, then reinstall the card to restart the 
 Thanks go to RonR for the original scripts.
 If you want any further information about the scripts then visit https://forums.raspberrypi.com/viewtopic.php?t=332000
 
+NOTE: image-backup IS DESIGNED TO RUN ON RASPBIAN AND HENCE IS NOT AN INSTALL OPTION FOR OTHERE OPERATING SYSTEMS (Armbian).
+
 ## Quick Start
 1. Execute the install.sh bash script this will:
    * Update the MaxAir database to add a new table 'auto_image', which will detail the last execution of the image process.
