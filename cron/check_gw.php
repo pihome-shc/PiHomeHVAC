@@ -13,7 +13,7 @@ echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
 echo "\033[31m";
 echo "********************************************************\n";
 echo "*   Gateway Script Version 0.3 Build Date 22/01/2018   *\n";
-echo "*          Last Modification Date 24/04/2020           *\n";
+echo "*          Last Modification Date 23/10/2022           *\n";
 echo "*                                Have Fun - PiHome.eu  *\n";
 echo "********************************************************\n";
 echo " \033[0m \n";
@@ -120,10 +120,14 @@ if ($gw_status == '0') {
 
 	// Checking if Gateway script is running
         exec("ps -eo pid,etime,cmd | grep '$gw_script_txt' | grep -v grep | awk '{ print $2 }' | head -1", $pids);
-        $str_time = preg_replace("/^([\d]{1,2})\:([\d]{2})$/", "00:$1:$2", $pids[0]);
-        sscanf($str_time, "%d:%d:%d", $hours, $minutes, $seconds);
-        $time_seconds = $hours * 3600 + $minutes * 60 + $seconds;
         $nopids = count($pids);
+        if($nopids != 0) {
+                $str_time = preg_replace("/^([\d]{1,2})\:([\d]{2})$/", "00:$1:$2", $pids[0]);
+                sscanf($str_time, "%d:%d:%d", $hours, $minutes, $seconds);
+                $time_seconds = $hours * 3600 + $minutes * 60 + $seconds;
+        } else {
+                $time_seconds = 0;
+        }
         if($nopids==0 or $time_seconds <= 10) { // Script not running
 		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Python Gateway Script for Gateway \033[41mNot Running\033[0m \n";
 		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Starting Python Script for Gateway \n";
