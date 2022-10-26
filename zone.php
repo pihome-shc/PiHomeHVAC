@@ -172,6 +172,20 @@ if (isset($_POST['submit'])) {
 		        } else {
        			        $error .= "<p>".$lang['zone_relay_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
 		        }
+			//update the zone_id entry in the messages_out table
+                        $query = "SELECT `nodes`.`node_id`, `relays`.`relay_child_id` FROM `nodes`, `relays` WHERE (`nodes`.`id` = `relays`.`relay_id`)
+                                AND `relays`.`id` = {$zone_relay_id} LIMIT 1;";
+                        $result = $conn->query($query);
+                        $found_product = mysqli_fetch_array($result);
+                        $node_id = $found_product['node_id'];
+                        $child_id = $found_product['relay_child_id'];
+                        $query = "UPDATE `messages_out` SET `zone_id` = {$cnt_id} WHERE `node_id` = {$node_id} AND `child_id` = {$child_id};";
+                        $result = $conn->query($query);
+                        if ($result) {
+                                $message_success .= "<p>".$lang['messages_out_update_success']."</p>";
+                        } else {
+                                $error .= "<p>".$lang['messages_out_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+                        }
 		}
 	}
 
