@@ -53,7 +53,7 @@
 
 **Modify the file ...\Documents\Arduino\libraries\MySensors\core\MyGatewayTransportEthernet.cpp as per the instructions at https://www.pihome.eu/2021/10/06/wifimanager-with-mysensors/**
 
-**In the Arduino IDE use 'Library Manager' to install the Library PCF8575 by Renzo Mischianti**
+**In the Arduino IDE use 'Library Manager' to install the Library PCF8575 by Renzo Mischianti OR in the Arduino IDE use 'Add ZIP Library to installed the included PCF8575_library-master.zip file.**
 
 **Programing mode:**
 
