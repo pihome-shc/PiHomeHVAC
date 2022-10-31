@@ -12,7 +12,7 @@
 
 **Connection can be either WiFi or Ethernet or both.**
 
-**Jumper for Relay Module trigger LOW (no jumper) or HIGH (jumper).**
+**Jumper for Relay Module trigger LOW (no jumper) or HIGH (jumper). This is used both to set the relays to the OFF state on powerup and if the connection to the MaxAir gateway script is lost. Most relay modules use a LOW logic level to turn the relays ON, in this case no jumper is required.**
 
 **Compiled as ESP32 Dev Module.**
 
@@ -53,7 +53,7 @@
 
 **Modify the file ...\Documents\Arduino\libraries\MySensors\core\MyGatewayTransportEthernet.cpp as per the instructions at https://www.pihome.eu/2021/10/06/wifimanager-with-mysensors/**
 
-**In the Arduino IDE install the Library PCF8575 by Renzo Mischianti**
+**In the Arduino IDE use 'Library Manager' to install the Library PCF8575 by Renzo Mischianti**
 
 **Programing mode:**
 
