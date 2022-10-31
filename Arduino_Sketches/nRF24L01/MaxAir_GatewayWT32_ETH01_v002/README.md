@@ -14,6 +14,8 @@
 
 **Jumper for Relay Module trigger LOW (no jumper) or HIGH (jumper). This is used both to set the relays to the OFF state on powerup and if the connection to the MaxAir gateway script is lost. Most relay modules use a LOW logic level to turn the relays ON, in this case no jumper is required.**
 
+**NOTE: this board responds to the trigger level defined in the MaxAir Relays configuration..**
+
 **Compiled as ESP32 Dev Module.**
 
 **Can be used with Version 1 PCBs and Version 2 PCBs without the PCF8575 i2c I/O Expander by setting environment variables within the sketch.**
