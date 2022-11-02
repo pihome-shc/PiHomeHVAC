@@ -25,8 +25,9 @@ try:
     CHECK_RPI_POWER = True
 except ImportError:
     CHECK_RPI_POWER = False
-if new_under_voltage() is None:
-    CHECK_RPI_POWER = False
+if CHECK_RPI_POWER:
+    if new_under_voltage() is None:
+        CHECK_RPI_POWER = False
 
 DEFAULT_TIME_ZONE = None
 WAIT_TIME_SECONDS = 60
@@ -1142,7 +1143,8 @@ if __name__ == "__main__":
                 send_config_message(mqttClient)
             except:
                 write_message_to_console("something whent wrong")
-            _underVoltage = new_under_voltage()
+                if CHECK_RPI_POWER:
+                    _underVoltage = new_under_voltage()
             job = Job(
                 interval=timedelta(seconds=WAIT_TIME_SECONDS), execute=updateSensors
             )
