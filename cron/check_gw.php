@@ -13,7 +13,7 @@ echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
 echo "\033[31m";
 echo "********************************************************\n";
 echo "*   Gateway Script Version 0.3 Build Date 22/01/2018   *\n";
-echo "*          Last Modification Date 23/10/2022           *\n";
+echo "*          Last Modification Date 12/11/2022           *\n";
 echo "*                                Have Fun - PiHome.eu  *\n";
 echo "********************************************************\n";
 echo " \033[0m \n";
