@@ -34,9 +34,17 @@ $theme = settings($conn, 'theme');
                         <div>
                                 <i class="bi bi-send-fill" style="font-size: 1.2rem;"></i> <?php echo $lang['holidays']; ?>
                         </div>
-			<div>
-                                <div class="btn-group" id="holiday_date"><?php echo '&nbsp;&nbsp;'.date("H:i"); ?></div>
-                        </div>
+			<div class="dropdown">
+				<a class="" data-bs-toggle="dropdown" href="#">
+					<i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
+				</a>
+			        <ul class="dropdown-menu">
+	               			<li><a class="dropdown-item" href="pdf_download.php?file=holidays_setup.pdf" target="_blank"><i class="bi bi-file-earmark-pdf icon-fw"></i>&nbsp<?php echo $lang['holidays_setup']; ?></a></li>
+			               	<li class="dropdown-divider"></li>
+                	      		<li><a class="dropdown-item" href="pdf_download.php?file=setup_guide_scheduling.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp<?php echo $lang['setup_scheduling']; ?></a></li>
+			        </ul>
+                        	<div class="btn-group"><?php echo '&nbsp;&nbsp;'.date("H:i"); ?></div>
+			</div>
 		</div>
      	</div>
         <!-- /.card-header -->
@@ -58,8 +66,8 @@ $theme = settings($conn, 'theme');
 			//get the current holidays
 			$query = "SELECT * FROM holidays ORDER BY start_date_time asc";
 			$hol_results = $conn->query($query);
-                        $hol_count = $rowcount=mysqli_num_rows($hol_results);
-                        if ($hol_count > 0) {
+			$hol_count = $rowcount=mysqli_num_rows($hol_results);
+			if ($hol_count > 0) {
 				while ($hol_row = mysqli_fetch_assoc($hol_results)) {
 					if($hol_row["status"]=="0"){ $shactive="bluesch"; }else{ $shactive="orangesch"; }
 					$time = strtotime(date("G:i:s"));
