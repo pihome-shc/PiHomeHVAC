@@ -75,8 +75,8 @@ if (isset($_POST['submit'])) {
 	<br>
 	<div class="row">
 		<div class="col-lg-12">
-                        <div class="card <?php echo theme($conn, $theme, 'border_color'); ?>">
-                                <div class="card-header <?php echo theme($conn, $theme, 'text_color'); ?> <?php echo theme($conn, $theme, 'background_color'); ?>">
+			<div class="card border-<?php echo theme($conn, $theme, 'color'); ?>">
+				<div class="card-header <?php echo theme($conn, $theme, 'text_color'); ?> card-header-<?php echo theme($conn, $theme, 'color'); ?>">
                                         <div class="d-flex justify-content-between">
                                                 <div>
                                                         <i class="bi bi-send-fill" style="font-size: 1.2rem;"></i>&nbsp&nbsp<?php echo $lang['holidays_add']; ?>
@@ -92,8 +92,9 @@ if (isset($_POST['submit'])) {
 
 						<!-- Enable Holiday -->
 				                <div class="form-check">
-                                			<input class="form-check-input form-check-input-<?php echo explode('-', theme($conn, settings($conn, 'theme'), 'background_color'))[1]; ?>" type="checkbox" value="1" id="checkbox0" name="holidays_enable" <?php $check = ($holidays_row['status'] == 1) ? 'checked' : ''; echo $check; ?>>
-				                        <label class="form-check-label" for="checkbox0"><?php echo $lang['holidays_enable']; ?></label> </small>
+                                                        <input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" style="accent-color: #ff8839;" type="checkbox" value="1" id="checkbox0" name="holidsys_enable" <?php $check = ($holidays_row['status'] == 1) ? 'checked' : ''; echo $check; ?>>
+                                                        <label class="form-check-label" for="checkbox0"> <?php echo $lang['holidays_enable']; ?></label>
+
 							<div class="help-block with-errors"></div>
 						</div>
 
@@ -110,13 +111,13 @@ if (isset($_POST['submit'])) {
 						<div class="help-block with-errors"></div></div>
 
 						<!-- Buttons -->
-						<a href="holidays.php"><button type="button" class="btn <?php echo theme($conn, $theme, 'btn_primary'); ?> btn-sm" ><?php echo $lang['cancel']; ?></button></a>
-						<input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn <?php echo theme($conn, $theme, 'btn_style'); ?> btn-sm login">
+						<a href="holidays.php"><button type="button" class="btn btn-primary-<?php echo theme($conn, $theme, 'color'); ?> btn-sm" ><?php echo $lang['cancel']; ?></button></a>
+						<input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-sm login">
 					</form>
 				</div>
 				<!-- /.card-body -->
-				<div class="card-footer <?php echo theme($conn, $theme, 'footer_color'); ?>">
-					<?php 
+				<div class="card-footer card-footer-<?php echo theme($conn, $theme, 'color'); ?>">
+					<?php
 					ShowWeather($conn);
 					?>
 				</div>
