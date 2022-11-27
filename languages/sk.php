@@ -988,4 +988,5 @@ $lang['maintain_default_temperature_info'] = "Maintain Zone Default Temperature 
 $lang['auto_image'] = "Image System";
 $lang['auto_image_text'] = "Set Frequency and Rotation Period<br>Choose to Email Confirmation if Required";
 $lang['setup_image_file_creation'] = "Setup System Image File Creation";
+$lang['holidays_setup'] = "Setup Holidays Schedule";
 ?>
