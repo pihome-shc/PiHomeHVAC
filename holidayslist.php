@@ -58,7 +58,8 @@ $theme = settings($conn, 'theme');
 			//get the current holidays
 			$query = "SELECT * FROM holidays ORDER BY start_date_time asc";
 			$hol_results = $conn->query($query);
-			if ($rowcount=mysqli_num_rows($hol_results) > 0) {
+                        $hol_count = $rowcount=mysqli_num_rows($hol_results);
+                        if ($hol_count > 0) {
 				while ($hol_row = mysqli_fetch_assoc($hol_results)) {
 					if($hol_row["status"]=="0"){ $shactive="bluesch"; }else{ $shactive="orangesch"; }
 					$time = strtotime(date("G:i:s"));
@@ -241,7 +242,7 @@ $theme = settings($conn, 'theme');
                         </div>
                         <div class="btn-group">
                                 <?php
-                                echo '<i class="bi bi-clock"></i>&nbspHoliday Schedule:&nbsp' . secondsToWords((array_sum($schedule_time) * 60));
+                                if ($hol_count > 0) {echo '<i class="bi bi-clock"></i>&nbspHoliday Schedule:&nbsp' . secondsToWords((array_sum($schedule_time) * 60));}
                                 ?>
                         </div>
                 </div>
