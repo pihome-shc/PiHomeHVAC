@@ -41,6 +41,7 @@ if (isset($_POST['submit'])) {
         $row = mysqli_fetch_array($result);
 	$node_id = $row['node_id'];
         $node_type = $row['type'];
+	$node_name = $row['name'];
 	if(strpos($node_type, 'Tasmota') !== false) {
 	        $query = "SELECT * FROM http_messages WHERE node_id = '{$node_id}' AND message_type = 0 LIMIT 1;";
         	$result = $conn->query($query);
