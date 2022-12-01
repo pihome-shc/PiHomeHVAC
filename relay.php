@@ -36,7 +36,7 @@ if (isset($_POST['submit'])) {
 	$name = $_POST['name'];
         $type = $_POST['type_id'];
 	$selected_relay_id = $_POST['selected_relay_id'];
-        $query = "SELECT type, node_id FROM nodes WHERE id = '".$selected_relay_id."' LIMIT 1;";
+        $query = "SELECT type, node_id, name FROM nodes WHERE id = '".$selected_relay_id."' LIMIT 1;";
         $result = $conn->query($query);
         $row = mysqli_fetch_array($result);
 	$node_id = $row['node_id'];
@@ -49,6 +49,16 @@ if (isset($_POST['submit'])) {
 	} else {
 		$payload = 0;
 	}
+        if(strpos($node_name, 'Gateway Controller Relay') !== false) {
+                $message_type = 25;
+        } else {
+                $message_type = 2;
+        }
+        $relay_child_id = $_POST['relay_child_id'];
+        $on_trigger = $_POST['trigger'];
+        $sync = '0';
+        $purge= '0';
+        $m_out_id = $_POST['m_out_id'];
 	$relay_child_id = $_POST['relay_child_id'];
 	$on_trigger = $_POST['trigger'];
         $sync = '0';
@@ -74,7 +84,7 @@ if (isset($_POST['submit'])) {
 
         //Add or Edit messages_out record to messages_out Table
 	$query = "INSERT INTO `messages_out` (`id`, `sync`, `purge`, `n_id`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`)
-		VALUES ('{$m_out_id}', '0', '0', '{$selected_relay_id}', '{$node_id}', '{$relay_child_id}', '1', '1', '2', '{$payload}', '0', now(), 0)
+		VALUES ('{$m_out_id}', '0', '0', '{$selected_relay_id}', '{$node_id}', '{$relay_child_id}', '1', '1', '{$message_type}', '{$payload}', '0', now(), 0)
 		ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), n_id='{$selected_relay_id}', node_id='{$node_id}', child_id='{$relay_child_id}', sub_type=VALUES(sub_type),
 		ack=VALUES(ack), type=VALUES(type), payload=VALUES(payload), sent=VALUES(sent), datetime=VALUES(datetime), zone_id=VALUES(zone_id);";
 	$result = $conn->query($query);
