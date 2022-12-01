@@ -317,10 +317,10 @@ void setup()
       Serial.println(adc1);
 
       if (adc1 == 0) {
-        enable_eth = 0;
+        enable_wif = 0;
       }
       if (adc1 > 1000 && adc1 < 4000) {
-        enable_wifi = 0;
+        enable_eth = 0;
       }
     #endif
     if (enable_wifi == 1) {
@@ -546,7 +546,7 @@ void receive(const MyMessage &message)
 {
   #if defined(PCF8575_ATTACHED)
     // We only expect one type of message from controller. But we better check anyway.
-    if (message.getType()==V_STATUS) {
+    if (message.getType()==V_VAR2) {
       // Change relay state
       pcf8575.digitalWrite(message.getSensor()-1, message.getBool()?RELAY_ON:RELAY_OFF);
       // Write some debug info
