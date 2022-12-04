@@ -246,7 +246,7 @@ const char* host = "maxairgw";
 #define SS 15
 
 #if defined(PCF8575_ATTACHED)
-  #define NUMBER_OF_RELAYS 15 // Total number of attached relays
+  #define NUMBER_OF_RELAYS 16 // Total number of attached relays
   #define RELAY_ON 1  // GPIO value to write to turn on attached relay
   #define RELAY_OFF 0 // GPIO value to write to turn off attached relay
 #endif
