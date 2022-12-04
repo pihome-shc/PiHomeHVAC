@@ -248,7 +248,7 @@ if (isset($_POST['submit'])) {
 						        	                document.getElementById("relay_child_id").options.add(optn);
                 							}
 	        						} else {
-								        for(j=0;j<=valuetext;j++)
+								        for(j=1;j<=valuetext;j++)
         									{
 							                	var optn = document.createElement("OPTION");
 								                optn.text = j;
@@ -264,20 +264,26 @@ if (isset($_POST['submit'])) {
 						<input type="hidden" id="gpio_pin_list" name="gpio_pin_list" value="<?php echo implode(",", array_filter(Get_GPIO_List()))?>"/>
 						<div class="form-group" class="control-label"><label><?php echo $lang['relay_child_id']; ?></label> <small class="text-muted"><?php echo $lang['relay_child_id_info'];?></small>
 						        <select id="relay_child_id" name="relay_child_id" class="form-control select2" data-bs-error="<?php echo $lang['relay_child_id_error']; ?>" autocomplete="off" required>
-						                <?php if(isset($row['relay_child_id'])) {
-						                        echo '<option selected >'.$row['relay_child_id'].'</option>';
-						                        $pos=strpos($rownode["type"], "GPIO");
-						                        if($pos !== false) {
-					        	                        $gpio_list=Get_GPIO_List();
-					                	                for ($x = 0; $x <= count(array_filter($gpio_list)) - 1; $x++) {
-                                        						echo "<option value=".$gpio_list[$x].">".$gpio_list[$x]."</option>";
-                                						}
-	                        					} else {
-						                                for ($x = 1; $x <= $rownode['max_child_id']; $x++) {
-                	                        					echo "<option value=".$x.">".$x."</option>";
-                        	        					}
-					                        	}
-                						} ?>
+                                                                <?php if(strpos($rownode["type"], "GPIO") !== false) {
+                                                                        $gpio_list=Get_GPIO_List();
+                                                                        if(isset($row['relay_child_id'])) {
+                                                                                echo '<option selected >'.$row['relay_child_id'].'</option>';
+                                                                        } else {
+                                                                                echo '<option selected >'.$gpio_list[0].'</option>';
+                                                                        }
+                                                                        for ($x = 0; $x <= count(array_filter($gpio_list)) - 1; $x++) {
+                                                                                echo "<option value=".$gpio_list[$x].">".$gpio_list[$x]."</option>";
+                                                                        }
+                                                                } else {
+                                                                        if(isset($row['relay_child_id'])) {
+                                                                                echo '<option selected >'.$row['relay_child_id'].'</option>';
+                                                                        } else {
+                                                                                echo '<option selected >1</option>';
+                                                                        }
+                                                                        for ($x = 1; $x <= $rownode['max_child_id']; $x++) {
+                                                                                echo "<option value=".$x.">".$x."</option>";
+                                                                        }
+                                                                } ?>
 				        		</select>
 							<div class="help-block with-errors"></div>
 						</div>
