@@ -36,11 +36,12 @@ if (isset($_POST['submit'])) {
 	$name = $_POST['name'];
         $type = $_POST['type_id'];
 	$selected_relay_id = $_POST['selected_relay_id'];
-        $query = "SELECT type, node_id FROM nodes WHERE id = '".$selected_relay_id."' LIMIT 1;";
+        $query = "SELECT type, node_id, name FROM nodes WHERE id = '".$selected_relay_id."' LIMIT 1;";
         $result = $conn->query($query);
         $row = mysqli_fetch_array($result);
 	$node_id = $row['node_id'];
         $node_type = $row['type'];
+	$node_name = $row['name'];
 	if(strpos($node_type, 'Tasmota') !== false) {
 	        $query = "SELECT * FROM http_messages WHERE node_id = '{$node_id}' AND message_type = 0 LIMIT 1;";
         	$result = $conn->query($query);
@@ -49,6 +50,16 @@ if (isset($_POST['submit'])) {
 	} else {
 		$payload = 0;
 	}
+        if(strpos($node_name, 'Gateway Controller Relay') !== false) {
+                $message_type = 25;
+        } else {
+                $message_type = 2;
+        }
+        $relay_child_id = $_POST['relay_child_id'];
+        $on_trigger = $_POST['trigger'];
+        $sync = '0';
+        $purge= '0';
+        $m_out_id = $_POST['m_out_id'];
 	$relay_child_id = $_POST['relay_child_id'];
 	$on_trigger = $_POST['trigger'];
         $sync = '0';
@@ -74,9 +85,9 @@ if (isset($_POST['submit'])) {
 
         //Add or Edit messages_out record to messages_out Table
 	$query = "INSERT INTO `messages_out` (`id`, `sync`, `purge`, `n_id`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`)
-		VALUES ('{$m_out_id}', '0', '0', '{$selected_relay_id}', '{$node_id}', '{$relay_child_id}', '1', '1', '2', '{$payload}', '0', now(), 0)
+		VALUES ('{$m_out_id}', '0', '0', '{$selected_relay_id}', '{$node_id}', '{$relay_child_id}', '1', '1', '{$message_type}', '{$payload}', '0', now(), 0)
 		ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), n_id='{$selected_relay_id}', node_id='{$node_id}', child_id='{$relay_child_id}', sub_type=VALUES(sub_type),
-		ack=VALUES(ack), type=VALUES(type), payload=VALUES(payload), sent=VALUES(sent), datetime=VALUES(datetime), zone_id=VALUES(zone_id);";
+		ack=VALUES(ack), type='{$message_type}', payload=VALUES(payload), sent=VALUES(sent), datetime=VALUES(datetime), zone_id=VALUES(zone_id);";
 	$result = $conn->query($query);
         if ($result) {
 		if ($m_out_id==0){
@@ -237,7 +248,7 @@ if (isset($_POST['submit'])) {
 						        	                document.getElementById("relay_child_id").options.add(optn);
                 							}
 	        						} else {
-								        for(j=0;j<=valuetext;j++)
+								        for(j=1;j<=valuetext;j++)
         									{
 							                	var optn = document.createElement("OPTION");
 								                optn.text = j;
@@ -253,20 +264,26 @@ if (isset($_POST['submit'])) {
 						<input type="hidden" id="gpio_pin_list" name="gpio_pin_list" value="<?php echo implode(",", array_filter(Get_GPIO_List()))?>"/>
 						<div class="form-group" class="control-label"><label><?php echo $lang['relay_child_id']; ?></label> <small class="text-muted"><?php echo $lang['relay_child_id_info'];?></small>
 						        <select id="relay_child_id" name="relay_child_id" class="form-control select2" data-bs-error="<?php echo $lang['relay_child_id_error']; ?>" autocomplete="off" required>
-						                <?php if(isset($row['relay_child_id'])) {
-						                        echo '<option selected >'.$row['relay_child_id'].'</option>';
-						                        $pos=strpos($rownode["type"], "GPIO");
-						                        if($pos !== false) {
-					        	                        $gpio_list=Get_GPIO_List();
-					                	                for ($x = 0; $x <= count(array_filter($gpio_list)) - 1; $x++) {
-                                        						echo "<option value=".$gpio_list[$x].">".$gpio_list[$x]."</option>";
-                                						}
-	                        					} else {
-						                                for ($x = 1; $x <= $rownode['max_child_id']; $x++) {
-                	                        					echo "<option value=".$x.">".$x."</option>";
-                        	        					}
-					                        	}
-                						} ?>
+                                                                <?php if(strpos($rownode["type"], "GPIO") !== false) {
+                                                                        $gpio_list=Get_GPIO_List();
+                                                                        if(isset($row['relay_child_id'])) {
+                                                                                echo '<option selected >'.$row['relay_child_id'].'</option>';
+                                                                        } else {
+                                                                                echo '<option selected >'.$gpio_list[0].'</option>';
+                                                                        }
+                                                                        for ($x = 0; $x <= count(array_filter($gpio_list)) - 1; $x++) {
+                                                                                echo "<option value=".$gpio_list[$x].">".$gpio_list[$x]."</option>";
+                                                                        }
+                                                                } else {
+                                                                        if(isset($row['relay_child_id'])) {
+                                                                                echo '<option selected >'.$row['relay_child_id'].'</option>';
+                                                                        } else {
+                                                                                echo '<option selected >1</option>';
+                                                                        }
+                                                                        for ($x = 1; $x <= $rownode['max_child_id']; $x++) {
+                                                                                echo "<option value=".$x.">".$x."</option>";
+                                                                        }
+                                                                } ?>
 				        		</select>
 							<div class="help-block with-errors"></div>
 						</div>

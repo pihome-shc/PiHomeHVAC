@@ -246,7 +246,7 @@ const char* host = "maxairgw";
 #define SS 15
 
 #if defined(PCF8575_ATTACHED)
-  #define NUMBER_OF_RELAYS 15 // Total number of attached relays
+  #define NUMBER_OF_RELAYS 16 // Total number of attached relays
   #define RELAY_ON 1  // GPIO value to write to turn on attached relay
   #define RELAY_OFF 0 // GPIO value to write to turn off attached relay
 #endif
@@ -317,10 +317,10 @@ void setup()
       Serial.println(adc1);
 
       if (adc1 == 0) {
-        enable_eth = 0;
+        enable_wif = 0;
       }
       if (adc1 > 1000 && adc1 < 4000) {
-        enable_wifi = 0;
+        enable_eth = 0;
       }
     #endif
     if (enable_wifi == 1) {
@@ -546,7 +546,7 @@ void receive(const MyMessage &message)
 {
   #if defined(PCF8575_ATTACHED)
     // We only expect one type of message from controller. But we better check anyway.
-    if (message.getType()==V_STATUS) {
+    if (message.getType()==V_VAR2) {
       // Change relay state
       pcf8575.digitalWrite(message.getSensor()-1, message.getBool()?RELAY_ON:RELAY_OFF);
       // Write some debug info
