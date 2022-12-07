@@ -43,7 +43,7 @@ if (isset($_POST['submit'])) {
 	$result = $conn->query($query);
 	$found_product = mysqli_fetch_array($result);
 	$sensor_type_id = $found_product['sensor_type_id'];
-	if($zone_category <> 2) { $maintain_default =  $_POST['maintain_default']; } else { $maintain_default = 0; }
+	if($zone_category <> 2) { $maintain_default =  $_POST['m_default']; } else { $maintain_default = 0; }
 
 	$zone_category = $_POST['selected_zone_category'];
 	$zone_status = isset($_POST['zone_status']) ? $_POST['zone_status'] : "0";
@@ -602,7 +602,7 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 
 							switch(zone_cat) {
 						  		case "0":
-						    			map_bin = 0b01111111010;
+						    			map_bin = 0b11111111010;
 						    			break;
 						  		case "1":
 						    			map_bin = 0b10111111011;
