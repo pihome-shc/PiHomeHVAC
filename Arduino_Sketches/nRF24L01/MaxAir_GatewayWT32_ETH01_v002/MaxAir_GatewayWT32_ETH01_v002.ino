@@ -41,7 +41,7 @@
 // Enable debug prints to serial monitor
 #define MY_DEBUG
 //Define Sketch Version
-#define SKETCH_VERSION "0.36"
+#define SKETCH_VERSION "0.37"
 
 // *** Comment out the following line if the sketch is being used with the original version of the PCB, or if the PCF8575 is not installd ***
 #define PCF8575_ATTACHED
@@ -226,6 +226,7 @@ unsigned long GWMsgRx = 0;
 unsigned long GWErTx = 0;
 unsigned long GWErVer = 0;
 unsigned long GWErTran = 0;
+unsigned long Missed_Heartbeat = 0;
 
 //String WebPage = "<h1>MaxAir Smart Home Gateway</h1>";
 String WebPage = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\" name=\"viewport\" content=\"width=device-width, initial-scale=1, user-scalable=no\"/><title>MaxAir Smart Home Gateway</title></head><body>";
@@ -426,6 +427,7 @@ void loop()
     #endif
     recieve_heartbeat_time = millis();
     Serial.println("No heartbeat recieved" );
+    Missed_Heartbeat++;
   }
 
   server.handleClient();
@@ -507,6 +509,7 @@ void showRootPage(){
   page+="<tr>"; page+= "<td>Gateway Failed to Transmit Message</td>"; page+= "<td>"; page += GWErTx; page+= "</td>"; page+="</tr>";
   page+="<tr>"; page+= "<td>Gateway Protocol Version Mismatch</td>"; page+= "<td>"; page += GWErVer; page+= "</td>"; page+="</tr>";
   page+="<tr>"; page+= "<td>Gateway Transport Hardware Failure</td>"; page+= "<td>"; page += GWErTran; page+= "</td>"; page+="</tr>";
+  page+="<tr>"; page+= "<td>Gateway Missed Heartbeat Count</td>"; page+= "<td>"; page += Missed_Heartbeat; page+= "</td>"; page+="</tr>";
   page+="<tr>"; page+= "<td>Gateway Sketch Version</td>"; page+= "<td>"; page += SKETCH_VERSION; page+= "</td>"; page+="</tr>";
 
   page+="</table></div></body></html>";
