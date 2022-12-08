@@ -32,6 +32,7 @@ $row = mysqli_fetch_array($result);
 $interval_1 = $row['messages_in'];
 $interval_2 = $row['nodes_battery'];
 $interval_3 = $row['gateway_logs'];
+$interval_4 = $row['relay_logs'];
 
 //Delete Temperature Reocrds older then 3 Days.
 $query = "DELETE FROM messages_in WHERE datetime < DATE_SUB(curdate(), INTERVAL ".$interval_1.");";
@@ -70,6 +71,16 @@ if (isset($result)) {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Gateway Logs Records Deleted from Tables \n"; 
 }else {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Gateway Logs Records Delete from Tables Failed\n";
+	echo mysql_error()."\n";
+}
+
+//Delete Relay Logs data older then 3 days. 
+$query = "DELETE FROM relay_logs WHERE pid_datetime < DATE_SUB(curdate(), INTERVAL ".$interval_4.");";
+$result = $conn->query($query);
+if (isset($result)) {
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Relay Logs Records Deleted from Tables \n"; 
+}else {
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Relay Logs Records Delete from Tables Failed\n";
 	echo mysql_error()."\n";
 }
 
