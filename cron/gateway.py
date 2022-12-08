@@ -195,6 +195,67 @@ def set_relays(
             [timestamp, n_id],
         )
         con.commit()
+    # add a log record for relay changes
+    print(n_id, out_child_id)
+    cur.execute(
+        "SELECT `id`, `name`, `type` FROM `relays` WHERE relay_id = (%s) AND relay_child_id = (%s) LIMIT 1",
+        (n_id, out_child_id),
+    )
+    if cur.rowcount > 0:
+        relay = cur.fetchone()
+        relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+        relay_id = relay[relay_to_index["id"]]
+        relay_name = relay[relay_to_index["name"]]
+        relay_type = relay[relay_to_index["type"]]
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        cur.execute(
+            "SELECT zone_current_state.mode, zr.zone_id, z.name, zr.zone_relay_id FROM zone_current_state JOIN zone_relays zr ON zone_current_state.zone_id = zr.zone_id JOIN zone z ON zr.zone_id = z.id WHERE zr.zone_relay_id = (%s);",
+            (relay_id,),
+        )
+        if cur.rowcount > 0:
+            mode = cur.fetchone()
+            mode_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+            zone_mode = mode[mode_to_index["mode"]]
+            zone_name = mode[mode_to_index["name"]]
+            cur.execute(
+                "SELECT `message` FROM `relay_logs` WHERE relay_id = (%s) ORDER BY id DESC LIMIT 1",
+                (relay_id,),
+            )
+            if cur.rowcount > 0:
+                last_message = cur.fetchone()
+                last_message_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                l_message = last_message[last_message_to_index["message"]]
+                if str(l_message).strip() != str(out_payload).strip() :
+                    cur.execute(
+                        "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+                        (0, 0, relay_id, relay_name, out_payload, zone_name, zone_mode, timestamp),
+                    )
+            else:
+                cur.execute(
+                    "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+                    (0, 0, relay_id, relay_name, out_payload, zone_name, zone_mode, timestamp),
+                )
+            con.commit()
+        elif relay_type == 1 :
+            cur.execute(
+                "SELECT `message` FROM `relay_logs` WHERE relay_id = (%s) ORDER BY id DESC LIMIT 1",
+                (relay_id,),
+            )
+            if cur.rowcount > 0:
+                last_message = cur.fetchone()
+                last_message_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                l_message = last_message[last_message_to_index["message"]]
+                if str(l_message).strip() != str(out_payload).strip() :
+                    cur.execute(
+                        "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+                        (0, 0, relay_id, relay_name, out_payload, 'System Controller', 0, timestamp),
+                    )
+            else:
+                cur.execute(
+                    "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+                    (0, 0, relay_id, relay_name, out_payload, 'System Controller', 0, timestamp),
+                )
+            con.commit()
 
 # MQTT specific functions
 # Function run when the MQTT client connect to the brooker
@@ -1323,6 +1384,12 @@ try:
                                                 ),
                                             )
                                             con.commit()
+                                            fo = open("/var/www/graph/graphs.txt","a+")
+                                            fo.write(str(sensor_id) + ",")
+                                            fo.write(timestamp + ",")
+                                            fo.write(str(payload))
+                                            fo.write("\n")
+                                            fo.close()
                                         else:
                                             cur.execute(
                                                 "SELECT * FROM `zone_view` where id = (%s) LIMIT 1;",
@@ -1356,6 +1423,12 @@ try:
                                                         ),
                                                     )
                                                     con.commit()
+                                                    fo = open("/var/www/graph/graphs.txt","a+")
+                                                    fo.write(str(sensor_id) + ",")
+                                                    fo.write(timestamp + ",")
+                                                    fo.write(str(payload))
+                                                    fo.write("\n")
+                                                    fo.close()
 
                         # ..::Step Six ::..
                         # Add Humidity Reading to database
