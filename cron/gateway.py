@@ -1384,12 +1384,6 @@ try:
                                                 ),
                                             )
                                             con.commit()
-                                            fo = open("/var/www/graph/graphs.txt","a+")
-                                            fo.write(str(sensor_id) + ",")
-                                            fo.write(timestamp + ",")
-                                            fo.write(str(payload))
-                                            fo.write("\n")
-                                            fo.close()
                                         else:
                                             cur.execute(
                                                 "SELECT * FROM `zone_view` where id = (%s) LIMIT 1;",
@@ -1423,12 +1417,6 @@ try:
                                                         ),
                                                     )
                                                     con.commit()
-                                                    fo = open("/var/www/graph/graphs.txt","a+")
-                                                    fo.write(str(sensor_id) + ",")
-                                                    fo.write(timestamp + ",")
-                                                    fo.write(str(payload))
-                                                    fo.write("\n")
-                                                    fo.close()
 
                         # ..::Step Six ::..
                         # Add Humidity Reading to database
