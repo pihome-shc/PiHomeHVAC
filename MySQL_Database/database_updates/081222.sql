@@ -12,6 +12,6 @@ CREATE TABLE IF NOT EXISTS `relay_logs` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-ALTER TABLE `db_cleanup` ADD `relay_logs` CHAR(50) CHARACTER SET utf16 COLLATE utf16_bin NULL DEFAULT NULL AFTER `gateway_logs`;
+ALTER TABLE `db_cleanup` ADD COLUMN IF NOT EXISTS `relay_logs` CHAR(50) CHARACTER SET utf16 COLLATE utf16_bin NULL DEFAULT NULL AFTER `gateway_logs`;
 
 UPDATE `db_cleanup` SET `relay_logs`='2 DAY';
