@@ -196,7 +196,13 @@ def set_relays(
         )
         con.commit()
     # add a log record for relay changes
-    print(n_id, out_child_id)
+    if node_type.find("Tasmota") != -1 :
+        relay_msg = out_payload
+    else :
+        if out_payload == out_on_trigger :
+            relay_msg = "ON"
+        else :
+            relay_msg = "OFF"
     cur.execute(
         "SELECT `id`, `name`, `type` FROM `relays` WHERE relay_id = (%s) AND relay_child_id = (%s) LIMIT 1",
         (n_id, out_child_id),
@@ -225,15 +231,15 @@ def set_relays(
                 last_message = cur.fetchone()
                 last_message_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
                 l_message = last_message[last_message_to_index["message"]]
-                if str(l_message).strip() != str(out_payload).strip() :
+                if str(l_message).strip() != str(relay_msg).strip() :
                     cur.execute(
                         "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
-                        (0, 0, relay_id, relay_name, out_payload, zone_name, zone_mode, timestamp),
+                        (0, 0, relay_id, relay_name, relay_msg, zone_name, zone_mode, timestamp),
                     )
             else:
                 cur.execute(
                     "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
-                    (0, 0, relay_id, relay_name, out_payload, zone_name, zone_mode, timestamp),
+                    (0, 0, relay_id, relay_name, relay_msg, zone_name, zone_mode, timestamp),
                 )
             con.commit()
         elif relay_type == 1 :
@@ -245,15 +251,15 @@ def set_relays(
                 last_message = cur.fetchone()
                 last_message_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
                 l_message = last_message[last_message_to_index["message"]]
-                if str(l_message).strip() != str(out_payload).strip() :
+                if str(l_message).strip() != str(relay_msg).strip() :
                     cur.execute(
                         "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
-                        (0, 0, relay_id, relay_name, out_payload, 'System Controller', 0, timestamp),
+                        (0, 0, relay_id, relay_name, relay_msg, 'System Controller', 0, timestamp),
                     )
             else:
                 cur.execute(
                     "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
-                    (0, 0, relay_id, relay_name, out_payload, 'System Controller', 0, timestamp),
+                    (0, 0, relay_id, relay_name, relay_msg, 'System Controller', 0, timestamp),
                 )
             con.commit()
 
