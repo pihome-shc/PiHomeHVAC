@@ -45,11 +45,42 @@ except:
     blinka = False
 import traceback
 import subprocess
+from math import floor
 
 # Debug print to screen configuration
 dbgLevel = 3  # 0-off, 1-info, 2-detailed, 3-all
 dbgMsgOut = 1  # 0-disabled, 1-enabled, show details of outgoing messages
 dbgMsgIn = 1  # 0-disabled, 1-enabled, show details of incoming messages
+
+# create dictionary for mode and sub-mode
+main_mode_dict = {
+   0:   "Idle",
+   10:  "Fault",
+   20:  "Frost",
+   30:  "Over Temperature",
+   40:  "Holiday",
+   50:  "Night Climate",
+   60:  "Boost",
+   70:  "Override",
+   80:  "Scheduled",
+   90:  "Away",
+   100: "Hysteresis",
+   110: "Add On",
+   120: "HVAC",
+   130: "Under Temperature",
+   140: "Manual"
+}
+
+sub_mode_dict = {
+   0: "Stopped",
+   1: "Running",
+   2: "Stopped",
+   3: "Stopped",
+   4: "Manual ON",
+   5: "Manual OFF",
+   6: "Cooling",
+   7: "HVAC Fan"
+}
 
 # Logging exceptions to log file
 logfile = "/var/www/logs/main.log"
@@ -223,6 +254,8 @@ def set_relays(
             mode_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
             zone_mode = mode[mode_to_index["mode"]]
             zone_name = mode[mode_to_index["name"]]
+            sub_mode = floor(zone_mode%10)
+            mode_msg = main_mode_dict[main_mode] + " - " + sub_mode_dict[sub_mode]
             cur.execute(
                 "SELECT `message` FROM `relay_logs` WHERE relay_id = (%s) ORDER BY id DESC LIMIT 1",
                 (relay_id,),
@@ -234,12 +267,12 @@ def set_relays(
                 if str(l_message).strip() != str(relay_msg).strip() :
                     cur.execute(
                         "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
-                        (0, 0, relay_id, relay_name, relay_msg, zone_name, zone_mode, timestamp),
+                        (0, 0, relay_id, relay_name, relay_msg, zone_name, mode_msg, timestamp),
                     )
             else:
                 cur.execute(
                     "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
-                    (0, 0, relay_id, relay_name, relay_msg, zone_name, zone_mode, timestamp),
+                    (0, 0, relay_id, relay_name, relay_msg, zone_name, mode_msg, timestamp),
                 )
             con.commit()
         elif relay_type == 1 :
@@ -254,12 +287,12 @@ def set_relays(
                 if str(l_message).strip() != str(relay_msg).strip() :
                     cur.execute(
                         "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
-                        (0, 0, relay_id, relay_name, relay_msg, 'System Controller', 0, timestamp),
+                        (0, 0, relay_id, relay_name, relay_msg, 'System Controller', '', timestamp),
                     )
             else:
                 cur.execute(
                     "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
-                    (0, 0, relay_id, relay_name, relay_msg, 'System Controller', 0, timestamp),
+                    (0, 0, relay_id, relay_name, relay_msg, 'System Controller', '', timestamp),
                 )
             con.commit()
 
