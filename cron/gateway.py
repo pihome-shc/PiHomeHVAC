@@ -288,12 +288,12 @@ def set_relays(
                 if str(l_message).strip() != str(relay_msg).strip() :
                     cur.execute(
                         "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
-                        (0, 0, relay_id, relay_name, relay_msg, 'System Controller', '', timestamp),
+                        (0, 0, relay_id, relay_name, relay_msg, 'System Controller', 'State Change', timestamp),
                     )
             else:
                 cur.execute(
                     "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
-                    (0, 0, relay_id, relay_name, relay_msg, 'System Controller', '', timestamp),
+                    (0, 0, relay_id, relay_name, relay_msg, 'System Controller', 'State Change', timestamp),
                 )
             con.commit()
 
