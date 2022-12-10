@@ -45,11 +45,42 @@ except:
     blinka = False
 import traceback
 import subprocess
+from math import floor
 
 # Debug print to screen configuration
 dbgLevel = 3  # 0-off, 1-info, 2-detailed, 3-all
 dbgMsgOut = 1  # 0-disabled, 1-enabled, show details of outgoing messages
 dbgMsgIn = 1  # 0-disabled, 1-enabled, show details of incoming messages
+
+# create dictionary for mode and sub-mode
+main_mode_dict = {
+   0:   "Idle",
+   10:  "Fault",
+   20:  "Frost",
+   30:  "Over Temperature",
+   40:  "Holiday",
+   50:  "Night Climate",
+   60:  "Boost",
+   70:  "Override",
+   80:  "Scheduled",
+   90:  "Away",
+   100: "Hysteresis",
+   110: "Add On",
+   120: "HVAC",
+   130: "Under Temperature",
+   140: "Manual"
+}
+
+sub_mode_dict = {
+   0: "Stopped",
+   1: "Running",
+   2: "Stopped",
+   3: "Stopped",
+   4: "Manual ON",
+   5: "Manual OFF",
+   6: "Cooling",
+   7: "HVAC Fan"
+}
 
 # Logging exceptions to log file
 logfile = "/var/www/logs/main.log"
@@ -195,6 +226,76 @@ def set_relays(
             [timestamp, n_id],
         )
         con.commit()
+    # add a log record for relay changes
+    if node_type.find("Tasmota") != -1 :
+        relay_msg = out_payload
+    else :
+        if out_payload == out_on_trigger :
+            relay_msg = "ON"
+        else :
+            relay_msg = "OFF"
+    cur.execute(
+        "SELECT `id`, `name`, `type` FROM `relays` WHERE relay_id = (%s) AND relay_child_id = (%s) LIMIT 1",
+        (n_id, out_child_id),
+    )
+    if cur.rowcount > 0:
+        relay = cur.fetchone()
+        relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+        relay_id = relay[relay_to_index["id"]]
+        relay_name = relay[relay_to_index["name"]]
+        relay_type = relay[relay_to_index["type"]]
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        cur.execute(
+            "SELECT zone_current_state.mode, zr.zone_id, z.name, zr.zone_relay_id FROM zone_current_state JOIN zone_relays zr ON zone_current_state.zone_id = zr.zone_id JOIN zone z ON zr.zone_id = z.id WHERE zr.zone_relay_id = (%s);",
+            (relay_id,),
+        )
+        if cur.rowcount > 0:
+            mode = cur.fetchone()
+            mode_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+            zone_mode = mode[mode_to_index["mode"]]
+            zone_name = mode[mode_to_index["name"]]
+            main_mode = floor(zone_mode/10)*10
+            sub_mode = floor(zone_mode%10)
+            mode_msg = main_mode_dict[main_mode] + " - " + sub_mode_dict[sub_mode]
+            cur.execute(
+                "SELECT `message` FROM `relay_logs` WHERE relay_id = (%s) ORDER BY id DESC LIMIT 1",
+                (relay_id,),
+            )
+            if cur.rowcount > 0:
+                last_message = cur.fetchone()
+                last_message_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                l_message = last_message[last_message_to_index["message"]]
+                if str(l_message).strip() != str(relay_msg).strip() :
+                    cur.execute(
+                        "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+                        (0, 0, relay_id, relay_name, relay_msg, zone_name, mode_msg, timestamp),
+                    )
+            else:
+                cur.execute(
+                    "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+                    (0, 0, relay_id, relay_name, relay_msg, zone_name, mode_msg, timestamp),
+                )
+            con.commit()
+        elif relay_type == 1 :
+            cur.execute(
+                "SELECT `message` FROM `relay_logs` WHERE relay_id = (%s) ORDER BY id DESC LIMIT 1",
+                (relay_id,),
+            )
+            if cur.rowcount > 0:
+                last_message = cur.fetchone()
+                last_message_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                l_message = last_message[last_message_to_index["message"]]
+                if str(l_message).strip() != str(relay_msg).strip() :
+                    cur.execute(
+                        "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+                        (0, 0, relay_id, relay_name, relay_msg, 'System Controller', 'State Change', timestamp),
+                    )
+            else:
+                cur.execute(
+                    "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+                    (0, 0, relay_id, relay_name, relay_msg, 'System Controller', 'State Change', timestamp),
+                )
+            con.commit()
 
 # MQTT specific functions
 # Function run when the MQTT client connect to the brooker
