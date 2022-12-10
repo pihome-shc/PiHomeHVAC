@@ -254,6 +254,7 @@ def set_relays(
             mode_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
             zone_mode = mode[mode_to_index["mode"]]
             zone_name = mode[mode_to_index["name"]]
+            main_mode = floor(zone_mode/10)*10
             sub_mode = floor(zone_mode%10)
             mode_msg = main_mode_dict[main_mode] + " - " + sub_mode_dict[sub_mode]
             cur.execute(
