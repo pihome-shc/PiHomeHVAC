@@ -441,6 +441,12 @@ if ($settings_id <= 3) {
        				                <h3 class="status"></small></h3>
                 	                        </button>
 
+                                                <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#test_relays">
+                                                <h3 class="buttontop"><small><?php echo $lang['test_relays']; ?></small></h3>
+                                                <h3 class="degre" ><i class="bi bi-toggles green" style="font-size:1.5rem;"></i></h3>
+                                                <h3 class="status"></small></h3>
+                                                </button>
+
        				                <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#sensor_setup">
                                 	        <h3 class="buttontop"><small><?php echo $lang['sensors']; ?></small></h3>
        			                	<h3 class="degre" ><i class="bi bi-thermometer-half red" style="font-size: 1.5rem;"></i></h3>

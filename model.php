@@ -3307,6 +3307,64 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
     </div>
 </div>';
 
+//Test Relays
+echo '<div class="modal fade" id="test_relays" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['test_relays'].'</h5>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">'.$lang['test_relays_text'].'</p>
+                <input type="hidden" id="relay_state_0" name="relay_state_0" value="'.$lang['relay_off'].'">
+                <input type="hidden" id="relay_state_1" name="relay_state_1" value="'.$lang['relay_on'].'">
+                <table class="table table-bordered">
+                        <tr>
+                                <th class="col-sm-3 text-center"><small>'.$lang['relay_name'].'</small></th>
+                                <th class="col-sm-2 text-center"><small>'.$lang['toggle_relay'].'</small></th>
+                        </tr>';
+                        $query = "SELECT  messages_out.id, relays.name, messages_out.payload FROM relays, messages_out WHERE (messages_out.n_id = relays.relay_id) AND (messages_out.child_id = relays.relay_child_id);";
+                        $results = $conn->query($query);
+                        while ($row = mysqli_fetch_assoc($results)) {
+                                if ($row["payload"] == "0") { $button_text = $lang['relay_off']; } else { $button_text = $lang['relay_on']; }
+                                echo '<tr>
+                                        <td>'.$row["name"].'</td>
+                                        <td><input type="button" id="relay_state'.$row["id"].'" value="'.$button_text.'" class="btn btn-primary-'.theme($conn, $theme, 'color').' d-grid gap-2 col-8 mx-auto" onclick="toggle_relay('.$row["id"].');"></td>
+                                        <input type="hidden" id="relay_state_value'.$row["id"].'" name="relay_state_value" value="'.$row["payload"].'">
+                                </tr>';
+                        }
+                echo '</table>
+            </div>
+                <div class="modal-footer">
+                        <input type="button" name="exit" value="'.$lang['exit'].'" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" onclick="toggle_relay_exit()">
+            </div>
+        </div>
+    </div>
+</div>';
+?>
+<script>
+function toggle_relay(id)
+{
+ var id_text = id;
+ var e = document.getElementById("relay_state_value" + id_text);
+ if (e.value == 0) {
+        document.getElementById("relay_state" + id_text).value = document.getElementById("relay_state_1").value;
+        document.getElementById("relay_state_value" + id_text).value = 1;
+ } else {
+        document.getElementById("relay_state" + id_text).value = document.getElementById("relay_state_0").value;
+        document.getElementById("relay_state_value" + id_text).value = 0;
+ }
+ toggle_relay_state(id_text);
+}
+
+//exit test mode if the pop-up modal looses focus
+$('#test_relays').on('hidden.bs.modal', function () {
+    toggle_relay_exit()
+});
+</script>
+<?php
+
 //Sensor model
 echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">

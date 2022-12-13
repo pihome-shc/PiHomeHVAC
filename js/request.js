@@ -1370,10 +1370,10 @@ function update_livetemp_zone(){
 
 //Update Auto System Image Creation
 function set_auto_image(){
-//var x = document.getElementsByTagName("input");
-var x = document.getElementById("auto_image").querySelectorAll("input");
-var i;
-var idata="w=auto_image&o=update";
+    //var x = document.getElementsByTagName("input");
+    var x = document.getElementById("auto_image").querySelectorAll("input");
+    var i;
+    var idata="w=auto_image&o=update";
     for (i = 0; i < x.length; i++) {
         if(x[i].name == "ai_enabled" || x[i].name == "ai_email_confirmation")
              idata+="&"+x[i].id+"="+x[i].checked;
@@ -1391,6 +1391,40 @@ var idata="w=auto_image&o=update";
     .fail(function( jqXHR, textStatus, errorThrown ){
         if(jqXHR==401 || jqXHR==403) return;
         console.log("auto_image: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//Toggle Relay State
+function toggle_relay_state(wid){
+    var idata="w=toggle_relay&o=update&wid="+wid;
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(!odata.Success)
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("toggle_relay: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//Exit Toggle Relay
+function toggle_relay_exit(){
+    var idata="w=toggle_relay&o=exit&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="home.php"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("toggle_relau: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
     })
     .always(function() {
     });
