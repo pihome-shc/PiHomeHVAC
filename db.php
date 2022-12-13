@@ -1985,5 +1985,48 @@ if($what=="auto_image"){
                 }
         }
 }
+
+//Toggle Relay
+if($what=="toggle_relay"){
+        if($opp=="update"){
+                $message_out_id =  $_GET['wid'];
+                $update_error=0;
+                if (settings($conn, 'test_mode') == 0) {
+                        $query = "UPDATE system  SET test_mode = 1;";
+                        if(!$conn->query($query)){
+                                $update_error=1;
+                        }
+                }
+                $sel_query = "SELECT payload FROM messages_out WHERE id = {$message_out_id} LIMIT 1;";
+                $result = $conn->query($sel_query);
+                $row = mysqli_fetch_assoc($result);
+                if ($row['payload'] == "0") { $new_state = 1; } else { $new_state = 0; }
+                $query = "UPDATE messages_out SET payload = {$new_state}, sent = 0 WHERE id = {$message_out_id};";
+                if(!$conn->query($query)){
+                        $update_error=1;
+                }
+                if($update_error==0){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+        if($opp=="exit"){
+                $query = "UPDATE system  SET test_mode = 0;";
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+}
 ?>
 <?php if(isset($conn)) { $conn->close();} ?>
