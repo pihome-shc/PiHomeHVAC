@@ -989,4 +989,10 @@ $lang['auto_image'] = "Image System";
 $lang['auto_image_text'] = "Set Frequency and Rotation Period<br>Choose to Email Confirmation if Required";
 $lang['setup_image_file_creation'] = "Setup System Image File Creation";
 $lang['holidays_setup'] = "Setup Holidays Schedule";
+$lang['test_relays'] = "Test Relays";
+$lang['test_relays_text'] = "Current System operation will be suspended while this dialogue is active.";
+$lang['toggle_relay'] = "Toggle Relay";
+$lang['relay_off'] = "Relay is OFF";
+$lang['relay_on'] = "Relay is ON";
+$lang['exit'] = "Exit";
 ?>
