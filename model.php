@@ -3321,7 +3321,7 @@ echo '<div class="modal fade" id="test_relays" tabindex="-1" role="dialog" aria-
                 <input type="hidden" id="relay_state_1" name="relay_state_1" value="'.$lang['relay_on'].'">
                 <table class="table table-bordered">
                         <tr>
-                                <th class="col-sm-2 text-center"><small>'.$lang['relay_name'].'</small></th>
+                                <th class="col-sm-3 text-center"><small>'.$lang['relay_name'].'</small></th>
                                 <th class="col-sm-2 text-center"><small>'.$lang['toggle_relay'].'</small></th>
                         </tr>';
                         $query = "SELECT  messages_out.id, relays.name, messages_out.payload FROM relays, messages_out WHERE (messages_out.n_id = relays.relay_id) AND (messages_out.child_id = relays.relay_child_id);";
@@ -3330,7 +3330,7 @@ echo '<div class="modal fade" id="test_relays" tabindex="-1" role="dialog" aria-
                                 if ($row["payload"] == "0") { $button_text = $lang['relay_off']; } else { $button_text = $lang['relay_on']; }
                                 echo '<tr>
                                         <td>'.$row["name"].'</td>
-                                        <td><input type="button" id="relay_state'.$row["id"].'" value="'.$button_text.'" class="btn btn-primary-'.theme($conn, $theme, 'color').' d-grid gap-2 col-12 mx-auto" onclick="toggle_relay('.$row["id"].');"></td>
+                                        <td><input type="button" id="relay_state'.$row["id"].'" value="'.$button_text.'" class="btn btn-primary-'.theme($conn, $theme, 'color').' d-grid gap-2 col-8 mx-auto" onclick="toggle_relay('.$row["id"].');"></td>
                                         <input type="hidden" id="relay_state_value'.$row["id"].'" name="relay_state_value" value="'.$row["payload"].'">
                                 </tr>';
                         }
