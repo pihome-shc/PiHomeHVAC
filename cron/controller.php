@@ -395,6 +395,8 @@ while ($row = mysqli_fetch_assoc($results)) {
 	if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3 || $zone_category == 4 || $zone_category == 5) {
                 $query = "SELECT zone_sensors.*, sensors.sensor_id, sensors.sensor_child_id, sensors.sensor_type_id, sensors.frost_controller FROM  zone_sensors, sensors WHERE (zone_sensors.zone_sensor_id = sensors.id) AND zone_sensors.zone_id = '{$zone_id}' LIMIT 1;";
                 $result = $conn->query($query);
+                $rowcount=mysqli_num_rows($result);
+                if ($rowcount == 0) { break; }
                 $sensor = mysqli_fetch_array($result);
                 $zone_min_c=$sensor['min_c'];
 	        $zone_max_c=$sensor['max_c'];
