@@ -1932,7 +1932,13 @@ while ($row = mysqli_fetch_assoc($results)) {
 			}
 		} //end process Zone Cat 1 and 2 logs
 		if ($debug_msg >= 0 ) { for ($i = 0; $i < $line_len; $i++){ echo "-"; } echo "\n"; }
-        } //end if($zone_status == 1)
+        } else { //end if($zone_status == 1)
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Name     \033[41m".$zone_name."\033[0m \n";
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Type     \033[41m".$zone_type."\033[0m \n";
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ID       \033[41m".$zone_id. "\033[0m \n";
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Error          \033[41mZONE NOT PROCESSED DUE TO MISSING ASSOCIATED RECORDS\033[0m \n";
+                for ($i = 0; $i < $line_len; $i++){ echo "-"; } echo "\n";
+        }
 } //end of while loop
 
 /***************************************************************************************
