@@ -67,7 +67,7 @@ if(($what=="zone") && ($opp=="delete")){
         $conn->query($query);
 
         //Delete Add-On-Zone-Logs record
-        $query = "UPDATE add_on_zone_logs SET add_on_zone_logs.purge='1' WHERE zone_id = '".$wid."'";
+        $query = "UPDATE add_on_logs SET add_on_logs.purge='1' WHERE zone_id = '".$wid."'";
         $conn->query($query);
 
         //Delete livetemp record
