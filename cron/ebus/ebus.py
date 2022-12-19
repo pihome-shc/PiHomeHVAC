@@ -25,7 +25,7 @@ print("********************************************************")
 print("*  Script to read data from an eBUS Boiler interface   *")
 print("*             and store in message_in queue.           *")
 print("*                Build Date: 05/08/2022                *")
-print("*      Version 0.01 - Last Modified 06/08/2022         *")
+print("*      Version 0.02 - Last Modified 19/12/2022         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" ")
@@ -134,16 +134,18 @@ error_count = 0
 cnx = MySQLdb.connect(host=servername, user=username, passwd=password, db=dbname)
 
 last_readings = dict()
+last_date_time = dict()
 
 # =================================== MAIN BOILER PROCESS ==================================
 def boiler():
 
       global last_readings
+      global last_date_time
 
       cnx = MySQLdb.connect(host=servername, user=username, passwd=password, db=dbname)
 
       cursorselect = cnx.cursor()
-      cursorselect.execute('SELECT * FROM ebus_messages;')
+      cursorselect.execute('SELECT ebus_messages.*, sensors.sensor_type_id FROM ebus_messages, sensors WHERE sensors.id = ebus_messages.sensor_id;')
       ebus_message_to_index = dict(
          (d[0], i) for i, d in enumerate(cursorselect.description)
       )
@@ -152,6 +154,7 @@ def boiler():
          position = msg[ebus_message_to_index["position"]]
          offset = int(msg[ebus_message_to_index["offset"]])
          sensors_id = msg[ebus_message_to_index["sensor_id"]]
+         sensors_type_id = msg[ebus_message_to_index["sensor_type_id"]]
          cursorselect.execute('SELECT * FROM sensors WHERE id = (%s)', (sensors_id, ))
          sensor_to_index = dict(
             (d[0], i) for i, d in enumerate(cursorselect.description)
@@ -162,7 +165,12 @@ def boiler():
             sensor_id = int(result[sensor_to_index["sensor_id"]])
             sensor_child_id = int(result[sensor_to_index["sensor_child_id"]])
             sensor_name = result[sensor_to_index["name"]]
+            sensor_type_id = int(result[sensor_to_index["sensor_type_id"]])
             graph_num = int(result[sensor_to_index["graph_num"]])
+            mode = result[sensor_to_index["mode"]]
+            sensor_timeout = int(result[sensor_to_index["timeout"]])*60
+            correction_factor = int(result[sensor_to_index["correction_factor"]])
+            resolution = float(result[sensor_to_index["resolution"]])
             cursorselect.execute('SELECT node_id FROM nodes WHERE id = (%s)', (sensor_id, ))
             result = cursorselect.fetchone()
             if cursorselect.rowcount > 0 :
@@ -188,46 +196,80 @@ def boiler():
          else :
             fault = 1
 
+         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+         date_time = datetime.now()
+         tdelta = 0
          if no_reading :
-            print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - No Response Message")
+            print(bc.blu + timestamp + bc.wht + " - " + message + " - No Response Message")
          else :
-            # Update if data has changed
-            if last_readings[message] != response :
-               print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - " + message + ", " + str(response))
-               try :
-                  cursorinsert = cnx.cursor()
-                  cursorinsert.execute('INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`) VALUES(%s,%s,%s,%s,%s,%s)', (0,0,node_id,sensor_child_id,position,response))
-                  cursorinsert.close()
-                  cnx.commit()
-               except :
-                  pass
-               try :
-                  timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                  cursorupdate = cnx.cursor()
-                  cursorupdate.execute(
-                     "UPDATE `nodes` SET `last_seen`=%s, `sync`=0 WHERE id = %s",
-                     [timestamp, sensor_id],
-                  )
-                  cursorupdate.close()
-                  cnx.commit()
-               except :
-                  pass
-               if graph_num > 0 :
+            # Update messages_in if required
+            # process NOT a temperature sensor
+            if sensor_type_id != 1 :
+               if last_readings[message] != response :
+                  print(bc.blu + timestamp + bc.wht + " - " + message + " - " + str(response))
                   try :
                      cursorinsert = cnx.cursor()
-                     cursorinsert.execute('INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', (0,0,id,sensor_name,"Sensor",0,node_id,sensor_child_id,0,response,datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+                     cursorinsert.execute('INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`) VALUES(%s,%s,%s,%s,%s,%s)', (0,0,node_id,sensor_child_id,position,response))
                      cursorinsert.close()
                      cnx.commit()
-                     cursordelete = cnx.cursor()
-                     cursordelete.execute('DELETE FROM sensor_graphs WHERE node_id = (%s) AND child_id = (%s) AND datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR;',(node_id, sensor_child_id))
-                     cursordelete.close()
+                     last_readings[message] = response
+                     last_date_time[message] = date_time
+                  except :
+                     pass
+                  try :
+                     cursorupdate = cnx.cursor()
+                     cursorupdate.execute(
+                        "UPDATE `nodes` SET `last_seen`=%s, `sync`=0 WHERE id = %s",
+                        [timestamp, sensor_id],
+                     )
+                     cursorupdate.close()
                      cnx.commit()
                   except :
                      pass
-            else :
-               print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - No Change")
-            last_readings[message] = response
+               else :
+                  print(bc.blu + timestamp + bc.wht + " - " + message + " - No Change")
+            else:
+               # process temperature sensor
+               response = response + correction_factor
+               if mode == 1:
+                  tdelta = (datetime.now() - last_date_time[message]).total_seconds()
+               if mode == 0 or (mode == 1 and (response < last_readings[message] - resolution or response > last_readings[message] + resolution) or tdelta > sensor_timeout):
+                  print(bc.blu + timestamp + bc.wht + " - " + message + " - " + str(response))
+                  try :
+                     cursorinsert = cnx.cursor()
+                     cursorinsert.execute('INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`) VALUES(%s,%s,%s,%s,%s,%s)', (0,0,node_id,sensor_child_id,position,response))
+                     cursorinsert.close()
+                     cnx.commit()
+                  except :
+                     pass
+                  try :
+                     cursorupdate = cnx.cursor()
+                     cursorupdate.execute(
+                        "UPDATE `nodes` SET `last_seen`=%s, `sync`=0 WHERE id = %s",
+                        [timestamp, sensor_id],
+                     )
+                     cursorupdate.close()
+                     cnx.commit()
+                  except :
+                     pass
 
+                  if graph_num > 0 :
+                     try :
+                        cursorinsert = cnx.cursor()
+                        cursorinsert.execute('INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', (0,0,id,sensor_name,"Sensor",0,node_id,sensor_child_id,0,response,timestamp))
+                        cursorinsert.close()
+                        cnx.commit()
+                        cursordelete = cnx.cursor()
+                        cursordelete.execute('DELETE FROM sensor_graphs WHERE node_id = (%s) AND child_id = (%s) AND datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR;',(node_id, sensor_child_id))
+                        cursordelete.close()
+                        cnx.commit()
+                     except :
+                        pass
+                  last_readings[message] = response
+               else :
+                  print(bc.blu + timestamp + bc.wht + " - " + message + " - No Change")
+
+               last_date_time[message] = date_time
 
       #  Display Current Number of Faults
       if sync_error_count > 0 :
@@ -265,6 +307,7 @@ def main() :
       for msg in cursorselect.fetchall():
          message = msg[ebus_message_to_index["message"]]
          last_readings[message] = -1
+         last_date_time[message] = datetime.now()
 
       cursorselect.close()
       cnx.close()

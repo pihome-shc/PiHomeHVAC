@@ -395,47 +395,50 @@ while ($row = mysqli_fetch_assoc($results)) {
 	if ($zone_category == 0 || $zone_category == 1 || $zone_category == 3 || $zone_category == 4 || $zone_category == 5) {
                 $query = "SELECT zone_sensors.*, sensors.sensor_id, sensors.sensor_child_id, sensors.sensor_type_id, sensors.frost_controller FROM  zone_sensors, sensors WHERE (zone_sensors.zone_sensor_id = sensors.id) AND zone_sensors.zone_id = '{$zone_id}' LIMIT 1;";
                 $result = $conn->query($query);
-                $sensor = mysqli_fetch_array($result);
-                $zone_min_c=$sensor['min_c'];
-	        $zone_max_c=$sensor['max_c'];
-	        $zone_hysteresis_time=$sensor['hysteresis_time'];
-        	$zone_sp_deadband=$sensor['sp_deadband'];
-	        $zone_sensor_id=$sensor['sensor_id'];
-        	$zone_sensor_child_id=$sensor['sensor_child_id'];
-		$default_c =$sensor['default_c'];
-		$sensor_type_id = $sensor['sensor_type_id'];
-                $hvac_frost_controller = $sensor['frost_controller'];
-		$zone_maintain_default=$sensor['default_m'];
+                $sensor_rowcount=mysqli_num_rows($result);
+                if ($sensor_rowcount != 0) {
+                        $sensor = mysqli_fetch_array($result);
+                        $zone_min_c=$sensor['min_c'];
+                        $zone_max_c=$sensor['max_c'];
+                        $zone_hysteresis_time=$sensor['hysteresis_time'];
+                        $zone_sp_deadband=$sensor['sp_deadband'];
+                        $zone_sensor_id=$sensor['sensor_id'];
+                        $zone_sensor_child_id=$sensor['sensor_child_id'];
+                        $default_c =$sensor['default_c'];
+                        $sensor_type_id = $sensor['sensor_type_id'];
+                        $hvac_frost_controller = $sensor['frost_controller'];
+                        $zone_maintain_default=$sensor['default_m'];
 
-                $query = "SELECT node_id, name FROM nodes WHERE id = '{$zone_sensor_id}' LIMIT 1;";
-                $result = $conn->query($query);
-                $nodes = mysqli_fetch_array($result);
-                $zone_node_id=$nodes['node_id'];
-		$node_name=$nodes['name'];
+                        $query = "SELECT node_id, name FROM nodes WHERE id = '{$zone_sensor_id}' LIMIT 1;";
+                        $result = $conn->query($query);
+                        $nodes = mysqli_fetch_array($result);
+                        $zone_node_id=$nodes['node_id'];
+                        $node_name=$nodes['name'];
 
-		//query to get temperature from messages_in_view_24h table view
-		$query = "SELECT * FROM messages_in_view_24h WHERE node_id = '{$zone_node_id}' AND child_id = {$zone_sensor_child_id} LIMIT 1;";
-		$result = $conn->query($query);
-		$rowcount=mysqli_num_rows($result);
-                if ($rowcount == 0) {
-			// catch GPIO switch sensor not changed in last 24 hours, so get previous value
-			if (strpos($node_name, 'Switch') !== false) {
-		                $query = "SELECT * FROM messages_in  WHERE node_id = '{$zone_node_id}' AND child_id = {$zone_sensor_child_id} ORDER BY datetime desc LIMIT 1;";
-                		$result = $conn->query($query);
-				$rowcount=mysqli_num_rows($result);
-			}
-		}
-                if ($rowcount > 0) {
-			$msg_out = mysqli_fetch_array($result);
-			$zone_c = $msg_out['payload'];
-			$temp_reading_time = $msg_out['datetime'];
-		} else {
-                        $zone_c = "";
-                        $temp_reading_time = "";
-		}
-	}
-        // only process active zones
-        if ($zone_status == 1) {
+                        //query to get temperature from messages_in_view_24h table view
+                        $query = "SELECT * FROM messages_in_view_24h WHERE node_id = '{$zone_node_id}' AND child_id = {$zone_sensor_child_id} LIMIT 1;";
+                        $result = $conn->query($query);
+                        $rowcount=mysqli_num_rows($result);
+                        if ($rowcount == 0) {
+                                // catch GPIO switch sensor not changed in last 24 hours, so get previous value
+                                if (strpos($node_name, 'Switch') !== false) {
+                                        $query = "SELECT * FROM messages_in  WHERE node_id = '{$zone_node_id}' AND child_id = {$zone_sensor_child_id} ORDER BY datetime desc LIMIT 1;";
+                                        $result = $conn->query($query);
+                                        $rowcount=mysqli_num_rows($result);
+                                }
+                        }
+                        if ($rowcount > 0) {
+                                $msg_out = mysqli_fetch_array($result);
+                                $zone_c = $msg_out['payload'];
+                                $temp_reading_time = $msg_out['datetime'];
+                        } else {
+                                $zone_c = "";
+                                $temp_reading_time = "";
+                        }
+                }
+        }
+        // only process active zones with a sensor or a category 2 type zone
+        if ($zone_status == 1 && ($sensor_rowcount != 0 || $zone_category == 2)) {
                 $rval=get_schedule_status($conn, $zone_id,$holidays_status,$away_status);
                 $sch_status = $rval['sch_status'];
                 $sch_name = $rval['sch_name'];
@@ -840,20 +843,23 @@ while ($row = mysqli_fetch_assoc($results)) {
                         //query to get temperature from messages_in_view_24h table view
                         $query = "SELECT * FROM messages_in_view_24h WHERE node_id = '".$frost_sensor_node_id."' AND child_id = ".$row['sensor_child_id']." LIMIT 1;";
                         $result = $conn->query($query);
-                        $msg_in = mysqli_fetch_array($result);
-                        $frost_sensor_c = $msg_in['payload'];
-                        //enable frost protection if any sensor temparature attached to the zone is below the threshold
-                        if (($frost_sensor_c < $frost_c-$zone_sp_deadband) && ($frost_c != 0)) {
-                                $frost_active = 1;
-                                //use the lowest value if multiple values
-                                if ($frost_c < $frost_target_c) { $frost_target_c = $frost_c; }
-                        } else if (($frost_sensor_c >= $frost_target_c-$zone_sp_deadband) && ($frost_sensor_c < $frost_target_c)) {
-                                $frost_active = 2;
-                                //use the lowest value if multiple values
-                                if ($frost_c < $frost_target_c) { $frost_target_c = $frost_c; }
-                        }
-                        if ($debug_msg == 1) { echo "Sensor Name - ".$row['sensor_name'].", Frost Target Temperture - ".$frost_target_c.", Frost Sensor Temperature - ".$frost_sensor_c."\n"; }
-                }
+                        $rowcount=mysqli_num_rows($result);
+                        if ($rowcount != 0) {
+	                        $msg_in = mysqli_fetch_array($result);
+        	                $frost_sensor_c = $msg_in['payload'];
+                	        //enable frost protection if any sensor temparature attached to the zone is below the threshold
+                        	if (($frost_sensor_c < $frost_c-$zone_sp_deadband) && ($frost_c != 0)) {
+                                	$frost_active = 1;
+	                                //use the lowest value if multiple values
+        	                        if ($frost_c < $frost_target_c) { $frost_target_c = $frost_c; }
+                	        } else if (($frost_sensor_c >= $frost_target_c-$zone_sp_deadband) && ($frost_sensor_c < $frost_target_c)) {
+                        	        $frost_active = 2;
+                                	//use the lowest value if multiple values
+                                	if ($frost_c < $frost_target_c) { $frost_target_c = $frost_c; }
+                        	}
+                        	if ($debug_msg == 1) { echo "Sensor Name - ".$row['sensor_name'].", Frost Target Temperture - ".$frost_target_c.", Frost Sensor Temperature - ".$frost_sensor_c."\n"; }
+                	}
+		}
 
 		//initialize variables
 		$zone_mode = 0;
@@ -1786,14 +1792,18 @@ while ($row = mysqli_fetch_assoc($results)) {
 			6 - cooling running 
 			7 - HVAC Fan Only*/
 
-		if ($debug_msg == 1) { echo "zone_status - ".$zone_status."\n"; }
-                if ($zone_category == 3) {
+                if ($debug_msg == 1) {
+                        echo "zone_id - ".$zone_id."\n";
+                        echo "zone_status - ".$zone_status."\n";
+                        echo "zone_c - ".$zone_c."\n";
+                }
+                if ($zone_category == 3 && !empty($zone_c)) {
 			$query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', temp_target = {$target_c},temp_cut_in = {$temp_cut_out_rising}, temp_cut_out = {$temp_cut_out}, controler_fault = {$zone_ctr_fault}, sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
                 } elseif ($zone_category == 2) {
                         $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}' WHERE zone_id ={$zone_id} LIMIT 1;";
-                } elseif ($zone_category == 1) {
+                } elseif ($zone_category == 1 && !empty($zone_c)) {
                         $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', temp_target = {$target_c}, controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}', sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
-		} else {
+		} elseif (!empty($zone_c)) {
 	                $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', temp_target = {$target_c},temp_cut_in = {$temp_cut_in}, temp_cut_out = {$temp_cut_out}, controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}', sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
 		}
                 $conn->query($query);
@@ -1925,7 +1935,13 @@ while ($row = mysqli_fetch_assoc($results)) {
 			}
 		} //end process Zone Cat 1 and 2 logs
 		if ($debug_msg >= 0 ) { for ($i = 0; $i < $line_len; $i++){ echo "-"; } echo "\n"; }
-        } //end if($zone_status == 1)
+        } else { //end if($zone_status == 1)
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Name     \033[41m".$zone_name."\033[0m \n";
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: Type     \033[41m".$zone_type."\033[0m \n";
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone: ID       \033[41m".$zone_id. "\033[0m \n";
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Error          \033[41mZONE NOT PROCESSED DUE TO MISSING ASSOCIATED RECORDS\033[0m \n";
+                for ($i = 0; $i < $line_len; $i++){ echo "-"; } echo "\n";
+        }
 } //end of while loop
 
 /***************************************************************************************
