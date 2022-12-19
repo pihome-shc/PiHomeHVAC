@@ -843,20 +843,23 @@ while ($row = mysqli_fetch_assoc($results)) {
                         //query to get temperature from messages_in_view_24h table view
                         $query = "SELECT * FROM messages_in_view_24h WHERE node_id = '".$frost_sensor_node_id."' AND child_id = ".$row['sensor_child_id']." LIMIT 1;";
                         $result = $conn->query($query);
-                        $msg_in = mysqli_fetch_array($result);
-                        $frost_sensor_c = $msg_in['payload'];
-                        //enable frost protection if any sensor temparature attached to the zone is below the threshold
-                        if (($frost_sensor_c < $frost_c-$zone_sp_deadband) && ($frost_c != 0)) {
-                                $frost_active = 1;
-                                //use the lowest value if multiple values
-                                if ($frost_c < $frost_target_c) { $frost_target_c = $frost_c; }
-                        } else if (($frost_sensor_c >= $frost_target_c-$zone_sp_deadband) && ($frost_sensor_c < $frost_target_c)) {
-                                $frost_active = 2;
-                                //use the lowest value if multiple values
-                                if ($frost_c < $frost_target_c) { $frost_target_c = $frost_c; }
-                        }
-                        if ($debug_msg == 1) { echo "Sensor Name - ".$row['sensor_name'].", Frost Target Temperture - ".$frost_target_c.", Frost Sensor Temperature - ".$frost_sensor_c."\n"; }
-                }
+                        $rowcount=mysqli_num_rows($result);
+                        if ($rowcount != 0) {
+	                        $msg_in = mysqli_fetch_array($result);
+        	                $frost_sensor_c = $msg_in['payload'];
+                	        //enable frost protection if any sensor temparature attached to the zone is below the threshold
+                        	if (($frost_sensor_c < $frost_c-$zone_sp_deadband) && ($frost_c != 0)) {
+                                	$frost_active = 1;
+	                                //use the lowest value if multiple values
+        	                        if ($frost_c < $frost_target_c) { $frost_target_c = $frost_c; }
+                	        } else if (($frost_sensor_c >= $frost_target_c-$zone_sp_deadband) && ($frost_sensor_c < $frost_target_c)) {
+                        	        $frost_active = 2;
+                                	//use the lowest value if multiple values
+                                	if ($frost_c < $frost_target_c) { $frost_target_c = $frost_c; }
+                        	}
+                        	if ($debug_msg == 1) { echo "Sensor Name - ".$row['sensor_name'].", Frost Target Temperture - ".$frost_target_c.", Frost Sensor Temperature - ".$frost_sensor_c."\n"; }
+                	}
+		}
 
 		//initialize variables
 		$zone_mode = 0;
