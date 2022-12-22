@@ -76,6 +76,10 @@ for entry in listOfFiles:
             gpio_switch_found = True
         else:
             gpio_switch_found = False
+        if entry.endswith('ebus.py'):
+            ebus_found = True
+        else:
+            ebus_found = False
         if entry.endswith('jobs_schedule.py'):
             jobs_schedule_found = True
         else:
@@ -133,6 +137,9 @@ if gpio_ds18b20_found:
     os.system(cmd)
 if gpio_switch_found:
     cmd = 'sudo pkill -f gpio_switch.py'
+    os.system(cmd)
+if ebus_found:
+    cmd = 'sudo pkill -f ebus.py'
     os.system(cmd)
 if jobs_schedule_found:
     cmd = 'sudo pkill -f jobs_schedule.py'
