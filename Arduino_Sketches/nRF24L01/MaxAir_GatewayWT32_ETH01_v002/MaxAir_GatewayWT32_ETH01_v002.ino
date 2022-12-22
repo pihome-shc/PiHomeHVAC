@@ -318,7 +318,7 @@ void setup()
       Serial.println(adc1);
 
       if (adc1 == 0) {
-        enable_wif = 0;
+        enable_wifi = 0;
       }
       if (adc1 > 1000 && adc1 < 4000) {
         enable_eth = 0;
