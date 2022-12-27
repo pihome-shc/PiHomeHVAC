@@ -88,8 +88,26 @@ infomsg = "More info in log file: " + logfile
 logging.basicConfig(
     filename=logfile,
     level=logging.DEBUG,
-    format=("\n### %(asctime)s - %(levelname)s ###"),
+    format=("\n### %(asctime)s - %(levelname)s - %(message)s  ###"),
 )
+
+def custom_excepthook(exc_type, exc_value, exc_traceback):
+    # Do not print exception when user cancels the program
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+
+    logging.error("An uncaught exception occurred:")
+    logging.error("Type: %s", exc_type)
+    logging.error("Value: %s", exc_value)
+
+    if exc_traceback:
+        format_exception = traceback.format_tb(exc_traceback)
+        for line in format_exception:
+            logging.error(repr(line))
+
+sys.excepthook = custom_excepthook
+
 null_value = None
 
 # Initialise a dictionary to hold the relay id for Adafruit Blinka
@@ -554,8 +572,11 @@ class ProgramKilled(Exception):
 
 
 def signal_handler(signum, frame):
-    raise ProgramKilled
+    raise ProgramKilled("Program killed: running cleanup code")
 
+# define Python user-defined exceptions
+class GatewayException(Exception):
+    pass
 
 try:
     # Initialise the database access variables
@@ -788,12 +809,12 @@ try:
                         True if os.system("ping -c 1 " + gatewaylocation) == 0 else False
                     )
                     if not gateway_up:
-                        break
+                        raise GatewayException("Unable to contact Gateway at: - " + gatewaylocation)
             else:
                 if time.time() - heartbeat_timer >= 60:
                     heartbeat_timer = time.time()
                     print(bc.grn + "\nNO Heatbeat Message from Gateway", bc.ENDC)
-                    break
+                    raise GatewayException("No Heartbeat from Gateway at: - " + gatewaylocation)
 
 
             # Sent heartbeat message to wifi gateway
@@ -1864,49 +1885,50 @@ try:
                     # end if not gpio output 
         time.sleep(0.1)
 
+except GatewayException as e:
+    print(format(e))
+    print(traceback.format_exc())
+    logging.error(e)
+    logging.info(traceback.format_exc())
 except configparser.Error as e:
     print("ConfigParser:", format(e))
-    con.close()
-    if MQTT_CONNECTED == 1:
-        mqttClient.disconnect()
-        mqttClient.loop_stop()
+    print(traceback.format_exc())
+    logging.error(e)
+    logging.info(traceback.format_exc())
 except mdb.Error as e:
     print("DB Error %d: %s" % (e.args[0], e.args[1]))
-    con.close()
-    if MQTT_CONNECTED == 1:
-        mqttClient.disconnect()
-        mqttClient.loop_stop()
+    print(traceback.format_exc())
+    logging.error(e)
+    logging.info(traceback.format_exc())
 except serial.SerialException as e:
     print("SerialException:", format(e))
-    con.close()
-    if MQTT_CONNECTED == 1:
-        mqttClient.disconnect()
-        mqttClient.loop_stop()
+    print(traceback.format_exc())
+    logging.error(e)
+    logging.info(traceback.format_exc())
 except EOFError as e:
     print("EOFError:", format(e))
-    con.close()
-    if MQTT_CONNECTED == 1:
-        mqttClient.disconnect()
-        mqttClient.loop_stop()
-except TypeError:
     print(traceback.format_exc())
-    con.close()
-    if MQTT_CONNECTED == 1:
-        mqttClient.disconnect()
-        mqttClient.loop_stop()
+    logging.error(e)
+    logging.info(traceback.format_exc())
+except TypeError as e:
+    print("TypeError:", format(e))
+    print(traceback.format_exc())
+    logging.error(e)
+    logging.info(traceback.format_exc())
 except Exception as e:
     print(format(e))
-    con.close()
-    if MQTT_CONNECTED == 1:
-        mqttClient.disconnect()
-        mqttClient.loop_stop()
-except ProgramKilled:
-    write_message_to_console("Program killed: running cleanup code")
-    con.close()
-    if MQTT_CONNECTED == 1:
-        mqttClient.disconnect()
-        mqttClient.loop_stop()
+    print(traceback.format_exc())
+    logging.error(e)
+    logging.info(traceback.format_exc())
+except ProgramKilled as e:
+    print(format(e))
+    print(traceback.format_exc())
+    logging.error(e)
+    logging.info(traceback.format_exc())
 finally:
+    con.close()
+    if MQTT_CONNECTED == 1:
+        mqttClient.disconnect()
+        mqttClient.loop_stop()
     print(infomsg)
-    logging.exception(Exception)
     sys.exit(1)
