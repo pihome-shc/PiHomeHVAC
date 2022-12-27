@@ -811,23 +811,23 @@ try:
                     if not gateway_up:
                         raise GatewayException("Unable to contact Gateway at: - " + gatewaylocation)
             else:
+                # Heartbeat for WT32-ETH01 Ver 2 Gateways
                 if time.time() - heartbeat_timer >= 60:
                     heartbeat_timer = time.time()
                     print(bc.grn + "\nNO Heatbeat Message from Gateway", bc.ENDC)
                     raise GatewayException("No Heartbeat from Gateway at: - " + gatewaylocation)
 
-
-            # Sent heartbeat message to wifi gateway
-            if time.time() - wifi_gateway_heartbeat >= 30:
-                wifi_gateway_heartbeat = time.time()
-                msg = "0;0;0;0;24;Gateway Script Heartbeat \n"
-                if dbgLevel >= 3 and dbgMsgOut == 1:
-                    print(bc.grn + "\nHeatbeat Message to Gateway", bc.ENDC)
-                    print("Date & Time:                 ", time.ctime())
-                    print(
-                        "Full Message to Send:        ", msg.replace("\n", "\\n")
-                    )
-                gw.write(msg.encode("utf-8"))
+                # Sent heartbeat message to gateway
+                if time.time() - wifi_gateway_heartbeat >= 30:
+                    wifi_gateway_heartbeat = time.time()
+                    msg = "0;0;0;0;24;Gateway Script Heartbeat \n"
+                    if dbgLevel >= 3 and dbgMsgOut == 1:
+                        print(bc.grn + "\nHeatbeat Message to Gateway", bc.ENDC)
+                        print("Date & Time:                 ", time.ctime())
+                        print(
+                            "Full Message to Send:        ", msg.replace("\n", "\\n")
+                        )
+                    gw.write(msg.encode("utf-8"))
 
         ## Outgoing messages
         con.commit()
