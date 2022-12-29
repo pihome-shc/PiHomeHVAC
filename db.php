@@ -790,12 +790,13 @@ if($what=="add_on"){
         if($opp=="update"){
                 $sch_active = $_GET['sch_active'];
                 $time = date("Y-m-d H:i:s");
-                $query = "SELECT zone_state FROM zone WHERE id = '{$wid}' LIMIT 1";
-                $results = $conn->query($query);
-                $zrow = mysqli_fetch_assoc($results);
-                $da= $zrow['zone_state'];
+                $query = "SELECT zone.zone_state, zone_type.category FROM zone, zone_type WHERE (zone_type.id = zone.type_id) AND zone.id = {$wid} LIMIT 1;";
+                $result = $conn->query($query);
+                $zrow = mysqli_fetch_assoc($result);
+                $da = $zrow['zone_state'];
+                $category = $zrow['category'];
 
-                $query = "SELECT * FROM messages_out WHERE zone_id = '{$wid}'";
+                $query = "SELECT * FROM messages_out WHERE zone_id = {$wid}";
                 $results = $conn->query($query);
                 while ($row = mysqli_fetch_assoc($results)) {
                         $id= $row['id'];
@@ -804,43 +805,42 @@ if($what=="add_on"){
                         $nresults = $conn->query($query);
                         $nrow = mysqli_fetch_assoc($nresults);
                         if ($nrow['type'] == 'Tasmota') {
-                                if($da == "1"){ $message_type="0"; }else{ $message_type="1"; }
+                                if($da == 1){ $message_type="0"; }else{ $message_type="1"; }
                                 $query = "SELECT  command, parameter FROM http_messages WHERE node_id = '{$node_id}' AND message_type = '{$message_type}' LIMIT 1;";
                                 $hresults = $conn->query($query);
                                 $hrow = mysqli_fetch_assoc($hresults);
                                 $set =  $message_type;
                                 $payload = $hrow['command']." ".$hrow['parameter'];
                         } else {
-                                if($da=="1"){
-                                        $set="0";
+                                if($da==1){
+                                        $set=0;
                                         $payload = "0";
                                 }else{
-                                        $set="1";
+                                        $set=1;
                                         $payload = "1";
                                 }
                         }
-                        $query = "UPDATE messages_out SET payload = '{$payload}', datetime = '{$time}', sent = '0' WHERE id = '{$id}';";
+                        $query = "UPDATE messages_out SET payload = '{$payload}', datetime = '{$time}', sent = 0 WHERE id = {$id};";
                         if($conn->query($query)){
                                 $update_error=0;
                         }else{
                                 $update_error=1;
                         }
 
-                        $query = "UPDATE zone_relays SET state = '{$set}' WHERE zone_id = '{$wid}';";
+                        $query = "UPDATE zone_relays SET state = {$set} WHERE zone_id = {$wid};";
                         if($conn->query($query)){
                                 $update_error=0;
                         }else{
                                 $update_error=1;
                         }
-
-			//if switch type zone then force GUI status update
+                        //if switch type zone then force GUI status update
                         if ($category == 2) {
                                 if ($sch_active == '0') {
                                         if ($set == 0) { $mode = 0; } else { $mode = 114; }
                                 } else {
                                         if ($set == 0) { $mode = 75; } else { $mode = 74; }
                                 }
-                                $query = "UPDATE zone_current_state SET mode  = '{$mode}', status = '{$set}' WHERE id = '{$wid}';";
+                                $query = "UPDATE zone_current_state SET mode  = {$mode}, status = {$set} WHERE zone_id = {$wid};";
                                 if($conn->query($query)){
                                         $update_error=0;
                                 }else{
@@ -849,7 +849,7 @@ if($what=="add_on"){
                         }
                 }
 
-                $query = "UPDATE zone SET zone_state = '{$set}' WHERE id = '{$wid}' LIMIT 1;";
+                $query = "UPDATE zone SET zone_state = {$set} WHERE id = {$wid} LIMIT 1;";
                 if($conn->query($query)){
                         $update_error=0;
                 }else{
@@ -857,7 +857,7 @@ if($what=="add_on"){
                 }
 
                 if($sch_active == "1") {
-                        $query = "UPDATE override SET status = '1' WHERE zone_id = '{$wid}' LIMIT 1;";
+                        $query = "UPDATE override SET status = 1 WHERE zone_id = {$wid} LIMIT 1;";
                         if($conn->query($query)){
                                 $update_error=0;
                         }else{
@@ -865,7 +865,7 @@ if($what=="add_on"){
                         }
                 }
 
-                if($update_error==0){
+		if($update_error==0){
                       header('Content-type: application/json');
                         echo json_encode(array('Success'=>'Success','Query'=>$query));
                         return;

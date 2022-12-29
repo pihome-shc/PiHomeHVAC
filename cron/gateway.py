@@ -79,7 +79,8 @@ sub_mode_dict = {
    4: "Manual ON",
    5: "Manual OFF",
    6: "Cooling",
-   7: "HVAC Fan"
+   7: "HVAC Fan",
+   8: "Stopped = Max Running Time Exceeded"
 }
 
 # Logging exceptions to log file
@@ -935,7 +936,7 @@ try:
                     print("Pay Load:                    ", out_payload)
                     print("Node Type:                   ", node_type)
 
-            # node-id ; child-sensor-id ; command ; ack ; type ; payload \n
+            # node-id ; child-sensor-id ; command ; ack ; type ; payload
             set_relays(
                 msg,
                 n_id,

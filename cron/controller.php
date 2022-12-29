@@ -1790,7 +1790,8 @@ while ($row = mysqli_fetch_assoc($results)) {
 			4 - manual operation ON
 			5 - manual operation OFF
 			6 - cooling running 
-			7 - HVAC Fan Only*/
+                        7 - HVAC Fan Only
+                        8 - Max Running Time Exceeded - Hysteresis active*/
 
                 if ($debug_msg == 1) {
                         echo "zone_id - ".$zone_id."\n";
