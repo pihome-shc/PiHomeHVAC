@@ -464,6 +464,18 @@ def on_message(client, userdata, message):
                                     (new_payload, mqtt_n_id, mqtt_child_sensor_id,),
                                 )
                                 con.commit()
+                                # Update the zone_relays table
+                                cur_mqtt.execute(
+                                    "UPDATE zone_relays SET state = %s WHERE zone_id = %s;",
+                                    (new_status, mqtt_zone_id,),
+                                )
+                                con.commit()
+                                # Update the zone table
+                                cur_mqtt.execute(
+                                    "UPDATE zone SET zone_state = %s WHERE id = %s;",
+                                    (new_status, mqtt_zone_id,),
+                                )
+                                con.commit()
         else:
             # Process incomming Sensor messages
             # Get reading type (continous or on-change)
