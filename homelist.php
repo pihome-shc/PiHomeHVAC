@@ -313,7 +313,8 @@ $page_refresh = page_refresh($conn);
 						4 - manual operation ON
 						5 - manual operation OFF 
 	                		        6 - cooling running 
-						7 - fan running*/
+                        			7 - HVAC Fan Only
+                        			8 - Max Running Time Exceeded - Hysteresis active*/
 
  						echo '<button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-circle no-shadow '.$button_style.' mainbtn animated fadeIn" data-bs-href="#" data-bs-toggle="modal" data-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Schedule_List,'.$zone_id.'">
 						<h3 class="text-nowrap buttontop"><small>'.$zone_name.'</small></h3>';
