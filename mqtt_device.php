@@ -56,7 +56,6 @@ if (isset($_POST['submit'])) {
 	        $query = "UPDATE `mqtt_devices` SET `child_id`= '{$mqtt_child_id}',`nodes_id`= '{$nodes_id}',`type`= '{$mqtt_type_id}',`purge`= '{$purge}',`name`= '{$mqtt_name}',`mqtt_topic`= '{$mqtt_topic}',`on_payload`= '{$mqtt_on_message}',`off_payload`= '{$mqtt_off_message}',`attribute`= '{$mqtt_json_attribute}' WHERE `id` = '{$id}';";
 	}
 	$result = $conn->query($query);
-        $temp_id = mysqli_insert_id($conn);
 	if ($result) {
                 if ($id==0){
                         $message_success = "<p>".$lang['mqtt_device_record_add_success']."</p>";
@@ -66,30 +65,48 @@ if (isset($_POST['submit'])) {
 	} else {
 		$error = "<p>".$lang['mqtt_device_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
 	}
-	if ($id == 0) {
-		$query = "SELECT `child_id` FROM `mqtt_devices` WHERE `type` = '{$mqtt_type_id}' ORDER BY `child_id` DESC LIMIT 1";
-		$result = $conn->query($query);
-        $found_product = mysqli_fetch_array($result);
-        $max_child_id = $found_product['child_id'];
-		$query = "UPDATE nodes SET `max_child_id` = '{$max_child_id}' WHERE `id` = '{$nodes_id}';";
-		$result = $conn->query($query);
-        $temp_id = mysqli_insert_id($conn);
-		if ($result) {
-			$message_success .=  "<p>".$lang['mqtt_max_child_success']."</p>";
-		} else {
-			$error .= "<p>".$lang['mqtt_max_child_fail']." </p> <p>" .mysqli_error($conn). "</p>";
-		}
-	} 
-	if ($mqtt_type_id == 0) {
-		$query = "UPDATE gateway SET reboot = '1' LIMIT 1;";
-		$conn->query($query);
-		$temp_id = mysqli_insert_id($conn);
-		if ($result) {
-			$message_success .=  "<p>".$lang['mqtt_gateway_reboot_success']."</p>";
-		} else {
-			$error .= "<p>".$lang['mqtt_gateway_reboot_fail']." </p> <p>" .mysqli_error($conn). "</p>";
-		}
-	} 
+
+        // if a controller device the Add/Edit the correstonding STATE entry
+        if ($mqtt_type_id == 1) {
+                $mqtt_topic = str_replace("cmnd","tele",$mqtt_topic);
+                $mqtt_topic = str_replace("POWER","STATE",$mqtt_topic);
+                if ($id == 0) {
+                        $query = "INSERT INTO `mqtt_devices`(`child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`)
+                                VALUES ('{$mqtt_child_id}', '{$nodes_id}', 0, '0', '{$mqtt_name}', '{$mqtt_topic}', '', '', 'POWER');";
+                } else {
+                        $found_product = "SELECT * FROM `mqtt_devices` WHERE `nodes_id` = '{$nodes_id}' AND `child_id` = '{$mqtt_child_id}' AND `type` = 0 LIMIT 1;";
+                        $result = $conn->query($found_product);
+                        $count = $result->num_rows;
+                        if ($count == 0) {
+                                $query = "INSERT INTO `mqtt_devices`(`child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`)
+                                        VALUES ('{$mqtt_child_id}', '{$nodes_id}', 0, '0', '{$mqtt_name}', '{$mqtt_topic}', '', '', 'POWER');";
+                        } else {
+                                $query = "UPDATE `mqtt_devices` SET `child_id`= '{$mqtt_child_id}',`nodes_id`= '{$nodes_id}',`type`= '0',`purge`= '{$purge}',`name`= '{$mqtt_name}',
+                                        `mqtt_topic`= '{$mqtt_topic}',`on_payload`= '',`off_payload`= '',`attribute`= 'POWER' WHERE `id` = '{$id}';";
+                        }
+                }
+        }
+        $result = $conn->query($query);
+        if ($result) {
+                if ($id==0){
+                        $message_success .= "<p>".$lang['mqtt_device_record_add_success']."</p>";
+                } else {
+                        $message_success .= "<p>".$lang['mqtt_device_record_update_success']."</p>";
+                }
+        } else {
+                $error .= "<p>".$lang['mqtt_device_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+        }
+
+
+
+	$query = "UPDATE gateway SET reboot = '1' LIMIT 1;";
+	$conn->query($query);
+	$temp_id = mysqli_insert_id($conn);
+	if ($result) {
+		$message_success .=  "<p>".$lang['mqtt_gateway_reboot_success']."</p>";
+	} else {
+		$error .= "<p>".$lang['mqtt_gateway_reboot_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+	}
 	$message_success .= "<p>".$lang['do_not_refresh']."</p>";
 	header("Refresh: 10; url=home.php");
 	// After update on all required tables, set $id to mysqli_insert_id.
