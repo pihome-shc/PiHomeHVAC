@@ -407,7 +407,7 @@ def on_message(client, userdata, message):
                         new_payload = "0"
                     # Get previous data for this controller
                     cur_mqtt.execute(
-                        'SELECT relays.relay_id, zone_relays.zone_id FROM zone_relays, relays WHERE (relays.id = zone_relays.zone_relay_id) AND relays.relay_id = %s AND relays.relay_child_id = $s LIMIT 1;',
+                        'SELECT relays.relay_id, zone_relays.zone_id FROM zone_relays, relays WHERE (relays.id = zone_relays.zone_relay_id) AND relays.relay_id = %s AND relays.relay_child_id = %s LIMIT 1;',
                         [sensors_id, mqtt_child_sensor_id],
                     )
                     result = cur_mqtt.fetchone()
