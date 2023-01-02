@@ -71,7 +71,7 @@ if (isset($_POST['submit'])) {
         if ($mqtt_type_id == 1 || $mqtt_type_id == "1") {
 		if ($state_message == "1") {
         	        $mqtt_topic = str_replace("cmnd","tele",$mqtt_topic);
-                	$mqtt_topic = preg_replace('/POWER.*/', 'STATE', $mqtt_topic);
+                	$mqtt_topic = str_replace("POWER","STATE",$mqtt_topic);
 	                if ($id == 0) {
         	                $query = "INSERT INTO `mqtt_devices`(`child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`)
                 	                VALUES ('{$mqtt_child_id}', '{$nodes_id}', 0, '0', '{$mqtt_name}', '{$mqtt_topic}', '', '', 'POWER');";
