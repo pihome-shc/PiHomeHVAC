@@ -48,6 +48,7 @@ if (isset($_POST['submit'])) {
     	$mqtt_on_message = $_POST['on_message'];
     	$mqtt_off_message = $_POST['off_message'];
     	$mqtt_json_attribute = $_POST['json_attribute'];
+        $state_message = isset($_POST['create_state_topic']) ? $_POST['create_state_topic'] : "0";
 
 	//Add or Edit MQTT Device record to mqtt_devices Table
 	if ($id == 0) {
@@ -56,7 +57,6 @@ if (isset($_POST['submit'])) {
 	        $query = "UPDATE `mqtt_devices` SET `child_id`= '{$mqtt_child_id}',`nodes_id`= '{$nodes_id}',`type`= '{$mqtt_type_id}',`purge`= '{$purge}',`name`= '{$mqtt_name}',`mqtt_topic`= '{$mqtt_topic}',`on_payload`= '{$mqtt_on_message}',`off_payload`= '{$mqtt_off_message}',`attribute`= '{$mqtt_json_attribute}' WHERE `id` = '{$id}';";
 	}
 	$result = $conn->query($query);
-        $temp_id = mysqli_insert_id($conn);
 	if ($result) {
                 if ($id==0){
                         $message_success = "<p>".$lang['mqtt_device_record_add_success']."</p>";
@@ -66,30 +66,63 @@ if (isset($_POST['submit'])) {
 	} else {
 		$error = "<p>".$lang['mqtt_device_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
 	}
-	if ($id == 0) {
-		$query = "SELECT `child_id` FROM `mqtt_devices` WHERE `type` = '{$mqtt_type_id}' ORDER BY `child_id` DESC LIMIT 1";
-		$result = $conn->query($query);
-        $found_product = mysqli_fetch_array($result);
-        $max_child_id = $found_product['child_id'];
-		$query = "UPDATE nodes SET `max_child_id` = '{$max_child_id}' WHERE `id` = '{$nodes_id}';";
-		$result = $conn->query($query);
-        $temp_id = mysqli_insert_id($conn);
-		if ($result) {
-			$message_success .=  "<p>".$lang['mqtt_max_child_success']."</p>";
+
+        // if a controller device the Add/Edit the correstonding STATE entry
+        if ($mqtt_type_id == 1 || $mqtt_type_id == "1") {
+		if ($state_message == "1") {
+			$mqtt_attribute = substr($mqtt_topic, strrpos($mqtt_topic, '/') + 1);
+        	        $mqtt_topic = str_replace("cmnd","tele",$mqtt_topic);
+                	$mqtt_topic = str_replace("POWER","STATE",$mqtt_topic);
+	                if ($id == 0) {
+        	                $query = "INSERT INTO `mqtt_devices`(`child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`)
+                	                VALUES ('{$mqtt_child_id}', '{$nodes_id}', 0, '0', '{$mqtt_name}', '{$mqtt_topic}', '', '', '{$mqtt_attribute}');";
+	                } else {
+        	                $found_product = "SELECT * FROM `mqtt_devices` WHERE `nodes_id` = '{$nodes_id}' AND `child_id` = '{$mqtt_child_id}' AND `type` = 0 LIMIT 1;";
+                	        $result = $conn->query($found_product);
+                        	$count = $result->num_rows;
+	                        if ($count == 0) {
+        	                        $query = "INSERT INTO `mqtt_devices`(`child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`)
+                	                        VALUES ('{$mqtt_child_id}', '{$nodes_id}', 0, '0', '{$mqtt_name}', '{$mqtt_topic}', '', '', '{$mqtt_attribute}');";
+                        	} else {
+					$found_product = mysqli_fetch_array($result);
+                                	$query = "UPDATE `mqtt_devices` SET `child_id`= '{$mqtt_child_id}',`nodes_id`= '{$nodes_id}',`type`= '0',`purge`= '{$purge}',`name`= '{$mqtt_name}',
+                                        	`mqtt_topic`= '{$mqtt_topic}',`on_payload`= '',`off_payload`= '',`attribute`= '{$mqtt_attribute}' WHERE `id` = {$found_product['id']};";
+	                        }
+        	        }
+	        	$result = $conn->query($query);
+	        	if ($result) {
+        	        	if ($id==0){
+                	        	$message_success .= "<p>".$lang['mqtt_device_record_add_success']."</p>";
+	                	} else {
+        	                	$message_success .= "<p>".$lang['mqtt_device_record_update_success']."</p>";
+	                	}
+		        } else {
+        		        $error .= "<p>".$lang['mqtt_device_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+	        	}
 		} else {
-			$error .= "<p>".$lang['mqtt_max_child_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+                	$found_product = "SELECT * FROM `mqtt_devices` WHERE `nodes_id` = '{$nodes_id}' AND `child_id` = '{$mqtt_child_id}' AND `type` = 0 LIMIT 1;";
+                        $result = $conn->query($found_product);
+                        $count = $result->num_rows;
+                        if ($count != 0) {
+				$query = "DELETE FROM `mqtt_devices` WHERE `nodes_id` = '{$nodes_id}' AND `child_id` = '{$mqtt_child_id}' AND `type` = 0;";
+				$result = $conn->query($query);
+				if ($result) {
+					$message_success .= "<p>".$lang['mqtt_device_record_delete_success']."</p>";
+				} else {
+					$error .= "<p>".$lang['mqtt_device_record_delete_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+				}
+			}
 		}
-	} 
-	if ($mqtt_type_id == 0) {
-		$query = "UPDATE gateway SET reboot = '1' LIMIT 1;";
-		$conn->query($query);
-		$temp_id = mysqli_insert_id($conn);
-		if ($result) {
-			$message_success .=  "<p>".$lang['mqtt_gateway_reboot_success']."</p>";
-		} else {
-			$error .= "<p>".$lang['mqtt_gateway_reboot_fail']." </p> <p>" .mysqli_error($conn). "</p>";
-		}
-	} 
+	}
+
+	$query = "UPDATE gateway SET reboot = '1' LIMIT 1;";
+	$conn->query($query);
+	$temp_id = mysqli_insert_id($conn);
+	if ($result) {
+		$message_success .=  "<p>".$lang['mqtt_gateway_reboot_success']."</p>";
+	} else {
+		$error .= "<p>".$lang['mqtt_gateway_reboot_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+	}
 	$message_success .= "<p>".$lang['do_not_refresh']."</p>";
 	header("Refresh: 10; url=home.php");
 	// After update on all required tables, set $id to mysqli_insert_id.
@@ -106,14 +139,24 @@ if (isset($_POST['submit'])) {
 <!-- If the request is to EDIT, retrieve selected items from DB   -->
 <!-- If the request is to ADD, find the new child ID   -->
 <?php if ($id != 0) {
-    $query = "SELECT * FROM `mqtt_devices` WHERE `id` = {$id} limit 1;";
+	$query = "SELECT * FROM `mqtt_devices` WHERE `id` = {$id} limit 1;";
 	$result = $conn->query($query);
 	$row = mysqli_fetch_assoc($result);
-
+	if ($row['type'] == 1) {
+	        $query = "SELECT * FROM `mqtt_devices` WHERE `nodes_id` = {$row['nodes_id']} AND `child_id` = {$row['child_id']} AND `type` = '0' limit 1;";
+        	$result = $conn->query($query);
+	        $rowcount=mysqli_num_rows($result);
+        	if($rowcount > 0) {
+			$checked = 1;
+		} else {
+                        $checked = 0;
+		}
+	}
 	$query = "SELECT * FROM nodes WHERE id = '{$row['nodes_id']}' LIMIT 1;";
 	$result = $conn->query($query);
 	$rownode = mysqli_fetch_assoc($result);
 } else {
+	$checked = 0;
 	$query = "SELECT child_id FROM mqtt_devices WHERE type = '0' ORDER BY child_id ASC;";
 	$results = $conn->query($query);
 	$new_child_row = mysqli_fetch_assoc($results);
@@ -179,6 +222,7 @@ if (isset($_POST['submit'])) {
                                                                 document.getElementById("json_attribute").style.display = 'block';
                                                                 document.getElementById("json_attribute_label").style.visibility = 'visible';
 																document.getElementById("child_id").value = "<?php if ($id != 0) { echo $row["child_id"]; } else { echo $new_child_id_sensor; } ?>";
+                                                                document.getElementById("state_message").style.display = 'none';
                                                         } else {
                                                                 document.getElementById("on_message").style.display = 'block';
                                                                 document.getElementById("on_message_label").style.visibility = 'visible';
@@ -187,6 +231,7 @@ if (isset($_POST['submit'])) {
                                                                 document.getElementById("json_attribute").style.display = 'none';
                                                                 document.getElementById("json_attribute_label").style.visibility = 'hidden';
 																document.getElementById("child_id").value = "<?php if ($id != 0) { echo $row["child_id"]; } else { echo $new_child_id_controller; } ?>";
+                                                                document.getElementById("state_message").style.display = 'block';
                                                         }
                                                 }
                                                 </script>
@@ -227,6 +272,13 @@ if (isset($_POST['submit'])) {
 	                                                <div class="help-block with-errors"></div>
         	                                </div>
 
+						<!-- Enable Controller STATE Message -->
+				                <div class="form-check" id="state_message" style="display:none">
+	                                                <br>
+                                			<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="checkbox" value="1" id="checkbox0" name="create_state_topic" <?php $check = ($checked == 1) ? 'checked' : ''; echo $check; ?>>
+				                        <label class="form-check-label" for="checkbox0"><?php echo $lang['state_message']; ?></label> <small class="text-muted"><?php echo $lang['state_message_info'];?></small>
+							<div class="help-block with-errors"></div>
+						</div>
 						<br>
 						<!-- Buttons -->
 						<input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-sm">

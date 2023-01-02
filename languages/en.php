@@ -1003,4 +1003,8 @@ $lang['toggle_relay'] = "Toggle Relay";
 $lang['relay_off'] = "Relay is OFF";
 $lang['relay_on'] = "Relay is ON";
 $lang['exit'] = "Exit";
+$lang['state_message'] = "Enable Controller STATE Message";
+$lang['state_message_info'] = "Controller will return an MQTT STATE Message";
+$lang['mqtt_device_record_delete_success'] = "MQTT Child Record Delete Successfully.";
+$lang['mqtt_device_record_delete_fail'] = "MQTT Child Record Delete Failed.";
 ?>

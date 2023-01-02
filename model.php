@@ -3825,7 +3825,7 @@ echo '<div class="modal fade" id="mqtt_devices" tabindex="-1" role="dialog" aria
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['mqtt_device_text'].'</p>';
-		$query = "SELECT `mqtt_devices`.`id`, `nodes`.`name` AS `node`, `nodes`.`node_id` AS `node_id`, `mqtt_devices`.`child_id` AS `child`, `mqtt_devices`.`name` AS `name`, `mqtt_devices`.`mqtt_topic`, `mqtt_devices`.`on_payload`, `mqtt_devices`.`off_payload`, `mqtt_devices`.`attribute` FROM `mqtt_devices`, `nodes` WHERE `mqtt_devices`.`nodes_id` = `nodes`.`id` ORDER BY `mqtt_devices`.`nodes_id`, `mqtt_devices`.`child_id`;";
+		$query = "SELECT `mqtt_devices`.`id`, `mqtt_devices`.`nodes_id` AS `mqtt_nodes_id`, `nodes`.`name` AS `node`, `nodes`.`node_id` AS `node_id`, `mqtt_devices`.`type`, `mqtt_devices`.`child_id` AS `child`, `mqtt_devices`.`name` AS `name`, `mqtt_devices`.`mqtt_topic`, `mqtt_devices`.`on_payload`, `mqtt_devices`.`off_payload`, `mqtt_devices`.`attribute` FROM `mqtt_devices`, `nodes` WHERE `mqtt_devices`.`nodes_id` = `nodes`.`id` ORDER BY `mqtt_devices`.`nodes_id`, `mqtt_devices`.`child_id`;";
 		$results = $conn->query($query);
 		echo '<table class="table table-bordered">
     			<tr>
@@ -3839,17 +3839,28 @@ echo '<div class="modal fade" id="mqtt_devices" tabindex="-1" role="dialog" aria
                                 <th class="col-lg-2"></th>
     			</tr>';
 			while ($row = mysqli_fetch_assoc($results)) {
+				//check if a STATE record with a matching controller
+				if ($row["type"] == 0) {
+					$found_product = "SELECT * FROM `mqtt_devices` WHERE `nodes_id` = '{$row['mqtt_nodes_id']}' AND `child_id` = {$row['child']} AND `type` = 1 LIMIT 1;";
+					$result = $conn->query($found_product);
+					$rowcount=mysqli_num_rows($result);
+					if ($rowcount > 0) { $state_record = 1; } else { $state_record = 0; }
+				}
                                 echo '<tr>
                                         <td><small>'.$row["node_id"].' - '.$row["node"].'</small></td>
                                         <td><small>'.$row["child"].'</small></td>
                                         <td><small>'.$row["name"].'</small></td>
                                         <td><small>'.$row["mqtt_topic"].'</small></td>
                                         <td><small>'.$row["on_payload"].'</small></td>
-            				            <td><small>'.$row["off_payload"].'</small></td>
-                                        <td><small>'.$row["attribute"].'</small></td>
-	    				<td><a href="mqtt_device.php?id='.$row["id"].'" style="text-decoration: none;"><button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-xs"><i class="bi bi-pencil"></i></button></a>&nbsp
-					<button class="btn warning btn-danger btn-xs" onclick="delete_mqtt_device('.$row["id"].');" data-confirm="'.$lang['confirm_del_mqtt_child'].'"><span class="bi bi-trash-fill black"></span></button> </td>
-        			</tr>';
+            				<td><small>'.$row["off_payload"].'</small></td>
+                                        <td><small>'.$row["attribute"].'</small></td>';
+					if (!$state_record || $row["type"] == 1) {
+	    					echo '<td><a href="mqtt_device.php?id='.$row["id"].'" style="text-decoration: none;"><button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-xs"><i class="bi bi-pencil"></i></button></a>&nbsp
+						<button class="btn warning btn-danger btn-xs" onclick="delete_mqtt_device('.$row["id"].');" data-confirm="'.$lang['confirm_del_mqtt_child'].'"><span class="bi bi-trash-fill black"></span></button> </td>';
+					} else {
+                                                echo '<td></td>';
+					}
+        			echo '</tr>';
 			}
 		echo '</table>
 	    </div>
