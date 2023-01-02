@@ -70,22 +70,23 @@ if (isset($_POST['submit'])) {
         // if a controller device the Add/Edit the correstonding STATE entry
         if ($mqtt_type_id == 1 || $mqtt_type_id == "1") {
 		if ($state_message == "1") {
+			$mqtt_attribute = substr($mqtt_topic, strrpos($mqtt_topic, '/') + 1);
         	        $mqtt_topic = str_replace("cmnd","tele",$mqtt_topic);
                 	$mqtt_topic = str_replace("POWER","STATE",$mqtt_topic);
 	                if ($id == 0) {
         	                $query = "INSERT INTO `mqtt_devices`(`child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`)
-                	                VALUES ('{$mqtt_child_id}', '{$nodes_id}', 0, '0', '{$mqtt_name}', '{$mqtt_topic}', '', '', 'POWER');";
+                	                VALUES ('{$mqtt_child_id}', '{$nodes_id}', 0, '0', '{$mqtt_name}', '{$mqtt_topic}', '', '', '{$mqtt_attribute}');";
 	                } else {
         	                $found_product = "SELECT * FROM `mqtt_devices` WHERE `nodes_id` = '{$nodes_id}' AND `child_id` = '{$mqtt_child_id}' AND `type` = 0 LIMIT 1;";
                 	        $result = $conn->query($found_product);
                         	$count = $result->num_rows;
 	                        if ($count == 0) {
         	                        $query = "INSERT INTO `mqtt_devices`(`child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`)
-                	                        VALUES ('{$mqtt_child_id}', '{$nodes_id}', 0, '0', '{$mqtt_name}', '{$mqtt_topic}', '', '', 'POWER');";
+                	                        VALUES ('{$mqtt_child_id}', '{$nodes_id}', 0, '0', '{$mqtt_name}', '{$mqtt_topic}', '', '', '{$mqtt_attribute}');";
                         	} else {
 					$found_product = mysqli_fetch_array($result);
                                 	$query = "UPDATE `mqtt_devices` SET `child_id`= '{$mqtt_child_id}',`nodes_id`= '{$nodes_id}',`type`= '0',`purge`= '{$purge}',`name`= '{$mqtt_name}',
-                                        	`mqtt_topic`= '{$mqtt_topic}',`on_payload`= '',`off_payload`= '',`attribute`= 'POWER' WHERE `id` = {$found_product['id']};";
+                                        	`mqtt_topic`= '{$mqtt_topic}',`on_payload`= '',`off_payload`= '',`attribute`= '{$mqtt_attribute}' WHERE `id` = {$found_product['id']};";
 	                        }
         	        }
 	        	$result = $conn->query($query);
