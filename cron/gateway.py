@@ -31,7 +31,7 @@ print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
 
-import MySQLdb as mdb, sys, serial, telnetlib, time, datetime, os
+import MySQLdb as mdb, sys, serial, telnetlib, time, datetime, os, fnmatch
 import configparser, logging
 from datetime import datetime
 import struct
@@ -379,7 +379,7 @@ def on_message(client, userdata, message):
         )
         con_mqtt.commit()
         # Process incomming STATE change messages for switches toggled by an external agent
-        if  message.topic.endswith("STATE"):
+        if fnmatch.fnmatch(message.topic, '*/STATE*'):
             # Get previous data for this controller
             cur_mqtt.execute(
                 'SELECT payload FROM messages_out WHERE node_id = %s AND child_id = %s LIMIT 1;',
