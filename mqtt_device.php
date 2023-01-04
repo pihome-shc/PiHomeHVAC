@@ -70,9 +70,9 @@ if (isset($_POST['submit'])) {
         // if a controller device the Add/Edit the correstonding STATE entry
         if ($mqtt_type_id == 1 || $mqtt_type_id == "1") {
 		if ($state_message == "1") {
-			$mqtt_attribute = substr($mqtt_topic, strrpos($mqtt_topic, '/') + 1);
+                        $mqtt_attribute = substr($mqtt_topic, strrpos($mqtt_topic, '/') + 1);
         	        $mqtt_topic = str_replace("cmnd","tele",$mqtt_topic);
-                	$mqtt_topic = str_replace("POWER","STATE",$mqtt_topic);
+			$mqtt_topic = preg_replace('/POWER.*/', 'STATE', $mqtt_topic);
 	                if ($id == 0) {
         	                $query = "INSERT INTO `mqtt_devices`(`child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`)
                 	                VALUES ('{$mqtt_child_id}', '{$nodes_id}', 0, '0', '{$mqtt_name}', '{$mqtt_topic}', '', '', '{$mqtt_attribute}');";

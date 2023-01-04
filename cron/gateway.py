@@ -26,7 +26,7 @@ print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
 print("* Script to communicate with MySensors Nodes, for more *")
 print("* info please check MySensors API.                     *")
 print("*      Build Date: 18/09/2017                          *")
-print("*      Version 0.13 - Last Modified 27/12/2022         *")
+print("*      Version 0.14 - Last Modified 03/01/2023         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -365,12 +365,6 @@ def on_message(client, userdata, message):
         sensors_id = child[on_msg_description_to_index["id"]]
         mqtt_node_id = child[on_msg_description_to_index["node_id"]]
         mqtt_child_sensor_id = int(child[on_msg_description_to_index["child_id"]])
-        if child[on_msg_description_to_index["attribute"]] == "":
-            mqtt_payload = message.payload.decode()
-        else:
-            mqtt_payload = json.loads(message.payload.decode())
-            for attribute in child[on_msg_description_to_index["attribute"]].split("."):
-                mqtt_payload = mqtt_payload.get(attribute)
         # Update node last seen
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         cur_mqtt.execute(
@@ -380,94 +374,105 @@ def on_message(client, userdata, message):
         con_mqtt.commit()
         # Process incomming STATE change messages for switches toggled by an external agent
         if fnmatch.fnmatch(message.topic, '*/STATE*'):
-            # Get previous data for this controller
-            cur_mqtt.execute(
-                'SELECT payload FROM messages_out WHERE node_id = %s AND child_id = %s LIMIT 1;',
-                [mqtt_node_id, mqtt_child_sensor_id],
-            )
-            result = cur_mqtt.fetchone()
-            if cur_mqtt.rowcount > 0:
-                mqtt_message_to_index = dict(
-                    (d[0], i) for i, d in enumerate(cur_mqtt.description)
-                )
-                current_state = result[mqtt_message_to_index["payload"]]
-                if (current_state == "0" and mqtt_payload == "ON") or (current_state == "1" and mqtt_payload == "OFF"):
-                    if dbgLevel >= 2 and dbgMsgIn == 1:
-                         print(
-                             "17: Update MQTT Switch STATE Node ID:",
-                             mqtt_node_id,
-                             " Child Sensor ID:",
-                              mqtt_child_sensor_id,
-                             " PayLoad:",
-                             mqtt_payload,
-                         )
-                    if mqtt_payload == "ON":
-                        new_payload = "1"
-                    else:
-                        new_payload = "0"
-                    # Get previous data for this controller
-                    cur_mqtt.execute(
-                        'SELECT relays.relay_id, zone_relays.zone_id FROM zone_relays, relays WHERE (relays.id = zone_relays.zone_relay_id) AND relays.relay_id = %s AND relays.relay_child_id = %s LIMIT 1;',
-                        [sensors_id, mqtt_child_sensor_id],
-                    )
-                    result = cur_mqtt.fetchone()
-                    if cur_mqtt.rowcount > 0:
-                        mqtt_relay_to_index = dict(
-                            (d[0], i) for i, d in enumerate(cur_mqtt.description)
-                        )
-                        mqtt_zone_id = result[mqtt_relay_to_index["zone_id"]]
+            mqtt_payload = mqtt_payload = json.loads(message.payload.decode())
+            for e in mqtt_payload: # iterator over a dictionary
+                if fnmatch.fnmatch(e, 'POWER*'):
+                    if child[on_msg_description_to_index["attribute"]] == e:
+                        mqtt_payload = mqtt_payload.get(e)
                         cur_mqtt.execute(
-                            'SELECT id, mode, status FROM zone_current_state WHERE zone_id = %s LIMIT 1;',
-                            [mqtt_zone_id],
+                            'SELECT payload FROM messages_out WHERE node_id = %s AND child_id = %s LIMIT 1;',
+                            [mqtt_node_id, mqtt_child_sensor_id],
                         )
                         result = cur_mqtt.fetchone()
                         if cur_mqtt.rowcount > 0:
-                            mqtt_zone_state_to_index = dict(
+                            mqtt_message_to_index = dict(
                                 (d[0], i) for i, d in enumerate(cur_mqtt.description)
                             )
-                            zone_current_state_id = result[mqtt_zone_state_to_index["id"]]
-                            zone_mode = result[mqtt_zone_state_to_index["mode"]]
-                            main_mode = floor(zone_mode/10)*10
-                            if main_mode == 80:
-                                if new_payload == "0":
-                                    new_mode = 75
-                                    new_status = 0
+                            current_state = result[mqtt_message_to_index["payload"]]
+#                            print(current_state,mqtt_payload)
+                            if (current_state == "0" and mqtt_payload == "ON") or (current_state == "1" and mqtt_payload == "OFF"):
+                                if dbgLevel >= 2 and dbgMsgIn == 1:
+                                     print(
+                                         "17: Update MQTT Switch STATE Node ID:",
+                                         mqtt_node_id,
+                                         " Child Sensor ID:",
+                                          mqtt_child_sensor_id,
+                                         " PayLoad:",
+                                         mqtt_payload,
+                                     )
+                                if mqtt_payload == "ON":
+                                    new_payload = "1"
                                 else:
-                                    new_mode = 74
-                                    new_status = 1
-                            else:
-                                if new_payload == "0":
-                                    new_mode = 0
-                                    new_status = 0
-                                else:
-                                    new_mode = 114
-                                    new_status = 1
-                            # Update the zone_current_state table
-                            cur_mqtt.execute(
-                                "UPDATE zone_current_state SET mode = %s, status = %s  WHERE id = %s;",
-                                (new_mode, new_status, zone_current_state_id,),
-                            )
-                            con.commit()
-                            # Update the messages_out table
-                            cur_mqtt.execute(
-                                "UPDATE messages_out SET payload = %s  WHERE n_id = %s AND child_id = %s",
-                                (new_payload, sensors_id, mqtt_child_sensor_id,),
-                            )
-                            con.commit()
-                            # Update the zone_relays table
-                            cur_mqtt.execute(
-                                "UPDATE zone_relays SET state = %s WHERE zone_id = %s;",
-                                (new_status, mqtt_zone_id,),
-                            )
-                            con.commit()
-                            # Update the zone table
-                            cur_mqtt.execute(
-                                "UPDATE zone SET zone_state = %s WHERE id = %s;",
-                                (new_status, mqtt_zone_id,),
-                            )
-                            con.commit()
+                                    new_payload = "0"
+                                # Get previous data for this controller
+                                cur_mqtt.execute(
+                                    'SELECT relays.relay_id, zone_relays.zone_id FROM zone_relays, relays WHERE (relays.id = zone_relays.zone_relay_id) AND relays.relay_id = %s AND relays.relay_child_id = %s LIMIT 1;',
+                                    [sensors_id, mqtt_child_sensor_id],
+                                )
+                                result = cur_mqtt.fetchone()
+                                if cur_mqtt.rowcount > 0:
+                                    mqtt_relay_to_index = dict(
+                                        (d[0], i) for i, d in enumerate(cur_mqtt.description)
+                                    )
+                                    mqtt_zone_id = result[mqtt_relay_to_index["zone_id"]]
+                                    cur_mqtt.execute(
+                                        'SELECT id, mode, status FROM zone_current_state WHERE zone_id = %s LIMIT 1;',
+                                        [mqtt_zone_id],
+                                    )
+                                    result = cur_mqtt.fetchone()
+                                    if cur_mqtt.rowcount > 0:
+                                        mqtt_zone_state_to_index = dict(
+                                            (d[0], i) for i, d in enumerate(cur_mqtt.description)
+                                        )
+                                        zone_current_state_id = result[mqtt_zone_state_to_index["id"]]
+                                        zone_mode = result[mqtt_zone_state_to_index["mode"]]
+                                        main_mode = floor(zone_mode/10)*10
+                                        if main_mode == 80:
+                                            if new_payload == "0":
+                                                new_mode = 75
+                                                new_status = 0
+                                            else:
+                                                new_mode = 74
+                                                new_status = 1
+                                        else:
+                                            if new_payload == "0":
+                                                new_mode = 0
+                                                new_status = 0
+                                            else:
+                                                new_mode = 114
+                                                new_status = 1
+                                        # Update the zone_current_state table
+                                        cur_mqtt.execute(
+                                            "UPDATE zone_current_state SET mode = %s, status = %s  WHERE id = %s;",
+                                            (new_mode, new_status, zone_current_state_id,),
+                                        )
+                                        con.commit()
+                                        # Update the messages_out table
+                                        cur_mqtt.execute(
+                                            "UPDATE messages_out SET payload = %s  WHERE n_id = %s AND child_id = %s",
+                                            (new_payload, sensors_id, mqtt_child_sensor_id,),
+                                        )
+                                        con.commit()
+                                        # Update the zone_relays table
+                                        cur_mqtt.execute(
+                                            "UPDATE zone_relays SET state = %s WHERE zone_id = %s;",
+                                            (new_status, mqtt_zone_id,),
+                                        )
+                                        con.commit()
+                                        # Update the zone table
+                                        cur_mqtt.execute(
+                                            "UPDATE zone SET zone_state = %s WHERE id = %s;",
+                                            (new_status, mqtt_zone_id,),
+                                        )
+                                        con.commit()
         else:
             # Process incomming Sensor messages
+            if child[on_msg_description_to_index["attribute"]] == "":
+                mqtt_payload = message.payload.decode()
+            else:
+                mqtt_payload = json.loads(message.payload.decode())
+                for attribute in child[on_msg_description_to_index["attribute"]].split("."):
+                    mqtt_payload = mqtt_payload.get(attribute)
             # Get reading type (continous or on-change)
             cur_mqtt.execute(
                 'SELECT mode, timeout, resolution FROM sensors WHERE sensor_id = %s AND sensor_child_id = %s LIMIT 1;',
