@@ -183,13 +183,6 @@ def insertDB(IDs, temperature):
                         zone_id = results[sensor_to_index["zone_id"]]
                         # type = results[zone_view_to_index['type']]
                         # category = int(results[zone_view_to_index['category']])
-                        fo = open("/var/www/graph/graphs.txt","a+")
-                        fo.write(str(sensor_id) + ",")
-                        fo.write(time.strftime("%Y-%m-%d %H:%M:%S") + ",")
-                        fo.write(str(payload))
-                        fo.write("\n")
-                        time.sleep(1)
-                        fo.close()
                         graph_num = int(results[sensor_to_index["graph_num"]])
                         if graph_num > 0:
                             print(
