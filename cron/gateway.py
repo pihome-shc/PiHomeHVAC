@@ -1037,7 +1037,7 @@ try:
                         relay_lag_timer[relays_id] = time.time()
                     else:
                         # if lag time has expired then set the relay
-                        if int(time.time() -  relay_lag_timer.get(relays_id)) >= relay_lag:
+                        if time.time() -  relay_lag_timer.get(relays_id) >= relay_lag:
                             if dbgLevel >= 3 and dbgMsgOut == 1:
                                 print(
                                     "Full Message to Send:        ", msg.replace("\n", "\\n")
