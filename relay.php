@@ -65,12 +65,12 @@ if (isset($_POST['submit'])) {
         $sync = '0';
         $purge= '0';
 	$m_out_id = $_POST['m_out_id'];
-
+	$lag_time = $_POST['lag_time'];
 	//Add or Edit relay record to relays Table
-	$query = "INSERT INTO `relays` (`id`, `sync`, `purge`, `relay_id`, `relay_child_id`, `name`, `type`, `on_trigger`)
-		VALUES ('{$id}', '{$sync}', '{$purge}', '{$selected_relay_id}', '{$relay_child_id}', '{$name}', '{$type}', '{$on_trigger}')
+	$query = "INSERT INTO `relays` (`id`, `sync`, `purge`, `relay_id`, `relay_child_id`, `name`, `type`, `on_trigger`, `lag_time`)
+		VALUES ('{$id}', '{$sync}', '{$purge}', '{$selected_relay_id}', '{$relay_child_id}', '{$name}', '{$type}', '{$on_trigger}', '{$lag_time}')
 		ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), relay_id='{$selected_relay_id}', relay_child_id='{$relay_child_id}', name=VALUES(name),
-		type=VALUES(type), on_trigger=VALUES(on_trigger);";
+		type=VALUES(type), on_trigger=VALUES(on_trigger), lag_time=VALUES(lag_time);";
 	$result = $conn->query($query);
         $temp_id = mysqli_insert_id($conn);
 	if ($result) {
@@ -312,6 +312,13 @@ if (isset($_POST['submit'])) {
 							}
 						</script>
 
+						<!-- Relay ON Lag Time -->
+						<div class="form-group" class="control-label"><label><?php echo $lang['relay_lag_time']; ?></label> <small class="text-muted"><?php echo $lang['relay_lag_time_info'];?></small>
+							<input class="form-control" placeholder="Relay ON Lag Time" value="<?php if(isset($row['lag_time'])) { echo $row['lag_time']; } ?>" id="lag_time" name="lag_time" data-bs-error="<?php echo $lang['relay_lag_time_help']; ?>" autocomplete="off" required>
+							<div class="help-block with-errors"></div>
+						</div>
+
+                                                <br>
 						<!-- Buttons -->
 						<input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-sm">
 						<a href="home.php"><button type="button" class="btn btn-primary-<?php echo theme($conn, $theme, 'color'); ?> btn-sm"><?php echo $lang['cancel']; ?></button></a>
