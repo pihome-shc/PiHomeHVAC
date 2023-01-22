@@ -314,7 +314,7 @@ if (isset($_POST['submit'])) {
 
 						<!-- Relay ON Lag Time -->
 						<div class="form-group" class="control-label"><label><?php echo $lang['relay_lag_time']; ?></label> <small class="text-muted"><?php echo $lang['relay_lag_time_info'];?></small>
-							<input class="form-control" placeholder="Relay ON Lag Time" value="<?php if(isset($row['lag_time'])) { echo $row['lag_time']; } ?>" id="lag_time" name="lag_time" data-bs-error="<?php echo $lang['relay_lag_time_help']; ?>" autocomplete="off" required>
+							<input class="form-control" placeholder="Relay ON Lag Time" value="<?php if(isset($row['lag_time'])) { echo $row['lag_time']; } else { echo "0"; } ?>" id="lag_time" name="lag_time" data-bs-error="<?php echo $lang['relay_lag_time_help']; ?>" autocomplete="off" required>
 							<div class="help-block with-errors"></div>
 						</div>
 
