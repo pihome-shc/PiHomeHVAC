@@ -3238,7 +3238,7 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['relay_settings_text'].'</p>';
-		$query = "SELECT DISTINCT relays.id, relays.relay_id, relays.relay_child_id, relays.on_trigger, relays.name, relays.type, IF(zr.zone_id IS NULL, 0, 1) AS attached, nd.node_id, nd.last_seen
+		$query = "SELECT DISTINCT relays.id, relays.relay_id, relays.relay_child_id, relays.on_trigger, relays.lag_time, relays.name, relays.type, IF(zr.zone_id IS NULL, 0, 1) AS attached, nd.node_id, nd.last_seen
                 FROM relays
                 LEFT join zone_relays zr ON relays.id = zr.zone_relay_id
                 LEFT JOIN zone z ON zr.zone_id = z.id
@@ -3251,7 +3251,8 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
         			<th class="col-md-1"><small>'.$lang['type'].'</small></th>
         			<th class="col-md-2"><small>'.$lang['node_id'].'</small></th>
         			<th class="col-md-2"><small>'.$lang['relay_child_id'].'</small></th>
-        			<th class="col-md-2">'.$lang['relay_trigger'].'</th>
+        			<th class="col-md-1">'.$lang['relay_trigger'].'</th>
+                                <th class="col-md-1">'.$lang['lag_time'].'</th>
                                 <th class="col-md-2"></th>
     			</tr>';
 
@@ -3289,6 +3290,7 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
             				<td>'.$row["node_id"].'</td>
             				<td>'.$row["relay_child_id"].'</td>
                                         <td>'.$trigger.'</td>
+                                        <td>'.$row["lag_time"].'</td>
             				<td><a href="relay.php?id='.$row["id"].'"><button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-xs"><i class="bi bi-pencil"></i></button></a>&nbsp';
             				if($row['attached'] == 1 || $row['type'] == 1) {
 						echo '<span class="tooltip-wrapper" data-bs-toggle="tooltip" title="'.$lang['confirm_del_relay_2'].$attached_to.'"><button class="btn btn-danger btn-xs disabled"><i class="bi bi-trash-fill black"></i></button></span></td>';

@@ -970,4 +970,8 @@ $lang['state_message'] = "Enable Controller STATE Message";
 $lang['state_message_info'] = "Controller will return an MQTT STATE Message";
 $lang['mqtt_device_record_delete_success'] = "MQTT Child Record Delete Successfully.";
 $lang['mqtt_device_record_delete_fail'] = "MQTT Child Record Delete Failed.";
+$lang['relay_lag_time'] = "Relay ON Lag Time";
+$lang['relay_lag_time_info'] = "ON Lag Time in Seconds";
+$lang['relay_lag_time_help'] = "Time Delay Before Relay Turns ON After Receiving a Trigger";
+$lang['lag_time'] = "Lag Time";
 ?>

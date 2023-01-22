@@ -1,0 +1,1 @@
+ALTER TABLE `relays` ADD COLUMN IF NOT EXISTS `lag_time` INT(11) NOT NULL DEFAULT '0' AFTER `on_trigger`;
