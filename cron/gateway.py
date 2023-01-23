@@ -1006,34 +1006,6 @@ try:
             ):
                 if node_type.find("MySensor") != -1 and node_name.find("Controller") != -1 and sketch_version >= 34:
                     out_payload = XNOR(out_on_trigger, out_payload)
-                if dbgLevel >= 1 and dbgMsgOut == 1:  # Debug print to screen
-                    print(
-                        bc.grn + "\nTotal Messages to Sent:      ", count, bc.ENDC
-                    )  # Print how many Messages we have to send out.
-                    print("Date & Time:                 ", time.ctime())
-                    print(
-                        "Message From Database:       ",
-                        out_id,
-                        node_id,
-                        out_child_id,
-                        out_sub_type,
-                        out_ack,
-                        out_type,
-                        out_payload,
-                        sent,
-                    )  # Print what will be sent including record id and sent status.
-                msg = str(node_id)  # Node ID
-                msg += ";"  # Separator
-                msg += str(out_child_id)  # Child ID of the Node.
-                msg += ";"  # Separator
-                msg += str(out_sub_type)
-                msg += ";"  # Separator
-                msg += str(out_ack)
-                msg += ";"  # Separator
-                msg += str(out_type)
-                msg += ";"  # Separator
-                msg += str(out_payload)  # Payload from DB
-                msg += " \n"  # New line
 
                 # if a relay ON command check if relay has a ON lag time setting
                 if db_payload == "1" and relay_lag != 0:
@@ -1050,7 +1022,34 @@ try:
 
                 if relay_on_flag:
                     # set relays when level is LOW or when HIGH and the Lag setting is 0 or the lag timer has expired
+                    msg = str(node_id)  # Node ID
+                    msg += ";"  # Separator
+                    msg += str(out_child_id)  # Child ID of the Node.
+                    msg += ";"  # Separator
+                    msg += str(out_sub_type)
+                    msg += ";"  # Separator
+                    msg += str(out_ack)
+                    msg += ";"  # Separator
+                    msg += str(out_type)
+                    msg += ";"  # Separator
+                    msg += str(out_payload)  # Payload from DB
+                    msg += " \n"  # New line
                     if dbgLevel >= 3 and dbgMsgOut == 1:
+                        print(
+                            bc.grn + "\nTotal Messages to Sent:      ", count, bc.ENDC
+                        )  # Print how many Messages we have to send out.
+                        print("Date & Time:                 ", time.ctime())
+                        print(
+                            "Message From Database:       ",
+                            out_id,
+                            node_id,
+                            out_child_id,
+                            out_sub_type,
+                            out_ack,
+                            out_type,
+                            out_payload,
+                            sent,
+                        )  # Print what will be sent including record id and sent status.
                         print(
                             "Full Message to Send:        ", msg.replace("\n", "\\n")
                         )  # Print Full Message
