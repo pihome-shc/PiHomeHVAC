@@ -810,7 +810,7 @@ try:
     # process any relays present
     if count > 0:
         cur.execute(
-            "SELECT distinct relays.`id`, relays.`relay_id`, relays.`relay_child_id` , relays.`on_trigger` FROM `relays`, system_controller, zone_relays WHERE (relays.id = zone_relays.zone_relay_id) OR (relays.id = system_controller.heat_relay_id) OR (relays.id = system_controller.cool_relay_id) OR (relays.id = system_controller.fan_relay_id);"
+            "SELECT distinct relays.`id`, relays.`relay_id`, relays.`relay_child_id`, relays.`on_trigger`, relays.`lag_time` FROM `relays`, system_controller, zone_relays WHERE (relays.id = zone_relays.zone_relay_id) OR (relays.id = system_controller.heat_relay_id) OR (relays.id = system_controller.cool_relay_id) OR (relays.id = system_controller.fan_relay_id);"
         )
         relays = cur.fetchall()
         relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
@@ -820,6 +820,7 @@ try:
             controler_id = x[relay_to_index["relay_id"]]
             out_child_id = x[relay_to_index["relay_child_id"]]
             out_on_trigger = x[relay_to_index["on_trigger"]]
+            relay_lag = x[relay_to_index["lag_time"]]
             cur.execute(
                 "SELECT `id`, `node_id`, `type`, `name`, `sketch_version` FROM `nodes` where id = (%s) LIMIT 1",
                 (controler_id,),
@@ -845,7 +846,15 @@ try:
                 out_sub_type = msg[msg_to_index["sub_type"]]
                 out_ack = msg[msg_to_index["ack"]]
                 out_type = msg[msg_to_index["type"]]
-                out_payload = msg[msg_to_index["payload"]]
+                db_payload = msg[msg_to_index["payload"]]
+                if db_payload == "1" and relay_lag != 0:
+                    # initialise the lag timer value and set the relay to the OFF state
+                    relay_lag_timer[relays_id] = time.time()
+                    out_payload = 0
+                else:
+                    # initialise the lag timer dictionary key and value and set the relay state from the current database value
+                    relay_lag_timer[relays_id] = 0
+                    out_payload = db_payload
                 # action trigger setting for MySensor relays attached to the combined gateway/controller
                 if node_type.find("MySensor") != -1 and node_name.find("Controller") != -1 and sketch_version >= 34:
                     out_payload = XNOR(out_on_trigger, out_payload)
@@ -886,8 +895,6 @@ try:
                     out_payload,
                     gatewayenableoutgoing,
                 )
-                # initialise the lag timer dictionary key and value
-                relay_lag_timer[relays_id] = 0
 
         ping_timer = time.time()
     else:
