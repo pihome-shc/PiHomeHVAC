@@ -1571,7 +1571,7 @@ CREATE TABLE `system` (
 
 LOCK TABLES `system` WRITE;
 /*!40000 ALTER TABLE `system` DISABLE KEYS */;
-INSERT INTO `system` VALUES (2,1,0,'MaxAir - Smart Thermostat','2.07','290123','IE','en','Portlaoise',NULL,'aa22d10d34b1e6cb32bd6a5f2cb3fb46','','','Europe/Dublin',0,0,0,1,50,1,1,0);
+INSERT INTO `system` VALUES (2,1,0,'MaxAir - Smart Thermostat','2.07','270123','IE','en','Portlaoise',NULL,'aa22d10d34b1e6cb32bd6a5f2cb3fb46','','','Europe/Dublin',0,0,0,1,50,1,1,0);
 /*!40000 ALTER TABLE `system` ENABLE KEYS */;
 UNLOCK TABLES;
 
