@@ -390,7 +390,7 @@ CREATE TABLE `gateway` (
 
 LOCK TABLES `gateway` WRITE;
 /*!40000 ALTER TABLE `gateway` DISABLE KEYS */;
-INSERT INTO `gateway` VALUES (1,1,0,0,'serial','/dev/ttyAMA0','115200','3','3077','Tue Nov 23 13:43:25 2021',0,0,'1.0',1);
+INSERT INTO `gateway` VALUES (1,1,0,0,'virtual','/dev/ttyAMA0','115200','3','3077','Tue Nov 23 13:43:25 2021',0,0,'1.0',1);
 /*!40000 ALTER TABLE `gateway` ENABLE KEYS */;
 UNLOCK TABLES;
 
