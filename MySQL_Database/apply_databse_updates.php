@@ -81,7 +81,7 @@ if ($rowcount == 0) {
                 		// Apply the Update file
 		                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Importing Update SQL to Database.  \n";
                 		// Name of the file
-		                $updatefilename = __DIR__.'/MySQL_Database/database_updates/'.$ff;
+		                $updatefilename = __DIR__.'/database_updates/'.$ff;
                 		// Temporary variable, used to store current query
 		                $updatetempline = '';
                 		// Read in entire file
