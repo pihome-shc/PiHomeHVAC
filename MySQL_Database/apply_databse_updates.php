@@ -95,10 +95,15 @@ if ($rowcount == 0) {
 		                        $updatetempline .= $updateline;
                 		        // If it has a semicolon at the end, it's the end of the query
 		                        if (substr(trim($updateline), -1, 1) == ';'){
-                		                // Perform the query
-                                		$conn->query($updatetempline) or print("MySQL Database Error with Query ".$updatetempline.":". mysqli_error($conn)."\n");
-		                                //mysqli_query($updatetempline) or print("MySQL Database Error with Query ".$updatetempline.":". mysqli_error($conn)."\n");
-                		                // Reset temp variable to empty
+                                                try {
+                                                        // Perform the query
+                                                        $conn->query($updatetempline) or print("MySQL Database Error with Query ".$updatetempline.":". mysqli_error($conn)."\n");
+                                                        //mysqli_query($updatetempline) or print("MySQL Database Error with Query ".$updatetempline.":". mysqli_error($conn)."\n");
+                                                        // Reset temp variable to empty
+                                                }
+                                                catch(Exception $e) {
+                                                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Message: " .$e->getMessage()."\033[0m Applied. \n";
+                                                }
 
                                 		$updatetempline = '';
 		                        }
