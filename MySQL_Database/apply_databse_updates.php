@@ -100,15 +100,20 @@ if ($rowcount == 0) {
                                                         $conn->query($updatetempline) or print("MySQL Database Error with Query ".$updatetempline.":". mysqli_error($conn)."\n");
                                                         //mysqli_query($updatetempline) or print("MySQL Database Error with Query ".$updatetempline.":". mysqli_error($conn)."\n");
                                                         // Reset temp variable to empty
+                                                        $update_applied = 1;
                                                 }
                                                 catch(Exception $e) {
-                                                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Message: " .$e->getMessage()."\033[0m Applied. \n";
+                                                        $update_applied = 0;
                                                 }
-
-                                		$updatetempline = '';
-		                        }
-                		}
-		                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Update File \033[41m".$updatefilename."\033[0m Applied. \n";
+                                                $updatetempline = '';
+                                        }
+                                }
+                                if ($update_applied == 1) {
+                                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Update File \033[41m".$updatefilename."\033[0m Applied. \n";
+                                } else {
+                                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - DataBase Update File \033[44m".$updatefilename."\033[0m NOT Applied. \n";
+                                        echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Message: " .$e->getMessage()."\033[0m \n";
+                                }
 			}
 		}
 		if ($count == 0) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - NO Database Updates To Apply. \n"; }
