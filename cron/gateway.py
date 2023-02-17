@@ -26,7 +26,7 @@ print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
 print("* Script to communicate with MySensors Nodes, for more *")
 print("* info please check MySensors API.                     *")
 print("*      Build Date: 18/09/2017                          *")
-print("*      Version 0.16 - Last Modified 25/01/2023         *")
+print("*      Version 0.15 - Last Modified 21/01/2023         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -480,7 +480,7 @@ def on_message(client, userdata, message):
                     mqtt_payload = mqtt_payload.get(attribute)
             # Get reading type (continous or on-change)
             cur_mqtt.execute(
-                'SELECT mode, timeout, resolution FROM sensors WHERE sensor_id = %s AND sensor_child_id = %s LIMIT 1;',
+                'SELECT mode, timeout, correction_factor, resolution FROM sensors WHERE sensor_id = %s AND sensor_child_id = %s LIMIT 1;',
                 [sensors_id, mqtt_child_sensor_id],
             )
             result = cur_mqtt.fetchone()
@@ -492,6 +492,8 @@ def on_message(client, userdata, message):
             tdelta = 0
             last_message_payload = 0
             resolution = float(result[sensor_to_index["resolution"]])
+            correction_factor = float(result[sensor_to_index["correction_factor"]])
+            mqtt_payload = mqtt_payload + correction_factor
             if mode == 1:
                 # Get previous data for this sensorr
                 cur_mqtt.execute(
@@ -541,7 +543,7 @@ def on_message(client, userdata, message):
                     mqtt_graph_num = int(results[mqtt_sensor_to_index["graph_num"]])
                     if  mqtt_sensor_type_id == 1 and mqtt_graph_num > 0:
                         if c_f:
-                            payload = round((payload * 9/5) + 32, 1)
+                            mqtt_payload = round((mqtt_payload * 9/5) + 32, 1)
                         if dbgLevel >= 2 and dbgMsgIn == 1:
                             print(
                                 "5a: Adding Temperature Reading to Graph Table From Node ID:",
