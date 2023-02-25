@@ -1003,4 +1003,5 @@ $lang['relay_lag_time'] = "Relay ON Lag Time";
 $lang['relay_lag_time_info'] = "ON Lag Time in Seconds";
 $lang['relay_lag_time_help'] = "Time Delay Before Relay Turns ON After Receiving a Trigger";
 $lang['lag_time'] = "Lag Time";
+$lang['no_livetemp'] = "Needs to be running a Schedule or in CE Mode or BOTH Mode or Boost Mode or Override Mode";
 ?>
