@@ -123,7 +123,7 @@ $theme = settings($conn, 'theme');
 		                        $query = "SELECT name, min_c, max_c, default_c FROM zone_view WHERE id =  ".$livetemp_zone_id." LIMIT 1";
                 		        $zresult = $conn->query($query);
 		                        $zrow = mysqli_fetch_array($zresult);
-                		        if ($zone_mode == 0) {
+                		        if ($zone_mode_main == 140) {
                                 		$set_temp = $zrow['default_c'];
 		                        } else {
                 		                $set_temp = $row['temp_target'];
@@ -163,24 +163,28 @@ $theme = settings($conn, 'theme');
 							</div>
                 		                        <div class="modal-body">
                                 		                <div style="text-align:center;">';
-                                                		        if ($rowcount > 0) {
-                                                                		echo '<h4><br><p>'.$zrow["name"].' Zone '.$current_mode.' Temperature Control</p></h4><br>
-		                                                                <input type="text" value="'.DispSensor($conn, $set_temp, 1).'" class="dial" id="livetemp_c" name="live_temp">
-                		                                                <div style="float:right;">
-                                		                                        <textarea id="load_temp" class="temperature-box card-footer-'.theme($conn, settings($conn, 'theme'), 'color').'" readonly="readonly" row="0" col="0" ></textarea>
-                                                		                </div>
-			                                                        <div class="form-check" style="'.$check_visible.'">
-										     	<input class="form-check-input" type="checkbox" value="0" id="checkbox" name="status" checked Enabled>
-                                                                			<label class="form-check-label" for="checkbox"> '.$lang['livetemp_enable'].'</label>
-                                                        			</div>';
-                                                		        } else {
-                                                                		echo '<h4><br><p>'.$lang['livetemp_no_control_zone'].'</p></h4><br>';
-		                                                        }
+        		                                                if ($zone_mode != 0) {
+	                                                		        if ($rowcount > 0) {
+                        	                                        		echo '<h4><br><p>'.$zrow["name"].' Zone '.$current_mode.' Temperature Control</p></h4><br>
+		                	                                                <input type="text" value="'.DispSensor($conn, $set_temp, 1).'" class="dial" id="livetemp_c" name="live_temp">
+                		        	                                        <div style="float:right;">
+                                			                                        <textarea id="load_temp" class="temperature-box card-footer-'.theme($conn, settings($conn, 'theme'), 'color').'" readonly="readonly" row="0" col="0" ></textarea>
+                                                			                </div>
+			                                        	                <div class="form-check" style="'.$check_visible.'">
+											     	<input class="form-check-input" type="checkbox" value="0" id="checkbox" name="status" checked Enabled>
+                                                                				<label class="form-check-label" for="checkbox"> '.$lang['livetemp_enable'].'</label>
+	                                                        			</div>';
+        	                                        		        } else {
+                	                                                		echo '<h4><br><p>'.$lang['livetemp_no_control_zone'].'</p></h4><br>';
+		        	                                                }
+									} else {
+										echo '<h4><br><p>'.$zrow["name"].' Zone '.$lang['no_livetemp'].'</p></h4><br>';
+									}
                 		                                echo '</div>
                                 		        </div>
 		                                        <!-- /.modal-body -->
                 		                        <div class="modal-footer"><button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['cancel'].'</button>';
-                                		                if ($rowcount > 0) { echo '<input type="button" name="submit" value="'.$lang['apply'].'" class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' login btn-sm" onclick="update_livetemp()">'; }
+                                		                if ($rowcount > 0 && $zone_mode != 0) { echo '<input type="button" name="submit" value="'.$lang['apply'].'" class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' login btn-sm" onclick="update_livetemp()">'; }
 		                                        echo '</div>
                 					<!-- /.modal-footer -->
 						</div>
