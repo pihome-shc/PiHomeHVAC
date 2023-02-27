@@ -133,6 +133,25 @@ function update_add_on(wid){
     });
 }
 
+//toggle add_on
+function toggle_add_on(wid){
+    var idata="w=add_on&o=toggle";
+    idata+="&wid=" + wid;
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            reload_page();
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("toggle_add_on: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
 //update units
 function update_units(){
     var idata="w=units&o=update";
