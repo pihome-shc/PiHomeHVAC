@@ -875,6 +875,73 @@ if($what=="add_on"){
                         return;
                 }
         }
+
+        if($opp=="toggle"){
+                $query = "SELECT * FROM zone_view where id = '{$wid}';";
+                $results = $conn->query($query);
+                while ($row = mysqli_fetch_assoc($results)) {
+                        $relay_id=$row['relay_id'];
+                        $relay_child_id=$row['relay_child_id'];
+                        $state = $row['zone_state'];
+                        if ($state == 0) { $status = 1; } else { $status = 0; }
+                        $query = "SELECT node_id, type FROM nodes WHERE id = '{$relay_id}' LIMIT 1;";
+                        $result = $conn->query($query);
+                        $node = mysqli_fetch_array($result);
+                        $relay_node_id=$node['node_id'];
+                        $type = $node['type'];
+                        if (strpos($type, 'Tasmota') !== false) {
+                                if ($status == 0) { $http_status = "Power OFF"; } else { $http_status = "Power ON"; }
+                                $query = "UPDATE messages_out SET payload = '{$http_status}', sent = 0 where node_id = '{$relay_node_id}' AND child_id = '{$relay_child_id}';";
+                        } else {
+                                $query = "UPDATE messages_out SET payload = '{$status}', sent = 0 where node_id = '{$relay_node_id}' AND child_id = '{$relay_child_id}';";
+                        }
+                        $conn->query($query);
+                        if($conn->query($query)){
+                                $update = 0;
+                        } else {
+                                $update = 1;
+                        }
+
+                        $query = "UPDATE zone_relays SET state = '{$status}' WHERE zone_id = '{$wid}';";
+                        if($conn->query($query)){
+                                $update_error = 0;
+                        }else{
+                                $update_error = 1;
+                        }
+
+                        $query = "UPDATE zone SET zone_state = '{$status}' where id = '{$wid}';";
+                        $conn->query($query);
+                        if($conn->query($query)){
+                                $update = 0;
+                        } else {
+                                $update = 1;
+                        }
+
+                        //get the current zone schedule status
+                        $rval=get_schedule_status($conn, $zone_id,0,0);
+                        $sch_status = $rval['sch_status'];
+                        //if a schedule is running then place in override mode (will be cleared by controller.php when the schedule ends)
+                        if ($sch_status == 1) {
+                                $query = "UPDATE override SET status = 1 where zone_id = '{$wid}';";
+                                $conn->query($query);
+                                if($conn->query($query)){
+                                       $update = 0;
+                                } else {
+                                       $update = 1;
+                                }
+                        }
+
+                        if($update_error == 0){
+                                header('Content-type: application/json');
+                                echo json_encode(array('Success'=>'Success','Query'=>$query));
+                                return;
+                        } else {
+                                header('Content-type: application/json');
+                                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                                return;
+                        }
+                } //end while ($row = mysqli_fetch_assoc($results))
+        } //end if($opp=="toggle"){
 }
 
 //update units
