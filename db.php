@@ -1683,7 +1683,7 @@ if($what=="job"){
                 $query = "DELETE FROM jobs WHERE id = '".$wid."';";
                 $conn->query($query);
                 if($conn->query($query)){
-                        $job_error=1;
+                        $job_error=0;
                 }
         }
         if($opp=="add"){
@@ -1697,7 +1697,7 @@ if($what=="job"){
                 //Add record to Nodes table
                 $query = "INSERT INTO `jobs`(`job_name`, `script`, `enabled`, `log_it`, `time`, `output`) VALUES ('".$job_name."', '".$job_script."','".$enabled."','".$log_it."', '".$job_time."','');";
                 if($conn->query($query)){
-                        $job_error=1;
+                        $job_error=0;
                 }
         }
         if($job_error==0){
