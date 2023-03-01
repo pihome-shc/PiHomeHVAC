@@ -375,7 +375,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 	$result = $conn->query($query);
 	if (mysqli_num_rows($result)==0){
 		//No record in zone_current_statw table, so add
-		$query = "INSERT INTO zone_current_state (id, `sync`, `purge`, `zone_id`, `mode`, `status`, `temp_reading`, `temp_target`, `temp_cut_in`, `temp_cut_out`, `controler_fault`, `controler_seen_time`, `sensor_fault`, `sensor_seen_time`, `sensor_reading_time`, `overrun`) VALUES('{$zone_id}', 0, 0, '{$zone_id}', 0, 0, 0, 0, 0, 0, 0, NULL , 0, NULL, NULL, 0);";
+		$query = "INSERT INTO zone_current_state (id, `sync`, `purge`, `zone_id`, `mode`, `status`, , `status_prev`, `temp_reading`, `temp_target`, `temp_cut_in`, `temp_cut_out`, `controler_fault`, `controler_seen_time`, `sensor_fault`, `sensor_seen_time`, `sensor_reading_time`, `overrun`) VALUES('{$zone_id}', 0, 0, '{$zone_id}', 0, 0, 0, 0, 0, 0, 0, 0, NULL , 0, NULL, NULL, 0);";
 		$conn->query($query);
 	}
 
@@ -383,7 +383,8 @@ while ($row = mysqli_fetch_assoc($results)) {
 	$query = "SELECT * FROM zone_current_state WHERE zone_id = '{$zone_id}' LIMIT 1;";
 	$result = $conn->query($query);
 	$zone_current_state = mysqli_fetch_array($result);
-	$zone_status_prev = $zone_current_state['status'];
+	$zone_status_current = $zone_current_state['status'];
+        $zone_status_prev = $zone_current_state['status_prev'];
 	$zone_overrun_prev = $zone_current_state['overrun'];
 	$zone_current_mode = $zone_current_state['mode'];
 	if (($zone_id == $livetemp_zone_id) && ($livetemp_active == 1) && ($zone_current_mode == '0')) {
@@ -601,7 +602,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                                 } else {
                                         if ($add_on_state == 0) { $mode = 75; } else { $mode = 74; }
                                 }
-                                $query = "UPDATE zone_current_state SET mode  = '{$mode}', status = '{$set}' WHERE zone_id = '{zone_id}';";
+                                $query = "UPDATE zone_current_state SET mode  = '{$mode}', status = '{$set}', status_prev = '{$zone_status_current}' WHERE zone_id = '{zone_id}';";
                                 $conn->query($query);
 
                                 $query = "UPDATE zone SET zone_state = {$set} WHERE id = {$zone_id};";
@@ -1799,13 +1800,13 @@ while ($row = mysqli_fetch_assoc($results)) {
                         echo "zone_c - ".$zone_c."\n";
                 }
                 if ($zone_category == 3 && !empty($zone_c)) {
-			$query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', temp_target = {$target_c},temp_cut_in = {$temp_cut_out_rising}, temp_cut_out = {$temp_cut_out}, controler_fault = {$zone_ctr_fault}, sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
+			$query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, status_prev = '{$zone_status_current}', temp_reading = '{$zone_c}', temp_target = {$target_c},temp_cut_in = {$temp_cut_out_rising}, temp_cut_out = {$temp_cut_out}, controler_fault = {$zone_ctr_fault}, sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
                 } elseif ($zone_category == 2) {
-                        $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}' WHERE zone_id ={$zone_id} LIMIT 1;";
+                        $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, status_prev = '{$zone_status_current}', controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}' WHERE zone_id ={$zone_id} LIMIT 1;";
                 } elseif ($zone_category == 1 && !empty($zone_c)) {
-                        $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', temp_target = {$target_c}, controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}', sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
+                        $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, status_prev = '{$zone_status_current}', temp_reading = '{$zone_c}', temp_target = {$target_c}, controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}', sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
 		} elseif (!empty($zone_c)) {
-	                $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, temp_reading = '{$zone_c}', temp_target = {$target_c},temp_cut_in = {$temp_cut_in}, temp_cut_out = {$temp_cut_out}, controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}', sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
+	                $query = "UPDATE zone_current_state SET `sync` = 0, mode = {$zone_mode}, status = {$zone_status}, status_prev = '{$zone_status_current}', temp_reading = '{$zone_c}', temp_target = {$target_c},temp_cut_in = {$temp_cut_in}, temp_cut_out = {$temp_cut_out}, controler_fault = {$zone_ctr_fault}, controler_seen_time = '{$controler_seen}', sensor_fault  = {$zone_sensor_fault}, sensor_seen_time = '{$sensor_seen}', sensor_reading_time = '{$temp_reading_time}' WHERE zone_id ={$zone_id} LIMIT 1;";
 		}
                 $conn->query($query);
 
@@ -1991,7 +1992,7 @@ for ($row = 0; $row < count($zone_commands); $row++){
 	        }
         	if($zone_overrun == 1){
                 	//zone status needs to be 1 when in overrun mode
-	                $query = "UPDATE zone_current_state SET status = 1 WHERE id ={$zone_id} LIMIT 1;";
+	                $query = "UPDATE zone_current_state SET status = 1, status_prev = '{$zone_status_current}' WHERE id ={$zone_id} LIMIT 1;";
         	        $conn->query($query);
 
                 	if ($debug_msg >= 0 ) { echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Zone ".$zone_id. " circulation pump overrun active. \n"; }

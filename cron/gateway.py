@@ -430,6 +430,7 @@ def on_message(client, userdata, message):
                                             (d[0], i) for i, d in enumerate(cur_mqtt.description)
                                         )
                                         zone_current_state_id = result[mqtt_zone_state_to_index["id"]]
+                                        zone_current_status = result[mqtt_zone_state_to_index["status"]]
                                         zone_mode = result[mqtt_zone_state_to_index["mode"]]
                                         main_mode = floor(zone_mode/10)*10
                                         if main_mode == 80:
@@ -448,8 +449,8 @@ def on_message(client, userdata, message):
                                                 new_status = 1
                                         # Update the zone_current_state table
                                         cur_mqtt.execute(
-                                            "UPDATE zone_current_state SET mode = %s, status = %s  WHERE id = %s;",
-                                            (new_mode, new_status, zone_current_state_id,),
+                                            "UPDATE zone_current_state SET mode = %s, status = %s, status_prev = %s  WHERE id = %s;",
+                                            (new_mode, new_status, zone_current_status, zone_current_state_id,),
                                         )
                                         con.commit()
                                         # Update the messages_out table
