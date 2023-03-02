@@ -110,6 +110,27 @@ if(isset($_GET['zonename'])) {
                                                 }
                                         }
 
+                                        $query = "SELECT status FROM zone_current_state WHERE zone_id = '{$zone_id}' LIMIT 1;";
+                                        $result = $conn->query($query);
+                                        $zcs = mysqli_fetch_array($result);
+                                        $status_current = $zcs['status'];
+
+                                        $query = "UPDATE zone_current_state SET status = '{$status}', status_prev = '{$status_current}' where zone_id = '{$zone_id}';";
+                                        $conn->query($query);
+                                        if($conn->query($query)){
+                                                $update = 0;
+                                        } else {
+                                                $update = 1;
+                                        }
+                                        if($update == 0){
+                                                http_response_code(200);
+                                                if($status == 1) {$status = True;} else {$status = False;}
+                                                echo json_encode(array("success" => True, "state" => $status));
+                                        } else {
+                                                http_response_code(400);
+                                                echo json_encode(array("success" => False, "state" => "Update messages_out record error."));
+                                        }
+
 					if($update == 0){
                                 	        http_response_code(200);
                                         	if($status == 1) {$status = True;} else {$status = False;}
