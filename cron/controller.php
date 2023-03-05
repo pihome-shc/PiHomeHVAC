@@ -375,7 +375,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 	$result = $conn->query($query);
 	if (mysqli_num_rows($result)==0){
 		//No record in zone_current_statw table, so add
-		$query = "INSERT INTO zone_current_state (id, `sync`, `purge`, `zone_id`, `mode`, `status`, , `status_prev`, `temp_reading`, `temp_target`, `temp_cut_in`, `temp_cut_out`, `controler_fault`, `controler_seen_time`, `sensor_fault`, `sensor_seen_time`, `sensor_reading_time`, `overrun`) VALUES('{$zone_id}', 0, 0, '{$zone_id}', 0, 0, 0, 0, 0, 0, 0, 0, NULL , 0, NULL, NULL, 0);";
+		$query = "INSERT INTO zone_current_state (id, `sync`, `purge`, `zone_id`, `mode`, `status`, `status_prev`, `temp_reading`, `temp_target`, `temp_cut_in`, `temp_cut_out`, `controler_fault`, `controler_seen_time`, `sensor_fault`, `sensor_seen_time`, `sensor_reading_time`, `overrun`) VALUES('{$zone_id}', 0, 0, '{$zone_id}', 0, 0, 0, 0, 0, 0, 0, 0, NULL , 0, NULL, NULL, 0);";
 		$conn->query($query);
 	}
 
