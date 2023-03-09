@@ -1425,7 +1425,7 @@ function toggle_relay_state(wid){
     })
     .fail(function( jqXHR, textStatus, errorThrown ){
         if(jqXHR==401 || jqXHR==403) return;
-        console.log("toggle_relay: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+        console.log("toggle_relay_state: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
     })
     .always(function() {
     });
@@ -1433,7 +1433,9 @@ function toggle_relay_state(wid){
 
 //Exit Toggle Relay
 function toggle_relay_exit(){
-    var idata="w=toggle_relay&o=exit&wid=0";
+    var idata="w=toggle_relay&o=exit";
+    idata+="&relay_map="+document.getElementById("relay_map").value;
+    idata+="&wid=0";
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
@@ -1443,7 +1445,23 @@ function toggle_relay_exit(){
     })
     .fail(function( jqXHR, textStatus, errorThrown ){
         if(jqXHR==401 || jqXHR==403) return;
-        console.log("toggle_relau: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+        console.log("toggle_relay_exit: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//Enter Relay State
+function toggle_relay_load(){
+    var idata="w=toggle_relay&o=enter&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(!odata.Success)
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("toggle_relay_load: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
     })
     .always(function() {
     });

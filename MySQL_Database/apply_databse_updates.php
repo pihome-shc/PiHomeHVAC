@@ -25,7 +25,7 @@ echo $line;
 ini_set('max_execution_time', 400);
 $date_time = date('Y-m-d H:i:s');
 
-$settings = parse_ini_file(__DIR__.'/../st_inc/db_config.ini');
+$settings = parse_ini_file('/var/www/st_inc/db_config.ini');
 foreach ($settings as $key => $setting) {
     // Notice the double $$, this tells php to create a variable with the same name as key
     $$key = $setting;
@@ -60,7 +60,7 @@ if ($rowcount == 0) {
         mysqli_select_db($conn, $dbname) or die('Error Selecting MySQL Database: ' . mysqli_error($conn));
 	// Check for database updates
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Starting Check for Database Updates.  \n";
-	$update_dir = __DIR__.'/database_updates';
+	$update_dir = '/var/www/MySQL_Database/database_updates';
 	$ffs = scan_db_update_dir($update_dir);
 	if ($ffs) {
         	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Database Updates Found. \n";
@@ -81,7 +81,7 @@ if ($rowcount == 0) {
                 		// Apply the Update file
 		                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Importing Update SQL to Database.  \n";
                 		// Name of the file
-		                $updatefilename = __DIR__.'/database_updates/'.$ff;
+		                $updatefilename = '/var/www/MySQL_Database/database_updates/'.$ff;
                 		// Temporary variable, used to store current query
 		                $updatetempline = '';
                 		// Read in entire file
