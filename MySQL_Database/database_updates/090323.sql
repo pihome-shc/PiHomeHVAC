@@ -1,0 +1,1 @@
+ALTER TABLE `system` CHANGE `test_mode` `test_mode` INT(11) NOT NULL DEFAULT '0';

@@ -715,18 +715,18 @@ if($what=="sensor_type"){
         }
 }
 
-//Away 
+//Away
 if($what=="away"){
 	if($opp=="active"){
 		$time = date("Y-m-d H:i:s");
 		$query = "SELECT * FROM away";
-		$results = $conn->query($query);	
+		$results = $conn->query($query);
 		$row = mysqli_fetch_assoc($results);
 		$da= $row['status'];
 		if($da=="1"){ $set="0"; }else{ $set="1"; }
 		$query = "UPDATE away SET status = '{$set}', sync = '0', start_datetime = '{$time}' LIMIT 1";
 		$conn->query($query);
-		
+
 		$query = "UPDATE messages_out SET payload = '{$set}', datetime = '{$time}', sent = '0' WHERE zone_id = '0' AND node_id = {$row['away_button_id']} AND child_id = {$row['away_button_child_id']} LIMIT 1";
 		$conn->query($query);
 	}
@@ -875,7 +875,6 @@ if($what=="add_on"){
                         return;
                 }
         }
-
         if($opp=="toggle"){
                 $query = "SELECT * FROM zone_view where id = '{$wid}';";
                 $results = $conn->query($query);
@@ -1077,11 +1076,11 @@ if($what=="system_controller_settings"){
 	        $results = $conn->query($query);
         	$row = mysqli_fetch_assoc($results);
 	        $cool_node_id = $row['node_id'];
-		//Check messages_out for System Controller 
+		//Check messages_out for System Controller
         	$query = "SELECT * FROM messages_out WHERE node_id='".$cool_node_id."' AND child_id='".$cool_controler_child_id."' LIMIT 1;";
 		$result = $conn->query($query);
 		if (mysqli_num_rows($result)==0){
-			//Update messages_out for System Controller. 
+			//Update messages_out for System Controller.
 			$query = "INSERT INTO `messages_out`(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`) VALUES (0, 0, '".$cool_node_id."', '".$cool_controler_child_id."', 1, 1, 2, 0, 0, '".$datetime."', 0);";
 			$conn->query($query);
 		}
@@ -1095,35 +1094,42 @@ if($what=="system_controller_settings"){
         	$results = $conn->query($query);
 	        $row = mysqli_fetch_assoc($results);
         	$fan_node_id = $row['node_id'];
-		//Check messages_out for System Controller 
+		//Check messages_out for System Controller
         	$query = "SELECT * FROM messages_out WHERE node_id='".$fan_node_id."' AND child_id='".$fan_controler_child_id."' LIMIT 1;";
 		$result = $conn->query($query);
 		if (mysqli_num_rows($result)==0){
-			//Update messages_out for System Controller. 
+			//Update messages_out for System Controller.
 			$query = "INSERT INTO `messages_out`(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`) VALUES (0, 0, '".$fan_node_id."', '".$fan_controler_child_id."', 1, 1, 2, 0, 0, '".$datetime."', 0);";
 			$conn->query($query);
 		}
 	}
 
-	//Check messages_out for System Controller 
+	//Check messages_out for System Controller
         $query = "SELECT * FROM messages_out WHERE node_id='".$heat_node_id."' AND child_id='".$heat_controler_child_id."' LIMIT 1;";
 	$result = $conn->query($query);
 	if (mysqli_num_rows($result)==0){
-		//Update messages_out for System Controller. 
+		//Update messages_out for System Controller.
 		$query = "INSERT INTO `messages_out`(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`) VALUES (0, 0, '".$heat_node_id."', '".$heat_controler_child_id."', 1, 1, 2, 0, 0, '".$datetime."', 0);";
 		$conn->query($query);
 	}
-	
+
 	$query = "SELECT * FROM system_controller LIMIT 1;";
         $result = $conn->query($query);
         if (mysqli_num_rows($result)==0){
 		//No record in system_controller table, so add
-		$query = "INSERT INTO `system_controller` VALUES (1,1,0,0,1,1,'".$name."',".$heat_node_id.",".$hysteresis_time.",".$max_operation_time.",".$overrun.",now(),0,0,".$heat_relay_id.",".$cool_relay_id.",".$fan_relay_id.",0,".$weather_factoring.",".$weather_sensor_id.");";
+		$query = "INSERT INTO `system_controller` VALUES (1,1,0,0,1,1,'".$name."',".$heat_node_id.",".$hysteresis_time.",".$max_operation_time.",".$overrun.",now(),0,0,".$heat_relay_id.",".$cool_relay_id.",".$fan_relay_id.",0,".$weather_factoring.",".$weather_sensor_id.", NULL, NULL);";
 	} else {
-		//Update system_controller Setting 
+		//Update system_controller Setting
 		$query = "UPDATE system_controller SET status = ".$status.", name = '".$name."', node_id = ".$heat_node_id.", hysteresis_time = ".$hysteresis_time.", max_operation_time = ".$max_operation_time.", overrun = ".$overrun.", heat_relay_id = ".$heat_relay_id.", cool_relay_id = ".$cool_relay_id.", fan_relay_id = ".$fan_relay_id.", weather_factoring = ".$weather_factoring.", weather_sensor_id = ".$weather_sensor_id." WHERE ID = 1;";
 	}
 	if($conn->query($query)){
+                // Checking if System Controller script is running and restart it
+                $controller_script_txt = 'python3 /var/www/cron/controller.py';
+                exec("ps ax | grep '$controller_script_txt' | grep -v grep", $pids);
+                if (count($pids) > 0) {
+                        exec("sudo pkill -f '$controller_script_txt'");
+                }
+
 		header('Content-type: application/json');
 		echo json_encode(array('Success'=>'Success','Query'=>$query));
 		return;
@@ -1173,58 +1179,58 @@ if($what=="openweather"){
 
 //Setup PiConnect
 if($what=="setup_piconnect"){
-	//Set away to 0 
+	//Set away to 0
 	$query = "UPDATE away SET `sync`='0';";
 	$result = $conn->query($query);
 	//Update System Controller to sync
 	$query = "UPDATE system_controller SET `sync`='0';";
 	$result = $conn->query($query);
-	//Update system_controller logs to sync 
+	//Update system_controller logs to sync
 	$query = "UPDATE controller_zone_logs SET `sync`='0';";
 	$result = $conn->query($query);
-	//upate boost records to sync 
+	//upate boost records to sync
 	$query = "UPDATE boost SET `sync` ='0';";
 	$result = $conn->query($query);
-	//update from protection to sync 
+	//update from protection to sync
 	$query = "UPDATE frost_protection SET `sync`='0';";
 	$result = $conn->query($query);
-	//update gateway to sync 
+	//update gateway to sync
 	$query = "UPDATE gateway SET `sync`='0';";
 	$result = $conn->query($query);
-	//update gateway logs NOT sync 
+	//update gateway logs NOT sync
 	$query = "UPDATE gateway_logs SET `sync`='1';";
 	$result = $conn->query($query);
-	//update messages in history to NOT sync 
+	//update messages in history to NOT sync
 	$query = "UPDATE messages_in SET `sync`='1';";
 	$result = $conn->query($query);
-	//update nodes to sync 
+	//update nodes to sync
 	$query = "UPDATE nodes SET `sync`='0';";
 	$result = $conn->query($query);
-	//update nodes battery to NOT sync 
+	//update nodes battery to NOT sync
 	$query = "UPDATE nodes_battery SET `sync`='1';";
 	$result = $conn->query($query);
-	//update schedule daily time to sync 
+	//update schedule daily time to sync
 	$query = "UPDATE schedule_daily_time SET `sync`='0';";
 	$result = $conn->query($query);
 	//update schedule dailt time for zone to sync
 	$query = "UPDATE schedule_daily_time_zone SET `sync`='0';";
 	$result = $conn->query($query);
-	//update schedule night climate time to sync 
+	//update schedule night climate time to sync
 	$query = "UPDATE schedule_night_climate_time SET `sync`='0';";
 	$result = $conn->query($query);
-	//update schedule night climate zone to sync 
+	//update schedule night climate zone to sync
 	$query = "UPDATE schedule_night_climat_zone SET `sync`='0';";
 	$result = $conn->query($query);
-	//update weather to sync 
+	//update weather to sync
 	$query = "UPDATE weather SET `sync`='0';";
 	$result = $conn->query($query);
-	//update zone to sync 
+	//update zone to sync
 	$query = "UPDATE zone SET `sync`='0';";
 	$result = $conn->query($query);
-	//update zone logs to NOT to sync 
+	//update zone logs to NOT to sync
 	$query = "UPDATE zone_logs SET `sync`='1';";
 	$result = $conn->query($query);
-	//update Systems settings to sync 
+	//update Systems settings to sync
 	$query = "UPDATE system SET `sync`='0';";
 	$result = $conn->query($query);
 	//Update PiConnect API Status and key
@@ -1248,7 +1254,7 @@ if($what=="setup_piconnect"){
 		echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
 		return;
 	}
-	
+
 }
 
 //Database Backup
@@ -1297,47 +1303,54 @@ if($what=="backup_email_update"){
 
 //Reboot System
 if($what=="reboot"){
-	
-	//Stop Cron Service 
+
+	//Stop Cron Service
 	//systemctl stop cron.service
 	//exec("systemctl stop cron.service");
-	
+
 	//Kill Gateway Process
 	$query = "SELECT * FROM gateway where status = 1 order by id asc LIMIT 1;";
 	$result = $conn->query($query);
 	$row = mysqli_fetch_array($result);
 	$gw_pid = $row['pid'];
 	exec("kill -9 $gw_pid");
-	
+
+        //Kill Controller Process
+        $query = "SELECT * FROM system_controller where status = 1 order by id asc LIMIT 1;";
+        $result = $conn->query($query);
+        $row = mysqli_fetch_array($result);
+        $sc_pid = $row['pid'];
+        exec("kill -9 $sc_pid");
+
 	//Stop MySQL/MariaDB Service
 	//systemctl stop mysql.service
-	//exec("systemctl stop mysql.service"); 
-	
-	exec("python3 /var/www/reboot.py"); 
+	//exec("systemctl stop mysql.service");
+
+	exec("python3 /var/www/reboot.py");
 	$info_message = "Server is rebooting <small> Please Do not Refresh... </small>";
 }
 
 //Shutdown System
 if($what=="shutdown"){
-	
+
 	/*
-	//Stop Cron Service 
+	//Stop Cron Service
 	//systemctl stop cron.service
 	exec("systemctl stop cron.service");
-	
+
 	//Kill Gateway Process
 	$query = "SELECT * FROM gateway where status = 1 order by id asc LIMIT 1;";
 	$result = $conn->query($query);
 	$row = mysqli_fetch_array($result);
 	$gw_pid = $row['pid'];
 	exec("kill -9 $gw_pid");
-	
+
 	//Stop MySQL/MariaDB Service
 	//systemctl stop mysql.service
-	exec("systemctl stop mysql.service"); 
+	exec("systemctl stop mysql.service");
 	*/
 	//Shutdown System
-	exec("python3 /var/www/shutdown.py"); 
+	exec("python3 /var/www/shutdown.py");
 	$info_message = "Server is Shutting down <small> Please Do not Refresh... </small>";
 }
 
@@ -1599,7 +1612,7 @@ if($what=="mqtt"){
 if($what=="time_zone"){
 	if($opp=="update"){
 		$time_zone_val = $_GET['time_zone_val'];
-		
+
 		$query = "UPDATE `system` SET `timezone`='" . $time_zone_val . "';";
 		exec("sudo timedatectl set-timezone $time_zone_val");
                 // Checking if gateway script is running
@@ -1619,6 +1632,12 @@ if($what=="time_zone"){
                 exec("ps ax | grep '$switch_script_txt' | grep -v grep", $pids);
                 if (count($pids) > 0) {
                         exec("sudo pkill -f '$switch_script_txt'");
+                }
+                // Checking if System Controller script is running
+                $controller_script_txt = 'python3 /var/www/cron/controller.py';
+                exec("ps ax | grep '$controller_script_txt' | grep -v grep", $pids);
+                if (count($pids) > 0) {
+                        exec("sudo pkill -f '$controller_script_txt'");
                 }
         if($conn->query($query)){
             header('Content-type: application/json');
@@ -2056,23 +2075,46 @@ if($what=="auto_image"){
 //Toggle Relay
 if($what=="toggle_relay"){
         if($opp=="update"){
-                $message_out_id =  $_GET['wid'];
-                $update_error=0;
-                if (settings($conn, 'test_mode') == 0) {
-                        $query = "UPDATE system  SET test_mode = 1;";
-                        if(!$conn->query($query)){
-                                $update_error=1;
+                $r_id =  $_GET['wid'];
+                $update_error = 0;
+                $query = "SELECT relay_id, relay_child_id FROM relays WHERE id = {$r_id} LIMIT 1;";
+                $result = $conn->query($query);
+                $row = mysqli_fetch_assoc($result);
+                $relay_id = $row['relay_id'];
+                $relay_child_id = $row['relay_child_id'];
+                $query = "SELECT payload FROM messages_out WHERE n_id = {$relay_id} AND child_id = {$relay_child_id} LIMIT 1;";
+                $result = $conn->query($query);
+                $row = mysqli_fetch_assoc($result);
+                if ($row['payload'] == "0") { $new_state = "1"; } else { $new_state = "0"; }
+                $query = "UPDATE messages_out SET payload = {$new_state}, sent = 0 WHERE n_id = {$relay_id} AND child_id = {$relay_child_id};";
+                if (!$conn->query($query)) { $db_error = 1; }
+                if ($db_error == 0) {
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                } else {
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+        if($opp=="exit"){
+                $relay_map =  $_GET['relay_map'];
+                $db_error = 0;
+                $query = "SELECT relay_id, relay_child_id FROM relays ORDER BY relay_id, relay_child_id DESC;";
+                $results = $conn->query($query);
+                $count = $results->num_rows;
+                if ($count != 0) {
+			$n = 0;
+                	while ($row = mysqli_fetch_assoc($results)) {
+                                $payload = $relay_map & (1 << $n++);
+                        	$query = "UPDATE messages_out SET payload = {$payload}, sent = 0 WHERE n_id = {$row['relay_id']} AND child_id = {$row['relay_child_id']};";
+                                if (!$conn->query($query)) { $db_error = 1; }
                         }
                 }
-                $sel_query = "SELECT payload FROM messages_out WHERE id = {$message_out_id} LIMIT 1;";
-                $result = $conn->query($sel_query);
-                $row = mysqli_fetch_assoc($result);
-                if ($row['payload'] == "0") { $new_state = 1; } else { $new_state = 0; }
-                $query = "UPDATE messages_out SET payload = {$new_state}, sent = 0 WHERE id = {$message_out_id};";
-                if(!$conn->query($query)){
-                        $update_error=1;
-                }
-                if($update_error==0){
+                $query = "UPDATE system  SET test_mode = 0;";
+                if (!$conn->query($query)) { $db_error = 1; }
+                if ($db_error == 0) {
                         header('Content-type: application/json');
                         echo json_encode(array('Success'=>'Success','Query'=>$query));
                         return;
@@ -2082,13 +2124,37 @@ if($what=="toggle_relay"){
                         return;
                 }
         }
-        if($opp=="exit"){
-                $query = "UPDATE system  SET test_mode = 0;";
-                if($conn->query($query)){
+        if($opp=="enter"){
+                $query = "UPDATE system SET test_mode = 1;";
+                $db_error = 0;
+                if(!$conn->query($query)){
+                        $db_error = 1;
+                }
+                $test_mode = 0;
+		while ($test_mode != 2) {
+	                $query = "SELECT test_mode FROM system LIMIT 1;";
+        	        $result = $conn->query($query);
+                	$row = mysqli_fetch_assoc($result);
+	                $test_mode = $row['test_mode'];
+		}
+                if($db_error == 0){
+	                $query = "SELECT relay_id, relay_child_id FROM relays;";
+        	        $results = $conn->query($query);
+	                $count = $results->num_rows;
+        	        if ($count != 0) {
+                	        while ($row = mysqli_fetch_assoc($results)) {
+			                $query = "UPDATE messages_out SET payload = 0, sent = 0 WHERE n_id = {$row['relay_id']} AND child_id = {$row['relay_child_id']};";
+			                if(!$conn->query($query)){
+                        			$db_error = 1;
+					}
+				}
+			}
+		}
+                if ($db_error == 0) {
                         header('Content-type: application/json');
                         echo json_encode(array('Success'=>'Success','Query'=>$query));
                         return;
-                }else{
+                } else {
                         header('Content-type: application/json');
                         echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
                         return;
