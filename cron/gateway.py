@@ -693,10 +693,10 @@ try:
 
     con = mdb.connect(dbhost, dbuser, dbpass, dbname)
     cur = con.cursor()
-    cur.execute("SELECT c_f FROM system LIMIT 1")
+    cur.execute("SELECT test_mode FROM system LIMIT 1")
     row = cur.fetchone()
     system_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-    c_f = row[system_to_index["c_f"]]  # 0 = centigrade, 1 = fahrenheit
+    test_mode = row[system_to_index["test_mode"]]
     cur.execute("SELECT * FROM gateway where status = 1 order by id asc limit 1")
     row = cur.fetchone()
     gateway_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
@@ -850,7 +850,7 @@ try:
                 out_ack = msg[msg_to_index["ack"]]
                 out_type = msg[msg_to_index["type"]]
                 db_payload = msg[msg_to_index["payload"]]
-                if db_payload == "1" and relay_lag != 0:
+                if db_payload == "1" and relay_lag != 0 and test_mode == 0:
                     # initialise the lag timer value and set the relay to the OFF state
                     relay_lag_timer[relays_id] = time.time()
                     out_payload = 0
@@ -908,6 +908,12 @@ try:
     heartbeat_timer = time.time()
 
     while 1:
+        cur.execute("SELECT c_f, test_mode FROM system LIMIT 1")
+        row = cur.fetchone()
+        system_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+        c_f = row[system_to_index["c_f"]]  # 0 = centigrade, 1 = fahrenheit
+        test_mode = row[system_to_index["test_mode"]]
+
         ## Terminate gateway script if no route to network gateway
         if gatewaytype == "wifi":
             cur.execute(
@@ -1014,7 +1020,7 @@ try:
                         out_payload = XNOR(out_on_trigger, out_payload)
 
                     # if a relay ON command check if relay has a ON lag time setting
-                    if db_payload == "1" and relay_lag != 0:
+                    if db_payload == "1" and (relay_lag != 0 and test_mode == 0):
                         if relay_lag_timer.get(relays_id) == 0:
                             # initialise relay ON trigger timer
                             relay_lag_timer[relays_id] = time.time()
