@@ -136,6 +136,7 @@ function update_add_on(wid){
 //toggle add_on
 function toggle_add_on(wid){
     var idata="w=add_on&o=toggle";
+    idata+="&sch_active="+document.getElementById("sch_active").value;;
     idata+="&wid=" + wid;
     $.get('db.php',idata)
     .done(function(odata){
