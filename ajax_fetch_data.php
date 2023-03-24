@@ -186,11 +186,7 @@ if ($type <= 5) {
         	       	if ($sensor_type_id != 3) { echo $rval['target']; }
                 	break;
 	        case 4:
-			if ($zone_mode_main == 60) {
-				echo '<img src="images/'.$rval['shactive'].'" width="10" height="10" alt="">';
-			} else {
-	        	        echo '<i class="bi ' . $rval['shactive'] . ' ' . $rval['shcolor'] . ' bi-fw">';
-			}
+	        	echo '<i class="bi ' . $rval['shactive'] . ' ' . $rval['shcolor'] . ' bi-fw">';
                 	break;
 	        case 5:
         	        if($overrun == 1) { echo '<i class="bi bi-play-fill orange-red">'; }
