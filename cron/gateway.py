@@ -213,32 +213,33 @@ def set_relays(
             'SELECT `mqtt_topic`, `on_payload`, `off_payload`  FROM `mqtt_devices` WHERE `type` = "1" AND `nodes_id` = (%s) AND `child_id` = (%s) LIMIT 1',
             [n_id, out_child_id],
         )
-        results_mqtt_r = cur.fetchone()
-        description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-        mqtt_topic = results_mqtt_r[description_to_index["mqtt_topic"]]
-        if int(out_payload) == out_on_trigger:
-            payload_str = results_mqtt_r[description_to_index["on_payload"]]
-        else:
-            payload_str = results_mqtt_r[description_to_index["off_payload"]]
-        print("\nSending the following MQTT Message:")
-        print("Topic: %s" % mqtt_topic)
-        print("Message: %s" % payload_str)
-        mqttClient.publish(
-            topic=mqtt_topic,
-            payload=payload_str,
-            qos=1,
-            retain=False,
-        )
-        cur.execute(
-            "UPDATE `messages_out` set sent=1 where id=%s", [out_id]
-        )  # update DB so this message will not be processed in next loop
-        con.commit()  # commit above
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        cur.execute(
-            "UPDATE `nodes` SET `last_seen`=%s, `sync`=0 WHERE id = %s",
-            [timestamp, n_id],
-        )
-        con.commit()
+        if cur.rowcount > 0:
+            results_mqtt_r = cur.fetchone()
+            description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+            mqtt_topic = results_mqtt_r[description_to_index["mqtt_topic"]]
+            if int(out_payload) == out_on_trigger:
+                payload_str = results_mqtt_r[description_to_index["on_payload"]]
+            else:
+                payload_str = results_mqtt_r[description_to_index["off_payload"]]
+            print("\nSending the following MQTT Message:")
+            print("Topic: %s" % mqtt_topic)
+            print("Message: %s" % payload_str)
+            mqttClient.publish(
+                topic=mqtt_topic,
+                payload=payload_str,
+                qos=1,
+                retain=False,
+            )
+            cur.execute(
+                "UPDATE `messages_out` set sent=1 where id=%s", [out_id]
+            )  # update DB so this message will not be processed in next loop
+            con.commit()  # commit above
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            cur.execute(
+                "UPDATE `nodes` SET `last_seen`=%s, `sync`=0 WHERE id = %s",
+                [timestamp, n_id],
+            )
+            con.commit()
     elif node_type.find("Dummy") != -1 :  # process Dummy mode
         cur.execute(
             "UPDATE `messages_out` set sent=1 where id=%s", [out_id]
@@ -331,12 +332,16 @@ def on_connect(client, userdata, flags, rc):
         cur_mqtt.execute(
             'SELECT DISTINCT `mqtt_topic` FROM `mqtt_devices` WHERE `type` = "0"'
         )
-        for node in cur_mqtt.fetchall():
-            subscribe_topics.append((f"{node[0]}", 0))
-        client.subscribe(subscribe_topics)
-        print("Subscribed to the followint MQTT topics:")
-        for topic in subscribe_topics:
-            print(topic[0])
+        if cur_mqtt.rowcount > 0:
+            for node in cur_mqtt.fetchall():
+                subscribe_topics.append((f"{node[0]}", 0))
+            client.subscribe(subscribe_topics)
+            print("Subscribed to the followint MQTT topics:")
+            for topic in subscribe_topics:
+                print(topic[0])
+        else:
+            print("\nConnection failed\n")
+            MQTT_CONNECTED = 0
     else:
         print("\nConnection failed\n")
         MQTT_CONNECTED = 0
@@ -495,6 +500,12 @@ def on_message(client, userdata, message):
             resolution = float(result[sensor_to_index["resolution"]])
             correction_factor = float(result[sensor_to_index["correction_factor"]])
             mqtt_payload = mqtt_payload + correction_factor
+            # Update last reading for this sensor
+            cur_mqtt.execute(
+                "UPDATE `sensors` SET `current_val_1` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
+                [mqtt_payload, sensors_id, mqtt_child_sensor_id],
+            )
+            con_mqtt.commit()
             if mode == 1:
                 # Get previous data for this sensorr
                 cur_mqtt.execute(
@@ -707,13 +718,31 @@ try:
     gatewayport = row[
         gateway_to_index["port"]
     ]  # UDP port or bound rate for MySensors gateway
+
     gatewaytimeout = int(
         row[gateway_to_index["timout"]]
-    )  # Connection timeout in Seconds
+    )  # Interface Connection timeout in Minutes
+
+    gatewayheartbeat = int(
+        row[gateway_to_index["heartbeat_timeout"]]
+    )  # Heartbeat timeout in Seconds
 
     gatewayenableoutgoing = int(
         row[gateway_to_index["enable_outgoing"]]
     )  # Flag to indicate if outgoing messages sgould be processed
+
+    #check for gateway/controller, that sens a Heartbeat message
+    cur.execute(
+        "SELECT COUNT(*) FROM `nodes` WHERE `node_id` = '0' AND `name` LIKE '%Gateway%' AND `sketch_version` > 0.35"
+    )  # MySQL query statement
+    count = cur.fetchone()  # Grab all messages from database for Outgoing.
+    count = count[
+        0
+    ]  # Parse first and the only one part of data table named "count" - there is number of records grabbed in SELECT above
+    if count >0:
+        gateway_v2 = True
+    else:
+        gateway_v2 = False
 
     if gatewaytype == "serial":
         # ps. you can troubleshoot with "screen"
@@ -731,9 +760,11 @@ try:
         gw = telnetlib.Telnet(
             gatewaylocation, gatewayport, timeout=gatewaytimeout
         )  # Connect mysensors gateway from MySQL Database
-        print(bc.grn + "Gateway Type:  Wifi/Ethernet", bc.ENDC)
-        print(bc.grn + "IP Address:    ", gatewaylocation, bc.ENDC)
-        print(bc.grn + "UDP Port:      ", gatewayport, bc.ENDC)
+        print(bc.grn + "Gateway Type      : Wifi/Ethernet", bc.ENDC)
+        print(bc.grn + "IP Address        :", gatewaylocation, bc.ENDC)
+        print(bc.grn + "UDP Port          :", gatewayport, bc.ENDC)
+        if gateway_v2:
+            print(bc.grn + "Heartbeat Timeout :", gatewayheartbeat, "Seconds", bc.ENDC)
     else:
         print(bc.grn + "Gateway Type:  Virtual", bc.ENDC)
 
@@ -916,14 +947,7 @@ try:
 
         ## Terminate gateway script if no route to network gateway
         if gatewaytype == "wifi":
-            cur.execute(
-                "SELECT COUNT(*) FROM `nodes` WHERE `node_id` = '0' AND `name` LIKE '%Gateway%' AND `sketch_version` > 0.35"
-            )  # MySQL query statement
-            count = cur.fetchone()  # Grab all messages from database for Outgoing.
-            count = count[
-                0
-            ]  # Parse first and the only one part of data table named "count" - there is number of records grabbed in SELECT above
-            if count == 0:
+            if not gateway_v2:
                 if time.time() - ping_timer >= 60:
                     ping_timer = time.time()
                     gateway_up = (
@@ -932,13 +956,13 @@ try:
                     if not gateway_up:
                         raise GatewayException("Unable to contact Gateway at: - " + gatewaylocation)
             else:
-                # Heartbeat for WT32-ETH01 Ver 2 Gateways
-                if time.time() - heartbeat_timer >= 60:
+                # For WT32-ETH01 Ver 2 Gateways, check that they are sending a regular Heartbeat message
+                if time.time() - heartbeat_timer >= gatewayheartbeat:
                     heartbeat_timer = time.time()
                     print(bc.grn + "\nNO Heatbeat Message from Gateway", bc.ENDC)
                     raise GatewayException("No Heartbeat from Gateway at: - " + gatewaylocation)
 
-                # Sent heartbeat message to gateway
+                # Send heartbeat message to gateway every 30seconds
                 if time.time() - wifi_gateway_heartbeat >= 30:
                     wifi_gateway_heartbeat = time.time()
                     msg = "0;0;0;0;24;Gateway Script Heartbeat \n"
@@ -1489,7 +1513,7 @@ try:
                         con.commit()
                         # Check if this sensor has a correction factor
                         cur.execute(
-                            "SELECT sensors.mode, sensors.timeout, sensors.correction_factor, sensors.resolution FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) AND sensors.sensor_child_id = (%s) LIMIT 1;",
+                            "SELECT nodes.id, sensors.mode, sensors.timeout, sensors.correction_factor, sensors.resolution FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) AND sensors.sensor_child_id = (%s) LIMIT 1;",
                             (node_id, child_sensor_id),
                         )
                         results = cur.fetchone()
@@ -1502,11 +1526,18 @@ try:
                                 + float(results[sensor_to_index["correction_factor"]]),
                                 2,
                             )
+                            sensor_id = results[sensor_to_index["id"]]
                             mode = results[sensor_to_index["mode"]]
                             sensor_timeout = int(results[sensor_to_index["timeout"]])*60
                             tdelta = 0
                             last_message_payload = 0
                             resolution = float(results[sensor_to_index["resolution"]])
+                            # Update last reading for this sensor
+                            cur.execute(
+                                "UPDATE `sensors` SET `current_val_1` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
+                                [payload, sensor_id, child_sensor_id],
+                            )
+                            con.commit()
                             if mode == 1:
                                 # Get previous data for this sensorr
                                 cur.execute(
@@ -1648,7 +1679,9 @@ try:
                         con.commit()
                         # Check is sensor is attached to a zone which is being graphed
                         cur.execute(
-                            "SELECT sensors.id, sensors.zone_id, nodes.node_id, sensors.sensor_child_id, sensors.name, sensors.graph_num FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) AND sensors.sensor_child_id = (%s)  LIMIT 1;",
+                            """SELECT sensors.id, sensors.zone_id, nodes.id AS n_id, nodes.node_id, sensors.sensor_child_id, sensors.name, sensors.graph_num
+                               FROM sensors, `nodes`
+                               WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) AND sensors.sensor_child_id = (%s)  LIMIT 1;""",
                             (node_id, child_sensor_id),
                         )
                         results = cur.fetchone()
@@ -1659,6 +1692,13 @@ try:
                             sensor_id = int(results[sensor_to_index["id"]])
                             sensor_name = results[sensor_to_index["name"]]
                             zone_id = results[sensor_to_index["zone_id"]]
+                            n_id = int(results[sensor_to_index["n_id"]])
+                            # Update last reading for this sensor
+                            cur.execute(
+                                "UPDATE `sensors` SET `current_val_1` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
+                                [payload, n_id, child_sensor_id],
+                            )
+                            con.commit()
                             # type = results[zone_view_to_index['type']]
                             # category = int(results[zone_view_to_index['category']])
                             if dbgLevel >= 2 and dbgMsgIn == 1:
@@ -1748,6 +1788,22 @@ try:
                             [timestamp, node_id],
                         )
                         con.commit()
+                        cur.execute(
+                            "SELECT id FROM `nodes` WHERE node_id = (%s) LIMIT 1;",
+                            (node_id, ),
+                        )
+                        result = cur.fetchone()
+                        if cur.rowcount > 0:
+                            node_to_index = dict(
+                                (d[0], i) for i, d in enumerate(cur.description)
+                            )
+                            sensor_id = int(result[node_to_index["id"]])
+                            # Update last reading for this sensor
+                            cur.execute(
+                                "UPDATE `sensors` SET `current_val_1` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
+                                [payload, sensor_id, child_sensor_id],
+                            )
+                            con.commit()
 
                         # ..::Step Eight::..
                         # Add Battery Voltage Nodes Battery Table

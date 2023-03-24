@@ -255,13 +255,13 @@ $page_refresh = page_refresh($conn);
 						$controler_seen = $zone_current_state['controler_seen_time'];
 						$zone_sensor_fault = $zone_current_state['sensor_fault'];
 						$sensor_seen = $zone_current_state['sensor_seen_time'];
-						$temp_reading_time= $zone_current_state['sensor_reading_time'];
-						$overrun= $zone_current_state['overrun'];
+						$temp_reading_time = $zone_current_state['sensor_reading_time'];
+						$overrun = $zone_current_state['overrun'];
+						$schedule = $zone_current_state['schedule'];
 
 		                	        //get the current zone schedule status
-                		        	$rval=get_schedule_status($conn, $zone_id,$holidays_status,$away_status);
-			                        $sch_status = $rval['sch_status'];
-        	        		        $away_sch = $rval['away_sch'];
+			                        $sch_status = $schedule & 0b1;
+        	        		        $away_sch = ($schedule >> 1) & 0b1;
 						if ($sch_status == 1) { $active_schedule = 1; }
 
 						//get the sensor id
@@ -623,15 +623,15 @@ $page_refresh = page_refresh($conn);
 		                        	$zone_c = $sensor['payload'];
 
 						//get the current zone schedule status
-						$rval=get_schedule_status($conn, $zone_id,$holidays_status,$away_status);
-                			        $sch_status = $rval['sch_status'];
-		        	                $away_sch = $rval['away_sch'];
-
-                			        //query to get zone current state
 		                        	$query = "SELECT * FROM zone_current_state WHERE zone_id =  '{$row['id']}' LIMIT 1;";
 	                		        $result = $conn->query($query);
 			                        $zone_current_state = mysqli_fetch_array($result);
                                                 $zone_temp_target = $zone_current_state['temp_target'];
+                                                $schedule = $zone_current_state['schedule'];
+
+                                                //get the current zone schedule status
+                                                $sch_status = $schedule & 0b1;
+                                                $away_sch = ($schedule >> 1) & 0b1;
                 			        if ($zone_current_state['mode'] == 0) { $add_on_active = 0; } else { $add_on_active = 1; }
 
 			                        if ($add_on_active == 1) { $add_on_colour = "green"; } elseif ($add_on_active == 0) { $add_on_colour = "black"; }

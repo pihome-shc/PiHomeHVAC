@@ -57,9 +57,15 @@ if (isset($_POST['submit'])) {
 	//Add or Edit Sensor record to sensors Table
 
         if ($id==0){
-                $query = "INSERT INTO `sensors` (`id`, `sync`, `purge`, `zone_id`, `sensor_id`, `sensor_child_id`, `correction_factor`, `sensor_type_id`, `index_id`, `pre_post`, `name`, `graph_num`, `show_it`, `frost_temp`, `frost_controller`, `mode`, `timeout`, `resolution`) VALUES ('{$id}', '{$sync}', '{$purge}', '0', '{$sensor_id}', '{$sensor_child_id}', '{$correction_factor}', '{$sensor_type_id}', '{$index_id}', '{$pre_post}', '{$name}', '0', '1', '{$frost_temp}', '{$frost_controller}', '{$mode}', '{$timeout}', '{$resolution}');";
+                $query = "INSERT INTO `sensors` (`id`, `sync`, `purge`, `zone_id`, `sensor_id`, `sensor_child_id`, `correction_factor`, `sensor_type_id`, `index_id`, `pre_post`,
+                          `name`, `graph_num`, `show_it`, `frost_temp`, `frost_controller`, `mode`, `timeout`, `resolution`, `current_val_1`, `current_val_2`)
+                           VALUES ('{$id}', '{$sync}', '{$purge}', '0', '{$sensor_id}', '{$sensor_child_id}', '{$correction_factor}', '{$sensor_type_id}', '{$index_id}',
+                           '{$pre_post}', '{$name}', '0', '1', '{$frost_temp}', '{$frost_controller}', '{$mode}', '{$timeout}', '{$resolution}', 0, 0);";
         } else {
-                $query = "UPDATE `sensors` SET `sync` = '{$sync}',`purge` = '{$purge}',`sensor_id` = '{$sensor_id}',`sensor_child_id` = '{$sensor_child_id}',`correction_factor` = '{$correction_factor}',`sensor_type_id` = '{$sensor_type_id}',`index_id` = '{$index_id}',`pre_post` = '{$pre_post}',`name` = '{$name}',`graph_num` = '{$graph_num}',`show_it` = '{$show_it}',`frost_temp` = '{$frost_temp}',`frost_controller` = '{$frost_controller}', `mode` = '{$mode}', `timeout` = '{$timeout}', `resolution` = '{$resolution}' WHERE `id` = {$id};";
+                $query = "UPDATE `sensors` SET `sync` = '{$sync}',`purge` = '{$purge}',`sensor_id` = '{$sensor_id}',`sensor_child_id` = '{$sensor_child_id}',
+                         `correction_factor` = '{$correction_factor}',`sensor_type_id` = '{$sensor_type_id}',`index_id` = '{$index_id}',`pre_post` = '{$pre_post}',
+                          `name` = '{$name}',`graph_num` = '{$graph_num}',`show_it` = '{$show_it}',`frost_temp` = '{$frost_temp}',`frost_controller` = '{$frost_controller}',
+                          `mode` = '{$mode}', `timeout` = '{$timeout}', `resolution` = '{$resolution}' WHERE `id` = {$id};";
         }
 	$result = $conn->query($query);
         $temp_id = mysqli_insert_id($conn);

@@ -1313,11 +1313,12 @@ function GetModal_Schedule_List($conn)
         $sensor_seen = $zone_current_state['sensor_seen_time'];
         $temp_reading_time= $zone_current_state['sensor_reading_time'];
         $overrun= $zone_current_state['overrun'];
+        $schedule = $zone_current_state['schedule'];
 
         //get the current zone schedule status
-        $rval=get_schedule_status($conn, $zone_id,$holidays_status,$away_status);
-        $sch_status = $rval['sch_status'];
-        $away_sch = $rval['away_sch'];
+        $sch_status = $schedule & 0b1;
+      	$away_sch = ($schedule >> 1) & 0b1;
+
         if ($sch_status == 1) { $active_schedule = 1; }
 
         //get the sensor id

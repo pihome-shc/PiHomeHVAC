@@ -1,6 +1,6 @@
 # MaxAir - Smart Thermostat
 
-### Note: Now at Version 2.07.
+### Note: Now at Version 3.00.
 
 The previous version, PiHome, was centered around the creation of zones, this version is more centered around devices.
 
@@ -44,6 +44,8 @@ Version 2.05 Introduces 'eBUS Communication', to allow MaxAir to capture data fr
 Version 2.06 Introduces the ability to attach the Live Temperature Control to any desired zone and the ability to configure any 'Immersion' or 'Cooling'zone (zone types with no System Controller attached) to maintain the set default temperature when there is no active schedule.
 
 Version 2.07 Introduces 'Relay ON Lag Time', to allow relays to be triggered to the ON state after a preset delay is applied to the initial trigger ON request.
+
+Version 3.00 Major Update - main processing engine 'controller.php' replace by Python3 module 'controller.py', runs continually every 1 second to improve system respose time
 
 ## Setup:
 

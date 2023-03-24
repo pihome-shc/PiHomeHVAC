@@ -108,7 +108,7 @@ def insertDB(IDs, temperature):
                 con.commit()
             # Check if this sensor has a correction factor
             cur.execute(
-                "SELECT sensors.mode, sensors.timeout, sensors.correction_factor, sensors.resolution FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) LIMIT 1;",
+                "SELECT sensors.sensor_id, sensors.mode, sensors.timeout, sensors.correction_factor, sensors.resolution FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) LIMIT 1;",
                 [IDs[i]],
             )
             results = cur.fetchone()
@@ -134,11 +134,18 @@ def insertDB(IDs, temperature):
 
                 payload = math.floor(temp*100)/100
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                sensor_id = results[sensor_to_index["sensor_id"]]
                 mode = results[sensor_to_index["mode"]]
                 sensor_timeout = int(results[sensor_to_index["timeout"]])*60
                 tdelta = 0
                 last_message_payload = 0
                 resolution = float(results[sensor_to_index["resolution"]])
+                # Update last reading for this sensor
+                cur.execute(
+                    "UPDATE `sensors` SET `current_val_1` = %s WHERE sensor_id = %s AND sensor_child_id = 0",
+                    [payload, sensor_id],
+                )
+                con.commit()
                 if mode == 1:
                     # Get previous data for this sensorr
                     cur.execute(

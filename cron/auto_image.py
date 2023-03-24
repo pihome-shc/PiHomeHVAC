@@ -33,7 +33,7 @@ print(" " + bc.ENDC)
 
 import MySQLdb as mdb, datetime, sys, smtplib, string, os
 import configparser
-import subprocess
+import subprocess, re
 import glob
 
 # Import smtplib for the actual sending function
@@ -69,7 +69,10 @@ if ai_result[image_to_index['enabled']] == 1:
     frequency = ai_result[image_to_index['frequency']]
     f = frequency.split(" ")
     if f[1] == "DAY" :
-        freq = int(f[0]) * 24 * 60 * 60
+        if f[0] == "1":
+            freq = int(f[0]) * 23 * 60 * 60
+        else:
+            freq = int(f[0]) * 24 * 60 * 60
     else :
         freq = int(f[0]) * 7 * 24 * 60 * 60
 
@@ -151,7 +154,14 @@ if ai_result[image_to_index['enabled']] == 1:
         # Image file path
         imagefname = destination + dbname + "_" + datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + ".img";
         # Create the image file
-        cmd = "sudo /usr/local/bin/image-backup -i " + imagefname
+        if os.path.exists('/etc/armbian-release'):
+            imagefname = destination + dbname + "_" + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".img";
+            regex = re.compile('mmcblk.')
+            result = subprocess.run(['lsblk'], stdout=subprocess.PIPE)
+            disk_name = re.findall(regex, result.stdout.decode('utf-8'))[0]
+            cmd = "sudo dcfldd bs=4M if=/dev/" + disk_name + " | gzip > " + imagefname + ".gz"
+        else:
+            cmd = "sudo /usr/local/bin/image-backup -i " + imagefname
         print(cmd)
         os.system(cmd)
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - System Image File Created")

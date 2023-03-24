@@ -27,16 +27,7 @@ if(isset($_GET['id'])) {
         $settings_id = $_GET['id'];
 }
 
-$page_refresh = page_refresh($conn);
 $theme = settings($conn, 'theme');
-
-$sensors_params = [];
-$query = "SELECT id FROM sensors;";
-$results = $conn->query($query);
-while ($row = mysqli_fetch_assoc($results)) {
-        $sensor_params[] = array('sensor_id' =>$row['id']);
-}
-$js_sensor_params = json_encode($sensor_params);
 
 if ($settings_id == 1) {
 	//query to frost protection temperature
@@ -136,6 +127,12 @@ if ($settings_id <= 3) {
 				        	<h3 class="degre" ><i class="bi bi-clock-history blue" style="font-size: 1.5rem;"></i></h3>
 	        			       	<h3 class="status"></small></h3>
 				                </button>
+
+                                                <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style;?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#status_scripts">
+                                                <h3 class="buttontop"><small><?php echo $lang['scripts_status']; ?></small></h3>
+                                                <h3 class="degre" ><i class="bi bi-heart-pulse-fill red" style="font-size: 1.5rem;"></i></h3>
+                                                <h3 class="status"></small></h3>
+                                                </button>
 
         	        		        <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Sensors">
 				                <h3 class="buttontop"><small><?php echo $lang['sensors']; ?></small></h3>
@@ -346,13 +343,15 @@ if ($settings_id <= 3) {
                                                 <h3 class="status"></small></h3>
                                                 </button>
 
-						<?php if (file_exists("/usr/local/bin/image-backup") && !file_exists('/etc/armbian-release')) { ?>
-							<button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#auto_image">
-        	                                        <h3 class="buttontop"><small><?php echo $lang['auto_image']; ?></small></h3>
-                	                                <h3 class="degre" ><i class="bi bi-image red" style="font-size: 1.5rem;"></i></h3>
-                        	                        <h3 class="status"></small></h3>
-                                	                </button>
-						<?php } ?>
+                                                <?php $query = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'maxair' AND table_name = 'auto_image';";
+                                                        $result = $conn->query($query);
+                                                        if (mysqli_num_rows($result) != 0) { ?>
+								<button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#auto_image">
+        	                                        	<h3 class="buttontop"><small><?php echo $lang['auto_image']; ?></small></h3>
+                	                                	<h3 class="degre" ><i class="bi bi-image red" style="font-size: 1.5rem;"></i></h3>
+                        	                        	<h3 class="status"></small></h3>
+                                	                	</button>
+							<?php } ?>
 
 	        	        		<button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#user_setup">
 				                <h3 class="buttontop"><small><?php echo $lang['user_accounts']; ?></small></h3>
@@ -552,31 +551,3 @@ if ($settings_id <= 3) {
 <?php if (isset($conn)) {
     $conn->close();
 } ?>
-<script>
-$(document).ready(function(){
-    $('[data-bs-toggle="tooltip"]').tooltip();
-});
-
-// update page data every x seconds
-$(document).ready(function(){
-  var delay = '<?php echo $page_refresh ?>';
-
-  (function loop() {
-    var data = '<?php echo $js_sensor_params ?>';
-    if (data.length > 0) {
-            var obj = JSON.parse(data)
-            //console.log(obj.length);
-
-		for (var y = 0; y < obj.length; y++) {
-		  $('#sensor_temp_' + obj[y].sensor_id).load("ajax_fetch_data.php?id=" + obj[y].sensor_id + "&type=16").fadeIn("slow");
-		  //console.log(obj[y].sensor_id);
-		}
-    }
-
-    $('#settings_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
-    $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
-    $('#footer_all_running_time').load("ajax_fetch_data.php?id=0&type=17").fadeIn("slow");
-    setTimeout(loop, delay);
-  })();
-});
-</script>
