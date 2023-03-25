@@ -239,6 +239,14 @@ echo '
                                 $db_v_github = array_pop($pieces);
                                 $pieces =  explode(' ', $file2[count($file2) - 1]);
                                 $db_b_github = array_pop($pieces);
+                                //get latest Bootstrap version number
+                                $result = file_get_contents('https://getbootstrap.com/docs/versions/');
+
+                                $search = 'Last update was ';
+                                $start = stripos($result, $search) + strlen($search) + 1;
+                                $end = stripos($result, '.</p>', $offset = $start);
+                                $length = $end - $start;
+                                $bootstrap_ver = substr($result, $start, $length);
 
                                 echo '<p class="text-muted"> '.$lang['maxair_versions_text'].' <br>'.$lang['repository'].' - https://github.com/'.$row['name'].'.git</p>
                                 <table class="table table-bordered">
@@ -271,7 +279,7 @@ echo '
                                         <tr>
                                                 <td style="font-weight:bold">'.$lang['bs_ver'].'</td>
                                                 <td id="bs_local" style="text-align:center; vertical-align:middle;"></td>
-                                                <td style="text-align:center; vertical-align:middle;"></td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$bootstrap_ver.'</td>
                                         </tr>';
 
                                 echo '</table>
