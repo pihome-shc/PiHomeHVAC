@@ -399,7 +399,7 @@ function GetModal_System($conn)
         echo '<div class="list-group-item">
 		<div class="d-flex justify-content-between">
 			<span>
-        			<i class="bi bi-hdd-stack green"></i> '.$row['datetime'].'
+        			<i class="bi bi-cpu-fill"></i> '.$row['datetime'].'
 			</span>
         		<span class="text-muted small"><em>'.number_format(DispSensor($conn,$row['payload'],1),1).'&deg;</em></span>
         	</div>
