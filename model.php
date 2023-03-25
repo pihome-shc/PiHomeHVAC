@@ -226,6 +226,13 @@ echo '
                                 $db_v_installed = array_pop($pieces);
                                 $pieces =  explode(' ', $file1[count($file1) - 1]);
                                 $db_b_installed = array_pop($pieces);
+                                //get latest Bootstrap version number
+                                $html = file_get_contents('https://getbootstrap.com/docs/versions/');
+                                $search = 'Last update was ';
+                                $start = stripos($html, $search) + strlen($search) + 1;
+                                $end = stripos($html, '.</p>', $offset = $start);
+                                $length = $end - $start;
+                                $bootstrap_ver = substr($html, $start, $length);
 
                                 $query = "SELECT name FROM repository WHERE status = 1 LIMIT 1;";
                                 $result = $conn->query($query);
@@ -271,7 +278,7 @@ echo '
                                         <tr>
                                                 <td style="font-weight:bold">'.$lang['bs_ver'].'</td>
                                                 <td id="bs_local" style="text-align:center; vertical-align:middle;"></td>
-                                                <td style="text-align:center; vertical-align:middle;"></td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$bootstrap_ver.'</td>
                                         </tr>';
 
                                 echo '</table>
