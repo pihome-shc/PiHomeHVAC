@@ -337,7 +337,7 @@ if ($type <= 5) {
 							} else {
 								$system_controller_colour="";
 							}
-							echo '<img src="images/flame.svg" class="'.$system_controller_colour.'" style="margin-top: -5px" style="margin-top: -5px" width="25" height="25" alt="">';
+                                                        echo '<i class="bi bi-fire '.$system_controller_colour.'" style="font-size: 1.4rem;">';
 							break;
 						case 2:
                 	        	                if ($active_schedule) {
@@ -356,7 +356,7 @@ if ($type <= 5) {
 	                	                		}
 								echo '<i class="bi bi-power '.$system_controller_colour.'" style="font-size: 1.4rem;">';
 							} elseif ($hvac_relays_state & 0b100) {
-								echo '<img src="images/flame.svg" class="colorize-red" style="margin-top: -5px" width="25" height="25" alt="">';
+                                                                echo '<i class="bi bi-fire red" style="font-size: 1.4rem;">';
 							} elseif ($hvac_relays_state & 0b010) {
 								echo '<i class="bi bi-snow blueinfo" style="font-size: 1.4rem;">';
 							}
@@ -366,7 +366,7 @@ if ($type <= 5) {
                         	                      		$system_controller_colour="#00C853";
 	                        	                        echo '<i class="bi bi-power '.$system_controller_colour.'" style="font-size: 1.4rem;">';
         	                        	        } elseif ($hvac_relays_state & 0b100) {
-                	                        	        echo '<img src="images/flame.svg" class="colorize-red" style="margin-top: -5px" width="25" height="25" alt="">';
+                                                                echo '<i class="bi bi-fire red" style="font-size: 1.4rem;">';
 	                        	                } elseif ($hvac_relays_state & 0b010) {
         	                        	                echo '<i class="bi bi-snow blueinfo" style="font-size: 1.4rem;">';
                 	                        	}
@@ -376,7 +376,8 @@ if ($type <= 5) {
                         	                	break;
 	                                	case 6:
 							if ($hvac_relays_state & 0b100) { $system_controller_colour = "colorize-red"; } else { $system_controller_colour = "colorize-blue"; }
-							echo '<img src="images/flame.svg" class="'.$system_controller_colour.'" style="margin-top: -5px" width="25" height="25" alt="">';
+                                                        echo '<i class="bi bi-fire '.$system_controller_colour.'" style="font-size: 1.4rem;">';
+                                                        break;
         	        	                        break;
                 	        	        case 7:
                         	        	        if ($hvac_relays_state & 0b010) { $system_controller_colour = "blueinfo"; } else { $system_controller_colour = ""; }
@@ -387,14 +388,14 @@ if ($type <= 5) {
                 		                }
 				} else {
         		               	if ($sc_active_status==1) {
-						$system_controller_colour="colorize-red";
+						$system_controller_colour="red";
 					} elseif ($sc_active_status==0) {
-						$system_controller_colour="colorize-blue";
+						$system_controller_colour="blueinfo";
 					}
 					if ($sc_mode==0) {
                 		               	$system_controller_colour="";
                         		}
-	                        	echo '<img src="images/flame.svg" class="'.$system_controller_colour.'" style="margin-top: -5px" width="25" height="25" alt="">';
+                                        echo '<i class="bi bi-fire '.$system_controller_colour.'" style="font-size: 1.4rem;">';
 				}
 			} elseif ($type == 10) {
 				if($system_controller_fault=='1') {echo'<i class="bi bi-x-circle-fill red">';}
@@ -403,7 +404,7 @@ if ($type <= 5) {
 			}
 		}
 	} else {
-		if ($type == 9) { echo '<img src="images/flame.svg" style="margin-top: -5px" width="25" height="25" alt="">'; } else { echo''; }
+		if ($type == 9) { echo '<i class="bi bi-fire" style="font-size: 1.4rem;">'; } else { echo''; }
 	}
 } elseif ($type == 11 || $type == 12) {
 	//-------------------------------------------

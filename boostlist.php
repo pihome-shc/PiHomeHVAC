@@ -32,7 +32,7 @@ $theme = settings($conn, 'theme');
         <div class="card-header <?php echo theme($conn, $theme, 'text_color'); ?> card-header-<?php echo theme($conn, $theme, 'color'); ?>">
 		<div class="d-flex justify-content-between">
 			<div>
-                            	<img src="images/rocket.svg" width="20" height="20" alt="">&nbsp&nbsp<?php echo $lang['boost']; ?>
+                            	<i class="bi bi-rocket-takeoff-fill"></i>&nbsp&nbsp<?php echo $lang['boost']; ?>
 			</div>
 			<div class="btn-group" id="boost_date"><?php echo date("H:i"); ?></div>
 		</div>

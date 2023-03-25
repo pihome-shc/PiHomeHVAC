@@ -482,7 +482,7 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
 		$shactive='bi-snow';
        		$shcolor='';
 		$target=number_format(DispTemp($conn,$zone_temp_target),1) . '&deg;';
-                $scactive='flame.svg';
+                $scactive='bi bi-fire';
                 $sccolor='colorize-red';
 	}
 	//overtemperature
@@ -515,16 +515,16 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
                         $target=number_format(DispTemp($conn,$zone_temp_target),1) . '&deg;';
                 }
                 if($zone_mode_sub == 1){
-                        $scactive='flame.svg';
-                        $sccolor='colorize-red';
+                        $scactive='bi bi-fire';
+                        $sccolor='red';
                         $status='red';
                 } elseif($zone_mode_sub == 6){
                         $scactive='bi bi-snow';
                         $sccolor='blueinfo';
                         $status='blue';
                 } elseif($zone_mode_sub == 3){
-                        $scactive='flame.svg';
-                        $sccolor='colorize-blue';
+                        $scactive='bi bi-fire';
+                        $sccolor='blueinfo';
                         $status='blue';
                 } else {
                         $scactive='bi bi-power';
@@ -599,16 +599,16 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
 	//HVAC
         else if($zone_mode_main == 80 || $zone_mode_main == 120){
                 if($zone_mode_sub == 1){
-                        $scactive='flame.svg';
-                        $sccolor='colorize-red';
+                        $scactive='bi bi-fire';
+                        $sccolor='red';
                         $status='red';
                 } elseif($zone_mode_sub == 6){
                         $scactive='bi bi-snow';
                         $sccolor='blueinfo';
                         $status='blue';
                 } elseif($zone_mode_sub == 3){
-                        $scactive='flame.svg';
-                        $sccolor='colorize-blue';
+                        $scactive='bi bi-fire';
+                        $sccolor='blueinfo';
                         $status='blue';
                 } else {
                         $scactive='bi bi-power';
@@ -638,16 +638,16 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
         //manual
         else if($zone_mode_main == 140){
                 if($zone_mode_sub == 1){
-                        $scactive='flame.svg';
-                        $sccolor='colorize-red';
+                        $scactive='bi bi-fire';
+                        $sccolor='red';
                         $status='red';
                 } elseif($zone_mode_sub == 6){
                         $scactive='bi bi-snow';
                         $sccolor='blueinfo';
                         $status='blue';
                 } elseif($zone_mode_sub == 3){
-                        $scactive='flame.svg';
-                        $sccolor='colorize-blue';
+                        $scactive='bi bi-fire';
+                        $sccolor='blueinfo';
                         $status='blue';
                 } else {
                         $scactive='bi bi-power';

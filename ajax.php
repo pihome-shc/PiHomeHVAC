@@ -1210,7 +1210,7 @@ function GetModal_SystemController($conn)
 			<div class="list-group">' ;
                         	echo '<a href="#" class="d-flex justify-content-between list-group-item list-group-item-action">
                                 	<span>
-                                        	<img src="images/flame.svg" class="colorize-red" width="20" height="20" alt=""> Start &nbsp; - &nbsp;End
+                                        	<i class="bi bi-fire red"></i> Start &nbsp; - &nbsp;End
                                         </span>
                                         <span class="text-muted small">
                                          	<em>'.$lang['system_controller_on_minuts'].'&nbsp;</em>
@@ -1219,7 +1219,7 @@ function GetModal_SystemController($conn)
 				while ($brow = mysqli_fetch_assoc($bresults)) {
                                 	echo '<a href="#" class="d-flex justify-content-between list-group-item list-group-item-action">
                                         	<span>
-							<img src="images/flame.svg" class="colorize-red" width="20" height="20" alt=""> '. $brow['start_datetime'].' - ' .$brow['stop_datetime'].'
+							<i class="bi bi-fire red"></i> '. $brow['start_datetime'].' - ' .$brow['stop_datetime'].'
                                                 </span>
                                             	<span class="text-muted small">
 							<em>'.$brow['on_minuts'].'&nbsp;</em>

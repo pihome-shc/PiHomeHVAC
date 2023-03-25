@@ -446,7 +446,7 @@ $page_refresh = page_refresh($conn);
 									} else {
 										$system_controller_colour="";
 									}
-                                			                echo '<h3 class="degre" id="scd" ><img src="images/flame.svg" class="'.$system_controller_colour.'" style="margin-top: -5px" width="25" height="25" alt=""></h3>';
+                                			                echo '<h3 class="degre" id="scd" ><i class="bi bi-snow icon-1x '.$system_controller_colour.'"></i></h3>';
 									break;
 								case 2:
         	        		                                if ($active_schedule) {
@@ -465,7 +465,7 @@ $page_refresh = page_refresh($conn);
                                 						}
 										echo '<h3 class="degre" id="scd" ><i class="bi bi-power '.$system_controller_colour.'" style="font-size: 1.2rem;"></i></h3>';
 									} elseif ($hvac_relays_state & 0b100) {
-										echo '<h3 class="degre" id="scd" ><img src="images/flame.svg" class="colorize-red" style="margin-top: -5px" width="25" height="25" alt=""></h3>';
+										echo '<h3 class="degre" id="scd" ><i class="bi bi-fire red" style="font-size: 1.2rem;"></i></h3>';
 									} elseif ($hvac_relays_state & 0b010) {
 										echo '<h3 class="degre" id="scd" ><i class="bi bi-snow blueinfo" style="font-size: 1.2rem;"></i></h3>';
 									}
@@ -475,7 +475,7 @@ $page_refresh = page_refresh($conn);
 		                                	                       	$system_controller_colour="green";
                 		                        	                echo '<h3 class="degre" id="scd" ><i class="bi bi-power '.$system_controller_colour.'" style="font-size: 1.2rem;"></i></h3>';
                                 		                	} elseif ($hvac_relays_state & 0b100) {
-	                                                		        echo '<h3 class="degre" id="scd" ><img src="images/flame.svg" class="colorize-red" style="margin-top: -5px" width="25" height="25" alt=""></h3>';
+	                                                		        echo '<h3 class="degre" id="scd" ><i class="bi bi-fire red" style="font-size: 1.2rem;"></i></h3>';
 			                                                } elseif ($hvac_relays_state & 0b010) {
                 			                                        echo '<h3 class="degre" id="scd" ><i class="bi bi-snow blue" style="font-size: 1.2rem;"></i></h3>';
                         	        		                }
@@ -484,8 +484,8 @@ $page_refresh = page_refresh($conn);
                 		                                echo '<h3 class="degre" id="scd" ><img src="images/hvac_fan_30.png" border="0"></h3>';
                                 			                break;
 		                                        	case 6:
-									if ($hvac_relays_state & 0b100) { $system_controller_colour = "colorize-red"; } else { $system_controller_colour = "colorize-blue"; }
-	                                		                echo '<h3 class="degre" id="scd" ><img src="images/flame.svg" class="'.$system_controller_colour.'" style="margin-top: -5px" width="25" height="25" alt=""></h3>';
+									if ($hvac_relays_state & 0b100) { $system_controller_colour = "red"; } else { $system_controller_colour = "blueinfo"; }
+										echo '<h3 class="degre" id="scd" ><i class="bi bi-fire '.$system_controller_colour.'" style="font-size: 1.2rem;"></i></h3>';
         	                                        		break;
 			                                        case 7:
                 			                                if ($hvac_relays_state & 0b010) { $system_controller_colour = "blueinfo"; } else { $system_controller_colour = ""; }
@@ -496,14 +496,14 @@ $page_refresh = page_refresh($conn);
 	                                		}
 						} else {
                 			        	if ($sc_active_status==1) {
-								$system_controller_colour="colorize-red";
+								$system_controller_colour="red";
 							} elseif ($sc_active_status==0) {
-								$system_controller_colour="colorize-blue";
+								$system_controller_colour="blueinfo";
 							}
 							if ($sc_mode==0) {
         	        		                	$system_controller_colour="";
                 	                		}
-		        	                        echo '<h3 class="degre" id="scd" ><img src="images/flame.svg" class="'.$system_controller_colour.'" style="margin-top: -5px" width="25" height="25" alt=""></h3>';
+							echo '<h3 class="degre" id="scd" ><i class="bi bi-fire '.$system_controller_colour.'" style="font-size: 1.4rem;"></i></h3>';
 						}
 
 						if($system_controller_fault=='1') {echo'<h3 class="status"><small class="statusdegree"></small><small style="margin-left: 70px;" class="statuszoon" id="scs"><i class="bi bi-x-circle-fill red"></i> </small>';}
