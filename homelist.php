@@ -647,7 +647,7 @@ $page_refresh = page_refresh($conn);
 		                        	} elseif ($zone_category == 6) {
 							if ($add_on_active == 0) { echo '<h3 class="degre" id="zd_'.$zone_id.'">OFF</h3>'; } else { echo '<h3 class="degre" id="zd_'.$zone_id.'">ON</h3>'; }
 						} else {
-        	        		        	echo '<h3 class="degre" id="zd_'.$zone_id.'"><i class="bi bi-power '.$add_on_colour.'" style="font-size: 1rem;"></i></h3>';
+        	        		        	echo '<h3 class="degre" id="zd_'.$zone_id.'"><i class="bi bi-power '.$add_on_colour.'" style="font-size: 1.4rem;"></i></h3>';
 						}
                 			        echo '<h3 class="status">';
 
