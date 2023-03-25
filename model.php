@@ -239,24 +239,6 @@ echo '
                                 $db_v_github = array_pop($pieces);
                                 $pieces =  explode(' ', $file2[count($file2) - 1]);
                                 $db_b_github = array_pop($pieces);
-                                //get latest Bootstrap version number
-				$url='https://getbootstrap.com/docs/versions/';
-				$ch=curl_init();
-				$timeout=5;
-
-				curl_setopt($ch, CURLOPT_URL, $url);
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-				curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-				curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-
-				$result=curl_exec($ch);
-				curl_close($ch);
-
-				$search = 'Last update was ';
-				$start = stripos($result, $search) + strlen($search) + 1;
-				$end = stripos($result, '.</p>', $offset = $start);
-				$length = $end - $start;
-				$bootstrap_ver = substr($result, $start, $length);
 
                                 echo '<p class="text-muted"> '.$lang['maxair_versions_text'].' <br>'.$lang['repository'].' - https://github.com/'.$row['name'].'.git</p>
                                 <table class="table table-bordered">
@@ -289,7 +271,7 @@ echo '
                                         <tr>
                                                 <td style="font-weight:bold">'.$lang['bs_ver'].'</td>
                                                 <td id="bs_local" style="text-align:center; vertical-align:middle;"></td>
-                                                <td style="text-align:center; vertical-align:middle;">'.$bootstrap_ver.'</td>
+                                                <td style="text-align:center; vertical-align:middle;"></td>
                                         </tr>';
 
                                 echo '</table>
@@ -4429,4 +4411,3 @@ $(function() {
     });
 });
 </script>
-
