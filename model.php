@@ -433,7 +433,7 @@ echo '<div class="modal" id="status_scripts" tabindex="-1">
                 $result = $conn->query($query);
                 $scrow = mysqli_fetch_array($result);
 
-		echo '<br><h4 class="info"><i class="bi bi-heart-pulse-fill red" style="font-size:1.2rem;"></i> '.$lang['smart_home_gateway_scr_info'].'</h4>
+		echo '<br><h4 class="info"><i class="bi bi-activity red" style="font-size:1.2rem;"></i> '.$lang['smart_home_gateway_scr_info'].'</h4>
 		<div class="list-group">
 			<a href="#" class="list-group-item d-flex justify-content-between"><span>PID</span><span class="text-muted small"><em> '.$grow['pid'].'</em></span></a>
 			<a href="#" class="list-group-item d-flex justify-content-between"><span>'.$lang['smart_home_gateway_pid'].':</span><span class="text-muted small"><em>'.$grow['pid_running_since'].'</em></span></a>';
@@ -449,7 +449,7 @@ echo '<div class="modal" id="status_scripts" tabindex="-1">
 		echo '</div>
 
                 <!-- /.list-group -->
-                <br><h4 class="info"><i class="bi bi-heart-pulse-fill red" style="font-size:1.2rem;"></i> '.$lang['smart_home_controller_scr_info'].'</h4>
+                <br><h4 class="info"><i class="bi bi-activity red" style="font-size:1.2rem;"></i> '.$lang['smart_home_controller_scr_info'].'</h4>
                 <div class="list-group">
                         <a href="#" class="list-group-item d-flex justify-content-between"><span>PID</span><span class="text-muted small"><em> '.$scrow['pid'].'</em></span></a>
                         <a href="#" class="list-group-item d-flex justify-content-between"><span>'.$lang['smart_home_gateway_pid'].':</span><span class="text-muted small"><em>'.$scrow['pid_running_since'].'</em></span></a>';
