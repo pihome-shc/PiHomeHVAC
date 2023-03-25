@@ -241,12 +241,20 @@ echo '
                                 $db_b_github = array_pop($pieces);
                                 //get latest Bootstrap version number
                                 $result = file_get_contents('https://getbootstrap.com/docs/versions/');
-
-                                $search = 'Last update was ';
-                                $start = stripos($result, $search) + strlen($search) + 1;
-                                $end = stripos($result, '.</p>', $offset = $start);
-                                $length = $end - $start;
-                                $bootstrap_ver = substr($result, $start, $length);
+                                if (strlen($result) > 0) {
+                                        $search = 'Last update was ';
+                                        $start = stripos($result, $search);
+                                        if ($start !== false) {
+                                                $start = $start + strlen($search) + 1;
+                                                $end = stripos($result, '.</p>', $offset = $start);
+                                                $length = $end - $start;
+                                                $bootstrap_ver = substr($result, $start, $length);
+                                        } else {
+                                                $bootstrap_ver = "Not Found";
+                                        }
+                                } else {
+                                        $bootstrap_ver = "Not Found";
+                                }
 
                                 echo '<p class="text-muted"> '.$lang['maxair_versions_text'].' <br>'.$lang['repository'].' - https://github.com/'.$row['name'].'.git</p>
                                 <table class="table table-bordered">
