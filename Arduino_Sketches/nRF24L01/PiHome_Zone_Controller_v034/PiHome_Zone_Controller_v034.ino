@@ -113,6 +113,7 @@ int oldStatus = RELAY_OFF;
 int COMMS = 0;
 unsigned long WAIT_TIME = 600000; // Wait time (in milliseconds) best to keep it for 10 Minuts
 
+long double send_heartbeat_time = millis();
 long double HEARTBEAT_TIME = 30000; // Send heartbeat every seconds
 
 #define CHILD_ID_TXT 255
