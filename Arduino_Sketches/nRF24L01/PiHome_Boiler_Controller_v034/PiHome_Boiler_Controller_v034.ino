@@ -110,6 +110,11 @@ int oldStatus = RELAY_OFF;
 int COMMS = 0;
 unsigned long WAIT_TIME = 300000; // Wait time (in milliseconds) best to keep it for 5 Minuts
 
+long double HEARTBEAT_TIME = 30000; // Send heartbeat every seconds
+
+#define CHILD_ID_TXT 255
+MyMessage msgTxt(CHILD_ID_TXT, V_TEXT);
+
 void before()
 {
 	for (int sensor=1, pin=RELAY_1; sensor<=NUMBER_OF_RELAYS; sensor++, pin++) {
