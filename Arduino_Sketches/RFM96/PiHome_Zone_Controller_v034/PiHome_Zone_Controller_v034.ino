@@ -25,62 +25,40 @@
 //Define Sketch Version 
 #define SKETCH_VERSION "0.34"
 
-// Enable and select radio type attached
-#define MY_RADIO_RF24
-//#define MY_RADIO_NRF5_ESB
-//#define MY_RADIO_RFM69
-//#define MY_RADIO_RFM95
+#define MY_RADIO_RFM95
+//#define   MY_DEBUG_VERBOSE_RFM95
+#define MY_RFM95_MAX_POWER_LEVEL_DBM (20) //Set max TX power in dBm if local legislation requires this - 1mW = 0dBm, 10mW = 10dBm, 25mW = 14dBm, 100mW = 20dBm
+#define MY_RFM95_FREQUENCY (RFM95_434MHZ) //The frequency to use - RFM95_169MHZ, RFM95_315MHZ, RFM95_434MHZ, RFM95_868MHZ, RFM95_915MHZ
+#define MY_RFM95_MODEM_CONFIGRUATION RFM95_BW125CR45SF128 
+/* 
+#define MY_RFM95_MODEM_CONFIGRUATION RFM95_BW125CR45SF128 
+RFM95 modem configuration.
+BW = Bandwidth in kHz CR = Error correction code SF = Spreading factor, chips / symbol
+CONFIG 					BW 		CR 		SF		Comment
+RFM95_BW125CR45SF128 	125 	4/5 	128 	Default, medium range
+RFM95_BW500CR45SF128 	500 	4/5 	128 	Fast, short range
+RFM95_BW31_25CR48SF512 	31.25 	4/8 	512 	Slow, long range
+RFM95_BW125CR48SF4096 	125 	4/8 	4096 	Slow, long range 
+*/
+//#define MY_RFM95_TCXO // Enable to force your radio to use an external frequency source (e.g. TCXO, if present). This allows for better stability using SF 9 to 12. 
+//#define MY_RFM95_TX_POWER_DBM   (13u) //Set TX power level, default 13dBm (overridden if ATC mode enabled) 
+//#define MY_RFM95_TCXO // Enable to force your radio to use an external frequency source (e.g. TCXO, if present). This allows for better stability using SF 9 to 12. 
+//#define MY_RFM95_TX_POWER_DBM   (13u) //Set TX power level, default 13dBm (overridden if ATC mode enabled) 
+//#define MY_RFM95_ATC_TARGET_RSSI (-70)  //target RSSI -70dBm Target RSSI level (in dBm) for RFM95 ATC mode. 
+#define MY_TRANSPORT_STATE_TIMEOUT_MS  (3*1000ul) //general state timeout (in ms) 
+#define RFM95_RETRY_TIMEOUT_MS  (3000ul)
+#define MY_RFM95_IRQ_PIN 2
+#define MY_RFM95_IRQ_NUM digitalPinToInterrupt(MY_RFM95_IRQ_PIN)
+#define MY_RFM95_CS_PIN 8
 
-//https://forum.mysensors.org/topic/10386/what-is-the-good-wait-time/7
-//Connect the nRF24 IRQ pin to pin 2 on your Arduino
-//that last value may be lower (e.g. 5) when running out of memory
-//This will listen to the interrupt from the nRF24 when a message comes in and immediately pause the running code to retrieve the message.
-//Then your code continues and any messages stored will be processed outside the loop() function automatically. The wait() call(s) can be removed from your code.
-
-//Define this to use the IRQ pin of the RF24 module (optional). 
-#define MY_RF24_IRQ_PIN 2
-#define MY_RX_MESSAGE_BUFFER_FEATURE
-#define MY_RX_MESSAGE_BUFFER_SIZE 5
-
-// * - RF24_PA_MIN = -18dBm
-// * - RF24_PA_LOW = -12dBm
-// * - RF24_PA_HIGH = -6dBm
-// * - RF24_PA_MAX = 0dBm
-// Set LOW transmit power level as default, if you have an amplified NRF-module and
-// power your radio separately with a good regulator you can turn up PA level.
-// RF24_PA_MIN RF24_PA_LOW RF24_PA_HIGH RF24_PA_MAX RF24_PA_ERROR
-#define MY_RF24_PA_LEVEL RF24_PA_MIN
-//#define MY_DEBUG_VERBOSE_RF24
-
-/**
- * @brief RF channel for the sensor net, 0-125.
- * Frequencies: 2400 Mhz - 2525 Mhz
- * @see https://www.nordicsemi.com/eng/nordic/download_resource/8765/2/42877161/2726
- * - 0 => 2400 Mhz (RF24 channel 1)
- * - 1 => 2401 Mhz (RF24 channel 2)
- * - 76 => 2476 Mhz (RF24 channel 77)
- * - 83 => 2483 Mhz (RF24 channel 84)
- * - 124 => 2524 Mhz (RF24 channel 125)
- * - 125 => 2525 Mhz (RF24 channel 126)
- * In some countries there might be limitations, in Germany for example only the range
- * 2400,0 - 2483,5 Mhz is allowed.
- * @see http://www.bundesnetzagentur.de/SharedDocs/Downloads/DE/Sachgebiete/Telekommunikation/Unternehmen_Institutionen/Frequenzen/Allgemeinzuteilungen/2013_10_WLAN_2,4GHz_pdf.pdf
- */
- 
-//Default RF channel Default is 76
-#define MY_RF24_CHANNEL	91
-
-//PiHome Zone Controller Node ID
-#define MY_NODE_ID 102
-
-//RF24_250KBPS for 250kbs, RF24_1MBPS for 1Mbps, or RF24_2MBPS for 2Mbps
-#define MY_RF24_DATARATE RF24_250KBPS
+//MaxAir Zone Controller Node ID
+#define MY_NODE_ID 101
 
 //Enable Signing 
-//#define MY_SIGNING_SIMPLE_PASSWD "pihome2019"
+//#define MY_SIGNING_SIMPLE_PASSWD "maxair2021"
 
 //Enable Encryption This uses less memory, and hides the actual data.
-//#define MY_ENCRYPTION_SIMPLE_PASSWD "pihome2019"
+//#define MY_ENCRYPTION_SIMPLE_PASSWD "maxair2021"
 
 // Enable repeater functionality for this node
 //#define MY_REPEATER_FEATURE
@@ -92,26 +70,18 @@
 //#define MY_TRANSPORT_WAIT_READY_MS 3000
 
 //If Following LED Blink does not work then modify C:\Program Files (x86)\Arduino\libraries\MySensors_2_1_1\MyConfig.h 
-#define MY_DEFAULT_ERR_LED_PIN 16 //A0 previous version 8 
-#define MY_DEFAULT_TX_LED_PIN 14
-#define MY_DEFAULT_RX_LED_PIN 15
+#define MY_DEFAULT_ERR_LED_PIN 8 //A0 previous version 8 
+#define MY_DEFAULT_TX_LED_PIN 6
+#define MY_DEFAULT_RX_LED_PIN 7
 #define MY_WITH_LEDS_BLINKING_INVERSE
-
-#define MY_DEFAULT_LED_BLINK_PERIOD 400
-
-//#define MY_OTA_FIRMWARE_FEATURE
+#define MY_DEFAULT_LED_BLINK_PERIOD 600
 
 #include <MySensors.h>
-#include <avr/wdt.h>
 
-#define RELAY_1 3  // Arduino Digital I/O pin number for first relay (second on pin+1 etc)
-#define NUMBER_OF_RELAYS 6 // Total number of attached relays
+#define RELAY_1 2  // Arduino Digital I/O pin number for first relay (second on pin+1 etc)
+#define NUMBER_OF_RELAYS 4 // Total number of attached relays
 #define RELAY_ON 0  // GPIO value to write to turn on attached relay
 #define RELAY_OFF 1 // GPIO value to write to turn off attached relay
-
-int oldStatus = RELAY_OFF;
-int COMMS = 0;
-unsigned long WAIT_TIME = 600000; // Wait time (in milliseconds) best to keep it for 10 Minuts
 
 long double send_heartbeat_time = millis();
 long double recieve_heartbeat_time = millis();
