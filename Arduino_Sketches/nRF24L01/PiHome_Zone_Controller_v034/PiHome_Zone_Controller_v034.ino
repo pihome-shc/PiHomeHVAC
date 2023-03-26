@@ -114,6 +114,7 @@ int COMMS = 0;
 unsigned long WAIT_TIME = 600000; // Wait time (in milliseconds) best to keep it for 10 Minuts
 
 long double send_heartbeat_time = millis();
+long double recieve_heartbeat_time = millis();
 long double HEARTBEAT_TIME = 30000; // Send heartbeat every seconds
 
 #define CHILD_ID_TXT 255
@@ -152,32 +153,35 @@ void presentation(){
 }
 
 void loop(){
-  	long double temp = (millis() - send_heartbeat_time);
-  	if (temp > HEARTBEAT_TIME) {
-    	// If it exceeds the heartbeat time then send a heartbeat
-    		send(msgTxt.set("Heartbeat"));
-    		send_heartbeat_time = millis();
-    		Serial.println("Sent heartbeat" );
-  	}
+  long double temp = (millis() - send_heartbeat_time);
+  if (temp > HEARTBEAT_TIME) {
+    // If it exceeds the heartbeat time then send a heartbeat
+    send(msgTxt.set("Heartbeat"));
+    send_heartbeat_time = millis();
+    Serial.println("Sent heartbeat" );
+  }
 
-	//Safety function for Zone: If Zone Controller loses connection with gateway or RPI crashes zone will turn off at set time. 
-	wait(WAIT_TIME);
-	if (COMMS == 1) {
-		Serial.print("Comms Received Witin Time: \n");
-		COMMS = 0;
-		//Reset to Watch Dog to not to reboot 
-		wdt_reset();
-	}else {
-		Serial.print("NO Comms Received Witin Time!!! \n");
-		Serial.print("Rebooting Controller \n");
-		for (int sensor=1, pin=RELAY_1; sensor<=NUMBER_OF_RELAYS; sensor++, pin++) {
-			// Register all sensors to gw (they will be created as child devices)
-			digitalWrite(pin, RELAY_OFF);
-			delay(100);
-		}
-		//call reset function 
-		resetFunc(); 
-	}
+  temp = (millis() - recieve_heartbeat_time);
+  if (temp > (HEARTBEAT_TIME * 2)) {
+    #if defined(PCF8575_ATTACHED)
+      // If it exceeds the heartbeat time then set all relays OFF
+      for(int i=0;i<NUMBER_OF_RELAYS;i++) {
+        pcf8575.digitalWrite(i, xnor(trigger, RELAY_OFF));
+      }
+    #endif
+    recieve_heartbeat_time = millis();
+    Serial.println("No heartbeat recieved" );
+    for (int sensor=1, pin=RELAY_1; sensor<=NUMBER_OF_RELAYS; sensor++, pin++) {
+      // Register all sensors to gw (they will be created as child devices)
+      digitalWrite(pin, RELAY_OFF);
+      delay(100);
+    }
+    //call reset function 
+    resetFunc(); 
+  } else {
+    //Reset to Watch Dog to not to reboot
+    wdt_reset(); 
+  }
 }
 
 void sendHeartbeat(){
