@@ -8,8 +8,8 @@
 //                 S M A R T   T H E R M O S T A T
 // *****************************************************************
 // *           Heating Zone Controller Relay Sketch                *
-// *            Version 0.33 Build Date 06/11/2017                 *
-// *            Last Modification Date 26/02/2022                  *
+// *            Version 0.34 Build Date 06/11/2017                 *
+// *            Last Modification Date 26/03/2023                  *
 // *                                          Have Fun - PiHome.eu *
 // *****************************************************************
 
@@ -23,7 +23,7 @@
 //Define Sketch Name 
 #define SKETCH_NAME "Zone Controller Relay"
 //Define Sketch Version 
-#define SKETCH_VERSION "0.33"
+#define SKETCH_VERSION "0.34"
 
 // Enable and select radio type attached
 #define MY_RADIO_RF24
@@ -113,6 +113,9 @@ int oldStatus = RELAY_OFF;
 int COMMS = 0;
 unsigned long WAIT_TIME = 600000; // Wait time (in milliseconds) best to keep it for 10 Minuts
 
+long double HEARTBEAT_TIME = 30000; // Send heartbeat every seconds
+
+MyMessage msgTxt(CHILD_ID_TXT, V_TEXT);
 
 void before()
 {
@@ -147,6 +150,14 @@ void presentation(){
 }
 
 void loop(){
+  	long double temp = (millis() - send_heartbeat_time);
+  	if (temp > HEARTBEAT_TIME) {
+    	// If it exceeds the heartbeat time then send a heartbeat
+    		send(msgTxt.set("Heartbeat"));
+    		send_heartbeat_time = millis();
+    		Serial.println("Sent heartbeat" );
+  	}
+
 	//Safety function for Zone: If Zone Controller loses connection with gateway or RPI crashes zone will turn off at set time. 
 	wait(WAIT_TIME);
 	if (COMMS == 1) {
