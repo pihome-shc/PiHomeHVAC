@@ -531,7 +531,7 @@ if ($settings_id <= 3) {
 			       	<div class="btn-group" id="footer_weather">
         	        		<?php ShowWeather($conn); ?>
 			        </div>
-                		<div class="btn-group">
+	                        <div class="btn-group" id="footer_all_running_time">
 		       			<?php
                 			echo '<i class="bi bi-clock"></i>&nbspAll Schedule:&nbsp' . secondsToWords((array_sum($schedule_time) * 60));
 		       			?>

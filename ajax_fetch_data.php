@@ -578,94 +578,31 @@ if ($type <= 5) {
         //---------------------------------------
         //process running time for All Schedules
         //---------------------------------------
-	//following variable set to 0 on start for array index.
-	$sch_time_index = '0';
-	$query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, type, `category`, temperature,
-        	FORMAT(max(temperature),2) as max_c, sch_name, sch_type, start_sr, start_ss, start_offset, end_sr, end_ss, end_offset, sensor_type_id, stype
-	        FROM schedule_daily_time_zone_view
-        	WHERE holidays_id = 0 AND tz_status = 1
-	        GROUP BY time_id ORDER BY start, sch_name asc";
-	$results = $conn->query($query);
-	while ($row = mysqli_fetch_assoc($results)) {
-        	$start_time = strtotime($row['start']);
-	        $end_time = strtotime($row['end']);
-        	$start_sr = $row['start_sr'];
-	        $start_ss = $row['start_ss'];
-        	$start_offset = $row['start_offset'];
-	        $end_sr = $row['end_sr'];
-        	$end_ss = $row['end_ss'];
-	        $end_offset = $row['end_offset'];
-        	if ($start_sr == 1 || $start_ss == 1 || $end_sr == 1 || $end_ss == 1) {
-                	$query = "SELECT * FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);";
-	                $result = $conn->query($query);
-        	        $rowcount=mysqli_num_rows($result);
-                	if ($rowcount > 0) {
-                        	$wrow = mysqli_fetch_array($result);
-	                        $sunrise_time = date('H:i:s', $wrow['sunrise']);
-        	                $sunset_time = date('H:i:s', $wrow['sunset']);
-                	        if ($start_sr == 1 || $start_ss == 1) {
-                        	        if ($start_sr == 1) { $start_time = strtotime($sunrise_time); } else { $start_time = strtotime($sunset_time); }
-                                	$start_time = $start_time + ($start_offset * 60);
-	                        }
-        	                if ($end_sr == 1 || $end_ss == 1) {
-                	                if ($end_sr == 1) { $end_time = strtotime($sunrise_time); } else { $end_time = strtotime($sunset_time); }
-                        	        $end_time = $end_time + ($end_offset * 60);
-	                        }
-        	        }
-	        }
-
-        	//calculate total time of day schedule using array schedule_time with index as sch_time_index variable
-	        if ($row["time_status"] == "1") {
-        	        $total_time = $end_time - $start_time;
-                	$total_time = $total_time / 60;
-	                //save all total_time variable value to schedule_time array and incriment array index (sch_time_index)
-        	        $schedule_time[$sch_time_index] = $total_time;
-                	$sch_time_index = $sch_time_index + 1;
-	        }
-	} //end of schedule time while loop
-	echo ' <i class="bi bi-clock"></i>&nbspAll Schedule:&nbsp' .secondsToWords((array_sum($schedule_time) * 60));
+        $query = "SELECT SUM(`run_time`) AS run_time FROM `schedule_daily_time`;";
+	$result = $conn->query($query);
+        $row = mysqli_fetch_array($result);
+	echo ' <i class="bi bi-clock"></i>&nbspAll Schedule:&nbsp' .secondsToWords($row['run_time']);
 } elseif ($type == 18 || $type == 19) {
         //------------------------------------------------------
         //return the schedule status and temp for schedule by id
         //------------------------------------------------------
         $prev_dow = $dow - 1;
 	if ($type == 18) { $holiday_id = 0; } else { $holiday_id = 1; }
-        $query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, type, `category`, temperature,
-                FORMAT(max(temperature),2) as max_c, sch_name, sch_type, start_sr, start_ss, start_offset, end_sr, end_ss, end_offset, sensor_type_id, stype
+        $query = "SELECT time_status, category, FORMAT(max(temperature),2) as max_c, sensor_type_id
                 FROM schedule_daily_time_zone_view
                 WHERE time_id = {$id} AND holidays_id = {$holiday_id} AND (tz_status = 1 OR (tz_status = 0 AND disabled = 1));";
-        $result = $conn->query($query);
-	$row = mysqli_fetch_array($result);
-        $sch_type = $row['sch_type'];
-        $tz = timezone_open(settings($conn, 'timezone'));
-        $time_offset = timezone_offset_get($tz, date_create("now"));
-        $time_offset = $time_offset - (3600 * Date('I'));
-        $time_offset = 0;
-        $time = strtotime(date("G:i:s"));
-        $start_time = strtotime($row['start']) + $time_offset;
-        $end_time = strtotime($row['end']) + $time_offset;
-        $start_sr = $row['start_sr'];
-        $start_ss = $row['start_ss'];
-        $start_offset = $row['start_offset'];
-        $end_sr = $row['end_sr'];
-        $end_ss = $row['end_ss'];
-        $end_offset = $row['end_offset'];
-        if ($start_sr == 1 || $start_ss == 1 || $end_sr == 1 || $end_ss == 1) {
-        	$query = "SELECT * FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);";
+        $results = $conn->query($query);
+	$row = mysqli_fetch_array($results);
+        if($row["time_status"] == 0){
+                $shactive="bluesch";
+        } else {
+                $query = "SELECT schedule FROM zone_current_state WHERE sch_time_id = {$id} AND schedule = 1 LIMIT 1;";
                 $result = $conn->query($query);
                 $rowcount=mysqli_num_rows($result);
                 if ($rowcount > 0) {
-                	$wrow = mysqli_fetch_array($result);
-                        $sunrise_time = date('H:i:s', $wrow['sunrise']);
-                        $sunset_time = date('H:i:s', $wrow['sunset']);
-                        if ($start_sr == 1 || $start_ss == 1) {
-                        	if ($start_sr == 1) { $start_time = strtotime($sunrise_time); } else { $start_time = strtotime($sunset_time); }
-                                $start_time = $start_time + ($start_offset * 60);
-                        }
-                        if ($end_sr == 1 || $end_ss == 1) {
-                                if ($end_sr == 1) { $end_time = strtotime($sunrise_time); } else { $end_time = strtotime($sunset_time); }
-                                $end_time = $end_time + ($end_offset * 60);
-                        }
+                        $shactive="redsch";
+                } else {
+                        $shactive="orangesch";
                 }
         }
         $query = "SELECT  * FROM `schedule_daily_time_zone` WHERE `schedule_daily_time_id` = {$id};";
@@ -674,10 +611,6 @@ if ($type <= 5) {
 	$query = "SELECT COUNT(*) AS dis_cont FROM `schedule_daily_time_zone` WHERE ((`status` = 0 AND `disabled` = 1) OR (`status` = 0 AND `disabled` = 0)) AND `schedule_daily_time_id` = {$id};";
         $result = $conn->query($query);
         $sdrow = mysqli_fetch_array($result);
-	if($row["time_status"]=="0"){ $shactive="bluesch"; }else{ $shactive="orangesch"; }
-        if ((($end_time > $start_time && $time > $start_time && $time < $end_time && ($row["WeekDays"]  & (1 << $dow)) > 0) || ($end_time < $start_time && $time < $end_time && ($row["WeekDays"]  & (1 << $prev_dow)) > 0) || ($end_time < $start_time && $time > $start_time && ($row["WeekDays"]  & (1 << $dow)) > 0)) && $row["time_status"]=="1") {
-        	if (($sch_type == 1 && $away_status == 1) || ($sch_type == 0 && $away_status == 0)) { $shactive="redsch"; }
-	}
         if ($row["time_status"] == 0 || $sdrow["dis_cont"] == $count) {
                 echo '<div class="circle bluesch_disable"><p class="schdegree">D</p></div>';
         } else {
@@ -689,26 +622,16 @@ if ($type <= 5) {
                 echo ' </div>';
         }
 } elseif ($type == 20) {
-	$squery = "SELECT schedule_daily_time.sch_name, schedule_daily_time.start, schedule_daily_time.end,
-        schedule_daily_time_zone.zone_id, schedule_daily_time_zone.temperature, schedule_daily_time_zone.id AS tz_id, schedule_daily_time_zone.coop, schedule_daily_time_zone.disabled
-        FROM `schedule_daily_time`, `schedule_daily_time_zone`
-        WHERE (schedule_daily_time.id = schedule_daily_time_zone.schedule_daily_time_id) AND schedule_daily_time.status = 1
-        AND (schedule_daily_time_zone.status = 1 OR schedule_daily_time_zone.disabled = 1) AND schedule_daily_time.type = 0 AND schedule_daily_time_zone.id ='{$id}'
-        AND (schedule_daily_time.WeekDays & (1 << {$dow})) > 0
-        ORDER BY schedule_daily_time.start asc;";
-        $sresults = $conn->query($squery);
-	$srow = mysqli_fetch_assoc($sresults);
+        $query = "SELECT zone_id, schedule FROM zone_current_state WHERE sch_time_id = {$id} LIMIT 1;";
+        $result = $conn->query($query);
+	$row = mysqli_fetch_array($result);
+        if ($row["schedule"] == 0) {
+	        $shactive="orangesch_list";
+	} else {
+                $shactive="redsch_list";
+	}
 
-        $shactive="orangesch_list";
-        $tz = timezone_open(settings($conn, 'timezone'));
-        $time_offset = timezone_offset_get($tz, date_create("now"));
-        $time_offset = $time_offset - (3600 * Date('I'));
-        $time = strtotime(date("G:i:s"));
-        $start_time = strtotime($srow['start']) + $time_offset;
-        $end_time = strtotime($srow['end']) + $time_offset;
-        if ($time >$start_time && $time <$end_time){$shactive="redsch_list";}
-
-        $query = "SELECT sensor_type_id FROM sensors WHERE zone_id = '{$srow['$zone_id']}' LIMIT 1;";
+        $query = "SELECT sensor_type_id FROM sensors WHERE zone_id = '{$row['$zone_id']}' LIMIT 1;";
         $result = $conn->query($query);
         $sensor = mysqli_fetch_array($result);
         $sensor_type_id=$sensor['sensor_type_id'];

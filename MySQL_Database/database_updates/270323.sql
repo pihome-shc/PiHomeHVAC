@@ -1,0 +1,1 @@
+ALTER TABLE `schedule_daily_time` ADD COLUMN IF NOT EXISTS `run_time` INT(11) NOT NULL AFTER `WeekDays`;

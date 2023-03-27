@@ -270,6 +270,12 @@ def get_schedule_status(
                         start_time_temp_offset = 0;
                     start_time = start_time - (start_time_temp_offset * 60)
 
+            run_time = end_time - start_time
+            cur.execute(
+                "UPDATE schedule_daily_time SET run_time = %s WHERE id = %s;",
+                (run_time, time_id),
+            )
+            con.commit()  # commit above
             if time_now > start_time and time_now < end_time and WeekDays  > 0 and time_status == 1:
                 sch_status = 1
                 break #exit the loop if an active schedule found
@@ -2986,7 +2992,7 @@ try:
                         "UPDATE system SET test_mode = 2;",
                     )
                     con.commit()  # commit above
-            time.sleep(1)
+            time.sleep(10)
 
 except:
     print(traceback.format_exc())
