@@ -42,9 +42,6 @@ if(isset($_GET['type'])) { $type = $_GET['type']; }
 $boost_index = '0';
 $override_index = '0';
 
-//following variable set to current day of the week.
-$dow = idate('w');
-
 //Mode 0 is EU Boiler Mode, Mode 1 is US HVAC Mode
 $system_controller_mode = settings($conn, 'mode') & 0b1;
 
@@ -586,7 +583,6 @@ if ($type <= 5) {
         //------------------------------------------------------
         //return the schedule status and temp for schedule by id
         //------------------------------------------------------
-        $prev_dow = $dow - 1;
 	if ($type == 18) { $holiday_id = 0; } else { $holiday_id = 1; }
         $query = "SELECT time_status, category, FORMAT(max(temperature),2) as max_c, sensor_type_id
                 FROM schedule_daily_time_zone_view
