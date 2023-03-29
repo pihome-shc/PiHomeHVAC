@@ -80,8 +80,6 @@ $schedule_time = [];
 			$results = $conn->query($query);
         	        $sch_params = [];
 			while ($row = mysqli_fetch_assoc($results)) {
-                        	$dow = idate('w');
-	                        $prev_dow = $dow - 1;
         	                if($row["start_sr"] == 1 || $row["start_ss"] == 1 || $row["end_sr"] == 1 || $row["end_ss"] == 1) { $sr_ss = 1; } else { $sr_ss = 0; }
 				if($row["WeekDays"]  & (1 << 0)){ $Sunday_status_icon="bi-check-circle-fill"; $Sunday_status_color="orangefa"; }else{ $Sunday_status_icon="bi-x-circle-fill"; $Sunday_status_color="bluefa"; }
 				if($row["WeekDays"]  & (1 << 1)){ $Monday_status_icon="bi-check-circle-fill"; $Monday_status_color="orangefa"; }else{ $Monday_status_icon="bi-x-circle-fill"; $Monday_status_color="bluefa"; }
