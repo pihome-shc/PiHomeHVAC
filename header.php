@@ -61,7 +61,7 @@ $theme = settings($conn, 'theme');
 	<link href="css/plugins/datepicker/bootstrap-datetimepicker.css" rel="stylesheet">
 
     	<!-- Bootstrap Font Icon CSS -->
-        <link href="fonts/bootstrap-icons-1.8.1/bootstrap-icons.css" rel="stylesheet" type="text/css">
+        <link href="fonts/bootstrap-icons-1.10.3/bootstrap-icons.css" rel="stylesheet" type="text/css">
 
 	<!-- bootstrap-slider
     <link href="css/plugins/slider/bootstrap-slider.min.css" rel="stylesheet">-->

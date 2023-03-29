@@ -96,11 +96,15 @@ if(isset($_GET['zonename'])) {
         	                                $update = 1;
                 	                }
 
-                                        //get the current zone schedule status
-                                        $rval=get_schedule_status($conn, $zone_id,0,0);
-                                        $sch_status = $rval['sch_status'];
-					//if a schedule is running then place in override mode (will be cleared by controller.php when the schedule ends)
-					if ($sch_status == 1) {
+                                        $query = "SELECT status, schedule FROM zone_current_state WHERE zone_id = '{$zone_id}' LIMIT 1;";
+                                        $result = $conn->query($query);
+                                        $zcs = mysqli_fetch_array($result);
+                                        $status_current = $zcs['status'];
+                                        $schedule = $zcs['schedule'];
+					$sch_status = $schedule & 0b1;
+
+                                        //if a schedule is running then place in override mode (will be cleared by controller.php when the schedule ends)
+                                        if ($sch_status == 1) {
                                                 $query = "UPDATE override SET status = 1 where zone_id = '{$zone_id}';";
                                                 $conn->query($query);
                                                 if($conn->query($query)){
@@ -110,10 +114,6 @@ if(isset($_GET['zonename'])) {
                                                 }
                                         }
 
-                                        $query = "SELECT status FROM zone_current_state WHERE zone_id = '{$zone_id}' LIMIT 1;";
-                                        $result = $conn->query($query);
-                                        $zcs = mysqli_fetch_array($result);
-                                        $status_current = $zcs['status'];
 
                                         $query = "UPDATE zone_current_state SET status = '{$status}', status_prev = '{$status_current}' where zone_id = '{$zone_id}';";
                                         $conn->query($query);

@@ -80,6 +80,10 @@ for entry in listOfFiles:
             ebus_found = True
         else:
             ebus_found = False
+        if entry.endswith('controller.py'):
+            controller_found = True
+        else:
+            controller_found = False
         if entry.endswith('jobs_schedule.py'):
             jobs_schedule_found = True
         else:
@@ -140,6 +144,9 @@ if gpio_switch_found:
     os.system(cmd)
 if ebus_found:
     cmd = 'sudo pkill -f ebus.py'
+    os.system(cmd)
+if controller_found:
+    cmd = 'sudo pkill -f controller.py'
     os.system(cmd)
 if jobs_schedule_found:
     cmd = 'sudo pkill -f jobs_schedule.py'

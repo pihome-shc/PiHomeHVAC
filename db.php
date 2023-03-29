@@ -787,15 +787,14 @@ if($what=="sc_mode"){
 
 //add_on
 if($what=="add_on"){
+	$sch_active = $_GET['sch_active'];
+	$time = date("Y-m-d H:i:s");
+	$query = "SELECT zone.zone_state, zone_type.category FROM zone, zone_type WHERE (zone_type.id = zone.type_id) AND zone.id = {$wid} LIMIT 1;";
+	$result = $conn->query($query);
+	$zrow = mysqli_fetch_assoc($result);
+	$da = $zrow['zone_state'];
+	$category = $zrow['category'];
         if($opp=="update"){
-                $sch_active = $_GET['sch_active'];
-                $time = date("Y-m-d H:i:s");
-                $query = "SELECT zone.zone_state, zone_type.category FROM zone, zone_type WHERE (zone_type.id = zone.type_id) AND zone.id = {$wid} LIMIT 1;";
-                $result = $conn->query($query);
-                $zrow = mysqli_fetch_assoc($result);
-                $da = $zrow['zone_state'];
-                $category = $zrow['category'];
-
                 $query = "SELECT * FROM messages_out WHERE zone_id = {$wid}";
                 $results = $conn->query($query);
                 while ($row = mysqli_fetch_assoc($results)) {
@@ -876,70 +875,79 @@ if($what=="add_on"){
                 }
         }
         if($opp=="toggle"){
-                $query = "SELECT * FROM zone_view where id = '{$wid}';";
+                if ($da == 0) { $new_state = 1; } else { $new_state = 0; }
+                $query = "SELECT `relays`.`relay_id`, `relays`.`relay_child_id` FROM `relays`, `zone_relays` WHERE (`relays`.`id` = `zone_relays`.`zone_relay_id`) AND `zone_relays`.`zone_id` = '{$wid}';";
                 $results = $conn->query($query);
                 while ($row = mysqli_fetch_assoc($results)) {
-                        $relay_id=$row['relay_id'];
-                        $relay_child_id=$row['relay_child_id'];
-                        $state = $row['zone_state'];
-                        if ($state == 0) { $status = 1; } else { $status = 0; }
+                        $relay_id = $row['relay_id'];
+                        $relay_child_id = $row['relay_child_id'];
                         $query = "SELECT node_id, type FROM nodes WHERE id = '{$relay_id}' LIMIT 1;";
                         $result = $conn->query($query);
                         $node = mysqli_fetch_array($result);
-                        $relay_node_id=$node['node_id'];
+                        $relay_node_id = $node['node_id'];
                         $type = $node['type'];
                         if (strpos($type, 'Tasmota') !== false) {
-                                if ($status == 0) { $http_status = "Power OFF"; } else { $http_status = "Power ON"; }
+                                if ($new_state == 0) { $http_status = "Power OFF"; } else { $http_status = "Power ON"; }
                                 $query = "UPDATE messages_out SET payload = '{$http_status}', sent = 0 where node_id = '{$relay_node_id}' AND child_id = '{$relay_child_id}';";
                         } else {
-                                $query = "UPDATE messages_out SET payload = '{$status}', sent = 0 where node_id = '{$relay_node_id}' AND child_id = '{$relay_child_id}';";
+                                $query = "UPDATE messages_out SET payload = '{$new_state}', sent = 0 where node_id = '{$relay_node_id}' AND child_id = '{$relay_child_id}';";
                         }
                         $conn->query($query);
-                        if($conn->query($query)){
+                        if ($conn->query($query)) {
                                 $update = 0;
                         } else {
                                 $update = 1;
                         }
+                }
+                $query = "UPDATE zone_relays SET state = '{$new_state}' WHERE zone_id = '{$wid}';";
+                if ($conn->query($query)) {
+                        $update_error = 0;
+                } else {
+                        $update_error = 1;
+                }
 
-                        $query = "UPDATE zone_relays SET state = '{$status}' WHERE zone_id = '{$wid}';";
-                        if($conn->query($query)){
+		//if switch type zone then force GUI status update
+                if ($category == 2) {
+	                if ($sch_active == '0') {
+        	                if ($new_state == 0) { $mode = 0; } else { $mode = 114; }
+                        } else {
+                                if ($new_state == 0) { $mode = 75; } else { $mode = 74; }
+                        }
+                        $query = "UPDATE zone_current_state SET mode  = {$mode}, status = {$new_state}, status_prev = {$da} WHERE zone_id = {$wid};";
+                  	if ($conn->query($query)) {
                                 $update_error = 0;
-                        }else{
+                        } else {
                                 $update_error = 1;
                         }
+		}
+                $query = "UPDATE zone SET zone_state = '{$new_state}' where id = '{$wid}';";
+                $conn->query($query);
+                if ($conn->query($query)) {
+                	$update = 0;
+                } else {
+                        $update = 1;
+                }
 
-                        $query = "UPDATE zone SET zone_state = '{$status}' where id = '{$wid}';";
+                //if a schedule is running then place in override mode (will be cleared by controller.php when the schedule ends)
+		if($sch_active == "1") {
+                	$query = "UPDATE override SET status = 1 where zone_id = '{$wid}';";
                         $conn->query($query);
-                        if($conn->query($query)){
+                        if ($conn->query($query)) {
                                 $update = 0;
                         } else {
                                 $update = 1;
                         }
+		}
 
-                        //get the current zone schedule status
-                        $rval=get_schedule_status($conn, $zone_id,0,0);
-                        $sch_status = $rval['sch_status'];
-                        //if a schedule is running then place in override mode (will be cleared by controller.php when the schedule ends)
-                        if ($sch_status == 1) {
-                                $query = "UPDATE override SET status = 1 where zone_id = '{$wid}';";
-                                $conn->query($query);
-                                if($conn->query($query)){
-                                       $update = 0;
-                                } else {
-                                       $update = 1;
-                                }
-                        }
-
-                        if($update_error == 0){
-                                header('Content-type: application/json');
-                                echo json_encode(array('Success'=>'Success','Query'=>$query));
-                                return;
-                        } else {
-                                header('Content-type: application/json');
-                                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
-                                return;
-                        }
-                } //end while ($row = mysqli_fetch_assoc($results))
+                if ($update_error == 0) {
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                } else {
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
         } //end if($opp=="toggle"){
 }
 
@@ -1326,8 +1334,9 @@ if($what=="reboot"){
 	//systemctl stop mysql.service
 	//exec("systemctl stop mysql.service");
 
-	exec("python3 /var/www/reboot.py");
-	$info_message = "Server is rebooting <small> Please Do not Refresh... </small>";
+        $info_message = "Server is rebooting <small> Please Do not Refresh... </small>";
+        $query = "UPDATE system SET reboot = 1;";
+        $conn->query($query);
 }
 
 //Shutdown System
@@ -1350,8 +1359,9 @@ if($what=="shutdown"){
 	exec("systemctl stop mysql.service");
 	*/
 	//Shutdown System
-	exec("python3 /var/www/shutdown.py");
 	$info_message = "Server is Shutting down <small> Please Do not Refresh... </small>";
+        $query = "UPDATE system SET shutdown = 1;";
+        $conn->query($query);
 }
 
 
@@ -1376,15 +1386,16 @@ if($what=="setup_gateway"){
 	$gw_location = $_GET['gw_location'];
 	$gw_port = $_GET['gw_port'];
 	$gw_timout = $_GET['gw_timout'];
+        $gw_heartbeat = $_GET['gw_heartbeat'];
 	if ($status=='true'){$status = '1';}else {$status = '0';}
         if ($enable_outgoing=='true'){$enable_outgoing = '1';}else {$enable_outgoing = '0';}
         $query = "SELECT * FROM gateway LIMIT 1;";
         $result = $conn->query($query);
         if (mysqli_num_rows($result)==0){
                 //No record in gateway, so add
-                $query = "INSERT INTO `gateway` VALUES (1,1,0,0,'".$gw_type."','".$gw_location."','".$gw_port."','".$gw_timout."',0, 0, 0, 0, 0,'".$enable_outgoing."');";
+                $query = "INSERT INTO `gateway` VALUES (1,1,0,0,'".$gw_type."','".$gw_location."','".$gw_port."','".$gw_timout."','".$gw_heartbeat."', 0, 0, 0, 0, 0,'".$enable_outgoing."');";
         } else {
-		$query = "UPDATE gateway SET status = '".$status."', `sync` = '0', type = '".$gw_type."', location = '".$gw_location."', port = '".$gw_port."', timout = '".$gw_timout."', enable_outgoing = '".$enable_outgoing."' where ID = 1;";
+		$query = "UPDATE gateway SET status = '".$status."', `sync` = '0', type = '".$gw_type."', location = '".$gw_location."', port = '".$gw_port."', timout = '".$gw_timout."', heartbeat_timeout = '".$gw_heartbeat."', enable_outgoing = '".$enable_outgoing."' where ID = 1;";
 	}
 	if($conn->query($query)){
 		header('Content-type: application/json');
@@ -2048,8 +2059,8 @@ if($what=="update_livetemp_zone"){
 //Auto Image
 if($what=="auto_image"){
         if($opp=="update"){
-                $frequency = $_GET['fval1']." ".$_GET['set_f'];
-                $rotation = $_GET['rval1']." ".$_GET['set_r'];
+                $frequency = $_GET['fval1']." ".$_GET['set_ai_f'];
+                $rotation = $_GET['rval1']." ".$_GET['set_ai_r'];
                 $destination = $_GET['dest'];
                 $enabled = $_GET['checkbox1'];
                 if ($enabled=='true'){$enabled = '1';} else {$enabled = '0';}

@@ -210,8 +210,16 @@ def boiler():
                   try :
                      cursorinsert = cnx.cursor()
                      cursorinsert.execute('INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`) VALUES(%s,%s,%s,%s,%s,%s)', (0,0,node_id,sensor_child_id,position,response))
-                     cursorinsert.close()
                      cnx.commit()
+                     cursorinsert.close()
+                     cursorupdate = cnx.cursor()
+                     if position == 0:
+                         qry_str = "UPDATE `sensors` SET `current_val_1`  = {} WHERE `sensor_id` = {} AND `sensor_child_id` = {} LIMIT 1;".format(response, sensor_id, sensor_child_id)
+                     else:
+                         qry_str = "UPDATE `sensors` SET `current_val_2`  = {} WHERE `sensor_id` = {} AND `sensor_child_id` = {} LIMIT 1;".format(response, sensor_id, sensor_child_id)
+                     cursorupdate.execute(qry_str)
+                     cnx.commit()
+                     cursorupdate.close()
                      last_readings[message] = response
                      last_date_time[message] = date_time
                   except :
@@ -238,8 +246,16 @@ def boiler():
                   try :
                      cursorinsert = cnx.cursor()
                      cursorinsert.execute('INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`) VALUES(%s,%s,%s,%s,%s,%s)', (0,0,node_id,sensor_child_id,position,response))
-                     cursorinsert.close()
                      cnx.commit()
+                     cursorinsert.close()
+                     cursorupdate = cnx.cursor()
+                     if position == 0:
+                         qry_str = "UPDATE `sensors` SET `current_val_1`  = {} WHERE `sensor_id` = {} AND `sensor_child_id` = {} LIMIT 1;".format(response, sensor_id, sensor_child_id)
+                     else:
+                         qry_str = "UPDATE `sensors` SET `current_val_2`  = {} WHERE `sensor_id` = {} AND `sensor_child_id` = {} LIMIT 1;".format(response, sensor_id, sensor_child_id)
+                     cursorupdate.execute(qry_str)
+                     cnx.commit()
+                     cursorupdate.close()
                   except :
                      pass
                   try :
@@ -330,4 +346,3 @@ def main() :
 
 if __name__=="__main__":
    main()
-

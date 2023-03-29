@@ -136,12 +136,11 @@ function update_add_on(wid){
 //toggle add_on
 function toggle_add_on(wid){
     var idata="w=add_on&o=toggle";
+    idata+="&sch_active="+document.getElementById("sch_active").value;;
     idata+="&wid=" + wid;
     $.get('db.php',idata)
     .done(function(odata){
-        if(odata.Success)
-            reload_page();
-        else
+        if(!odata.Success)
             console.log(odata.Message);
     })
     .fail(function( jqXHR, textStatus, errorThrown ){
@@ -644,6 +643,7 @@ var idata="w=setup_gateway&o=update&status="+document.getElementById("checkbox1"
             idata+="&gw_port="+document.getElementById("serial_port_speed").value;
         }
 	idata+="&gw_timout="+document.getElementById("gw_timout").value;
+        idata+="&gw_heartbeat="+document.getElementById("gw_heartbeat").value;
     idata+="&wid=0";
     $.get('db.php',idata)
     .done(function(odata){

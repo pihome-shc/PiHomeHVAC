@@ -42,9 +42,6 @@ if(isset($_GET['type'])) { $type = $_GET['type']; }
 $boost_index = '0';
 $override_index = '0';
 
-//following variable set to current day of the week.
-$dow = idate('w');
-
 //Mode 0 is EU Boiler Mode, Mode 1 is US HVAC Mode
 $system_controller_mode = settings($conn, 'mode') & 0b1;
 
@@ -94,15 +91,16 @@ if ($type <= 5) {
 	$sensor_seen = $zone_current_state['sensor_seen_time'];
 	$temp_reading_time= $zone_current_state['sensor_reading_time'];
 	$overrun= $zone_current_state['overrun'];
+        $schedule = $zone_current_state['schedule'];
+
+        //get the current zone schedule status
+        $sch_status = $schedule & 0b1;
+        $away_sch = ($schedule >> 1) & 0b1;
+
 	if ($zone_category == 1 || $zone_category == 2  || $zone_category == 5) {
         	if ($zone_current_state['mode'] == 0) { $add_on_active = 0; } else { $add_on_active = 1; }
                 if ($add_on_active == 1 && $zone_category != 5) { $add_on_colour = "green"; } elseif ($add_on_active == 0 || ($add_on_active == 1 && $zone_category == 5)) {$add_on_colour = "black"; }
 	}
-
-        //get the current zone schedule status
-        $rval=get_schedule_status($conn, $zone_id,$holidays_status,$away_status);
-        $sch_status = $rval['sch_status'];
-        $away_sch = $rval['away_sch'];
 
 	//get the sensor id
 	$query = "SELECT * FROM sensors WHERE zone_id = '{$id}' LIMIT 1;";
@@ -111,18 +109,7 @@ if ($type <= 5) {
 	$temperature_sensor_id=$sensor['sensor_id'];
 	$temperature_sensor_child_id=$sensor['sensor_child_id'];
 	$sensor_type_id=$sensor['sensor_type_id'];
-
-	//get the node id
-	$query = "SELECT node_id FROM nodes WHERE id = '{$temperature_sensor_id}' LIMIT 1;";
-	$result = $conn->query($query);
-	$nodes = mysqli_fetch_array($result);
-	$zone_node_id=$nodes['node_id'];
-
-	//query to get temperature from messages_in_view_24h table view
-	$query = "SELECT * FROM messages_in WHERE node_id = '{$zone_node_id}' AND child_id = '{$temperature_sensor_child_id}' ORDER BY id desc LIMIT 1;";
-	$result = $conn->query($query);
-	$sensor = mysqli_fetch_array($result);
-	$zone_c = $sensor['payload'];
+	$zone_c = $sensor['current_val_1'];
 	//Zone Main Mode
 	/*	0 - idle
 		10 - fault
@@ -154,7 +141,7 @@ if ($type <= 5) {
 		7 - fan running*/
         //get the current zone schedule status
         if ($zone_category == 1 || $zone_category == 2) {
-                if ($sch_status =='1') {
+                if ($sch_status == 1) {
                         $add_on_mode = $zone_mode;
                 } else {
                 	if ($add_on_active == 0) {
@@ -196,11 +183,7 @@ if ($type <= 5) {
         	       	if ($sensor_type_id != 3) { echo $rval['target']; }
                 	break;
 	        case 4:
-			if ($zone_mode_main == 60) {
-				echo '<img src="images/'.$rval['shactive'].'" width="10" height="10" alt="">';
-			} else {
-	        	        echo '<i class="bi ' . $rval['shactive'] . ' ' . $rval['shcolor'] . ' bi-fw">';
-			}
+	        	echo '<i class="bi ' . $rval['shactive'] . ' ' . $rval['shcolor'] . ' bi-fw">';
                 	break;
 	        case 5:
         	        if($overrun == 1) { echo '<i class="bi bi-play-fill orange-red">'; }
@@ -211,7 +194,10 @@ if ($type <= 5) {
 	//---------------------------
 	//process standalone sensors
 	//---------------------------
-	$query = "SELECT sensors.id, sensors.name, sensors.sensor_child_id, sensors.sensor_type_id,nodes.node_id, nodes.last_seen, nodes.notice_interval FROM sensors, nodes WHERE sensors.id = {$id} AND (nodes.id = sensors.sensor_id) AND sensors.zone_id = 0 AND sensors.show_it = 1 LIMIT 1;";
+	$query = "SELECT sensors.id, sensors.name, sensors.sensor_child_id, sensors.sensor_type_id, sensors.current_val_1, sensors.current_val_2,
+                  nodes.node_id, nodes.last_seen, nodes.notice_interval
+                  FROM sensors, nodes 
+                  WHERE sensors.id = {$id} AND (nodes.id = sensors.sensor_id) AND sensors.zone_id = 0 AND sensors.show_it = 1 LIMIT 1;";
 	$result = $conn->query($query);
 	$row = mysqli_fetch_assoc($result);
 	$sensor_id = $row['id'];
@@ -229,17 +215,19 @@ if ($type <= 5) {
 	}
         //query to get sensor reading from messages_in table
         if ($type == 8) {
-                $query = "SELECT * FROM messages_in WHERE node_id = '{$node_id}' AND child_id = '{$sensor_child_id}' AND sub_type = 1 ORDER BY id desc LIMIT 1;";
+//                $query = "SELECT * FROM messages_in WHERE node_id = '{$node_id}' AND child_id = '{$sensor_child_id}' AND sub_type = 1 ORDER BY id desc LIMIT 1;";
+                $sensor_r = $row['current_val_2'];
         } else {
-                if ($sensor_type_id == 4) {
-                        $query = "SELECT * FROM messages_in WHERE node_id = '{$node_id}' AND child_id = '{$sensor_child_id}' AND sub_type = 0 ORDER BY id desc LIMIT 1;";
-                } else {
-                        $query = "SELECT * FROM messages_in WHERE node_id = '{$node_id}' AND child_id = '{$sensor_child_id}' ORDER BY id desc LIMIT 1;";
-                }
+//                if ($sensor_type_id == 4) {
+//                        $query = "SELECT * FROM messages_in WHERE node_id = '{$node_id}' AND child_id = '{$sensor_child_id}' AND sub_type = 0 ORDER BY id desc LIMIT 1;";
+//                } else {
+//                        $query = "SELECT * FROM messages_in WHERE node_id = '{$node_id}' AND child_id = '{$sensor_child_id}' ORDER BY id desc LIMIT 1;";
+//                }
+                $sensor_r = $row['current_val_1'];
         }
-        $result = $conn->query($query);
-        $sensor = mysqli_fetch_array($result);
-        $sensor_r = $sensor['payload'];
+//        $result = $conn->query($query);
+//        $sensor = mysqli_fetch_array($result);
+//        $sensor_r = $sensor['payload'];
         //-------------------------------
         //process return strings by type
         //-------------------------------
@@ -298,117 +286,122 @@ if ($type <= 5) {
         $sc_active_status  = $row['active_status'];
 	$hvac_relays_state = $row['hvac_relays_state'];
 
-	//Get data from nodes table
-	$query = "SELECT * FROM nodes WHERE id = {$row['node_id']} AND status IS NOT NULL LIMIT 1";
-	$result = $conn->query($query);
-	$system_controller_node = mysqli_fetch_array($result);
-	$system_controller_node_id = $system_controller_node['node_id'];
-	$system_controller_seen = $system_controller_node['last_seen'];
-	$system_controller_notice = $system_controller_node['notice_interval'];
-
-	//Check System Controller Fault
-	$system_controller_fault = 0;
-	if($system_controller_notice > 0){
-		$now=strtotime(date('Y-m-d H:i:s'));
-	  	$system_controller_seen_time = strtotime($system_controller_seen);
-	  	if ($system_controller_seen_time  < ($now - ($system_controller_notice*60))){
-			$system_controller_fault = 1;
-		}
-	}
-	if ($sc_count != 0) {
-		//query to get last system_controller statues change time
-		$query = "SELECT * FROM controller_zone_logs ORDER BY id desc LIMIT 1 ";
+	if(!is_null($row['node_id'])) {
+		//Get data from nodes table
+		$query = "SELECT * FROM nodes WHERE id = {$row['node_id']} AND status IS NOT NULL LIMIT 1";
 		$result = $conn->query($query);
-		$system_controller_onoff = mysqli_fetch_array($result);
-		$system_controller_last_off = $system_controller_onoff['stop_datetime'];
+		$system_controller_node = mysqli_fetch_array($result);
+		$system_controller_node_id = $system_controller_node['node_id'];
+		$system_controller_seen = $system_controller_node['last_seen'];
+		$system_controller_notice = $system_controller_node['notice_interval'];
 
-		//check if hysteresis is passed its time or not
-		$hysteresis='0';
-		if ($system_controller_mode == 0 && isset($system_controller_last_off)){
-			$system_controller_last_off = strtotime( $system_controller_last_off );
-			$system_controller_hysteresis_time = $system_controller_last_off + ($system_controller_hysteresis_time * 60);
+		//Check System Controller Fault
+		$system_controller_fault = 0;
+		if($system_controller_notice > 0){
 			$now=strtotime(date('Y-m-d H:i:s'));
-			if ($system_controller_hysteresis_time > $now){$hysteresis='1';}
-		} else {
-			$hysteresis='0';
-		}
-
-		if ($type == 9) {
-			if ($system_controller_mode == 1) {
-        	        	switch ($sc_mode) {
-                	        	case 0:
-                        	        	echo '<i class="bi bi-power" style="font-size: 1.4rem;">';
-                                	        break;
-	                                case 1:
-						if ($active_schedule) {
-                	                               	if ($hvac_relays_state & 0b100) { $system_controller_colour="colorize-red"; } else { $system_controller_colour="colorize-blue"; }
-						} else {
-							$system_controller_colour="";
-						}
-						echo '<img src="images/flame.svg" class="'.$system_controller_colour.'" style="margin-top: -5px" style="margin-top: -5px" width="25" height="25" alt="">';
-						break;
-					case 2:
-                        	                if ($active_schedule) {
-                                	               	if ($hvac_relays_state & 0b010) { $system_controller_colour="blueinfo"; } else { $system_controller_colour="orange-red"; }
-                                        	} else {
-                                                	$system_controller_colour="";
-	                                        }
-        	                                echo '<i class="bi bi-snow '.$system_controller_colour.'" style="font-size: 1.4rem;">';
-                	                        break;
-                        	        case 3:
-						if ($hvac_relays_state == 0b000) {
-                                			if ($sc_active_status==1) {
-                                       				$system_controller_colour="#00C853";
-	                                		} elseif ($sc_active_status==0) {
-        	                               			$system_controller_colour="";
-                	                		}
-							echo '<i class="bi bi-power '.$system_controller_colour.'" style="font-size: 1.4rem;">';
-						} elseif ($hvac_relays_state & 0b100) {
-							echo '<img src="images/flame.svg" class="colorize-red" style="margin-top: -5px" width="25" height="25" alt="">';
-						} elseif ($hvac_relays_state & 0b010) {
-							echo '<i class="bi bi-snow blueinfo" style="font-size: 1.4rem;">';
-						}
-						break;
-                                	case 4:
-                                        	if ($hvac_relays_state == 0b000) {
-                                              		$system_controller_colour="#00C853";
-	                                                echo '<i class="bi bi-power '.$system_controller_colour.'" style="font-size: 1.4rem;">';
-        	                                } elseif ($hvac_relays_state & 0b100) {
-                	                                echo '<img src="images/flame.svg" class="colorize-red" style="margin-top: -5px" width="25" height="25" alt="">';
-                        	                } elseif ($hvac_relays_state & 0b010) {
-                                	                echo '<i class="bi bi-snow blueinfo" style="font-size: 1.4rem;">';
-                                        	}
-	                                        break;
-        	                        case 5:
-                	                        echo '<img src="images/hvac_fan_30.png" border="0"></h3>';
-                        	                break;
-                                	case 6:
-						if ($hvac_relays_state & 0b100) { $system_controller_colour = "colorize-red"; } else { $system_controller_colour = "colorize-blue"; }
-						echo '<img src="images/flame.svg" class="'.$system_controller_colour.'" style="margin-top: -5px" width="25" height="25" alt="">';
-        	                                break;
-                	                case 7:
-                        	                if ($hvac_relays_state & 0b010) { $system_controller_colour = "blueinfo"; } else { $system_controller_colour = ""; }
-                                	        echo '<i class="bi bi-snow '.$system_controller_colour.'" style="font-size: 1.4rem;">';
-                                        	break;
-					default:
-        	                                echo '<i class="bi bi-power" style="font-size: 1.4rem;">';
-                	                }
-			} else {
-        	               	if ($sc_active_status==1) {
-					$system_controller_colour="colorize-red";
-				} elseif ($sc_active_status==0) {
-					$system_controller_colour="colorize-blue";
-				}
-				if ($sc_mode==0) {
-                	               	$system_controller_colour="";
-                        	}
-	                        echo '<img src="images/flame.svg" class="'.$system_controller_colour.'" style="margin-top: -5px" width="25" height="25" alt="">';
+		  	$system_controller_seen_time = strtotime($system_controller_seen);
+		  	if ($system_controller_seen_time  < ($now - ($system_controller_notice*60))){
+				$system_controller_fault = 1;
 			}
-		} elseif ($type == 10) {
-			if($system_controller_fault=='1') {echo'<i class="bi bi-x-circle-fill red">';}
-			elseif($hysteresis=='1') {echo'<i class="bi bi-hourglass-split orange-red">';}
-			else { echo'';}
 		}
+		if ($sc_count != 0) {
+			//query to get last system_controller statues change time
+			$query = "SELECT * FROM controller_zone_logs ORDER BY id desc LIMIT 1 ";
+			$result = $conn->query($query);
+			$system_controller_onoff = mysqli_fetch_array($result);
+			$system_controller_last_off = $system_controller_onoff['stop_datetime'];
+
+			//check if hysteresis is passed its time or not
+			$hysteresis='0';
+			if ($system_controller_mode == 0 && isset($system_controller_last_off)){
+				$system_controller_last_off = strtotime( $system_controller_last_off );
+				$system_controller_hysteresis_time = $system_controller_last_off + ($system_controller_hysteresis_time * 60);
+				$now=strtotime(date('Y-m-d H:i:s'));
+				if ($system_controller_hysteresis_time > $now){$hysteresis='1';}
+			} else {
+				$hysteresis='0';
+			}
+
+			if ($type == 9) {
+				if ($system_controller_mode == 1) {
+        		        	switch ($sc_mode) {
+                		        	case 0:
+                        		        	echo '<i class="bi bi-power" style="font-size: 1.4rem;">';
+                                		        break;
+		                                case 1:
+							if ($active_schedule) {
+                		                               	if ($hvac_relays_state & 0b100) { $system_controller_colour="colorize-red"; } else { $system_controller_colour="colorize-blue"; }
+							} else {
+								$system_controller_colour="";
+							}
+                                                        echo '<i class="bi bi-fire '.$system_controller_colour.'" style="font-size: 1.4rem;">';
+							break;
+						case 2:
+                	        	                if ($active_schedule) {
+                        	        	               	if ($hvac_relays_state & 0b010) { $system_controller_colour="blueinfo"; } else { $system_controller_colour="orange-red"; }
+                                	        	} else {
+                                        	        	$system_controller_colour="";
+	                                        	}
+	        	                                echo '<i class="bi bi-snow '.$system_controller_colour.'" style="font-size: 1.4rem;">';
+        	        	                        break;
+                	        	        case 3:
+							if ($hvac_relays_state == 0b000) {
+                                				if ($sc_active_status==1) {
+                                       					$system_controller_colour="#00C853";
+	                                			} elseif ($sc_active_status==0) {
+        	                               				$system_controller_colour="";
+	                	                		}
+								echo '<i class="bi bi-power '.$system_controller_colour.'" style="font-size: 1.4rem;">';
+							} elseif ($hvac_relays_state & 0b100) {
+                                                                echo '<i class="bi bi-fire red" style="font-size: 1.4rem;">';
+							} elseif ($hvac_relays_state & 0b010) {
+								echo '<i class="bi bi-snow blueinfo" style="font-size: 1.4rem;">';
+							}
+							break;
+        	                        	case 4:
+                	                        	if ($hvac_relays_state == 0b000) {
+                        	                      		$system_controller_colour="#00C853";
+	                        	                        echo '<i class="bi bi-power '.$system_controller_colour.'" style="font-size: 1.4rem;">';
+        	                        	        } elseif ($hvac_relays_state & 0b100) {
+                                                                echo '<i class="bi bi-fire red" style="font-size: 1.4rem;">';
+	                        	                } elseif ($hvac_relays_state & 0b010) {
+        	                        	                echo '<i class="bi bi-snow blueinfo" style="font-size: 1.4rem;">';
+                	                        	}
+	                	                        break;
+        	                	        case 5:
+                	                	        echo '<img src="images/hvac_fan_30.png" border="0"></h3>';
+                        	                	break;
+	                                	case 6:
+							if ($hvac_relays_state & 0b100) { $system_controller_colour = "colorize-red"; } else { $system_controller_colour = "colorize-blue"; }
+                                                        echo '<i class="bi bi-fire '.$system_controller_colour.'" style="font-size: 1.4rem;">';
+                                                        break;
+        	        	                        break;
+                	        	        case 7:
+                        	        	        if ($hvac_relays_state & 0b010) { $system_controller_colour = "blueinfo"; } else { $system_controller_colour = ""; }
+                                	        	echo '<i class="bi bi-snow '.$system_controller_colour.'" style="font-size: 1.4rem;">';
+	                                        	break;
+						default:
+        		                                echo '<i class="bi bi-power" style="font-size: 1.4rem;">';
+                		                }
+				} else {
+        		               	if ($sc_active_status==1) {
+						$system_controller_colour="red";
+					} elseif ($sc_active_status==0) {
+						$system_controller_colour="blueinfo";
+					}
+					if ($sc_mode==0) {
+                		               	$system_controller_colour="";
+                        		}
+                                        echo '<i class="bi bi-fire '.$system_controller_colour.'" style="font-size: 1.4rem;">';
+				}
+			} elseif ($type == 10) {
+				if($system_controller_fault=='1') {echo'<i class="bi bi-x-circle-fill red">';}
+				elseif($hysteresis=='1') {echo'<i class="bi bi-hourglass-split orange-red">';}
+				else { echo'';}
+			}
+		}
+	} else {
+		if ($type == 9) { echo '<i class="bi bi-fire" style="font-size: 1.4rem;">'; } else { echo''; }
 	}
 } elseif ($type == 11 || $type == 12) {
 	//-------------------------------------------
@@ -438,10 +431,16 @@ if ($type <= 5) {
 		        if ($rowcount > 0) {
 				while ($zrow = mysqli_fetch_assoc($zresults)) {
 					$zone_id = $zrow['id'];
-                			$rval=get_schedule_status($conn, $zone_id,"0","0");
-		                	$sch_status = $rval['sch_status'];
-                			if ($sch_status == '1') {
-						$query = "SELECT * FROM schedule_time_temp_offset WHERE schedule_daily_time_id = ".$rval['time_id']." AND status = 1 LIMIT 1";
+//                			$rval=get_schedule_status($conn, $zone_id,"0","0");
+//		                	$sch_status = $rval['sch_status'];
+                                        $query = "SELECT schedule, sch_time_id FROM zone_current_state WHERE zone_id = '{$zone_id}' LIMIT 1;";
+                                        $result = $conn->query($query);
+                                        $zcs = mysqli_fetch_array($result);
+                                        $time_id = $zcs['sch_time_id'];
+                                        $schedule = $zcs['schedule'];
+                                        $sch_status = $schedule & 0b1;
+                			if ($sch_status == 1) {
+						$query = "SELECT * FROM schedule_time_temp_offset WHERE schedule_daily_time_id = ".$time_id." AND status = 1 LIMIT 1";
 						$oresult = $conn->query($query);
 						if (mysqli_num_rows($oresult) > 0) {
 							$orow = mysqli_fetch_array($oresult);
@@ -576,94 +575,30 @@ if ($type <= 5) {
         //---------------------------------------
         //process running time for All Schedules
         //---------------------------------------
-	//following variable set to 0 on start for array index.
-	$sch_time_index = '0';
-	$query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, type, `category`, temperature,
-        	FORMAT(max(temperature),2) as max_c, sch_name, sch_type, start_sr, start_ss, start_offset, end_sr, end_ss, end_offset, sensor_type_id, stype
-	        FROM schedule_daily_time_zone_view
-        	WHERE holidays_id = 0 AND tz_status = 1
-	        GROUP BY time_id ORDER BY start, sch_name asc";
-	$results = $conn->query($query);
-	while ($row = mysqli_fetch_assoc($results)) {
-        	$start_time = strtotime($row['start']);
-	        $end_time = strtotime($row['end']);
-        	$start_sr = $row['start_sr'];
-	        $start_ss = $row['start_ss'];
-        	$start_offset = $row['start_offset'];
-	        $end_sr = $row['end_sr'];
-        	$end_ss = $row['end_ss'];
-	        $end_offset = $row['end_offset'];
-        	if ($start_sr == 1 || $start_ss == 1 || $end_sr == 1 || $end_ss == 1) {
-                	$query = "SELECT * FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);";
-	                $result = $conn->query($query);
-        	        $rowcount=mysqli_num_rows($result);
-                	if ($rowcount > 0) {
-                        	$wrow = mysqli_fetch_array($result);
-	                        $sunrise_time = date('H:i:s', $wrow['sunrise']);
-        	                $sunset_time = date('H:i:s', $wrow['sunset']);
-                	        if ($start_sr == 1 || $start_ss == 1) {
-                        	        if ($start_sr == 1) { $start_time = strtotime($sunrise_time); } else { $start_time = strtotime($sunset_time); }
-                                	$start_time = $start_time + ($start_offset * 60);
-	                        }
-        	                if ($end_sr == 1 || $end_ss == 1) {
-                	                if ($end_sr == 1) { $end_time = strtotime($sunrise_time); } else { $end_time = strtotime($sunset_time); }
-                        	        $end_time = $end_time + ($end_offset * 60);
-	                        }
-        	        }
-	        }
-
-        	//calculate total time of day schedule using array schedule_time with index as sch_time_index variable
-	        if ($row["time_status"] == "1") {
-        	        $total_time = $end_time - $start_time;
-                	$total_time = $total_time / 60;
-	                //save all total_time variable value to schedule_time array and incriment array index (sch_time_index)
-        	        $schedule_time[$sch_time_index] = $total_time;
-                	$sch_time_index = $sch_time_index + 1;
-	        }
-	} //end of schedule time while loop
-	echo ' <i class="bi bi-clock"></i>&nbspAll Schedule:&nbsp' .secondsToWords((array_sum($schedule_time) * 60));
+        $query = "SELECT SUM(`run_time`) AS run_time FROM `schedule_daily_time`;";
+	$result = $conn->query($query);
+        $row = mysqli_fetch_array($result);
+	echo ' <i class="bi bi-clock"></i>&nbspAll Schedule:&nbsp' .secondsToWords($row['run_time']);
 } elseif ($type == 18 || $type == 19) {
         //------------------------------------------------------
         //return the schedule status and temp for schedule by id
         //------------------------------------------------------
-        $prev_dow = $dow - 1;
 	if ($type == 18) { $holiday_id = 0; } else { $holiday_id = 1; }
-        $query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, type, `category`, temperature,
-                FORMAT(max(temperature),2) as max_c, sch_name, sch_type, start_sr, start_ss, start_offset, end_sr, end_ss, end_offset, sensor_type_id, stype
+        $query = "SELECT time_status, category, FORMAT(max(temperature),2) as max_c, sensor_type_id
                 FROM schedule_daily_time_zone_view
                 WHERE time_id = {$id} AND holidays_id = {$holiday_id} AND (tz_status = 1 OR (tz_status = 0 AND disabled = 1));";
-        $result = $conn->query($query);
-	$row = mysqli_fetch_array($result);
-        $sch_type = $row['sch_type'];
-        $tz = timezone_open(settings($conn, 'timezone'));
-        $time_offset = timezone_offset_get($tz, date_create("now"));
-        $time_offset = $time_offset - (3600 * Date('I'));
-        $time_offset = 0;
-        $time = strtotime(date("G:i:s"));
-        $start_time = strtotime($row['start']) + $time_offset;
-        $end_time = strtotime($row['end']) + $time_offset;
-        $start_sr = $row['start_sr'];
-        $start_ss = $row['start_ss'];
-        $start_offset = $row['start_offset'];
-        $end_sr = $row['end_sr'];
-        $end_ss = $row['end_ss'];
-        $end_offset = $row['end_offset'];
-        if ($start_sr == 1 || $start_ss == 1 || $end_sr == 1 || $end_ss == 1) {
-        	$query = "SELECT * FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);";
+        $results = $conn->query($query);
+	$row = mysqli_fetch_array($results);
+        if($row["time_status"] == 0){
+                $shactive="bluesch";
+        } else {
+                $query = "SELECT schedule FROM zone_current_state WHERE sch_time_id = {$id} AND schedule = 1 LIMIT 1;";
                 $result = $conn->query($query);
                 $rowcount=mysqli_num_rows($result);
                 if ($rowcount > 0) {
-                	$wrow = mysqli_fetch_array($result);
-                        $sunrise_time = date('H:i:s', $wrow['sunrise']);
-                        $sunset_time = date('H:i:s', $wrow['sunset']);
-                        if ($start_sr == 1 || $start_ss == 1) {
-                        	if ($start_sr == 1) { $start_time = strtotime($sunrise_time); } else { $start_time = strtotime($sunset_time); }
-                                $start_time = $start_time + ($start_offset * 60);
-                        }
-                        if ($end_sr == 1 || $end_ss == 1) {
-                                if ($end_sr == 1) { $end_time = strtotime($sunrise_time); } else { $end_time = strtotime($sunset_time); }
-                                $end_time = $end_time + ($end_offset * 60);
-                        }
+                        $shactive="redsch";
+                } else {
+                        $shactive="orangesch";
                 }
         }
         $query = "SELECT  * FROM `schedule_daily_time_zone` WHERE `schedule_daily_time_id` = {$id};";
@@ -672,10 +607,6 @@ if ($type <= 5) {
 	$query = "SELECT COUNT(*) AS dis_cont FROM `schedule_daily_time_zone` WHERE ((`status` = 0 AND `disabled` = 1) OR (`status` = 0 AND `disabled` = 0)) AND `schedule_daily_time_id` = {$id};";
         $result = $conn->query($query);
         $sdrow = mysqli_fetch_array($result);
-	if($row["time_status"]=="0"){ $shactive="bluesch"; }else{ $shactive="orangesch"; }
-        if ((($end_time > $start_time && $time > $start_time && $time < $end_time && ($row["WeekDays"]  & (1 << $dow)) > 0) || ($end_time < $start_time && $time < $end_time && ($row["WeekDays"]  & (1 << $prev_dow)) > 0) || ($end_time < $start_time && $time > $start_time && ($row["WeekDays"]  & (1 << $dow)) > 0)) && $row["time_status"]=="1") {
-        	if (($sch_type == 1 && $away_status == 1) || ($sch_type == 0 && $away_status == 0)) { $shactive="redsch"; }
-	}
         if ($row["time_status"] == 0 || $sdrow["dis_cont"] == $count) {
                 echo '<div class="circle bluesch_disable"><p class="schdegree">D</p></div>';
         } else {
@@ -687,26 +618,16 @@ if ($type <= 5) {
                 echo ' </div>';
         }
 } elseif ($type == 20) {
-	$squery = "SELECT schedule_daily_time.sch_name, schedule_daily_time.start, schedule_daily_time.end,
-        schedule_daily_time_zone.zone_id, schedule_daily_time_zone.temperature, schedule_daily_time_zone.id AS tz_id, schedule_daily_time_zone.coop, schedule_daily_time_zone.disabled
-        FROM `schedule_daily_time`, `schedule_daily_time_zone`
-        WHERE (schedule_daily_time.id = schedule_daily_time_zone.schedule_daily_time_id) AND schedule_daily_time.status = 1
-        AND (schedule_daily_time_zone.status = 1 OR schedule_daily_time_zone.disabled = 1) AND schedule_daily_time.type = 0 AND schedule_daily_time_zone.id ='{$id}'
-        AND (schedule_daily_time.WeekDays & (1 << {$dow})) > 0
-        ORDER BY schedule_daily_time.start asc;";
-        $sresults = $conn->query($squery);
-	$srow = mysqli_fetch_assoc($sresults);
+        $query = "SELECT zone_id, schedule FROM zone_current_state WHERE sch_time_id = {$id} LIMIT 1;";
+        $result = $conn->query($query);
+	$row = mysqli_fetch_array($result);
+        if ($row["schedule"] == 0) {
+	        $shactive="orangesch_list";
+	} else {
+                $shactive="redsch_list";
+	}
 
-        $shactive="orangesch_list";
-        $tz = timezone_open(settings($conn, 'timezone'));
-        $time_offset = timezone_offset_get($tz, date_create("now"));
-        $time_offset = $time_offset - (3600 * Date('I'));
-        $time = strtotime(date("G:i:s"));
-        $start_time = strtotime($srow['start']) + $time_offset;
-        $end_time = strtotime($srow['end']) + $time_offset;
-        if ($time >$start_time && $time <$end_time){$shactive="redsch_list";}
-
-        $query = "SELECT sensor_type_id FROM sensors WHERE zone_id = '{$srow['$zone_id']}' LIMIT 1;";
+        $query = "SELECT sensor_type_id FROM sensors WHERE zone_id = '{$row['$zone_id']}' LIMIT 1;";
         $result = $conn->query($query);
         $sensor = mysqli_fetch_array($result);
         $sensor_type_id=$sensor['sensor_type_id'];

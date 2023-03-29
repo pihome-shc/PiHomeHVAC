@@ -123,6 +123,25 @@ while True:
                         ),
                     )
                     con.commit()
+
+                    cur.execute(
+                        """SELECT sensors.id
+                           FROM sensors, `nodes`
+                           WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) AND sensors.sensor_child_id = (%s)  LIMIT 1;""",
+                        (in_id, in_child_id),
+                    )
+                    results = cur.fetchone()
+                    if cur.rowcount > 0:
+                        sensor_to_index = dict(
+                            (d[0], i) for i, d in enumerate(cur.description)
+                        )
+                        sensor_id = int(results[sensor_to_index["id"]])
+                        # Update last reading for this sensor
+                        cur.execute(
+                            "UPDATE `sensors` SET `current_val_1` = %s WHERE id = %s",
+                            [int(pin.value), sensor_id],
+                        )
+                        con.commit()
                 # release the GPIO pin
                 pin.deinit()
 

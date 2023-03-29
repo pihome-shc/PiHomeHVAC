@@ -188,9 +188,9 @@ if (isset($_POST['submit'])) {
                 $result = $conn->query($query);
                 $sdt_count = $result->num_rows;
                	if ($sdt_count == 0) {
-	                $query = "INSERT INTO `schedule_daily_time`(`id`, `sync`, `purge`, `status`, `start`, `start_sr`, `start_ss`, `start_offset`, `end`, `end_sr`, `end_ss`, `end_offset`, `WeekDays`, `sch_name`, `type`) VALUES ('{$time_id}','0', '0', '{$sc_en}', '{$start_time}', '{$start_sr}', '{$start_ss}', '{$start_offset}','{$end_time}', '{$end_sr}', '{$end_ss}', '{$end_offset}','{$mask}', '{$sch_name}', '{$aw_en}');";
+	                $query = "INSERT INTO `schedule_daily_time`(`id`, `sync`, `purge`, `status`, `start`, `start_sr`, `start_ss`, `start_offset`, `end`, `end_sr`, `end_ss`, `end_offset`, `WeekDays`, `run_time`, `sch_name`, `type`) VALUES ('{$time_id}','0', '0', '{$sc_en}', '{$start_time}', '{$start_sr}', '{$start_ss}', '{$start_offset}','{$end_time}', '{$end_sr}', '{$end_ss}', '{$end_offset}','{$mask}', 0, '{$sch_name}', '{$aw_en}');";
 		} else {
-			$query = "UPDATE schedule_daily_time SET sync = '0', status = '{$sc_en}', start = '{$start_time}', start_sr = '{$start_sr}', start_ss = '{$start_ss}', start_offset = '{$start_offset}', end = '{$end_time}', end_sr = '{$end_sr}', end_ss = '{$end_ss}', end_offset = '{$end_offset}', WeekDays = '{$mask}', sch_name = '{$sch_name}' , type = '{$aw_en}' WHERE id = '{$time_id}';";
+			$query = "UPDATE schedule_daily_time SET sync = '0', status = '{$sc_en}', start = '{$start_time}', start_sr = '{$start_sr}', start_ss = '{$start_ss}', start_offset = '{$start_offset}', end = '{$end_time}', end_sr = '{$end_sr}', end_ss = '{$end_ss}', end_offset = '{$end_offset}', WeekDays = '{$mask}', run_time = 0, sch_name = '{$sch_name}' , type = '{$aw_en}' WHERE id = '{$time_id}';";
 		}
 		$result = $conn->query($query);
 		$schedule_daily_time_id = mysqli_insert_id($conn);

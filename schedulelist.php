@@ -80,8 +80,6 @@ $schedule_time = [];
 			$results = $conn->query($query);
         	        $sch_params = [];
 			while ($row = mysqli_fetch_assoc($results)) {
-                        	$dow = idate('w');
-	                        $prev_dow = $dow - 1;
         	                if($row["start_sr"] == 1 || $row["start_ss"] == 1 || $row["end_sr"] == 1 || $row["end_ss"] == 1) { $sr_ss = 1; } else { $sr_ss = 0; }
 				if($row["WeekDays"]  & (1 << 0)){ $Sunday_status_icon="bi-check-circle-fill"; $Sunday_status_color="orangefa"; }else{ $Sunday_status_icon="bi-x-circle-fill"; $Sunday_status_color="bluefa"; }
 				if($row["WeekDays"]  & (1 << 1)){ $Monday_status_icon="bi-check-circle-fill"; $Monday_status_color="orangefa"; }else{ $Monday_status_icon="bi-x-circle-fill"; $Monday_status_color="bluefa"; }
@@ -90,40 +88,20 @@ $schedule_time = [];
 				if($row["WeekDays"]  & (1 << 4)){ $Thursday_status_icon="bi-check-circle-fill"; $Thursday_status_color="orangefa"; }else{ $Thursday_status_icon="bi-x-circle-fill"; $Thursday_status_color="bluefa"; }
 				if($row["WeekDays"]  & (1 << 5)){ $Friday_status_icon="bi-check-circle-fill"; $Friday_status_color="orangefa"; }else{ $Friday_status_icon="bi-x-circle-fill"; $Friday_status_color="bluefa"; }
 				if($row["WeekDays"]  & (1 << 6)){ $Saturday_status_icon="bi-check-circle-fill"; $Saturday_status_color="orangefa"; }else{ $Saturday_status_icon="bi-x-circle-fill"; $Saturday_status_color="bluefa"; }
+                                $sch_name = $row['sch_name'];
 
-        	                if($row["time_status"]=="0"){ $shactive="bluesch"; }else{ $shactive="orangesch"; }
-				$sch_name = $row['sch_name'];
-                        	$sch_type = $row['sch_type'];
-	                        $time = strtotime(date("G:i:s"));
-        	                $start_time = strtotime($row['start']);
-                	        $end_time = strtotime($row['end']);
-                        	$start_sr = $row['start_sr'];
-	                        $start_ss = $row['start_ss'];
-        	                $start_offset = $row['start_offset'];
-                	        $end_sr = $row['end_sr'];
-                        	$end_ss = $row['end_ss'];
-	                        $end_offset = $row['end_offset'];
-        	                if ($start_sr == 1 || $start_ss == 1 || $end_sr == 1 || $end_ss == 1) {
-                	                $query = "SELECT * FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);";
-                        	        $result = $conn->query($query);
-                                	$rowcount=mysqli_num_rows($result);
-	                                if ($rowcount > 0) {
-        	                                $wrow = mysqli_fetch_array($result);
-                	                        $sunrise_time = date('H:i:s', $wrow['sunrise']);
-                        	                $sunset_time = date('H:i:s', $wrow['sunset']);
-                                	        if ($start_sr == 1 || $start_ss == 1) {
-                                        	        if ($start_sr == 1) { $start_time = strtotime($sunrise_time); } else { $start_time = strtotime($sunset_time); }
-                                                	$start_time = $start_time + ($start_offset * 60);
-	                                        }
-        	                                if ($end_sr == 1 || $end_ss == 1) {
-                	                                if ($end_sr == 1) { $end_time = strtotime($sunrise_time); } else { $end_time = strtotime($sunset_time); }
-                        	                        $end_time = $end_time + ($end_offset * 60);
-                                	        }
-	                                }
-        	                }
-                	        if ((($end_time > $start_time && $time > $start_time && $time < $end_time && ($row["WeekDays"]  & (1 << $dow)) > 0) || ($end_time < $start_time && $time < $end_time && ($row["WeekDays"]  & (1 << $prev_dow)) > 0) || ($end_time < $start_time && $time > $start_time && ($row["WeekDays"]  & (1 << $dow)) > 0)) && $row["time_status"]=="1") {
-					if (($sch_type == 1 && $away_status == 1) || ($sch_type == 0 && $away_status == 0)) { $shactive="redsch"; }
-	                        }
+        	                if($row["time_status"] == "0"){
+					$shactive="bluesch";
+				} else {
+					$query = "SELECT schedule FROM zone_current_state WHERE sch_time_id = {$row['time_id']} AND schedule = 1 LIMIT 1;";
+                                        $result = $conn->query($query);
+                                        $rowcount=mysqli_num_rows($result);
+                                        if ($rowcount > 0) {
+						$shactive="redsch";
+					} else {
+                                                $shactive="orangesch";
+					}
+				}
 				$sch_params[] = array('time_id' =>$row['time_id']);
 				//time shchedule listing
 				echo '<li class="list-group-item">
@@ -239,7 +217,7 @@ $schedule_time = [];
 	                <div class="btn-group" id="footer_weather">
         	                <?php ShowWeather($conn); ?>
                 	</div>
-                	<div class="btn-group">
+                        <div class="btn-group" id="footer_all_running_time">
                     		<?php
                     		echo '<i class="bi bi-clock"></i>&nbspAll Schedule:&nbsp' . secondsToWords((array_sum($schedule_time) * 60));
                     		?>

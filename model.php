@@ -239,6 +239,22 @@ echo '
                                 $db_v_github = array_pop($pieces);
                                 $pieces =  explode(' ', $file2[count($file2) - 1]);
                                 $db_b_github = array_pop($pieces);
+                                //get latest Bootstrap version number
+                                $result = file_get_contents('https://getbootstrap.com/docs/versions/');
+                                if (strlen($result) > 0) {
+                                        $search = 'Last update was ';
+                                        $start = stripos($result, $search);
+                                        if ($start !== false) {
+                                                $start = $start + strlen($search) + 1;
+                                                $end = stripos($result, '.</p>', $offset = $start);
+                                                $length = $end - $start;
+                                                $bootstrap_ver = substr($result, $start, $length);
+                                        } else {
+                                                $bootstrap_ver = "Not Found";
+                                        }
+                                } else {
+                                        $bootstrap_ver = "Not Found";
+                                }
 
                                 echo '<p class="text-muted"> '.$lang['maxair_versions_text'].' <br>'.$lang['repository'].' - https://github.com/'.$row['name'].'.git</p>
                                 <table class="table table-bordered">
@@ -271,7 +287,7 @@ echo '
                                         <tr>
                                                 <td style="font-weight:bold">'.$lang['bs_ver'].'</td>
                                                 <td id="bs_local" style="text-align:center; vertical-align:middle;"></td>
-                                                <td style="text-align:center; vertical-align:middle;"></td>
+                                                <td style="text-align:center; vertical-align:middle;">'.$bootstrap_ver.'</td>
                                         </tr>';
 
                                 echo '</table>
@@ -411,6 +427,62 @@ echo '
            </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+            </div>
+        </div>
+    </div>
+</div>';
+
+// Scripts status model
+echo '<div class="modal" id="status_scripts" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['scripts_status'].'</h5>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">'.$lang['scripts_status_text'].'</p>';
+		$query = "SELECT * FROM gateway";
+		$result = $conn->query($query);
+                $grow = mysqli_fetch_array($result);
+                $query = "SELECT * FROM system_controller";
+                $result = $conn->query($query);
+                $scrow = mysqli_fetch_array($result);
+
+		echo '<br><h4 class="info"><i class="bi bi-activity red" style="font-size:1.2rem;"></i> '.$lang['smart_home_gateway_scr_info'].'</h4>
+		<div class="list-group">
+			<a href="#" class="list-group-item d-flex justify-content-between"><span>PID</span><span class="text-muted small"><em> '.$grow['pid'].'</em></span></a>
+			<a href="#" class="list-group-item d-flex justify-content-between"><span>'.$lang['smart_home_gateway_pid'].':</span><span class="text-muted small"><em>'.$grow['pid_running_since'].'</em></span></a>';
+
+			$query = "select * FROM gateway_logs WHERE pid_datetime >= NOW() - INTERVAL 5 MINUTE;";
+			$result = $conn->query($query);
+			if (mysqli_num_rows($result) != 0){
+				$gw_restarted = mysqli_num_rows($result);
+			} else {
+				$gw_restarted = '0';
+			}
+			echo '<a href="#" class="list-group-item d-flex justify-content-between"><span>'.$lang['smart_home_gateway_scr'].':</span><span class="text-muted small"><em>'.$gw_restarted.'</em></span></a>';
+		echo '</div>
+
+                <!-- /.list-group -->
+                <br><h4 class="info"><i class="bi bi-activity red" style="font-size:1.2rem;"></i> '.$lang['smart_home_controller_scr_info'].'</h4>
+                <div class="list-group">
+                        <a href="#" class="list-group-item d-flex justify-content-between"><span>PID</span><span class="text-muted small"><em> '.$scrow['pid'].'</em></span></a>
+                        <a href="#" class="list-group-item d-flex justify-content-between"><span>'.$lang['smart_home_gateway_pid'].':</span><span class="text-muted small"><em>'.$scrow['pid_running_since'].'</em></span></a>';
+
+                        $query = "select * FROM controller_zone_logs WHERE zone_id = 0 AND start_datetime >= NOW() - INTERVAL 5 MINUTE;";
+                        $result = $conn->query($query);
+                        if (mysqli_num_rows($result) != 0){
+                        	$sc_restarted = mysqli_num_rows($result);
+                        } else {
+                        	$sc_restarted = '0';
+                        }
+                        echo '<a href="#" class="list-group-item d-flex justify-content-between"><span>'.$lang['smart_home_gateway_scr'].':</span><span class="text-muted small"><em>'.$sc_restarted.'</em></span></a>';
+                echo '</div>
+
+            </div>
+                <div class="modal-footer">
+                        <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
             </div>
         </div>
     </div>
@@ -774,7 +846,9 @@ echo '
 </div>';
 
 //Setup Auto Image
-if (file_exists("/usr/local/bin/image-backup") && !file_exists('/etc/armbian-release')) {
+$query = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'maxair' AND table_name = 'auto_image';";
+$result = $conn->query($query);
+if (mysqli_num_rows($result) != 0) {
 	echo '<div class="modal fade" id="auto_image" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
         		<div class="modal-content">
@@ -840,11 +914,11 @@ if (file_exists("/usr/local/bin/image-backup") && !file_exists('/etc/armbian-rel
                                 	        		<div class="help-block with-errors"></div>
 		                                	</div>
         		                        	<div class="col-4">
-								<select class="form-select" type="text" id="fval2" name="fval2" onchange=set_frequency(this.options[this.selectedIndex].value)>
+								<select class="form-select" type="text" id="fval2" name="fval2" onchange=set_ai_frequency(this.options[this.selectedIndex].value)>
         	        		                        	<option value="DAY" ' . ($f[1]=='DAY' ? 'selected' : '') . '>'.$lang['DAY'].'</option>
 		                        		                <option value="WEEK" ' . ($f[1]=='WEEK' ? 'selected' : '') . '>'.$lang['WEEK'].'</option>
 								</select>
-								<input type="hidden" id="set_f" name="set_f" value="'.$f[1].'">
+								<input type="hidden" id="set_ai_f" name="set_ai_f" value="'.$f[1].'">
 								<div class="help-block with-errors"></div>
 							</div>
 						</div>
@@ -856,11 +930,11 @@ if (file_exists("/usr/local/bin/image-backup") && !file_exists('/etc/armbian-rel
 	                                	        	<div class="help-block with-errors"></div>
 		                                	</div>
 	        		                        <div class="col-4">
-        	        		                        <select class="form-select" type="text" id="rval2" name="rval2" onchange=set_rotation(this.options[this.selectedIndex].value)>
+        	        		                        <select class="form-select" type="text" id="rval2" name="rval2" onchange=set_ai_rotation(this.options[this.selectedIndex].value)>
                 	        		                        <option value="DAY" ' . ($r[1]=='DAY' ? 'selected' : '') . '>'.$lang['DAY'].'</option>
                         	        		                <option value="WEEK" ' . ($r[1]=='WEEK' ? 'selected' : '') . '>'.$lang['WEEK'].'</option>
                                 	        		</select>
-                                        	        	<input type="hidden" id="set_r" name="set_r" value="'.$r[1].'">
+                                        	        	<input type="hidden" id="set_ai_r" name="set_ai_r" value="'.$r[1].'">
 			                                	<div class="help-block with-errors"></div>
 		        	                        </div>
 			                        </div>
@@ -975,8 +1049,6 @@ echo '
 					</div>';
                                         $path = '/var/www/add_on';
                                         $dir = new DirectoryIterator($path);
-					// check if running on Armbian, if so do not allow install of Image Tools
-					if (file_exists('/etc/armbian-release')) { $rpi = false; } else { $rpi = true; }
                                         foreach ($dir as $fileinfo) {
 						$installed = 0;
                                                 if ($fileinfo->isDir() && !$fileinfo->isDot()) {
@@ -1012,26 +1084,24 @@ echo '
                                                                 } else {
                                                                         $instaleed = 2;
                                                                 }
-								if ($rpi || (!$rpi && strpos($name, 'Install Image Tools') === false)) {
-	                                                                echo '<div class="list-group-item">
-										<div class="d-flex justify-content-between">
-											<div>
-                        	                                        			<i class="bi bi-terminal-fill green" style="font-size: 2rem;"></i> '.$name.'
-											</div>
-											<div>';
-                                             				                	if ($installed == 0) {
-                                                        	        		        	echo '<span class="text-muted small"><button type="button" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm"
-		                                                	                        	onclick="install_software(`'.$installpath.'`)">'.$lang['install'].'</button></span>';
-		                                                        	        	} elseif ($installed == 1) {
-                		                                                	        	echo '<span class="text"><p> '.$lang['already_installed'].'</p></span>';
-                                                                				} else {
-                                                                        				echo '<span class="text"><p> '.$lang['no_installer'].'</p></span>';
-	                                                                			}
-											echo '</div>
-										</div>
-                        	                                        	<p class="text-muted">'.$description.'</p>
-									</div>';
-								}
+                                                                echo '<div class="list-group-item">
+                                                                        <div class="d-flex justify-content-between">
+                                                                                <div>
+                                                                                        <i class="bi bi-terminal-fill green" style="font-size: 2rem;"></i> '.$name.'
+                                                                                </div>
+                                                                                <div>';
+                                                                                        if ($installed == 0) {
+                                                                echo '<span class="text-muted small"><button type="button" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm"
+                                                                                                onclick="install_software(`'.$installpath.'`)">'.$lang['install'].'</button></span>';
+                                                                                        } elseif ($installed == 1) {
+                                                                                                echo '<span class="text"><p> '.$lang['already_installed'].'</p></span>';
+                                                                                        } else {
+                                                                                                echo '<span class="text"><p> '.$lang['no_installer'].'</p></span>';
+                                                                                        }
+                                                                                echo '</div>
+                                                                        </div>
+                                                                        <p class="text-muted">'.$description.'</p>
+                                                                </div>';
                                                         }
                                                 }
                                         }
@@ -1209,12 +1279,24 @@ function sw_install_close()
 function set_frequency(f)
 {
  document.getElementById("set_f").value = f;
-// console.log(f);
+//console.log(f);
 }
 
 function set_rotation(r)
 {
  document.getElementById("set_r").value = r;
+// console.log(r);
+}
+
+function set_ai_frequency(f)
+{
+ document.getElementById("set_ai_f").value = f;
+//console.log(f);
+}
+
+function set_ai_rotation(r)
+{
+ document.getElementById("set_ai_r").value = r;
 // console.log(r);
 }
 </script>
@@ -1805,7 +1887,7 @@ echo '
             </div>
             <div class="modal-body">
 <p class="text-muted"> '.$lang['schedule_jobs_info'].' </p>';
-$query = "SELECT id, job_name, script, enabled, log_it, time FROM jobs ORDER BY id asc";
+$query = "SELECT id, job_name, script, enabled, log_it, time FROM jobs WHERE job_name NOT LIKE 'shutdown_reboot' ORDER BY id asc";
 $results = $conn->query($query);
 echo '<br><table>
     <tr>
@@ -2106,7 +2188,7 @@ echo '
 					<!-- /.form-group -->';
 
 					if ((settings($conn, 'mode') & 0b1) == 1) {
-                                        echo '<div class="form-group" class="control-label"><label>'.$lang['cool_relay_id'].'</label> <small class="text-muted">'.$lang['cool_relay_id_info'].'</small>
+  				        	echo '<div class="form-group" class="control-label"><label>'.$lang['cool_relay_id'].'</label> <small class="text-muted">'.$lang['cool_relay_id_info'].'</small>
                                                 <select class="form-select" type="text" id="cool_relay_id" name="cool_relay_id" >';
                                                 //get list of heat relays to display
                                                 $query = "SELECT id, name FROM relays WHERE type = 3;";
@@ -2932,6 +3014,10 @@ echo '
                                 </div>
             		</div>
             		<div class="modal-body">';
+                                $gquery = "SELECT * FROM `nodes` WHERE `node_id` = '0' AND `name` LIKE '%Gateway%'";
+                                $result = $conn->query($gquery);
+				$row = mysqli_fetch_array($result);
+				$sketch_version = $row['sketch_version'];
 				$gquery = "SELECT * FROM gateway";
 				$gresult = $conn->query($gquery);
                                 $rowcount=mysqli_num_rows($gresult);
@@ -2949,16 +3035,19 @@ echo '
                                                 $display_wifi = "display:block";
                                                 $display_serial = "display:none";
                                                 $display_timeout = "display:block";
+                                                $display_heartbeat = "display:block";
                                         } elseif ($gateway_type=='serial') {
                                                 echo $lang['smart_home_gateway_text_serial'];
                                                 $display_wifi = "display:none";
                                                 $display_serial = "display:block";
                                                 $display_timeout = "display:block";
+                                                $display_heartbeat = "display:none";
                                         } elseif ($gateway_type=='virtual') {
                                                 echo $lang['smart_home_gateway_text_virtual'];
                                                 $display_wifi = "display:none";
                                                 $display_serial = "display:none";
                                                 $display_timeout = "display:none";
+                                                $display_heartbeat = "display:none";
                                         }
                                 }
 				echo '</p>';
@@ -3040,13 +3129,13 @@ echo '
                                         </div>
                                 </div>
                                 <!-- /.form-group -->
-				<div class="form-group" class="control-label" id="gw_timout_label" style="'.$display_timeout.'"><label>'.$lang['timeout'].' </label>
+				<div class="form-group" class="control-label" id="gw_timeout" style="'.$display_timeout.'"><label id="gw_timeout_label">'.$lang['interface_timeout'].' </label> <small class="text-muted">'.$lang['seconds'].'</small>
                                         <select class="form-select" type="text" id="gw_timout" name="gw_timout">
                                         <option selected>'.$grow['timout'].'</option>
                                         <option value="0">0</option>
                                         <option value="1">1</option>
                                         <option value="2">2</option>
-                                        <option value="3" selected>3</option>
+                                        <option value="3">3</option>
                                         <option value="4">4</option>
                                         <option value="5">5</option>
                                         <option value="6">6</option>
@@ -3059,28 +3148,30 @@ echo '
                                         <div class="help-block with-errors"></div>
 				</div>
                                 <!-- /.form-group -->
+                                <div class="form-group" class="control-label" id="heartbeat" style="'.$display_heartbeat.'"><label id="heartbeat_label">'.$lang['heartbeat_timeout'].' </label> <small class="text-muted">'.$lang['seconds'].'</small>
+                                        <select class="form-select" type="text" id="gw_heartbeat" name="gw_heartbeat">
+                                        <option selected>'.$grow['heartbeat_timeout'].'</option>
+                                        <option value="0">0</option>
+                                        <option value="30">30</option>
+                                        <option value="60">60</option>
+                                        <option value="90">90</option>
+                                        <option value="120">120</option>
+                                        <option value="150">150</option>
+                                        <option value="180">180</option>
+                                        <option value="210">210</option>
+                                        <option value="240">240</option>
+                                        <option value="270">270</option>
+                                        <option value="300">300</option>
+                                        </select>
+                                        <div class="help-block with-errors"></div>
+                                </div>
+                                <!-- /.form-group -->
 				<div class="form-group" class="control-label"><label>'.$lang['smart_home_gateway_version'].' </label>
-					<input class="form-control" type="text" id="gw_version" name="gw_version" value="'.$grow['version'].'" disabled>
+					<input class="form-control" type="text" id="gw_version" name="gw_version" value="'.$grow['version'].' ('.$sketch_version.')" disabled>
 					<div class="help-block with-errors">
 					</div>
 				</div>
                                 <!-- /.form-group -->
-				<br><h4 class="info"><i class="bi bi-heart-pulse-fill red" style="font-size:1.2rem;"></i> '.$lang['smart_home_gateway_scr_info'].'</h4>
-				<div class="list-group">';
-					echo '
-					<a href="#" class="list-group-item d-flex justify-content-between"><span>PID</span><span class="text-muted small"><em> '.$grow['pid'].'</em></span></a>
-					<a href="#" class="list-group-item d-flex justify-content-between"><span>'.$lang['smart_home_gateway_pid'].':</span><span class="text-muted small"><em>'.$grow['pid_running_since'].'</em></span></a>';
-
-					$query = "select * FROM gateway_logs WHERE pid_datetime >= NOW() - INTERVAL 5 MINUTE;";
-					$result = $conn->query($query);
-					if (mysqli_num_rows($result) != 0){
-						$gw_restarted = mysqli_num_rows($result);
-					} else {
-						$gw_restarted = '0';
-					}
-					echo '<a href="#" class="list-group-item d-flex justify-content-between"><span>'.$lang['smart_home_gateway_scr'].':</span><span class="text-muted small"><em>'.$gw_restarted.'</em></span></a>';
-				echo '</div>
-                                <!-- /.list-group -->
 			</div>
 			<!-- /.modal-body -->
             		<div class="modal-footer">
@@ -3187,8 +3278,10 @@ function gw_location()
         document.getElementById("wifi_gw").style.display = 'none';
         document.getElementById("serial_port").style.display = 'none';
         document.getElementById("wifi_port").style.display = 'none';
-        document.getElementById("gw_timout_label").style.visibility = 'hidden';
-        document.getElementById("gw_timout").style.display = 'none';
+        document.getElementById("gw_timeout_label").style.visibility = 'hidden';
+        document.getElementById("gw_timeout").style.display = 'none';
+        document.getElementById("heartbeat_label").style.visibility = 'hidden';
+        document.getElementById("heartbeat").style.display = 'none';
         document.getElementById("wifi_location").value = "";
         document.getElementById("wifi_port_num").value = "";
  } else if(selected_gw_type.includes("wifi")) {
@@ -3196,8 +3289,10 @@ function gw_location()
         document.getElementById("wifi_gw").style.display = 'block';
         document.getElementById("serial_port").style.display = 'none';
         document.getElementById("wifi_port").style.display = 'block';
-        document.getElementById("gw_timout_label").style.visibility = 'visible';
-        document.getElementById("gw_timout").style.display = 'block';
+        document.getElementById("gw_timeout_label").style.visibility = 'visible';
+	document.getElementById("gw_timeout").style.display = 'block';
+       	document.getElementById("heartbeat_label").style.visibility = 'visible';
+	document.getElementById("heartbeat").style.display = 'block';
         document.getElementById("wifi_location").value = "192.168.0.100";
         document.getElementById("wifi_port_num").value = "5003";
  } else {
@@ -3205,8 +3300,10 @@ function gw_location()
         document.getElementById("serial_gw").style.display = 'block';
         document.getElementById("wifi_port").style.display = 'none';
         document.getElementById("serial_port").style.display = 'block';
-        document.getElementById("gw_timout_label").style.visibility = 'visible';
-        document.getElementById("gw_timout").style.display = 'block';
+        document.getElementById("gw_timeout_label").style.visibility = 'visible';
+        document.getElementById("gw_timeout").style.display = 'block';
+        document.getElementById("heartbeat_label").style.visibility = 'hidden';
+        document.getElementById("heartbeat").style.display = 'none';
         document.getElementById("serial_location").value = "/dev/ttyAMA0";
         document.getElementById("serial_port_speed").value = "115200";
  }
@@ -4330,4 +4427,3 @@ $(function() {
     });
 });
 </script>
-

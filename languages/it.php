@@ -995,4 +995,9 @@ $lang['relay_lag_time_help'] = "Time Delay Before Relay Turns ON After Receiving
 $lang['lag_time'] = "Lag Time";
 $lang['no_livetemp'] = "Needs to be running a Schedule or in CE Mode or BOTH Mode or Boost Mode or Override Mode";
 $lang['gateway_controller'] = "Technical - Combined Gateway and Relay Controller";
+$lang['interface_timeout'] = "Interface Timeout";
+$lang['heartbeat_timeout'] = "Heartbeat Timeout";
+$lang['smart_home_controller_scr_info'] = "Controller Script Process Info";
+$lang['scripts_status'] = "Scripts Status";
+$lang['scripts_status_text'] = "Status of the Gateway and Controller Scripts";
 ?>

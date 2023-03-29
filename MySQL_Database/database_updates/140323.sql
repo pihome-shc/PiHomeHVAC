@@ -1,0 +1,1 @@
+ALTER TABLE `zone_current_state` ADD COLUMN IF NOT EXISTS `schedule` TINYINT(4) NULL AFTER `status_prev`;

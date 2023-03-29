@@ -1,0 +1,2 @@
+UPDATE `repository` SET `status` = 1 WHERE `name` LIKE 'pihome-shc/PiHomeHVAC' AND EXISTS(SELECT 1 FROM repository r WHERE r.name LIKE 'twa127/PiHomeHVAC-V3' AND r.status = 1);
+DELETE FROM `repository` WHERE `name` LIKE 'twa127/PiHomeHVAC-V3';
