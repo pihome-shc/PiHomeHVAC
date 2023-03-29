@@ -90,6 +90,8 @@ $schedule_time = [];
 				if($row["WeekDays"]  & (1 << 4)){ $Thursday_status_icon="bi-check-circle-fill"; $Thursday_status_color="orangefa"; }else{ $Thursday_status_icon="bi-x-circle-fill"; $Thursday_status_color="bluefa"; }
 				if($row["WeekDays"]  & (1 << 5)){ $Friday_status_icon="bi-check-circle-fill"; $Friday_status_color="orangefa"; }else{ $Friday_status_icon="bi-x-circle-fill"; $Friday_status_color="bluefa"; }
 				if($row["WeekDays"]  & (1 << 6)){ $Saturday_status_icon="bi-check-circle-fill"; $Saturday_status_color="orangefa"; }else{ $Saturday_status_icon="bi-x-circle-fill"; $Saturday_status_color="bluefa"; }
+                                $sch_name = $row['sch_name'];
+                                $sch_type = $row['sch_type'];
 
         	                if($row["time_status"] == "0"){
 					$shactive="bluesch";
