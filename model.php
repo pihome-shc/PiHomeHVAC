@@ -1868,6 +1868,42 @@ echo'
     </div>
 </div>';
 
+//Schedule Test Set False Time
+echo '<div class="modal fade" id="schedule_test" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['schedule_test'].'</h5>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">'.$lang['schedule_test_text'].'</p>
+                <table class="table table-bordered">
+                        <tr>
+                                <th class="col-lg-2 text-center"><small>'.$lang['false_time'].'</small></th>
+                                <th class="col-lg-1 text-center"><small>'.$lang['enabled'].'</small></th>
+                        </tr>';
+//                        $query = "SELECT test_mode, test_run_time FROM system LIMIT 1;";
+		        $query = "SELECT `test_mode`, DATE_FORMAT(`test_run_time`, '%Y-%m-%d %H:%i') AS test_run_time FROM `system`;";
+                        $result = $conn->query($query);
+                        $row = mysqli_fetch_assoc($result);
+                        if ($row['test_mode'] == 3) { $enabled_check = 'checked'; } else { $enabled_check = ''; }
+                        echo '<tr>
+                                <td><input class="form-control" type="datetime-local" id="false_time" name="false_time" value="'.$row['test_run_time'].'" placeholder="Start Time" required></td>
+            			<td style="text-align:center; vertical-align:middle;">
+               				<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" id="test_time_enabled" name="test_time_enabled" value="1" '.$enabled_check.'>
+            			</td>
+                       </tr>
+                </table>
+            </div>
+                <div class="modal-footer">
+                        <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                        <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="set_false_time()">
+            </div>
+        </div>
+    </div>
+</div>';
+
 // Jobs Schedule modal
 echo '
 <div class="modal fade" id="jobs_schedule" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">

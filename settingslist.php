@@ -251,6 +251,12 @@ if ($settings_id <= 3) {
 	       			                <h3 class="status"></small></h3>
         			         	</button>
 
+                                                <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="edit_gpio.php" data-bs-toggle="modal" data-bs-target="#schedule_test">
+                                                <h3 class="buttontop"><small><?php echo $lang['schedule_test']; ?></small></h3>
+                                                <h3 class="degre" ><i class="bi bi-calendar-date-fill" style="font-size: 1.5rem;"></i></h3>
+                                                <h3 class="status"></small></h3>
+                                                </button>
+
 					        <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_OpenWeather">
         					<h3 class="buttontop"><small><?php echo $lang['openweather']; ?></small></h3>
 					        <h3 class="degre" ><i class="bi bi-cloud-sun" style="font-size: 1.5rem;"></i></h3>
