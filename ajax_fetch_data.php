@@ -98,7 +98,7 @@ if ($type <= 5) {
         $away_sch = ($schedule >> 1) & 0b1;
 
 	if ($zone_category == 1 || $zone_category == 2  || $zone_category == 5) {
-        	if ($zone_current_state['mode'] == 0) { $add_on_active = 0; } else { $add_on_active = 1; }
+        	if ($zone_mode == 0) { $add_on_active = 0; } else { $add_on_active = 1; }
                 if ($add_on_active == 1 && $zone_category != 5) { $add_on_colour = "green"; } elseif ($add_on_active == 0 || ($add_on_active == 1 && $zone_category == 5)) {$add_on_colour = "black"; }
 	}
 
@@ -147,7 +147,7 @@ if ($type <= 5) {
                 	if ($add_on_active == 0) {
                         	$add_on_mode = 0;
                         } elseif ($zone_category == 1) {
-                        	$add_on_mode = $zone_current_state['mode'];
+                        	$add_on_mode = $zone_mode;
                       	} else {
                         	$add_on_mode = 114;
                         }
@@ -522,8 +522,15 @@ if ($type <= 5) {
 	//------------
 	//return time
 	//------------
+        $query = "SELECT `test_mode`, TIME_FORMAT(`test_run_time`, '%H:%i') AS test_run_time FROM `system`;";
+        $result = $conn->query($query);
+        $row = mysqli_fetch_array($result);
         $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Session Timed Out';
-        if ($id == 0) { echo $username.'&nbsp;&nbsp; - '.date("H:i"); } else { echo '&nbsp;&nbsp;'.$username.'&nbsp;&nbsp; - '.date("H:i"); }
+        if ($row['test_mode'] == 0) {
+        	if ($id == 0) { echo $username.'&nbsp;&nbsp; - '.date("H:i"); } else { echo '&nbsp;&nbsp;'.$username.'&nbsp;&nbsp; - '.date("H:i"); }
+	} else {
+                if ($id == 0) { echo $username.'&nbsp;&nbsp; - '.$row['test_run_time'].'&nbsp;(TEST TIME)'; } else { echo '&nbsp;&nbsp;'.$username.'&nbsp;&nbsp; - '.$row['test_run_time'].'&nbsp;(TEST TIME)'; }
+	}
 } elseif ($type == 14) {
 	//---------------
 	//return weather

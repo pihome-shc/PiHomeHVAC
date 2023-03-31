@@ -135,9 +135,7 @@ function update_add_on(wid){
 
 //toggle add_on
 function toggle_add_on(wid){
-    var idata="w=add_on&o=toggle";
-    idata+="&sch_active="+document.getElementById("sch_active").value;;
-    idata+="&wid=" + wid;
+    var idata="w=add_on&o=toggle&wid=" + wid;
     $.get('db.php',idata)
     .done(function(odata){
         if(!odata.Success)
@@ -1462,6 +1460,32 @@ function toggle_relay_load(){
     .fail(function( jqXHR, textStatus, errorThrown ){
         if(jqXHR==401 || jqXHR==403) return;
         console.log("toggle_relay_load: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//set false runing time
+function set_false_time(){
+    let datetime = document.getElementById("false_time").value;
+    const myArray = datetime.split("T");
+    var date=myArray[0];
+    var time=myArray[1];
+    var idata="w=set_false_datetime";
+        idata+="&date="+date;
+        idata+="&time="+time;
+        idata+="&sch_test_enabled="+document.getElementById("test_time_enabled").checked;
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=3"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("set_false_datetime: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
     })
     .always(function() {
     });

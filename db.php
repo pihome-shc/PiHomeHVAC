@@ -787,8 +787,11 @@ if($what=="sc_mode"){
 
 //add_on
 if($what=="add_on"){
-	$sch_active = $_GET['sch_active'];
 	$time = date("Y-m-d H:i:s");
+	$query = "SELECT schedule FROM zone_current_state WHERE zone_id = {$wid}";
+        $result = $conn->query($query);
+	$row = mysqli_fetch_assoc($result);
+        $sch_active = $row['schedule'];
 	$query = "SELECT zone.zone_state, zone_type.category FROM zone, zone_type WHERE (zone_type.id = zone.type_id) AND zone.id = {$wid} LIMIT 1;";
 	$result = $conn->query($query);
 	$zrow = mysqli_fetch_assoc($result);
@@ -834,7 +837,7 @@ if($what=="add_on"){
                         }
                         //if switch type zone then force GUI status update
                         if ($category == 2) {
-                                if ($sch_active == '0') {
+                                if ($sch_active == 0) {
                                         if ($set == 0) { $mode = 0; } else { $mode = 114; }
                                 } else {
                                         if ($set == 0) { $mode = 75; } else { $mode = 74; }
@@ -855,7 +858,7 @@ if($what=="add_on"){
                         $update_error=1;
                 }
 
-                if($sch_active == "1") {
+                if($sch_active == 1) {
                         $query = "UPDATE override SET status = 1 WHERE zone_id = {$wid} LIMIT 1;";
                         if($conn->query($query)){
                                 $update_error=0;
@@ -908,7 +911,7 @@ if($what=="add_on"){
 
 		//if switch type zone then force GUI status update
                 if ($category == 2) {
-	                if ($sch_active == '0') {
+	                if ($sch_active == 0) {
         	                if ($new_state == 0) { $mode = 0; } else { $mode = 114; }
                         } else {
                                 if ($new_state == 0) { $mode = 75; } else { $mode = 74; }
@@ -929,7 +932,7 @@ if($what=="add_on"){
                 }
 
                 //if a schedule is running then place in override mode (will be cleared by controller.php when the schedule ends)
-		if($sch_active == "1") {
+		if($sch_active == 1) {
                 	$query = "UPDATE override SET status = 1 where zone_id = '{$wid}';";
                         $conn->query($query);
                         if ($conn->query($query)) {
@@ -2170,6 +2173,25 @@ if($what=="toggle_relay"){
                         echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
                         return;
                 }
+        }
+}
+
+//False Run Time
+if($what=="set_false_datetime"){
+        $date =  $_GET['date'];
+        $time =  $_GET['time'];
+        $schedule_test =  $_GET['sch_test_enabled'];
+        if ($schedule_test=='true'){$schedule_test = 3;} else {$schedule_test = 0;}
+        $query = "UPDATE system SET test_mode = ".$schedule_test.", test_run_time = '".$date." ".$time."';";
+        $update_error=0;
+        if($conn->query($query)){
+                header('Content-type: application/json');
+                echo json_encode(array('Success'=>'Success','Query'=>$query));
+                return;
+        }else{
+                header('Content-type: application/json');
+                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                return;
         }
 }
 ?>
