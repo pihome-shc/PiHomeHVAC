@@ -115,9 +115,7 @@ function set_sc_mode(wid){
 
 //update add_on
 function update_add_on(wid){
-    var idata="w=add_on&o=update";
-    idata+="&sch_active="+document.getElementById("sch_active").value;;
-    idata+="&wid=" + wid;
+    var idata="w=add_on&o=update&wid=" + wid;
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
