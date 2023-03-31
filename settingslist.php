@@ -392,7 +392,7 @@ if ($settings_id <= 3) {
                			        <?php if ($settings_id == 4) { ?>
 						<button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="edit_system_controller.php" data-bs-toggle="modal" data-bs-target="#system_controller">
         			                <h3 class="buttontop"><small><?php echo $lang['controller']; ?></small></h3>
-                                                <h3 class="degre" ><i class="bi bi-motherboard-fill" style="font-size: 1.5rem;"></i></h3>
+                                                <h3 class="degre" ><i class="bi bi-motherboard red" style="font-size: 1.5rem;"></i></h3>
        						<h3 class="status"></small></h3>
 	        	        		</button>
 
