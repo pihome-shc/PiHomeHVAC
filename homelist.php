@@ -676,8 +676,6 @@ $page_refresh = page_refresh($conn);
                 			} // end of zones while loop
 		                	$js_zone_params = json_encode($zone_params);
 
-	                		echo '<input type="hidden" id="sch_active" name="sch_active" value="'.$sch_status.'"/>';
-
 					//select addional onetouch buttons
 					$button_params = [];
 		        	        $query = "SELECT * FROM button_page WHERE page = 1 ORDER BY index_id ASC";
