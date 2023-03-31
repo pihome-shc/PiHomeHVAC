@@ -233,6 +233,9 @@ void receive(const MyMessage &message)
 			//call reset function 
 			resetFunc();
 		}
-
+    		if (message.destination==MY_NODE_ID && message.type==24){
+      			Serial.println("Heartbeat Recieved from Gateway Script");
+      			recieve_heartbeat_time = millis();
+    		}
 	}
 }
