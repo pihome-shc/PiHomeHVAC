@@ -283,7 +283,7 @@ if ($settings_id <= 3) {
 
 					        <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_MQTT">
 			        		<h3 class="buttontop"><small><?php echo $lang['mqtt']; ?></small></h3>
-				                <h3 class="degre" ><?php echo $lang['mqtt']; ?></h3>
+                                                <h3 class="degre" ><img src="images/mqtt_32.png" class="colorize-blue" style="margin-top: -5px" width="25" height="25" alt=""></h3>
 						<h3 class="status"></small></h3>
 						</button>
 
@@ -478,7 +478,7 @@ if ($settings_id <= 3) {
 
 						<button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#mqtt_devices">
        				                <h3 class="buttontop"><small><?php echo $lang['mqtt_device']; ?></small></h3>
-						<h3 class="degre" ><?php echo $lang['mqtt']; ?></h3>
+                                                <h3 class="degre" ><img src="images/mqtt_32.png" class="colorize-blue" style="margin-top: -5px" width="25" height="25" alt=""></h3>
        				                <h3 class="status"></small></h3>
                                 	        </button>
 
