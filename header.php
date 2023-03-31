@@ -144,7 +144,7 @@ $theme = settings($conn, 'theme');
                                         <li class="dropdown-divider"></li>
                         		<li><a class="dropdown-item" href="settings.php?s_id=3"><i class="bi bi-gear-wide-connected" style="font-size: 1rem; color: green;"></i> <?php echo $lang['system_configuration']; ?></a></li>
                                         <li class="dropdown-divider"></li>
-                                       	<li><a class="dropdown-item" href="settings.php?s_id=4"><i class="bi bi-gear" style="font-size: 1rem; color: red;"></i> <?php echo $lang['system_controller_configuration']; ?> </a></li>
+                                       	<li><a class="dropdown-item" href="settings.php?s_id=4"><i class="bi bi-motherboard" style="font-size: 1rem; color: red;"></i> <?php echo $lang['system_controller_configuration']; ?> </a></li>
                                         <li class="dropdown-divider"></li>
                                         <li><a class="dropdown-item" href="settings.php?s_id=5"><i class="bi bi-diagram-3-fill" style="font-size: 1rem; color: blue;"></i> <?php echo $lang['node_zone_configuration']; ?> </a></li>
                                         <li class="dropdown-divider"></li>
