@@ -1089,3 +1089,8 @@ color:#2196F3 !important;
    -webkit-filter: invert(38%) sepia(98%) saturate(2289%) hue-rotate(108deg) brightness(95%) contrast(101%);
    filter: invert(38%) sepia(98%) saturate(2289%) hue-rotate(108deg) brightness(95%) contrast(101%);
 }
+
+.colorize-purple {
+   -webkit-filter: invert(27%) sepia(75%) saturate(1297%) hue-rotate(257deg) brightness(89%) contrast(102%);
+   filter: invert(27%) sepia(75%) saturate(1297%) hue-rotate(257deg) brightness(89%) contrast(102%);
+}

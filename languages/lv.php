@@ -981,4 +981,7 @@ $lang['heartbeat_timeout'] = "Heartbeat Timeout";
 $lang['smart_home_controller_scr_info'] = "Controller Script Process Info";
 $lang['scripts_status'] = "Scripts Status";
 $lang['scripts_status_text'] = "Status of the Gateway and Controller Scripts";
+$lang['schedule_test'] = "Schedule Test";
+$lang['schedule_test_text'] = "Set and Enable a false System Time.<br>Once Set and Enabled, the system time will advance from this initial reference.";
+$lang['false_time'] = "Base False Time";
 ?>

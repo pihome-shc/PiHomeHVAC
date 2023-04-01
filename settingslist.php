@@ -251,6 +251,12 @@ if ($settings_id <= 3) {
 	       			                <h3 class="status"></small></h3>
         			         	</button>
 
+                                                <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="edit_gpio.php" data-bs-toggle="modal" data-bs-target="#schedule_test">
+                                                <h3 class="buttontop"><small><?php echo $lang['schedule_test']; ?></small></h3>
+                                                <h3 class="degre" ><i class="bi bi-calendar-date-fill" style="font-size: 1.5rem;"></i></h3>
+                                                <h3 class="status"></small></h3>
+                                                </button>
+
 					        <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_OpenWeather">
         					<h3 class="buttontop"><small><?php echo $lang['openweather']; ?></small></h3>
 					        <h3 class="degre" ><i class="bi bi-cloud-sun" style="font-size: 1.5rem;"></i></h3>
@@ -277,7 +283,7 @@ if ($settings_id <= 3) {
 
 					        <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_MQTT">
 			        		<h3 class="buttontop"><small><?php echo $lang['mqtt']; ?></small></h3>
-				                <h3 class="degre" ><?php echo $lang['mqtt']; ?></h3>
+                                                <h3 class="degre" ><img src="images/mqtt_32.png" class="colorize-purple" style="margin-top: -5px" width="25" height="25" alt=""></h3>
 						<h3 class="status"></small></h3>
 						</button>
 
@@ -386,7 +392,7 @@ if ($settings_id <= 3) {
                			        <?php if ($settings_id == 4) { ?>
 						<button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="edit_system_controller.php" data-bs-toggle="modal" data-bs-target="#system_controller">
         			                <h3 class="buttontop"><small><?php echo $lang['controller']; ?></small></h3>
-	                                        <h3 class="degre" ><?php echo "SC"; ?></h3>
+                                                <h3 class="degre" ><i class="bi bi-motherboard red" style="font-size: 1.5rem;"></i></h3>
        						<h3 class="status"></small></h3>
 	        	        		</button>
 
@@ -472,7 +478,7 @@ if ($settings_id <= 3) {
 
 						<button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#mqtt_devices">
        				                <h3 class="buttontop"><small><?php echo $lang['mqtt_device']; ?></small></h3>
-						<h3 class="degre" ><?php echo $lang['mqtt']; ?></h3>
+                                                <h3 class="degre" ><img src="images/mqtt_32.png" class="colorize-purple" style="margin-top: -5px" width="25" height="25" alt=""></h3>
        				                <h3 class="status"></small></h3>
                                 	        </button>
 
