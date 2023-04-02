@@ -79,7 +79,7 @@ if (isset($_POST['submit'])) {
 				<div class="card-header <?php echo theme($conn, $theme, 'text_color'); ?> card-header-<?php echo theme($conn, $theme, 'color'); ?>">
                                         <div class="d-flex justify-content-between">
                                                 <div>
-                                                        <i class="bi bi-send-fill" style="font-size: 1.2rem;"></i>&nbsp&nbsp<?php echo $lang['holidays_add']; ?>
+                                                        <i class="bi bi-airplane" style="font-size: 1.2rem;"></i>&nbsp&nbsp<?php echo $lang['holidays_add']; ?>
                                                 </div>
                                                 <div class="btn-group"><?php echo date("H:i"); ?></div>
                                         </div>
@@ -99,7 +99,7 @@ if (isset($_POST['submit'])) {
 						</div>
 
 						<!-- Departure DateTime -->
-						<div class="form-group input-append date form_datetime" class="control-label"><label><i class="bi bi-send-fill" style="font-size: 1.2rem; color: black"></i> <?php echo $lang['holidays_departure']; ?></label>
+						<div class="form-group input-append date form_datetime" class="control-label"><label><i class="bi bi-airplane" style="font-size: 1.2rem; color: black"></i> <?php echo $lang['holidays_departure']; ?></label>
 						<input class="form-control input-sm" type="text" id="start_date_time" name="start_date_time" value="<?php echo $holidays_row['start_date_time']; ?>" placeholder="Holiday Start Date & Time ">
 						<span class="add-on"><i class="icon-th"></i></span>
 						<div class="help-block with-errors"></div></div>
