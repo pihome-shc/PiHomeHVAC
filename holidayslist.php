@@ -32,7 +32,7 @@ $theme = settings($conn, 'theme');
         <div class="card-header <?php echo theme($conn, $theme, 'text_color'); ?> card-header-<?php echo theme($conn, $theme, 'color'); ?>">
                 <div class="d-flex justify-content-between">
                         <div>
-                                <i class="bi bi-send-fill" style="font-size: 1.2rem;"></i> <?php echo $lang['holidays']; ?>
+                                <i class="bi bi-airplane" style="font-size: 1.2rem;"></i> <?php echo $lang['holidays']; ?>
                         </div>
 			<div class="dropdown">
 				<a class="" data-bs-toggle="dropdown" href="#">
@@ -80,7 +80,7 @@ $theme = settings($conn, 'theme');
                                 	                        <div class="d-flex justify-content-start">
 						                        <a href="javascript:active_holidays('.$hol_row["id"].');">
         		                					<span>
-											<div class="circle '. $shactive.'"> <i class="bi bi-send-fill blueinfo"></i></div>
+											<div class="circle '. $shactive.'"> <i class="bi bi-airplane blueinfo"></i></div>
                      								</span>
 									</a>
         	                                                	<a style="color: #333; cursor: pointer; text-decoration: none;" data-bs-toggle="collapse" href="#collapse' . $hol_row['id'] . '">
