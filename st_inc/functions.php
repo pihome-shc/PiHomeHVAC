@@ -935,10 +935,17 @@ function offset($conn,$button) {
         if ($rowcount > 0) {
 		while ($zrow = mysqli_fetch_assoc($zresults)) {
 			$zone_id = $zrow['id'];
-                	$rval=get_schedule_status($conn, $zone_id,"0","0");
-                	$sch_status = $rval['sch_status'];
-                	if ($sch_status == '1') {
-				$query = "SELECT * FROM schedule_time_temp_offset WHERE schedule_daily_time_id = ".$rval['time_id']." AND status = 1 LIMIT 1";
+                        $query = "SELECT schedule, sch_time_id FROM zone_current_state WHERE zone_id = '{$zone_id}' LIMIT 1;";
+                        $result = $conn->query($query);
+			$zone_current_state = mysqli_fetch_array($result);
+                        $schedule = $zone_current_state['schedule'];
+                        $time_id = $zone_current_state['sch_time_id'];
+
+                        //get the current zone schedule status
+                        $sch_status = $schedule & 0b1;
+
+                	if ($sch_status == 1) {
+				$query = "SELECT * FROM schedule_time_temp_offset WHERE schedule_daily_time_id = ".$time_id." AND status = 1 LIMIT 1";
 				$oresult = $conn->query($query);
 				if (mysqli_num_rows($oresult) > 0) {
 					$orow = mysqli_fetch_array($oresult);
