@@ -1035,7 +1035,7 @@ function holidays($conn,$button) {
         if ($holidays_status=='1'){$holidaystatus="red";}elseif ($holidays_status=='0'){$holidaystatus="blueinfo";}
         echo '<button type="button" class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-circle no-shadow '.$button_style.' mainbtn" onclick="relocate_page(`holidays.php`)">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
-        <h3 class="degre"><i class="bi bi-send-fill" style="font-size: 1.4rem; color: black"></i></h3>
+        <h3 class="degre"><i class="bi bi-airplane" style="font-size: 1.4rem; color: black"></i></h3>
         <h3 class="status"><small class="statuscircle" style="color:#048afd;" id="bs1_6"><i class="bi bi-circle-fill '.$holidaystatus.'" style="font-size: 0.55rem;"></i></small>
         </h3></button>';
 }
