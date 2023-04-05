@@ -291,9 +291,10 @@ def get_schedule_status(
                 sch_status = 0;
         #end for s in sch: loop
     else:
-        sch_name = "";
-        sch_status = 0;
-        time_id = 0;
+        sch_name = ""
+        sch_status = 0
+        time_id = 0
+        sch_count = 0
 
     rval_dict = {}
     rval_dict["sch_name"] = sch_name
