@@ -185,8 +185,8 @@ def get_schedule_status(
     cur.execute(qry_str,
         (zone_id,),
     )
-    sch_count = cur.rowcount
-    if sch_count > 0:
+    if cur.rowcount > 0:
+        sch_count = cur.rowcount
         sch_status = 0;
         sch = cur.fetchall()
         sch_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
@@ -291,9 +291,10 @@ def get_schedule_status(
                 sch_status = 0;
         #end for s in sch: loop
     else:
-        sch_name = "";
-        sch_status = 0;
-        time_id = 0;
+        sch_name = ""
+        sch_status = 0
+        time_id = 0
+        sch_count = 0
 
     rval_dict = {}
     rval_dict["sch_name"] = sch_name

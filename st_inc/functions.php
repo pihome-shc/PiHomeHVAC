@@ -935,10 +935,17 @@ function offset($conn,$button) {
         if ($rowcount > 0) {
 		while ($zrow = mysqli_fetch_assoc($zresults)) {
 			$zone_id = $zrow['id'];
-                	$rval=get_schedule_status($conn, $zone_id,"0","0");
-                	$sch_status = $rval['sch_status'];
-                	if ($sch_status == '1') {
-				$query = "SELECT * FROM schedule_time_temp_offset WHERE schedule_daily_time_id = ".$rval['time_id']." AND status = 1 LIMIT 1";
+                        $query = "SELECT schedule, sch_time_id FROM zone_current_state WHERE zone_id = '{$zone_id}' LIMIT 1;";
+                        $result = $conn->query($query);
+			$zone_current_state = mysqli_fetch_array($result);
+                        $schedule = $zone_current_state['schedule'];
+                        $time_id = $zone_current_state['sch_time_id'];
+
+                        //get the current zone schedule status
+                        $sch_status = $schedule & 0b1;
+
+                	if ($sch_status == 1) {
+				$query = "SELECT * FROM schedule_time_temp_offset WHERE schedule_daily_time_id = ".$time_id." AND status = 1 LIMIT 1";
 				$oresult = $conn->query($query);
 				if (mysqli_num_rows($oresult) > 0) {
 					$orow = mysqli_fetch_array($oresult);
@@ -1035,7 +1042,7 @@ function holidays($conn,$button) {
         if ($holidays_status=='1'){$holidaystatus="red";}elseif ($holidays_status=='0'){$holidaystatus="blueinfo";}
         echo '<button type="button" class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-circle no-shadow '.$button_style.' mainbtn" onclick="relocate_page(`holidays.php`)">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
-        <h3 class="degre"><i class="bi bi-send-fill" style="font-size: 1.4rem; color: black"></i></h3>
+        <h3 class="degre"><i class="bi bi-airplane" style="font-size: 1.4rem; color: black"></i></h3>
         <h3 class="status"><small class="statuscircle" style="color:#048afd;" id="bs1_6"><i class="bi bi-circle-fill '.$holidaystatus.'" style="font-size: 0.55rem;"></i></small>
         </h3></button>';
 }

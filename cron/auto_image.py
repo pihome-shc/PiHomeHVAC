@@ -79,7 +79,10 @@ if ai_result[image_to_index['enabled']] == 1:
     rotation = ai_result[image_to_index['rotation']]
     r = rotation.split(" ")
     if r[1] == "DAY" :
-        rot = int(r[0]) * 24 * 60 * 60
+        if r[0] == "1":
+            rot = int(r[0]) * 23 * 60 * 60
+        else:
+            rot = int(r[0]) * 24 * 60 * 60
     else :
         rot = int(r[0]) * 7 * 24 * 60 * 60
 
