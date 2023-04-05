@@ -16,7 +16,7 @@ if ($debug_msg >= 0) {
 	echo "\033[31m \n";
 	echo "******************************************************************\n";
 	echo "*   System Controller Script Version 0.01 Build Date 19/10/2020  *\n";
-	echo "*   Update on 10/02/2022                                         *\n";
+	echo "*   Update on 05/04/2023                                         *\n";
 	echo "*                                        Have Fun - PiHome.eu    *\n";
 	echo "******************************************************************\n";
 	echo " \033[0m \n";
@@ -29,7 +29,23 @@ require_once(__DIR__.'../../st_inc/functions.php');
 
 //Set php script execution time in seconds
 ini_set('max_execution_time', 40);
-$date_time = date('Y-m-d H:i:s');
+
+//Set Time variables
+if (settings($conn, 'test_mode') == 3) {
+        $query = "SELECT test_run_time FROM `system` LIMIT 1;";
+        $result = $conn->query($query);
+        $row = mysqli_fetch_array($result);
+	// epoch time from database
+        $int_time_stamp = strtotime($row['test_run_time']);
+	// update the test_run-time by 60 seconds (controller.php runs every 60 seconds by default)
+	$query = "UPDATE `system` SET `test_run_time`= DATE_ADD(`test_run_time`, INTERVAL 60 second);";
+	$conn->query($query);
+} else {
+	// epoch time from local time
+	$time_stamp = time();
+	$int_time_stamp = intval($time_stamp);
+}
+$date_time = date("Y-m-d H:i:s",$int_time_stamp);
 
 //set to indicate controller condition
 $start_cause ='';
@@ -442,7 +458,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         }
         // only process active zones with a sensor or a category 2 type zone
         if ($zone_status == 1 && ($sensor_rowcount != 0 || $zone_category == 2)) {
-                $rval=get_schedule_status($conn, $zone_id,$holidays_status,$away_status);
+                $rval=get_schedule_status($conn, $zone_id,$holidays_status,$away_status,$int_time_stamp);
                 $sch_status = $rval['sch_status'];
                 $sch_name = $rval['sch_name'];
                 $away_sch = $rval['away_sch'];
