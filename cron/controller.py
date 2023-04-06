@@ -808,6 +808,7 @@ try:
                         sch_status = 0
                         sch_c = 0
                         sch_holidays = 0
+                        time_id = 0
                     else:
                         sch_end_time = rval['end_time']
                         sch_end_time_str = datetime.datetime.fromtimestamp(sch_end_time).strftime('%Y-%m-%d %H:%M:%S')
