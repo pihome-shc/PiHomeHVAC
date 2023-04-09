@@ -1013,7 +1013,7 @@ try:
                             "Full Message to Send:        ", msg.replace("\n", "\\n")
                         )
                     gw.write(msg.encode("utf-8"))
-                    time.sleep(0.5) # let hardware process the heartbeat
+                    time.sleep(0.1) # let hardware process the heartbeat
 
         cur.execute(
             "SELECT COUNT(*) FROM `messages_out` where sent = 0"
