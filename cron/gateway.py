@@ -26,7 +26,7 @@ print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
 print("* Script to communicate with MySensors Nodes, for more *")
 print("* info please check MySensors API.                     *")
 print("*      Build Date: 18/09/2017                          *")
-print("*      Version 0.15 - Last Modified 21/01/2023         *")
+print("*      Version 0.15 - Last Modified 09/04/2023         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -943,7 +943,18 @@ try:
     # initialise heartbeat pulse to the gateway every 30 seconds
     wifi_gateway_heartbeat = time.time()
     heartbeat_timer = time.time()
-    relay_controller_heartbeat = time.time()
+    # check for relay controller using heartbeats
+    cur.execute(
+        "SELECT `node_id` FROM `nodes` where node_id > 0 AND `sketch_version` >= 0.34 AND `type` LIKE 'MySensor' AND (`name` LIKe '%Relay%' OR `name` LIKe '%Controller%');"
+    )  # MySQL query statement
+    if cur.rowcount > 0:
+        # create dictionary for relay lag timer
+        relay_controller_heartbeat_dict = dict()
+        nodes = cur.fetchall()
+        nodes_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+        for n in nodes:
+            node_id = int(n[nodes_to_index["node_id"]])
+            relay_controller_heartbeat_dict[node_id] = time.time()
 
     while 1:
         cur.execute("SELECT c_f, test_mode FROM system LIMIT 1")
@@ -985,15 +996,15 @@ try:
         con.commit()
         ## Heartbeat to Relay Controllers if script version >= 0.34
         cur.execute(
-            "SELECT `node_id` FROM `nodes` where node_id > 0 AND `sketch_version` >= 0.34 AND `type` LIKE 'MySensor' AND (`name` LIKe '%Relay%' OR `name` LIKe '%Controller%');"
+            "SELECT `node_id` FROM `nodes` where node_id > 0 AND `sketch_version` >= 0.34 AND `type` LIKE 'MySensor' AND (`name` LIKE '%Relay%' OR `name` LIKE '%Controller%');"
         )  # MySQL query statement
         nodes = cur.fetchall()
         if cur.rowcount > 0:
-            if time.time() - relay_controller_heartbeat >= 30:
-                relay_controller_heartbeat = time.time()
-                nodes_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                for n in nodes:
-                    node_id = int(n[nodes_to_index["node_id"]])
+            nodes_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+            for n in nodes:
+                node_id = int(n[nodes_to_index["node_id"]])
+                if time.time() - relay_controller_heartbeat_dict[node_id] >= 30:
+                    relay_controller_heartbeat_dict[node_id] = time.time()
                     msg = str(node_id) + ";0;0;0;24;Relay Heartbeat \n"
                     if dbgLevel >= 3 and dbgMsgOut == 1:
                         print(bc.grn + "\nHeatbeat Message to Relay Controller Node ID - " + str(node_id), bc.ENDC)
@@ -1002,6 +1013,7 @@ try:
                             "Full Message to Send:        ", msg.replace("\n", "\\n")
                         )
                     gw.write(msg.encode("utf-8"))
+                    time.sleep(0.5) # let hardware process the heartbeat
 
         cur.execute(
             "SELECT COUNT(*) FROM `messages_out` where sent = 0"
