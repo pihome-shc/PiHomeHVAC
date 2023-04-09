@@ -155,7 +155,7 @@ if ab_result[backup_to_index['enabled']] == 1:
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Creating Database Backup SQL File")
         print("------------------------------------------------------------------")
         # Temporary file storage path
-        tempPath = "/var/www/MySQL_Database/database_backups/"
+        tempPath = "./"
         # Backup file path
         dumpfname = dbname + "_" + datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + ".sql";
         tempfname = tempPath + dumpfname
