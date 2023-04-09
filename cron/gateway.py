@@ -995,6 +995,7 @@ try:
         ## Outgoing messages
         con.commit()
         ## Heartbeat to Relay Controllers if script version >= 0.34
+        heartbeat_sent = False
         cur.execute(
             "SELECT `node_id` FROM `nodes` where node_id > 0 AND `sketch_version` >= 0.34 AND `type` LIKE 'MySensor' AND (`name` LIKE '%Relay%' OR `name` LIKE '%Controller%');"
         )  # MySQL query statement
@@ -1013,145 +1014,146 @@ try:
                             "Full Message to Send:        ", msg.replace("\n", "\\n")
                         )
                     gw.write(msg.encode("utf-8"))
-                    time.sleep(0.1) # let hardware process the heartbeat
+                    heartbeat_sent = True # block any other pending message
 
-        cur.execute(
-            "SELECT COUNT(*) FROM `messages_out` where sent = 0"
-        )  # MySQL query statement
-        count = cur.fetchone()  # Grab all messages from database for Outgoing.
-        count = count[
-            0
-        ]  # Parse first and the only one part of data table named "count" - there is number of records grabbed in SELECT above
-        if count > 0:  # If greater then 0 then we have something to send out.
+        if (heartbeat_sent == False):
             cur.execute(
-                "SELECT * FROM `messages_out` where sent = 0"
-            )  # grab all messages that where not send yet (sent ==0)
-            msg = cur.fetchall()
-            msg_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-            for m in msg:
-                out_id = int(m[msg_to_index["id"]])  # Record ID - only DB info,
-                n_id = m[msg_to_index["n_id"]]  # Node Table ID
-                node_id = m[msg_to_index["node_id"]]  # Node ID
-                out_child_id = m[msg_to_index["child_id"]]  # Child ID of the node where sensor/relay is attached.
-                out_sub_type = m[msg_to_index["sub_type"]]  # Command Type
-                out_ack = m[msg_to_index["ack"]]  # Ack req/resp
-                out_type = m[msg_to_index["type"]]  # Type
-                db_payload = m[msg_to_index["payload"]]  # Payload to send out.
-                out_payload = db_payload
-                sent = m[msg_to_index["sent"]]  # Status of message either its sent or not. (1 for sent, 0 for not sent yet)
-                cur.execute("SELECT type, name, sketch_version FROM `nodes` where id = (%s)", (n_id,))
-                nd = cur.fetchone()
-                node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                node_type = nd[node_to_index["type"]]
-                node_name = nd[node_to_index["name"]]
-                sketch_version = float(nd[node_to_index["sketch_version"]])
-                if sketch_version > 0:
-                    sketch_version = int(sketch_version * 100)
-                if (node_type.find("MQTT") != -1 and MQTT_CONNECTED == 1) or node_type.find("MQTT") == -1:
-                    # Get the trigger level if the node/child is present in the relays table
-                    cur.execute(
-                        "SELECT COUNT(*) FROM `relays` where relay_id = (%s) AND relay_child_id = (%s) LIMIT 1",
-                        (
-                            n_id,
-                            out_child_id,
-                        ),
-                    )
-                    count = cur.fetchone()  # Grab all messages from database for Outgoing.
-                    count = count[
-                        0
-                    ]  # Parse first and the only one part of data table named "count" - there is number of records grabbed in SELECT above
-                    if count > 0:  # If greater then 0 then it is a relay, so get the trigger level.
+                "SELECT COUNT(*) FROM `messages_out` where sent = 0"
+            )  # MySQL query statement
+            count = cur.fetchone()  # Grab all messages from database for Outgoing.
+            count = count[
+                0
+            ]  # Parse first and the only one part of data table named "count" - there is number of records grabbed in SELECT above
+            if count > 0:  # If greater then 0 then we have something to send out.
+                cur.execute(
+                    "SELECT * FROM `messages_out` where sent = 0"
+                )  # grab all messages that where not send yet (sent ==0)
+                msg = cur.fetchall()
+                msg_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                for m in msg:
+                    out_id = int(m[msg_to_index["id"]])  # Record ID - only DB info,
+                    n_id = m[msg_to_index["n_id"]]  # Node Table ID
+                    node_id = m[msg_to_index["node_id"]]  # Node ID
+                    out_child_id = m[msg_to_index["child_id"]]  # Child ID of the node where sensor/relay is attached.
+                    out_sub_type = m[msg_to_index["sub_type"]]  # Command Type
+                    out_ack = m[msg_to_index["ack"]]  # Ack req/resp
+                    out_type = m[msg_to_index["type"]]  # Type
+                    db_payload = m[msg_to_index["payload"]]  # Payload to send out.
+                    out_payload = db_payload
+                    sent = m[msg_to_index["sent"]]  # Status of message either its sent or not. (1 for sent, 0 for not sent yet)
+                    cur.execute("SELECT type, name, sketch_version FROM `nodes` where id = (%s)", (n_id,))
+                    nd = cur.fetchone()
+                    node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                    node_type = nd[node_to_index["type"]]
+                    node_name = nd[node_to_index["name"]]
+                    sketch_version = float(nd[node_to_index["sketch_version"]])
+                    if sketch_version > 0:
+                        sketch_version = int(sketch_version * 100)
+                    if (node_type.find("MQTT") != -1 and MQTT_CONNECTED == 1) or node_type.find("MQTT") == -1:
+                        # Get the trigger level if the node/child is present in the relays table
                         cur.execute(
-                            "SELECT id, type, on_trigger, lag_time FROM `relays` where relay_id = (%s) AND relay_child_id = (%s) LIMIT 1",
+                            "SELECT COUNT(*) FROM `relays` where relay_id = (%s) AND relay_child_id = (%s) LIMIT 1",
                             (
                                 n_id,
                                 out_child_id,
                             ),
                         )
-                        r = cur.fetchone()
-                        relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                        relays_id = r[relay_to_index["id"]]
-                        relay_type = r[relay_to_index["type"]]
-                        out_on_trigger = r[relay_to_index["on_trigger"]]
-                        relay_lag = r[relay_to_index["lag_time"]]
-                    else:
-                        relay_lag = 0
-
-                    if gatewayenableoutgoing == 1 or (
-                        node_type.find("GPIO") != -1 and gatewayenableoutgoing == 0 and blinka
-                    ):
-                        if node_type.find("MySensor") != -1 and node_name.find("Controller") != -1 and sketch_version >= 34:
-                            out_payload = XNOR(out_on_trigger, out_payload)
-
-                        # if a relay ON command check if relay has a ON lag time setting
-                        if db_payload == "1" and (relay_lag != 0 and test_mode == 0):
-                            if relay_lag_timer.get(relays_id) == 0:
-                                # initialise relay ON trigger timer
-                                relay_lag_timer[relays_id] = time.time()
-                            else:
-                                # if lag time has expired then set the relay ON flag and re-initialise the counter
-                                if time.time() -  relay_lag_timer.get(relays_id) >= relay_lag:
-                                    relay_on_flag = True
-                                    relay_lag_timer[relays_id] = 0
-                        else:
-                            relay_on_flag = True
-
-                        if relay_on_flag:
-                            # set relays when level is LOW or when HIGH and the Lag setting is 0 or the lag timer has expired
-                            msg = str(node_id)  # Node ID
-                            msg += ";"  # Separator
-                            msg += str(out_child_id)  # Child ID of the Node.
-                            msg += ";"  # Separator
-                            msg += str(out_sub_type)
-                            msg += ";"  # Separator
-                            msg += str(out_ack)
-                            msg += ";"  # Separator
-                            msg += str(out_type)
-                            msg += ";"  # Separator
-                            msg += str(out_payload)  # Payload from DB
-                            msg += " \n"  # New line
-                            if dbgLevel >= 3 and dbgMsgOut == 1:
-                                if test_mode != 0:
-                                    print(bc.WARN + "\nOPERATING IN TEST MODE" + bc.ENDC)
-                                print(
-                                    bc.grn + "\nTotal Messages to Sent:      ", count, bc.ENDC
-                                )  # Print how many Messages we have to send out.
-                                print("Date & Time:                 ", time.ctime())
-                                print(
-                                    "Message From Database:       ",
-                                    out_id,
-                                    node_id,
+                        count = cur.fetchone()  # Grab all messages from database for Outgoing.
+                        count = count[
+                            0
+                        ]  # Parse first and the only one part of data table named "count" - there is number of records grabbed in SELECT above
+                        if count > 0:  # If greater then 0 then it is a relay, so get the trigger level.
+                            cur.execute(
+                                "SELECT id, type, on_trigger, lag_time FROM `relays` where relay_id = (%s) AND relay_child_id = (%s) LIMIT 1",
+                                (
+                                    n_id,
                                     out_child_id,
-                                    out_sub_type,
-                                    out_ack,
-                                    out_type,
-                                    out_payload,
-                                    sent,
-                                )  # Print what will be sent including record id and sent status.
-                                print(
-                                    "Full Message to Send:        ", msg.replace("\n", "\\n")
-                                )  # Print Full Message
-                                print("Node ID:                     ", node_id)
-                                print("Child Sensor ID:             ", out_child_id)
-                                print("Command Type:                ", out_sub_type)
-                                print("Ack Req/Resp:                ", out_ack)
-                                print("Type:                        ", out_type)
-                                print("Pay Load:                    ", out_payload)
-                                print("Node Type:                   ", node_type)
-                            # node-id ; child-sensor-id ; command ; ack ; type ; payload
-                            set_relays(
-                                msg,
-                                n_id,
-                                node_type,
-                                sketch_version,
-                                out_id,
-                                out_child_id,
-                                out_on_trigger,
-                                out_payload,
-                                gatewayenableoutgoing,
+                                ),
                             )
-                            # reset the relay_on_flag ready for next pass through
-                            relay_on_flag = False
+                            r = cur.fetchone()
+                            relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                            relays_id = r[relay_to_index["id"]]
+                            relay_type = r[relay_to_index["type"]]
+                            out_on_trigger = r[relay_to_index["on_trigger"]]
+                            relay_lag = r[relay_to_index["lag_time"]]
+                        else:
+                            relay_lag = 0
+
+                        if gatewayenableoutgoing == 1 or (
+                            node_type.find("GPIO") != -1 and gatewayenableoutgoing == 0 and blinka
+                        ):
+                            if node_type.find("MySensor") != -1 and node_name.find("Controller") != -1 and sketch_version >= 34:
+                                out_payload = XNOR(out_on_trigger, out_payload)
+
+                            # if a relay ON command check if relay has a ON lag time setting
+                            if db_payload == "1" and (relay_lag != 0 and test_mode == 0):
+                                if relay_lag_timer.get(relays_id) == 0:
+                                    # initialise relay ON trigger timer
+                                    relay_lag_timer[relays_id] = time.time()
+                                else:
+                                    # if lag time has expired then set the relay ON flag and re-initialise the counter
+                                    if time.time() -  relay_lag_timer.get(relays_id) >= relay_lag:
+                                        relay_on_flag = True
+                                        relay_lag_timer[relays_id] = 0
+                            else:
+                                relay_on_flag = True
+
+                            if relay_on_flag:
+                                # set relays when level is LOW or when HIGH and the Lag setting is 0 or the lag timer has expired
+                                msg = str(node_id)  # Node ID
+                                msg += ";"  # Separator
+                                msg += str(out_child_id)  # Child ID of the Node.
+                                msg += ";"  # Separator
+                                msg += str(out_sub_type)
+                                msg += ";"  # Separator
+                                msg += str(out_ack)
+                                msg += ";"  # Separator
+                                msg += str(out_type)
+                                msg += ";"  # Separator
+                                msg += str(out_payload)  # Payload from DB
+                                msg += " \n"  # New line
+                                if dbgLevel >= 3 and dbgMsgOut == 1:
+                                    if test_mode != 0:
+                                        print(bc.WARN + "\nOPERATING IN TEST MODE" + bc.ENDC)
+                                    print(
+                                        bc.grn + "\nTotal Messages to Sent:      ", count, bc.ENDC
+                                    )  # Print how many Messages we have to send out.
+                                    print("Date & Time:                 ", time.ctime())
+                                    print(
+                                        "Message From Database:       ",
+                                        out_id,
+                                        node_id,
+                                        out_child_id,
+                                        out_sub_type,
+                                        out_ack,
+                                        out_type,
+                                        out_payload,
+                                        sent,
+                                    )  # Print what will be sent including record id and sent status.
+                                    print(
+                                        "Full Message to Send:        ", msg.replace("\n", "\\n")
+                                    )  # Print Full Message
+                                    print("Node ID:                     ", node_id)
+                                    print("Child Sensor ID:             ", out_child_id)
+                                    print("Command Type:                ", out_sub_type)
+                                    print("Ack Req/Resp:                ", out_ack)
+                                    print("Type:                        ", out_type)
+                                    print("Pay Load:                    ", out_payload)
+                                    print("Node Type:                   ", node_type)
+                                # node-id ; child-sensor-id ; command ; ack ; type ; payload
+                                set_relays(
+                                    msg,
+                                    n_id,
+                                    node_type,
+                                    sketch_version,
+                                    out_id,
+                                    out_child_id,
+                                    out_on_trigger,
+                                    out_payload,
+                                    gatewayenableoutgoing,
+                                )
+                                # reset the relay_on_flag ready for next pass through
+                                relay_on_flag = False
 
         # remove any sensor_graphs table records older than 24 hours
         cur.execute(
