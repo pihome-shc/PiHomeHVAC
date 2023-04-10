@@ -482,6 +482,7 @@ def on_message(client, userdata, message):
             # Process incomming Sensor messages
             if child[on_msg_description_to_index["attribute"]] == "":
                 mqtt_payload = message.payload.decode()
+                mqtt_payload = 14.5
                 print("1")
             else:
                 mqtt_payload = json.loads(message.payload.decode())
