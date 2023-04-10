@@ -482,10 +482,8 @@ def on_message(client, userdata, message):
             # Process incomming Sensor messages
             if child[on_msg_description_to_index["attribute"]] == "":
                 mqtt_payload = float(message.payload.decode())
-                print("1")
             else:
                 mqtt_payload = json.loads(message.payload.decode())
-                print("2")
                 for attribute in child[on_msg_description_to_index["attribute"]].split("."):
                     mqtt_payload = mqtt_payload.get(attribute)
             # Get reading type (continous or on-change)
@@ -497,32 +495,20 @@ def on_message(client, userdata, message):
             sensor_to_index = dict(
                 (d[0], i) for i, d in enumerate(cur_mqtt.description)
             )
-            print("3")
-            mode = result[sensor_to_index["mode"]]
-            print("3a")
+             mode = result[sensor_to_index["mode"]]
             sensor_timeout = int(result[sensor_to_index["timeout"]])*60
-            print("3b")
             tdelta = 0
-            print("3c")
             last_message_payload = 0
             resolution = float(result[sensor_to_index["resolution"]])
-            print("3d")
             correction_factor = float(result[sensor_to_index["correction_factor"]])
-            print("3e")
             mqtt_payload = mqtt_payload + correction_factor
             # Update last reading for this sensor
-            print("3f")
-            print("mqtt_payload ",mqtt_payload)
-            print("sensors_id ",sensors_id)
-            print("mqtt_child_sensor_id ",mqtt_child_sensor_id)
             cur_mqtt.execute(
                 "UPDATE `sensors` SET `current_val_1` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
                 [mqtt_payload, sensors_id, mqtt_child_sensor_id],
             )
             con_mqtt.commit()
-            print("3g")
             if mode == 1:
-                print("4")
                 # Get previous data for this sensorr
                 cur_mqtt.execute(
                     'SELECT datetime, payload FROM messages_in_view_24h WHERE node_id = %s AND child_id = %s ORDER BY id DESC LIMIT 1;',
@@ -536,9 +522,7 @@ def on_message(client, userdata, message):
                     last_message_datetime = results[mqtt_message_to_index["datetime"]]
                     last_message_payload = float(results[mqtt_message_to_index["payload"]])
                     tdelta = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() -  datetime.strptime(str(last_message_datetime), "%Y-%m-%d %H:%M:%S").timestamp()
-            print("3c")
             if mode == 0 or (cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((mqtt_payload < last_message_payload - resolution or mqtt_payload > last_message_payload + resolution) or tdelta > sensor_timeout))):
-                print("5")
                 if tdelta > sensor_timeout:
                     mqtt_payload = last_message_payload
                 print(
