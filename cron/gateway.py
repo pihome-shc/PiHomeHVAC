@@ -506,11 +506,13 @@ def on_message(client, userdata, message):
             correction_factor = float(result[sensor_to_index["correction_factor"]])
             mqtt_payload = mqtt_payload + correction_factor
             # Update last reading for this sensor
+            print("3a")
             cur_mqtt.execute(
                 "UPDATE `sensors` SET `current_val_1` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
                 [mqtt_payload, sensors_id, mqtt_child_sensor_id],
             )
             con_mqtt.commit()
+            print("3b")
             if mode == 1:
                 print("4")
                 # Get previous data for this sensorr
@@ -526,6 +528,7 @@ def on_message(client, userdata, message):
                     last_message_datetime = results[mqtt_message_to_index["datetime"]]
                     last_message_payload = float(results[mqtt_message_to_index["payload"]])
                     tdelta = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() -  datetime.strptime(str(last_message_datetime), "%Y-%m-%d %H:%M:%S").timestamp()
+            print("3c")
             if mode == 0 or (cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((mqtt_payload < last_message_payload - resolution or mqtt_payload > last_message_payload + resolution) or tdelta > sensor_timeout))):
                 print("5")
                 if tdelta > sensor_timeout:
