@@ -482,8 +482,10 @@ def on_message(client, userdata, message):
             # Process incomming Sensor messages
             if child[on_msg_description_to_index["attribute"]] == "":
                 mqtt_payload = message.payload.decode()
+                print("1")
             else:
                 mqtt_payload = json.loads(message.payload.decode())
+                print("2")
                 for attribute in child[on_msg_description_to_index["attribute"]].split("."):
                     mqtt_payload = mqtt_payload.get(attribute)
             # Get reading type (continous or on-change)
@@ -495,6 +497,7 @@ def on_message(client, userdata, message):
             sensor_to_index = dict(
                 (d[0], i) for i, d in enumerate(cur_mqtt.description)
             )
+            print("3")
             mode = result[sensor_to_index["mode"]]
             sensor_timeout = int(result[sensor_to_index["timeout"]])*60
             tdelta = 0
@@ -509,6 +512,7 @@ def on_message(client, userdata, message):
             )
             con_mqtt.commit()
             if mode == 1:
+                print("4")
                 # Get previous data for this sensorr
                 cur_mqtt.execute(
                     'SELECT datetime, payload FROM messages_in_view_24h WHERE node_id = %s AND child_id = %s ORDER BY id DESC LIMIT 1;',
@@ -523,6 +527,7 @@ def on_message(client, userdata, message):
                     last_message_payload = float(results[mqtt_message_to_index["payload"]])
                     tdelta = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() -  datetime.strptime(str(last_message_datetime), "%Y-%m-%d %H:%M:%S").timestamp()
             if mode == 0 or (cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((mqtt_payload < last_message_payload - resolution or mqtt_payload > last_message_payload + resolution) or tdelta > sensor_timeout))):
+                print("5")
                 if tdelta > sensor_timeout:
                     mqtt_payload = last_message_payload
                 print(
