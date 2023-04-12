@@ -3676,7 +3676,7 @@ echo '
                 <h5 class="modal-title">'.$lang['add_message'].'</h5>
             </div>
             <div class="modal-body">';
-		$query = "SELECT id, name FROM sensors WHERE sensor_type_id = 4;";
+		$query = "SELECT id, name FROM sensors WHERE sensor_type_id = 3 or sensor_type_id = 4;";
 		$results = $conn->query($query);
 
 	echo '<p class="text-muted">'.$lang['add_message_info_text'].'</p>
