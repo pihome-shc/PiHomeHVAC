@@ -235,7 +235,16 @@ if ($type <= 5) {
                 case 6:
                         // return the temperature string to 1 decimal place
                         if ($sensor_type_id == 3) {
-                                if ($sensor_r == 0) { echo 'OFF'; } else { echo 'ON'; }
+                                $deg_msg = floor($sensor_r);
+                                $query = "SELECT message FROM sensor_messages WHERE message_id = {$deg_msg} AND sub_type = 0 AND sensor_id = {$sensor_id} LIMIT 1;";
+                                $result = $conn->query($query);
+                                $rowcount=$result->num_rows;
+                                if ($rowcount == 0) {
+                                        if ($sensor_r == 0) { echo 'OFF'; } else { echo 'ON'; }
+                                } else {
+                                        $sensor_message = mysqli_fetch_array($result);
+                                        echo $sensor_message['message'];
+                                }
                         } elseif ($sensor_type_id == 4) {
                                 $deg_msg = floor($sensor_r);
                                 $query = "SELECT message FROM sensor_messages WHERE message_id = {$deg_msg} AND sub_type = 0 AND sensor_id = {$sensor_id} LIMIT 1;";
