@@ -373,10 +373,19 @@ $page_refresh = page_refresh($conn);
                 			        echo '<button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-circle no-shadow '.$button_style.' mainbtn animated fadeIn" data-bs-toggle="modal" data-remote="false" data-bs-target="#ajaxModal" data-ajax="'.$ajax_modal.'">
 		        	                <h3 class="text-nowrap buttontop"><small>'.$sensor_name.'</small></h3>';
                                                 if ($sensor_type_id == 3) {
-                                                        if ($sensor_r == 0) {
-                                                                echo '<h3 class="degre" id="sd_'.$sensor_id.'">OFF</h3>';
+                                                        $deg_msg = floor($sensor_r);
+                                                        $query = "SELECT message FROM sensor_messages WHERE message_id = {$deg_msg} AND sub_type = 0 AND sensor_id = {$sensor_id} LIMIT 1;";
+                                                        $result = $conn->query($query);
+                                                        $rowcount=mysqli_num_rows($result);
+                                                        if ($rowcount == 0) {
+                                                                if ($sensor_r == 0) {
+                                                                        echo '<h3 class="degre" id="sd_'.$sensor_id.'">OFF</h3>';
+                                                                } else {
+                                                                        echo '<h3 class="degre" id="sd_'.$sensor_id.'">ON</h3>';
+                                                                }
                                                         } else {
-                                                                echo '<h3 class="degre" id="sd_'.$sensor_id.'">ON</h3>';
+                                                                $sensor_message = mysqli_fetch_array($result);
+                                                                echo '<h3 class="degre" id="sd_'.$sensor_id.'">'.$sensor_message['message'].'</h3>';
                                                         }
                                                 } elseif ($sensor_type_id == 4) {
                                                         $deg_msg = floor($sensor_r);
