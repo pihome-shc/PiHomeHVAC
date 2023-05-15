@@ -1159,13 +1159,13 @@ try:
                                     (sc_weather_sensor_id, ),
                                 )
                                 if cur.rowcount > 0:
-                                    sensor = cur.fetchonel()
+                                    sensor = cur.fetchone()
                                     sensor_in_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
                                     weather_sensor_id = sensor[sensor_in_to_index['sensor_id']]
                                     weather_sensor_child_id = sensor[sensor_in_to_index['sensor_child_id']]
                                     cur.execute(
                                         "SELECT * FROM nodes WHERE id = %s LIMIT 1;",
-                                        (sc_weather_sensor_id, ),
+                                        (weather_sensor_id, ),
                                     )
                                     if cur.rowcount > 0:
                                         node = cur.fetchone()
