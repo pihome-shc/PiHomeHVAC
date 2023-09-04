@@ -29,6 +29,18 @@ $tile_size = theme($conn, $theme, 'tile_size');
 
 if($tile_size == 1 || settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") { $button_style = "btn-xxl-wide"; } else { $button_style = "btn-xxl"; }
 $page_refresh = page_refresh($conn);
+
+// set the display mask for standalone sensors and add-on controllers
+$user_id = $_SESSION['user_id'];
+if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display everything so mask = 0
+	$user_display_mask = 0;
+} else {
+	//not the admin user, so set the mask dependant on the user's position in the 'user' table
+	$query = "select count(*) as pos from user where id<='{$user_id}' AND `username` NOT LIKE 'admin' LIMIT 1;";
+	$result = $conn->query($query);
+	$row = mysqli_fetch_array($result);
+	$user_display_mask = pow(2,($row['pos'] - 1));
+}
 ?>
 <script language='javascript' type='text/javascript'>
 	$('#ajaxModal').on('show.bs.modal', function(e) {
@@ -344,7 +356,11 @@ $page_refresh = page_refresh($conn);
 
                 			// Temperature Sensors Pre System Controller
 					$sensor_params = [];
-                			$query = "SELECT sensors.id, sensors.name, sensors.sensor_child_id, sensors.sensor_type_id, nodes.node_id, nodes.last_seen, nodes.notice_interval FROM sensors, nodes WHERE (nodes.id = sensors.sensor_id) AND sensors.zone_id = 0 AND sensors.show_it = 1 AND sensors.pre_post = 1 order by index_id asc;";
+                			$query = "SELECT sensors.id, sensors.name, sensors.sensor_child_id, sensors.sensor_type_id, nodes.node_id, nodes.last_seen, nodes.notice_interval
+						FROM sensors, nodes
+						WHERE (nodes.id = sensors.sensor_id) AND sensors.zone_id = 0 AND sensors.show_it = 1 AND sensors.pre_post = 1
+						AND (sensors.user_display & $user_display_mask) = 0
+						order by index_id asc;";
 			                $results = $conn->query($query);
         	        		while ($row = mysqli_fetch_assoc($results)) {
 			                        $sensor_id = $row['id'];
@@ -523,7 +539,10 @@ $page_refresh = page_refresh($conn);
 					// end if system controller button
 
 					// Temperature Sensors Post System Controller
-					$query = "SELECT sensors.id, sensors.name, sensors.sensor_child_id, sensors.sensor_type_id,nodes.node_id, nodes.last_seen, nodes.notice_interval FROM sensors, nodes WHERE (nodes.id = sensors.sensor_id) AND sensors.zone_id = 0 AND sensors.show_it = 1 AND sensors.pre_post = 0 order by index_id asc;";
+					$query = "SELECT sensors.id, sensors.name, sensors.sensor_child_id, sensors.sensor_type_id, sensors.user_display, nodes.node_id, nodes.last_seen,
+						nodes.notice_interval FROM sensors, nodes WHERE (nodes.id = sensors.sensor_id) AND sensors.zone_id = 0 AND sensors.show_it = 1
+						AND sensors.pre_post = 0 AND (sensors.user_display & $user_display_mask) = 0
+						order by index_id asc;";
 			                $results = $conn->query($query);
                 			while ($row = mysqli_fetch_assoc($results)) {
 		                	        $sensor_id = $row['id'];
@@ -595,8 +614,18 @@ $page_refresh = page_refresh($conn);
 					$js_sensor_params = json_encode($sensor_params);
 
                 			// Add-On buttons
-		        	        $query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 1 OR `zone_type`.`category` = 2 OR `zone_type`.`category` = 5) ORDER BY `zone`.`index_id` ASC;";
+/*		        	        $query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category`
+						FROM `zone`, `zone_type`
+						WHERE (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 1 OR `zone_type`.`category` = 2 OR `zone_type`.`category` = 5)
+						ORDER BY `zone`.`index_id` ASC;"; */
 
+					$query = "SELECT `zone`.`id`, `zone`.`name`, `zt`.`type`, `zt`.`category`, `r`.`user_display`
+						FROM `zone`
+						LEFT JOIN `zone_type` zt ON `zone`.`type_id` = zt.`id`
+						LEFT JOIN `zone_relays` zr ON `zone`.`id` = zr.`zone_id`
+						LEFT JOIN `relays` r on `zr`.`zone_relay_id` = r.`id`
+						WHERE (`zt`.`category` = 1 OR `zt`.`category` = 2 OR `zt`.`category` = 5) AND (`r`.`user_display` & $user_display_mask) = 0
+						ORDER BY `zone`.`index_id` ASC;";
 	                		$results = $conn->query($query);
 			                while ($row = mysqli_fetch_assoc($results)) {
                 			        //get the schedule status for this zone

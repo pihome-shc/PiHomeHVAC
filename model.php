@@ -3799,6 +3799,65 @@ echo '<p class="text-muted">'.$lang['sensor_type_add_info_text'].'</p>
     </div>
 </div>';
 
+//Hide Sensor/Relay model
+echo '<div class="modal fade" id="hide_sensor_relay" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+		<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['hide_sensor_relay'].'</h5>
+            </div>
+            <div class="modal-body">
+		<p class="text-muted">'.$lang['hide_sensor_relay_text'].'</p>';
+              	$query = "SELECT `fullname`, `username` FROM `user` WHERE `username` NOT LIKE 'admin' ORDER BY `id`;";
+              	$user_results = $conn->query($query);
+		$user_count = mysqli_num_rows($user_results);
+//                $query = "SELECT `id`, `name`, 'Sersor' AS type, `user_display` FROM `sensors`
+//                	UNION
+//                        SELECT `id`, `name`, 'Relay' AS type, `user_display` FROM `relays`;";
+		$query = "SELECT `sensors`.`id`, `sensors`.`name`, 'Sensor' AS type, `sensors`.`user_display`
+			FROM `sensors`
+			WHERE `sensors`.`zone_id` = 0
+			UNION
+			SELECT `relays`.`id`, `relays`.`name`, 'Relay' AS type, `relays`.`user_display`
+			FROM `relays`
+			JOIN `zone_relays` zr ON `relays`.`id` = zr.zone_relay_id
+			LEFT JOIN `zone` z ON `z`.`id` = `zr`.`zone_id`
+			WHERE `z`.`type_id` IS NULL OR `z`.`type_id` != 2;";
+		$results = $conn->query($query);
+		echo '<table class="table table-bordered">
+    			<tr>
+                                <th class="col-lg-2"><small>'.$lang['name'].'</small></th>
+                                <th class="col-lg-1"><small>'.$lang['type'].'</small></th>';
+				while ($user_row = mysqli_fetch_assoc($user_results)) {
+					echo '<th class="col-lg-1"><small>'.$user_row['username'].'</small></th>';
+				}
+                                echo '<th class="col-lg-2"></th>
+    			</tr>';
+			while ($row = mysqli_fetch_assoc($results)) {
+                                echo '<tr>
+                                        <td>'.$row["name"].'</td>
+                                        <td style="text-align:center; vertical-align:middle;">'.$row["type"].'</td>';
+	                                for ($x = 0; $x < $user_count; $x++) {
+						$user_mask = pow(2,$x);
+						$check = (($row["user_display"] & $user_mask) > 0) ? 'checked' : '';
+		                                if (strpos($row["type"], "Sensor") !== false) { $id = $x."s".$row["id"]; } else { $id = $x."r".$row["id"]; }
+						echo '<td style="text-align:center; vertical-align:middle;">
+                				<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" id="checkbox'.$id.'" name="checkbox'.$id.'" value="1" '.$check.'>
+            					</td>';
+					}
+        			echo '</tr>';
+			}
+		echo '</table>
+	    </div>
+		<div class="modal-footer">
+                	<button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                	<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="hide_sensors_relays()">
+            </div>
+        </div>
+    </div>
+</div>';
+
 //Add HTTP Message model
 echo '
 <div class="modal fade" id="add_on_http" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
