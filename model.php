@@ -3830,8 +3830,7 @@ echo '<div class="modal fade" id="hide_sensor_relay" tabindex="-1" role="dialog"
 					while ($user_row = mysqli_fetch_assoc($user_results)) {
 						echo '<th class="col-lg-1"><small>'.$user_row['username'].'</small></th>';
 					}
-                                	echo '<th class="col-lg-2"></th>
-	    			</tr>';
+                                echo '</tr>';
 				while ($row = mysqli_fetch_assoc($results)) {
                 	                echo '<tr>
                         	                <td>'.$row["name"].'</td>
