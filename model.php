@@ -3826,9 +3826,9 @@ echo '<div class="modal fade" id="hide_sensor_relay" tabindex="-1" role="dialog"
 			echo '<table class="table table-bordered">
     				<tr>
                                 	<th class="col-lg-2"><small>'.$lang['name'].'</small></th>
-	                                <th class="col-lg-1"><small>'.$lang['type'].'</small></th>';
+	                                <th class="col-lg-1" style="text-align:center; vertical-align:middle;"><small>'.$lang['type'].'</small></th>';
 					while ($user_row = mysqli_fetch_assoc($user_results)) {
-						echo '<th class="col-lg-1"><small>'.$user_row['username'].'</small></th>';
+						echo '<th class="col-lg-1" style="text-align:center; vertical-align:middle;"><small>'.$user_row['username'].'</small></th>';
 					}
                                 echo '</tr>';
 				while ($row = mysqli_fetch_assoc($results)) {
