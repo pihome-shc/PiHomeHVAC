@@ -194,10 +194,11 @@ if ($type <= 5) {
 	//---------------------------
 	//process standalone sensors
 	//---------------------------
-	$query = "SELECT sensors.id, sensors.name, sensors.sensor_child_id, sensors.sensor_type_id, sensors.current_val_1, sensors.current_val_2,
-                  nodes.node_id, nodes.last_seen, nodes.notice_interval
-                  FROM sensors, nodes 
-                  WHERE sensors.id = {$id} AND (nodes.id = sensors.sensor_id) AND sensors.zone_id = 0 AND sensors.show_it = 1 LIMIT 1;";
+
+        $query = "SELECT sensors.id, sensors.name, sensors.sensor_child_id, sensors.sensor_type_id, sensors.current_val_1, sensors.current_val_2,
+        	nodes.node_id, nodes.last_seen, nodes.notice_interval
+                FROM sensors, nodes
+                WHERE sensors.id = {$id} AND nodes.id = sensors.sensor_id AND (sensors.id NOT IN (SELECT zone_sensor_id FROM zone_sensors)) AND sensors.show_it = 1 LIMIT 1;";
 	$result = $conn->query($query);
 	$row = mysqli_fetch_assoc($result);
 	$sensor_id = $row['id'];
