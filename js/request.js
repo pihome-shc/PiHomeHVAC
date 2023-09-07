@@ -1488,3 +1488,28 @@ function set_false_time(){
     .always(function() {
     });
 }
+
+//set sensors/relays to hide per user, on the home screen display
+function hide_sensors_relays(){
+var x = document.getElementById("hide_sensor_relay").querySelectorAll("input");
+var i;
+var idata="w=hide_sensor_relay&o=update";
+    for (i = 0; i < x.length; i++) {
+        idata+="&"+x[i].id+"="+x[i].checked;
+    }
+    idata+="&wid=0";
+    console.log(idata);
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=6"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("hide_sensor_relay: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}

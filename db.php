@@ -2194,5 +2194,57 @@ if($what=="set_false_datetime"){
                 return;
         }
 }
+
+//update hide sensors and or relays
+if($what=="hide_sensor_relay"){
+	if($opp=="update"){
+		$user_query = "SELECT `id`, `fullname`, `username` FROM `user` WHERE `username` NOT LIKE 'admin' ORDER by `id`;";
+	        $user_results = $conn->query($user_query);
+		$user_rowcount = mysqli_num_rows($user_results);
+                $update_error = 0;
+                $sel_query = "SELECT `sensors`.`id`, `sensors`.`name`, 'Sensor' AS type, `user_display`
+                                FROM `sensors`
+                                WHERE `sensors`.`zone_id` = 0
+                                UNION
+                                SELECT `relays`.`id`, `relays`.`name`, 'Relay' AS type, `user_display`
+                                FROM `relays`
+                                JOIN `zone_relays` zr ON `relays`.`id` = zr.zone_relay_id
+                                LEFT JOIN `zone` z ON `z`.`id` = `zr`.`zone_id`
+                                WHERE `z`.`type_id` IS NULL OR `z`.`type_id` != 2;";
+	        for ($x = 0; $x < $user_rowcount; $x++) {
+	                $results = $conn->query($sel_query);
+			while ($row = mysqli_fetch_assoc($results)) {
+				$user_display = $row["user_display"];
+				if (strpos($row["type"], "Sensor") !== false) { $id = $x."s".$row["id"]; } else { $id = $x."r".$row["id"]; }
+				$checkbox = 'checkbox'.$id;
+				$hide_it =  $_GET[$checkbox];
+				if ($hide_it=='true'){
+					//set bit for user
+					$user_display = $user_display | pow(2,$x);
+				} else {
+					//clear bit for user
+					$user_display = $user_display & ~pow(2,$x);
+				}
+				if (strpos($row["type"], "Sensor") !== false) {
+		               		$query = "UPDATE sensors SET user_display = ".$user_display." WHERE id = ".$row['id']." LIMIT 1;";
+				} else {
+                	                $query = "UPDATE relays SET user_display = ".$user_display." WHERE id = ".$row['id']." LIMIT 1;";
+				}
+			        if(!$conn->query($query)){
+			        	$update_error=1;
+				}
+			}
+		}
+	        if ($update_error==0){
+        	        header('Content-type: application/json');
+                	echo json_encode(array('Success'=>'Success','Query'=>$query));
+	                return;
+        	} else {
+                	header('Content-type: application/json');
+        	        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+	                return;
+		}
+        }
+}
 ?>
 <?php if(isset($conn)) { $conn->close();} ?>

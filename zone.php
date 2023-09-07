@@ -206,25 +206,25 @@ if (isset($_POST['submit'])) {
                 } else {
                         $error .= "<p>".$lang['zone_sensor_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
                 }
-                // if in edit mode check if sensor has change and update the temperature sensors table
-                if ($id != 0 && strcmp($initial_sensor_id, $zone_sensor_id) != 0){
-                        $query = "UPDATE `sensors` SET `zone_id` = NULL WHERE `id` = '{$initial_sensor_id}';";
-                        $result = $conn->query($query);
-                        if ($result) {
-                                $message_success .= "<p>".$lang['sensor_record_update_success']."</p>";
-                        } else {
-                                $error .= "<p>".$lang['sensor_record_fail']."</p> <p>" .mysqli_error($conn). "</p>";
-                        }
-                }
-                $query = "UPDATE `sensors` SET `zone_id` = '{$cnt_id}' WHERE `id` = '{$zone_sensor_id}';";
+	}
+
+        // if in edit mode check if sensor has change and update the temperature sensors table
+	if ($id != 0 && strcmp($initial_sensor_id, $zone_sensor_id) != 0){
+        	$query = "UPDATE `sensors` SET `zone_id` = 0 WHERE `id` = '{$initial_sensor_id}';";
                 $result = $conn->query($query);
                 if ($result) {
-                        $message_success .= "<p>".$lang['sensor_record_update_success']."</p>";
-                } else {
+                	$message_success .= "<p>".$lang['sensor_record_update_success']."</p>";
+               	} else {
                         $error .= "<p>".$lang['sensor_record_fail']."</p> <p>" .mysqli_error($conn). "</p>";
                 }
+	}
+        $query = "UPDATE `sensors` SET `zone_id` = '{$cnt_id}' WHERE `id` = '{$zone_sensor_id}';";
+        $result = $conn->query($query);
+        if ($result) {
+        	$message_success .= "<p>".$lang['sensor_record_update_success']."</p>";
+       	} else {
+               	$error .= "<p>".$lang['sensor_record_fail']."</p> <p>" .mysqli_error($conn). "</p>";
         }
-
 
         if ($zone_category <> 2) {
 	        if ($id==0){
@@ -447,11 +447,12 @@ if (isset($_POST['submit'])) {
 	$result = $conn->query($query);
 	$row = mysqli_fetch_assoc($result);
 
-        if($row['category'] <> 2) {
-        	$query = "SELECT sensors.*, sensor_type.type FROM sensors, sensor_type WHERE (sensors.sensor_type_id = sensor_type.id) AND zone_id = '{$row['id']}' LIMIT 1;";
-        	$result = $conn->query($query);
-        	$rowtempsensors = mysqli_fetch_assoc($result);
+       	$query = "SELECT sensors.*, sensor_type.type FROM sensors, sensor_type WHERE (sensors.sensor_type_id = sensor_type.id) AND zone_id = '{$row['id']}' LIMIT 1;";
+        $result = $conn->query($query);
+	$sensorcount = $result->num_rows;
+        $rowtempsensors = mysqli_fetch_assoc($result);
 
+        if($row['category'] <> 2) {
 		$query = "SELECT zone_sensors.*, sensors.sensor_type_id FROM zone_sensors, sensors WHERE (zone_sensors.zone_sensor_id = sensors.id) AND zone_sensors.zone_id = '{$row['id']}' LIMIT 1;";
         	$result = $conn->query($query);
         	$rowzonesensors = mysqli_fetch_assoc($result);
@@ -487,6 +488,9 @@ if (isset($_POST['submit'])) {
 $query = "SELECT id, name, sensor_type_id FROM sensors WHERE zone_id = 0 OR zone_id = {$id} ORDER BY name ASC;";
 $result = $conn->query($query);
 $sensorArray = array();
+$sensorArray[0]["id"] = 0;
+$sensorArray[0]["name"] = "NONE";
+$sensorArray[0]["sensor_type_id"] = 0;
 while($rowsensors = mysqli_fetch_assoc($result)) {
    $sensorArray[] = $rowsensors;
 }
@@ -608,7 +612,7 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 						    			map_bin = 0b10111111011;
 						    			break;
 						                case "2":
-						                        map_bin = 0b00001000000;
+						                        map_bin = 0b00001100000;
 						                        break;
 						                case "3":
 						                        map_bin = 0b01110111110;
@@ -705,12 +709,16 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 								document.getElementById("sp_deadband_label").style.visibility = 'hidden';
 						        }
 							if (map_bin & 0b100000) {
-								if (sensor_type === "1") {
-									str_1 = document.getElementById("sensor_c_label_text").value;
-								} else if (sensor_type === "2") {
-                                                                        str_1 = document.getElementById("sensor_h_label_text").value;
+								if (zone_cat === "2") {
+									str_1 = document.getElementById("sensor_a_label_text").value;
 								} else {
-                                                                        str_1 = document.getElementById("sensor_s_label_text").value;
+									if (sensor_type === "1") {
+										str_1 = document.getElementById("sensor_c_label_text").value;
+									} else if (sensor_type === "2") {
+                        	                                                str_1 = document.getElementById("sensor_h_label_text").value;
+									} else {
+                                        	                                str_1 = document.getElementById("sensor_s_label_text").value;
+									}
 								}
 						                document.getElementById("sensor_id_label_1").style.visibility = 'visible';
 								document.getElementById("sensor_id_label_1").innerHTML = str_1;
@@ -786,7 +794,7 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 								var stype = parseInt(jArray[j]['sensor_type_id']);
 						                optn.text = jArray[j]['name'];
 						                optn.value = jArray[j]['id'];
-								if(stype == sensor_type) {
+								if(stype == sensor_type || zone_cat === "2") {
 						                	document.getElementById("zone_sensor_id").options.add(optn);
 								}
 						        }
@@ -877,11 +885,16 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 						<input type="hidden" id="sensor_c_label_text" name="sensor_c_label_text" value="<?php echo $lang['temperature_sensor']; ?>"/>
 						<input type="hidden" id="sensor_h_label_text" name="sensor_h_label_text" value="<?php echo $lang['humidity_sensor']; ?>"/>
 						<input type="hidden" id="sensor_s_label_text" name="sensor_s_label_text" value="<?php echo $lang['switch_sensor']; ?>"/>
+                                                <input type="hidden" id="sensor_a_label_text" name="sensor_a_label_text" value="<?php echo $lang['associated_sensor']; ?>"/>
 						<div class="form-group" class="control-label" style="display:block"><label id="sensor_id_label_1"><?php echo $lang['temperature_sensor']; ?></label> <small class="text-muted" id="sensor_id_label_2"><?php echo $lang['zone_sensor_id_info'];?></small>
 							<select id="zone_sensor_id" onchange=SensorIDList(this.options[this.selectedIndex].value) name="zone_sensor_id" class="form-select" data-bs-error="<?php echo $lang['zone_temp_sensor_id_error']; ?>" autocomplete="off" required>
 								<option></option>
 								<?php for ($i = 0; $i < count($sensorArray); $i++) {
-								        echo '<option value="'.$sensorArray[$i]['id'].'" ' . ($sensorArray[$i]['id']==$rowzonesensors['zone_sensor_id'] ? 'selected' : '') . '>'.$sensorArray[$i]['name'].'</option>';
+									if ($sensorcount == 0) {
+										echo '<option value="'.$sensorArray[$i]['id'].'" ' . ($sensorArray[$i]['id'] == 0 ? 'selected' : '') . '>'.$sensorArray[$i]['name'].'</option>';
+									} else {
+										echo '<option value="'.$sensorArray[$i]['id'].'" ' . ($sensorArray[$i]['id'] == $rowzonesensors['zone_sensor_id'] ? 'selected' : '') . '>'.$sensorArray[$i]['name'].'</option>';
+									}
 								} ?>
 							</select>
 							<div class="help-block with-errors"></div>
@@ -896,8 +909,9 @@ while($rowsensors = mysqli_fetch_assoc($result)) {
 							document.getElementById("selected_sensor_id").value = selected_sensor_id;
 						}
 						</script>
-						<input type="hidden" id="selected_sensor_id" name="selected_sensor_id" value="<?php echo $rowtempsensors['id']?>"/>
-						<input type="hidden" id="initial_sensor_id" name="initial_sensor_id" value="<?php echo $rowtempsensors['id']?>"/>
+						<?php if ($sensorcount == 0) { $s = 0; } else { $s = $rowtempsensors['id']; } ?>
+						<input type="hidden" id="selected_sensor_id" name="selected_sensor_id" value="<?php echo $s?>"/>
+						<input type="hidden" id="initial_sensor_id" name="initial_sensor_id" value="<?php echo $s?>"/>
 
 						<input type="hidden" id="controller_count" name="controller_count" value="<?php echo $controller_count?>"/>
 						<div class="controler_id_wrapper">
