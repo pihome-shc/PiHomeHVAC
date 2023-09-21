@@ -26,7 +26,7 @@ print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
 print("* Script to communicate with MySensors Nodes, for more *")
 print("* info please check MySensors API.                     *")
 print("*      Build Date: 18/09/2017                          *")
-print("*      Version 0.15 - Last Modified 09/04/2023         *")
+print("*      Version 0.16 - Last Modified 21/09/2023         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -121,6 +121,10 @@ relay_dict = {}
 
 # Initialise MQTT connection status
 MQTT_CONNECTED = 0
+
+# Used by MQTT function 'on_message' to get attribute value
+def deep_get(dictionary, keys, default=None):
+    return reduce(lambda d, key: d.get(key, default) if isinstance(d, dict) else default, keys.split("."), dictionary)
 
 def XNOR(a,b):
     if(int(a) == int(b)):
@@ -484,8 +488,8 @@ def on_message(client, userdata, message):
                 mqtt_payload = float(message.payload.decode())
             else:
                 mqtt_payload = json.loads(message.payload.decode())
-                for attribute in child[on_msg_description_to_index["attribute"]].split("."):
-                    mqtt_payload = mqtt_payload.get(attribute)
+                attribute = child[on_msg_description_to_index["attribute"]]
+                mqtt_payload = deep_get(mqtt_payload, attribute)
             # Get reading type (continous or on-change)
             cur_mqtt.execute(
                 'SELECT mode, timeout, correction_factor, resolution FROM sensors WHERE sensor_id = %s AND sensor_child_id = %s LIMIT 1;',
@@ -556,6 +560,10 @@ def on_message(client, userdata, message):
                     # category = int(results[zone_view_to_index['category']])
                     mqtt_graph_num = int(results[mqtt_sensor_to_index["graph_num"]])
                     if  mqtt_sensor_type_id == 1 and mqtt_graph_num > 0:
+                        cur_mqtt.execute("SELECT c_f FROM system LIMIT 1")
+                        row = cur_mqtt.fetchone()
+                        system_to_index = dict((d[0], i) for i, d in enumerate(cur_mqtt.description))
+                        c_f = row[system_to_index["c_f"]]  # 0 = centigrade, 1 = fahrenheit
                         if c_f:
                             mqtt_payload = round((mqtt_payload * 9/5) + 32, 1)
                         if dbgLevel >= 2 and dbgMsgIn == 1:
@@ -683,6 +691,7 @@ def on_message(client, userdata, message):
                                         ),
                                     )
                                     con_mqtt.commit()
+            print("MQTT Sensor Processed on Node ID %s" % mqtt_node_id)
 
 class ProgramKilled(Exception):
     pass
@@ -798,6 +807,7 @@ try:
                 import paho.mqtt.client as mqtt
                 import json
                 import signal
+                from functools import reduce
             except ImportError:
                 print(
                     "Missing MQTT dependencies, MQTT nodes cannot be enabled. Please install the required dependencies using /add_on/MQTT_dependencies/install.sh"

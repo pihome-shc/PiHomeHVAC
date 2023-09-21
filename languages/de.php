@@ -990,4 +990,5 @@ $lang['hide'] = "Hide Sen/Rel";
 $lang['hide_sensor_relay'] = "Hide Sensors and/or Relays";
 $lang['hide_sensor_relay_text'] = "Select Sensors and/or Relays which will not be displayed for the selected User.<br><br>Note 1: All Sensors and Relays will be displayed for the 'admin' user.<br>Note 2: Sensors and Relays allocated to 'Heating' type Zones will ALWAYS be dispalyed and are NOT selectable.";
 $lang['only_admin_account'] = "ONLY 'admin' User Account is Present";
+$lang['associated_sensor'] = "Associated Sensor";
 ?>
