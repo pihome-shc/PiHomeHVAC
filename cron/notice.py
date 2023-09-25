@@ -526,6 +526,74 @@ finally:
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Sensor Limits Check Finished")
 print(sline)
 
+# *************************************************************************************************************
+# MQTT Devices Last Seen
+print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Checking MQTT Devices Communication")
+try:
+    con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+    cursorselect = con.cursor()
+    query = ("SELECT * FROM mqtt_devices;")
+    cursorselect.execute(query)
+    mqtt_device_to_index = dict(
+        (d[0], i)
+        for i, d
+        in enumerate(cursorselect.description)
+    )
+    results = cursorselect.fetchall()
+    cursorselect.close()
+    if cursorselect.rowcount > 0:  # Some MQTT Devices
+        for i in results:  # loop through active nodes
+            id = i[mqtt_device_to_index['id']]
+            name = i[mqtt_device_to_index['name']]
+            last_seen = i[mqtt_device_to_index['last_seen']]
+            notice_interval = i[mqtt_device_to_index['notice_interval']]
+            min_value = i[mqtt_device_to_index['min_value']]
+            timeDifference = (datetime.datetime.now() - last_seen)
+            time_difference_in_minutes = (timeDifference.days * 24 * 60) + (timeDifference.seconds / 60)
+            message = name + " " + id + " last reported on " + str(last_seen)
+            # select any records in the notice table which match the current message
+            query = ("SELECT * FROM notice WHERE message = '" + message + "'")
+            cursorsel = con.cursor()
+            cursorsel.execute(query)
+            name_to_index = dict(
+                (d[0], i)
+                for i, d
+                in enumerate(cursorsel.description)
+            )
+            messages = cursorsel.fetchone()
+            cursorsel.close()
+            if time_difference_in_minutes >= notice_interval and notice_interval > 0:  # Active Sensor found which has not reported in the last test interval
+                cursorupdate = con.cursor()
+                if cursorsel.rowcount > 0:  # This message already exists
+                    if messages[name_to_index['status']] == 1:  # This node has already sent an email with this content
+                        cursorupdate.execute("UPDATE notice SET status = '0'")  # so clear status to stop further emails
+                else:  # new notification so add a new message to the notification table
+                    cursorupdate.execute(
+                        'INSERT INTO notice (sync, `purge`, datetime, message, status) VALUES(%s,%s,%s,%s,%s)',
+                        (0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message, 1))
+                    print(bc.blu + (
+                        datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - " + name + " " + node_id + " - Last Reported " + str(
+                        notice_interval) + " Minutes Ago.")
+
+                cursorupdate.close()
+                con.commit()
+            else:  # node has now reported so delete any 'notice' records
+                query = "DELETE FROM notice WHERE message LIKE '" + name + " " + str(node_id) + "%'"
+                cursordelete = con.cursor()
+                cursordelete.execute(query)
+                cursordelete.close()
+                con.commit()
+
+except mdb.Error as e:
+    print("Error %d: %s" % (e.args[0], e.args[1]))
+    sys.exit(1)
+finally:
+    if con:
+        con.close()
+
+print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - MQTT Devices Check Finished")
+print(sline)
+
 # Send Email Message
 if send_status:
     try:

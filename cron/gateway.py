@@ -388,6 +388,13 @@ def on_message(client, userdata, message):
             [timestamp, mqtt_node_id],
         )
         con_mqtt.commit()
+
+        # Update the mqtt_devices last seen
+        cur_mqtt.execute(
+            'UPDATE `mqtt_devices` SET `last_seen` = %s WHERE `nodes_id` = %s AND `child_id` = %s',
+            [timestamp, mqtt_node_id, mqtt_child_sensor_id],
+        )
+        con_mqtt.commit()
         # Process incomming STATE change messages for switches toggled by an external agent
         if fnmatch.fnmatch(message.topic, '*/STATE*'):
             mqtt_payload = mqtt_payload = json.loads(message.payload.decode())

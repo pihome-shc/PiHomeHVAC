@@ -4014,7 +4014,7 @@ echo '<p class="text-muted">'.$lang['add_on_add_info_text'].'</p>
 
 //MQTT Devices
 echo '<div class="modal fade" id="mqtt_devices" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
 		<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
@@ -4032,17 +4032,24 @@ echo '<div class="modal fade" id="mqtt_devices" tabindex="-1" role="dialog" aria
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['mqtt_device_text'].'</p>';
-		$query = "SELECT `mqtt_devices`.`id`, `mqtt_devices`.`nodes_id` AS `mqtt_nodes_id`, `nodes`.`name` AS `node`, `nodes`.`node_id` AS `node_id`, `mqtt_devices`.`type`, `mqtt_devices`.`child_id` AS `child`, `mqtt_devices`.`name` AS `name`, `mqtt_devices`.`mqtt_topic`, `mqtt_devices`.`on_payload`, `mqtt_devices`.`off_payload`, `mqtt_devices`.`attribute` FROM `mqtt_devices`, `nodes` WHERE `mqtt_devices`.`nodes_id` = `nodes`.`id` ORDER BY `mqtt_devices`.`nodes_id`, `mqtt_devices`.`child_id`;";
+		$query = "SELECT `mqtt_devices`.`id`, `mqtt_devices`.`nodes_id` AS `mqtt_nodes_id`, `nodes`.`name` AS `node`, `nodes`.`node_id` AS `node_id`, `mqtt_devices`.`type`,
+			`mqtt_devices`.`child_id` AS `child`, `mqtt_devices`.`name` AS `name`, `mqtt_devices`.`mqtt_topic`, `mqtt_devices`.`on_payload`,
+			`mqtt_devices`.`off_payload`, `mqtt_devices`.`attribute`, `mqtt_devices`.`notice_interval`, `mqtt_devices`.`min_value`
+			FROM `mqtt_devices`, `nodes`
+			WHERE `mqtt_devices`.`nodes_id` = `nodes`.`id`
+			ORDER BY `mqtt_devices`.`nodes_id`, `mqtt_devices`.`child_id`;";
 		$results = $conn->query($query);
 		echo '<table class="table table-bordered">
     			<tr>
                                 <th class="col-lg-1"><small>'.$lang['node'].'</small></th>
                                 <th class="col-lg-1"><small>'.$lang['mqtt_child_id'].'</small></th>
                                 <th class="col-lg-2"><small>'.$lang['mqtt_child_name'].'</small></th>
-                                <th class="col-lg-2"><small>'.$lang['mqtt_topic'].'</small></th>
+                                <th class="col-lg-1"><small>'.$lang['mqtt_topic'].'</small></th>
                                 <th class="col-lg-1"><small>'.$lang['mqtt_on_payload'].'</small></th>
                                 <th class="col-lg-1"><small>'.$lang['mqtt_off_payload'].'</small></th>
-                                <th class="col-lg-2"><small>'.$lang['mqtt_attribute'].'</small></th>
+                                <th class="col-lg-1"><small>'.$lang['mqtt_attribute'].'</small></th>
+                                <th class="col-lg-1"><small>'.$lang['notice_interval'].'</small></th>
+                                <th class="col-lg-1"><small>'.$lang['min_battery_level'].'</small></th>
                                 <th class="col-lg-2"></th>
     			</tr>';
 			while ($row = mysqli_fetch_assoc($results)) {
@@ -4060,7 +4067,9 @@ echo '<div class="modal fade" id="mqtt_devices" tabindex="-1" role="dialog" aria
                                         <td><small>'.$row["mqtt_topic"].'</small></td>
                                         <td><small>'.$row["on_payload"].'</small></td>
             				<td><small>'.$row["off_payload"].'</small></td>
-                                        <td><small>'.$row["attribute"].'</small></td>';
+                                        <td><small>'.$row["attribute"].'</small></td>
+                                        <td><small>'.$row["notice_interval"].'</small></td>
+                                        <td><small>'.$row["min_value"].'</small></td>';
 					if (!$state_record || $row["type"] == 1) {
 	    					echo '<td><a href="mqtt_device.php?id='.$row["id"].'" style="text-decoration: none;"><button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-xs"><i class="bi bi-pencil"></i></button></a>&nbsp
 						<button class="btn warning btn-danger btn-xs" onclick="delete_mqtt_device('.$row["id"].');" data-confirm="'.$lang['confirm_del_mqtt_child'].'"><span class="bi bi-trash-fill black"></span></button> </td>';
