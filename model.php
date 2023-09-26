@@ -4067,9 +4067,17 @@ echo '<div class="modal fade" id="mqtt_devices" tabindex="-1" role="dialog" aria
                                         <td><small>'.$row["mqtt_topic"].'</small></td>
                                         <td><small>'.$row["on_payload"].'</small></td>
             				<td><small>'.$row["off_payload"].'</small></td>
-                                        <td><small>'.$row["attribute"].'</small></td>
-                                        <td><small>'.$row["notice_interval"].'</small></td>
-                                        <td><small>'.$row["min_value"].'</small></td>';
+                                        <td><small>'.$row["attribute"].'</small></td>';
+                                        if ($row["type"] == 0) {
+                                        	echo '<td><small>'.$row["notice_interval"].'</small></td>';
+					} else {
+                                                echo '<td></td>';
+                                        }
+                                        if ($row["type"] == 0) {
+                                        	echo '<td><small>'.$row["min_value"].'</small></td>';
+                                        } else {
+                                                echo '<td></td>';
+                                        }
 					if (!$state_record || $row["type"] == 1) {
 	    					echo '<td><a href="mqtt_device.php?id='.$row["id"].'" style="text-decoration: none;"><button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-xs"><i class="bi bi-pencil"></i></button></a>&nbsp
 						<button class="btn warning btn-danger btn-xs" onclick="delete_mqtt_device('.$row["id"].');" data-confirm="'.$lang['confirm_del_mqtt_child'].'"><span class="bi bi-trash-fill black"></span></button> </td>';

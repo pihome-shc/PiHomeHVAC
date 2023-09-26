@@ -54,9 +54,20 @@ if (isset($_POST['submit'])) {
 
 	//Add or Edit MQTT Device record to mqtt_devices Table
 	if ($id == 0) {
-		$query = "INSERT INTO `mqtt_devices`(`id`, `child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`, `notice_interval', `min_value`)  VALUES ('{$id}', '{$mqtt_child_id}', '{$nodes_id}', {$mqtt_type_id}, '0', '{$mqtt_name}', '{$mqtt_topic}', '{$mqtt_on_message}', '{$mqtt_off_message}', '{$mqtt_json_attribute}', '{$notice_interval}', '{$min_value}');";
+        	$query = "INSERT INTO `mqtt_devices`(`id`, `child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`,
+			`notice_interval', `min_value`)
+                        VALUES ('{$id}', '{$mqtt_child_id}', '{$nodes_id}', {$mqtt_type_id}, '0', '{$mqtt_name}', '{$mqtt_topic}', '{$mqtt_on_message}', '{$mqtt_off_message}',
+			'{$mqtt_json_attribute}', NULL, NULL);";
 	} else {
-	        $query = "UPDATE `mqtt_devices` SET `child_id`= '{$mqtt_child_id}',`nodes_id`= '{$nodes_id}',`type`= '{$mqtt_type_id}',`purge`= '{$purge}',`name`= '{$mqtt_name}',`mqtt_topic`= '{$mqtt_topic}',`on_payload`= '{$mqtt_on_message}',`off_payload`= '{$mqtt_off_message}',`attribute`= '{$mqtt_json_attribute}', `notice_interval`= '{$notice_interval}',`min_value` = '{$min_value}' WHERE `id` = '{$id}';";
+                if ($mqtt_type_id == 0 || $mqtt_type_id == "0") {
+		        $query = "UPDATE `mqtt_devices` SET `child_id`= '{$mqtt_child_id}', `nodes_id`= '{$nodes_id}', `type`= '{$mqtt_type_id}',`purge`= '{$purge}',
+			`name`= '{$mqtt_name}', `mqtt_topic`= '{$mqtt_topic}', `on_payload`= '{$mqtt_on_message}', `off_payload`= '{$mqtt_off_message}',
+			`attribute`= '{$mqtt_json_attribute}', `notice_interval`= '{$notice_interval}', `min_value` = '{$min_value}' WHERE `id` = '{$id}';";
+		} else {
+                        $query = "UPDATE `mqtt_devices` SET `child_id`= '{$mqtt_child_id}', `nodes_id`= '{$nodes_id}', `type`= '{$mqtt_type_id}',`purge`= '{$purge}',
+                        `name`= '{$mqtt_name}', `mqtt_topic`= '{$mqtt_topic}', `on_payload`= '{$mqtt_on_message}', `off_payload`= '{$mqtt_off_message}',
+                        `attribute`= '{$mqtt_json_attribute}' WHERE `id` = '{$id}';";
+		}
 	}
 	$result = $conn->query($query);
 	if ($result) {
@@ -213,17 +224,22 @@ if (isset($_POST['submit'])) {
 						</div>
 
                                                 <script language="javascript" type="text/javascript">
-                                                function sensor_controller(value)
+                                                function sensor_controller(type)
                                                 {
-                                                        var valuetext = value;
-                                                        if (valuetext == 0) {
+                                                        var typetext = type;
+							var statetext = document.getElementById("checkbox0").checked;
+                                                        if (typetext == 0) {
                                                                 document.getElementById("on_message").style.display = 'none';
                                                                 document.getElementById("on_message_label").style.visibility = 'hidden';
                                                                 document.getElementById("off_message").style.display = 'none';
                                                                 document.getElementById("off_message_label").style.visibility = 'hidden';
                                                                 document.getElementById("json_attribute").style.display = 'block';
                                                                 document.getElementById("json_attribute_label").style.visibility = 'visible';
-																document.getElementById("child_id").value = "<?php if ($id != 0) { echo $row["child_id"]; } else { echo $new_child_id_sensor; } ?>";
+                                                                document.getElementById("notice_interval").style.display = 'block';
+                                                                document.getElementById("notice_interval_label").style.visibility = 'visible';
+                                                                document.getElementById("min_value").style.display = 'block';
+                                                                document.getElementById("min_value_label").style.visibility = 'visible';
+								document.getElementById("child_id").value = "<?php if ($id != 0) { echo $row["child_id"]; } else { echo $new_child_id_sensor; } ?>";
                                                                 document.getElementById("state_message").style.display = 'none';
                                                         } else {
                                                                 document.getElementById("on_message").style.display = 'block';
@@ -232,7 +248,18 @@ if (isset($_POST['submit'])) {
                                                                 document.getElementById("off_message_label").style.visibility = 'visible';
                                                                 document.getElementById("json_attribute").style.display = 'none';
                                                                 document.getElementById("json_attribute_label").style.visibility = 'hidden';
-																document.getElementById("child_id").value = "<?php if ($id != 0) { echo $row["child_id"]; } else { echo $new_child_id_controller; } ?>";
+								if (statetext == "") {
+                                                                	document.getElementById("notice_interval").style.display = 'none';
+                                                                	document.getElementById("notice_interval_label").style.visibility = 'hidden';
+                                                                	document.getElementById("min_value").style.display = 'none';
+                                                                	document.getElementById("min_value_label").style.visibility = 'hidden';
+								} else {
+                                                                        document.getElementById("notice_interval").style.display = 'block';
+                                                                        document.getElementById("notice_interval_label").style.visibility = 'visible';
+                                                                        document.getElementById("min_value").style.display = 'block';
+                                                                        document.getElementById("min_value_label").style.visibility = 'visible';
+								}
+								document.getElementById("child_id").value = "<?php if ($id != 0) { echo $row["child_id"]; } else { echo $new_child_id_controller; } ?>";
                                                                 document.getElementById("state_message").style.display = 'block';
                                                         }
                                                 }
@@ -286,14 +313,14 @@ if (isset($_POST['submit'])) {
 
                                                 <!-- Minimum Value -->
                                                 <div class="form-group" class="control-label" id="min_value_label" style="display:block"><label><?php echo $lang['min_val_info']; ?></label> <small class="text-muted"><?php echo $lang['min_val_help'];?></small>
-                                                        <input class="form-control" placeholder="Minimum Reading Value" value="<?php if(isset($row['min_value'])) { echo $row['min_value_factor']; } else { echo '0'; } ?>" id="min_value" name="min_value" data-bs-error="<?php echo $lang['sensor_correction_factor_help']; ?>" autocomplete="off" required>
+                                                        <input class="form-control" placeholder="Minimum Reading Value" value="<?php if(isset($row['min_value'])) { echo $row['min_value']; } else { echo '0'; } ?>" id="min_value" name="min_value" data-bs-error="<?php echo $lang['min_val_help']; ?>" autocomplete="off" required>
                                                         <div class="help-block with-errors"></div>
                                                 </div>
 
 						<!-- Enable Controller STATE Message -->
 				                <div class="form-check" id="state_message" style="display:none">
 	                                                <br>
-                                			<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="checkbox" value="1" id="checkbox0" name="create_state_topic" <?php $check = ($checked == 1) ? 'checked' : ''; echo $check; ?>>
+                                			<input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" type="checkbox" value="1" id="checkbox0" name="create_state_topic" <?php $check = ($checked == 1) ? 'checked' : ''; echo $check; ?> onchange=sensor_controller(1)>
 				                        <label class="form-check-label" for="checkbox0"><?php echo $lang['state_message']; ?></label> <small class="text-muted"><?php echo $lang['state_message_info'];?></small>
 							<div class="help-block with-errors"></div>
 						</div>
