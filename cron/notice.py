@@ -532,7 +532,7 @@ print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht 
 try:
     con = mdb.connect(dbhost, dbuser, dbpass, dbname)
     cursorselect = con.cursor()
-    query = ("SELECT * FROM mqtt_devices;")
+    query = ("SELECT * FROM mqtt_devices WHERE last_seen IS NOT NULL;")
     cursorselect.execute(query)
     mqtt_device_to_index = dict(
         (d[0], i)
