@@ -550,7 +550,7 @@ try:
             min_value = i[mqtt_device_to_index['min_value']]
             timeDifference = (datetime.datetime.now() - last_seen)
             time_difference_in_minutes = (timeDifference.days * 24 * 60) + (timeDifference.seconds / 60)
-            message = name + " " + id + " last reported on " + str(last_seen)
+            message = name + " " + str(id) + " last reported on " + str(last_seen)
             # select any records in the notice table which match the current message
             query = ("SELECT * FROM notice WHERE message = '" + message + "'")
             cursorsel = con.cursor()
