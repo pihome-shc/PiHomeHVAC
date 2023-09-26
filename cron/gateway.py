@@ -371,7 +371,7 @@ def on_message(client, userdata, message):
     print("Topic: %s" % message.topic)
     print("Message: %s" % message.payload.decode())
     cur_mqtt.execute(
-        "SELECT `nodes`.id, `nodes`.node_id, `mqtt_devices`.child_id, `mqtt_devices`.attribute  FROM `mqtt_devices`, `nodes` WHERE `mqtt_devices`.nodes_id = `nodes`.id AND `mqtt_devices`.type = 0 AND `mqtt_devices`.mqtt_topic = (%s)",
+        "SELECT `nodes`.id, `nodes`.node_id, `mqtt_devices`.id AS mqtt_id, `mqtt_devices`.child_id, `mqtt_devices`.attribute  FROM `mqtt_devices`, `nodes` WHERE `mqtt_devices`.nodes_id = `nodes`.id AND `mqtt_devices`.type = 0 AND `mqtt_devices`.mqtt_topic = (%s)",
         [message.topic],
     )
     on_msg_description_to_index = dict(
@@ -379,6 +379,7 @@ def on_message(client, userdata, message):
     )
     for child in cur_mqtt.fetchall():
         sensors_id = child[on_msg_description_to_index["id"]]
+        mqtt_id = child[on_msg_description_to_index["mqtt_id"]]
         mqtt_node_id = child[on_msg_description_to_index["node_id"]]
         mqtt_child_sensor_id = int(child[on_msg_description_to_index["child_id"]])
         # Update node last seen
@@ -391,8 +392,8 @@ def on_message(client, userdata, message):
 
         # Update the mqtt_devices last seen
         cur_mqtt.execute(
-            'UPDATE `mqtt_devices` SET `last_seen` = %s WHERE `nodes_id` = %s AND `child_id` = %s',
-            [timestamp, mqtt_node_id, mqtt_child_sensor_id],
+            'UPDATE `mqtt_devices` SET `last_seen` = %s WHERE `id` = %s',
+            [timestamp, mqtt_id],
         )
         con_mqtt.commit()
         # Process incomming STATE change messages for switches toggled by an external agent
