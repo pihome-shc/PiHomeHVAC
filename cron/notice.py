@@ -385,9 +385,8 @@ try:
             in enumerate(cursorsel.description)
         )
         messages = cursorsel.fetchone()
-        cursorsel.close()
         cursorupdate = con.cursor()
-        if cursorselect.rowcount > 0:
+        if cursorsel.rowcount > 0:
             if messages[name_to_index['status']] == 1:
                 cursorupdate.execute("UPDATE notice SET status = '0'")
         else:
@@ -397,6 +396,7 @@ try:
             print(bc.blu + (
                 datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - CPU Temperature is very high")
 
+        cursorsel.close()
         cursorupdate.close()
         con.commit()
     elif count == 0:  # no CPU temperature errors in the last hour so clear any existing messages to allow new ones
