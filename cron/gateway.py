@@ -704,8 +704,11 @@ def on_message(client, userdata, message):
 
                 # Check if MQTT Device has min_value set, if so then store the battery level for this device
                 if mqtt_min_value != 0:
+                    # Create a battery attribute
                     battery_attribute = child[on_msg_description_to_index["attribute"]].split(".")[0] + ".Battery"
+                    # Re-get the MQTT message
                     mqtt_payload = json.loads(message.payload.decode())
+                    # Get the battery level value
                     mqtt_payload = deep_get(mqtt_payload, battery_attribute)
                     if  mqtt_payload is not None:
                         bat_voltage = 3 * (mqtt_payload/100)
@@ -718,12 +721,11 @@ def on_message(client, userdata, message):
                         )
                         if cur_mqtt.rowcount == 0:
                             bat_update = True
-                            if cur.rowcount == 0:
-                                if dbgLevel >= 2 and dbgMsgIn == 1:
-                                    print(
-                                        "9c: Adding Battery for MQTT Device:",
-                                        mqtt_bat_id,
-                                    )
+                            if dbgLevel >= 2 and dbgMsgIn == 1:
+                                print(
+                                    "9c: Adding Battery for MQTT Device:",
+                                    mqtt_bat_id,
+                                )
                             cur_mqtt.execute(
                                 "INSERT INTO `battery`(`node_id`) VALUES (%s)",
                                 [mqtt_bat_id,],
@@ -734,12 +736,15 @@ def on_message(client, userdata, message):
                                 'SELECT bat_level FROM `nodes_battery` where node_id = %s ORDER BY id DESC LIMIT 1;',
                                 [mqtt_bat_id],
                             )
-                            row = cur_mqtt.fetchone()
-                            row_to_index = dict(
-                                (d[0], i) for i, d in enumerate(cur.description)
-                            )
-                            if row[row_to_index["bat_level"]] != bat_level:
+                            if curr_mqtt.rowcount == 0:
                                 bat_update = True
+                            else:
+                                row = cur_mqtt.fetchone()
+                                row_to_index = dict(
+                                    (d[0], i) for i, d in enumerate(cur.description)
+                                )
+                                if row[row_to_index["bat_level"]] != bat_level:
+                                    bat_update = True
                         if bat_update:
                             if dbgLevel >= 2 and dbgMsgIn == 1:
                                 print(
