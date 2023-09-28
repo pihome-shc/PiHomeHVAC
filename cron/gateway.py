@@ -371,7 +371,7 @@ def on_message(client, userdata, message):
     print("Topic: %s" % message.topic)
     print("Message: %s" % message.payload.decode())
     cur_mqtt.execute(
-        "SELECT `nodes`.id, `nodes`.node_id, `mqtt_devices`.id AS mqtt_id, `mqtt_devices`.child_id, `mqtt_devices`.attribute  FROM `mqtt_devices`, `nodes` WHERE `mqtt_devices`.nodes_id = `nodes`.id AND `mqtt_devices`.type = 0 AND `mqtt_devices`.mqtt_topic = (%s)",
+        "SELECT `nodes`.id, `nodes`.node_id, `mqtt_devices`.id AS mqtt_id, `mqtt_devices`.child_id, `mqtt_devices`.attribute, `mqtt_devices`.min_value FROM `mqtt_devices`, `nodes` WHERE `mqtt_devices`.nodes_id = `nodes`.id AND `mqtt_devices`.type = 0 AND `mqtt_devices`.mqtt_topic = (%s)",
         [message.topic],
     )
     on_msg_description_to_index = dict(
@@ -382,6 +382,7 @@ def on_message(client, userdata, message):
         mqtt_id = child[on_msg_description_to_index["mqtt_id"]]
         mqtt_node_id = child[on_msg_description_to_index["node_id"]]
         mqtt_child_sensor_id = int(child[on_msg_description_to_index["child_id"]])
+        mqtt_min_value = child[on_msg_description_to_index["min_value"]]
         # Update node last seen
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         cur_mqtt.execute(
@@ -700,6 +701,63 @@ def on_message(client, userdata, message):
                                             ),
                                         )
                                         con_mqtt.commit()
+
+                # Check if MQTT Device has min_value set, if so then store the battery level for this device
+                if mqtt_min_value != 0:
+                    battery_attribute = child[on_msg_description_to_index["attribute"]].split(".")[0] + ".Battery"
+                    mqtt_payload = json.loads(message.payload.decode())
+                    mqtt_payload = deep_get(mqtt_payload, battery_attribute)
+                    if  mqtt_payload is not None:
+                        bat_voltage = 3 * (mqtt_payload/100)
+                        bat_level = mqtt_payload
+                        bat_update = False
+                        mqtt_bat_id = mqtt_node_id + "-" + str(mqtt_child_sensor_id)
+                        cur_mqtt.execute(
+                            'SELECT * FROM `battery` where node_id = %s LIMIT 1;',
+                            [mqtt_bat_id],
+                        )
+                        if cur_mqtt.rowcount == 0:
+                            bat_update = True
+                            if cur.rowcount == 0:
+                                if dbgLevel >= 2 and dbgMsgIn == 1:
+                                    print(
+                                        "9c: Adding Battery for MQTT Device:",
+                                        mqtt_bat_id,
+                                    )
+                            cur_mqtt.execute(
+                                "INSERT INTO `battery`(`node_id`) VALUES (%s)",
+                                [mqtt_bat_id,],
+                            )
+                            con_mqtt.commit()
+                        else:
+                            cur_mqtt.execute(
+                                'SELECT bat_level FROM `nodes_battery` where node_id = %s ORDER BY id DESC LIMIT 1;',
+                                [mqtt_bat_id],
+                            )
+                            row = cur_mqtt.fetchone()
+                            row_to_index = dict(
+                                (d[0], i) for i, d in enumerate(cur.description)
+                            )
+                            if row[row_to_index["bat_level"]] != bat_level:
+                                bat_update = True
+                        if bat_update:
+                            if dbgLevel >= 2 and dbgMsgIn == 1:
+                                print(
+                                    "9: Adding Battery Voltage & Level for MQTT Device:",
+                                    mqtt_bat_id,
+                                    "Battery Voltage:",
+                                    bat_voltage,
+                                    "Battery Level:",
+                                    bat_level,
+                                )
+                            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            cur_mqtt.execute(
+                                "INSERT INTO nodes_battery(`sync`, `purge`, `node_id`, `bat_voltage`, `bat_level`, `update`) VALUES(%s,%s,%s,%s,%s,%s)",
+                                (0, 0, mqtt_bat_id, bat_voltage, bat_level, timestamp),
+                            )
+                            ##cur.execute('UPDATE `nodes` SET `last_seen`=now() WHERE node_id = %s', [node_id])
+                            con_mqtt.commit()
+
                 print(
                     "5b: MQTT Sensor Processed on Node ID:",
                     mqtt_node_id,
