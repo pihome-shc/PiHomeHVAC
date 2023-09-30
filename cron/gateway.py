@@ -721,7 +721,10 @@ def on_message(client, userdata, message):
                 # Check if MQTT Device has min_value set, if so then store the battery level for this device
                 if mqtt_min_value != 0:
                     # Create a battery attribute
-                    battery_attribute = child[on_msg_description_to_index["attribute"]].split(".")[0] + ".Battery"
+                    if child[on_msg_description_to_index["attribute"]].find(".") != -1:
+                        battery_attribute = child[on_msg_description_to_index["attribute"]].split(".")[0] + ".Battery"
+                    else:
+                        battery_attribute = "Battery"
                     # Re-get the MQTT message
                     mqtt_payload = json.loads(message.payload.decode())
                     # Get the battery level value
