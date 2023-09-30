@@ -55,9 +55,9 @@ if (isset($_POST['submit'])) {
 	//Add or Edit MQTT Device record to mqtt_devices Table
 	if ($id == 0) {
         	$query = "INSERT INTO `mqtt_devices`(`id`, `child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`,
-			`notice_interval', `min_value`)
+			`notice_interval`, `min_value`)
                         VALUES ('{$id}', '{$mqtt_child_id}', '{$nodes_id}', {$mqtt_type_id}, '0', '{$mqtt_name}', '{$mqtt_topic}', '{$mqtt_on_message}', '{$mqtt_off_message}',
-			'{$mqtt_json_attribute}', NULL, NULL);";
+			'{$mqtt_json_attribute}', 0, NULL);";
 	} else {
                 if ($mqtt_type_id == 0 || $mqtt_type_id == "0") {
 		        $query = "UPDATE `mqtt_devices` SET `child_id`= '{$mqtt_child_id}', `nodes_id`= '{$nodes_id}', `type`= '{$mqtt_type_id}',`purge`= '{$purge}',
