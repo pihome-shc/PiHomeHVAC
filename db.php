@@ -634,9 +634,27 @@ if($what=="sensor"){
 //MQTT Devices
 if($what=="mqtt_device"){
         if($opp=="delete"){
-                $query = "DELETE FROM mqtt_devices WHERE id = '".$wid."';";
-                $conn->query($query);
+                $delete_error = 0;
+                // delete any associated battery records
+                $query = "DELETE FROM battery WHERE `node_id` = (SELECT CONCAT(n.node_id,'-',mqtt_devices.child_id) AS node_id
+                        FROM mqtt_devices
+                        JOIN nodes n ON mqtt_devices.nodes_id = n.id
+                        WHERE mqtt_devices.id = ".$wid.");";
                 if($conn->query($query)){
+                        $delete_error = 0;
+                }else{
+                        $delete_error = 1;
+                }
+
+		// delete the mqtt_device record
+                $query = "DELETE FROM mqtt_devices WHERE id = '".$wid."';";
+                if($conn->query($query)){
+                        $delete_error = 0;
+                }else{
+                        $delete_error = 1;
+                }
+
+		if($delete_error == 0){
                         header('Content-type: application/json');
                         echo json_encode(array('Success'=>'Success','Query'=>$query));
                         return;
