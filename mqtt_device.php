@@ -38,10 +38,11 @@ if (isset($_POST['submit'])) {
 	$mqtt_child_id = intval($_POST['child_id']);
 	$mqtt_type_id = $_POST['type'];
     	if ($mqtt_type_id == 0) { $node_name = "MQTT Sensor"; } else { $node_name = "MQTT Controller"; }
-    	$query = "SELECT id FROM nodes WHERE name = '{$node_name}' LIMIT 1;";
+    	$query = "SELECT id, node_id FROM nodes WHERE name = '{$node_name}' LIMIT 1;";
     	$result = $conn->query($query);
     	$found_product = mysqli_fetch_array($result);
     	$nodes_id = $found_product['id'];
+        $nodes_node_id = $found_product['node_id'];
     	$purge= '0';
 	$mqtt_name = $_POST['mqtt_name'];
     	$mqtt_topic = $_POST['mqtt_topic'];
@@ -51,13 +52,14 @@ if (isset($_POST['submit'])) {
         $state_message = isset($_POST['create_state_topic']) ? $_POST['create_state_topic'] : "0";
         $notice_interval = $_POST['notice_interval'];
         $min_value = $_POST['min_value'];
+	$mqtt_node_id = $nodes_node_id."-".$mqtt_child_id;
 
 	//Add or Edit MQTT Device record to mqtt_devices Table
 	if ($id == 0) {
         	$query = "INSERT INTO `mqtt_devices`(`id`, `child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`,
-			`notice_interval`, `min_value`)
+			`notice_interval', `min_value`)
                         VALUES ('{$id}', '{$mqtt_child_id}', '{$nodes_id}', {$mqtt_type_id}, '0', '{$mqtt_name}', '{$mqtt_topic}', '{$mqtt_on_message}', '{$mqtt_off_message}',
-			'{$mqtt_json_attribute}', 0, NULL);";
+			'{$mqtt_json_attribute}', NULL, NULL);";
 	} else {
                 if ($mqtt_type_id == 0 || $mqtt_type_id == "0") {
 		        $query = "UPDATE `mqtt_devices` SET `child_id`= '{$mqtt_child_id}', `nodes_id`= '{$nodes_id}', `type`= '{$mqtt_type_id}',`purge`= '{$purge}',
@@ -125,6 +127,31 @@ if (isset($_POST['submit'])) {
 					$error .= "<p>".$lang['mqtt_device_record_delete_fail']." </p> <p>" .mysqli_error($conn). "</p>";
 				}
 			}
+		}
+	}
+
+	// if $min_value not 0 then check if entry is required in the battery table
+        $update_battery_record = 0;
+	$query = "SELECT * FROM `battery` WHERE `node_id` = '{$mqtt_node_id}' LIMIT 1;";
+	$result = $conn->query($query);
+	$rowcount = mysqli_num_rows($result);
+	if ($rowcount == 1 && $min_value == 0) {
+		$query = "DELETE FROM `battery` WHERE `node_id` = '{$mqtt_node_id}';";
+		$battery_success = $lang['battery_record_delete_success'];
+                $battery_fail = $lang['battery_record_delete_fail'];
+		$update_battery_record = 1;
+	} elseif ($rowcount == 0 && $min_value != 0) {
+		$query = "INSERT INTO `battery` (`node_id`) VALUES ('{$mqtt_node_id}');";
+                $battery_success = $lang['battery_record_insert_success'];
+                $battery_fail = $lang['battery_record_insert_fail'];
+                $update_battery_record = 1;
+	}
+	if ($update_battery_record == 1) {
+		$result = $conn->query($query);
+		if ($result) {
+			$message_success .= "<p>".$battery_success."</p>";
+		} else {
+			$error .= "<p>".$battery_fail." </p> <p>" .mysqli_error($conn). "</p>";
 		}
 	}
 
