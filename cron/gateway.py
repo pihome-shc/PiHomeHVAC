@@ -26,7 +26,7 @@ print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
 print("* Script to communicate with MySensors Nodes, for more *")
 print("* info please check MySensors API.                     *")
 print("*      Build Date: 18/09/2017                          *")
-print("*      Version 0.18 - Last Modified 30/09/2023         *")
+print("*      Version 0.19 - Last Modified 01/10/2023         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -504,7 +504,10 @@ def on_message(client, userdata, message):
                 mqtt_payload = json.loads(message.payload.decode())
                 attribute = child[on_msg_description_to_index["attribute"]]
                 mqtt_payload = deep_get(mqtt_payload, attribute)
-                str_attribute = attribute.split(".")[1]
+                if attribute.find(".") != -1:
+                    str_attribute = attribute.split(".")[1]
+                else:
+                    str_attribute = attribute
             if mqtt_payload is not None:
                 # Get reading type (continous or on-change)
                 cur_mqtt.execute(
