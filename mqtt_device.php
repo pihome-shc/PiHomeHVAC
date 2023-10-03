@@ -56,10 +56,10 @@ if (isset($_POST['submit'])) {
 
 	//Add or Edit MQTT Device record to mqtt_devices Table
 	if ($id == 0) {
-        	$query = "INSERT INTO `mqtt_devices`(`id`, `child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`,
-			`notice_interval', `min_value`)
+		$query = "INSERT INTO `mqtt_devices`(`id`, `child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`,
+			`last_seen`, `notice_interval`, `min_value`)
                         VALUES ('{$id}', '{$mqtt_child_id}', '{$nodes_id}', {$mqtt_type_id}, '0', '{$mqtt_name}', '{$mqtt_topic}', '{$mqtt_on_message}', '{$mqtt_off_message}',
-			'{$mqtt_json_attribute}', NULL, NULL);";
+			'{$mqtt_json_attribute}', NULL, '{$notice_interval}', '{$min_value}');";
 	} else {
                 if ($mqtt_type_id == 0 || $mqtt_type_id == "0") {
 		        $query = "UPDATE `mqtt_devices` SET `child_id`= '{$mqtt_child_id}', `nodes_id`= '{$nodes_id}', `type`= '{$mqtt_type_id}',`purge`= '{$purge}',
@@ -89,15 +89,19 @@ if (isset($_POST['submit'])) {
         	        $mqtt_topic = str_replace("cmnd","tele",$mqtt_topic);
 			$mqtt_topic = preg_replace('/POWER.*/', 'STATE', $mqtt_topic);
 	                if ($id == 0) {
-        	                $query = "INSERT INTO `mqtt_devices`(`child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`, `notice_interval', `min_value`)
-                	                VALUES ('{$mqtt_child_id}', '{$nodes_id}', 0, '0', '{$mqtt_name}', '{$mqtt_topic}', '', '', '{$mqtt_attribute}', '{$notice_interval}', '{$min_value}');";
+		                $query = "INSERT INTO `mqtt_devices`(`child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`,
+                		        `last_seen`, `notice_interval`, `min_value`)
+                	                VALUES ('{$mqtt_child_id}', '{$nodes_id}', 0, '0', '{$mqtt_name}', '{$mqtt_topic}', '', '', '{$mqtt_attribute}',
+					NULL, '{$notice_interval}', '{$min_value}');";
 	                } else {
         	                $found_product = "SELECT * FROM `mqtt_devices` WHERE `nodes_id` = '{$nodes_id}' AND `child_id` = '{$mqtt_child_id}' AND `type` = 0 LIMIT 1;";
                 	        $result = $conn->query($found_product);
                         	$count = $result->num_rows;
 	                        if ($count == 0) {
-        	                        $query = "INSERT INTO `mqtt_devices`(`child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`, `notice_interval', `min_value`)
-                	                        VALUES ('{$mqtt_child_id}', '{$nodes_id}', 0, '0', '{$mqtt_name}', '{$mqtt_topic}', '', '', '{$mqtt_attribute}', '{$notice_interval}', '{$min_value}');";
+			                $query = "INSERT INTO `mqtt_devices`(`child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`,
+                        			`last_seen`, `notice_interval`, `min_value`)
+                	                        VALUES ('{$mqtt_child_id}', '{$nodes_id}', 0, '0', '{$mqtt_name}', '{$mqtt_topic}', '', '', '{$mqtt_attribute}',
+						NULL, '{$notice_interval}', '{$min_value}');";
                         	} else {
 					$found_product = mysqli_fetch_array($result);
                                 	$query = "UPDATE `mqtt_devices` SET `child_id`= '{$mqtt_child_id}',`nodes_id`= '{$nodes_id}',`type`= '0',`purge`= '{$purge}',`name`= '{$mqtt_name}',
