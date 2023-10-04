@@ -755,7 +755,7 @@ def on_message(client, userdata, message):
                             con_mqtt.commit()
                         else:
                             cur_mqtt.execute(
-                                'SELECT bat_level FROM `nodes_battery` where node_id = %s ORDER BY id DESC LIMIT 1;',
+                                'SELECT `bat_level`, `update` FROM `nodes_battery` where `node_id` = %s AND `update` > DATE_SUB( NOW(), INTERVAL 24 HOUR) ORDER BY id DESC LIMIT 1;',
                                 [mqtt_bat_id],
                             )
                             if cur_mqtt.rowcount == 0:
