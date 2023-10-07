@@ -1502,18 +1502,18 @@ if($what=="setup_email"){
 
 //Setup Graph Setting
 if($what=="setup_graph"){
-        $sel_query = "SELECT * FROM sensors ORDER BY id asc;";
+        $sel_query = "SELECT `id` FROM sensors WHERE sensor_type_id = 1 ORDER BY name asc;";
         $results = $conn->query($sel_query);
-        while ($row = mysqli_fetch_assoc($results)) {
+        $update_error = 0;
+        while ($row = mysqli_fetch_assoc($results) and $update_error == 0) {
                 $input = 'graph_num'.$row['id'];
                 $graph_num =  $_GET[$input];
-                $query = "UPDATE sensors SET graph_num = '".$graph_num."' WHERE id = '".$row['id']."' LIMIT 1;";
-                $update_error=0;
+                $query = "UPDATE sensors SET graph_num = ".$graph_num." WHERE id = ".$row['id']." LIMIT 1;";
                 if(!$conn->query($query)){
-                        $update_error=1;
+                        $update_error = 1;
                 }
         }
-        if($update_error==0){
+        if($update_error == 0){
                 header('Content-type: application/json');
                 echo json_encode(array('Success'=>'Success','Query'=>$query));
                 return;
