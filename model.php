@@ -1410,7 +1410,7 @@ echo '
                         </ul>
                 </div>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" id="zone_graph_body">
 <p class="text-muted">'.$lang['graph_settings_text'].'</p>';
 $query = "SELECT * FROM sensors WHERE sensor_type_id = 1 ORDER BY name asc";
 $results = $conn->query($query);
