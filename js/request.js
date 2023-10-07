@@ -713,7 +713,7 @@ var idata="w=setup_email&o=update&status="+document.getElementById("checkbox3").
 //update graph
 function setup_graph(){
 //var x = document.getElementsByTagName("input");
-var x = document.getElementById("zone_graph").querySelectorAll("input");
+var x = document.getElementById("zone_graph_body").querySelectorAll("input");
 var i;
 var idata="w=setup_graph&o=update";
     for (i = 0; i < x.length; i++) {
