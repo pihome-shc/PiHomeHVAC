@@ -2729,6 +2729,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                 }
         } else {
                 $content_msg=$lang['confirm_del_sensor_1'];
+                $zcount = 0;
         }
     } elseif(strpos($row["name"], 'Controller') !== false || strpos($row["name"], 'Relay') !== false) {
         $query = "SELECT id, name, type FROM relays where relay_id = {$row['id']};";
