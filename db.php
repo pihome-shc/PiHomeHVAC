@@ -634,9 +634,27 @@ if($what=="sensor"){
 //MQTT Devices
 if($what=="mqtt_device"){
         if($opp=="delete"){
-                $query = "DELETE FROM mqtt_devices WHERE id = '".$wid."';";
-                $conn->query($query);
+                $delete_error = 0;
+                // delete any associated battery records
+                $query = "DELETE FROM battery WHERE `node_id` = (SELECT CONCAT(n.node_id,'-',mqtt_devices.child_id) AS node_id
+                        FROM mqtt_devices
+                        JOIN nodes n ON mqtt_devices.nodes_id = n.id
+                        WHERE mqtt_devices.id = ".$wid.");";
                 if($conn->query($query)){
+                        $delete_error = 0;
+                }else{
+                        $delete_error = 1;
+                }
+
+		// delete the mqtt_device record
+                $query = "DELETE FROM mqtt_devices WHERE id = '".$wid."';";
+                if($conn->query($query)){
+                        $delete_error = 0;
+                }else{
+                        $delete_error = 1;
+                }
+
+		if($delete_error == 0){
                         header('Content-type: application/json');
                         echo json_encode(array('Success'=>'Success','Query'=>$query));
                         return;
@@ -1484,18 +1502,18 @@ if($what=="setup_email"){
 
 //Setup Graph Setting
 if($what=="setup_graph"){
-        $sel_query = "SELECT * FROM sensors ORDER BY id asc;";
+        $sel_query = "SELECT `id` FROM sensors WHERE sensor_type_id = 1 ORDER BY name asc;";
         $results = $conn->query($sel_query);
-        while ($row = mysqli_fetch_assoc($results)) {
+        $update_error = 0;
+        while ($row = mysqli_fetch_assoc($results) and $update_error == 0) {
                 $input = 'graph_num'.$row['id'];
                 $graph_num =  $_GET[$input];
-                $query = "UPDATE sensors SET graph_num = '".$graph_num."' WHERE id = '".$row['id']."' LIMIT 1;";
-                $update_error=0;
+                $query = "UPDATE sensors SET graph_num = ".$graph_num." WHERE id = ".$row['id']." LIMIT 1;";
                 if(!$conn->query($query)){
-                        $update_error=1;
+                        $update_error = 1;
                 }
         }
-        if($update_error==0){
+        if($update_error == 0){
                 header('Content-type: application/json');
                 echo json_encode(array('Success'=>'Success','Query'=>$query));
                 return;

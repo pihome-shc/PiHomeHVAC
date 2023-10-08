@@ -1410,7 +1410,7 @@ echo '
                         </ul>
                 </div>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" id="zone_graph_body">
 <p class="text-muted">'.$lang['graph_settings_text'].'</p>';
 $query = "SELECT * FROM sensors WHERE sensor_type_id = 1 ORDER BY name asc";
 $results = $conn->query($query);
@@ -2729,6 +2729,7 @@ while ($row = mysqli_fetch_assoc($results)) {
                 }
         } else {
                 $content_msg=$lang['confirm_del_sensor_1'];
+                $zcount = 0;
         }
     } elseif(strpos($row["name"], 'Controller') !== false || strpos($row["name"], 'Relay') !== false) {
         $query = "SELECT id, name, type FROM relays where relay_id = {$row['id']};";
@@ -3371,12 +3372,14 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['relay_settings_text'].'</p>';
-		$query = "SELECT DISTINCT relays.id, relays.relay_id, relays.relay_child_id, relays.on_trigger, relays.lag_time, relays.name, relays.type, IF(zr.zone_id IS NULL, 0, 1) AS attached, nd.node_id, nd.last_seen
-                FROM relays
-                LEFT join zone_relays zr ON relays.id = zr.zone_relay_id
-                LEFT JOIN zone z ON zr.zone_id = z.id
-                JOIN nodes nd ON relays.relay_id = nd.id
-                ORDER BY relay_id asc, relay_child_id ASC;";
+                $query = "SELECT DISTINCT relays.id, relays.relay_id, relays.relay_child_id, relays.on_trigger, relays.lag_time, relays.name, relays.type,
+                        IF(zr.zone_id IS NULL, 0, 1) OR IF(sc.heat_relay_id IS NULL, 0, 1) AS attached, nd.node_id, nd.last_seen
+                        FROM relays
+                        LEFT join zone_relays zr ON relays.id = zr.zone_relay_id
+                        LEFT JOIN zone z ON zr.zone_id = z.id
+                        JOIN nodes nd ON relays.relay_id = nd.id
+                        LEFT JOIN system_controller sc ON relays.id = sc.heat_relay_id
+                        ORDER BY relay_id asc, relay_child_id ASC;";
 		$results = $conn->query($query);
 		echo '<table class="table table-bordered">
     			<tr>
@@ -3425,7 +3428,7 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
                                         <td>'.$trigger.'</td>
                                         <td>'.$row["lag_time"].'</td>
             				<td><a href="relay.php?id='.$row["id"].'"><button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-xs"><i class="bi bi-pencil"></i></button></a>&nbsp';
-            				if($row['attached'] == 1 || $row['type'] == 1) {
+            				if($row['attached'] == 1) {
 						echo '<span class="tooltip-wrapper" data-bs-toggle="tooltip" title="'.$lang['confirm_del_relay_2'].$attached_to.'"><button class="btn btn-danger btn-xs disabled"><i class="bi bi-trash-fill black"></i></button></span></td>';
 	    				} else {
                 				echo '<button class="btn warning btn-danger btn-xs" onclick="delete_relay('.$row["id"].');" data-confirm="'.$lang['confirm_del_relay_1'].'"><span class="bi bi-trash-fill black"></span></button> </td>';
@@ -4014,7 +4017,7 @@ echo '<p class="text-muted">'.$lang['add_on_add_info_text'].'</p>
 
 //MQTT Devices
 echo '<div class="modal fade" id="mqtt_devices" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
 		<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
@@ -4032,17 +4035,24 @@ echo '<div class="modal fade" id="mqtt_devices" tabindex="-1" role="dialog" aria
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['mqtt_device_text'].'</p>';
-		$query = "SELECT `mqtt_devices`.`id`, `mqtt_devices`.`nodes_id` AS `mqtt_nodes_id`, `nodes`.`name` AS `node`, `nodes`.`node_id` AS `node_id`, `mqtt_devices`.`type`, `mqtt_devices`.`child_id` AS `child`, `mqtt_devices`.`name` AS `name`, `mqtt_devices`.`mqtt_topic`, `mqtt_devices`.`on_payload`, `mqtt_devices`.`off_payload`, `mqtt_devices`.`attribute` FROM `mqtt_devices`, `nodes` WHERE `mqtt_devices`.`nodes_id` = `nodes`.`id` ORDER BY `mqtt_devices`.`nodes_id`, `mqtt_devices`.`child_id`;";
+		$query = "SELECT `mqtt_devices`.`id`, `mqtt_devices`.`nodes_id` AS `mqtt_nodes_id`, `nodes`.`name` AS `node`, `nodes`.`node_id` AS `node_id`, `mqtt_devices`.`type`,
+			`mqtt_devices`.`child_id` AS `child`, `mqtt_devices`.`name` AS `name`, `mqtt_devices`.`mqtt_topic`, `mqtt_devices`.`on_payload`,
+			`mqtt_devices`.`off_payload`, `mqtt_devices`.`attribute`, `mqtt_devices`.`notice_interval`, `mqtt_devices`.`min_value`
+			FROM `mqtt_devices`, `nodes`
+			WHERE `mqtt_devices`.`nodes_id` = `nodes`.`id`
+			ORDER BY `mqtt_devices`.`nodes_id`, `mqtt_devices`.`child_id`;";
 		$results = $conn->query($query);
 		echo '<table class="table table-bordered">
     			<tr>
                                 <th class="col-lg-1"><small>'.$lang['node'].'</small></th>
                                 <th class="col-lg-1"><small>'.$lang['mqtt_child_id'].'</small></th>
                                 <th class="col-lg-2"><small>'.$lang['mqtt_child_name'].'</small></th>
-                                <th class="col-lg-2"><small>'.$lang['mqtt_topic'].'</small></th>
+                                <th class="col-lg-1"><small>'.$lang['mqtt_topic'].'</small></th>
                                 <th class="col-lg-1"><small>'.$lang['mqtt_on_payload'].'</small></th>
                                 <th class="col-lg-1"><small>'.$lang['mqtt_off_payload'].'</small></th>
-                                <th class="col-lg-2"><small>'.$lang['mqtt_attribute'].'</small></th>
+                                <th class="col-lg-1"><small>'.$lang['mqtt_attribute'].'</small></th>
+                                <th class="col-lg-1"><small>'.$lang['notice_interval'].'</small></th>
+                                <th class="col-lg-1"><small>'.$lang['min_battery_level'].'</small></th>
                                 <th class="col-lg-2"></th>
     			</tr>';
 			while ($row = mysqli_fetch_assoc($results)) {
@@ -4061,6 +4071,16 @@ echo '<div class="modal fade" id="mqtt_devices" tabindex="-1" role="dialog" aria
                                         <td><small>'.$row["on_payload"].'</small></td>
             				<td><small>'.$row["off_payload"].'</small></td>
                                         <td><small>'.$row["attribute"].'</small></td>';
+                                        if ($row["type"] == 0) {
+                                        	echo '<td><small>'.$row["notice_interval"].'</small></td>';
+					} else {
+                                                echo '<td></td>';
+                                        }
+                                        if ($row["type"] == 0) {
+                                        	echo '<td><small>'.$row["min_value"].'</small></td>';
+                                        } else {
+                                                echo '<td></td>';
+                                        }
 					if (!$state_record || $row["type"] == 1) {
 	    					echo '<td><a href="mqtt_device.php?id='.$row["id"].'" style="text-decoration: none;"><button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-xs"><i class="bi bi-pencil"></i></button></a>&nbsp
 						<button class="btn warning btn-danger btn-xs" onclick="delete_mqtt_device('.$row["id"].');" data-confirm="'.$lang['confirm_del_mqtt_child'].'"><span class="bi bi-trash-fill black"></span></button> </td>';

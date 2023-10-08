@@ -619,7 +619,7 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
 						WHERE (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 1 OR `zone_type`.`category` = 2 OR `zone_type`.`category` = 5)
 						ORDER BY `zone`.`index_id` ASC;"; */
 
-					$query = "SELECT `zone`.`id`, `zone`.`name`, `zt`.`type`, `zt`.`category`, `r`.`user_display`
+					$query = "SELECT DISTINCT `zone`.`id`, `zone`.`name`, `zt`.`type`, `zt`.`category`, `r`.`user_display`
 						FROM `zone`
 						LEFT JOIN `zone_type` zt ON `zone`.`type_id` = zt.`id`
 						LEFT JOIN `zone_relays` zr ON `zone`.`id` = zr.`zone_id`

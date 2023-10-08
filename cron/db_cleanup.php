@@ -55,7 +55,8 @@ if (isset($result)) {
 }
 
 //Delete Orphaned Node Battery.
-$query = "DELETE FROM nodes_battery WHERE node_id NOT IN (SELECT nodes.node_id  FROM nodes);";
+$query = "DELETE FROM nodes_battery WHERE node_id NOT IN
+	(SELECT nodes.node_id  FROM nodes UNION SELECT CONCAT(nodes.node_id,'-',mqtt_devices.child_id) AS node_id FROM mqtt_devices, nodes WHERE mqtt_devices.nodes_id = nodes.id);";
 $result = $conn->query($query);
 if (isset($result)) {
         echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Orphaned Node Battery Records Deleted from Tables \n";

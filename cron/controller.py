@@ -756,17 +756,32 @@ try:
                         zone_frost_temp = sensor[sensor_to_index["frost_temp"]]
                         zone_maintain_default = sensor[sensor_to_index["default_m"]]
                         zone_c = sensor[sensor_to_index["current_val_1"]]
-
+                        sensor_found = False
+                        # check if an MQTT type sensor
                         cur.execute(
-                            "SELECT * FROM `nodes` WHERE id = %s AND status IS NOT NULL LIMIT 1",
-                            (zone_sensor_id,),
+                            "SELECT * FROM `mqtt_devices` WHERE nodes_id = %s AND child_id = %s LIMIT 1",
+                            (zone_sensor_id, zone_sensor_child_id),
                         )
                         if cur.rowcount > 0:
-                            zone_node = cur.fetchone()
-                            zone_node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                            zone_node_id = zone_node[zone_node_to_index["node_id"]]
-                            node_name = zone_node[zone_node_to_index["name"]]
-                            temp_reading_time = zone_node[zone_node_to_index["last_seen"]]
+                            sensor_found = True
+                            mqtt_device = cur.fetchone()
+                            mqtt_device_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                            zone_node_id = mqtt_device[mqtt_device_to_index["nodes_id"]]
+                            node_name = mqtt_device[mqtt_device_to_index["name"]]
+                            temp_reading_time = mqtt_device[mqtt_device_to_index["last_seen"]]
+                        else:
+                            cur.execute(
+                                "SELECT * FROM `nodes` WHERE id = %s AND status IS NOT NULL LIMIT 1",
+                                (zone_sensor_id,),
+                            )
+                            if cur.rowcount > 0:
+                                sensor_found = True
+                                zone_node = cur.fetchone()
+                                zone_node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                                zone_node_id = zone_node[zone_node_to_index["node_id"]]
+                                node_name = zone_node[zone_node_to_index["name"]]
+                                temp_reading_time = zone_node[zone_node_to_index["last_seen"]]
+                        if sensor_found:
                             #check frost protection linked to this zone controller
                             if zone_frost_controller != 0:
                                 frost_active = 0
@@ -858,16 +873,31 @@ try:
                             zone_ctr_fault = 0
                             zone_sensor_fault = 0
 
-                            #Get data from nodes table
+                            controler_found = False
+                            # check if an MQTT type sensor
                             cur.execute(
-                                "SELECT * FROM nodes WHERE node_id = %s AND status IS NOT NULL LIMIT 1;",
-                                (zone_controler_id,),
+                                "SELECT * FROM `mqtt_devices` WHERE nodes_id = %s AND child_id = %s AND type = 0 LIMIT 1",
+                                (zone_controler_id, zone_controler_child_id),
                             )
                             if cur.rowcount > 0:
-                                node = cur.fetchone()
-                                node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                                controler_seen_time = node[node_to_index["last_seen"]]
-                                controler_notice = node[node_to_index["notice_interval"]]
+                                controler_found = True
+                                mqtt_device = cur.fetchone()
+                                mqtt_device_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                                controler_seen_time = mqtt_device[mqtt_device_to_index["last_seen"]]
+                                controler_notice = mqtt_device[mqtt_device_to_index["notice_interval"]]
+                            else:
+                                #Get data from nodes table
+                                cur.execute(
+                                    "SELECT * FROM nodes WHERE node_id = %s AND status IS NOT NULL LIMIT 1;",
+                                    (zone_controler_id,),
+                                )
+                                if cur.rowcount > 0:
+                                    controler_found = True
+                                    node = cur.fetchone()
+                                    node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                                    controler_seen_time = node[node_to_index["last_seen"]]
+                                    controler_notice = node[node_to_index["notice_interval"]]
+                            if controler_found:
                                 if controler_notice > 0 and settings_dict["test_mode"] != 3:
                                     if controler_seen_time <  time_stamp + datetime.timedelta(minutes =- controler_notice):
                                         zone_fault = 1
@@ -1233,16 +1263,31 @@ try:
                         else:
                             hysteresis = 0
 
-                        #Check sensor notice interval and notice logic
+                        # check if an MQTT type sensor
+                        sensor_found = False
                         cur.execute(
-                            "SELECT * FROM nodes WHERE id =%s AND status IS NOT NULL LIMIT 1;",
-                            (zone_sensor_id,),
+                            "SELECT * FROM `mqtt_devices` WHERE nodes_id = %s AND child_id = %s LIMIT 1",
+                            (zone_sensor_id, zone_sensor_child_id),
                         )
                         if cur.rowcount > 0:
-                            node = cur.fetchone()
-                            node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-        #                    sensor_seen_time = node[node_to_index['last_seen']] #not using this cause it updates on battery update
-                            sensor_notice = node[node_to_index['notice_interval']]
+                            sensor_found = True
+                            mqtt_device = cur.fetchone()
+                            mqtt_device_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                            #sensor_seen_time = node[node_to_index['last_seen']] #not using this cause it updates on battery update
+                            sensor_notice = mqtt_device[mqtt_device_to_index['notice_interval']]
+                        else:
+                            #Check sensor notice interval and notice logic
+                            cur.execute(
+                                "SELECT * FROM nodes WHERE id =%s AND status IS NOT NULL LIMIT 1;",
+                                (zone_sensor_id,),
+                            )
+                            if cur.rowcount > 0:
+                                sensor_found = True
+                                node = cur.fetchone()
+                                node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                                #sensor_seen_time = node[node_to_index['last_seen']] #not using this cause it updates on battery update
+                                sensor_notice = node[node_to_index['notice_interval']]
+                        if sensor_found:
                             if sensor_notice > 0 and temp_reading_time is not None and settings_dict["test_mode"] != 3:
                                 sensor_seen_time = temp_reading_time #using time from messages_in
                                 if sensor_seen_time <  time_stamp + datetime.timedelta(minutes =- sensor_notice):
@@ -2141,7 +2186,6 @@ try:
                             [zone_mode, zone_status, zone_status_current, zone_c, target_c, temp_cut_out_rising, temp_cut_out, zone_ctr_fault, zone_sensor_fault, sensor_seen_time, temp_reading_time, zone_id],
                         )
                     elif zone_category == 2:
-                        print(zone_mode, zone_status, zone_status_current)
                         cur.execute(
                             "UPDATE zone_current_state SET `sync` = 0, mode = %s, status = %s, status_prev = %s, controler_fault = %s, controler_seen_time = %s WHERE zone_id = %s LIMIT 1;",
                             [zone_mode, zone_status, zone_status_current, zone_ctr_fault, controler_seen_time, zone_id],
