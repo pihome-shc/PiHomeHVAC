@@ -3372,12 +3372,14 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['relay_settings_text'].'</p>';
-		$query = "SELECT DISTINCT relays.id, relays.relay_id, relays.relay_child_id, relays.on_trigger, relays.lag_time, relays.name, relays.type, IF(zr.zone_id IS NULL, 0, 1) AS attached, nd.node_id, nd.last_seen
-                FROM relays
-                LEFT join zone_relays zr ON relays.id = zr.zone_relay_id
-                LEFT JOIN zone z ON zr.zone_id = z.id
-                JOIN nodes nd ON relays.relay_id = nd.id
-                ORDER BY relay_id asc, relay_child_id ASC;";
+                $query = "SELECT DISTINCT relays.id, relays.relay_id, relays.relay_child_id, relays.on_trigger, relays.lag_time, relays.name, relays.type,
+                        IF(zr.zone_id IS NULL, 0, 1) OR IF(sc.heat_relay_id IS NULL, 0, 1) AS attached, nd.node_id, nd.last_seen
+                        FROM relays
+                        LEFT join zone_relays zr ON relays.id = zr.zone_relay_id
+                        LEFT JOIN zone z ON zr.zone_id = z.id
+                        JOIN nodes nd ON relays.relay_id = nd.id
+                        LEFT JOIN system_controller sc ON relays.id = sc.heat_relay_id
+                        ORDER BY relay_id asc, relay_child_id ASC;";
 		$results = $conn->query($query);
 		echo '<table class="table table-bordered">
     			<tr>
@@ -3426,7 +3428,7 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
                                         <td>'.$trigger.'</td>
                                         <td>'.$row["lag_time"].'</td>
             				<td><a href="relay.php?id='.$row["id"].'"><button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-xs"><i class="bi bi-pencil"></i></button></a>&nbsp';
-            				if($row['attached'] == 1 || $row['type'] == 1) {
+            				if($row['attached'] == 1) {
 						echo '<span class="tooltip-wrapper" data-bs-toggle="tooltip" title="'.$lang['confirm_del_relay_2'].$attached_to.'"><button class="btn btn-danger btn-xs disabled"><i class="bi bi-trash-fill black"></i></button></span></td>';
 	    				} else {
                 				echo '<button class="btn warning btn-danger btn-xs" onclick="delete_relay('.$row["id"].');" data-confirm="'.$lang['confirm_del_relay_1'].'"><span class="bi bi-trash-fill black"></span></button> </td>';
