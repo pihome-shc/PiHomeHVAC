@@ -1,13 +1,5 @@
 #!/bin/bash
 
-# check if python schedule needs to be installed
-if ! pip3 list | grep schedule >/dev/null 2>&1 ; then
-  echo "Installing Python schedule"
-  sudo pip3 install schedule
-else
-  echo "Python schedule already installed"
-fi
-
 # check if Unit File already exists
 echo "Checking For Existing Unit File"
 FILE=/lib/systemd/system/pihome_jobs_schedule.service
