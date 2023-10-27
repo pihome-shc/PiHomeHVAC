@@ -34,7 +34,7 @@ print(" " + bc.ENDC)
 
 line_len = 100; #length of seperator lines
 
-import MySQLdb as mdb, sys, serial, telnetlib, os, fnmatch, subprocess
+import MySQLdb as mdb, sys, serial, os, fnmatch, subprocess
 import configparser, logging
 import datetime
 import time
