@@ -5,7 +5,7 @@ Usage: image-backup [options] [pathto/imagefile for incremental backup]
 -i,--initial    pathto/filename of image file [,inital size MB [,added space for incremental MB]]
 -n,--noexpand   Do not expand filesystem on first run after restore
 -o,--options    Additional rsync options (comma separated)
--u,--ubuntu     Ubuntu
+-u,--ubuntu     Ubuntu (Deprecated)
 -x,--extract    Extract image from NOOBS (force BOOT partition to -01 / ROOT partition to -02)"
 
 image-backup creates a backup of a running Raspbian system to a standard 'raw' image file that can be written to an SD card or a USB device with Etcher, imageUSB, etc. It will also perform incremental updates to an existing backup image file.
@@ -38,7 +38,7 @@ image-chroot:
 
 Usage: image-backup [options] pathto/imagefile
 -h,--help       This usage description
--u,--ubuntu     Ubuntu
+-u,--ubuntu     Ubuntu (Deprecated)
 
 image-chroot performs a linux 'chroot' to an image file.  The current user will be 'root' and the current directory will be '/' in the image file.  The host's root filesystem will be available at /host-root-fs.  Use exit or ^D to terminate chroot.
 
@@ -48,7 +48,7 @@ image-compare:
 Usage: image-backup [options] pathto/imagefile
 -h,--help       This usage description
 -o,--options    Additional rsync options (comma separated)
--u,--ubuntu     Ubuntu
+-u,--ubuntu     Ubuntu (Deprecated)
 
 image-compare compares a running Raspbian system to an existing standard 'raw' image file and displays the incremental changes that image-backup would perform if run.
 
@@ -57,7 +57,7 @@ image-info:
 
 Usage: image-backup [options] pathto/imagefile
 -h,--help       This usage description
--u,--ubuntu     Ubuntu
+-u,--ubuntu     Ubuntu (Deprecated)
 
 image-info displays information about a standard 'raw' image file.
 

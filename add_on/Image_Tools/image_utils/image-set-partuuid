@@ -4,6 +4,20 @@ trap '{ stty sane; echo ""; errexit "Aborted"; }' SIGINT SIGTERM
 
 MNTPATH="/tmp/img-set-partuuid-mnt"
 
+errexit()
+{
+  echo ""
+  echo "$1"
+  echo ""
+  if [ "${MNTED}" = "TRUE" ]; then
+    umount "${BOOTMNT}/" &> /dev/null
+    umount "${MNTPATH}/" &> /dev/null
+  fi
+  rm -rf "${MNTPATH}/" &> /dev/null
+  rmloop
+  exit 1
+}
+
 mkloop()
 {
   LOOP="$(losetup -f --show -P "${IMGFILE}")"
@@ -22,7 +36,6 @@ rmloop()
 
 mntimg()
 {
-  MNTED=TRUE
   mkloop
   if [ ! -d "${MNTPATH}/" ]; then
     mkdir "${MNTPATH}/"
@@ -34,13 +47,15 @@ mntimg()
   if [ $? -ne 0 ]; then
     errexit "Unable to mount image ROOT partition"
   fi
-  if [ ! -d "${MNTPATH}/boot/" ]; then
-    mkdir -p "${MNTPATH}/boot/"
+  MNTED=TRUE
+  BOOTMNT="${MNTPATH}$(sed -n 's|^\S\+\s\+\(/boot\S*\)\s\+vfat\s\+.*$|\1|p' "${MNTPATH}/etc/fstab")"
+  if [ ! -d "${BOOTMNT}/" ]; then
+    mkdir -p "${BOOTMNT}/"
     if [ $? -ne 0 ]; then
       errexit "Unable to make BOOT partition mount point"
     fi
   fi
-  mount "${LOOP}p1" "${MNTPATH}/boot/"
+  mount "${LOOP}p1" "${BOOTMNT}/"
   if [ $? -ne 0 ]; then
     errexit "Unable to mount image BOOT partition"
   fi
@@ -48,7 +63,7 @@ mntimg()
 
 umntimg()
 {
-  umount "${MNTPATH}/boot/"
+  umount "${BOOTMNT}/"
   if [ $? -ne 0 ]; then
     errexit "Unable to unmount image BOOT partition"
   fi
@@ -56,23 +71,9 @@ umntimg()
   if [ $? -ne 0 ]; then
     errexit "Unable to unmount image ROOT partition"
   fi
+  MNTED=FALSE
   rmloop
   rm -r "${MNTPATH}/"
-  MNTED=FALSE
-}
-
-errexit()
-{
-  echo ""
-  echo "$1"
-  echo ""
-  if [ "${MNTED}" = "TRUE" ]; then
-    umount "${MNTPATH}/boot/" &> /dev/null
-    umount "${MNTPATH}/" &> /dev/null
-    rm -rf "${MNTPATH}/" &> /dev/null
-  fi
-  rmloop
-  exit 1
 }
 
 LOOP=""
@@ -201,9 +202,9 @@ EOF
   PARTUUID_1="$(tr [A-Z] [a-z] <<< "${PARTUUID_1}")"
   PARTUUID_2="$(tr [A-Z] [a-z] <<< "${PARTUUID_2}")"
   mntimg
-  sed -i "/^[[:space:]]*#/!s|^\(PARTUUID=\)${ORIGUUID_1}\(\s\+/boot\s\+.*\)$|\1${PARTUUID_1}\2|" "${MNTPATH}/etc/fstab"
+  sed -i "/^[[:space:]]*#/!s|^\(PARTUUID=\)${ORIGUUID_1}\(\s\+/boot\S*\s\+vfat\s\+.*\)$|\1${PARTUUID_1}\2|" "${MNTPATH}/etc/fstab"
   sed -i "/^[[:space:]]*#/!s|^\(PARTUUID=\)${ORIGUUID_2}\(\s\+/\s\+.*\)$|\1${PARTUUID_2}\2|" "${MNTPATH}/etc/fstab"
-  sed -i "/^[[:space:]]*#/!s|^\(.*root=PARTUUID=\)${ORIGUUID_2}\(\s\+.*\)$|\1${PARTUUID_2}\2|" "${MNTPATH}/boot/cmdline.txt"
+  sed -i "/^[[:space:]]*#/!s|^\(.*root=PARTUUID=\)${ORIGUUID_2}\(\s\+.*\)$|\1${PARTUUID_2}\2|" "${BOOTMNT}/cmdline.txt"
   umntimg
 fi
 echo ""
