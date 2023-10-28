@@ -76,7 +76,7 @@ if (isset($result)) {
 }
 
 //Delete Relay Logs data older then 3 days. 
-$query = "DELETE FROM relay_logs WHERE pid_datetime < DATE_SUB(curdate(), INTERVAL ".$interval_4.");";
+$query = "DELETE FROM relay_logs WHERE datetime < DATE_SUB(curdate(), INTERVAL ".$interval_4.");";
 $result = $conn->query($query);
 if (isset($result)) {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Relay Logs Records Deleted from Tables \n"; 
