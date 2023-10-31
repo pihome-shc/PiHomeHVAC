@@ -53,7 +53,8 @@ echo $$ > $lockfile
 echo "Performing Network check for $wlan"
 if nmcli device | grep $wlan | awk -v N=3 '{print $N}' | grep -q 'disconnected'; then
 # If disconnected then reconnect
-  nmcli device wifi connect ****** password *******
+  con=`nmcli con | grep wifi | awk -v N=1 '{print $N}'`
+  nmcli con up $con
 fi
 
 # Check is complete, Remove Lock file and exit
