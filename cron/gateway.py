@@ -26,17 +26,20 @@ print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
 print("* Script to communicate with MySensors Nodes, for more *")
 print("* info please check MySensors API.                     *")
 print("*      Build Date: 18/09/2017                          *")
-print("*      Version 0.19 - Last Modified 01/10/2023         *")
+print("*      Version 0.20 - Last Modified 10/11/2023         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
 
-import MySQLdb as mdb, sys, serial, telnetlib, time, datetime, os, fnmatch
+import MySQLdb as mdb, sys, serial, time, datetime, os, fnmatch
 import configparser, logging
 from datetime import datetime
 import struct
 import requests
 import socket, re
+import threading
+from queue import Queue
+
 try:
     from Pin_Dict import pindict
     import board, digitalio
@@ -151,7 +154,7 @@ def set_relays(
             )  # !!!! send it to serial (arduino attached to rPI by USB port)
         elif gatewaytype.find("wifi") != -1:
             print("write")
-            gw.write(msg.encode("utf-8"))
+            gw.sendall(msg.encode("utf-8"))
         cur.execute(
             "UPDATE `messages_out` set sent=1 where id=%s", [out_id]
         )  # update DB so this message will not be processed in next loop
@@ -803,6 +806,43 @@ def signal_handler(signum, frame):
 class GatewayException(Exception):
     pass
 
+# threading process to read from socket until newline and then add string to the FIFO buffer
+def socket_handler(sock,buf):
+    global heartbeat_timer
+    dow = -1
+    while True:
+        try:
+            sock.settimeout(None)
+            # read from the socket 1 byte at a time and add character to in_str buffer, until a newline character
+            in_str = ''
+            while True:
+                data = sock.recv(1).decode("utf-8")
+                in_str += data
+                if data == "\n":
+                    break
+            # add newline terminated string to the FIFO queue
+            buf.put(in_str)
+
+            # if a heatbeat message then reset the timer
+            if in_str.find("Heartbeat") != -1:
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                heartbeat_delta = time.time() - heartbeat_timer
+                heartbeat_timer = time.time()
+                log_txt = timestamp + " Heartbeat Recieved after: " + str(round(heartbeat_delta,1)) + " seconds."
+                # clear log file at midnight or append
+                if datetime.now().weekday() != dow:
+                    dow = datetime.now().weekday()
+                    with open('/var/www/logs/gateway_heartbeat.log', 'w') as f:
+                        f.write(log_txt + "\n")
+                else:
+                    with open('/var/www/logs/gateway_heartbeat.log', 'a') as f:
+                        f.write(log_txt + "\n")
+                f.close()
+        except:
+            # Restart
+            pass 
+    sock.close()
+
 try:
     # Initialise the database access variables
     config = configparser.ConfigParser()
@@ -863,13 +903,22 @@ try:
         print(bc.grn + "Serial Port:   ", gatewaylocation, bc.ENDC)
         print(bc.grn + "Baud Rate:     ", gatewayport, bc.ENDC)
     elif gatewaytype == "wifi":
-        # MySensors Wifi/Ethernet Gateway Manuall override to specific ip Otherwise ip from MySQL Databased is used.
+        # MySensors Wifi/Ethernet Gateway Manuall override to specific ip Otherwise ip from MySQL Database is used.
         # mysgw = "192.168.99.3" 	#ip address of your MySensors gateway
         # mysport = "5003" 		#UDP port number for MySensors gateway
+        # telnetlib depricates in Python 3.11, replaced using socket library
         # gw = telnetlib.Telnet(mysgw, mysport, timeout=3) # Connect mysensors gateway
-        gw = telnetlib.Telnet(
-            gatewaylocation, gatewayport, timeout=gatewaytimeout
-        )  # Connect mysensors gateway from MySQL Database
+        gw = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        gw.settimeout(gatewaytimeout)
+        gw.connect((gatewaylocation, int(gatewayport)))
+        gw.setblocking(False)
+        # setup fifo queue and start the treaded process for reading the socket
+        fifo = Queue()
+        # read until newline implemented as a thtread. readin a string into a FIFO queue
+        t = threading.Thread(target=socket_handler, args=(gw, fifo))
+        # run as a deamon, so will terminate along with main
+        t.daemon = True
+        t.start() # start the thread and continue
         print(bc.grn + "Gateway Type      : Wifi/Ethernet", bc.ENDC)
         print(bc.grn + "IP Address        :", gatewaylocation, bc.ENDC)
         print(bc.grn + "UDP Port          :", gatewayport, bc.ENDC)
@@ -1074,7 +1123,7 @@ try:
 
         ## Terminate gateway script if no route to network gateway
         if gatewaytype == "wifi":
-            if not gateway_v2:
+            if not gateway_v2 or gatewayheartbeat == 0:
                 if time.time() - ping_timer >= 60:
                     ping_timer = time.time()
                     gateway_up = (
@@ -1099,7 +1148,7 @@ try:
                         print(
                             "Full Message to Send:        ", msg.replace("\n", "\\n")
                         )
-                    gw.write(msg.encode("utf-8"))
+                    gw.send(msg.encode("utf-8"))
 
         ## Outgoing messages
         con.commit()
@@ -1122,7 +1171,7 @@ try:
                         print(
                             "Full Message to Send:        ", msg.replace("\n", "\\n")
                         )
-                    gw.write(msg.encode("utf-8"))
+                    gw.send(msg.encode("utf-8"))
                     heartbeat_sent = True # block any other pending message
 
         if (heartbeat_sent == False):
@@ -1275,10 +1324,11 @@ try:
                 in_str = gw.readline()  # Here is receiving part of the code for serial GW
                 in_str = in_str.decode("utf-8")
             else:
-                in_str = gw.read_until(
-                b"\n", timeout=1
-                )  # Here is receiving part of the code for Wifi
-                in_str = in_str.decode("utf-8")
+                # Here is receiving part of the code for Wifi
+                try:
+                    in_str = fifo.get()
+                except Empty:
+                    in_str = ''
 
             if dbgLevel >= 2:  # Debug print to screen
                 if time.strftime("%S", time.gmtime()) == "00" and msgcount != 0:
@@ -1295,7 +1345,7 @@ try:
 
             if (
 #                not sys.getsizeof(in_str) <= 25 and in_str[:1] != "0"
-                not sys.getsizeof(in_str) <= 25
+                not sys.getsizeof(in_str) <= 25 and len(in_str) > 0
             ):  # here is the line where sensor are processed
                 if dbgLevel >= 1 and dbgMsgIn == 1:  # Debug print to screen
                     print(
@@ -1327,7 +1377,8 @@ try:
                         print("Acknowledge:                 ", ack)
                         print("Sub Type:                    ", sub_type)
                         print("Pay Load:                    ", payload)
-
+                        if gatewaytype == "wifi":
+                             print("FIFO Queue Size:             ", fifo.qsize())
                         # ..::Step One::..
                         # First time Temperature Sensors Node Comes online: Add Node to The Nodes Table.
                     if (
@@ -2196,7 +2247,7 @@ try:
                                 )  # !!!! send it to serial (arduino attached to rPI by USB port)
                             else:
                                 print("write")
-                                gw.write(msg.encode("utf-8"))
+                                gw.sendall(msg.encode("utf-8"))
                                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                                 cur.execute(
                                     "UPDATE `node_id` set sent=1, `date_time`=%s where id=%s",
@@ -2213,7 +2264,7 @@ try:
                         and child_sensor_id == 255
                         and message_type == 1
                         and sub_type == 47
-                        and payload == 'Heartbeat'
+#                        and payload == 'Heartbeat'
                     ):
                         if dbgLevel >= 2 and dbgMsgIn == 1:
                             print(
@@ -2230,7 +2281,7 @@ try:
                             [timestamp, node_id],
                         )
                         con.commit()
-                        heartbeat_timer = time.time()
+                        # The Heartbeat timer is reset within the socket read thread
 
                         # ..::Step Seventeen::..
                         # Update Relay Controller last seen
@@ -2239,11 +2290,11 @@ try:
                         and child_sensor_id == 255
                         and message_type == 1
                         and sub_type == 47
-                        and payload == 'Heartbeat'
+#                        and payload == 'Heartbeat'
                     ):
                         if dbgLevel >= 2 and dbgMsgIn == 1:
                             print(
-                                "17: Updating last seen for Gateway Relay Controller:",
+                                "17: Updating last seen for Relay Controller:",
                                 node_id,
                                 " Child Sensor ID:",
                                 child_sensor_id,
@@ -2258,6 +2309,8 @@ try:
                         con.commit()
                     # end if not gpio output
         time.sleep(0.1)
+        if gatewaytype.find("wifi") != -1:
+            fifo.task_done()
 
 except GatewayException as e:
     print(format(e))
