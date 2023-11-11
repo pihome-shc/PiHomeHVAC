@@ -1327,7 +1327,7 @@ try:
                 # Here is receiving part of the code for Wifi
                 try:
                     in_str = fifo.get()
-                except Empty:
+                except fifo.Empty:
                     in_str = ''
 
             if dbgLevel >= 2:  # Debug print to screen
@@ -1378,7 +1378,7 @@ try:
                         print("Sub Type:                    ", sub_type)
                         print("Pay Load:                    ", payload)
                         if gatewaytype == "wifi":
-                             print("FIFO Queue Size:             ", fifo.qsize())
+                             print("FIFO Queue lines remaining:  ", fifo.qsize())
                         # ..::Step One::..
                         # First time Temperature Sensors Node Comes online: Add Node to The Nodes Table.
                     if (
@@ -2264,7 +2264,6 @@ try:
                         and child_sensor_id == 255
                         and message_type == 1
                         and sub_type == 47
-#                        and payload == 'Heartbeat'
                     ):
                         if dbgLevel >= 2 and dbgMsgIn == 1:
                             print(
@@ -2290,7 +2289,6 @@ try:
                         and child_sensor_id == 255
                         and message_type == 1
                         and sub_type == 47
-#                        and payload == 'Heartbeat'
                     ):
                         if dbgLevel >= 2 and dbgMsgIn == 1:
                             print(
