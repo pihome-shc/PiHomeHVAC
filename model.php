@@ -364,15 +364,20 @@ echo '
 </div>';
 
 //ethernet model
-$rxdata = exec ("cat /sys/class/net/eth0/statistics/rx_bytes");
-$txdata = exec ("cat /sys/class/net/eth0/statistics/tx_bytes");
+foreach (scandir("/sys/class/net") as $file) {
+        if (str_contains($file, 'e')) {
+                $eth_name = trim($file);
+        }
+}
+$rxdata = exec ("cat /sys/class/net/".$eth_name."/statistics/rx_bytes");
+$txdata = exec ("cat /sys/class/net/".$eth_name."/statistics/tx_bytes");
 $rxdata = $rxdata/1024; // convert to kb
 $rxdata = $rxdata/1024; // convert to mb
 $txdata = $txdata/1024; // convert to kb
 $txdata = $txdata/1024; // convert to mb
-$nicmac = exec ("cat /sys/class/net/eth0/address");
-$nicpeed = exec ("cat /sys/class/net/eth0/speed");
-$nicactive = exec ("cat /sys/class/net/eth0/operstate");
+$nicmac = exec ("cat /sys/class/net/".$eth_name."/address");
+$nicpeed = exec ("cat /sys/class/net/".$eth_name."/speed");
+$nicactive = exec ("cat /sys/class/net/".$eth_name."/operstate");
 echo '
 <div class="modal fade" id="eth_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
