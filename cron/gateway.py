@@ -38,7 +38,7 @@ import struct
 import requests
 import socket, re
 import threading
-from queue import Queue
+import queue
 
 try:
     from Pin_Dict import pindict
@@ -913,7 +913,7 @@ try:
         gw.connect((gatewaylocation, int(gatewayport)))
         gw.setblocking(False)
         # setup fifo queue and start the treaded process for reading the socket
-        fifo = Queue()
+        fifo = queue.Queue()
         # read until newline implemented as a thtread. readin a string into a FIFO queue
         t = threading.Thread(target=socket_handler, args=(gw, fifo))
         # run as a deamon, so will terminate along with main
@@ -1327,7 +1327,7 @@ try:
                 # Here is receiving part of the code for Wifi
                 try:
                     in_str = fifo.get()
-                except fifo.Empty:
+                except queue.Empty:
                     in_str = ''
 
             if dbgLevel >= 2:  # Debug print to screen
