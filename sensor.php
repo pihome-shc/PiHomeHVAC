@@ -304,7 +304,7 @@ if (isset($_POST['submit'])) {
                                                 <!-- Timout -->
 							<div class="form-group" class="control-label" id="timeout_label" style="display:block"><label><?php echo $lang['sensor_timeout']; ?></label> <small class="text-muted"><?php echo $lang['sensor_timeout_info'];?></small>
                                                         <select id="timeout" name="timeout" class="form-control select2" autocomplete="off">
-					                <?php for ($x = 0; $x <=  120; $x = $x + 10) {
+					                <?php for ($x = 10; $x <=  120; $x = $x + 10) {
                         					echo '<option value="'.$x.'" ' . ($x==$row['timeout'] ? 'selected' : '') . '>'.$x.'</option>';
                 					} ?>
                 					</select>
