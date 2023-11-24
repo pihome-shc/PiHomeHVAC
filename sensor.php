@@ -150,7 +150,7 @@ if (isset($_POST['submit'])) {
 
 						<!-- Sensor Type -->
 						<div class="form-group" class="control-label" style="display:block"><label><?php echo $lang['sensor_type']; ?></label> <small class="text-muted"><?php echo $lang['sensor_type_info'];?></small>
-							<select class="form-select" type="number" id="type" name="type" onchange=enable_fields(this.options[this.selectedIndex].value)>
+							<select class="form-select" type="number" id="type" name="type" onchange=enable_fields(this.options[this.selectedIndex].value,<?php echo $id; ?>)>
 
 							<?php if(isset($rowtype['type'])) { 
 								echo '<option selected value='.$rowtype['id'].'>'.$rowtype['type'].'</option>'; 
@@ -168,27 +168,18 @@ if (isset($_POST['submit'])) {
 						</div>
 
                                                 <script language="javascript" type="text/javascript">
-                                                function enable_fields(value)
+                                                function enable_fields(value, record_id)
                                                 {
-                                                        var valuetext = value;
-                                                        if (valuetext == 2) {
+                                                        if (value == 2) {
                                                                 document.getElementById("frost_temp").style.display = 'none';
                                                                 document.getElementById("frost_protection_label").style.visibility = 'hidden';
-                                                                document.getElementById("resolution").style.display = 'block';
-                                                                document.getElementById("resolution_label").style.visibility = 'visible';
-                                                                document.getElementById("timeout").style.display = 'block';
-                                                                document.getElementById("timeout_label").style.visibility = 'visible';
                                                                 document.getElementById("correction_factor").style.display = 'block';
                                                                 document.getElementById("correction_factor_label").style.visibility = 'visible';
                                                                 document.getElementById("mode").style.display = 'block';
                                                                 document.getElementById("mode_label").style.visibility = 'visible';
-                                                        } else if (valuetext == 4) {
+                                                        } else if (value == 4) {
                                                                 document.getElementById("frost_temp").style.display = 'none';
                                                                 document.getElementById("frost_protection_label").style.visibility = 'hidden';
-                                                                document.getElementById("resolution").style.display = 'none';
-                                                                document.getElementById("resolution_label").style.visibility = 'hidden';
-                                                                document.getElementById("timeout").style.display = 'none';
-                                                                document.getElementById("timeout_label").style.visibility = 'hidden';
                                                                 document.getElementById("correction_factor").style.display = 'none';
                                                                 document.getElementById("correction_factor_label").style.visibility = 'hidden';
                                                                 document.getElementById("mode").style.display = 'none';
@@ -196,17 +187,31 @@ if (isset($_POST['submit'])) {
                                                         } else {
                                                                 document.getElementById("frost_temp").style.display = 'block';
                                                                 document.getElementById("frost_protection_label").style.visibility = 'visible';
-                                                                document.getElementById("resolution").style.display = 'block';
-                                                                document.getElementById("resolution_label").style.visibility = 'visible';
-                                                                document.getElementById("timeout").style.display = 'block';
-                                                                document.getElementById("timeout_label").style.visibility = 'visible';
                                                                 document.getElementById("correction_factor").style.display = 'block';
                                                                 document.getElementById("correction_factor_label").style.visibility = 'visible';
                                                                 document.getElementById("mode").style.display = 'block';
                                                                 document.getElementById("mode_label").style.visibility = 'visible';
                                                         }
-                                                        set_mode("0");
-                                                        document.getElementById("mode").value = 0;
+                                                        if (record_id == 0) {
+                                                        	document.getElementById("resolution").style.display = 'none';
+                                                                document.getElementById("resolution_label").style.visibility = 'hidden';
+                                                                document.getElementById("timeout").style.display = 'none';
+                                                                document.getElementById("timeout_label").style.visibility = 'hidden';
+	                                                        set_mode("0");
+        	                                                document.getElementById("mode").value = 0;
+							} else {
+								if (document.getElementById("mode").value == 0 || value == 4) {
+                        	                                        document.getElementById("resolution").style.display = 'none';
+	                                                                document.getElementById("resolution_label").style.visibility = 'hidden';
+        	                                                        document.getElementById("timeout").style.display = 'none';
+                	                                                document.getElementById("timeout_label").style.visibility = 'hidden';
+								} else {
+                	                                                document.getElementById("resolution").style.display = 'block';
+                        	                                        document.getElementById("resolution_label").style.visibility = 'visible';
+                                                                        document.getElementById("timeout").style.display = 'block';
+                                                                        document.getElementById("timeout_label").style.visibility = 'visible';
+								}
+							}
                                                 }
                                                 </script>
 
@@ -399,7 +404,7 @@ if (isset($_POST['submit'])) {
 						;
 						if ($id != 0) {
 	                                                echo '<script type="text/javascript">',
-        	                                        'enable_fields("'.$rowtype['id'].'");',
+        	                                        'enable_fields("'.$rowtype['id'].',',$id.'");',
                 	                                '</script>'
                         	                        ;
 							echo '<script type="text/javascript">',
@@ -408,7 +413,7 @@ if (isset($_POST['submit'])) {
 							;
                                                 } else {
                                                         echo '<script type="text/javascript">',
-                                                        'enable_fields("2");',
+                                                        'enable_fields("2,'.$id.'");',
                                                         '</script>'
                                                         ;
                                                         echo '<script type="text/javascript">',
