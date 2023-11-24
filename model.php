@@ -3586,7 +3586,7 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
 					if ($row['mode'] == 0) {
 						echo'<td style="text-align:center; vertical-align:middle;"><i class="bi bi-caret-right-square-fill green" style="font-size: 1.2rem;"></i></td>';
 					} else {
-						echo'<td style="text-align:center; vertical-align:middle;">'.$row['timeout'].'</i></td>';
+                                                echo'<td style="text-align:center; vertical-align:middle;"><i class="bi bi-bar-chart-fill green" style="font-size: 1.2rem;"> '.$row['timeout'].'</i></td>';
 					}
                                         echo '<td style="text-align:center; vertical-align:middle;">'.$cf.'</td>
                                         <td style="text-align:center; vertical-align:middle;">'.$row["resolution"].'</td>
