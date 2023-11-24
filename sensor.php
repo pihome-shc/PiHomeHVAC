@@ -205,6 +205,8 @@ if (isset($_POST['submit'])) {
                                                                 document.getElementById("mode").style.display = 'block';
                                                                 document.getElementById("mode_label").style.visibility = 'visible';
                                                         }
+                                                        set_mode("0");
+                                                        document.getElementById("mode").value = 0;
                                                 }
                                                 </script>
 
@@ -395,10 +397,6 @@ if (isset($_POST['submit'])) {
      						'enable_frost("'.$row['frost_temp'].'");',
      						'</script>'
 						;
-                                        	echo '<script type="text/javascript">',
-	                                        'enable_fields("'.$rowtype['id'].'");',
-        	                                '</script>'
-                	                        ;
 						if ($id != 0) {
 	                                                echo '<script type="text/javascript">',
         	                                        'enable_fields("'.$rowtype['id'].'");',
@@ -408,7 +406,16 @@ if (isset($_POST['submit'])) {
 						     	'set_mode("'.$row['mode'].'");',
      							'</script>'
 							;
-						}
+                                                } else {
+                                                        echo '<script type="text/javascript">',
+                                                        'enable_fields("2");',
+                                                        '</script>'
+                                                        ;
+                                                        echo '<script type="text/javascript">',
+                                                        'set_mode("0");',
+                                                        '</script>'
+                                                        ;
+                                                }
 						ShowWeather($conn);
 						?>
 					</div>
