@@ -365,7 +365,7 @@ echo '
 
 //ethernet model
 foreach (scandir("/sys/class/net") as $file) {
-        if (str_contains($file, 'e')) {
+        if (substr($file, 0, 1) == 'e') {
                 $eth_name = trim($file);
         }
 }
