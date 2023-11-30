@@ -1,6 +1,6 @@
 # MaxAir - Smart Thermostat
 
-### Note: Now at Version 3.00.
+### Note: Now at Version 3.01.
 
 The previous version, PiHome, was centered around the creation of zones, this version is more centered around devices.
 
@@ -46,6 +46,8 @@ Version 2.06 Introduces the ability to attach the Live Temperature Control to an
 Version 2.07 Introduces 'Relay ON Lag Time', to allow relays to be triggered to the ON state after a preset delay is applied to the initial trigger ON request.
 
 Version 3.00 Major Update - main processing engine 'controller.php' replace by Python3 module 'controller.py', runs continually every 1 second to improve system respose time
+
+Version 3.01 Update Bootstrap from Version 5.2.3 to 5.3.2 and Bootstrap Icons from Version 1.10.3 to 1.11.0
 
 ## Setup:
 
