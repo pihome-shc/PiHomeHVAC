@@ -887,7 +887,7 @@ try:
 
     gatewaytimeout = int(
         row[gateway_to_index["timout"]]
-    )  # Interface Connection timeout in Minutes
+    )  # Interface Connection timeout in Seconds
 
     gatewayheartbeat = int(
         row[gateway_to_index["heartbeat_timeout"]]
