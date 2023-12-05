@@ -26,14 +26,14 @@ print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
 print("* Script to communicate with MySensors Nodes, for more *")
 print("* info please check MySensors API.                     *")
 print("*      Build Date: 18/09/2017                          *")
-print("*      Version 0.21 - Last Modified 14/11/2023         *")
+print("*      Version 0.23 - Last Modified 05/12/2023         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
 
 import MySQLdb as mdb, sys, serial, time, datetime, os, fnmatch
 import configparser, logging
-from datetime import datetime
+from datetime import datetime, timedelta
 import struct
 import requests
 import socket, re
@@ -390,11 +390,27 @@ def on_message(client, userdata, message):
         mqtt_min_value = child[on_msg_description_to_index["min_value"]]
         # Update node last seen
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        cur_mqtt.execute(
-            'UPDATE `nodes` SET `last_seen`= %s WHERE `node_id`= %s',
-            [timestamp, mqtt_node_id],
-        )
-        con_mqtt.commit()
+        try:
+            cur_mqtt.execute(
+                'UPDATE `nodes` SET `last_seen`= %s WHERE `node_id`= %s',
+                [timestamp, mqtt_node_id],
+            )
+            con_mqtt.commit()
+        except mdb.Error as e:
+            # skip deadlock error (being caused when mysqldunp runs
+            if e.args[0] == 1213:
+                pass
+            else:
+                print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                print(traceback.format_exc())
+                logging.error(e)
+                logging.info(traceback.format_exc())
+                con.close()
+                if MQTT_CONNECTED == 1:
+                    mqttClient.disconnect()
+                    mqttClient.loop_stop()
+                print(infomsg)
+                sys.exit(1)
 
         # Update the mqtt_devices last seen
         cur_mqtt.execute(
@@ -1314,8 +1330,9 @@ try:
                                 relay_on_flag = False
 
         # remove any sensor_graphs table records older than 24 hours
+        timestamp = (datetime.now()- timedelta(hours = 24)).strftime("%Y-%m-%d %H:%M:%S")
         cur.execute(
-            'DELETE FROM sensor_graphs WHERE datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR;',
+            'DELETE FROM sensor_graphs WHERE datetime < (%s)', (timestamp,)
         )
 
         ## Incoming messages
@@ -1429,11 +1446,27 @@ try:
                                     node_id,
                                     " Already Exist In Node Table, Updating MS Version",
                                 )
-                            cur.execute(
-                                "UPDATE nodes SET ms_version = %s where node_id = %s",
-                                (payload, node_id),
-                            )
-                            con.commit()
+                            try:
+                                cur.execute(
+                                    "UPDATE nodes SET ms_version = %s where node_id = %s",
+                                    (payload, node_id),
+                                )
+                                con.commit()
+                            except mdb.Error as e:
+                                # skip deadlock error (being caused when mysqldunp runs
+                                if e.args[0] == 1213:
+                                    pass
+                                else:
+                                    print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                    print(traceback.format_exc())
+                                    logging.error(e)
+                                    logging.info(traceback.format_exc())
+                                    con.close()
+                                    if MQTT_CONNECTED == 1:
+                                        mqttClient.disconnect()
+                                        mqttClient.loop_stop()
+                                    print(infomsg)
+                                    sys.exit(1)
 
                             # ..::Step One B::..
                             # First time Node Comes online with Repeater Feature Enabled: Add Node to The Nodes Table.
@@ -1458,26 +1491,42 @@ try:
                                     payload,
                                 )
                             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                            cur.execute(
-                                "INSERT INTO nodes(`sync`, `purge`, `type`, `node_id`, `max_child_id`, `sub_type`, `name`, `last_seen`, `notice_interval`, `min_value`, `status`, `ms_version`, `sketch_version`, `repeater`) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                (
-                                    0,
-                                    0,
-                                    "MySensor",
-                                    node_id,
-                                    0,
-                                    0,
-                                    null_value,
-                                    timestamp,
-                                    0,
-                                    0,
-                                    "Active",
-                                    payload,
-                                    null_value,
-                                    1,
-                                ),
-                            )
-                            con.commit()
+                            try:
+                                cur.execute(
+                                    "INSERT INTO nodes(`sync`, `purge`, `type`, `node_id`, `max_child_id`, `sub_type`, `name`, `last_seen`, `notice_interval`, `min_value`, `status`, `ms_version`, `sketch_version`, `repeater`) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                    (
+                                        0,
+                                        0,
+                                        "MySensor",
+                                        node_id,
+                                        0,
+                                        0,
+                                        null_value,
+                                        timestamp,
+                                        0,
+                                        0,
+                                        "Active",
+                                        payload,
+                                        null_value,
+                                        1,
+                                    ),
+                                )
+                                con.commit()
+                            except mdb.Error as e:
+                                # skip deadlock error (being caused when mysqldunp runs
+                                if e.args[0] == 1213:
+                                    pass
+                                else:
+                                    print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                    print(traceback.format_exc())
+                                    logging.error(e)
+                                    logging.info(traceback.format_exc())
+                                    con.close()
+                                    if MQTT_CONNECTED == 1:
+                                        mqttClient.disconnect()
+                                        mqttClient.loop_stop()
+                                    print(infomsg)
+                                    sys.exit(1)
                         else:
                             if dbgLevel >= 2 and dbgMsgIn == 1:
                                 print(
@@ -1485,11 +1534,27 @@ try:
                                     node_id,
                                     " Already Exist In Node Table, Updating MS Version",
                                 )
-                            cur.execute(
-                                "UPDATE nodes SET ms_version = %s where node_id = %s",
-                                (payload, node_id),
-                            )
-                            con.commit()
+                            try:
+                                cur.execute(
+                                    "UPDATE nodes SET ms_version = %s where node_id = %s",
+                                    (payload, node_id),
+                                )
+                                con.commit()
+                            except mdb.Error as e:
+                                # skip deadlock error (being caused when mysqldunp runs
+                                if e.args[0] == 1213:
+                                    pass
+                                else:
+                                    print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                    print(traceback.format_exc())
+                                    logging.error(e)
+                                    logging.info(traceback.format_exc())
+                                    con.close()
+                                    if MQTT_CONNECTED == 1:
+                                        mqttClient.disconnect()
+                                        mqttClient.loop_stop()
+                                    print(infomsg)
+                                    sys.exit(1)
 
                             # ..::Step One C::..
                             # First time a Gateway Controller Node Comes online: Add Node to The Nodes Table.
@@ -1514,26 +1579,42 @@ try:
                                     payload,
                                 )
                             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                            cur.execute(
-                                "INSERT INTO nodes(`sync`, `purge`, `type`, `node_id`, `max_child_id`, `sub_type`, `name`, `last_seen`, `notice_interval`, `min_value`, `status`, `ms_version`, `sketch_version`, `repeater`) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                (
-                                    0,
-                                    0,
-                                    "MySensor",
-                                    node_id,
-                                    0,
-                                    0,
-                                    "Gateway",
-                                    timestamp,
-                                    0,
-                                    0,
-                                    "Active",
-                                    payload,
-                                    "0.00",
-                                    1,
-                                ),
-                            )
-                            con.commit()
+                            try:
+                                cur.execute(
+                                    "INSERT INTO nodes(`sync`, `purge`, `type`, `node_id`, `max_child_id`, `sub_type`, `name`, `last_seen`, `notice_interval`, `min_value`, `status`, `ms_version`, `sketch_version`, `repeater`) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                    (
+                                        0,
+                                        0,
+                                        "MySensor",
+                                        node_id,
+                                        0,
+                                        0,
+                                        "Gateway",
+                                        timestamp,
+                                        0,
+                                        0,
+                                        "Active",
+                                        payload,
+                                        "0.00",
+                                        1,
+                                    ),
+                                )
+                                con.commit()
+                            except mdb.Error as e:
+                                # skip deadlock error (being caused when mysqldunp runs
+                                if e.args[0] == 1213:
+                                    pass
+                                else:
+                                    print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                    print(traceback.format_exc())
+                                    logging.error(e)
+                                    logging.info(traceback.format_exc())
+                                    con.close()
+                                    if MQTT_CONNECTED == 1:
+                                        mqttClient.disconnect()
+                                        mqttClient.loop_stop()
+                                    print(infomsg)
+                                    sys.exit(1)
                         else:
                             if dbgLevel >= 2 and dbgMsgIn == 1:
                                 print(
@@ -1541,11 +1622,27 @@ try:
                                     node_id,
                                     " Already Exist In Node Table, Updating MS Version",
                                 )
-                            cur.execute(
-                                "UPDATE nodes SET ms_version = %s where type = 'MySensor' AND node_id = %s",
-                                (payload, node_id),
-                            )
-                            con.commit()
+                            try:
+                                cur.execute(
+                                    "UPDATE nodes SET ms_version = %s where type = 'MySensor' AND node_id = %s",
+                                    (payload, node_id),
+                                )
+                                con.commit()
+                            except mdb.Error as e:
+                                # skip deadlock error (being caused when mysqldunp runs
+                                if e.args[0] == 1213:
+                                    pass
+                                else:
+                                    print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                    print(traceback.format_exc())
+                                    logging.error(e)
+                                    logging.info(traceback.format_exc())
+                                    con.close()
+                                    if MQTT_CONNECTED == 1:
+                                        mqttClient.disconnect()
+                                        mqttClient.loop_stop()
+                                    print(infomsg)
+                                    sys.exit(1)
 
                             # ..::Step One D::..
                             # First time Node Comes online set the min_value.
@@ -1568,11 +1665,27 @@ try:
                                     " min_value:",
                                     payload,
                                 )
-                            cur.execute(
-                                "UPDATE nodes SET min_value = %s where node_id = %s",
-                                (payload, node_id),
-                            )
-                            con.commit()
+                            try:
+                                cur.execute(
+                                    "UPDATE nodes SET min_value = %s where node_id = %s",
+                                    (payload, node_id),
+                                )
+                                con.commit()
+                            except mdb.Error as e:
+                                # skip deadlock error (being caused when mysqldunp runs
+                                if e.args[0] == 1213:
+                                    pass
+                                else:
+                                    print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                    print(traceback.format_exc())
+                                    logging.error(e)
+                                    logging.info(traceback.format_exc())
+                                    con.close()
+                                    if MQTT_CONNECTED == 1:
+                                        mqttClient.disconnect()
+                                        mqttClient.loop_stop()
+                                    print(infomsg)
+                                    sys.exit(1)
 
                         # ..::Step Two A::..
                         # Add Nodes Name i.e. Relay, Temperature Sensor etc. to Nodes Table.
@@ -1589,11 +1702,27 @@ try:
                                 " Sensor Type:",
                                 payload,
                             )
-                        cur.execute(
-                            "UPDATE nodes SET name = %s where node_id = %s",
-                            (payload, node_id),
-                        )
-                        con.commit()
+                        try:
+                            cur.execute(
+                                "UPDATE nodes SET name = %s where node_id = %s",
+                                (payload, node_id),
+                            )
+                            con.commit()
+                        except mdb.Error as e:
+                            # skip deadlock error (being caused when mysqldunp runs
+                            if e.args[0] == 1213:
+                                pass
+                            else:
+                                print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                print(traceback.format_exc())
+                                logging.error(e)
+                                logging.info(traceback.format_exc())
+                                con.close()
+                                if MQTT_CONNECTED == 1:
+                                    mqttClient.disconnect()
+                                    mqttClient.loop_stop()
+                                print(infomsg)
+                                sys.exit(1)
 
                         # ..::Step Two B::..
                         # Add Gateway Nodes Name.
@@ -1610,11 +1739,27 @@ try:
                                 " Sensor Type:",
                                 payload,
                             )
-                        cur.execute(
-                            "UPDATE nodes SET name = %s where type = 'MySensor' AND node_id = %s",
-                            (payload, node_id),
-                        )
-                        con.commit()
+                        try:
+                            cur.execute(
+                                "UPDATE nodes SET name = %s where type = 'MySensor' AND node_id = %s",
+                                (payload, node_id),
+                            )
+                            con.commit()
+                        except mdb.Error as e:
+                            # skip deadlock error (being caused when mysqldunp runs
+                            if e.args[0] == 1213:
+                                pass
+                            else:
+                                print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                print(traceback.format_exc())
+                                logging.error(e)
+                                logging.info(traceback.format_exc())
+                                con.close()
+                                if MQTT_CONNECTED == 1:
+                                    mqttClient.disconnect()
+                                    mqttClient.loop_stop()
+                                print(infomsg)
+                                sys.exit(1)
 
                         # ..::Step Three A::..
                         # Add Nodes Sketch Version to Nodes Table.
@@ -1631,11 +1776,27 @@ try:
                                 " Node Sketch Version: ",
                                 payload,
                             )
-                        cur.execute(
-                            "UPDATE nodes SET sketch_version = %s where node_id = %s",
-                            (payload, node_id),
-                        )
-                        con.commit()
+                        try:
+                            cur.execute(
+                                "UPDATE nodes SET sketch_version = %s where node_id = %s",
+                                (payload, node_id),
+                            )
+                            con.commit()
+                        except mdb.Error as e:
+                            # skip deadlock error (being caused when mysqldunp runs
+                            if e.args[0] == 1213:
+                                pass
+                            else:
+                                print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                print(traceback.format_exc())
+                                logging.error(e)
+                                logging.info(traceback.format_exc())
+                                con.close()
+                                if MQTT_CONNECTED == 1:
+                                    mqttClient.disconnect()
+                                    mqttClient.loop_stop()
+                                print(infomsg)
+                                sys.exit(1)
 
                         # ..::Step Three B::..
                         # Add Gateway Controller Nodes Sketch Version to Nodes Table.
@@ -1652,11 +1813,27 @@ try:
                                 " Node Sketch Version: ",
                                 payload,
                             )
-                        cur.execute(
-                            "UPDATE nodes SET sketch_version = %s where type = 'MySensor' AND node_id = %s",
-                            (payload, node_id),
-                        )
-                        con.commit()
+                        try:
+                            cur.execute(
+                                "UPDATE nodes SET sketch_version = %s where type = 'MySensor' AND node_id = %s",
+                                (payload, node_id),
+                            )
+                            con.commit()
+                        except mdb.Error as e:
+                            # skip deadlock error (being caused when mysqldunp runs
+                            if e.args[0] == 1213:
+                                pass
+                            else:
+                                print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                print(traceback.format_exc())
+                                logging.error(e)
+                                logging.info(traceback.format_exc())
+                                con.close()
+                                if MQTT_CONNECTED == 1:
+                                    mqttClient.disconnect()
+                                    mqttClient.loop_stop()
+                                print(infomsg)
+                                sys.exit(1)
 
                         # ..::Step Four A::..
                         # Add Node Child ID to Node Table
@@ -1674,11 +1851,27 @@ try:
                                 " Child Sensor ID:",
                                 child_sensor_id,
                             )
-                        cur.execute(
-                            "UPDATE nodes SET max_child_id = %s WHERE node_id = %s",
-                            (child_sensor_id, node_id),
-                        )
-                        con.commit()
+                        try:
+                            cur.execute(
+                                "UPDATE nodes SET max_child_id = %s WHERE node_id = %s",
+                                (child_sensor_id, node_id),
+                            )
+                            con.commit()
+                        except mdb.Error as e:
+                            # skip deadlock error (being caused when mysqldunp runs
+                            if e.args[0] == 1213:
+                                pass
+                            else:
+                                print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                print(traceback.format_exc())
+                                logging.error(e)
+                                logging.info(traceback.format_exc())
+                                con.close()
+                                if MQTT_CONNECTED == 1:
+                                    mqttClient.disconnect()
+                                    mqttClient.loop_stop()
+                                print(infomsg)
+                                sys.exit(1)
 
                         # ..::Step Four A::..
                         # Add Node Child ID to Node Table
@@ -1696,11 +1889,27 @@ try:
                                 " Child Sensor ID:",
                                 child_sensor_id,
                             )
-                        cur.execute(
-                            "UPDATE nodes SET max_child_id = %s WHERE type = 'MySensor' AND node_id = %s",
-                            (child_sensor_id, node_id),
-                        )
-                        con.commit()
+                        try:
+                            cur.execute(
+                                "UPDATE nodes SET max_child_id = %s WHERE type = 'MySensor' AND node_id = %s",
+                                (child_sensor_id, node_id),
+                            )
+                            con.commit()
+                        except mdb.Error as e:
+                            # skip deadlock error (being caused when mysqldunp runs
+                            if e.args[0] == 1213:
+                                pass
+                            else:
+                                print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                print(traceback.format_exc())
+                                logging.error(e)
+                                logging.info(traceback.format_exc())
+                                con.close()
+                                if MQTT_CONNECTED == 1:
+                                    mqttClient.disconnect()
+                                    mqttClient.loop_stop()
+                                print(infomsg)
+                                sys.exit(1)
 
                         # ..::Step Five::..
                         # Add Temperature Reading to database
@@ -1711,11 +1920,28 @@ try:
                         and sub_type == 0
                     ):
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        cur.execute(
-                            "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE node_id = %s",
-                            [timestamp, node_id],
-                        )
-                        con.commit()
+                        try:
+                            cur.execute(
+                                "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE node_id = %s",
+                                [timestamp, node_id],
+                            )
+                            con.commit()
+                        except mdb.Error as e:
+                            # skip deadlock error (being caused when mysqldunp runs
+                            if e.args[0] == 1213:
+                                pass
+                            else:
+                                print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                print(traceback.format_exc())
+                                logging.error(e)
+                                logging.info(traceback.format_exc())
+                                con.close()
+                                if MQTT_CONNECTED == 1:
+                                    mqttClient.disconnect()
+                                    mqttClient.loop_stop()
+                                print(infomsg)
+                                sys.exit(1)
+
                         # Check if this sensor has a correction factor
                         cur.execute(
                             "SELECT nodes.id, sensors.mode, sensors.timeout, sensors.correction_factor, sensors.resolution FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) AND sensors.sensor_child_id = (%s) LIMIT 1;",
@@ -1877,11 +2103,28 @@ try:
                             (0, 0, node_id, child_sensor_id, sub_type, payload, timestamp),
                         )
                         con.commit()
-                        cur.execute(
-                            "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE node_id = %s",
-                             [timestamp, node_id],
-                        )
-                        con.commit()
+                        try:
+                            cur.execute(
+                                "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE node_id = %s",
+                                 [timestamp, node_id],
+                            )
+                            con.commit()
+                        except mdb.Error as e:
+                            # skip deadlock error (being caused when mysqldunp runs
+                            if e.args[0] == 1213:
+                                pass
+                            else:
+                                print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                print(traceback.format_exc())
+                                logging.error(e)
+                                logging.info(traceback.format_exc())
+                                con.close()
+                                if MQTT_CONNECTED == 1:
+                                    mqttClient.disconnect()
+                                    mqttClient.loop_stop()
+                                print(infomsg)
+                                sys.exit(1)
+
                         # Check is sensor is attached to a zone which is being graphed
                         cur.execute(
                             """SELECT sensors.id, sensors.zone_id, nodes.id AS n_id, nodes.node_id, sensors.sensor_child_id, sensors.name, sensors.graph_num
@@ -1988,11 +2231,28 @@ try:
                             (0, 0, node_id, child_sensor_id, sub_type, payload, timestamp),
                         )
                         con.commit()
-                        cur.execute(
-                            "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE node_id = %s",
-                            [timestamp, node_id],
-                        )
-                        con.commit()
+                        try:
+                            cur.execute(
+                                "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE node_id = %s",
+                                [timestamp, node_id],
+                            )
+                            con.commit()
+                        except mdb.Error as e:
+                            # skip deadlock error (being caused when mysqldunp runs
+                            if e.args[0] == 1213:
+                                pass
+                            else:
+                                print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                print(traceback.format_exc())
+                                logging.error(e)
+                                logging.info(traceback.format_exc())
+                                con.close()
+                                if MQTT_CONNECTED == 1:
+                                    mqttClient.disconnect()
+                                    mqttClient.loop_stop()
+                                print(infomsg)
+                                sys.exit(1)
+
                         cur.execute(
                             "SELECT id FROM `nodes` WHERE node_id = (%s) LIMIT 1;",
                             (node_id, ),
@@ -2057,11 +2317,27 @@ try:
                             (payload, node_id),
                         )
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        cur.execute(
-                            "UPDATE nodes SET last_seen=%s, `sync`=0 WHERE node_id = %s",
-                            [timestamp, node_id],
-                        )
-                        con.commit()
+                        try:
+                            cur.execute(
+                                "UPDATE nodes SET last_seen=%s, `sync`=0 WHERE node_id = %s",
+                                [timestamp, node_id],
+                            )
+                            con.commit()
+                        except mdb.Error as e:
+                            # skip deadlock error (being caused when mysqldunp runs
+                            if e.args[0] == 1213:
+                                pass
+                            else:
+                                print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                print(traceback.format_exc())
+                                logging.error(e)
+                                logging.info(traceback.format_exc())
+                                con.close()
+                                if MQTT_CONNECTED == 1:
+                                    mqttClient.disconnect()
+                                    mqttClient.loop_stop()
+                                print(infomsg)
+                                sys.exit(1)
 
                         cur.execute(
                             "SELECT * FROM `battery` where node_id = (%s) LIMIT 1;",
@@ -2102,11 +2378,27 @@ try:
                         cur.execute(xboost, (payload, node_id, child_sensor_id))
                         con.commit()
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        cur.execute(
-                            "UPDATE `nodes` SET `last_seen`=%s, `sync`=0 WHERE node_id = %s",
-                            [timestamp, node_id],
-                        )
-                        con.commit()
+                        try:
+                            cur.execute(
+                                "UPDATE `nodes` SET `last_seen`=%s, `sync`=0 WHERE node_id = %s",
+                                [timestamp, node_id],
+                            )
+                            con.commit()
+                        except mdb.Error as e:
+                            # skip deadlock error (being caused when mysqldunp runs
+                            if e.args[0] == 1213:
+                                pass
+                            else:
+                                print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                print(traceback.format_exc())
+                                logging.error(e)
+                                logging.info(traceback.format_exc())
+                                con.close()
+                                if MQTT_CONNECTED == 1:
+                                    mqttClient.disconnect()
+                                    mqttClient.loop_stop()
+                                print(infomsg)
+                                sys.exit(1)
 
                         # ..::Step Eleven::..
                         # Add Away Status Level to Database
@@ -2131,11 +2423,28 @@ try:
                         cur.execute(xaway, (payload, node_id, child_sensor_id))
                         con.commit()
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        cur.execute(
-                            "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE node_id = %s",
-                            [timestamp, node_id],
-                        )
-                        con.commit()
+                        try:
+                            cur.execute(
+                                "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE node_id = %s",
+                                [timestamp, node_id],
+                            )
+                            con.commit()
+                        except mdb.Error as e:
+                            # skip deadlock error (being caused when mysqldunp runs
+                            if e.args[0] == 1213:
+                                pass
+                            else:
+                                print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                print(traceback.format_exc())
+                                logging.error(e)
+                                logging.info(traceback.format_exc())
+                                con.close()
+                                if MQTT_CONNECTED == 1:
+                                    mqttClient.disconnect()
+                                    mqttClient.loop_stop()
+                                print(infomsg)
+                                sys.exit(1)
+
                         # else:
                         # print bc.WARN+ "No Action Defined Incomming Node Message Ignored \n\n" +bc.ENDC
 
@@ -2275,11 +2584,28 @@ try:
                                 payload,
                             )
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        cur.execute(
-                            "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE type = 'MySensor' AND node_id = %s",
-                            [timestamp, node_id],
-                        )
-                        con.commit()
+                        try:
+                            cur.execute(
+                                "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE type = 'MySensor' AND node_id = %s",
+                                [timestamp, node_id],
+                            )
+                            con.commit()
+                        except mdb.Error as e:
+                            # skip deadlock error (being caused when mysqldunp runs
+                            if e.args[0] == 1213:
+                                pass
+                            else:
+                                print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                print(traceback.format_exc())
+                                logging.error(e)
+                                logging.info(traceback.format_exc())
+                                con.close()
+                                if MQTT_CONNECTED == 1:
+                                    mqttClient.disconnect()
+                                    mqttClient.loop_stop()
+                                print(infomsg)
+                                sys.exit(1)
+
                         # The Heartbeat timer is reset within the socket read thread
 
                         # ..::Step Seventeen::..
@@ -2300,11 +2626,28 @@ try:
                                 payload,
                             )
                         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        cur.execute(
-                            "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE type = 'MySensor' AND node_id = %s",
-                            [timestamp, node_id],
-                        )
-                        con.commit()
+                        try:
+                            cur.execute(
+                                "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE type = 'MySensor' AND node_id = %s",
+                                [timestamp, node_id],
+                            )
+                            con.commit()
+                        except mdb.Error as e:
+                            # skip deadlock error (being caused when mysqldunp runs
+                            if e.args[0] == 1213:
+                                pass
+                            else:
+                                print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                print(traceback.format_exc())
+                                logging.error(e)
+                                logging.info(traceback.format_exc())
+                                con.close()
+                                if MQTT_CONNECTED == 1:
+                                    mqttClient.disconnect()
+                                    mqttClient.loop_stop()
+                                print(infomsg)
+                                sys.exit(1)
+
                     # end if not gpio output
         time.sleep(0.1)
         if gatewaytype.find("wifi") != -1:
