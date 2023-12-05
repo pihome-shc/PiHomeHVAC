@@ -26,14 +26,14 @@ print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
 print("* Script to communicate with MySensors Nodes, for more *")
 print("* info please check MySensors API.                     *")
 print("*      Build Date: 18/09/2017                          *")
-print("*      Version 0.22 - Last Modified 01/12/2023         *")
+print("*      Version 0.23 - Last Modified 05/12/2023         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
 
 import MySQLdb as mdb, sys, serial, time, datetime, os, fnmatch
 import configparser, logging
-from datetime import datetime
+from datetime import datetime, timedelta
 import struct
 import requests
 import socket, re
@@ -887,7 +887,7 @@ try:
 
     gatewaytimeout = int(
         row[gateway_to_index["timout"]]
-    )  # Interface Connection timeout in Seconds
+    )  # Interface Connection timeout in Minutes
 
     gatewayheartbeat = int(
         row[gateway_to_index["heartbeat_timeout"]]
@@ -1330,8 +1330,9 @@ try:
                                 relay_on_flag = False
 
         # remove any sensor_graphs table records older than 24 hours
+        timestamp = (datetime.now()- timedelta(hours = 24)).strftime("%Y-%m-%d %H:%M:%S")
         cur.execute(
-            'DELETE FROM sensor_graphs WHERE datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR;',
+            'DELETE FROM sensor_graphs WHERE datetime < (%s)', (timestamp,)
         )
 
         ## Incoming messages
