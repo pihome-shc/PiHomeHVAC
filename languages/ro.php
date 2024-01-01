@@ -1012,4 +1012,5 @@ $lang['battery_record_insert_success'] = "Battery Record Insert Successfully.";
 $lang['battery_record_insert_fail'] = "Battery Record Insert Failed..";
 $lang['battery_record_delete_success'] = "Battery Record Delete Successfully.";
 $lang['battery_record_delete_fail'] = "Battery Record Delete Failed..";
+$lang['msg_in'] = "DB Msg";
 ?>
