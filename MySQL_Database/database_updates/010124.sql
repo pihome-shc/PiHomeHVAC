@@ -1,0 +1,1 @@
+ALTER TABLE sensors ADD COLUMN IF NOT EXISTS message_in INT(4) NOT NULL DEFAULT '1' AFTER show_it;
