@@ -26,7 +26,7 @@ print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
 print("* Script to communicate with MySensors Nodes, for more *")
 print("* info please check MySensors API.                     *")
 print("*      Build Date: 18/09/2017                          *")
-print("*      Version 0.23 - Last Modified 05/12/2023         *")
+print("*      Version 0.24 - Last Modified 05/12/2023         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -552,119 +552,105 @@ def on_message(client, userdata, message):
                         [mqtt_payload, sensors_id, mqtt_child_sensor_id],
                     )
                     con_mqtt.commit()
-                    if mode == 1:
-                        # Get previous data for this sensorr
-                        cur_mqtt.execute(
-                            'SELECT datetime, payload FROM messages_in_view_24h WHERE node_id = %s AND child_id = %s ORDER BY id DESC LIMIT 1;',
-                            [mqtt_node_id, mqtt_child_sensor_id],
-                        )
+                    # Check is sensor is attached to a zone which is being graphed
+                    cur_mqtt.execute(
+                        """SELECT sensors.id, sensors.zone_id, nodes.node_id, sensors.sensor_child_id, sensors.name, sensors.graph_num, sensors.message_in, sensors.sensor_type_id
+                           FROM sensors, `nodes`
+                           WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = %s AND sensors.sensor_child_id = %s LIMIT 1;""",
+                        [mqtt_node_id, mqtt_child_sensor_id],
+                    )
+                    if cur_mqtt.rowcount > 0:
                         results = cur_mqtt.fetchone()
-                        if cur_mqtt.rowcount > 0:
-                            mqtt_message_to_index = dict(
-                                (d[0], i) for i, d in enumerate(cur_mqtt.description)
-                            )
-                            last_message_datetime = results[mqtt_message_to_index["datetime"]]
-                            last_message_payload = float(results[mqtt_message_to_index["payload"]])
-                            tdelta = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() -  datetime.strptime(str(last_message_datetime), "%Y-%m-%d %H:%M:%S").timestamp()
-                    if mode == 0 or (cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((mqtt_payload < last_message_payload - resolution or mqtt_payload > last_message_payload + resolution) or tdelta > sensor_timeout))):
-                        if sensor_timeout > 0 and tdelta > sensor_timeout:
-                            mqtt_payload = last_message_payload
-                        print(
-                            "5: Adding " + str_attribute + " Reading From Node ID:",
-                            mqtt_node_id,
-                            " Child Sensor ID:",
-                            mqtt_child_sensor_id,
-                            " PayLoad:",
-                            mqtt_payload,
+                        mqtt_sensor_to_index = dict(
+                            (d[0], i) for i, d in enumerate(cur_mqtt.description)
                         )
-                        cur_mqtt.execute(
-                            "INSERT INTO `messages_in`(`node_id`, `sync`, `purge`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES (%s, 0, 0, %s, 0, %s, %s)",
-                            [mqtt_node_id, mqtt_child_sensor_id, mqtt_payload, timestamp],
-                        )
-                        con_mqtt.commit()
-                        # Check is sensor is attached to a zone which is being graphed
-                        cur_mqtt.execute(
-                            """SELECT sensors.id, sensors.zone_id, nodes.node_id, sensors.sensor_child_id, sensors.name, sensors.graph_num, sensors.sensor_type_id
-                               FROM sensors, `nodes`
-                               WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = %s AND sensors.sensor_child_id = %s LIMIT 1;""",
-                            [mqtt_node_id, mqtt_child_sensor_id],
-                        )
-                        if cur_mqtt.rowcount > 0:
-                            results = cur_mqtt.fetchone()
-                            mqtt_sensor_to_index = dict(
-                                (d[0], i) for i, d in enumerate(cur_mqtt.description)
-                            )
-                            mqtt_sensor_id = int(results[mqtt_sensor_to_index["id"]])
-                            mqtt_sensor_name = results[mqtt_sensor_to_index["name"]]
-                            mqtt_zone_id = results[mqtt_sensor_to_index["zone_id"]]
-                            mqtt_sensor_type_id = results[mqtt_sensor_to_index["sensor_type_id"]]
-                            # type = results[zone_view_to_index['type']]
-                            # category = int(results[zone_view_to_index['category']])
-                            mqtt_graph_num = int(results[mqtt_sensor_to_index["graph_num"]])
-                            if  mqtt_sensor_type_id == 1 and mqtt_graph_num > 0:
-                                cur_mqtt.execute("SELECT c_f FROM system LIMIT 1")
-                                row = cur_mqtt.fetchone()
-                                system_to_index = dict((d[0], i) for i, d in enumerate(cur_mqtt.description))
-                                c_f = row[system_to_index["c_f"]]  # 0 = centigrade, 1 = fahrenheit
-                                if c_f:
-                                    mqtt_payload = round((mqtt_payload * 9/5) + 32, 1)
-                                if dbgLevel >= 2 and dbgMsgIn == 1:
-                                    print(
-                                        "5a: Adding Temperature Reading to Graph Table From Node ID:",
-                                        mqtt_node_id,
-                                        " Child Sensor ID:",
-                                        mqtt_child_sensor_id,
-                                        " PayLoad:",
-                                        mqtt_payload,
+                        mqtt_sensor_id = int(results[mqtt_sensor_to_index["id"]])
+                        mqtt_sensor_name = results[mqtt_sensor_to_index["name"]]
+                        mqtt_zone_id = results[mqtt_sensor_to_index["zone_id"]]
+                        mqtt_sensor_type_id = results[mqtt_sensor_to_index["sensor_type_id"]]
+                        # type = results[zone_view_to_index['type']]
+                        # category = int(results[zone_view_to_index['category']])
+                        mqtt_graph_num = int(results[mqtt_sensor_to_index["graph_num"]])
+                        mqtt_msg_in = int(results[mqtt_sensor_to_index["message_in"]])
+                        # sensor exists and it is required to update the messages_in table
+                        if mqtt_msg_in == 1:
+                            if mode == 1:
+                                # Get previous data for this sensorr
+                                cur_mqtt.execute(
+                                    'SELECT datetime, payload FROM messages_in_view_24h WHERE node_id = %s AND child_id = %s ORDER BY id DESC LIMIT 1;',
+                                    [mqtt_node_id, mqtt_child_sensor_id],
+                                )
+                                results = cur_mqtt.fetchone()
+                                if cur_mqtt.rowcount > 0:
+                                    mqtt_message_to_index = dict(
+                                        (d[0], i) for i, d in enumerate(cur_mqtt.description)
                                     )
-                                if mqtt_zone_id == 0:
-                                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                                    cur_mqtt.execute(
-                                        """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`)
-                                           VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                                        (
-                                            0,
-                                            0,
-                                            mqtt_sensor_id,
-                                            mqtt_sensor_name,
-                                            "Sensor",
-                                            0,
-                                            mqtt_node_id,
-                                            mqtt_child_sensor_id,
-                                            0,
-                                            mqtt_payload,
-                                            timestamp,
-                                        ),
-                                    )
-                                    con_mqtt.commit()
-                                else:
-                                    cur_mqtt.execute(
-                                        'SELECT * FROM `zone_view` where id = %s LIMIT 1;',
-                                        [mqtt_zone_id],
-                                    )
+                                    last_message_datetime = results[mqtt_message_to_index["datetime"]]
+                                    last_message_payload = float(results[mqtt_message_to_index["payload"]])
+                                    tdelta = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() -  datetime.strptime(str(last_message_datetime), "%Y-%m-%d %H:%M:%S").timestamp()
+                            if mode == 0 or (cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((mqtt_payload < last_message_payload - resolution or mqtt_payload > last_message_payload + resolution) or tdelta > sensor_timeout))):
+                                if sensor_timeout > 0 and tdelta > sensor_timeout:
+                                    mqtt_payload = last_message_payload
+                                print(
+                                    "5: Adding " + str_attribute + " Reading From Node ID:",
+                                    mqtt_node_id,
+                                    " Child Sensor ID:",
+                                    mqtt_child_sensor_id,
+                                    " PayLoad:",
+                                    mqtt_payload,
+                                )
+                                cur_mqtt.execute(
+                                    "INSERT INTO `messages_in`(`node_id`, `sync`, `purge`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES (%s, 0, 0, %s, 0, %s, %s)",
+                                    [mqtt_node_id, mqtt_child_sensor_id, mqtt_payload, timestamp],
+                                )
+                                con_mqtt.commit()
+                                # Check is sensor is attached to a zone which is being graphed
+                                cur_mqtt.execute(
+                                    """SELECT sensors.id, sensors.zone_id, nodes.node_id, sensors.sensor_child_id, sensors.name, sensors.graph_num, sensors.sensor_type_id
+                                       FROM sensors, `nodes`
+                                       WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = %s AND sensors.sensor_child_id = %s LIMIT 1;""",
+                                    [mqtt_node_id, mqtt_child_sensor_id],
+                                )
+                                if cur_mqtt.rowcount > 0:
                                     results = cur_mqtt.fetchone()
-                                    if cur_mqtt.rowcount > 0:
-                                        mqtt_zone_view_to_index = dict(
-                                            (d[0], i) for i, d in enumerate(cur_mqtt.description)
-                                        )
-                                        mqtt_zone_name = results[mqtt_zone_view_to_index["name"]]
-                                        mqtt_type = results[mqtt_zone_view_to_index["type"]]
-                                        mqtt_category = int(
-                                            results[mqtt_zone_view_to_index["category"]]
-                                        )
-                                        if mqtt_category != 2:
+                                    mqtt_sensor_to_index = dict(
+                                        (d[0], i) for i, d in enumerate(cur_mqtt.description)
+                                    )
+                                    mqtt_sensor_id = int(results[mqtt_sensor_to_index["id"]])
+                                    mqtt_sensor_name = results[mqtt_sensor_to_index["name"]]
+                                    mqtt_zone_id = results[mqtt_sensor_to_index["zone_id"]]
+                                    mqtt_sensor_type_id = results[mqtt_sensor_to_index["sensor_type_id"]]
+                                    # type = results[zone_view_to_index['type']]
+                                    # category = int(results[zone_view_to_index['category']])
+                                    mqtt_graph_num = int(results[mqtt_sensor_to_index["graph_num"]])
+                                    if  mqtt_sensor_type_id == 1 and mqtt_graph_num > 0:
+                                        cur_mqtt.execute("SELECT c_f FROM system LIMIT 1")
+                                        row = cur_mqtt.fetchone()
+                                        system_to_index = dict((d[0], i) for i, d in enumerate(cur_mqtt.description))
+                                        c_f = row[system_to_index["c_f"]]  # 0 = centigrade, 1 = fahrenheit
+                                        if c_f:
+                                            mqtt_payload = round((mqtt_payload * 9/5) + 32, 1)
+                                        if dbgLevel >= 2 and dbgMsgIn == 1:
+                                            print(
+                                                "5a: Adding Temperature Reading to Graph Table From Node ID:",
+                                                mqtt_node_id,
+                                                " Child Sensor ID:",
+                                                mqtt_child_sensor_id,
+                                                " PayLoad:",
+                                                mqtt_payload,
+                                            )
+                                        if mqtt_zone_id == 0:
                                             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                                             cur_mqtt.execute(
-                                                """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`,
-                                                   `datetime`)
+                                                """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`)
                                                    VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
                                                 (
                                                     0,
                                                     0,
                                                     mqtt_sensor_id,
-                                                    mqtt_zone_name,
-                                                    mqtt_type,
-                                                    mqtt_category,
+                                                    mqtt_sensor_name,
+                                                    "Sensor",
+                                                    0,
                                                     mqtt_node_id,
                                                     mqtt_child_sensor_id,
                                                     0,
@@ -673,64 +659,64 @@ def on_message(client, userdata, message):
                                                 ),
                                             )
                                             con_mqtt.commit()
-                            elif mqtt_sensor_type_id == 2:
-                                if dbgLevel >= 2 and dbgMsgIn == 1:
-                                    print(
-                                        "6a: Adding Humidity Reading to Graph Table From Node ID:",
-                                        mqtt_node_id,
-                                        " Child Sensor ID:",
-                                        mqtt_child_sensor_id,
-                                        " PayLoad:",
-                                        mqtt_payload,
-                                    )
-                                if mqtt_zone_id == 0:
-                                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                                    cur_mqtt.execute(
-                                        """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`)
-                                           VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                                        (
-                                            0,
-                                            0,
-                                            mqtt_sensor_id,
-                                            mqtt_sensor_name,
-                                            "Sensor",
-                                            0,
-                                            mqtt_node_id,
-                                            mqtt_child_sensor_id,
-                                            0,
-                                            mqtt_payload,
-                                            timestamp,
-                                        ),
-                                    )
-                                    con_mqtt.commit()
-                                else:
-                                    cur_mqtt.execute(
-                                        'SELECT * FROM `zone_view` where id = %s LIMIT 1;',
-                                        [mqtt_zone_id],
-                                    )
-                                    results = cur_mqtt.fetchone()
-                                    if cur_mqtt.rowcount > 0:
-                                        mqtt_zone_view_to_index = dict(
-                                            (d[0], i) for i, d in enumerate(cur_mqtt.description)
-                                        )
-                                        mqtt_zone_name = results[mqtt_zone_view_to_index["name"]]
-                                        mqtt_type = results[mqtt_zone_view_to_index["type"]]
-                                        mqtt_category = int(
-                                            results[mqtt_zone_view_to_index["category"]]
-                                        )
-                                        if mqtt_category != 2:
+                                        else:
+                                            cur_mqtt.execute(
+                                                'SELECT * FROM `zone_view` where id = %s LIMIT 1;',
+                                                [mqtt_zone_id],
+                                            )
+                                            results = cur_mqtt.fetchone()
+                                            if cur_mqtt.rowcount > 0:
+                                                mqtt_zone_view_to_index = dict(
+                                                    (d[0], i) for i, d in enumerate(cur_mqtt.description)
+                                                )
+                                                mqtt_zone_name = results[mqtt_zone_view_to_index["name"]]
+                                                mqtt_type = results[mqtt_zone_view_to_index["type"]]
+                                                mqtt_category = int(
+                                                    results[mqtt_zone_view_to_index["category"]]
+                                                )
+                                                if mqtt_category != 2:
+                                                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                                    cur_mqtt.execute(
+                                                        """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`,
+                                                           `datetime`)
+                                                           VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                                                        (
+                                                            0,
+                                                            0,
+                                                            mqtt_sensor_id,
+                                                            mqtt_zone_name,
+                                                            mqtt_type,
+                                                            mqtt_category,
+                                                            mqtt_node_id,
+                                                            mqtt_child_sensor_id,
+                                                            0,
+                                                            mqtt_payload,
+                                                            timestamp,
+                                                        ),
+                                                    )
+                                                    con_mqtt.commit()
+                                    elif mqtt_sensor_type_id == 2:
+                                        if dbgLevel >= 2 and dbgMsgIn == 1:
+                                            print(
+                                                "6a: Adding Humidity Reading to Graph Table From Node ID:",
+                                                mqtt_node_id,
+                                                " Child Sensor ID:",
+                                                mqtt_child_sensor_id,
+                                                " PayLoad:",
+                                                mqtt_payload,
+                                            )
+                                        if mqtt_zone_id == 0:
                                             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                                             cur_mqtt.execute(
-                                                """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`,
-                                                   `datetime`)
+                                                """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`)
                                                    VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
                                                 (
                                                     0,
                                                     0,
                                                     mqtt_sensor_id,
-                                                    mqtt_zone_name,
-                                                    mqtt_type,
-                                                    mqtt_category,
+                                                    mqtt_sensor_name,
+                                                    "Sensor",
+                                                    0,
                                                     mqtt_node_id,
                                                     mqtt_child_sensor_id,
                                                     0,
@@ -739,6 +725,42 @@ def on_message(client, userdata, message):
                                                 ),
                                             )
                                             con_mqtt.commit()
+                                        else:
+                                            cur_mqtt.execute(
+                                                'SELECT * FROM `zone_view` where id = %s LIMIT 1;',
+                                                [mqtt_zone_id],
+                                            )
+                                            results = cur_mqtt.fetchone()
+                                            if cur_mqtt.rowcount > 0:
+                                                mqtt_zone_view_to_index = dict(
+                                                    (d[0], i) for i, d in enumerate(cur_mqtt.description)
+                                                )
+                                                mqtt_zone_name = results[mqtt_zone_view_to_index["name"]]
+                                                mqtt_type = results[mqtt_zone_view_to_index["type"]]
+                                                mqtt_category = int(
+                                                    results[mqtt_zone_view_to_index["category"]]
+                                                )
+                                                if mqtt_category != 2:
+                                                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                                    cur_mqtt.execute(
+                                                        """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`,
+                                                           `datetime`)
+                                                           VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                                                        (
+                                                            0,
+                                                            0,
+                                                            mqtt_sensor_id,
+                                                            mqtt_zone_name,
+                                                            mqtt_type,
+                                                            mqtt_category,
+                                                            mqtt_node_id,
+                                                            mqtt_child_sensor_id,
+                                                            0,
+                                                            mqtt_payload,
+                                                            timestamp,
+                                                        ),
+                                                    )
+                                                    con_mqtt.commit()
 
                 # Check if MQTT Device has min_value set, if so then store the battery level for this device
                 if mqtt_min_value != 0:
@@ -1969,116 +1991,124 @@ try:
                                 [payload, sensor_id, child_sensor_id],
                             )
                             con.commit()
-                            if mode == 1:
-                                # Get previous data for this sensorr
-                                cur.execute(
-                                    'SELECT datetime, payload FROM messages_in_view_24h WHERE node_id = %s AND child_id = %s ORDER BY id DESC LIMIT 1;',
-                                    [node_id, child_sensor_id],
+                            # # Check is sensor is attached to a zone which is being graphed
+                            cur.execute(
+                                """SELECT sensors.id, sensors.zone_id, nodes.node_id, sensors.sensor_child_id, sensors.name, sensors.graph_num, sensors.message_in FROM sensors, `nodes`
+                                   WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) AND sensors.sensor_child_id = (%s) AND sensors.graph_num > 0 LIMIT 1;""",
+                                (node_id, child_sensor_id),
+                            )
+                            results = cur.fetchone()
+                            if cur.rowcount > 0:
+                                sensor_to_index = dict(
+                                    (d[0], i) for i, d in enumerate(cur.description)
                                 )
-                                results = cur.fetchone()
-                                if cur.rowcount > 0:
-                                    message_to_index = dict(
-                                        (d[0], i) for i, d in enumerate(cur.description)
-                                    )
-                                    last_message_datetime = results[message_to_index["datetime"]]
-                                    last_message_payload = float(results[message_to_index["payload"]])
-                                    tdelta = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() -  datetime.strptime(str(last_message_datetime), "%Y-%m-%d %H:%M:%S").timestamp()
-                            if mode == 0 or (cur.rowcount == 0 or (cur.rowcount > 0 and ((payload < last_message_payload - resolution or payload > last_message_payload + resolution) or tdelta > sensor_timeout))):
-                                if sensor_timeout > 0 and tdelta > sensor_timeout:
-                                    payload = last_message_payload
-                                if dbgLevel >= 2 and dbgMsgIn == 1:
-                                    print(
-                                        "5: Adding Temperature Reading From Node ID:",
-                                        node_id,
-                                        " Child Sensor ID:",
-                                        child_sensor_id,
-                                        " PayLoad:",
-                                        payload,
-                                    )
-                                cur.execute(
-                                    "INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s)",
-                                    (0, 0, node_id, child_sensor_id, sub_type, payload, timestamp),
-                                )
-                                con.commit()
-                                # Check is sensor is attached to a zone which is being graphed
-                                cur.execute(
-                                    "SELECT sensors.id, sensors.zone_id, nodes.node_id, sensors.sensor_child_id, sensors.name, sensors.graph_num FROM sensors, `nodes` WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = (%s) AND sensors.sensor_child_id = (%s) AND sensors.graph_num > 0 LIMIT 1;",
-                                    (node_id, child_sensor_id),
-                                )
-                                results = cur.fetchone()
-                                if cur.rowcount > 0:
-                                    sensor_to_index = dict(
-                                        (d[0], i) for i, d in enumerate(cur.description)
-                                    )
-                                    sensor_id = int(results[sensor_to_index["id"]])
-                                    sensor_name = results[sensor_to_index["name"]]
-                                    zone_id = results[sensor_to_index["zone_id"]]
-                                    # type = results[zone_view_to_index['type']]
-                                    # category = int(results[zone_view_to_index['category']])
-                                    graph_num = int(results[sensor_to_index["graph_num"]])
-                                    if graph_num > 0:
-                                        if c_f:
-                                            payload = round((payload * 9/5) + 32, 1)
+                                sensor_id = int(results[sensor_to_index["id"]])
+                                sensor_name = results[sensor_to_index["name"]]
+                                zone_id = results[sensor_to_index["zone_id"]]
+                                # type = results[zone_view_to_index['type']]
+                                # category = int(results[zone_view_to_index['category']])
+                                graph_num = int(results[sensor_to_index["graph_num"]])
+                                msg_in = int(results[sensor_to_index["message_in"]])
+                                # sensor exists and it is required to update the messages_in table
+                                if msg_in == 1:
+                                    if mode == 1:
+                                        # Get previous data for this sensorr
+                                        cur.execute(
+                                            'SELECT datetime, payload FROM messages_in_view_24h WHERE node_id = %s AND child_id = %s ORDER BY id DESC LIMIT 1;',
+                                            [node_id, child_sensor_id],
+                                        )
+                                        results = cur.fetchone()
+                                        if cur.rowcount > 0:
+                                            message_to_index = dict(
+                                                (d[0], i) for i, d in enumerate(cur.description)
+                                            )
+                                            last_message_datetime = results[message_to_index["datetime"]]
+                                            last_message_payload = float(results[message_to_index["payload"]])
+                                            tdelta = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() -  datetime.strptime(str(last_message_datetime), "%Y-%m-%d %H:%M:%S").timestamp()
+                                    if mode == 0 or (cur.rowcount == 0 or (cur.rowcount > 0 and ((payload < last_message_payload - resolution or payload > last_message_payload + resolution) or tdelta > sensor_timeout))):
+                                        if sensor_timeout > 0 and tdelta > sensor_timeout:
+                                            payload = last_message_payload
                                         if dbgLevel >= 2 and dbgMsgIn == 1:
                                             print(
-                                                "5a: Adding Temperature Reading to Graph Table From Node ID:",
+                                                "5: Adding Temperature Reading From Node ID:",
                                                 node_id,
                                                 " Child Sensor ID:",
                                                 child_sensor_id,
                                                 " PayLoad:",
                                                 payload,
                                             )
-                                        if zone_id == 0:
-                                            cur.execute(
-                                                "INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                                                (
-                                                    0,
-                                                    0,
-                                                    sensor_id,
-                                                    sensor_name,
-                                                    "Sensor",
-                                                    0,
+                                        cur.execute(
+                                            "INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s)",
+                                            (0, 0, node_id, child_sensor_id, sub_type, payload, timestamp),
+                                        )
+                                        con.commit()
+                                        # Check is sensor is attached to a zone which is being graphed
+                                        graph_num = int(results[sensor_to_index["graph_num"]])
+                                        if graph_num > 0:
+                                            if c_f:
+                                                payload = round((payload * 9/5) + 32, 1)
+                                            if dbgLevel >= 2 and dbgMsgIn == 1:
+                                                print(
+                                                    "5a: Adding Temperature Reading to Graph Table From Node ID:",
                                                     node_id,
+                                                    " Child Sensor ID:",
                                                     child_sensor_id,
-                                                    sub_type,
+                                                    " PayLoad:",
                                                     payload,
-                                                    timestamp,
-                                                ),
-                                            )
-                                            con.commit()
-                                        else:
-                                            cur.execute(
-                                                "SELECT * FROM `zone_view` where id = (%s) LIMIT 1;",
-                                                (zone_id,),
-                                            )
-                                            results = cur.fetchone()
-                                            if cur.rowcount > 0:
-                                                zone_view_to_index = dict(
-                                                    (d[0], i) for i, d in enumerate(cur.description)
                                                 )
-                                                zone_name = results[zone_view_to_index["name"]]
-                                                type = results[zone_view_to_index["type"]]
-                                                category = int(
-                                                    results[zone_view_to_index["category"]]
+                                            if zone_id == 0:
+                                                cur.execute(
+                                                    """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`,
+                                                       `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                                                    (
+                                                        0,
+                                                        0,
+                                                        sensor_id,
+                                                        sensor_name,
+                                                        "Sensor",
+                                                        0,
+                                                        node_id,
+                                                        child_sensor_id,
+                                                        sub_type,
+                                                        payload,
+                                                        timestamp,
+                                                    ),
                                                 )
-                                                if category != 2:
-                                                    cur.execute(
-                                                        "INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                                                        (
-                                                            0,
-                                                            0,
-                                                            sensor_id,
-                                                            zone_name,
-                                                            type,
-                                                            category,
-                                                            node_id,
-                                                            child_sensor_id,
-                                                            sub_type,
-                                                            payload,
-                                                            timestamp,
-                                                        ),
+                                                con.commit()
+                                            else:
+                                                cur.execute(
+                                                    "SELECT * FROM `zone_view` where id = (%s) LIMIT 1;",
+                                                    (zone_id,),
+                                                )
+                                                results = cur.fetchone()
+                                                if cur.rowcount > 0:
+                                                    zone_view_to_index = dict(
+                                                        (d[0], i) for i, d in enumerate(cur.description)
                                                     )
-                                                    con.commit()
+                                                    zone_name = results[zone_view_to_index["name"]]
+                                                    type = results[zone_view_to_index["type"]]
+                                                    category = int(
+                                                        results[zone_view_to_index["category"]]
+                                                    )
+                                                    if category != 2:
+                                                        cur.execute(
+                                                            """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`,
+                                                               `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                                                            (
+                                                                0,
+                                                                0,
+                                                                sensor_id,
+                                                                zone_name,
+                                                                type,
+                                                                category,
+                                                                node_id,
+                                                                child_sensor_id,
+                                                                sub_type,
+                                                                payload,
+                                                                timestamp,
+                                                            ),
+                                                        )
+                                                        con.commit()
 
                         # ..::Step Six ::..
                         # Add Humidity Reading to database

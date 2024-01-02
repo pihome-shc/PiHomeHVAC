@@ -3549,7 +3549,7 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['sensor_settings_text'].'</p>';
-		$query = "select sensors.id, sensors.name, sensors.sensor_child_id, sensors.correction_factor, sensors.mode, sensors.timeout, sensors.resolution, sensors.zone_id, sensors.show_it, nodes.node_id, nodes.last_seen from sensors, nodes WHERE sensors.sensor_id = nodes.id order by name asc";
+		$query = "select sensors.id, sensors.name, sensors.sensor_child_id, sensors.correction_factor, sensors.mode, sensors.timeout, sensors.resolution, sensors.zone_id, sensors.show_it, sensors.message_in, nodes.node_id, nodes.last_seen from sensors, nodes WHERE sensors.sensor_id = nodes.id order by name asc";
 		$results = $conn->query($query);
 		echo '<table class="table table-bordered">
     			<tr>
@@ -3559,8 +3559,9 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
                                 <th class="col-lg-1"><small>'.$lang['sensor_mode'].'</small></th>
                                 <th class="col-lg-1"><small>'.$lang['correct_factor'].'</small></th>
                                 <th class="col-lg-1"><small>'.$lang['res'].'</small></th>
-                                <th class="col-lg-2"><small>'.$lang['zone_name'].'</small></th>
+                                <th class="col-lg-1"><small>'.$lang['zone_name'].'</small></th>
                                 <th class="col-lg-1"><small>'.$lang['show'].'</small></th>
+                                <th class="col-lg-1"><small>'.$lang['msg_in'].'</small></th>
                                 <th class="col-lg-2"></th>
     			</tr>';
 			while ($row = mysqli_fetch_assoc($results)) {
@@ -3578,6 +3579,7 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
 					$zone_name = "Not Allocated";
     				}
     				$check = ($row['show_it'] == 1) ? 'checked' : '';
+                                $check_msg_in = ($row['message_in'] == 1) ? 'checked' : '';
                                 $cf = ($row['correction_factor'] == 0) ? '0' : $row['correction_factor'];
                                 echo '<tr>
                                         <td style="text-align:center; vertical-align:middle;">'.$row["name"].'<br> <small>('.$row["last_seen"].')</small></td>
@@ -3594,11 +3596,17 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
             				if (empty($row['zone_id'])) {
 						echo '<td style="text-align:center; vertical-align:middle;">
                 				<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" id="checkbox'.$row["id"].'" name="checkbox'.$row["id"].'" value="1" '.$check.'>
-            					</td>';
+            					</td>
+                                        	<td style="text-align:center; vertical-align:middle;">
+                                        		<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" id="checkbox_msg_in'.$row["id"].'" name="checkbox_msg_in'.$row["id"].'" value="1" '.$check_msg_in.'>
+                                        	</td>';
 	    				} else {
                 				echo '<td style="text-align:center; vertical-align:middle;">
                 				<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" id="checkbox'.$row["id"].'" name="checkbox'.$row["id"].'" value="1" '.$check.' disabled>
-                				</td>';
+                				</td>
+                                        	<td style="text-align:center; vertical-align:middle;">
+                                        		<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" id="checkbox_msg_in'.$row["id"].'" name="checkbox_msg_in'.$row["id"].'" value="1" '.$check_msg_in.' disabled>
+                                        	</td>';
 	    				}
 	    				echo '<td style="text-align:center; vertical-align:middle;"><a href="sensor.php?id='.$row["id"].'"><button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-xs"><i class="bi bi-pencil"></i></button></a>&nbsp';
 	    				if (empty($row['zone_id'])) {

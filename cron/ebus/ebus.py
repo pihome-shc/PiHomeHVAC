@@ -167,6 +167,7 @@ def boiler():
             sensor_name = result[sensor_to_index["name"]]
             sensor_type_id = int(result[sensor_to_index["sensor_type_id"]])
             graph_num = int(result[sensor_to_index["graph_num"]])
+            msg_in = result[sensor_to_index["message_in"]]
             mode = result[sensor_to_index["mode"]]
             sensor_timeout = int(result[sensor_to_index["timeout"]])*60
             correction_factor = int(result[sensor_to_index["correction_factor"]])
@@ -204,14 +205,15 @@ def boiler():
          else :
             # Update messages_in if required
             # process NOT a temperature sensor
-            if sensor_type_id != 1 :
+            if sensor_type_id > 2 :
                if last_readings[message] != response :
                   print(bc.blu + timestamp + bc.wht + " - " + message + " - " + str(response))
                   try :
-                     cursorinsert = cnx.cursor()
-                     cursorinsert.execute('INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`) VALUES(%s,%s,%s,%s,%s,%s)', (0,0,node_id,sensor_child_id,position,response))
-                     cnx.commit()
-                     cursorinsert.close()
+                     if msg_in == 1:
+                         cursorinsert = cnx.cursor()
+                         cursorinsert.execute('INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`) VALUES(%s,%s,%s,%s,%s,%s)', (0,0,node_id,sensor_child_id,position,response))
+                         cnx.commit()
+                         cursorinsert.close()
                      cursorupdate = cnx.cursor()
                      if position == 0:
                          qry_str = "UPDATE `sensors` SET `current_val_1`  = {} WHERE `sensor_id` = {} AND `sensor_child_id` = {} LIMIT 1;".format(response, sensor_id, sensor_child_id)
@@ -244,10 +246,11 @@ def boiler():
                if mode == 0 or (mode == 1 and (response < last_readings[message] - resolution or response > last_readings[message] + resolution) or tdelta > sensor_timeout):
                   print(bc.blu + timestamp + bc.wht + " - " + message + " - " + str(response))
                   try :
-                     cursorinsert = cnx.cursor()
-                     cursorinsert.execute('INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`) VALUES(%s,%s,%s,%s,%s,%s)', (0,0,node_id,sensor_child_id,position,response))
-                     cnx.commit()
-                     cursorinsert.close()
+                     if msg_in == 1:
+                         cursorinsert = cnx.cursor()
+                         cursorinsert.execute('INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`) VALUES(%s,%s,%s,%s,%s,%s)', (0,0,node_id,sensor_child_id,position,response))
+                         cnx.commit()
+                         cursorinsert.close()
                      cursorupdate = cnx.cursor()
                      if position == 0:
                          qry_str = "UPDATE `sensors` SET `current_val_1`  = {} WHERE `sensor_id` = {} AND `sensor_child_id` = {} LIMIT 1;".format(response, sensor_id, sensor_child_id)
@@ -269,7 +272,7 @@ def boiler():
                   except :
                      pass
 
-                  if graph_num > 0 :
+                  if msg_in ==1 and graph_num > 0 :
                      try :
                         cursorinsert = cnx.cursor()
                         cursorinsert.execute('INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', (0,0,id,sensor_name,"Sensor",0,node_id,sensor_child_id,0,response,timestamp))

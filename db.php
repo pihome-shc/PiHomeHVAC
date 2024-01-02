@@ -1532,7 +1532,10 @@ if($what=="show_sensors"){
                 $checkbox = 'checkbox'.$row['id'];
                 $show_it =  $_GET[$checkbox];
                 if ($show_it=='true'){$show_it = '1';} else {$show_it = '0';}
-                $query = "UPDATE sensors SET show_it = '".$show_it."' WHERE id = '".$row['id']."' LIMIT 1;";
+                $checkbox_msg_in = 'checkbox_msg_in'.$row['id'];
+                $msg_in =  $_GET[$checkbox_msg_in];
+                if ($msg_in=='true'){$msg_in = '1';} else {$msg_in = '0';}
+                $query = "UPDATE sensors SET show_it = '".$show_it."', message_in ='".$msg_in."' WHERE id = '".$row['id']."' LIMIT 1;";
                 $update_error=0;
                 if(!$conn->query($query)){
                         $update_error=1;
