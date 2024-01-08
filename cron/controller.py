@@ -27,7 +27,7 @@ print("********************************************************")
 print("*              System Controller Script                *")
 print("*                                                      *")
 print("*               Build Date: 10/02/2023                 *")
-print("*       Version 0.01 - Last Modified 10/02/2023        *")
+print("*       Version 0.01 - Last Modified 07/01/2024        *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -325,6 +325,10 @@ try:
 
         #initialise z_state dictionay
         z_state_dict = dict()
+
+        #initialise dictionay for start and stop cause
+        z_start_cause_dict = dict()
+        z_stop_cause_dict = dict()
 
         #initialise the commands dictionary
         command_index = 0
@@ -1351,12 +1355,12 @@ try:
                                                 zone_status = zone_status_prev
                                                 zone_mode = 142 - zone_status_prev
                                                 start_cause = "Manual Target Deadband"
-                                                stop_cause = "Manual Target Deadband"
+                                                stop_cause = "Manual Target Deadband (" + str(zone_c) + ")" 
                                                 zone_state = zone_status_prev
                                             if zone_c >= temp_cut_out:
                                                 zone_status = 0
                                                 zone_mode = 140
-                                                stop_cause = "Manual Target C Achieved"
+                                                stop_cause = "Manual Target C Achieved (" + str(zone_c) + ")"
                                                 zone_state = 0
                                         elif away_status == 0 or (away_status == 1 and sch_status == 1):
                                             if holidays_status == 0 or sch_holidays == 1:
@@ -1373,16 +1377,19 @@ try:
                                                         zone_status = zone_status_prev
                                                         zone_mode = 72 - zone_status_prev
                                                         start_cause = "Schedule Override Target Deadband"
-                                                        stop_cause = "Schedule Override Target Deadband"
+                                                        stop_cause = "Schedule Override Target Deadband (" + str(zone_c) + ")"
                                                         zone_state = zone_status_prev;
                                                     if zone_c >= temp_cut_out:
                                                         zone_status = 0
                                                         zone_mode = 70
-                                                        stop_cause = "Schedule Override Target C Achieved"
+                                                        stop_cause = "Schedule Override Target C Achieved (" + str(zone_c) + ")"
                                                         zone_state = 0
                                                 elif boost_status == 0:
                                                     zone_status = 0
-                                                    stop_cause = "Boost Finished"
+                                                    if (zone_status == 0 and floor(zone_mode_current/10)*10 == 60):
+                                                        stop_cause = "Boost Finished"
+                                                    else:
+                                                        stop_cause = ""
                                                     if night_climate_status == 0:
                                                         if sch_status == 1 and zone_c < temp_cut_out_rising and (sch_coop == 0 or system_controller_active_status == 1):
                                                             zone_status = 1
@@ -1400,12 +1407,12 @@ try:
                                                             zone_status = zone_status_prev
                                                             zone_mode = 82 - zone_status_prev
                                                             start_cause = "Schedule Target Deadband"
-                                                            stop_cause = "Schedule Target Deadband"
+                                                            stop_cause = "Schedule Target Deadband (" + str(zone_c) + ")"
                                                             zone_state = zone_status_prev
                                                         if sch_status == 1 and zone_c >= temp_cut_out:
                                                             zone_status = 0
                                                             zone_mode = 80
-                                                            stop_cause = "Schedule Target C Achieved"
+                                                            stop_cause = "Schedule Target C Achieved (" + str(zone_c) + ")"
                                                             zone_state = 0
                                                         if sch_status == 0 and sch_holidays == 1:
                                                             zone_status = 0
@@ -1427,13 +1434,13 @@ try:
                                                         zone_status = zone_status_prev
                                                         zone_mode = 52 - zone_status_prev
                                                         start_causec = "Night Climate Deadband"
-                                                        stop_cause = "Night Climate Deadband"
+                                                        stop_cause = "Night Climate Deadband (" + str(zone_c) + ")"
                                                         expected_end_date_time = nc_end_time_rc_str
                                                         zone_state = zone_status_prev
                                                     elif night_climate_status == 1 and zone_c >= temp_cut_out:
                                                         zone_status = 0
                                                         zone_mode = 50
-                                                        stop_cause = "Night Climate C Reached"
+                                                        stop_cause = "Night Climate C Reached (" + str(zone_c) + ")"
                                                         expected_end_date_time = nc_end_time_rc_str
                                                         zone_state = 0
                                                 elif boost_status == 1 and zone_c < temp_cut_out_rising:
@@ -1446,12 +1453,12 @@ try:
                                                     zone_status = zone_status_prev
                                                     zone_mode = 62 - zone_status_prev
                                                     start_cause = "Boost Target Deadband"
-                                                    stop_cause = "Boost Target Deadband"
+                                                    stop_cause = "Boost Target Deadband (" + str(zone_c) + ")"
                                                     zone_state = zone_status_prev
                                                 elif boost_status == 1 and zone_c >= temp_cut_out:
                                                     zone_status = 0
                                                     zone_mode = 60
-                                                    stop_cause = "Boost Target C Achived"
+                                                    stop_cause = "Boost Target C Achived (" + str(zone_c) + ")"
                                                     zone_state = 0
                                                 #end if($boost_status=='0')
                                             elif holidays_status == 1 and sch_holidays == 0:
@@ -1472,7 +1479,7 @@ try:
                                 elif zone_c >= zone_max_c:
                                     zone_status = 0
                                     zone_mode = 30
-                                    stop_cause="Zone Reached its Max Temperature " + str(zone_max_c)
+                                    stop_cause="Zone Reached its Max Temperature " + str(zone_max_c) + ")"
                                     zone_state = 0
                                 elif hysteresis == 1 and floor(zone_status_prev%10) != 8:
                                     zone_status = 0
@@ -2124,6 +2131,10 @@ try:
                     if dbgLevel == 1:
                         print("sch_status " + str(sch_status) + ", zone_state " + str(zone_state) + ", boost_status " + str(boost_status) + ", override_status " + str(zone_override_status) + ", zone_mode_current " + str(zone_mode_current) + ", zone_status_prev " + str(zone_status_prev), ", hysteresis_status " + str(hysteresis))
 
+                    #Save the start and stop causes for this zone
+                    z_start_cause_dict[zone_id] = start_cause
+                    z_stop_cause_dict[zone_id] = stop_cause
+
                     #Update the individual zone controller states for controllers associated with this zone
                     for zc_id in controllers_dict[zone_id]:
                         controllers_dict[zone_id][zc_id ]["zone_controller_state"] = zone_state
@@ -2541,6 +2552,10 @@ try:
                     print("z_state Array and Count")
                     print(z_state_dict)
                     print(len(z_state_dict))
+                    print("z_start_cause Array")
+                    print(z_start_cause_dict)
+                    print("z_stop_cause Array")
+                    print(z_stop_cause_dict)
                     print("system_controller Array")
                     print(system_controller_dict)
                     print("controllers Array")
@@ -2772,14 +2787,14 @@ try:
                         for key in zone_log_dict:
                             if zone_log_dict[key] != z_state_dict[key]:
                                 if zone_log_dict[key] == 0:
-                                    qry_str = """UPDATE controller_zone_logs SET stop_datetime = '{}', stop_cause = '{}' WHERE `zone_id` = {} ORDER BY id DESC LIMIT 1;""".format(time_stamp.strftime("%Y-%m-%d %H:%M:%S"), stop_cause, key)
+                                    qry_str = """UPDATE controller_zone_logs SET stop_datetime = '{}', stop_cause = '{}' WHERE `zone_id` = {} ORDER BY id DESC LIMIT 1;""".format(time_stamp.strftime("%Y-%m-%d %H:%M:%S"), z_stop_cause_dict[key], key)
                                 else:
                                     if expected_end_date_time is not None:
                                         qry_str = """INSERT INTO `controller_zone_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`,
-                                                  `expected_end_date_time`) VALUES ({}, {}, {}, '{}', '{}', {}, {},'{}');""".format(0,0,key,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),start_cause,NULL,NULL,expected_end_date_time)
+                                                  `expected_end_date_time`) VALUES ({}, {}, {}, '{}', '{}', {}, {},'{}');""".format(0,0,key,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),z_start_cause_dict[key],NULL,NULL,expected_end_date_time)
                                     else:
                                         qry_str = """INSERT INTO `controller_zone_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`,
-                                                  `expected_end_date_time`) VALUES ({}, {}, {}, '{}', '{}', {}, {},{});""".format(0,0,key,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),start_cause,NULL,NULL,NULL)
+                                                  `expected_end_date_time`) VALUES ({}, {}, {}, '{}', '{}', {}, {},{});""".format(0,0,key,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),z_start_cause_dict[key],NULL,NULL,NULL)
                                 try:
                                     cur.execute(qry_str)
                                     con.commit()
