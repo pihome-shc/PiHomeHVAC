@@ -1386,10 +1386,7 @@ try:
                                                         zone_state = 0
                                                 elif boost_status == 0:
                                                     zone_status = 0
-                                                    if (zone_status == 0 and floor(zone_mode_current/10)*10 == 60):
-                                                        stop_cause = "Boost Finished"
-                                                    else:
-                                                        stop_cause = ""
+                                                    stop_cause = ""
                                                     if night_climate_status == 0:
                                                         if sch_status == 1 and zone_c < temp_cut_out_rising and (sch_coop == 0 or system_controller_active_status == 1):
                                                             zone_status = 1
@@ -1422,7 +1419,11 @@ try:
                                                         if sch_status == 0 and sch_holidays == 0:
                                                             zone_status = 0
                                                             zone_mode = 0
-                                                            stop_cause =" No Schedule"
+                                                            # set the stop_cause dependant on the running mode
+                                                            if floor(zone_mode_current/10)*10 == 60:
+                                                                stop_cause = "Boost Finished"
+                                                            elif floor(zone_mode_current/10)*10 == 80:
+                                                                stop_cause = "Schedule Finished"
                                                             zone_state = 0
                                                     elif night_climate_status == 1 and zone_c < temp_cut_out_rising:
                                                         zone_status = 1
@@ -2960,9 +2961,10 @@ try:
 
                         #Update last record with system controller stop date and time in System Controller Log table.
                         if system_controller_active_status != new_system_controller_status:
+                            #zone updates
                             for key in zone_log_dict:
                                 if zone_log_dict[key] != z_state_dict[key]:
-                                    qry_str = """UPDATE controller_zone_logs SET stop_datetime = '{}', stop_cause = '{}' WHERE `zone_id` = {} ORDER BY id DESC LIMIT 1;""".format(time_stamp.strftime("%Y-%m-%d %H:%M:%S"), stop_cause, key)
+                                    qry_str = """UPDATE controller_zone_logs SET stop_datetime = '{}', stop_cause = '{}' WHERE `zone_id` = {} ORDER BY id DESC LIMIT 1;""".format(time_stamp.strftime("%Y-%m-%d %H:%M:%S"), z_stop_cause_dict[key], key)
                                     try:
                                         cur.execute(qry_str)
                                         con.commit()
@@ -2971,6 +2973,7 @@ try:
                                     except:
                                         if dbgLevel >= 2:
                                             print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone Log table update failed.")
+                            #system controller update
                             qry_str = """UPDATE controller_zone_logs SET stop_datetime = '{}', stop_cause = '{}' WHERE `zone_id` = {} ORDER BY id DESC LIMIT 1;""".format(time_stamp.strftime("%Y-%m-%d %H:%M:%S"), stop_cause, system_controller_id)
                             try:
                                 cur.execute(qry_str)
