@@ -657,5 +657,49 @@ if ($type <= 5) {
 	} else {
 		echo '<div class="circle_list bluesch_disable"> <p class="schdegree">D</p></div>';
 	}
+} elseif ($type == 21) {
+        //------------------------------------------------------------
+        //return the controller_zone_logs last entries for Recent Logs
+        //------------------------------------------------------------
+	$query = "SELECT 'SC' AS name, controller_zone_logs.* FROM controller_zone_logs,
+			(SELECT `zone_id`,max(`id`) AS mid
+				FROM controller_zone_logs
+				GROUP BY `zone_id`) max_id
+			WHERE controller_zone_logs.zone_id = max_id.zone_id
+			AND controller_zone_logs.id = max_id.mid
+			AND controller_zone_logs.zone_id = 1
+		UNION
+		SELECT zone.name,controller_zone_logs.* FROM controller_zone_logs, zone,
+			(SELECT `zone_id`,max(`id`) AS mid
+				FROM controller_zone_logs
+				GROUP BY `zone_id`) max_id
+			WHERE controller_zone_logs.zone_id = max_id.zone_id
+			AND controller_zone_logs.id = max_id.mid
+			AND controller_zone_logs.zone_id = zone.id;";
+	$results = $conn->query($query);
+        echo '<table class="table table-bordered" id="controller_zone_logs">
+        	<thead>
+                	<tr>
+                        	<th class="col-2"><small>'.$lang['zone_name'].'</small></th>
+                                <th class="col-2"><small>'.$lang['start_datetime'].'</small></th>
+                                <th class="col-2"><small>'.$lang['start_cause'].'</small></th>
+                                <th class="col-2"><small>'.$lang['stop_datetime'].'</small></th>
+                                <th class="col-2"><small>'.$lang['stop_cause'].'</small></th>
+                                <th class="col-2"><small>'.$lang['expected_end_date_time'].'</small></th>
+                        </tr>
+		</thead>
+                <tbody>';
+                	while ($row = mysqli_fetch_assoc($results)) {
+                        	echo '<tr>
+                                	<td class="col-2">'.$row["name"].'</td>
+                                        <td class="col-2">'.$row["start_datetime"].'</td>
+                                        <td class="col-2">'.$row["start_cause"].'</td>
+                                        <td class="col-2">'.$row["stop_datetime"].'</td>
+                                        <td class="col-2">'.$row["stop_cause"].'</td>
+                                        <td class="col-2">'.$row["expected_end_date_time"].'</td>
+                                </tr>';
+                        }
+		echo '</tbody>
+	</table>';
 }
 ?>

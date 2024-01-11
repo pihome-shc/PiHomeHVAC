@@ -1013,4 +1013,12 @@ $lang['battery_record_insert_fail'] = "Battery Record Insert Failed..";
 $lang['battery_record_delete_success'] = "Battery Record Delete Successfully.";
 $lang['battery_record_delete_fail'] = "Battery Record Delete Failed..";
 $lang['msg_in'] = "DB Msg";
+$lang['sc_zone_logs'] = "SC/Zone Logs";
+$lang['controller_zone_logs'] = "System Controller and Zone Log";
+$lang['controller_zone_logs_text'] = "Latest System Controller and Zone Log";
+$lang['start_datetime'] = "Start Date/Time";
+$lang['start_cause'] = "Start Cause";
+$lang['stop_datetime'] = "Stop Date/Time";
+$lang['stop_cause'] = "Stop Cause";
+$lang['expected_end_date_time'] = "Expected End Date/Time";
 ?>
