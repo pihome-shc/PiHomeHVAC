@@ -701,5 +701,25 @@ if ($type <= 5) {
                         }
 		echo '</tbody>
 	</table>';
+} elseif ($type == 22) {
+	echo '<div id="system_uptime">
+	        <p class="text-muted"> '.$lang['system_uptime_text'].' </p>
+        	<i class="bi bi-clock red"></i>';
+	        $uptime = (exec ("cat /proc/uptime"));
+        	$uptime=substr($uptime, 0, strrpos($uptime, ' '));
+	        echo '&nbsp'.secondsToWords($uptime) . '<br/><br/>
+
+        	<div class="list-group">
+        		<span class="list-group-item" style="overflow:hidden;"><pre>';
+                		$rval=my_exec("df -h");
+	                        echo $rval['stdout'];
+        	        echo '</pre></span>
+
+                	<span class="list-group-item" style="overflow:hidden;"><pre>';
+                 		$rval=my_exec("free -h");
+	                        echo $rval['stdout'];
+        	        echo '</pre></span>
+          	</div>
+	</div>';
 }
 ?>

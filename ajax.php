@@ -610,8 +610,6 @@ if($_GET['Ajax']=='GetModal_MQTTEdit' || $_GET['Ajax']=='GetModal_MQTTAdd')
     return;
 }
 
-
-
 function GetModal_Services($conn)
 {
 	global $lang;
@@ -686,6 +684,7 @@ if($_GET['Ajax']=='GetModal_Services')
     GetModal_Services($conn);
     return;
 }
+
 function GetModal_ServicesInfo($conn)
 {
         global $lang;
@@ -838,8 +837,6 @@ if($_GET['Ajax']=='GetModal_ServicesInfo')
     return;
 }
 
-
-
 function GetModal_Uptime($conn)
 {
         global $lang;
@@ -850,47 +847,28 @@ function GetModal_Uptime($conn)
             <h5 class="modal-title" id="ajaxModalLabel">'.$lang['system_uptime'].'</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">
+		<div id="system_uptime">
 			<p class="text-muted"> '.$lang['system_uptime_text'].' </p>
 			<i class="bi bi-clock red"></i>';
-    $uptime = (exec ("cat /proc/uptime"));
-    $uptime=substr($uptime, 0, strrpos($uptime, ' '));
-    echo '&nbsp'.secondsToWords($uptime) . '<br/><br/>';
+    			$uptime = (exec ("cat /proc/uptime"));
+	    		$uptime=substr($uptime, 0, strrpos($uptime, ' '));
+    			echo '&nbsp'.secondsToWords($uptime) . '<br/><br/>
 
-    echo '<div class="list-group">';
-    echo '<span class="list-group-item" style="overflow:hidden;"><pre>';
-    $rval=my_exec("df -h");
-    echo $rval['stdout'];
-    echo '</pre></span>';
+    			<div class="list-group">
+    				<span class="list-group-item" style="overflow:hidden;"><pre>';
+    					$rval=my_exec("df -h");
+	    				echo $rval['stdout'];
+    				echo '</pre></span>
 
-    echo '<span class="list-group-item" style="overflow:hidden;"><pre>';
-    $rval=my_exec("free -h");
-    echo $rval['stdout'];
-    echo '</pre></span>';
-
-
-/*    while ($row = mysqli_fetch_assoc($results)) {
-        echo '<span class="list-group-item">';
-        echo $row['name'] . ($row['enabled'] ? '' : ' (Disabled)');
-        echo '<span class="float-right text-muted small" style="width:200px;text-align:right;">Username:&nbsp;' . $row['username'] . '</span>';
-        echo '<br/><span class="text-muted small">Type:&nbsp;';
-        if($row['type']==0) echo 'Default, monitor.';
-        else if($row['type']==1) echo 'Sonoff Tasmota.';
-        else echo 'Unknown.';
-        echo '</span>';
-        echo '<span class="float-right text-muted small" style="width:200px;text-align:right;">Password:&nbsp;' . $row['password'] . '</span>';
-        echo '<br/><span class="text-muted small">' . $row['ip'] . '&nbsp;:&nbsp;' . $row['port'] . '</span>';
-
-        echo '<span class="float-right text-muted small" style="width:200px;text-align:right;">';
-        echo '<button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-xs" data-bs-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_MQTTEdit&id=' . $row['id'] . '" onclick="mqtt_AddEdit(this);">
-            <span class="ionicons ion-edit"></span></button>&nbsp;&nbsp;
-		<button class="btn btn-danger btn-xs" onclick="mqtt_delete(' . $row['id'] . ');"><span class="glyphicon glyphicon-trash"></span></button>';
-        echo '</span>';
-        echo '</span>';
-    }*/
-    echo '</div>';      //close class="list-group">';
-    echo '</div>';      //close class="modal-body">
-    echo '<div class="modal-footer" id="ajaxModalFooter">
-            <button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+    				<span class="list-group-item" style="overflow:hidden;"><pre>';
+    					$rval=my_exec("free -h");
+    					echo $rval['stdout'];
+	    			echo '</pre></span>
+    			</div>
+		</div>
+    	</div>
+    	<div class="modal-footer" id="ajaxModalFooter">
+        	<button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
     return;
 }
