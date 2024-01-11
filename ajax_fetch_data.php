@@ -661,7 +661,7 @@ if ($type <= 5) {
         //------------------------------------------------------------
         //return the controller_zone_logs last entries for Recent Logs
         //------------------------------------------------------------
-	$query = "SELECT 'SC' AS name, controller_zone_logs.* FROM controller_zone_logs,
+	$query = "SELECT 'System Controller' AS name, controller_zone_logs.* FROM controller_zone_logs,
 			(SELECT `zone_id`,max(`id`) AS mid
 				FROM controller_zone_logs
 				GROUP BY `zone_id`) max_id
