@@ -721,5 +721,108 @@ if ($type <= 5) {
         	        echo '</pre></span>
           	</div>
 	</div>';
+} elseif ($type == 23) {
+	echo '<div id="cpu_temps">';
+        	$query = "select * from messages_in where node_id = 0 order by datetime desc limit 5";
+                $results = $conn->query($query);
+                echo '<div class="list-group">';
+                	while ($row = mysqli_fetch_assoc($results)) {
+                        	echo '<div class="list-group-item">
+                                	<div class="d-flex justify-content-between">
+                                        	<span>
+                                               		<i class="bi bi-cpu-fill"></i> '.$row['datetime'].'
+                                               	</span>
+                                               	<span class="text-muted small"><em>'.number_format(DispSensor($conn,$row['payload'],1),1).'&deg;</em></span>
+                                        </div>
+                                </div>';
+                        }
+                echo '</div>
+	</div>';
+} elseif ($type == 24) {
+	echo '<div id="sc_status">';
+	        //query to get last system_controller operation time
+        	$query = "SELECT * FROM system_controller LIMIT 1";
+	        $result = $conn->query($query);
+        	$row = mysqli_fetch_array($result);
+	        $system_controller_id = $row['id'];
+        	$system_controller_name = $row['name'];
+                //Get data from nodes table
+                $query = "SELECT * FROM nodes WHERE id = {$row['node_id']} AND status IS NOT NULL LIMIT 1";
+                $result = $conn->query($query);
+                $system_controller_node = mysqli_fetch_array($result);
+                $system_controller_node_id = $system_controller_node['node_id'];
+                $system_controller_seen = $system_controller_node['last_seen'];
+                $system_controller_notice = $system_controller_node['notice_interval'];
+
+                //Check System Controller Fault
+                $system_controller_fault = 0;
+                if($system_controller_notice > 0){
+                        $now=strtotime(date('Y-m-d H:i:s'));
+                        $system_controller_seen_time = strtotime($system_controller_seen);
+                        if ($system_controller_seen_time  < ($now - ($system_controller_notice*60))){
+                                $system_controller_fault = 1;
+                        }
+                }
+
+        	if ($system_controller_fault == '1') {
+                	$date_time = date('Y-m-d H:i:s');
+                        $datetime1 = strtotime("$date_time");
+                        $datetime2 = strtotime("$system_controller_seen");
+                        $interval  = abs($datetime2 - $datetime1);
+                        $ctr_minutes   = round($interval / 60);
+                        echo '
+                                <ul class="list-group list-group-flush">
+                                        <li class="list-group-item">
+                                                <div class="header">
+                                                        <div class="d-flex justify-content-between">
+                                                                <span>
+                                                                        <strong class="primary-font red">System Controller Fault!!!</strong>
+                                                                </span>
+                                                                <span>
+                                                                        <small class="text-muted">
+                                                                                <i class="bi bi-clock icon-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
+                                                                        </small>
+                                                                </span>
+                                                        </div>
+                                                        <br>
+                                                        <p>Node ID '.$system_controller_node_id.' last seen at '.$system_controller_seen.' </p>
+                                                        <p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
+                                                </div>
+                                        </li>
+                                </ul>';
+                }
+                $bquery = "SELECT DATE_FORMAT(start_datetime, '%H:%i') AS start_datetime, DATE_FORMAT(stop_datetime, '%H:%i') AS stop_datetime ,
+				DATE_FORMAT(expected_end_date_time, '%H:%i') AS expected_end_date_time,
+				IF(ISNULL(stop_datetime),TIMESTAMPDIFF(MINUTE, start_datetime, NOW()),TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime)) AS on_minuts
+				FROM controller_zone_logs WHERE zone_id = ".$system_controller_id." ORDER BY id DESC LIMIT 5;";
+                $bresults = $conn->query($bquery);
+                if (mysqli_num_rows($bresults) == 0){
+                        echo '<div class="list-group">
+                                <a href="#" class="list-group-item"><i class="bi bi-exclamation-triangle red"></i>&nbsp;&nbsp;'.$lang['system_controller_no_log'].'</a>
+                        </div>';
+                } else {
+                        echo '<p class="text-muted">'. mysqli_num_rows($bresults) .' '.$lang['system_controller_last_records'].'</p>
+                        <div class="list-group">' ;
+                                echo '<a href="#" class="d-flex justify-content-between list-group-item list-group-item-action">
+                                        <span>
+                                                <i class="bi bi-fire red"></i> Start &nbsp; - &nbsp;End
+                                        </span>
+                                        <span class="text-muted small">
+                                                <em>'.$lang['system_controller_on_minuts'].'&nbsp;</em>
+                                        </span>
+                                </a>';
+                                while ($brow = mysqli_fetch_assoc($bresults)) {
+                                        echo '<a href="#" class="d-flex justify-content-between list-group-item list-group-item-action">
+                                                <span>
+                                                        <i class="bi bi-fire red"></i> '. $brow['start_datetime'].' - ' .$brow['stop_datetime'].'
+                                                </span>
+                                                <span class="text-muted small">
+                                                        <em>'.$brow['on_minuts'].'&nbsp;</em>
+                                                </span>
+                                        </a>';
+                                }
+                         echo '</div>';
+                }
+        echo '</div>';
 }
 ?>
