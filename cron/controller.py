@@ -27,7 +27,7 @@ print("********************************************************")
 print("*              System Controller Script                *")
 print("*                                                      *")
 print("*               Build Date: 10/02/2023                 *")
-print("*       Version 0.01 - Last Modified 07/01/2024        *")
+print("*       Version 0.01 - Last Modified 12/01/2024        *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -326,9 +326,10 @@ try:
         #initialise z_state dictionay
         z_state_dict = dict()
 
-        #initialise dictionay for start and stop cause
+        #initialise dictionay for start, stop cause and expected_end_date_time
         z_start_cause_dict = dict()
         z_stop_cause_dict = dict()
+        z_expected_end_date_time_dict = dict()
 
         #initialise the commands dictionary
         command_index = 0
@@ -2132,9 +2133,10 @@ try:
                     if dbgLevel == 1:
                         print("sch_status " + str(sch_status) + ", zone_state " + str(zone_state) + ", boost_status " + str(boost_status) + ", override_status " + str(zone_override_status) + ", zone_mode_current " + str(zone_mode_current) + ", zone_status_prev " + str(zone_status_prev), ", hysteresis_status " + str(hysteresis))
 
-                    #Save the start and stop causes for this zone
+                    #Save the start_cause, stop_causes and expected_end_date_time for this zone
                     z_start_cause_dict[zone_id] = start_cause
                     z_stop_cause_dict[zone_id] = stop_cause
+                    z_expected_end_date_time_dict[zone_id] = expected_end_date_time
 
                     #Update the individual zone controller states for controllers associated with this zone
                     for zc_id in controllers_dict[zone_id]:
@@ -2790,9 +2792,9 @@ try:
                                 if zone_log_dict[key] == 0:
                                     qry_str = """UPDATE controller_zone_logs SET stop_datetime = '{}', stop_cause = '{}' WHERE `zone_id` = {} ORDER BY id DESC LIMIT 1;""".format(time_stamp.strftime("%Y-%m-%d %H:%M:%S"), z_stop_cause_dict[key], key)
                                 else:
-                                    if expected_end_date_time is not None:
+                                    if z_expected_end_date_time_dict[key] is not None:
                                         qry_str = """INSERT INTO `controller_zone_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`,
-                                                  `expected_end_date_time`) VALUES ({}, {}, {}, '{}', '{}', {}, {},'{}');""".format(0,0,key,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),z_start_cause_dict[key],NULL,NULL,expected_end_date_time)
+                                                  `expected_end_date_time`) VALUES ({}, {}, {}, '{}', '{}', {}, {},'{}');""".format(0,0,key,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),z_start_cause_dict[key],NULL,NULL,z_expected_end_date_time_dict[key])
                                     else:
                                         qry_str = """INSERT INTO `controller_zone_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`,
                                                   `expected_end_date_time`) VALUES ({}, {}, {}, '{}', '{}', {}, {},{});""".format(0,0,key,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),z_start_cause_dict[key],NULL,NULL,NULL)
