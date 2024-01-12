@@ -61,6 +61,17 @@ if ($settings_id <= 3) {
 	    $(this).find('#ajaxModalContent').load($(e.relatedTarget).data('ajax'));
 	});
 	</script>";
+
+        echo "
+        <script language='javascript' type='text/javascript'>
+        $('#ajaxModal_lg').on('show.bs.modal', function(e) {
+            //console.log($(e.relatedTarget).data('ajax'));
+            $(this).find('#ajaxModalLabel').html('...');
+            $(this).find('#ajaxModalBody').html('Waiting ...');
+            $(this).find('#ajaxModalFooter').html('...');
+            $(this).find('#ajaxModalContent').load($(e.relatedTarget).data('ajax'));
+        });
+        </script>";
 }
 ?>
 
@@ -127,6 +138,12 @@ if ($settings_id <= 3) {
 				        	<h3 class="degre" ><i class="bi bi-clock-history blue" style="font-size: 1.5rem;"></i></h3>
 	        			       	<h3 class="status"></small></h3>
 				                </button>
+
+                                                <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-remote="false" data-bs-target="#ajaxModal_lg" data-ajax="ajax.php?Ajax=GetModal_Logs">
+                                                <h3 class="buttontop"><small><?php echo $lang['sc_zone_logs']; ?></small></h3>
+                                                <h3 class="degre" ><i class="bi bi-table" style="font-size: 1.5rem;"></i></h3>
+                                                <h3 class="status"></small></h3>
+                                                </button>
 
                                                 <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style;?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#status_scripts">
                                                 <h3 class="buttontop"><small><?php echo $lang['scripts_status']; ?></small></h3>
@@ -515,6 +532,24 @@ if ($settings_id <= 3) {
 		    				</div>
 			  		</div>
 				</div>
+
+                                <!-- Generic Ajax Modal Large-->
+                                <div class="modal fade" id="ajaxModal_lg" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg">
+                                                <div class="modal-content" id="ajaxModalContent">
+                                                        <div class="modal-header <?php echo theme($conn, $theme, 'text_color'); ?> bg-<?php echo theme($conn, $theme, 'color'); ?>">
+                                                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                                <h5 class="modal-title" id="ajaxModalLabel">...</h5>
+                                                        </div>
+                                                        <div class="modal-body" id="ajaxModalBody">
+                                                                <?php echo $lang['waiting']; ?>
+                                                        </div>
+                                                        <div class="modal-footer" id="ajaxModalFooter">
+                                                                ...
+                                                        </div>
+                                                </div>
+                                        </div>
+                                </div>
 			<?php } ?>
 			<?php
 			$model_num = $settings_id;
