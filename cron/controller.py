@@ -1392,7 +1392,7 @@ try:
                                                         if sch_status == 1 and zone_c < temp_cut_out_rising and (sch_coop == 0 or system_controller_active_status == 1):
                                                             zone_status = 1
                                                             zone_mode = 81
-                                                            if zone_status_prev == 0:
+                                                            if zone_mode_current == 80:
                                                                 start_cause = "Schedule Retarted"
                                                             else:
                                                                 start_cause = "Schedule Started"
