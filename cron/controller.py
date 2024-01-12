@@ -727,6 +727,7 @@ try:
                     zone_status_prev = zone_current_state[zone_current_state_to_index["status_prev"]]
                     zone_overrun_prev = zone_current_state[zone_current_state_to_index["overrun"]]
                     zone_mode_current = zone_current_state[zone_current_state_to_index["mode"]]
+                    zone_schedule_current = zone_current_state[zone_current_state_to_index["schedule"]]
 
                     if (zone_id == livetemp_zone_id) and (livetemp_active == 1) and (zone_mode_current == 0):
                         cur.execute(
@@ -1392,10 +1393,10 @@ try:
                                                         if sch_status == 1 and zone_c < temp_cut_out_rising and (sch_coop == 0 or system_controller_active_status == 1):
                                                             zone_status = 1
                                                             zone_mode = 81
-                                                            if zone_mode_current == 80:
-                                                                start_cause = "Schedule Retarted"
-                                                            else:
+                                                            if zone_schedule_current == 0 and sch_status == 1:
                                                                 start_cause = "Schedule Started"
+                                                            else:
+                                                                start_cause = "Schedule Restarted"
                                                             expected_end_date_time = sch_end_time_str
                                                             zone_state = 1
                                                         if (system_controller_mode == 0 and sch_status == 1 and zone_c < temp_cut_out_rising) and (sch_coop == 1 and system_controller_mode == 0) and system_controller_active_status == 0:
