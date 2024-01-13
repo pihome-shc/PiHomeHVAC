@@ -2777,7 +2777,8 @@ try:
                         #query to set last system controller statues change time based on the latest zone change
                         qry_str = """SELECT `start_datetime`, `start_cause`, `stop_datetime`, MAX(`expected_end_date_time`) AS `expected_end_date_time`
                                   FROM `controller_zone_logs`
-                                  WHERE NOT `zone_id` = {} AND `stop_cause` IS NULL;""".format(system_controller_id)
+                                  WHERE NOT `zone_id` = {} AND `stop_cause` IS NULL
+                                  ORDER BY `id` DESC;""".format(system_controller_id)
                         cur.execute(qry_str)
                         if cur.rowcount > 0:
                             logs = cur.fetchone()
@@ -2793,10 +2794,10 @@ try:
                         #insert date and time into system controller log table so we can record system controller start date and time.
                         if system_controller_expoff_datetime is not None:
                             qry_str = """INSERT INTO `controller_zone_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`, `expected_end_date_time`)
-                                      VALUES ({}, {}, {}, '{}', '{}', {}, {},'{}');""".format(0,0,system_controller_id,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),system_controller_start_cause,NULL,NULL,system_controller_expoff_datetime)
+                                      VALUES ({}, {}, {}, '{}', '{}', {}, {},'{}');""".format(0,0,system_controller_id,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),start_cause,NULL,NULL,system_controller_expoff_datetime)
                         else:
                             qry_str = """INSERT INTO `controller_zone_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`, `expected_end_date_time`)
-                                      VALUES ({}, {}, {}, '{}', '{}', {}, {},{});""".format(0,0,system_controller_id,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),system_controller_start_cause,NULL,NULL,NULL)
+                                      VALUES ({}, {}, {}, '{}', '{}', {}, {},{});""".format(0,0,system_controller_id,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),start_cause,NULL,NULL,NULL)
                         try:
                             cur.execute(qry_str)
                             con.commit()
