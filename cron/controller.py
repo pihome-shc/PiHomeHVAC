@@ -630,13 +630,9 @@ try:
             if cz_logs_count > 0:
                 logs = cur.fetchone()
                 logs_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                system_controller_start_datetime = logs[logs_to_index["start_datetime"]]
-                system_controller_stop_datetime = logs[logs_to_index["stop_datetime"]]
-                system_controller_expoff_datetime = logs[logs_to_index["expected_end_date_time"]]
+                sc_stop_datetime = logs[logs_to_index["stop_datetime"]]
             else:
-                system_controller_start_datetime = None
-                system_controller_stop_datetime = None
-                system_controller_expoff_datetime = None
+                sc_stop_datetime = None
 
             #query to active network gateway address
             cur.execute("SELECT gateway_address FROM network_settings WHERE primary_interface = 1 LIMIT 1;")
@@ -1258,8 +1254,8 @@ try:
                         #check if hysteresis is passed its time or not
                         #only ptocess hysteresis for EU systems when stop time is set
                         #also only process if not in test mode 3 using a false run time
-                        if system_controller_mode == 0 and system_controller_stop_datetime is not None and settings_dict["test_mode"] != 3:
-                            hysteresis_time = system_controller_stop_datetime + datetime.timedelta(minutes = system_controller_hysteresis_time)
+                        if system_controller_mode == 0 and sc_stop_datetime is not None and settings_dict["test_mode"] != 3:
+                            hysteresis_time = sc_stop_datetime + datetime.timedelta(minutes = system_controller_hysteresis_time)
                             if hysteresis_time > time_stamp:
                                 hysteresis = 1
                                 if dbgLevel >= 2:
@@ -2409,8 +2405,8 @@ try:
                                 zone_overrun = zone_status_prev;
                             #system controller was switched of previous script run
                             else:
-                                if system_controller_stop_datetime is not None:
-                                    overrun_end_time = system_controller_stop_datetime  + datetime.timedelta(minutes = system_controller_overrun_time)
+                                if sc_stop_datetime is not None:
+                                    overrun_end_time = sc_stop_datetime  + datetime.timedelta(minutes = system_controller_overrun_time)
                                     # if overrun flag was switched on when system controller was switching on and ovverrun did not pass keep overrun on
                                     if time_stamp < overrun_end_time and zone_overrun_prev == 1:
                                         zone_overrun = 1
@@ -2562,7 +2558,9 @@ try:
                     print("z_start_cause Array")
                     print(z_start_cause_dict)
                     print("z_stop_cause Array")
-                    print(z_stop_cause_dict)
+                    print(z_start_cause_dict)
+                    print("z_expected_end_date_time Array")
+                    print(z_expected_end_date_time_dict)
                     print("system_controller Array")
                     print(system_controller_dict)
                     print("controllers Array")
@@ -2572,9 +2570,9 @@ try:
                     print("pump_relays Array")
                     print(pump_relays_dict)
 
-                if system_controller_stop_datetime is not None:
+                if sc_stop_datetime is not None:
                     if dbgLevel >= 2:
-                        print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - System Controller Switched Off At: " + str(system_controller_stop_datetime))
+                        print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - System Controller Switched Off At: " + str(sc_stop_datetime))
 
                 if expected_end_date_time is not None:
             #        pass
@@ -2760,9 +2758,9 @@ try:
                         for key in zone_log_dict:
                             #insert date and time into Log table so we can record system controller start date and time.
                             if zone_log_dict[key] == 1:
-                                if expected_end_date_time is not None:
+                                if z_expected_end_date_time_dict[key] is not None:
                                     qry_str = """INSERT INTO `controller_zone_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`,
-                                              `expected_end_date_time`) VALUES ({}, {}, {}, '{}', '{}', {}, {},'{}');""".format(0,0,key,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),start_cause,NULL,NULL,expected_end_date_time)
+                                              `expected_end_date_time`) VALUES ({}, {}, {}, '{}', '{}', {}, {},'{}');""".format(0,0,key,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),start_cause,NULL,NULL,z_expected_end_date_time_dict[key])
                                 else:
                                     qry_str = """INSERT INTO `controller_zone_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`,
                                               `expected_end_date_time`) VALUES ({}, {}, {}, '{}', '{}', {}, {},{});""".format(0,0,key,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),start_cause,NULL,NULL,NULL)
@@ -2775,13 +2773,30 @@ try:
                                     if dbgLevel >= 2:
                                         print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone Log table update failed.")
                         #end foreach($zone_log as $key => $value)
+
+                        #query to set last system controller statues change time based on the latest zone change
+                        qry_str = """SELECT `start_datetime`, `start_cause`, `stop_datetime`, MAX(`expected_end_date_time`) AS `expected_end_date_time`
+                                  FROM `controller_zone_logs`
+                                  WHERE NOT `zone_id` = {} AND `stop_cause` IS NULL;""".format(system_controller_id)
+                        cur.execute(qry_str)
+                        if cur.rowcount > 0:
+                            logs = cur.fetchone()
+                            logs_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                            system_controller_start_datetime = logs[logs_to_index["start_datetime"]]
+                            system_controller_start_cause = logs[logs_to_index["start_cause"]]
+                            system_controller_expoff_datetime = logs[logs_to_index["expected_end_date_time"]]
+                        else:
+                            system_controller_start_datetime = None
+                            system_controller_start_cause = None
+                            system_controller_expoff_datetime = None
+
                         #insert date and time into system controller log table so we can record system controller start date and time.
-                        if expected_end_date_time is not None:
+                        if system_controller_expoff_datetime is not None:
                             qry_str = """INSERT INTO `controller_zone_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`, `expected_end_date_time`)
-                                      VALUES ({}, {}, {}, '{}', '{}', {}, {},'{}');""".format(0,0,system_controller_id,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),start_cause,NULL,NULL,expected_end_date_time)
+                                      VALUES ({}, {}, {}, '{}', '{}', {}, {},'{}');""".format(0,0,system_controller_id,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),system_controller_start_cause,NULL,NULL,system_controller_expoff_datetime)
                         else:
                             qry_str = """INSERT INTO `controller_zone_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`, `expected_end_date_time`)
-                                      VALUES ({}, {}, {}, '{}', '{}', {}, {},{});""".format(0,0,system_controller_id,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),start_cause,NULL,NULL,NULL)
+                                      VALUES ({}, {}, {}, '{}', '{}', {}, {},{});""".format(0,0,system_controller_id,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),system_controller_start_cause,NULL,NULL,NULL)
                         try:
                             cur.execute(qry_str)
                             con.commit()
