@@ -635,6 +635,9 @@ if ($type <= 5) {
                 echo ' </div>';
         }
 } elseif ($type == 20) {
+        //----------------------------------------------
+        //used by request.js when zone state is toggled
+        //----------------------------------------------
         $query = "SELECT zone_id, schedule FROM zone_current_state WHERE sch_time_id = {$id} LIMIT 1;";
         $result = $conn->query($query);
 	$row = mysqli_fetch_array($result);
@@ -702,6 +705,9 @@ if ($type <= 5) {
 		echo '</tbody>
 	</table>';
 } elseif ($type == 22) {
+        //---------------------------
+        //update System Uptime modal
+        //---------------------------
 	echo '<div id="system_uptime">
 	        <p class="text-muted"> '.$lang['system_uptime_text'].' </p>
         	<i class="bi bi-clock red"></i>';
@@ -722,6 +728,9 @@ if ($type <= 5) {
           	</div>
 	</div>';
 } elseif ($type == 23) {
+        //--------------------------------------
+        //update display last 5 CPU temps modal
+        //--------------------------------------
 	echo '<div id="cpu_temps">';
         	$query = "select * from messages_in where node_id = 0 order by datetime desc limit 5";
                 $results = $conn->query($query);
@@ -739,6 +748,9 @@ if ($type <= 5) {
                 echo '</div>
 	</div>';
 } elseif ($type == 24) {
+        //-----------------------------------------------
+        //update display last 5 System Controller status
+        //-----------------------------------------------
 	echo '<div id="sc_status">';
 	        //query to get last system_controller operation time
         	$query = "SELECT * FROM system_controller LIMIT 1";
@@ -824,5 +836,44 @@ if ($type <= 5) {
                          echo '</div>';
                 }
         echo '</div>';
+} elseif ($type == 25) {
+        //-----------------------------------------
+        //return the current cpu tempeature status
+        //----------------------------------------
+	$max_cpu_temp = settings($conn, 'max_cpu_temp');
+	$query = "select * from messages_in where node_id = 0 ORDER BY id DESC LIMIT 1";
+	$result = $conn->query($query);
+	$result = mysqli_fetch_array($result);
+	$system_cc = $result['payload'];
+	if ($system_cc < $max_cpu_temp - 10){$system_cc="#0bb71b";}elseif ($system_cc < $max_cpu_temp){$system_cc="#F0AD4E";}elseif ($system_cc > $max_cpu_temp){$system_cc="#ff0000";}
+	echo '<div id="cpu_status">
+        	<h3 class="status">
+                <small class="statuscircle" style="color:'.$system_cc.'"><i class="bi bi-circle-fill" style="font-size: 0.55rem;"></i></small>
+                <small class="statusdegree">'.number_format(DispTemp($conn,$result['payload']),0).'&deg;</small>';
+                if ($result['payload'] > $max_cpu_temp){
+                        echo '<small class="statuszoon"><i class="spinner-grow text-danger" role="status" style="width: 0.7rem; height: 0.7rem;"></i></small></h3>';
+                }
+	echo '</div>';
+} elseif ($type == 26) {
+        //-------------------------------
+        //return the current frost status
+        //-------------------------------
+        $fcolor = "blue";
+
+        $query = "SELECT sensor_id, sensor_child_id, frost_temp FROM sensors WHERE frost_temp <> 0;";
+        $results = $conn->query($query);
+        while ($row = mysqli_fetch_assoc($results)) {
+                $query = "SELECT node_id FROM nodes WHERE id = ".$row['sensor_id']." LIMIT 1;";
+                $result = $conn->query($query);
+                $frost_sensor_node = mysqli_fetch_array($result);
+                $frost_sensor_node_id = $frost_sensor_node['node_id'];
+                //query to get temperature from messages_in_view_24h table view
+                $query = "SELECT payload FROM messages_in_view_24h WHERE node_id = '".$frost_sensor_node_id."' AND child_id = ".$row['sensor_child_id']." LIMIT 1;";
+                $result = $conn->query($query);
+                $msg_in = mysqli_fetch_array($result);
+                $frost_sensor_c = $msg_in['payload'];
+                if ($frost_sensor_c <= $row["frost_temp"]) { $fcolor = "red"; }
+        }
+	echo '<small class="statuscircle" id="frost_status"><i class="bi bi-circle-fill '.$fcolor.'" style="font-size: 0.55rem;"></i></small>';
 }
 ?>

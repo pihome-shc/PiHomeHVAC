@@ -117,7 +117,7 @@ if ($settings_id <= 3) {
 				                <h3 class="buttontop"><small><?php echo $lang['frost']; ?> </small></h3>
                 			       	<h3 class="degre" ><i class="bi bi-snow blue"></i></h3>
 				                <h3 class="status">
-        	        		       	<small class="statuscircle"><i class="bi bi-circle-fill <?php echo $fcolor; ?>" style="font-size: 0.55rem;"></i></small>
+        	        		       	<small class="statuscircle" id="frost_status"><i class="bi bi-circle-fill <?php echo $fcolor; ?>" style="font-size: 0.55rem;"></i></small>
 				                <small class="statuszoon"><i class="fa"></i></small></h3>
         	        			</button>
 
@@ -186,12 +186,14 @@ if ($settings_id <= 3) {
 			        		<button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-remote="false"  data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_System">
 			               		<h3 class="buttontop"><small><?php echo $lang['system']; ?> &deg;</small></h3>
 	        			        <h3 class="degre" style="margin-top:12px;"><i class="bi bi-cpu-fill" style="font-size: 1.5rem;"></i></h3>
-						<h3 class="status">
-        					<small class="statuscircle" style="color:<?php echo $system_cc;?>"><i class="bi bi-circle-fill" style="font-size: 0.55rem;"></i></small>
-			                	<small class="statusdegree"><?php echo number_format(DispTemp($conn,$result['payload']),0);?>&deg;</small>
-						<?php if ($result['payload'] > $max_cpu_temp){
-					               	echo '<small class="statuszoon"><i class="spinner-grow text-danger" role="status" style="width: 0.7rem; height: 0.7rem;"></i></small></h3>';
-						} ?>
+						<div id="cpu_status">
+							<h3 class="status">
+        						<small class="statuscircle" style="color:<?php echo $system_cc;?>"><i class="bi bi-circle-fill" style="font-size: 0.55rem;"></i></small>
+				                	<small class="statusdegree"><?php echo number_format(DispTemp($conn,$result['payload']),0);?>&deg;</small>
+							<?php if ($result['payload'] > $max_cpu_temp){
+						               	echo '<small class="statuszoon"><i class="spinner-grow text-danger" role="status" style="width: 0.7rem; height: 0.7rem;"></i></small></h3>';
+							} ?>
+						</div>
 				                </button>
 
                 			   	<button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#big_thanks">

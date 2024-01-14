@@ -106,6 +106,8 @@ $(document).ready(function(){
         $('#controller_zone_logs').load("ajax_fetch_data.php?id=0&type=21").fadeIn("slow");
         $('#system_uptime').load("ajax_fetch_data.php?id=0&type=22").fadeIn("slow");
         $('#cpu_temps').load("ajax_fetch_data.php?id=0&type=23").fadeIn("slow");
+        $('#cpu_status').load("ajax_fetch_data.php?id=0&type=25").fadeIn("slow");
+        $('#frost_status').load("ajax_fetch_data.php?id=0&type=26").fadeIn("slow");
         $('#settings_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
         $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
         $('#footer_all_running_time').load("ajax_fetch_data.php?id=0&type=17").fadeIn("slow");
