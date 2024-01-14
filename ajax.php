@@ -391,24 +391,26 @@ function GetModal_System($conn)
             <h5 class="modal-title" id="ajaxModalLabel">'.$lang['cpu_temperature'].'</h5>
         </div>
         <div class="modal-body" id="ajaxModalBody">
-    <p class="text-muted"> '.$lang['cpu_temperature_text'].' </p>';
-    $query = "select * from messages_in where node_id = 0 order by datetime desc limit 5";
-    $results = $conn->query($query);
-    echo '<div class="list-group">';
-    while ($row = mysqli_fetch_assoc($results)) {
-        echo '<div class="list-group-item">
-		<div class="d-flex justify-content-between">
-			<span>
-        			<i class="bi bi-cpu-fill"></i> '.$row['datetime'].'
-			</span>
-        		<span class="text-muted small"><em>'.number_format(DispSensor($conn,$row['payload'],1),1).'&deg;</em></span>
-        	</div>
-	</div>';
-    }
-    echo '</div>';      //close class="list-group">';
-    echo '</div>';      //close class="modal-body">
-    echo '<div class="modal-footer" id="ajaxModalFooter">
-            <button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+    		<p class="text-muted"> '.$lang['cpu_temperature_text'].' </p>
+    		<div id="cpu_temps">';
+    			$query = "select * from messages_in where node_id = 0 order by datetime desc limit 5";
+    			$results = $conn->query($query);
+    			echo '<div class="list-group">';
+   	 			while ($row = mysqli_fetch_assoc($results)) {
+        				echo '<div class="list-group-item">
+						<div class="d-flex justify-content-between">
+							<span>
+        							<i class="bi bi-cpu-fill"></i> '.$row['datetime'].'
+							</span>
+        						<span class="text-muted small"><em>'.number_format(DispSensor($conn,$row['payload'],1),1).'&deg;</em></span>
+        					</div>
+					</div>';
+    				}
+    			echo '</div>
+		</div>
+    	</div>
+    	<div class="modal-footer" id="ajaxModalFooter">
+            	<button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
     return;
 }
@@ -1144,70 +1146,85 @@ function GetModal_SystemController($conn)
         $system_controller_node = mysqli_fetch_array($result);
         $system_controller_node_id = $system_controller_node['node_id'];
         $system_controller_seen = $system_controller_node['last_seen'];
+        $system_controller_notice = $system_controller_node['notice_interval'];
+
+        //Check System Controller Fault
+        $system_controller_fault = 0;
+        if($system_controller_notice > 0){
+                $now=strtotime(date('Y-m-d H:i:s'));
+                $system_controller_seen_time = strtotime($system_controller_seen);
+                if ($system_controller_seen_time  < ($now - ($system_controller_notice*60))){
+                        $system_controller_fault = 1;
+                }
+        }
 
         echo '<div class="modal-header '.theme($conn, settings($conn, 'theme'), 'text_color').' bg-'.theme($conn, settings($conn, 'theme'), 'color').'">
                 <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title" id="ajaxModalLabel">'.$system_controller_name.' - '.$lang['system_controller_recent_logs'].'</h5>
         </div>
-        <div class="modal-body" id="ajaxModalBody">';
-		if ($system_controller_fault == '1') {
-			$date_time = date('Y-m-d H:i:s');
-			$datetime1 = strtotime("$date_time");
-			$datetime2 = strtotime("$system_controller_seen");
-			$interval  = abs($datetime2 - $datetime1);
-			$ctr_minutes   = round($interval / 60);
-			echo '
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item">
-						<div class="header">
-							<div class="d-flex justify-content-between">
-								<span>
-									<strong class="primary-font red">System Controller Fault!!!</strong>
-								</span>
-								<span>
-									<small class="text-muted">
-										<i class="bi bi-clock icon-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
-									</small>
-								</span>
+        <div class="modal-body" id="ajaxModalBody">
+		<div id="sc_status">';
+			if ($system_controller_fault == '1') {
+				$date_time = date('Y-m-d H:i:s');
+				$datetime1 = strtotime("$date_time");
+				$datetime2 = strtotime("$system_controller_seen");
+				$interval  = abs($datetime2 - $datetime1);
+				$ctr_minutes   = round($interval / 60);
+				echo '
+					<ul class="list-group list-group-flush">
+						<li class="list-group-item">
+							<div class="header">
+								<div class="d-flex justify-content-between">
+									<span>
+										<strong class="primary-font red">System Controller Fault!!!</strong>
+									</span>
+									<span>
+										<small class="text-muted">
+											<i class="bi bi-clock icon-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
+										</small>
+									</span>
+								</div>
+								<br>
+								<p>Node ID '.$system_controller_node_id.' last seen at '.$system_controller_seen.' </p>
+								<p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
 							</div>
-							<br>
-							<p>Node ID '.$system_controller_node_id.' last seen at '.$system_controller_seen.' </p>
-							<p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
-						</div>
-					</li>
-				</ul>';
-  		}
-		$bquery = "select DATE_FORMAT(start_datetime, '%H:%i') as start_datetime, DATE_FORMAT(stop_datetime, '%H:%i') as stop_datetime , DATE_FORMAT(expected_end_date_time, '%H:%i') as expected_end_date_time, TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime) as on_minuts
-		from controller_zone_logs WHERE zone_id = ".$system_controller_id." order by id desc limit 5";
-		$bresults = $conn->query($bquery);
-		if (mysqli_num_rows($bresults) == 0){
-			echo '<div class="list-group">
-				<a href="#" class="list-group-item"><i class="bi bi-exclamation-triangle red"></i>&nbsp;&nbsp;'.$lang['system_controller_no_log'].'</a>
-			</div>';
-		} else {
-			echo '<p class="text-muted">'. mysqli_num_rows($bresults) .' '.$lang['system_controller_last_records'].'</p>
-			<div class="list-group">' ;
-                        	echo '<a href="#" class="d-flex justify-content-between list-group-item list-group-item-action">
-                                	<span>
-                                        	<i class="bi bi-fire red"></i> Start &nbsp; - &nbsp;End
-                                        </span>
-                                        <span class="text-muted small">
-                                         	<em>'.$lang['system_controller_on_minuts'].'&nbsp;</em>
-                                        </span>
-                                </a>';
-				while ($brow = mysqli_fetch_assoc($bresults)) {
-                                	echo '<a href="#" class="d-flex justify-content-between list-group-item list-group-item-action">
-                                        	<span>
-							<i class="bi bi-fire red"></i> '. $brow['start_datetime'].' - ' .$brow['stop_datetime'].'
-                                                </span>
-                                            	<span class="text-muted small">
-							<em>'.$brow['on_minuts'].'&nbsp;</em>
-						</span>
-					</a>';
-				}
-			 echo '</div>';
-		}
-        echo '</div>
+						</li>
+					</ul>';
+	  		}
+                        $bquery = "SELECT DATE_FORMAT(start_datetime, '%H:%i') AS start_datetime, DATE_FORMAT(stop_datetime, '%H:%i') AS stop_datetime ,
+					DATE_FORMAT(expected_end_date_time, '%H:%i') AS expected_end_date_time,
+					IF(ISNULL(stop_datetime),TIMESTAMPDIFF(MINUTE, start_datetime, NOW()),TIMESTAMPDIFF(MINUTE, start_datetime, stop_datetime)) AS on_minuts
+					FROM controller_zone_logs WHERE zone_id = ".$system_controller_id." ORDER BY id DESC LIMIT 5;";
+			$bresults = $conn->query($bquery);
+			if (mysqli_num_rows($bresults) == 0){
+				echo '<div class="list-group">
+					<a href="#" class="list-group-item"><i class="bi bi-exclamation-triangle red"></i>&nbsp;&nbsp;'.$lang['system_controller_no_log'].'</a>
+				</div>';
+			} else {
+				echo '<p class="text-muted">'. mysqli_num_rows($bresults) .' '.$lang['system_controller_last_records'].'</p>
+				<div class="list-group">' ;
+                        		echo '<a href="#" class="d-flex justify-content-between list-group-item list-group-item-action">
+                                		<span>
+                                        		<i class="bi bi-fire red"></i> Start &nbsp; - &nbsp;End
+	                                        </span>
+        	                                <span class="text-muted small">
+                	                         	<em>'.$lang['system_controller_on_minuts'].'&nbsp;</em>
+                        	                </span>
+                                	</a>';
+					while ($brow = mysqli_fetch_assoc($bresults)) {
+        	                        	echo '<a href="#" class="d-flex justify-content-between list-group-item list-group-item-action">
+                	                        	<span>
+								<i class="bi bi-fire red"></i> '. $brow['start_datetime'].' - ' .$brow['stop_datetime'].'
+                                	                </span>
+                                        	    	<span class="text-muted small">
+								<em>'.$brow['on_minuts'].'&nbsp;</em>
+							</span>
+						</a>';
+					}
+				 echo '</div>';
+			}
+        	echo '</div>
+	</div>
         <div class="modal-footer" id="ajaxModalFooter">
                 <button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
         </div>';      //close class="modal-footer">
@@ -1257,6 +1274,17 @@ function GetModal_Schedule_List($conn)
         $system_controller_node = mysqli_fetch_array($result);
         $system_controller_node_id = $system_controller_node['node_id'];
         $system_controller_seen = $system_controller_node['last_seen'];
+	$system_controller_notice = $system_controller_node['notice_interval'];
+
+        //Check System Controller Fault
+        $system_controller_fault = 0;
+        if($system_controller_notice > 0){
+        	$now=strtotime(date('Y-m-d H:i:s'));
+        	$system_controller_seen_time = strtotime($system_controller_seen);
+                if ($system_controller_seen_time  < ($now - ($system_controller_notice*60))){
+                        $system_controller_fault = 1;
+                }
+        }
 
 	$pieces = explode(',', $_GET['Ajax']);
         $zone_id = $pieces[1];

@@ -922,6 +922,7 @@ $(document).ready(function(){
             }
     }
 
+    $('#sc_status').load("ajax_fetch_data.php?id=0&type=24").fadeIn("slow");
     $('#homelist_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
     $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
     $('#footer_running_time').load("ajax_fetch_data.php?id=0&type=15").fadeIn("slow");
