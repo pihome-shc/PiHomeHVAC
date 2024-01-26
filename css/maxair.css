@@ -426,6 +426,9 @@ color:#2196F3 !important;
 .btn-primary-style{color:#333;background-color:#E0F2F1;border-color:#0d6efd}
 .btn-primary-style:hover,.btn-primary-style:focus,.btn-primary-style.focus,.btn-primary-style:active,.btn-primary-style.active,.open>.dropdown-toggle.btn-primary-style{color:#333;background-color:#BBDEFB;border-color:##0d6efd}
 
+.btn-warning-style{color:#333;background-color:#E0F2F1;border-color:#0d6efd}
+.btn-warning-style:hover,.btn-warning-style:focus,.btn-warning-style.focus,.btn-warning-style:active,.btn-warning-style.active,.open>.dropdown-toggle.btn-warning-style{color:#333;background-color:#BBDEFB;border-color:##0d6efd}
+
 .icon-lg {
   font-size: 1.33333333em;
   line-height: 0.75em;
@@ -485,6 +488,24 @@ color:#2196F3 !important;
 }
 
 .btn-primary-violet {
+  --l: 85%; /*the initial lightness*/
+  --bs-btn-color: #fff;
+  --bs-btn-bg: hsl(var(--bm-purple),calc(var(--l) - 10%));
+  --bs-btn-border-color:  hsl(var(--bm-purple), var(--l));
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg:  hsl(var(--bm-purple),calc(var(--l) - 20%));
+  --bs-btn-hover-border-color:  hsl(var(--bm-purple), var(--l));
+  --bs-btn-focus-box-shadow: 0 0 0 0.25rem hsl(var(--bm-purple), var(--l));
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg:  hsl(var(--bm-purple),calc(var(--l) - 20%));
+  --bs-btn-active-border-color: hsl(var(--bm-purple), var(--l));
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg:  hsl(var(--bm-purple), var(--l));
+  --bs-btn-disabled-border-color:  hsl(var(--bm-purple), var(--l));
+}
+
+.btn-warning-violet {
   --l: 85%; /*the initial lightness*/
   --bs-btn-color: #fff;
   --bs-btn-bg: hsl(var(--bm-purple),calc(var(--l) - 10%));
@@ -579,6 +600,24 @@ color:#2196F3 !important;
   --bs-btn-disabled-border-color:  hsl(var(--bm-orange), var(--l));
 }
 
+.btn-warning-orange {
+  --l: 100%; /*the initial lightness*/
+  --bs-btn-color: #fff;
+  --bs-btn-bg: hsl(var(--bm-orange),calc(var(--l) - 10%));
+  --bs-btn-border-color:  hsl(var(--bm-orange), var(--l));
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg:  hsl(var(--bm-orange),calc(var(--l) - 20%));
+  --bs-btn-hover-border-color:  hsl(var(--bm-orange), var(--l));
+  --bs-btn-focus-box-shadow: 0 0 0 0.25rem hsl(var(--bm-orange), var(--l));
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg:  hsl(var(--bm-orange),calc(var(--l) - 20%));
+  --bs-btn-active-border-color: hsl(var(--bm-orange), var(--l));
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg:  hsl(var(--bm-orange), var(--l));
+  --bs-btn-disabled-border-color:  hsl(var(--bm-orange), var(--l));
+}
+
 .bg-orange {
   --l: 100%; /*the initial lightness*/
   background-color: hsl(var(--bm-orange), var(--l)) !important;
@@ -639,6 +678,24 @@ color:#2196F3 !important;
 }
 
 .btn-primary-orange-red {
+  --l: 100%; /*the initial lightness*/
+  --bs-btn-color: #fff;
+  --bs-btn-bg: hsl(var(--bm-orange-red),calc(var(--l) - 10%));
+  --bs-btn-border-color:  hsl(var(--bm-orange-red), var(--l));
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg:  hsl(var(--bm-orange-red),calc(var(--l) - 20%));
+  --bs-btn-hover-border-color:  hsl(var(--bm-orange-red), var(--l));
+  --bs-btn-focus-box-shadow: 0 0 0 0.25rem hsl(var(--bm-orange-red), var(--l));
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg:  hsl(var(--bm-orange-red),calc(var(--l) - 20%));
+  --bs-btn-active-border-color: hsl(var(--bm-orange-red), var(--l));
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg:  hsl(var(--bm-orange-red), var(--l));
+  --bs-btn-disabled-border-color:  hsl(var(--bm-orange-red), var(--l));
+}
+
+.btn-warning-orange-red {
   --l: 100%; /*the initial lightness*/
   --bs-btn-color: #fff;
   --bs-btn-bg: hsl(var(--bm-orange-red),calc(var(--l) - 10%));
@@ -733,6 +790,24 @@ color:#2196F3 !important;
   --bs-btn-disabled-border-color:  hsl(var(--bm-red), var(--l));
 }
 
+.btn-warning-red {
+  --l: 100%; /*the initial lightness*/
+  --bs-btn-color: #fff;
+  --bs-btn-bg: hsl(var(--bm-red),calc(var(--l) - 10%));
+  --bs-btn-border-color:  hsl(var(--bm-red), var(--l));
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg:  hsl(var(--bm-red),calc(var(--l) - 20%));
+  --bs-btn-hover-border-color:  hsl(var(--bm-red), var(--l));
+  --bs-btn-focus-box-shadow: 0 0 0 0.25rem hsl(var(--bm-red), var(--l));
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg:  hsl(var(--bm-red),calc(var(--l) - 20%));
+  --bs-btn-active-border-color: hsl(var(--bm-red), var(--l));
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg:  hsl(var(--bm-red), var(--l));
+  --bs-btn-disabled-border-color:  hsl(var(--bm-red), var(--l));
+}
+
 .bg-red {
   --l: 100%; /*the initial lightness*/
   background-color: hsl(var(--bm-red), var(--l)) !important;
@@ -793,6 +868,24 @@ color:#2196F3 !important;
 }
 
 .btn-primary-blue {
+  --l: 100%; /*the initial lightness*/
+  --bs-btn-color: #fff;
+  --bs-btn-bg: hsl(var(--bm-blue),calc(var(--l) - 10%));
+  --bs-btn-border-color:  hsl(var(--bm-blue), var(--l));
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg:  hsl(var(--bm-blue),calc(var(--l) - 20%));
+  --bs-btn-hover-border-color:  hsl(var(--bm-blue), var(--l));
+  --bs-btn-focus-box-shadow: 0 0 0 0.25rem hsl(var(--bm-blue), var(--l));
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg:  hsl(var(--bm-blue),calc(var(--l) - 20%));
+  --bs-btn-active-border-color: hsl(var(--bm-blue), var(--l));
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg:  hsl(var(--bm-blue), var(--l));
+  --bs-btn-disabled-border-color:  hsl(var(--bm-blue), var(--l));
+}
+
+.btn-warning-blue {
   --l: 100%; /*the initial lightness*/
   --bs-btn-color: #fff;
   --bs-btn-bg: hsl(var(--bm-blue),calc(var(--l) - 10%));
@@ -887,6 +980,24 @@ color:#2196F3 !important;
   --bs-btn-disabled-border-color:  hsl(var(--bm-amber), var(--l));
 }
 
+.btn-warning-amber {
+  --l: 100%; /*the initial lightness*/
+  --bs-btn-color: #fff;
+  --bs-btn-bg: hsl(var(--bm-amber),calc(var(--l) - 10%));
+  --bs-btn-border-color:  hsl(var(--bm-amber), var(--l));
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg:  hsl(var(--bm-amber),calc(var(--l) - 20%));
+  --bs-btn-hover-border-color:  hsl(var(--bm-amber), var(--l));
+  --bs-btn-focus-box-shadow: 0 0 0 0.25rem hsl(var(--bm-amber), var(--l));
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg:  hsl(var(--bm-amber),calc(var(--l) - 20%));
+  --bs-btn-active-border-color: hsl(var(--bm-amber), var(--l));
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg:  hsl(var(--bm-amber), var(--l));
+  --bs-btn-disabled-border-color:  hsl(var(--bm-amber), var(--l));
+}
+
 .bg-amber {
   --l: 100%; /*the initial lightness*/
   background-color: hsl(var(--bm-amber), var(--l)) !important;
@@ -964,6 +1075,24 @@ color:#2196F3 !important;
   --bs-btn-disabled-border-color:  hsl(var(--bm-teal), var(--l));
 }
 
+.btn-warning-teal {
+  --l: 100%; /*the initial lightness*/
+  --bs-btn-color: #fff;
+  --bs-btn-bg: hsl(var(--bm-teal),calc(var(--l) - 10%));
+  --bs-btn-border-color:  hsl(var(--bm-teal), var(--l));
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg:  hsl(var(--bm-teal),calc(var(--l) - 20%));
+  --bs-btn-hover-border-color:  hsl(var(--bm-teal), var(--l));
+  --bs-btn-focus-box-shadow: 0 0 0 0.25rem hsl(var(--bm-teal), var(--l));
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg:  hsl(var(--bm-teal),calc(var(--l) - 20%));
+  --bs-btn-active-border-color: hsl(var(--bm-teal), var(--l));
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg:  hsl(var(--bm-teal), var(--l));
+  --bs-btn-disabled-border-color:  hsl(var(--bm-teal), var(--l));
+}
+
 .bg-teal {
   --l: 100%; /*the initial lightness*/
   background-color: hsl(var(--bm-teal), var(--l)) !important;
@@ -1024,6 +1153,24 @@ color:#2196F3 !important;
 }
 
 .btn-primary-black {
+  --l: 100%; /*the initial lightness*/
+  --bs-btn-color: #fff;
+  --bs-btn-bg: hsl(var(--bm-black),calc(var(--l) - 10%));
+  --bs-btn-border-color:  hsl(var(--bm-black), var(--l));
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg:  hsl(var(--bm-black),calc(var(--l) - 20%));
+  --bs-btn-hover-border-color:  hsl(var(--bm-black), var(--l));
+  --bs-btn-focus-box-shadow: 0 0 0 0.25rem hsl(var(--bm-black), var(--l));
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg:  hsl(var(--bm-black),calc(var(--l) - 20%));
+  --bs-btn-active-border-color: hsl(var(--bm-black), var(--l));
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg:  hsl(var(--bm-black), var(--l));
+  --bs-btn-disabled-border-color:  hsl(var(--bm-black), var(--l));
+}
+
+.btn-warning-black {
   --l: 100%; /*the initial lightness*/
   --bs-btn-color: #fff;
   --bs-btn-bg: hsl(var(--bm-black),calc(var(--l) - 10%));

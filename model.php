@@ -522,6 +522,291 @@ echo '</div></div>
         </div>
     </div>
 </div>';
+
+//Controller Zone Logs Modal
+echo '
+<div class="modal fade" id="sc_z_logs" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+        	<div class="modal-content">
+            		<div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                        	<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                		<h5 class="modal-title">'.$lang['controller_zone_logs'].'</h5>
+            		</div>
+            		<div class="modal-body">
+				<p class="text-muted"> '.$lang['controller_zone_logs_text'].' </p>';
+		                $query = "SELECT 'System Controller' AS name, controller_zone_logs.* FROM controller_zone_logs,
+                		                (SELECT `zone_id`,max(`id`) AS mid
+                                		        FROM controller_zone_logs
+		                                        GROUP BY `zone_id`) max_id
+                		                WHERE controller_zone_logs.zone_id = max_id.zone_id
+                                		AND controller_zone_logs.id = max_id.mid
+		                                AND controller_zone_logs.zone_id = 1
+                		          UNION
+		                          SELECT zone.name,controller_zone_logs.* FROM controller_zone_logs, zone,
+                		                (SELECT `zone_id`,max(`id`) AS mid
+                                		        FROM controller_zone_logs
+		                                        GROUP BY `zone_id`) max_id
+                		                WHERE controller_zone_logs.zone_id = max_id.zone_id
+                                		AND controller_zone_logs.id = max_id.mid
+		                                AND controller_zone_logs.zone_id = zone.id;";
+                		$results = $conn->query($query);
+		                echo '<table class="table table-bordered" id="controller_zone_logs">
+                		        <thead>
+                                		<tr>
+		                                        <th class="col-2"><small>'.$lang['zone_name'].'</small></th>
+                		                        <th class="col-2"><small>'.$lang['start_datetime'].'</small></th>
+                                		        <th class="col-2"><small>'.$lang['start_cause'].'</small></th>
+		                                        <th class="col-2"><small>'.$lang['stop_datetime'].'</small></th>
+                		                        <th class="col-2"><small>'.$lang['stop_cause'].'</small></th>
+                                		        <th class="col-2"><small>'.$lang['expected_end_date_time'].'</small></th>
+		                                </tr>
+                		        </thead>
+		                        <tbody>';
+                		                while ($row = mysqli_fetch_assoc($results)) {
+                                		        echo '<tr>
+                                                		<td class="col-2">'.$row["name"].'</td>
+		                                                <td class="col-2">'.$row["start_datetime"].'</td>
+                		                                <td class="col-2">'.$row["start_cause"].'</td>
+                                		                <td class="col-2">'.$row["stop_datetime"].'</td>
+                                                		<td class="col-2">'.$row["stop_cause"].'</td>
+		                                                <td class="col-2">'.$row["expected_end_date_time"].'</td>
+                		                        </tr>';
+                		                }
+		                        echo '</tbody>
+                		</table>
+			</div>
+            		<div class="modal-footer">
+                		<button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+            		</div>
+        	</div>
+    	</div>
+</div>';
+
+//System Uptime Modal
+echo '
+<div class="modal fade" id="s_uptime" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                        <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                                <h5 class="modal-title">'.$lang['system_uptime'].'</h5>
+                        </div>
+                        <div class="modal-body">';
+                                $uptime = (exec ("cat /proc/uptime"));
+                                $uptime=substr($uptime, 0, strrpos($uptime, ' '));
+                                echo '<div id="system_uptime">
+                                	<p class="text-muted"> '.$lang["system_uptime_text"].' </p>
+                			        &nbsp'.secondsToWords($uptime) . '<br/><br/>
+
+	                        		<div class="list-group">
+		        	                        <span class="list-group-item" style="overflow:hidden;"><pre>';
+                			                        $rval=my_exec("df -h");
+                        			                echo $rval['stdout'];
+		                                	echo '</pre></span>
+
+	        		                        <span class="list-group-item" style="overflow:hidden;"><pre>';
+        	                		                $rval=my_exec("free -h");
+                	                        		echo $rval['stdout'];
+		                        	        echo '</pre></span>
+                		        	</div>
+				</div>
+                        </div>
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                        </div>
+                </div>
+        </div>
+</div>';
+
+// CPU Temperature History Modal
+echo '
+<div class="modal fade" id="cpu_temp_history" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                                <h5 class="modal-title">'.$lang['cpu_temperature'].'</h5>
+                        </div>
+                        <div class="modal-body">';
+                                $query = "select * from messages_in where node_id = 0 order by datetime desc limit 5";
+                                $results = $conn->query($query);
+                                echo '<p class="text-muted"> '.$lang['cpu_temperature_text'].' </p>
+		                <div id="cpu_temps">
+                		        <div class="list-group">';
+                                		while ($row = mysqli_fetch_assoc($results)) {
+		                                        echo '<div class="list-group-item">
+                		                                <div class="d-flex justify-content-between">
+                                		                        <span>
+                                                		                <i class="bi bi-cpu-fill"></i> '.$row['datetime'].'
+		                                                        </span>
+                		                                        <span class="text-muted small"><em>'.number_format(DispSensor($conn,$row['payload'],1),1).'&deg;</em></span>
+                                		                </div>
+		                                        </div>';
+                		                }
+	                       		echo '</div>
+        	        	</div>
+                        </div>
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                        </div>
+                </div>
+        </div>
+</div>';
+
+// Sensors status model
+echo '<div class="modal" id="status_sensors" tabindex="-1">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                                <h5 class="modal-title">'.$lang['temperature_sensor'].'</h5>
+                        </div>
+                        <div class="modal-body">
+                                <p class="text-muted">'.$lang['temperature_sensor_text'].'</p>';
+                                $query = "SELECT * FROM sensors ORDER BY sensor_id asc;";
+                                $results = $conn->query($query);
+				echo '<div class="list-group">';
+					$sensor_history_Array = Array();
+					while ($srow = mysqli_fetch_assoc($results)) {
+                                                $s_id = $srow['id'];
+					        $s_name = $srow['name'];
+        					$sensor_id = $srow['sensor_id'];
+        					$sensor_child_id = $srow['sensor_child_id'];
+						$sensor_type_id = $srow['sensor_type_id'];
+                                                $sensor_current_val_1 = $srow['current_val_1'];
+						$query = "SELECT * FROM nodes where id = {$sensor_id} LIMIT 1;";
+						$nresult = $conn->query($query);
+						$nrow = mysqli_fetch_array($nresult);
+						$node_id = $nrow['node_id'];
+						$last_seen = $nrow['last_seen'];
+					        $query = "SELECT * FROM messages_in_view_24h WHERE node_id = '{$node_id}' AND child_id = {$sensor_child_id};";
+        					$hresults = $conn->query($query);
+						while ($hrow = mysqli_fetch_assoc($hresults)) {
+							$sensor_history_Array[$s_id][] = $hrow;
+						}
+                                		$batquery = "select * from nodes_battery where node_id = '{$node_id}' ORDER BY id desc limit 1;";
+                                		$batresults = $conn->query($batquery);
+                                		$bcount = mysqli_num_rows($batresults);
+                                		if ($bcount > 0) { $brow = mysqli_fetch_array($batresults); }
+						$unit = SensorUnits($conn,$sensor_type_id);
+						echo '<div class="list-group-item">
+                                        		<div class="form-group row">
+                                                		<div class="text-start">&nbsp&nbsp'.$nrow['node_id'].'_'.$sensor_child_id.' - '.$s_name.'</div>
+                                        		</div>
+							<div class="form-group row">';
+								if ($bcount > 0) { echo '<div class="text-start">&nbsp&nbsp<i class="bi bi-battery-half"></i> '.round($brow ['bat_level'],0).'% - '.$brow ['bat_voltage'].'</div>'; } else { echo '<div class="text-start">&nbsp&nbsp<i class="bi bi-battery-half"></i></div>'; }
+							echo '</div>
+							<div class="form-group row">
+								<div class="d-flex justify-content-between">';
+									if ($sensor_type_id != 4) { echo '<span class="text" id="sensor_temp_'.$s_id.'">&nbsp&nbsp<i class="bi bi-thermometer-half red"></i> - '.$sensor_current_val_1.$unit.'</span>'; } else { echo '<span class="text" id="sensor_temp_'.$s_id.'">&nbsp&nbsp<i class="bi bi-thermometer-half red"></i></span>'; }
+									if (time() - strtotime($last_seen) > 60*60*24) { $disabled = "disabled"; $content_msg = $lang['no_sensors_last24h'];} else { $disabled = ""; $content_msg = "";}
+									echo '<span class="text-muted small" data-bs-toggle="tooltip" title="'.$content_msg.'"><button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-xs" onclick="sensor_last24h(`'.$s_id.'`, `'.$s_name.'`);" '.$disabled.'><em>'.$last_seen.'&nbsp</em></button>&nbsp</span>
+								</div>
+							</div>
+						</div> ';
+					}
+				echo '</div>
+	                        <!-- /.list-group -->
+                        </div>
+                        <!-- /.modal-body -->
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                        </div>
+                </div>
+                <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->';
+?>
+<script language="javascript" type="text/javascript">
+function sensor_last24h(id, name)
+{
+        var myId = id;
+        var myName = name;
+
+        if (myId == 0) {
+                $("#conn_id").val(myId);
+        } else {
+                var data = '<?php echo json_encode($sensor_history_Array) ?>';
+                var obj = JSON.parse(data);
+//                console.log(Array.isArray(obj[myId]));
+//                console.log(data.length);
+//                console.log(data);
+
+                if (Array.isArray(obj[myId])) {
+//                        console.log(obj[myId].length);
+//                        console.log(obj);
+                        if (obj[myId].length > 0) {
+                                var table = "" ;
+                                for (var y = 0; y < obj[myId].length; y++){
+                                        table += '<tr>';
+                                        table += '<td class="col-6">'
+                                                + myName +'</td>'
+                                                + '<td style="text-align:center; vertical-align:middle;" class="col-6">' + obj[myId][y].datetime +'</td>'
+                                                + '<td style="text-align:center; vertical-align:middle;" class="col-6">' + obj[myId][y].payload +'</td>' ;
+                                        table += '</tr>';
+                                        var title_text_1 = "<?php echo $lang['sensor_count_last24h'] ?>" + obj[myId].length;
+                                        var title_text_2 = "<?php echo $lang['average_count_last24h'] ?>" + Math.floor(obj[myId].length/24);
+                                        var title = "<?php echo $lang['sensor_last24h'] ?>" + '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0 ' + "<?php echo $lang['for_sensor_id'] ?>"
+                                                + obj[myId][y].node_id + '\xa0(' + obj[myId][y].child_id + ')';
+                                }
+                                document.getElementById("result").innerHTML = table;
+                        }
+                        $('#sensorhistory').text(title);
+                        $('#sensorhistory_text').text(title_text_1 + '\n' + title_text_2);
+
+                        $('#status_sensors').modal('hide');
+                        $('#sensors_history').modal('show');
+                }
+        }
+}
+</script>
+
+<?php
+
+// Sensors status model
+echo '<div class="modal" id="sensors_history" tabindex="-1">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                                <h5 class="modal-title" id="sensorhistory"></h5>
+                        </div>
+                        <div class="modal-body">
+                                <p class="text-muted" id="sensorhistory_text"></p>
+	                        <table class="table table-fixed">
+        	                        <thead>
+                	                        <tr>
+                        	                        <th class="col-6"><small>'.$lang['sensor_name'].'</small></th>
+                                	                <th style="text-align:center; vertical-align:middle;" class="col-6"><small>'.$lang['last_seen'].'</small></th>
+                                        	        <th style="text-align:center; vertical-align:middle;" class="col-6"><small>'.$lang['value'].'</small></th>
+	                                        </tr>
+        	                        </thead>
+					<tbody id= "result"></tbody>
+                        	</table>
+                        </div>
+                        <!-- /.modal-body -->
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" id="button_history_hide">'.$lang['close'].'</button>
+                        </div>
+                </div>
+                <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->';
+?>
+<script language="javascript" type="text/javascript">
+$("#button_history_hide").on("click", function(){
+	$("#sensors_history").modal("show");
+	$('#sensors_history').on("hidden.bs.modal", function (e) {
+		$("#status_sensors").modal("show");
+	})
+	$("#sensors_history").modal("hide");
+});
+</script>
+<?php
 }
 
 if ($model_num == 2) {
@@ -1303,6 +1588,255 @@ function set_ai_rotation(r)
 {
  document.getElementById("set_ai_r").value = r;
 // console.log(r);
+}
+</script>
+<?php
+
+//Services
+echo '<div class="modal fade" id="show_services" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    	<div class="modal-dialog">
+        	<div class="modal-content">
+            		<div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                        	<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                		<h5 class="modal-title">'.$lang['services'].'</h5>
+            		</div>
+            		<div class="modal-body">
+                		<p class="text-muted">'.$lang['services_text'].'</p>';
+    				$SArr=[['name'=>'Apache','service'=>'apache2.service'],
+           				['name'=>'MySQL','service'=>'mysql.service'],
+           				['name'=>'MariaDB','service'=>'mariadb.service'],
+           				['name'=>'PiHome JOBS','service'=>'pihome_jobs_schedule.service'],
+           				['name'=>'HomeAssistant Integration','service'=>'HA_integration.service'],
+	   				['name'=>'Amazon Echo','service'=>'pihome_amazon_echo.service'],
+           				['name'=>'Homebridge','service'=>'homebridge.service'],
+           				['name'=>'Autohotspot','service'=>'autohotspot.service']];
+    				echo '<div class="list-group">';
+    					$index = 0;
+    					foreach($SArr as $SArrKey=>$SArrVal) {
+    						$rval=my_exec("/bin/systemctl status " . $SArrVal['service']);
+                                                $sval=my_exec("/bin/journalctl -u " . $SArrVal['service'] . " -n 10 --no-pager");
+                                                $per='';
+                                                similar_text($sval['stderr'],'Hint: You are currently not seeing messages from other users and the system. Users in the \'systemd-journal\' group can see all messages. Pass -q to turn off this notice. No journal files were opened due to insufficient permissions.',$per);
+                                                if($per>80) {
+                                                        $sval['stdout']='www-data cannot access journalctl.<br/><br/>If you would like it to be able to, run<br/><code>sudo usermod -a -G systemd-journal www-data</code><br/>and then reboot the RPi.';
+						}
+        					echo '<span class="list-group-item">
+							<div class="d-flex justify-content-start">';
+        							echo $SArrVal['name'];
+							echo '</div>
+							<div class="d-flex justify-content-between">
+        							<span class="text-muted small">
+									<div id="service_'.$index++.'">';
+			        						if($rval['stdout']=='') {
+											$stat = 'Error: ' . $rval['stderr'];
+            										echo $stat;
+        									} else {
+            										$stat='Status: Unknown';
+            										$rval['stdout']=explode(PHP_EOL,$rval['stdout']);
+            										foreach($rval['stdout'] as $line) {
+                										if(strstr($line,'Loaded:')) {
+                    											if(strstr($line,'disabled;')) {
+                        											$stat='Status: Disabled';
+                       				 								break;
+                    											}
+                										}
+                										if(strstr($line,'Active:')) {
+                    											if(strstr($line,'active (running)')) {
+                        											$stat=trim($line);
+                        											break;
+                    											} else if(strstr($line,'(dead)')) {
+                        											$stat='Status: Dead';
+                        											break;
+                    											}
+                										}
+            										}
+            										echo $stat;
+        									}
+									echo '</div>
+        							</span>
+        							<span class="text-muted small" style="width:200px;text-align:right;" data-bs-toggle="tooltip" title="'.$lang['services_info'].'">
+                                         				<button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-xs" onclick="service_info(`'.$SArrVal['name'].'`,`'.$SArrVal['service'].'`,`'.$stat.'`,`'.$sval['stdout'].'`);"><span class="bi bi-info-circle"></span></button>
+        							</span>
+        						</div>
+						</span>';
+    					}
+    				echo '</div>
+	                        <!-- /.list-group -->
+            		</div>
+                        <!-- /.modal-body -->
+			<div class="modal-footer">
+                		<button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+            		</div>
+        	</div>
+                <!-- /.modal-content -->
+    	</div>
+        <!-- /.modal-dialogue -->
+</div>
+<!-- /.modal -->';
+?>
+<script>
+function service_info(name, service, status, journal)
+{
+	var myName = name;
+        var myService = service;
+	var myStatus = status;
+	var myJournal = journal;
+
+//	console.log(myName);
+//	console.log(myService);
+//	console.log(myStatus);
+
+	document.getElementById('serv_status').setAttribute('name','serv_status_' + myService);
+	document.getElementById("serv_name").innerHTML = myName;
+        document.getElementById("serv_status").innerHTML = myStatus
+	if (myService.includes("pihome.") || myService.includes("pihome_") || myService.includes("homebridge") || myService.includes("autohotspot") || myService.includes("HA_Integration")) {
+		document.getElementById("serv_buttons").style.setProperty('display', 'block');
+		document.getElementById('button_serv_start').setAttribute('onclick','service_action(`' + myService + '`,28)');
+		document.getElementById('button_serv_stop').setAttribute('onclick','service_action(`' + myService + '`,29)');
+		document.getElementById('button_serv_enable').setAttribute('onclick','service_action(`' + myService + '`,30)');
+		document.getElementById('button_serv_disable').setAttribute('onclick','service_action(`' + myService + '`,31)');
+	} else {
+		document.getElementById("serv_buttons").style.setProperty('display', 'none');
+	}
+
+        document.getElementById("serv_journal").innerHTML = myJournal;
+	if (myService.includes("echo.service")) {
+                document.getElementById("serv_echo").style.setProperty('display', 'block');
+	} else {
+		document.getElementById("serv_echo").style.setProperty('display', 'none');
+	}
+        $('#serv_status').load("ajax_fetch_data.php?id=" + myService + "&type=32").fadeIn("slow");
+
+        $('#show_services').modal('hide');
+        $('#service_info').modal('show');
+
+}
+</script>
+<?php
+
+//Service Info
+echo '<div class="modal fade" id="service_info" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                                <h5 class="modal-title">'.$lang['services_info'].'</h5>
+                        </div>
+                        <div class="modal-body">
+					<div class="list-group">
+						<span class="list-group-item">
+							<div id="serv_name"></div>
+							<span class="text-muted small">
+								<div id="serv_status"></div>
+							</span>
+						</span>
+						<div style="display:none" id="serv_buttons">
+							<span class="list-group-item" style="height:55px;">&nbsp;
+                                        			<span class="float-right text-muted small">
+                							<button class="btn btn-warning-'.theme($conn, $theme, 'color').' btn-xs" id="button_serv_start" onclick="">'.$lang['start'].'</button>
+                							<button class="btn btn-warning-'.theme($conn, $theme, 'color').' btn-xs" id="button_serv_stop" onclick="">'.$lang['stop'].'</button>
+              								<button class="btn btn-warning-'.theme($conn, $theme, 'color').' btn-xs" id="button_serv_enable" onclick="">'.$lang['enable'].'</button>
+              								<button class="btn btn-warning-'.theme($conn, $theme, 'color').' btn-xs" id="button_serv_disable" onclick="">'.$lang['disable'].'</button>
+                                        			</span>
+                                			</span>
+						</div>
+						<span class="list-group-item" style="overflow:hidden;">&nbsp
+                                			Status: <i class="bi bi-bootstrap-reboot orange" style="font-size: 1.2rem;"></i><br/>
+                                			<span class="text-muted small">
+								<div id="serv_journal"></div>
+								<br/>
+                                			</span>
+                        			</span>
+						<div style="display:none" id="serv_echo">
+                                			<span class="list-group-item" style="overflow:hidden;">Install Service:
+                                        			<span class="float-right text-muted small">Edit /lib/systemd/system/pihome_amazon_echo.service<br/>
+                                        	        		<code>sudo nano /lib/systemd/system/pihome_amazon_echo.service</code>
+                                                			<br/>
+                                                			Put the following contents in the file:
+                                                			<br/>
+                                         		       		(make sure the -u is supplied to python
+                                                			<br/>
+                                                			to ensure the output is not buffered and delayed)<br/>
+                                                			<code>[Unit]
+                                                			<br/>
+                                                			Description=Amazon Echo Service<br/>
+                                               		 		After=multi-user.target<br/>
+                                                			<br/>
+                                                			[Service]
+                                                			<br/>
+                                                			Type=simple
+                                                			<br/>
+                                                			ExecStart=/usr/bin/python -u /var/www/add_on/amazon_echo/echo_pihome.py<br/>
+                                                			Restart=on-abort
+                                                			<br/>
+                                                			<br/>
+                                                			[Install]
+                                                			<br/>
+                                                			WantedBy=multi-user.target</code>
+                                                			<br/>
+                                                			Update the file permissions:
+                                                			<br/>
+                                                			<code>sudo chmod 644 /lib/systemd/system/pihome_amazon_echo.service</code>
+                                                			<br/>
+                                                			Update systemd:
+                                                			<br/>
+                                                			<code>sudo systemctl daemon-reload</code>
+                                                			<br/>
+                                                			<br/>
+                                                			For improved performance, lower SD card writes:
+                                                			<br/>
+                                                			Edit /etc/systemd/journald.conf
+                                                			<br/>
+                                                			<code>sudo nano /etc/systemd/journald.conf</code>
+                                                			<br/>
+                                                			Edit/Add the following:
+                                                			<br/>
+                                                			<code>Storage=volatile
+                                                			<br/>
+                                                			RuntimeMaxUse=50M</code>
+                                                			<br/>
+                                                			Then restart journald:
+                                                			<br/>
+                                                			<code>sudo systemctl restart systemd-journald</code>
+                                                			<br/>
+                                                			Refer to: <a href="www.freedesktop.org/software/systemd/man/journald.conf.html">www.freedesktop.org/software/systemd/man/journald.conf.html</a>
+                                                			<br/>
+                                        			</span>
+                                			</span>
+						</div>
+					</div>
+					<!-- /.list-group -->
+                        </div>
+                        <!-- /.modal-body -->
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" id="button_service_hide">'.$lang['close'].'</button>
+                        </div>
+                </div>
+                <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialogue -->
+</div>
+<!-- /.modal -->';
+?>
+<script language="javascript" type="text/javascript">
+$("#button_service_hide").on("click", function(){
+        $("#service_info").modal("show");
+        $('#service_info').on("hidden.bs.modal", function (e) {
+                $("#show_services").modal("show");
+        })
+        $("#service_info").modal("hide");
+});
+</script>
+
+<script>
+function service_action(service, type)
+{
+        var myService = service;
+        var myType = type;
+        var str = "ajax_fetch_data.php?id=" + myService + "&type=" + myType
+
+        $('#serv_status').load(str).fadeIn("slow");
+//	console.log(str);
 }
 </script>
 <?php
@@ -2106,6 +2640,7 @@ function set_button_text(id)
 }
 </script>
 <?php
+
 //Add Theme
 echo '<div class="modal fade" id="add_theme" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -2145,11 +2680,14 @@ echo '<div class="modal fade" id="add_theme" tabindex="-1" role="dialog" aria-la
 					if ($row["tile_size"] == 0) { $tile_size = explode(' ', $lang['standard_button'])[0]; } else { $tile_size = explode(' ', $lang['wide_button'])[0]; }
 					echo '<td class="text-capitalize" style="text-align:center; vertical-align:middle;">'.$tile_size.'</td>
 	    				<td style="text-align:center; vertical-align:middle;"><a href="theme.php?id='.$row["id"].'"><button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-xs"><i class="bi bi-pencil"></i></button></a>&nbsp;&nbsp';
-					echo '<a href="javascript:delete_theme('.$row["id"].');" style="text-decoration: none;"><button class="btn btn-danger btn-xs" data-bs-toggle="popover" data-title="'.$lang['confirmation'].'" data-bs-content="'.$lang['confirm_del_sensor_4'].'"><span class="bi bi-trash-fill black"></span></button> </a></td>'; 
+                                        echo '<button class="btn warning btn-danger btn-xs" onclick="delete_theme('.$row["id"].');" data-confirm="'.$lang['confirm_del_theme'].'"><span class="bi bi-trash-fill black"></span></button></td>';
+
+
         			echo '</tr>';
 			}
 		echo '</table>
 	    </div>
+	        <!-- /.modal-body -->
 		<div class="modal-footer">
                 	<button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
                 	<a class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' login btn-sm" href="theme.php">'.$lang['add_theme'].'</a>
@@ -2157,6 +2695,575 @@ echo '<div class="modal fade" id="add_theme" tabindex="-1" role="dialog" aria-la
         </div>
     </div>
 </div>';
+
+//Open Weather Modal
+echo '<div class="modal fade" id="modal_openweather" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                                <h5 class="modal-title">'.$lang['openweather_settings'].'</h5>
+                        </div>
+                        <div class="modal-body">';
+                                $openweather_api = settings($conn,'openweather_api');
+                                $country = settings($conn,'country');
+    				$city = settings($conn,'city');
+                                $zip = settings($conn,'zip');
+				if($city != NULL) {
+					$city_checked = "checked";
+                                        $zip_checked = "";
+					$CityZip_label = "City";
+					$CityZip = 0;
+				} else {
+                                        $city_checked = "";
+                                        $zip_checked = "checked";
+                                        $CityZip_label = "Zip";
+                                        $CityZip = 1;
+				}
+                                echo '<input type="hidden" id="CityZip" name="CityZip" value="'.$CityZip.'"/>
+                                <input type="hidden" id="country_code" name="country_code" value="'.$country.'"/>
+                                <input type="hidden" id="city" name="city" value="'.$city.'"/>
+                                <input type="hidden" id="zip" name="zip" value="'.$zip.'"/>
+            			<p class="text-muted">'.$lang['openweather_text1'].' <a class="green" target="_blank" href="http://OpenWeatherMap.org">'.$lang['openweather_text2'].'</a> '.$lang['openweather_text3'].'
+            			<p>'.$lang['openweather_text4'].'
+	                        <form data-bs-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
+            				<div class="form-group">
+                				<label>Country</label>&nbsp;(ISO-3166-1: Alpha-2 Codes)
+                				<select class="form-control" id="sel_Country" name="sel_Country" onchange=set_country(this.options[this.selectedIndex].value)>
+                    					<option value="AF" ' . ($country=="AF" ? 'selected' : '') . '>Afghanistan</option>
+                    					<option value="AX" ' . ($country=="AX" ? 'selected' : '') . '>Åland Islands</option>
+                    					<option value="AL" ' . ($country=="AL" ? 'selected' : '') . '>Albania</option>
+					                <option value="DZ" ' . ($country=="DZ" ? 'selected' : '') . '>Algeria</option>
+                    					<option value="AS" ' . ($country=="AS" ? 'selected' : '') . '>American Samoa</option>
+                    					<option value="AD" ' . ($country=="AD" ? 'selected' : '') . '>Andorra</option>
+                    					<option value="AO" ' . ($country=="AO" ? 'selected' : '') . '>Angola</option>
+							<option value="AI" ' . ($country=="AI" ? 'selected' : '') . '>Anguilla</option>
+                    					<option value="AQ" ' . ($country=="AQ" ? 'selected' : '') . '>Antarctica</option>
+                    					<option value="AG" ' . ($country=="AG" ? 'selected' : '') . '>Antigua and Barbuda</option>
+                    					<option value="AR" ' . ($country=="AR" ? 'selected' : '') . '>Argentina</option>
+                    					<option value="AM" ' . ($country=="AM" ? 'selected' : '') . '>Armenia</option>
+                    					<option value="AW" ' . ($country=="AW" ? 'selected' : '') . '>Aruba</option>
+                    					<option value="AU" ' . ($country=="AU" ? 'selected' : '') . '>Australia</option>
+                    					<option value="AT" ' . ($country=="AT" ? 'selected' : '') . '>Austria</option>
+                    					<option value="AZ" ' . ($country=="AZ" ? 'selected' : '') . '>Azerbaijan</option>
+                    					<option value="BS" ' . ($country=="BS" ? 'selected' : '') . '>Bahamas</option>
+                    					<option value="BH" ' . ($country=="BH" ? 'selected' : '') . '>Bahrain</option>
+                    					<option value="BD" ' . ($country=="BD" ? 'selected' : '') . '>Bangladesh</option>
+                    					<option value="BB" ' . ($country=="BB" ? 'selected' : '') . '>Barbados</option>
+                    					<option value="BY" ' . ($country=="BY" ? 'selected' : '') . '>Belarus</option>
+                    					<option value="BE" ' . ($country=="BE" ? 'selected' : '') . '>Belgium</option>
+                    					<option value="BZ" ' . ($country=="BZ" ? 'selected' : '') . '>Belize</option>
+                    					<option value="BJ" ' . ($country=="BJ" ? 'selected' : '') . '>Benin</option>
+                    					<option value="BM" ' . ($country=="BM" ? 'selected' : '') . '>Bermuda</option>
+                    					<option value="BT" ' . ($country=="BT" ? 'selected' : '') . '>Bhutan</option>
+                    					<option value="BO" ' . ($country=="BO" ? 'selected' : '') . '>Bolivia, Plurinational State of</option>
+                    					<option value="BQ" ' . ($country=="BQ" ? 'selected' : '') . '>Bonaire, Sint Eustatius and Saba</option>
+                    					<option value="BA" ' . ($country=="BA" ? 'selected' : '') . '>Bosnia and Herzegovina</option>
+                    					<option value="BW" ' . ($country=="BW" ? 'selected' : '') . '>Botswana</option>
+                    					<option value="BV" ' . ($country=="BV" ? 'selected' : '') . '>Bouvet Island</option>
+                    					<option value="BR" ' . ($country=="BR" ? 'selected' : '') . '>Brazil</option>
+                    					<option value="IO" ' . ($country=="IO" ? 'selected' : '') . '>British Indian Ocean Territory</option>
+                    					<option value="BN" ' . ($country=="BN" ? 'selected' : '') . '>Brunei Darussalam</option>
+                    					<option value="BG" ' . ($country=="BG" ? 'selected' : '') . '>Bulgaria</option>
+                    					<option value="BF" ' . ($country=="BF" ? 'selected' : '') . '>Burkina Faso</option>
+                    					<option value="BI" ' . ($country=="BI" ? 'selected' : '') . '>Burundi</option>
+                    					<option value="KH" ' . ($country=="KH" ? 'selected' : '') . '>Cambodia</option>
+                    					<option value="CM" ' . ($country=="CM" ? 'selected' : '') . '>Cameroon</option>
+                    					<option value="CA" ' . ($country=="CA" ? 'selected' : '') . '>Canada</option>
+                    					<option value="CV" ' . ($country=="CV" ? 'selected' : '') . '>Cape Verde</option>
+                    					<option value="KY" ' . ($country=="KY" ? 'selected' : '') . '>Cayman Islands</option>
+                    					<option value="CF" ' . ($country=="CF" ? 'selected' : '') . '>Central African Republic</option>
+                    					<option value="TD" ' . ($country=="TD" ? 'selected' : '') . '>Chad</option>
+                    					<option value="CL" ' . ($country=="CL" ? 'selected' : '') . '>Chile</option>
+                    					<option value="CN" ' . ($country=="CN" ? 'selected' : '') . '>China</option>
+                    					<option value="CX" ' . ($country=="CX" ? 'selected' : '') . '>Christmas Island</option>
+                    					<option value="CC" ' . ($country=="CC" ? 'selected' : '') . '>Cocos (Keeling) Islands</option>
+                    					<option value="CO" ' . ($country=="CO" ? 'selected' : '') . '>Colombia</option>
+                    					<option value="KM" ' . ($country=="KM" ? 'selected' : '') . '>Comoros</option>
+                    					<option value="CG" ' . ($country=="CG" ? 'selected' : '') . '>Congo</option>
+                    					<option value="CD" ' . ($country=="CD" ? 'selected' : '') . '>Congo, the Democratic Republic of the</option>
+                    					<option value="CK" ' . ($country=="CK" ? 'selected' : '') . '>Cook Islands</option>
+                    					<option value="CR" ' . ($country=="CR" ? 'selected' : '') . '>Costa Rica</option>
+                    					<option value="CI" ' . ($country=="CI" ? 'selected' : '') . '>Côte d\'Ivoire</option>
+                    					<option value="HR" ' . ($country=="HR" ? 'selected' : '') . '>Croatia</option>
+                    					<option value="CU" ' . ($country=="CU" ? 'selected' : '') . '>Cuba</option>
+                    					<option value="CW" ' . ($country=="CW" ? 'selected' : '') . '>Curaçao</option>
+                                                        <option value="CY" ' . ($country=="CY" ? 'selected' : '') . '>Cyprus</option>
+                                                        <option value="CZ" ' . ($country=="CZ" ? 'selected' : '') . '>Czech Republic</option>
+                                                        <option value="DK" ' . ($country=="DK" ? 'selected' : '') . '>Denmark</option>
+                                                        <option value="DJ" ' . ($country=="DJ" ? 'selected' : '') . '>Djibouti</option>
+                                                        <option value="DM" ' . ($country=="DM" ? 'selected' : '') . '>Dominica</option>
+                                                        <option value="DO" ' . ($country=="DO" ? 'selected' : '') . '>Dominican Republic</option>
+                                                        <option value="EC" ' . ($country=="EC" ? 'selected' : '') . '>Ecuador</option>
+                                                        <option value="EG" ' . ($country=="EG" ? 'selected' : '') . '>Egypt</option>
+                                                        <option value="SV" ' . ($country=="SV" ? 'selected' : '') . '>El Salvador</option>
+                                                        <option value="GQ" ' . ($country=="GQ" ? 'selected' : '') . '>Equatorial Guinea</option>
+                                                        <option value="ER" ' . ($country=="ER" ? 'selected' : '') . '>Eritrea</option>
+                                                        <option value="EE" ' . ($country=="EE" ? 'selected' : '') . '>Estonia</option>
+                                                        <option value="ET" ' . ($country=="ET" ? 'selected' : '') . '>Ethiopia</option>
+                                                        <option value="FK" ' . ($country=="FR" ? 'selected' : '') . '>Falkland Islands (Malvinas)</option>
+                                                        <option value="FO" ' . ($country=="FO" ? 'selected' : '') . '>Faroe Islands</option>
+                                                        <option value="FJ" ' . ($country=="FJ" ? 'selected' : '') . '>Fiji</option>
+                                                        <option value="FI" ' . ($country=="FI" ? 'selected' : '') . '>Finland</option>
+                                                        <option value="FR" ' . ($country=="FR" ? 'selected' : '') . '>France</option>
+                                                        <option value="GF" ' . ($country=="GF" ? 'selected' : '') . '>French Guiana</option>
+                                                        <option value="PF" ' . ($country=="PF" ? 'selected' : '') . '>French Polynesia</option>
+                                                        <option value="TF" ' . ($country=="TF" ? 'selected' : '') . '>French Southern Territories</option>
+                                                        <option value="GA" ' . ($country=="GA" ? 'selected' : '') . '>Gabon</option>
+                                                        <option value="GM" ' . ($country=="GM" ? 'selected' : '') . '>Gambia</option>
+                                                        <option value="GE" ' . ($country=="GE" ? 'selected' : '') . '>Georgia</option>
+                                                        <option value="DE" ' . ($country=="DE" ? 'selected' : '') . '>Germany</option>
+                                                        <option value="GH" ' . ($country=="GH" ? 'selected' : '') . '>Ghana</option>
+                                                        <option value="GI" ' . ($country=="GI" ? 'selected' : '') . '>Gibraltar</option>
+                                                        <option value="GR" ' . ($country=="GR" ? 'selected' : '') . '>Greece</option>
+                                                        <option value="GL" ' . ($country=="GL" ? 'selected' : '') . '>Greenland</option>
+                                                        <option value="GD" ' . ($country=="GD" ? 'selected' : '') . '>Grenada</option>
+                                                        <option value="GP" ' . ($country=="GP" ? 'selected' : '') . '>Guadeloupe</option>
+                                                        <option value="GU" ' . ($country=="GU" ? 'selected' : '') . '>Guam</option>
+                                                        <option value="GT" ' . ($country=="GT" ? 'selected' : '') . '>Guatemala</option>
+                                                        <option value="GG" ' . ($country=="GG" ? 'selected' : '') . '>Guernsey</option>
+                                                        <option value="GN" ' . ($country=="GN" ? 'selected' : '') . '>Guinea</option>
+                                                        <option value="GW" ' . ($country=="GW" ? 'selected' : '') . '>Guinea-Bissau</option>
+                                                        <option value="GY" ' . ($country=="GY" ? 'selected' : '') . '>Guyana</option>
+                                                        <option value="HT" ' . ($country=="HT" ? 'selected' : '') . '>Haiti</option>
+                                                        <option value="HM" ' . ($country=="HM" ? 'selected' : '') . '>Heard Island and McDonald Islands</option>
+                                                        <option value="VA" ' . ($country=="VA" ? 'selected' : '') . '>Holy See (Vatican City State)</option>
+                                                        <option value="HN" ' . ($country=="HN" ? 'selected' : '') . '>Honduras</option>
+                                                        <option value="HK" ' . ($country=="HK" ? 'selected' : '') . '>Hong Kong</option>
+                                                        <option value="HU" ' . ($country=="HU" ? 'selected' : '') . '>Hungary</option>
+                                                        <option value="IS" ' . ($country=="IS" ? 'selected' : '') . '>Iceland</option>
+                                                        <option value="IN" ' . ($country=="IN" ? 'selected' : '') . '>India</option>
+                                                        <option value="ID" ' . ($country=="ID" ? 'selected' : '') . '>Indonesia</option>
+                                                        <option value="IR" ' . ($country=="IR" ? 'selected' : '') . '>Iran, Islamic Republic of</option>
+                                                        <option value="IQ" ' . ($country=="IQ" ? 'selected' : '') . '>Iraq</option>
+                                                        <option value="IE" ' . ($country=="IE" ? 'selected' : '') . '>Ireland</option>
+                                                        <option value="IM" ' . ($country=="IM" ? 'selected' : '') . '>Isle of Man</option>
+                                                        <option value="IL" ' . ($country=="IL" ? 'selected' : '') . '>Israel</option>
+                                                        <option value="IT" ' . ($country=="IT" ? 'selected' : '') . '>Italy</option>
+                                                        <option value="JM" ' . ($country=="JM" ? 'selected' : '') . '>Jamaica</option>
+                                                        <option value="JP" ' . ($country=="JP" ? 'selected' : '') . '>Japan</option>
+                                                        <option value="JE" ' . ($country=="JE" ? 'selected' : '') . '>Jersey</option>
+                                                        <option value="JO" ' . ($country=="JO" ? 'selected' : '') . '>Jordan</option>
+                                                        <option value="KZ" ' . ($country=="KZ" ? 'selected' : '') . '>Kazakhstan</option>
+                                                        <option value="KE" ' . ($country=="KE" ? 'selected' : '') . '>Kenya</option>
+                                                        <option value="KI" ' . ($country=="KI" ? 'selected' : '') . '>Kiribati</option>
+                                                        <option value="KP" ' . ($country=="KP" ? 'selected' : '') . '>Korea, Democratic People\'s Republic of</option>
+                                                        <option value="KR" ' . ($country=="KR" ? 'selected' : '') . '>Korea, Republic of</option>
+                                                        <option value="KW" ' . ($country=="KW" ? 'selected' : '') . '>Kuwait</option>
+                                                        <option value="KG" ' . ($country=="KG" ? 'selected' : '') . '>Kyrgyzstan</option>
+                                                        <option value="LA" ' . ($country=="LA" ? 'selected' : '') . '>Lao People\'s Democratic Republic</option>
+                                                        <option value="LV" ' . ($country=="LV" ? 'selected' : '') . '>Latvia</option>
+                                                        <option value="LB" ' . ($country=="LB" ? 'selected' : '') . '>Lebanon</option>
+                                                        <option value="LS" ' . ($country=="LS" ? 'selected' : '') . '>Lesotho</option>
+                                                        <option value="LR" ' . ($country=="LR" ? 'selected' : '') . '>Liberia</option>
+                                                        <option value="LY" ' . ($country=="LY" ? 'selected' : '') . '>Libya</option>
+                                                        <option value="LI" ' . ($country=="LI" ? 'selected' : '') . '>Liechtenstein</option>
+                                                        <option value="LT" ' . ($country=="LT" ? 'selected' : '') . '>Lithuania</option>
+                                                        <option value="LU" ' . ($country=="LU" ? 'selected' : '') . '>Luxembourg</option>
+                                                        <option value="MO" ' . ($country=="MO" ? 'selected' : '') . '>Macao</option>
+                                                        <option value="MK" ' . ($country=="MK" ? 'selected' : '') . '>Macedonia, the former Yugoslav Republic of</option>
+                                                        <option value="MG" ' . ($country=="MG" ? 'selected' : '') . '>Madagascar</option>
+                                                        <option value="MW" ' . ($country=="MW" ? 'selected' : '') . '>Malawi</option>
+                                                        <option value="MY" ' . ($country=="MY" ? 'selected' : '') . '>Malaysia</option>
+                                                        <option value="MV" ' . ($country=="MV" ? 'selected' : '') . '>Maldives</option>
+                                                        <option value="ML" ' . ($country=="ML" ? 'selected' : '') . '>Mali</option>
+                                                        <option value="MT" ' . ($country=="MT" ? 'selected' : '') . '>Malta</option>
+                                                        <option value="MH" ' . ($country=="MH" ? 'selected' : '') . '>Marshall Islands</option>
+                                                        <option value="MQ" ' . ($country=="MQ" ? 'selected' : '') . '>Martinique</option>
+                                                        <option value="MR" ' . ($country=="MR" ? 'selected' : '') . '>Mauritania</option>
+                                                        <option value="MU" ' . ($country=="MU" ? 'selected' : '') . '>Mauritius</option>
+                                                        <option value="YT" ' . ($country=="YT" ? 'selected' : '') . '>Mayotte</option>
+                                                        <option value="MX" ' . ($country=="MX" ? 'selected' : '') . '>Mexico</option>
+                                                        <option value="FM" ' . ($country=="FM" ? 'selected' : '') . '>Micronesia, Federated States of</option>
+                                                        <option value="MD" ' . ($country=="MD" ? 'selected' : '') . '>Moldova, Republic of</option>
+                                                        <option value="MC" ' . ($country=="MC" ? 'selected' : '') . '>Monaco</option>
+                                                        <option value="MN" ' . ($country=="MN" ? 'selected' : '') . '>Mongolia</option>
+                                                        <option value="ME" ' . ($country=="ME" ? 'selected' : '') . '>Montenegro</option>
+                                                        <option value="MS" ' . ($country=="MS" ? 'selected' : '') . '>Montserrat</option>
+                                                        <option value="MA" ' . ($country=="MA" ? 'selected' : '') . '>Morocco</option>
+                                                        <option value="MZ" ' . ($country=="MZ" ? 'selected' : '') . '>Mozambique</option>
+                                                        <option value="MM" ' . ($country=="MM" ? 'selected' : '') . '>Myanmar</option>
+                                                        <option value="NA" ' . ($country=="NA" ? 'selected' : '') . '>Namibia</option>
+                                                        <option value="NR" ' . ($country=="NR" ? 'selected' : '') . '>Nauru</option>
+                                                        <option value="NP" ' . ($country=="NP" ? 'selected' : '') . '>Nepal</option>
+                                                        <option value="NL" ' . ($country=="NL" ? 'selected' : '') . '>Netherlands</option>
+                                                        <option value="NC" ' . ($country=="NC" ? 'selected' : '') . '>New Caledonia</option>
+                                                        <option value="NZ" ' . ($country=="NZ" ? 'selected' : '') . '>New Zealand</option>
+                                                        <option value="NI" ' . ($country=="NI" ? 'selected' : '') . '>Nicaragua</option>
+                                                        <option value="NE" ' . ($country=="NE" ? 'selected' : '') . '>Niger</option>
+                                                        <option value="NG" ' . ($country=="NG" ? 'selected' : '') . '>Nigeria</option>
+                                                        <option value="NU" ' . ($country=="NU" ? 'selected' : '') . '>Niue</option>
+                                                        <option value="NF" ' . ($country=="NF" ? 'selected' : '') . '>Norfolk Island</option>
+                                                        <option value="MP" ' . ($country=="MP" ? 'selected' : '') . '>Northern Mariana Islands</option>
+                                                        <option value="NO" ' . ($country=="NO" ? 'selected' : '') . '>Norway</option>
+                                                        <option value="OM" ' . ($country=="OM" ? 'selected' : '') . '>Oman</option>
+                                                        <option value="PK" ' . ($country=="PK" ? 'selected' : '') . '>Pakistan</option>
+                                                        <option value="PW" ' . ($country=="PW" ? 'selected' : '') . '>Palau</option>
+                                                        <option value="PS" ' . ($country=="PS" ? 'selected' : '') . '>Palestinian Territory, Occupied</option>
+                                                        <option value="PA" ' . ($country=="PA" ? 'selected' : '') . '>Panama</option>
+                                                        <option value="PG" ' . ($country=="PG" ? 'selected' : '') . '>Papua New Guinea</option>
+                                                        <option value="PY" ' . ($country=="PY" ? 'selected' : '') . '>Paraguay</option>
+                                                        <option value="PE" ' . ($country=="PE" ? 'selected' : '') . '>Peru</option>
+                                                        <option value="PH" ' . ($country=="PH" ? 'selected' : '') . '>Philippines</option>
+                                                        <option value="PN" ' . ($country=="PN" ? 'selected' : '') . '>Pitcairn</option>
+                                                        <option value="PL" ' . ($country=="PL" ? 'selected' : '') . '>Poland</option>
+                                                        <option value="PT" ' . ($country=="PT" ? 'selected' : '') . '>Portugal</option>
+                                                        <option value="PR" ' . ($country=="PR" ? 'selected' : '') . '>Puerto Rico</option>
+                                                        <option value="QA" ' . ($country=="QA" ? 'selected' : '') . '>Qatar</option>
+                                                        <option value="RE" ' . ($country=="RE" ? 'selected' : '') . '>Réunion</option>
+                                                        <option value="RO" ' . ($country=="RO" ? 'selected' : '') . '>Romania</option>
+                                                        <option value="RU" ' . ($country=="RU" ? 'selected' : '') . '>Russian Federation</option>
+                                                        <option value="RW" ' . ($country=="RW" ? 'selected' : '') . '>Rwanda</option>
+                                                        <option value="BL" ' . ($country=="BL" ? 'selected' : '') . '>Saint Barthélemy</option>
+                                                        <option value="SH" ' . ($country=="SH" ? 'selected' : '') . '>Saint Helena, Ascension and Tristan da Cunha</option>
+                                                        <option value="KN" ' . ($country=="KN" ? 'selected' : '') . '>Saint Kitts and Nevis</option>
+                                                        <option value="LC" ' . ($country=="LC" ? 'selected' : '') . '>Saint Lucia</option>
+                                                        <option value="MF" ' . ($country=="MF" ? 'selected' : '') . '>Saint Martin (French part)</option>
+                                                        <option value="PM" ' . ($country=="PM" ? 'selected' : '') . '>Saint Pierre and Miquelon</option>
+                                                        <option value="VC" ' . ($country=="VC" ? 'selected' : '') . '>Saint Vincent and the Grenadines</option>
+                                                        <option value="WS" ' . ($country=="WS" ? 'selected' : '') . '>Samoa</option>
+                                                        <option value="SM" ' . ($country=="SM" ? 'selected' : '') . '>San Marino</option>
+                                                        <option value="ST" ' . ($country=="ST" ? 'selected' : '') . '>Sao Tome and Principe</option>
+                                                        <option value="SA" ' . ($country=="SA" ? 'selected' : '') . '>Saudi Arabia</option>
+                                                        <option value="SN" ' . ($country=="SN" ? 'selected' : '') . '>Senegal</option>
+                                                        <option value="RS" ' . ($country=="RS" ? 'selected' : '') . '>Serbia</option>
+                                                        <option value="SC" ' . ($country=="SC" ? 'selected' : '') . '>Seychelles</option>
+                                                        <option value="SL" ' . ($country=="SL" ? 'selected' : '') . '>Sierra Leone</option>
+                                                        <option value="SG" ' . ($country=="SG" ? 'selected' : '') . '>Singapore</option>
+                                                        <option value="SX" ' . ($country=="SX" ? 'selected' : '') . '>Sint Maarten (Dutch part)</option>
+                                                        <option value="SK" ' . ($country=="SK" ? 'selected' : '') . '>Slovakia</option>
+                                                        <option value="SI" ' . ($country=="SI" ? 'selected' : '') . '>Slovenia</option>
+                                                        <option value="SB" ' . ($country=="SB" ? 'selected' : '') . '>Solomon Islands</option>
+                                                        <option value="SO" ' . ($country=="SO" ? 'selected' : '') . '>Somalia</option>
+                                                        <option value="ZA" ' . ($country=="ZA" ? 'selected' : '') . '>South Africa</option>
+                                                        <option value="GS" ' . ($country=="GS" ? 'selected' : '') . '>South Georgia and the South Sandwich Islands</option>
+                                                        <option value="SS" ' . ($country=="SS" ? 'selected' : '') . '>South Sudan</option>
+                                                        <option value="ES" ' . ($country=="ES" ? 'selected' : '') . '>Spain</option>
+                                                        <option value="LK" ' . ($country=="LK" ? 'selected' : '') . '>Sri Lanka</option>
+                                                        <option value="SD" ' . ($country=="SD" ? 'selected' : '') . '>Sudan</option>
+                                                        <option value="SR" ' . ($country=="SR" ? 'selected' : '') . '>Suriname</option>
+                                                        <option value="SJ" ' . ($country=="SJ" ? 'selected' : '') . '>Svalbard and Jan Mayen</option>
+                                                        <option value="SZ" ' . ($country=="SZ" ? 'selected' : '') . '>Swaziland</option>
+                                                        <option value="SE" ' . ($country=="SE" ? 'selected' : '') . '>Sweden</option>
+                                                        <option value="CH" ' . ($country=="CH" ? 'selected' : '') . '>Switzerland</option>
+                                                        <option value="SY" ' . ($country=="SY" ? 'selected' : '') . '>Syrian Arab Republic</option>
+                                                        <option value="TW" ' . ($country=="TW" ? 'selected' : '') . '>Taiwan, Province of China</option>
+                                                        <option value="TJ" ' . ($country=="TJ" ? 'selected' : '') . '>Tajikistan</option>
+                                                        <option value="TZ" ' . ($country=="TZ" ? 'selected' : '') . '>Tanzania, United Republic of</option>
+                                                        <option value="TH" ' . ($country=="TH" ? 'selected' : '') . '>Thailand</option>
+                                                        <option value="TL" ' . ($country=="TL" ? 'selected' : '') . '>Timor-Leste</option>
+                                                        <option value="TG" ' . ($country=="TG" ? 'selected' : '') . '>Togo</option>
+                                                        <option value="TK" ' . ($country=="TK" ? 'selected' : '') . '>Tokelau</option>
+                                                        <option value="TO" ' . ($country=="TO" ? 'selected' : '') . '>Tonga</option>
+                                                        <option value="TT" ' . ($country=="TT" ? 'selected' : '') . '>Trinidad and Tobago</option>
+                                                        <option value="TN" ' . ($country=="TN" ? 'selected' : '') . '>Tunisia</option>
+                                                        <option value="TR" ' . ($country=="TR" ? 'selected' : '') . '>Turkey</option>
+                                                        <option value="TM" ' . ($country=="TM" ? 'selected' : '') . '>Turkmenistan</option>
+                                                        <option value="TC" ' . ($country=="TC" ? 'selected' : '') . '>Turks and Caicos Islands</option>
+                                                        <option value="TV" ' . ($country=="TV" ? 'selected' : '') . '>Tuvalu</option>
+                                                        <option value="UG" ' . ($country=="UG" ? 'selected' : '') . '>Uganda</option>
+                                                        <option value="UA" ' . ($country=="UA" ? 'selected' : '') . '>Ukraine</option>
+                                                        <option value="AE" ' . ($country=="AE" ? 'selected' : '') . '>United Arab Emirates</option>
+                                                        <option value="GB" ' . ($country=="GB" ? 'selected' : '') . '>United Kingdom</option>
+                                                        <option value="US" ' . ($country=="US" ? 'selected' : '') . '>United States</option>
+                                                        <option value="UM" ' . ($country=="UM" ? 'selected' : '') . '>United States Minor Outlying Islands</option>
+                                                        <option value="UY" ' . ($country=="UY" ? 'selected' : '') . '>Uruguay</option>
+                                                        <option value="UZ" ' . ($country=="UZ" ? 'selected' : '') . '>Uzbekistan</option>
+                                                        <option value="VU" ' . ($country=="VU" ? 'selected' : '') . '>Vanuatu</option>
+                                                        <option value="VE" ' . ($country=="VE" ? 'selected' : '') . '>Venezuela, Bolivarian Republic of</option>
+                                                        <option value="VN" ' . ($country=="VN" ? 'selected' : '') . '>Viet Nam</option>
+                                                        <option value="VG" ' . ($country=="VG" ? 'selected' : '') . '>Virgin Islands, British</option>
+                                                        <option value="VI" ' . ($country=="VI" ? 'selected' : '') . '>Virgin Islands, U.S.</option>
+                                                        <option value="WF" ' . ($country=="WF" ? 'selected' : '') . '>Wallis and Futuna</option>
+                                                        <option value="EH" ' . ($country=="EH" ? 'selected' : '') . '>Western Sahara</option>
+                                                        <option value="YE" ' . ($country=="YE" ? 'selected' : '') . '>Yemen</option>
+                                                        <option value="ZM" ' . ($country=="ZM" ? 'selected' : '') . '>Zambia</option>
+							<option value="ZW" ' . ($country=="ZW" ? 'selected' : '') . '>Zimbabwe</option>
+						</select>
+            				</div>
+            				<div class="form-group">
+                				<label>City or Zip</label>
+						<div class="form-check">
+  							<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="radio" name="rad_CityZip" id="rad_CityZip_City" value="City" onchange=rad_CityZip_Changed("City") '.$city_checked.'>
+  							<label class="form-check-label" for="rad_CityZip_City">
+    								City
+  							</label>
+						</div>
+						<div class="form-check">
+  							<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="radio" name="rad_CityZip" id="rad_CityZip_Zip" value="Zip" onchange=rad_CityZip_Changed("Zip") '.$zip_checked.'>
+  							<label class="form-check-label" for="rad_CityZip_Zip">
+    								Zip
+  							</label>
+						</div>
+
+            				</div>
+            				<div class="form-group">
+                				<label for="inp_City_Zip" id="label_City_Zip">'.$CityZip_label.'</label>';
+							if ($city_checked == "checked") {
+                						echo '<input type="text" class="form-control" name="inp_City_Zip" id="inp_City_Zip" value="'.$city.'">';
+							} else {
+                                                                echo '<input type="text" class="form-control" name="inp_City_Zip" id="inp_City_Zip" value="'.$zip.'">';
+							}
+            				echo '</div>
+            				<div class="form-group">
+						<label for="inp_APIKEY">API Key:</label>
+                				<input type="text" class="form-control" name="inp_APIKEY" id="inp_APIKEY" value="'.$openweather_api.'">
+            				</div>
+                        </div>
+		        <!-- /.modal-body -->
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                        <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="update_openweather()">
+                        </div>
+                </div>
+	        <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->';
+?>
+<script>
+function rad_CityZip_Changed(label_text){
+
+        document.getElementById("label_City_Zip").innerHTML = label_text;
+        if (label_text == "City") {
+                document.getElementById("inp_City_Zip").value = document.getElementById("city").value;
+        	document.getElementById("CityZip").value = 0;
+	} else {
+                document.getElementById("inp_City_Zip").value = document.getElementById("zip").value;
+                document.getElementById("CityZip").value = 1;
+	}
+}
+
+function set_country(value){
+
+	var valuetext = value;
+        document.getElementById("country_code").value = valuetext;
+}
+
+</script>
+<?php
+
+//MQTT Connection Modal
+echo '<div class="modal fade" id="mqtt_connection" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        	<div class="modal-content">
+            		<div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+				<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                		<h5 class="modal-title">'.$lang['mqtt_connections'].'</h5>
+            			<div class="dropdown float-right">
+                			<a class="" data-bs-toggle="dropdown" href="#">
+                        			<i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
+                			</a>
+                			<ul class="dropdown-menu dropdown-menu-'.theme($conn, settings($conn, 'theme'), 'color').'">
+                        			<li><a class="dropdown-item" href="pdf_download.php?file=setup_guide_mqtt.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_guide_mqtt'].'</a></li>
+                        			<li class="dropdown-divider"></li>
+                        			<li><a class="dropdown-item" href="pdf_download.php?file=setup_zigbee2mqtt.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_zigbee2mqtt'].'</a></li>
+                			</ul>
+             			</div>
+            		</div>
+            		<div class="modal-body">
+				<p class="text-muted">'.$lang['mqtt_connections_text'].'</p>';
+   				$query = "SELECT * FROM `mqtt` ORDER BY `name`;";
+    				$results = $conn->query($query);
+    				echo '<div class="list-group">';
+    					while ($row = mysqli_fetch_assoc($results)) {
+                                                $myArray[$row['id']] = $row;
+                                                //overwrite the raw password entry with the decoded value
+                                                $myArray[$row['id']]['password'] = dec_passwd($row['password']);
+        					echo '<span class="list-group-item">
+							<div class="d-flex justify-content-between">
+								<div>';
+        								echo $row['name'] . ($row['enabled'] ? '' : ' (Disabled)');
+								echo '</div>
+								<div>
+        								<span class="text-muted small" style="width:200px;text-align:right;">Username:&nbsp;' . $row['username'] . '</span>
+								</div>
+							</div>
+                					<div class="d-flex justify-content-between">
+								<div>
+									<span class="text-muted small">Type:&nbsp;';
+        									if($row['type']==0) echo 'Default, monitor.';
+        									else if($row['type']==1) echo 'Sonoff Tasmota.';
+        									else if($row['type']==2) echo 'MQTT Node.';
+        									else if($row['type']==3) echo 'Home Assistant.';
+        									else echo 'Unknown.';
+        								echo '</span>
+								</div>
+								<div>
+        								<span class="text-muted small" style="width:200px;text-align:right;">Password:&nbsp;' . dec_passwd($row['password']) . '</span>
+								</div>
+							</div>
+                					<div class="d-flex justify-content-between">
+                        					<div>
+        								<span class="text-muted small">' . $row['ip'] . '&nbsp;:&nbsp;' . $row['port'] . '</span>
+								</div>
+								<div>
+        								<span class="text-muted small" style="width:200px;text-align:right;">
+										<button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-xs" onclick="button_mqtt_connection(`'.$row['id'].'`);"><i class="bi bi-pencil"></i></button>
+                                                				<button class="btn warning btn-danger btn-xs" onclick="delete_mqtt_connection('.$row["id"].');" data-confirm="'.$lang['confirm_del_mqtt'].'"><span class="bi bi-trash-fill black"></span></button>
+        								</span>
+        							</div>
+							</div>
+						</span>';
+    					}
+    				echo '</div>
+			        <!-- /.list-group -->
+			</div>
+		        <!-- /.modal-body -->
+			<div class="modal-footer">
+                	        <button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                                <button class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="button_mqtt_connection(0);">'.$lang['add_connection'].'</button>
+			</div>
+        	</div>
+	        <!-- /.modal-content -->
+    	</div>
+        <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->';
+?>
+<script language="javascript" type="text/javascript">
+function button_mqtt_connection(id)
+{
+	var myId = id;
+	if (myId == 0) {
+        	$("#conn_id").val(myId);
+                var myName = "";
+                var myIp = "";
+                var myPort = "";
+                var myUsername = "";
+                var myPassword = "";
+                var myEnabled = 1;
+                var myType = 0;
+		var title = "<?php echo $lang['add_connection']  ?>";
+                var title_text = "<?php echo $lang['add_connection_text']  ?>";
+	} else {
+                var title = "<?php echo $lang['edit_connection']  ?>";
+                var title_text = "<?php echo $lang['edit_connection_text']  ?>";
+	        var data = '<?php echo json_encode($myArray) ?>';
+        	if (data.length > 0) {
+                	var obj = JSON.parse(data);
+        	        var myName = obj[myId].name;
+	                var myIp = obj[myId].ip;
+                	var myPort = obj[myId].port;
+        	        var myUsername = obj[myId].username;
+	                var myPassword = obj[myId].password;
+                	var myEnabled = obj[myId].enabled;
+                	var myType = obj[myId].type;
+	        }
+	}
+
+        $("#conn_id").val(myId);
+        $("#inp_Name").val(myName);
+        $("#inp_Ip").val(myIp);
+        $("#inp_Port").val(myPort);
+        $("#inp_Username").val(myUsername);
+        $("#inp_Password").val(myPassword);
+        $("#sel_Enabled").val(myEnabled);
+        $("#inp_Enabled").val(myEnabled);
+        $("#sel_Type").val(myType);
+        $("#inp_Type").val(myType);
+	$('#mqtt_addedit').text(title);
+        $('#mqtt_addedit_text').text(title_text);
+
+        $('#mqtt_connection').modal('hide');
+        $('#add_mqtt_connection').modal('show');
+}
+</script>
+<?php
+
+//Add or Edit MQTT Connection
+echo '
+<div class="modal fade" id="add_mqtt_connection" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    	<div class="modal-dialog">
+        	<div class="modal-content">
+            		<div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                        	<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                		<h5 id="mqtt_addedit" class="modal-title">'.$lang['add_edit_connection'].'</h5>
+            		</div>
+            		<div class="modal-body">';
+				echo '<p id="mqtt_addedit_text" class="text-muted"></p>
+				<form data-bs-toggle="validator" role="form" method="post" action="settings.php" id="form-join">
+			    	<input type="hidden" id="conn_id" name="conn_id" value="0" autocomplete="off" required>
+                                <input type="hidden" id="inp_Enabled" name="inp_Enabled" value="0" autocomplete="off" required>
+                                <input type="hidden" id="inp_Type" name="inp_Type" value="0" autocomplete="off" required>
+
+                                <div class="form-group">
+                                	<label>Name</label>
+                                        <input type="text" class="form-control" name="inp_Name" id="inp_Name" placeholder="Enter Broker Name">
+                                        <div class="help-block with-errors"></div>
+                                </div>
+                                <div class="form-group">
+                                        <label>IP</label>
+                                        <input type="text" class="form-control" name="inp_Ip" id="inp_Ip" placeholder="Enter Broker IP Address">
+                                        <div class="help-block with-errors"></div>
+                                </div>
+                                <div class="form-group">
+                                        <label>Port</label>
+                                        <input type="text" class="form-control" name="inp_Port" id="inp_Port" placeholder="Enter Broker Port">
+                                        <div class="help-block with-errors"></div>
+                                </div>
+                                <div class="form-group">
+                                        <label>Username</label>
+                                        <input type="text" class="form-control" name="inp_Username" id="inp_Username" placeholder="Enter Connectiom Username">
+                                        <div class="help-block with-errors"></div>
+                                </div>
+                                <div class="form-group">
+                                        <label>Password</label>
+                                        <input type="password" class="form-control" name="inp_Password" id="inp_Password" placeholder="Enter Connection Password">
+                                        <div class="help-block with-errors"></div>
+                                </div>
+                                <div class="form-group">
+                                        <label>Enabled</label>
+                                        <select class="form-control" id="sel_Enabled" name="sel_Enabled" onchange="set_enabled(this.options[this.selectedIndex].value)" >
+                                                <option value="0">'.$lang['disabled'].'</option>
+                                                <option value="1">'.$lang['enabled'].'</option>
+                                        </select>
+                                        <div class="help-block with-errors"></div>
+                                </div>
+                                <div class="form-group">
+                                        <label>Type</label>
+                                        <select class="form-control" id="sel_Type" name="sel_Type" onchange="set_type(this.options[this.selectedIndex].value)" >
+                                                <option value="0">Default - view all</option>
+                                                <option value="1">Sonoff - Tasmota</option>
+                                                <option value="2">MQTT Node</option>
+                                                <option value="3">Home Assistant integration</option>
+                                        </select>
+                                        <div class="help-block with-errors"></div>
+                                </div>
+                        </div>
+		        <!-- /.modal-body -->
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" id="button_mqtt_connection_hide">'.$lang['close'].'</button>
+                                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="add_update_mqtt_broker()">
+                        </div>
+                </div>
+	        <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->';
+?>
+<script language="javascript" type="text/javascript">
+$("#button_mqtt_connection_hide").on("click", function(){
+        $("#add_mqtt_connection").modal("show");
+        $('#add_mqtt_connection').on("hidden.bs.modal", function (e) {
+                $("#mqtt_connection").modal("show");
+        })
+        $("#add_mqtt_connection").modal("hide");
+});
+
+function set_enabled(value){
+        var valuetext = value;
+        document.getElementById("inp_Enabled").value = valuetext;
+}
+
+function set_type(value){
+        var valuetext = value;
+        document.getElementById("inp_Type").value = valuetext;
+}
+</script>
+<?php
 }
 
 if ($model_num == 4) {
@@ -2311,18 +3418,18 @@ echo '
                                         if ((settings($conn, 'mode') & 0b1) == 0) {
 						echo '<div class="form-group" class="control-label"><label>'.$lang['system_controller_overrun'].'</label> <small class="text-muted">'.$lang['system_controller_overrun_info'].'</small>
 							<select class="form-select" type="text" id="overrun" name="overrun">
-							<option selected>'.$brow['overrun'].'</option>
-							<option value="-1">Keep valve open until next System Controller start</option>
-							<option value="0">Disable</option>
-							<option value="1">1</option>
-							<option value="2">2</option>
-							<option value="3">3</option>
-							<option value="4">4</option>
-							<option value="5">5</option>
-							<option value="6">6</option>
-							<option value="7">7</option>
-							<option value="8">8</option>
-							<option value="9">9</option>
+								<option selected>'.$brow['overrun'].'</option>
+								<option value="-1">Keep valve open until next System Controller start</option>
+								<option value="0">Disable</option>
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+								<option value="4">4</option>
+								<option value="5">5</option>
+								<option value="6">6</option>
+								<option value="7">7</option>
+								<option value="8">8</option>
+								<option value="9">9</option>
 							</select>
 	    						<div class="help-block with-errors">
 							</div>
@@ -2348,12 +3455,12 @@ echo '
                                                 				echo '<option value="'.$srow['id'].'" ' . ($srow['id']==$brow['weather_sensor_id'] ? 'selected' : '') . '>'.$srow['name'].'</option>';
                                                         		}
                                                 		}
-                                                		echo '</select>
-                                                		<div class="help-block with-errors">
-                                                		</div>
-                                        		</div>
-                                        		<!-- /.form-group -->
-						';
+                                                	echo '</select>
+                                                	<div class="help-block with-errors">
+                                              		</div>
+                                        	</div>
+                                        	<!-- /.form-group -->
+					';
 					}
 				} else {
 					echo '<p class="text-muted">'.$lang['system_controller_no_nodes'].'</p>';
@@ -2866,7 +3973,7 @@ echo '
                 <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title">'.$lang['zone_type'].'</h5>
                 <div class="dropdown float-right">
-                        <a class="" data-bs-toggle="dropdown" <a href="javascript:delete_theme('.$row["id"].');"<a href="javascript:delete_theme('.$row["id"].');"href="#">
+                        <a class="" data-bs-toggle="dropdown" href="#">
                                 <i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-'.theme($conn, settings($conn, 'theme'), 'color').'">

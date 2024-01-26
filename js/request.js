@@ -1491,9 +1491,9 @@ function set_false_time(){
 
 //set sensors/relays to hide per user, on the home screen display
 function hide_sensors_relays(){
-var x = document.getElementById("hide_sensor_relay").querySelectorAll("input");
-var i;
-var idata="w=hide_sensor_relay&o=update";
+    var x = document.getElementById("hide_sensor_relay").querySelectorAll("input");
+    var i;
+    var idata="w=hide_sensor_relay&o=update";
     for (i = 0; i < x.length; i++) {
         idata+="&"+x[i].id+"="+x[i].checked;
     }
@@ -1509,6 +1509,75 @@ var idata="w=hide_sensor_relay&o=update";
     .fail(function( jqXHR, textStatus, errorThrown ){
         if(jqXHR==401 || jqXHR==403) return;
         console.log("hide_sensor_relay: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//update openweather
+function update_openweather(){
+    var idata="w=openweather_update&o=update";
+    idata+="&CityZip="+document.getElementById("CityZip").value;
+    idata+="&inp_City_Zip="+document.getElementById("inp_City_Zip").value;
+    idata+="&country_code="+document.getElementById("country_code").value;
+    idata+="&inp_APIKEY="+document.getElementById("inp_APIKEY").value;
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=3"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("update_openweather: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//Delete MQTT Connection
+function delete_mqtt_connection(wid){
+    var idata="w=mqtt_connection&o=delete&wid="+wid;
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=3"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("delete_mqtt_connection: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//Add Update MQTT Broker
+function add_update_mqtt_broker(){
+    var idata="w=mqtt_broker";
+    idata+="&conn_id="+document.getElementById("conn_id").value;
+    idata+="&inp_Enabled="+document.getElementById("inp_Enabled").value;
+    idata+="&inp_Type="+document.getElementById("inp_Type").value;
+    idata+="&inp_Name="+document.getElementById("inp_Name").value;
+    idata+="&inp_Ip="+document.getElementById("inp_Ip").value;
+    idata+="&inp_Port="+document.getElementById("inp_Port").value;
+    idata+="&inp_Username="+document.getElementById("inp_Username").value;
+    idata+="&inp_Password="+document.getElementById("inp_Password").value;
+    idata+="&wid=0";
+    console.log(idata);
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=3"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("add_update_mqtt_broker: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
     })
     .always(function() {
     });

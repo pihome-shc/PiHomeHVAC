@@ -103,6 +103,41 @@ $(document).ready(function(){
                 }
         }
 
+	//create array for service names
+	let obj_services = [
+  		{
+    			"service": "apache2.service",
+  		},
+  		{
+    			"service": "mysql.service",
+  		},
+                {
+                        "service": "mariadb.service",
+                },
+                {
+                        "service": "pihome_jobs_schedule.service",
+                },
+                {
+                        "service": "HA_integration.service",
+                },
+                {
+                        "service": "pihome_amazon_echo.service",
+                },
+                {
+                        "service": "homebridge.service",
+                },
+                {
+                        "service": "autohotspot.service",
+                },
+
+	]
+	//update services status
+        if (obj_services) {
+                for (var y = 0; y < obj_services.length; y++) {
+                  $("#service_" + y).load("ajax_fetch_data.php?id=" + obj_services[y].service + "&type=27").fadeIn("slow");
+                }
+        }
+
         $('#controller_zone_logs').load("ajax_fetch_data.php?id=0&type=21").fadeIn("slow");
         $('#system_uptime').load("ajax_fetch_data.php?id=0&type=22").fadeIn("slow");
         $('#cpu_temps').load("ajax_fetch_data.php?id=0&type=23").fadeIn("slow");

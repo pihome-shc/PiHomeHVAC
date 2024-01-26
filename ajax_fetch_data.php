@@ -35,6 +35,8 @@ require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 require_once(__DIR__.'/st_inc/session.php');
 
+$theme = settings($conn, 'theme');
+
 if(isset($_GET['id'])) { $id = $_GET['id']; }
 if(isset($_GET['type'])) { $type = $_GET['type']; }
 
@@ -570,21 +572,14 @@ if ($type <= 5) {
 	//----------------------
 	//process sensors by id
 	//----------------------
-	$query="SELECT sensor_id, sensor_child_id, sensor_type_id FROM sensors WHERE id = {$id} LIMIT 1;";
+	$query="SELECT sensor_id, sensor_child_id, sensor_type_id, current_val_1 FROM sensors WHERE id = {$id} LIMIT 1;";
 	$result = $conn->query($query);
 	$row = mysqli_fetch_array($result);
 	$id = $row['sensor_id'];
 	$child_id = $row['sensor_child_id'];
 	$sensor_type_id = $row['sensor_type_id'];
-	$query="SELECT node_id FROM nodes WHERE id  = {$id} LIMIT 1;";
-	$result = $conn->query($query);
-	$row = mysqli_fetch_array($result);
-	$node_id = $row['node_id'];
-	// get the latest sensor temperature reading
-	$query="SELECT payload FROM messages_in where node_id = '".$node_id."' AND child_id = ".$child_id." ORDER BY id DESC LIMIT 1;";
-	$result = $conn->query($query);
-	$row = mysqli_fetch_array($result);
-	$sensor_c = $row['payload'];
+        $current_val_1 = $row['current_val_1'];
+	$sensor_c = $current_val_1;
 	$unit = SensorUnits($conn,$sensor_type_id);
 	//echo number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit;
 	echo '&nbsp&nbsp<i class="bi bi-thermometer-half red"></i> - '.number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit;
@@ -708,12 +703,11 @@ if ($type <= 5) {
         //---------------------------
         //update System Uptime modal
         //---------------------------
+	$uptime = (exec ("cat /proc/uptime"));
+	$uptime=substr($uptime, 0, strrpos($uptime, ' '));
 	echo '<div id="system_uptime">
-	        <p class="text-muted"> '.$lang['system_uptime_text'].' </p>
-        	<i class="bi bi-clock red"></i>';
-	        $uptime = (exec ("cat /proc/uptime"));
-        	$uptime=substr($uptime, 0, strrpos($uptime, ' '));
-	        echo '&nbsp'.secondsToWords($uptime) . '<br/><br/>
+		<p class="text-muted"> '.$lang["system_uptime_text"].' </p>
+                &nbsp'.secondsToWords($uptime) . '<br/><br/>
 
         	<div class="list-group">
         		<span class="list-group-item" style="overflow:hidden;"><pre>';
@@ -875,5 +869,107 @@ if ($type <= 5) {
                 if ($frost_sensor_c <= $row["frost_temp"]) { $fcolor = "red"; }
         }
 	echo '<small class="statuscircle" id="frost_status"><i class="bi bi-circle-fill '.$fcolor.'" style="font-size: 0.55rem;"></i></small>';
+} elseif ($type == 27) {
+        //-----------------------
+        //update services status
+        //-----------------------
+        $rval=my_exec("/bin/systemctl status " . $id);
+        if($rval['stdout']=='') {
+        	$stat = 'Error: ' . $rval['stderr'];
+        } else {
+        	$stat='Status: Unknown';
+        	$rval['stdout']=explode(PHP_EOL,$rval['stdout']);
+                foreach($rval['stdout'] as $line) {
+                	if(strstr($line,'Loaded:')) {
+                        	if(strstr($line,'disabled;')) {
+                                	$stat='Status: Disabled';
+                                        break;
+                            	}
+                     	}
+                        if(strstr($line,'Active:')) {
+                        	if(strstr($line,'active (running)')) {
+                                	$stat=trim($line);
+                                        break;
+                              	} else if(strstr($line,'(dead)')) {
+                                	$stat='Status: Dead';
+                                        break;
+                                }
+                    	}
+           	}
+       	}
+        echo '<div id="service_'.$id.'">'.$stat.'</div>';
+} elseif ($type == 28 || $type == 29 || $type == 30 || $type == 31) {
+        //----------------------
+        //set the service state
+        //----------------------
+		        if ($type == 28 || $type == 29 || $type == 30 || $type == 31) {
+                		switch ($type) {
+		                        case 28:
+                		                $action = "start";
+                                		break;
+		                        case 29:
+                		                $action = "stop";
+                                		break;
+		                        case 30:
+                		                $action = "enable";
+                                		 break;
+		                        case 31:
+                		                $action = "disable";
+                                		 break;
+		                }
+                		if(substr($id,0,10)=='homebridge') {
+		                        if($type != 27) {
+                		                if($type == 28 || $type == 29) {
+                                		        $rval=my_exec("sudo hb-service " . $action);
+		                                } elseif ($type == 30) {
+                		                        $rval=my_exec("sudo hb-service install --user homebridge");
+                                		} else {
+		                                        $rval=my_exec("sudo hb-service uninstall");
+                		                }
+		                        }
+                		} else {
+		                        $rval=my_exec("/usr/bin/sudo /bin/systemctl " . $action . " " . $id);
+                		}
+            			$per='';
+            			similar_text($rval['stderr'],'We trust you have received the usual lecture from the local System Administrator. It usually boils down to these three things: #1) Respect the privacy of others. #2) Think before you type. #3) With great power comes great responsibility. sudo: no tty present and no askpass program specified',$per);
+            			if($per>80) {
+					if(substr($id,0,10)=='homebridge') {
+                				$rval['stdout']='www-data cannot issue  hb-service commands.<br/><br/>If you would like it to be able to, add<br/><code>www-data ALL=/usr/bin/hb-service<br/>www-data ALL=NOPASSWD: /usr/bin/hb-service</code><br/>to /etc/sudoers.d/010_pi-nopasswd.';
+					} else {
+						$rval['stdout']='www-data cannot issue systemctl commands.<br/><br/>If you would like it to be able to, add<br/><code>www-data ALL=/bin/systemctl<br/>www-data ALL=NOPASSWD: /bin/systemctl</code><br/>to /etc/sudoers.d/010_pi-nopasswd.';
+					}
+                			$rval['stderr']='';
+            			}
+            			echo '<p class="text-muted">systemctl ' . $action . ' ' . $id . '<br/>stdout: ' . $rval['stdout'] . '<br/>stderr: ' . $rval['stderr'] . '</p>';
+        		}
+} elseif ($type == 32) {
+        //-----------------------
+        //update services status
+        //-----------------------
+        $rval=my_exec("/bin/systemctl status " . $id);
+        if($rval['stdout']=='') {
+                $stat = 'Error: ' . $rval['stderr'];
+        } else {
+                $stat='Status: Unknown';
+                $rval['stdout']=explode(PHP_EOL,$rval['stdout']);
+                foreach($rval['stdout'] as $line) {
+                        if(strstr($line,'Loaded:')) {
+                                if(strstr($line,'disabled;')) {
+                                        $stat='Status: Disabled';
+                                        break;
+                                }
+                        }
+                        if(strstr($line,'Active:')) {
+                                if(strstr($line,'active (running)')) {
+                                        $stat=trim($line);
+                                        break;
+                                } else if(strstr($line,'(dead)')) {
+                                        $stat='Status: Dead';
+                                        break;
+                                }
+                        }
+                }
+        }
+        echo '<div id="serv_status">'.$stat.'</div>';
 }
 ?>
