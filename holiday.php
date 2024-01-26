@@ -32,12 +32,12 @@ if(isset($_GET['id'])) {
 }
 //Form submit
 if (isset($_POST['submit'])) {
-        $holidays_enable = isset($_POST['holidays_enable']) ? $_POST['holidays_enable'] : "0";
+        $holidays_enable = isset($_POST['checkbox0']) ? $_POST['checkbox0'] : "0";
         $start_date_time = $_POST['start_date_time'];
         $end_date_time = $_POST['end_date_time'];
 
-		//Add or Edit Holiday record in Holidays Table
-		$query = "INSERT INTO holidays(id, `sync`, `purge`, status, start_date_time, end_date_time) VALUES ('{$id}', '0', '0', '{$holidays_enable}', '{$start_date_time}','{$end_date_time}') ON DUPLICATE KEY UPDATE sync = VALUES(sync), status = VALUES(status), start_date_time = VALUES(start_date_time), end_date_time = VALUES(end_date_time);";
+	//Add or Edit Holiday record in Holidays Table
+	$query = "INSERT INTO holidays(id, `sync`, `purge`, status, start_date_time, end_date_time) VALUES ('{$id}', '0', '0', '{$holidays_enable}', '{$start_date_time}','{$end_date_time}') ON DUPLICATE KEY UPDATE sync = VALUES(sync), status = VALUES(status), start_date_time = VALUES(start_date_time), end_date_time = VALUES(end_date_time);";
         $result = $conn->query($query);
         if ($result) {
 			if ($id==0){
