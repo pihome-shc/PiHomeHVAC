@@ -1056,7 +1056,7 @@ function away($conn,$button) {
 function holidays($conn,$button) {
 	global $button_style;
 
-        $query = "SELECT COUNT(*) AS count_holiday_schedules FROM schedule_daily_time_zone JOIN holidays hs on schedule_daily_time_zone.holidays_id = hs.id;";
+        $query = "SELECT COUNT(*) AS count_holiday_schedules FROM schedule_daily_time_zone JOIN holidays hs on schedule_daily_time_zone.holidays_id = hs.id WHERE hs.status = 1;";
         $hresult = $conn->query($query);
         $hrow = mysqli_fetch_array($hresult);
         if ($hrow['count_holiday_schedules'] == 0) {
