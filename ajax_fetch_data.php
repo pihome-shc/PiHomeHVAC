@@ -523,10 +523,17 @@ if ($type <= 5) {
         		echo '<i class="bi bi-circle-fill '.$awaystatus.'" style="font-size: 0.55rem;">';
                         break;
                 case 6:
-		        $query = "SELECT status FROM holidays WHERE NOW() between start_date_time AND end_date_time AND status = '1' LIMIT 1";
-		        $result = $conn->query($query);
-		        $holidays_status=mysqli_num_rows($result);
-		        if ($holidays_status=='1'){$holidaystatus="red";}elseif ($holidays_status=='0'){$holidaystatus="blueinfo";}
+		        $query = "SELECT COUNT(*) AS count_holiday_schedules FROM schedule_daily_time_zone JOIN holidays hs on schedule_daily_time_zone.holidays_id = hs.id;";
+        		$hresult = $conn->query($query);
+        		$hrow = mysqli_fetch_array($hresult);
+        		if ($hrow['count_holiday_schedules']== 0) {
+                		$holidaystatus = "black";
+			} else {
+			        $query = "SELECT status FROM holidays WHERE NOW() between start_date_time AND end_date_time AND status = '1' LIMIT 1";
+			        $result = $conn->query($query);
+			        $holidays_status=mysqli_num_rows($result);
+		        	if ($holidays_status=='1'){$holidaystatus="red";}elseif ($holidays_status=='0'){$holidaystatus="blueinfo";}
+			}
         		echo '<i class="bi bi-circle-fill '.$holidaystatus.'" style="font-size: 0.55rem;">';
                         break;
 	}
