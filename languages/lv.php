@@ -1002,4 +1002,17 @@ $lang['start_cause'] = "Start Cause";
 $lang['stop_datetime'] = "Stop Date/Time";
 $lang['stop_cause'] = "Stop Cause";
 $lang['expected_end_date_time'] = "Expected End Date/Time";
+$lang['delete_mqtt_connection'] = "Delete MQTT Connection";
+$lang['add_connection'] = "Add Connection";
+$lang['add_connection_text'] = "Add a New Connection to an MQTT Broker";
+$lang['edit_connection'] = "Edit Connection";
+$lang['edit_connection_text'] = "Edit an Existing MQTT Broker Connection";
+$lang['confirm_del_mqtt'] = "MQTT Connection";
+$lang['mqtt_connections_text'] = "Add, Edit or Delete a connection to an MQTT Broker";
+$lang['confirm_del_theme'] = "Delete Theme";
+$lang['show_history'] = "Show Last 24h";
+$lang['for_sensor_id'] = "Sensor ID - ";
+$lang['services_text'] = "Show the State of Installed Services";
+$lang['no_sensors_last24h'] = "NO Sensor Readings in the Last 24 hours,";
+$lang['stop'] = "Stop";
 ?>
