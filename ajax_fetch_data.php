@@ -1010,7 +1010,7 @@ if ($type <= 5) {
 		7=>"HVAC Fan Only",
 		8=>"Max Running Time Exceeded - Hysteresis active");
 
-	$query = "SELECT name, mode, zone_current_state.status, schedule, temp_reading, temp_target, temp_cut_in, temp_cut_out, controler_fault, sensor_fault
+	$query = "SELECT name, type_id, mode, zone_current_state.status, schedule, temp_reading, temp_target, temp_cut_in, temp_cut_out, controler_fault, sensor_fault
 		FROM zone_current_state,zone
 		WHERE zone.id = zone_current_state.zone_id;";
 	$results = $conn->query($query);
