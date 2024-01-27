@@ -1021,7 +1021,7 @@ if ($type <= 5) {
                 if ($row['sensor_fault'] == 0) { $sf_color = "green"; } else { $sf_color = "red"; }
                 echo '<tr>
                 	<td class="col-1">'.$row["name"].'</td>
-                        <td class="col-4">'.$mode_sub[floor($row['mode']/10)].'<br/>'.$mode_sub[floor($row['mode']%10)].'</td>
+                        <td class="col-3">'.$mode_main[floor($row['mode']/10)].'<br/>'.$mode_sub[floor($row['mode']%10)].'</td>
                         <td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="bi bi-circle-fill '.$za_color.'" style="font-size: 0.8rem;"></i></td>
                         <td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="bi bi-circle-fill '.$scolor.'" style="font-size: 0.8rem;"></i></td>
                         <td style="text-align:center; vertical-align:middle;"><class="col-1">'.$row["temp_reading"].'</td>
