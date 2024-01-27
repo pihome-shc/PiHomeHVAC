@@ -807,6 +807,45 @@ $("#button_history_hide").on("click", function(){
 });
 </script>
 <?php
+
+// zone state model
+echo '<div class="modal" id="zones_states" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                        <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                                <h5 class="modal-title">'.$lang['zone_state'].'</h5>
+                        </div>
+                        <div class="modal-body">
+                                <p class="text-muted">'.$lang['zone_state_text'].'</p>
+                                <table class="table table-fixed">
+                                        <thead>
+                                                <tr>
+                                                        <th style="text-align:center;" class="col-1"><small>'.$lang['zone_name'].'</small></th>
+                                                        <th style="text-align:center;" class="col-3"><small>'.$lang['zone_mode'].'</small></th>
+                                                        <th style="text-align:center;" class="col-1"><small>'.$lang['zone_active'].'</small></th>
+                                                        <th style="text-align:center;" class="col-1"><small>'.$lang['schedule_active'].'</small></th>
+                                                        <th style="text-align:center;" class="col-1"><small>'.$lang['sensor_reading'].'</small></th>
+                                                        <th style="text-align:center;" class="col-1"><small>'.$lang['target_temp'].'</small></th>
+                                                        <th style="text-align:center;" class="col-1"><small>'.$lang['cut_in_temp'].'</small></th>
+                                                        <th style="text-align:center;" class="col-1"><small>'.$lang['cut_out_temp'].'</small></th>
+                                                        <th style="text-align:center;" class="col-1"><small>'.$lang['zone_fault'].'</small></th>
+                                                        <th style="text-align:center;" class="col-1"><small>'.$lang['sensor_fault'].'</small></th>
+                                                </tr>
+                                        </thead>
+                                        <tbody id="z_states"></tbody>
+                                </table>
+                        </div>
+                        <!-- /.modal-body -->
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                        </div>
+                </div>
+                <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->';
 }
 
 if ($model_num == 2) {

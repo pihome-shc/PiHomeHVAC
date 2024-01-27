@@ -121,6 +121,12 @@ if ($settings_id == 1) {
                                                 <h3 class="status"></small></h3>
                                                 </button>
 
+                                                <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#zones_states">
+                                                <h3 class="buttontop"><small><?php echo $lang['zone_state']; ?></small></h3>
+                                                <h3 class="degre" ><i class="bi  bi-columns-gap orange" style="font-size: 1.5rem;"></i></h3>
+                                                <h3 class="status"></small></h3>
+                                                </button>
+
                                                 <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style;?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#status_scripts">
                                                 <h3 class="buttontop"><small><?php echo $lang['scripts_status']; ?></small></h3>
                                                 <h3 class="degre" ><i class="bi bi-activity red" style="font-size: 1.5rem;"></i></h3>

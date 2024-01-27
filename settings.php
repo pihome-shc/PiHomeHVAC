@@ -138,6 +138,8 @@ $(document).ready(function(){
                 }
         }
 
+        $('#z_states').load("ajax_fetch_data.php?id=0&type=33").fadeIn("slow");
+
         $('#controller_zone_logs').load("ajax_fetch_data.php?id=0&type=21").fadeIn("slow");
         $('#system_uptime').load("ajax_fetch_data.php?id=0&type=22").fadeIn("slow");
         $('#cpu_temps').load("ajax_fetch_data.php?id=0&type=23").fadeIn("slow");

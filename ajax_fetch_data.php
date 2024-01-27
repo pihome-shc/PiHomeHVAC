@@ -978,5 +978,59 @@ if ($type <= 5) {
                 }
         }
         echo '<div id="serv_status">'.$stat.'</div>';
+} elseif ($type == 33) {
+        //--------------------------
+        //update zone current state
+        //--------------------------
+
+	//define arrays for modes
+	$mode_main=array(0=>"idle",
+                10=>"fault",
+                20=>"frost",
+                30=>"overtemperature",
+                40=>" holiday",
+                50=>"nightclimate",
+                60=>"boost",
+                70=>"override",
+                80=>"sheduled",
+                90=>"away",
+                100=>"hysteresis",
+                110=>"Add-On",
+                120=>"HVAC",
+                130=>"undertemperature",
+                140=>"manual");
+
+	$mode_sub=array(0=>"stopped (above cut out setpoint or not running in this mode)",
+		1=>"heating running",
+		2=>"stopped (within deadband)",
+		3=>"stopped (coop start waiting for the system_controller)",
+		4=>"manual operation ON",
+		5=>"manual operation OFF",
+		6=>"cooling running",
+		7=>"HVAC Fan Only",
+		8=>"Max Running Time Exceeded - Hysteresis active");
+
+	$query = "SELECT name, mode, zone_current_state.status, schedule, temp_reading, temp_target, temp_cut_in, temp_cut_out, controler_fault, sensor_fault
+		FROM zone_current_state,zone
+		WHERE zone.id = zone_current_state.zone_id;";
+	$results = $conn->query($query);
+	while ($row = mysqli_fetch_assoc($results)) {
+                if ($row['status'] == 1) { $za_color = "green"; } else { $za_color = "red"; }
+		if ($row['schedule'] == 1) { $scolor = "green"; } else { $scolor = "red"; }
+                if ($row['controler_fault'] == 0) { $cf_color = "green"; } else { $cf_color = "red"; }
+                if ($row['sensor_fault'] == 0) { $sf_color = "green"; } else { $sf_color = "red"; }
+                echo '<tr>
+                	<td class="col-1">'.$row["name"].'</td>
+                        <td class="col-4">'.$mode_sub[floor($row['mode']/10)].'<br/>'.$mode_sub[floor($row['mode']%10)].'</td>
+                        <td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="bi bi-circle-fill '.$za_color.'" style="font-size: 0.8rem;"></i></td>
+                        <td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="bi bi-circle-fill '.$scolor.'" style="font-size: 0.8rem;"></i></td>
+                        <td style="text-align:center; vertical-align:middle;"><class="col-1">'.$row["temp_reading"].'</td>
+                        <td style="text-align:center; vertical-align:middle;"><class="col-1">'.$row["temp_target"].'</td>
+                       	<td style="text-align:center; vertical-align:middle;"><class="col-1">'.$row["temp_cut_in"].'</td>
+                        <td style="text-align:center; vertical-align:middle;"><class="col-1">'.$row["temp_cut_out"].'</td>
+                        <td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="bi bi-circle-fill '.$cf_color.'" style="font-size: 0.8rem;"></i></td>
+                        <td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="bi bi-circle-fill '.$sf_color.'" style="font-size: 0.8rem;"></i></td>
+                </tr>';
+	}
 }
 ?>
