@@ -1020,17 +1020,29 @@ if ($type <= 5) {
                 if ($row['controler_fault'] == 0) { $cf_color = "green"; } else { $cf_color = "red"; }
                 if ($row['sensor_fault'] == 0) { $sf_color = "green"; } else { $sf_color = "red"; }
                 echo '<tr>
-                	<td class="col-1">'.$row["name"].'</td>
+                        <td class="col-1">'.$row["name"].'</td>
                         <td class="col-3">'.$mode_main[floor($row['mode']/10)*10].'<br/>'.$mode_sub[floor($row['mode']%10)].'</td>
                         <td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="bi bi-circle-fill '.$za_color.'" style="font-size: 0.8rem;"></i></td>
-                        <td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="bi bi-circle-fill '.$scolor.'" style="font-size: 0.8rem;"></i></td>
-                        <td style="text-align:center; vertical-align:middle;"><class="col-1">'.$row["temp_reading"].'</td>
-                        <td style="text-align:center; vertical-align:middle;"><class="col-1">'.$row["temp_target"].'</td>
-                       	<td style="text-align:center; vertical-align:middle;"><class="col-1">'.$row["temp_cut_in"].'</td>
-                        <td style="text-align:center; vertical-align:middle;"><class="col-1">'.$row["temp_cut_out"].'</td>
-                        <td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="bi bi-circle-fill '.$cf_color.'" style="font-size: 0.8rem;"></i></td>
+                        <td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="bi bi-circle-fill '.$scolor.'" style="font-size: 0.8rem;"></i></td>';
+                        if ($row['type_id'] == 5 || $row['status'] == 0) {
+                                $t1 = "";
+                                $t2 = "";
+                                $t3 = "";
+                                $t4 = "";
+                        } else {
+                                $t1 = $row["temp_reading"];
+                                $t2 = $row["temp_target"];
+                                $t3 = $row["temp_cut_in"];
+                                $t4 = $row["temp_cut_out"];
+                        }
+                        echo '<td style="text-align:center; vertical-align:middle;"><class="col-1">'.$t1.'</td>
+                        <td style="text-align:center; vertical-align:middle;"><class="col-1">'.$t2.'</td>
+                        <td style="text-align:center; vertical-align:middle;"><class="col-1">'.$t3.'</td>
+                        <td style="text-align:center; vertical-align:middle;"><class="col-1">'.$t3.'</td>';
+                        echo '<td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="bi bi-circle-fill '.$cf_color.'" style="font-size: 0.8rem;"></i></td>
                         <td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="bi bi-circle-fill '.$sf_color.'" style="font-size: 0.8rem;"></i></td>
                 </tr>';
+
 	}
 }
 ?>
