@@ -89,7 +89,7 @@ echo '
                                 <div class="form-group" class="control-label"><label>'.$lang['jobs_name'].'</label> <small class="text-muted">'.$lang['last_job_log_info'].'</small>
                                         <select class="form-select" type="text" id="job_name" name="job_name" onchange=last_job_log(this.options[this.selectedIndex].value)>';
                                         //get list of heat relays to display
-                                        $query = "SELECT id, job_name, output FROM jobs;";
+                                        $query = "SELECT id, job_name, output FROM jobs WHERE enabled = 1;";
                                         $result = $conn->query($query);
                                         if ($result){
                                                 while ($jrow=mysqli_fetch_array($result)) {
