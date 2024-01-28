@@ -1033,7 +1033,7 @@ if ($type <= 5) {
                         } else {
                                 echo '<td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="bi bi-circle-fill red" style="font-size: 0.8rem;"></i></td>';
                         }
-                        if ($row['type_id'] == 5 || $row['status'] == 0) {
+                        if ($row['type_id'] == 5 || ($row['status'] == 0 && $row['schedule'] == 0)) {
                                 $t1 = "";
                                 $t2 = "";
                                 $t3 = "";
