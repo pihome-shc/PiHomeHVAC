@@ -824,7 +824,7 @@ echo '<div class="modal" id="zones_states" tabindex="-1">
                                                         <th style="text-align:center;" class="col-1"><small>'.$lang['zone_name'].'</small></th>
                                                         <th style="text-align:center;" class="col-3"><small>'.$lang['zone_mode'].'</small></th>
                                                         <th style="text-align:center;" class="col-1"><small>'.$lang['zone_active'].'</small></th>
-                                                        <th style="text-align:center;" class="col-1"><small>'.$lang['schedule_active'].'</small></th>
+                                                        <th style="text-align:center;" class="col-1"><small>'.$lang['active_schedule'].'</small></th>
                                                         <th style="text-align:center;" class="col-1"><small>'.$lang['sensor_reading'].'</small></th>
                                                         <th style="text-align:center;" class="col-1"><small>'.$lang['target_temp'].'</small></th>
                                                         <th style="text-align:center;" class="col-1"><small>'.$lang['cut_in_temp'].'</small></th>

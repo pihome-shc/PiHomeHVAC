@@ -1013,6 +1013,11 @@ if ($type <= 5) {
 	$query = "SELECT name, type_id, mode, zone_current_state.status, schedule, temp_reading, temp_target, temp_cut_in, temp_cut_out, controler_fault, sensor_fault
 		FROM zone_current_state,zone
 		WHERE zone.id = zone_current_state.zone_id;";
+
+	$query = "SELECT z.name, z.type_id, mode, zone_current_state.status, schedule, temp_reading, temp_target, temp_cut_in, temp_cut_out, controler_fault, sensor_fault, sdt.sch_name
+		FROM zone_current_state
+		JOIN zone z ON z.id = zone_current_state.zone_id
+		JOIN schedule_daily_time sdt ON sdt.id = sch_time_id;";
 	$results = $conn->query($query);
 	while ($row = mysqli_fetch_assoc($results)) {
                 if ($row['status'] == 1) { $za_color = "green"; } else { $za_color = "red"; }
@@ -1022,8 +1027,12 @@ if ($type <= 5) {
                 echo '<tr>
                         <td class="col-1">'.$row["name"].'</td>
                         <td class="col-3">'.$mode_main[floor($row['mode']/10)*10].'<br/>'.$mode_sub[floor($row['mode']%10)].'</td>
-                        <td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="bi bi-circle-fill '.$za_color.'" style="font-size: 0.8rem;"></i></td>
-                        <td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="bi bi-circle-fill '.$scolor.'" style="font-size: 0.8rem;"></i></td>';
+                        <td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="bi bi-circle-fill '.$za_color.'" style="font-size: 0.8rem;"></i></td>';
+                        if ($row['schedule'] == 1) {
+                                echo '<td style="text-align:center; vertical-align:middle;"><class="col-1">'.$row["sch_name"].'</td>';
+                        } else {
+                                echo '<td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="bi bi-circle-fill red" style="font-size: 0.8rem;"></i></td>';
+                        }
                         if ($row['type_id'] == 5 || $row['status'] == 0) {
                                 $t1 = "";
                                 $t2 = "";
@@ -1038,7 +1047,7 @@ if ($type <= 5) {
                         echo '<td style="text-align:center; vertical-align:middle;"><class="col-1">'.$t1.'</td>
                         <td style="text-align:center; vertical-align:middle;"><class="col-1">'.$t2.'</td>
                         <td style="text-align:center; vertical-align:middle;"><class="col-1">'.$t3.'</td>
-                        <td style="text-align:center; vertical-align:middle;"><class="col-1">'.$t3.'</td>';
+                        <td style="text-align:center; vertical-align:middle;"><class="col-1">'.$t4.'</td>';
                         echo '<td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="bi bi-circle-fill '.$cf_color.'" style="font-size: 0.8rem;"></i></td>
                         <td style="text-align:center; vertical-align:middle;"><class="statuscircle"><i class="bi bi-circle-fill '.$sf_color.'" style="font-size: 0.8rem;"></i></td>
                 </tr>';

@@ -1060,7 +1060,7 @@ $lang['services_text'] = "Show the State of Installed Services";
 $lang['no_sensors_last24h'] = "NO Sensor Readings in the Last 24 hours,";
 $lang['stop'] = "Stop";
 $lang['zone_state'] = "Zone State";
-$lang['zone_state_text'] = "Display the current state for each zone.<br>The population of temperature columns is dependant on the current 'mode' of the zone.";
+$lang['zone_state_text'] = "Display the current state for each zone.<br>The population of temperature columns is dependant on the current 'Mode' of the zone.";
 $lang['zone_mode'] = "Mode";
 $lang['schedule_active'] = "Schedule Active";
 $lang['sensor_reading'] = "Sensor Temp";
@@ -1070,4 +1070,5 @@ $lang['cut_out_temp'] = "Cut Out Temp";
 $lang['zone_fault'] = "Zone Fault";
 $lang['sensor_fault'] = "Sensor Fault";
 $lang['zone_active'] = "Zone Active";
+$lang['active_schedule'] = "Active Schedule";
 ?>
