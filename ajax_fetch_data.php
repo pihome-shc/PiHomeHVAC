@@ -579,17 +579,23 @@ if ($type <= 5) {
 	//----------------------
 	//process sensors by id
 	//----------------------
-	$query="SELECT sensor_id, sensor_child_id, sensor_type_id, current_val_1 FROM sensors WHERE id = {$id} LIMIT 1;";
-	$result = $conn->query($query);
-	$row = mysqli_fetch_array($result);
-	$id = $row['sensor_id'];
-	$child_id = $row['sensor_child_id'];
-	$sensor_type_id = $row['sensor_type_id'];
-        $current_val_1 = $row['current_val_1'];
-	$sensor_c = $current_val_1;
-	$unit = SensorUnits($conn,$sensor_type_id);
-	//echo number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit;
-	echo '&nbsp&nbsp<i class="bi bi-thermometer-half red"></i> - '.number_format(DispSensor($conn,$sensor_c,$sensor_type_id),1).$unit;
+        $query="SELECT id, name, sensor_id, sensor_child_id, sensor_type_id, current_val_1 FROM sensors WHERE id = {$id} LIMIT 1;";
+        $result = $conn->query($query);
+        $srow = mysqli_fetch_array($result);
+        $s_id = $srow['id'];
+        $s_name = $srow['name'];
+        $sensor_id = $srow['sensor_id'];
+        $sensor_child_id = $srow['sensor_child_id'];
+        $sensor_type_id = $srow['sensor_type_id'];
+        $sensor_current_val_1 = $srow['current_val_1'];
+        $query = "SELECT * FROM nodes where id = {$sensor_id} LIMIT 1;";
+        $nresult = $conn->query($query);
+        $nrow = mysqli_fetch_array($nresult);
+        $node_id = $nrow['node_id'];
+        $last_seen = $nrow['last_seen'];
+        if ($sensor_type_id != 4) { echo '<span class="text">&nbsp&nbsp<i class="bi bi-thermometer-half red"></i> - '.$sensor_current_val_1.$unit.'</span>';} else { echo '<span class="text">&nbsp&nbsp<i class="bi bi-thermometer-half red"></i></span>'; }
+        if (time() - strtotime($last_seen) > 60*60*24) { $disabled = "disabled"; $content_msg = $lang['no_sensors_last24h'];} else { $disabled = ""; $content_msg = "";}
+        echo '<span class="text-muted small" data-bs-toggle="tooltip" title="'.$content_msg.'"><button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-xs" onclick="sensor_last24h(`'.$s_id.'`, `'.$s_name.'`, `'.$node_id.'`, `'.$sensor_child_id.'`);" '.$disabled.'><em>'.$last_seen.'&nbsp</em></button>&nbsp</span>';
 } elseif ($type == 17) {
         //---------------------------------------
         //process running time for All Schedules

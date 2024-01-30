@@ -92,6 +92,7 @@ $(document).ready(function(){
   var delay = '<?php echo $page_refresh ?>';
 
   (function loop() {
+
         var data = '<?php echo $js_sensor_params ?>';
         //console.log(data);
         var obj = JSON.parse(data)
@@ -101,6 +102,40 @@ $(document).ready(function(){
                   $('#sensor_temp_' + obj[y].sensor_id).load("ajax_fetch_data.php?id=" + obj[y].sensor_id + "&type=16").fadeIn("slow");
                   //console.log(obj[y].sensor_id);
                 }
+        }
+
+	//load sensor history if the modal is shown
+        if ($('#sensors_history').is(':visible')) {
+		myId = document.getElementById("s_hist_id").value;
+//		console.log(myId);
+                myName = document.getElementById("s_hist_name").value;
+        	async function loadNames() {
+                	var response = await fetch('ajax_fetch_temp24h.php?id=' + myId);
+                	var obj = await response.json();
+
+                	if (Array.isArray(obj[myId])) {
+//				console.log(obj[myId].length);
+//                        	console.log(obj);
+                        	if (obj[myId].length > 0) {
+                                	var table = "" ;
+                                	for (var y = 0; y < obj[myId].length; y++){
+                                        	table += '<tr>';
+                                        	table += '<td style="text-align:center; vertical-align:middle;" class="col-6">' + obj[myId][y].datetime +'</td>'
+                                                	+ '<td style="text-align:center; vertical-align:middle;" class="col-6">' + obj[myId][y].payload +'</td>' ;
+                                        	table += '</tr>';
+                                	}
+                                	document.getElementById("result").innerHTML = table;
+                                        var title_text_1 = "<?php echo $lang['sensor_count_last24h'] ?>";
+                                        var title_text_2 = "<?php echo $lang['average_count_last24h'] ?>";
+                                        $('#sensorhistory_text1').text(title_text_1);
+					$('#sensorhistory_value1').text(obj[myId].length);
+                                        $('#sensorhistory_text2').text(title_text_2);
+                                        $('#sensorhistory_value2').text(Math.floor(obj[myId].length/24));
+                        	}
+                	}
+        	}
+
+		loadNames();
         }
 
 	//create array for service names

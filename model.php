@@ -666,7 +666,6 @@ echo '<div class="modal" id="status_sensors" tabindex="-1">
                                 $query = "SELECT * FROM sensors ORDER BY sensor_id asc;";
                                 $results = $conn->query($query);
 				echo '<div class="list-group">';
-					$sensor_history_Array = Array();
 					while ($srow = mysqli_fetch_assoc($results)) {
                                                 $s_id = $srow['id'];
 					        $s_name = $srow['name'];
@@ -679,11 +678,6 @@ echo '<div class="modal" id="status_sensors" tabindex="-1">
 						$nrow = mysqli_fetch_array($nresult);
 						$node_id = $nrow['node_id'];
 						$last_seen = $nrow['last_seen'];
-					        $query = "SELECT * FROM messages_in_view_24h WHERE node_id = '{$node_id}' AND child_id = {$sensor_child_id};";
-        					$hresults = $conn->query($query);
-						while ($hrow = mysqli_fetch_assoc($hresults)) {
-							$sensor_history_Array[$s_id][] = $hrow;
-						}
                                 		$batquery = "select * from nodes_battery where node_id = '{$node_id}' ORDER BY id desc limit 1;";
                                 		$batresults = $conn->query($batquery);
                                 		$bcount = mysqli_num_rows($batresults);
@@ -697,11 +691,7 @@ echo '<div class="modal" id="status_sensors" tabindex="-1">
 								if ($bcount > 0) { echo '<div class="text-start">&nbsp&nbsp<i class="bi bi-battery-half"></i> '.round($brow ['bat_level'],0).'% - '.$brow ['bat_voltage'].'</div>'; } else { echo '<div class="text-start">&nbsp&nbsp<i class="bi bi-battery-half"></i></div>'; }
 							echo '</div>
 							<div class="form-group row">
-								<div class="d-flex justify-content-between">';
-									if ($sensor_type_id != 4) { echo '<span class="text" id="sensor_temp_'.$s_id.'">&nbsp&nbsp<i class="bi bi-thermometer-half red"></i> - '.$sensor_current_val_1.$unit.'</span>'; } else { echo '<span class="text" id="sensor_temp_'.$s_id.'">&nbsp&nbsp<i class="bi bi-thermometer-half red"></i></span>'; }
-									if (time() - strtotime($last_seen) > 60*60*24) { $disabled = "disabled"; $content_msg = $lang['no_sensors_last24h'];} else { $disabled = ""; $content_msg = "";}
-									echo '<span class="text-muted small" data-bs-toggle="tooltip" title="'.$content_msg.'"><button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-xs" onclick="sensor_last24h(`'.$s_id.'`, `'.$s_name.'`);" '.$disabled.'><em>'.$last_seen.'&nbsp</em></button>&nbsp</span>
-								</div>
+								<div class="d-flex justify-content-between" id="sensor_temp_'.$s_id.'"></div>
 							</div>
 						</div> ';
 					}
@@ -720,46 +710,23 @@ echo '<div class="modal" id="status_sensors" tabindex="-1">
 <!-- /.modal -->';
 ?>
 <script language="javascript" type="text/javascript">
-function sensor_last24h(id, name)
+function sensor_last24h(id, name, node_id, child_id)
 {
         var myId = id;
         var myName = name;
+	var myNodeId = node_id;
+	var myChildId = child_id;
 
-        if (myId == 0) {
-                $("#conn_id").val(myId);
-        } else {
-                var data = '<?php echo json_encode($sensor_history_Array) ?>';
-                var obj = JSON.parse(data);
-//                console.log(Array.isArray(obj[myId]));
-//                console.log(data.length);
-//                console.log(data);
+	$("#s_hist_id").val(myId);
+        $("#s_hist_name").val(myName);
 
-                if (Array.isArray(obj[myId])) {
-//                        console.log(obj[myId].length);
-//                        console.log(obj);
-                        if (obj[myId].length > 0) {
-                                var table = "" ;
-                                for (var y = 0; y < obj[myId].length; y++){
-                                        table += '<tr>';
-                                        table += '<td class="col-6">'
-                                                + myName +'</td>'
-                                                + '<td style="text-align:center; vertical-align:middle;" class="col-6">' + obj[myId][y].datetime +'</td>'
-                                                + '<td style="text-align:center; vertical-align:middle;" class="col-6">' + obj[myId][y].payload +'</td>' ;
-                                        table += '</tr>';
-                                        var title_text_1 = "<?php echo $lang['sensor_count_last24h'] ?>" + obj[myId].length;
-                                        var title_text_2 = "<?php echo $lang['average_count_last24h'] ?>" + Math.floor(obj[myId].length/24);
-                                        var title = "<?php echo $lang['sensor_last24h'] ?>" + '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0 ' + "<?php echo $lang['for_sensor_id'] ?>"
-                                                + obj[myId][y].node_id + '\xa0(' + obj[myId][y].child_id + ')';
-                                }
-                                document.getElementById("result").innerHTML = table;
-                        }
-                        $('#sensorhistory').text(title);
-                        $('#sensorhistory_text').text(title_text_1 + '\n' + title_text_2);
-
-                        $('#status_sensors').modal('hide');
-                        $('#sensors_history').modal('show');
-                }
-        }
+	var title = "<?php echo $lang['sensor_last24h'] ?>" + '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0 '
+		+ "<?php echo $lang['for_sensor_id'] ?>" + myNodeId + '\xa0(' + myChildId + '), ' + myName;
+	$('#sensorhistory').text(title);
+        $('#sensorhistory_text1').text('<?php echo $lang["please_wait_text"] ?>');
+        $('#sensorhistory_text2').text("");
+	$('#status_sensors').modal('hide');
+        $('#sensors_history').modal('show');
 }
 </script>
 
@@ -774,11 +741,21 @@ echo '<div class="modal" id="sensors_history" tabindex="-1">
                                 <h5 class="modal-title" id="sensorhistory"></h5>
                         </div>
                         <div class="modal-body">
-                                <p class="text-muted" id="sensorhistory_text"></p>
-	                        <table class="table table-fixed">
+                                <p class="text-muted">
+					<div class="row align-items-center">
+						<div class="col-md-10" id="sensorhistory_text1"></div>
+						<div class="col-md-2 text-center" style="font-size: 20px;" id="sensorhistory_value1"></div>
+					</div>
+					<div class="row align-items-center">
+                                        	<div class="col-md-10" id="sensorhistory_text2"></div>
+                                                <div class="col-md-2 text-center" style="font-size: 20px;" id="sensorhistory_value2"></div>
+                                        </div>
+                                </p>
+				<input type="hidden" id="s_hist_id" name="s_hist_id" value="0">
+                                <input type="hidden" id="s_hist_name" name="s_hist_name" value="0">
+ 	                        <table class="table table-fixed">
         	                        <thead>
                 	                        <tr>
-                        	                        <th class="col-6"><small>'.$lang['sensor_name'].'</small></th>
                                 	                <th style="text-align:center; vertical-align:middle;" class="col-6"><small>'.$lang['last_seen'].'</small></th>
                                         	        <th style="text-align:center; vertical-align:middle;" class="col-6"><small>'.$lang['value'].'</small></th>
 	                                        </tr>
