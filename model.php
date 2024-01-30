@@ -744,11 +744,11 @@ echo '<div class="modal" id="sensors_history" tabindex="-1">
                         </div>
                         <div class="modal-body">
                                 <p class="text-muted">
-					<div class="row align-items-center">
+					<div class="row align-items-center" style="margin-top: -1.5rem">
 						<div class="col-md-10" id="sensorhistory_text1"></div>
 						<div class="col-md-2 text-center" style="font-size: 20px;" id="sensorhistory_value1"></div>
 					</div>
-					<div class="row align-items-center">
+					<div class="row align-items-center" style="margin-bottom: -1rem">
                                         	<div class="col-md-10" id="sensorhistory_text2"></div>
                                                 <div class="col-md-2 text-center" style="font-size: 20px;" id="sensorhistory_value2"></div>
                                         </div>
