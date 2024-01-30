@@ -113,26 +113,35 @@ $(document).ready(function(){
                 	var response = await fetch('ajax_fetch_temp24h.php?id=' + myId);
                 	var obj = await response.json();
 
-                	if (Array.isArray(obj[myId])) {
-//				console.log(obj[myId].length);
-//                        	console.log(obj);
-                        	if (obj[myId].length > 0) {
-                                	var table = "" ;
-                                	for (var y = 0; y < obj[myId].length; y++){
-                                        	table += '<tr>';
-                                        	table += '<td style="text-align:center; vertical-align:middle;" class="col-6">' + obj[myId][y].datetime +'</td>'
-                                                	+ '<td style="text-align:center; vertical-align:middle;" class="col-6">' + obj[myId][y].payload +'</td>' ;
-                                        	table += '</tr>';
-                                	}
-                                	document.getElementById("result").innerHTML = table;
-                                        var title_text_1 = "<?php echo $lang['sensor_count_last24h'] ?>";
-                                        var title_text_2 = "<?php echo $lang['average_count_last24h'] ?>";
-                                        $('#sensorhistory_text1').text(title_text_1);
-					$('#sensorhistory_value1').text(obj[myId].length);
-                                        $('#sensorhistory_text2').text(title_text_2);
-                                        $('#sensorhistory_value2').text(Math.floor(obj[myId].length/24));
-                        	}
-                	}
+//			console.log(obj.state);
+			if (obj.success) {
+                		if (Array.isArray(obj.state[myId])) {
+//					console.log(obj.state[myId].length);
+//                        		console.log(obj);
+                        		if (obj.state[myId].length > 0) {
+                                		var table = "" ;
+                                		for (var y = 0; y < obj.state[myId].length; y++){
+                                        		table += '<tr>';
+                                        		table += '<td style="text-align:center; vertical-align:middle;" class="col-6">' + obj.state[myId][y].datetime +'</td>'
+                                                		+ '<td style="text-align:center; vertical-align:middle;" class="col-6">' + obj.state[myId][y].payload +'</td>' ;
+                                        		table += '</tr>';
+                                		}
+                                		document.getElementById("result").innerHTML = table;
+                                        	var title_text_1 = "<?php echo $lang['sensor_count_last24h'] ?>";
+                                        	var title_text_2 = "<?php echo $lang['average_count_last24h'] ?>";
+                                        	$('#sensorhistory_text1').text(title_text_1);
+						$('#sensorhistory_value1').text(obj.state[myId].length);
+                                        	$('#sensorhistory_text2').text(title_text_2);
+                                        	$('#sensorhistory_value2').text(Math.floor(obj.state[myId].length/24));
+                        		}
+                		}
+			} else {
+				var title_text_1 = "<?php echo $lang['no_sensors_last24h'] ?>";
+                        	$('#sensorhistory_text1').text(title_text_1);
+				$('#sensorhistory_value1').text('');
+				$('#sensorhistory_text2').text('');
+				$('#sensorhistory_value2').text('');
+			}
         	}
 
 		loadNames();

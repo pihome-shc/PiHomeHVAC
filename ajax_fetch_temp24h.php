@@ -21,6 +21,7 @@
 
 This script is used to provide dynamic update of data dispayed for the Sensor Last 24hrs display
 */
+
 require_once(__DIR__.'/st_inc/session.php');
 require_once(__DIR__.'/st_inc/connection.php');
 
@@ -30,17 +31,31 @@ if(isset($_GET['id'])) {
 	$result = $conn->query($query);
 	$sensor_history_Array = Array();
 	$srow = mysqli_fetch_assoc($result);
-       	$sensor_id = $srow['sensor_id'];
-	$sensor_child_id = $srow['sensor_child_id'];
-        $query = "SELECT * FROM nodes where id = {$sensor_id} LIMIT 1;";
-	$nresult = $conn->query($query);
-        $nrow = mysqli_fetch_array($nresult);
-	$node_id = $nrow['node_id'];
-	$query = "SELECT * FROM messages_in_view_24h WHERE node_id = '{$node_id}' AND child_id = {$sensor_child_id};";
-        $hresults = $conn->query($query);
-	while ($hrow = mysqli_fetch_assoc($hresults)) {
-       		$sensor_history_Array[$id][] = $hrow;
-        }
+        if(! $srow) {
+                echo json_encode(array("success" => False, "state" => "No Sensor with that name found."));
+	} else {
+       		$sensor_id = $srow['sensor_id'];
+		$sensor_child_id = $srow['sensor_child_id'];
+        	$query = "SELECT * FROM nodes where id = {$sensor_id} LIMIT 1;";
+		$nresult = $conn->query($query);
+        	$nrow = mysqli_fetch_array($nresult);
+                if(! $nrow) {
+                        echo json_encode(array("success" => False, "state" => "No Matching Node found for this Sensor."));
+                } else {
+			$node_id = $nrow['node_id'];
+			$query = "SELECT * FROM messages_in_view_24h WHERE node_id = '{$node_id}' AND child_id = {$sensor_child_id};";
+	        	$hresults = $conn->query($query);
+			if (mysqli_num_rows($hresults) == 0) {
+				echo json_encode(array("success" => False, "state" => "No Readings found for this Sensor."));
+			} else {
+				while ($hrow = mysqli_fetch_assoc($hresults)) {
+       					$sensor_history_Array[$id][] = $hrow;
+        			}
+				echo json_encode(array("success" => True, "state" => $sensor_history_Array));
+			}
+		}
+	}
+} else {
+        echo json_encode(array("success" => False, "state" => "Data is incomplete."));
 }
-echo json_encode($sensor_history_Array);
 ?>
