@@ -595,7 +595,7 @@ if ($type <= 5) {
         $last_seen = $nrow['last_seen'];
         if ($sensor_type_id != 4) { echo '<span class="text">&nbsp&nbsp<i class="bi bi-thermometer-half red"></i> - '.$sensor_current_val_1.$unit.'</span>';} else { echo '<span class="text">&nbsp&nbsp<i class="bi bi-thermometer-half red"></i></span>'; }
         if (time() - strtotime($last_seen) > 60*60*24) { $disabled = "disabled"; $content_msg = $lang['no_sensors_last24h'];} else { $disabled = ""; $content_msg = "";}
-        echo '<span class="text-muted small" data-bs-toggle="tooltip" title="'.$content_msg.'"><button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-xs" onclick="sensor_last24h(`'.$s_id.'`, `'.$s_name.'`, `'.$node_id.'`, `'.$sensor_child_id.'`);" '.$disabled.'><em>'.$last_seen.'&nbsp</em></button>&nbsp</span>';
+        echo '<span class="text-muted small" data-bs-toggle="tooltip" title="'.$content_msg.'"><button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' fw-bolder btn-xs" onclick="sensor_last24h(`'.$s_id.'`, `'.$s_name.'`, `'.$node_id.'`, `'.$sensor_child_id.'`);" '.$disabled.'><em>'.$last_seen.'&nbsp</em></button>&nbsp</span>';
 } elseif ($type == 17) {
         //---------------------------------------
         //process running time for All Schedules
