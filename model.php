@@ -720,9 +720,10 @@ function sensor_last24h(id, name, node_id, child_id)
 	$("#s_hist_id").val(myId);
         $("#s_hist_name").val(myName);
 
-	var title = "<?php echo $lang['sensor_last24h'] ?>" + '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0 '
-		+ "<?php echo $lang['for_sensor_id'] ?>" + myNodeId + '\xa0(' + myChildId + '), ' + myName;
-	$('#sensorhistory').text(title);
+        var title1 = "<?php echo $lang['sensor_last24h'] ?>"
+        var title2 = "<?php echo $lang['for_sensor_id'] ?>" + myNodeId + '\xa0(' + myChildId + '), ' + myName;
+        $('#sensorhistory_title1').text(title1);
+        $('#sensorhistory_title2').text(title2);
         $('#sensorhistory_text1').text('<?php echo $lang["please_wait_text"] ?>');
         $('#sensorhistory_value1').text("");
         $('#sensorhistory_text2').text("");
@@ -740,7 +741,7 @@ echo '<div class="modal" id="sensors_history" tabindex="-1">
                 <div class="modal-content">
                         <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
                                 <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
-                                <h5 class="modal-title" id="sensorhistory"></h5>
+                                <h5 class="modal-title"><div id="sensorhistory_title1"></div><div id="sensorhistory_title2"></div></h5>
                         </div>
                         <div class="modal-body">
                                 <p class="text-muted">
