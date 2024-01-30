@@ -724,7 +724,9 @@ function sensor_last24h(id, name, node_id, child_id)
 		+ "<?php echo $lang['for_sensor_id'] ?>" + myNodeId + '\xa0(' + myChildId + '), ' + myName;
 	$('#sensorhistory').text(title);
         $('#sensorhistory_text1').text('<?php echo $lang["please_wait_text"] ?>');
+        $('#sensorhistory_value1').text("");
         $('#sensorhistory_text2').text("");
+        $('#sensorhistory_value2').text("");
 	$('#status_sensors').modal('hide');
         $('#sensors_history').modal('show');
 }
