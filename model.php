@@ -598,7 +598,7 @@ echo '<div class="modal" id="status_sensors" tabindex="-1">
                                 <h5 class="modal-title">'.$lang['temperature_sensor'].'</h5>
                         </div>
                         <div class="modal-body">
-                                <p class="text-muted">'.$lang['temperature_sensor_text'].'</p>
+                                <p class="text-muted" id="status_sensors_text">'.$lang['please_wait_text'].'</p>
 				<div class="list-group" id="sensor_temps">
 				</div>
 	                        <!-- /.list-group -->

@@ -174,6 +174,8 @@ $(document).ready(function(){
         $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
 	if ($('#status_sensors').is(':visible')) {
 		$('#sensor_temps').load("ajax_fetch_data.php?id=0&type=16").fadeIn("slow");
+		var sen_text = "<?php echo $lang['temperature_sensor_text'] ?>";
+		$('#status_sensors_text').text(sen_text);
 	}
         $('#footer_all_running_time').load("ajax_fetch_data.php?id=0&type=17").fadeIn("slow");
         if ($('#sc_z_logs').is(':visible')) {
