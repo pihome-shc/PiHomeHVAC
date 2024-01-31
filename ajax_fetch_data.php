@@ -1059,5 +1059,56 @@ if ($type <= 5) {
                 </tr>';
 
 	}
+} elseif ($type == 34) {
+        //---------------------------------------
+        //update  gateway and controller scripts
+        //---------------------------------------
+	$query = "SELECT * FROM gateway";
+	$result = $conn->query($query);
+        $grow = mysqli_fetch_array($result);
+       	$query = "SELECT * FROM system_controller";
+        $result = $conn->query($query);
+        $scrow = mysqli_fetch_array($result);
+        // Checking if Gateway script is running
+	$gw_script_txt = 'python3 /var/www/cron/gateway.py';
+        exec("ps -eo pid,etime,cmd | grep '$gw_script_txt' | grep -v grep | awk '{ print $2 }' | head -1", $pids);
+        $nopids = count($pids);
+	if ($nopids == 0) { $gw_color = "red"; } else { $gw_color = "green"; }
+        // Checking if System Controller script is running
+        $sc_script_txt = 'python3 /var/www/cron/controller.py';
+        exec("ps -eo pid,etime,cmd | grep '$sc_script_txt' | grep -v grep | awk '{ print $2 }' | head -1", $pids);
+        $nopids = count($pids);
+        if ($nopids == 0) { $sc_color = "red"; } else { $sc_color = "green"; }
+
+	echo '<br><h4 class="info"><i class="bi bi-activity '. $gw_color .'" style="font-size:2rem;"></i> '.$lang['smart_home_gateway_scr_info'].'</h4>
+	<div class="list-group">
+		<a href="#" class="list-group-item d-flex justify-content-between"><span>PID</span><span class="text-muted small"><em> '.$grow['pid'].'</em></span></a>
+		<a href="#" class="list-group-item d-flex justify-content-between"><span>'.$lang['smart_home_gateway_pid'].':</span><span class="text-muted small"><em>'.$grow['pid_running_since'].'</em></span></a>';
+
+		$query = "select * FROM gateway_logs WHERE pid_datetime >= NOW() - INTERVAL 5 MINUTE;";
+		$result = $conn->query($query);
+		if (mysqli_num_rows($result) != 0){
+			$gw_restarted = mysqli_num_rows($result);
+		} else {
+			$gw_restarted = '0';
+		}
+		echo '<a href="#" class="list-group-item d-flex justify-content-between"><span>'.$lang['smart_home_gateway_scr'].':</span><span class="text-muted small"><em>'.$gw_restarted.'</em></span></a>';
+	echo '</div>
+
+        <!-- /.list-group -->
+        <br><h4 class="info"><i class="bi bi-activity '. $sc_color .'" style="font-size:2rem;"></i> '.$lang['smart_home_controller_scr_info'].'</h4>
+	<div class="list-group">
+		<a href="#" class="list-group-item d-flex justify-content-between"><span>PID</span><span class="text-muted small"><em> '.$scrow['pid'].'</em></span></a>
+		<a href="#" class="list-group-item d-flex justify-content-between"><span>'.$lang['smart_home_gateway_pid'].':</span><span class="text-muted small"><em>'.$scrow['pid_running_since'].'</em></span></a>';
+
+		$query = "select * FROM controller_zone_logs WHERE zone_id = 0 AND start_datetime >= NOW() - INTERVAL 5 MINUTE;";
+		$result = $conn->query($query);
+		if (mysqli_num_rows($result) != 0){
+			$sc_restarted = mysqli_num_rows($result);
+		} else {
+			$sc_restarted = '0';
+		}
+		echo '<a href="#" class="list-group-item d-flex justify-content-between"><span>'.$lang['smart_home_gateway_scr'].':</span><span class="text-muted small"><em>'.$sc_restarted.'</em></span></a>';
+	echo '</div>';
 }
 ?>
