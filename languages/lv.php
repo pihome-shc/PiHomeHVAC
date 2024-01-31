@@ -1028,4 +1028,5 @@ $lang['sensor_fault'] = "Sensor Fault";
 $lang['zone_active'] = "Zone Active";
 $lang['active_schedule'] = "Active Schedule";
 $lang['last_record_update'] = "Last Record Update";
+$lang['unable_to_retrieve_sensor_data'] = "Unable to Retrieve Sensor Data";
 ?>
