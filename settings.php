@@ -135,62 +135,70 @@ $(document).ready(function(){
 		loadNames();
         }
 
-	//create array for service names
-	let obj_services = [
-  		{
-    			"service": "apache2.service",
-  		},
-  		{
-    			"service": "mysql.service",
-  		},
-                {
-                        "service": "mariadb.service",
-                },
-                {
-                        "service": "pihome_jobs_schedule.service",
-                },
-                {
-                        "service": "HA_integration.service",
-                },
-                {
-                        "service": "pihome_amazon_echo.service",
-                },
-                {
-                        "service": "homebridge.service",
-                },
-                {
-                        "service": "autohotspot.service",
-                },
+        if ($('#show_services').is(':visible')) {
+		//create array for service names
+		let obj_services = [
+  			{
+    				"service": "apache2.service",
+	  		},
+  			{
+    				"service": "mysql.service",
+	  		},
+        	        {
+                	        "service": "mariadb.service",
+	                },
+        	        {
+                	        "service": "pihome_jobs_schedule.service",
+	                },
+        	        {
+                	        "service": "HA_integration.service",
+	                },
+        	        {
+                	        "service": "pihome_amazon_echo.service",
+	                },
+        	        {
+                	        "service": "homebridge.service",
+	                },
+        	        {
+                	        "service": "autohotspot.service",
+	                },
 
-	]
-	//update services status
-        if (obj_services) {
-                for (var y = 0; y < obj_services.length; y++) {
-                  $("#service_" + y).load("ajax_fetch_data.php?id=" + obj_services[y].service + "&type=27").fadeIn("slow");
-                }
-        }
+		]
+		//update services status
+	        if (obj_services) {
+        	        for (var y = 0; y < obj_services.length; y++) {
+                  		$("#service_" + y).load("ajax_fetch_data.php?id=" + obj_services[y].service + "&type=27").fadeIn("slow");
+                	}
+        	}
+	}
 
-        $('#settings_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
-        $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
 	if ($('#status_sensors').is(':visible')) {
 		$('#sensor_temps').load("ajax_fetch_data.php?id=0&type=16").fadeIn("slow");
 		var sen_text = "<?php echo $lang['temperature_sensor_text'] ?>";
 		$('#status_sensors_text').text(sen_text);
 	}
-        $('#footer_all_running_time').load("ajax_fetch_data.php?id=0&type=17").fadeIn("slow");
         if ($('#sc_z_logs').is(':visible')) {
 	        $('#controller_zone_logs').load("ajax_fetch_data.php?id=0&type=21").fadeIn("slow");
 	}
-        $('#system_uptime').load("ajax_fetch_data.php?id=0&type=22").fadeIn("slow");
-        $('#cpu_temps').load("ajax_fetch_data.php?id=0&type=23").fadeIn("slow");
-        $('#cpu_status').load("ajax_fetch_data.php?id=0&type=25").fadeIn("slow");
-	$('#frost_status').load("ajax_fetch_data.php?id=0&type=26").fadeIn("slow");
+	if ($('#s_uptime').is(':visible')) {
+        	$('#system_uptime').load("ajax_fetch_data.php?id=0&type=22").fadeIn("slow");
+	}
+	if ($('#cpu_temp_history').is(':visible')) {
+        	$('#cpu_temps').load("ajax_fetch_data.php?id=0&type=23").fadeIn("slow");
+	}
         if ($('#zones_states').is(':visible')) {
 	        $('#z_states').load("ajax_fetch_data.php?id=0&type=33").fadeIn("slow");
 	}
         if ($('#status_scripts').is(':visible')) {
 	        $('#gw_sc_scripts').load("ajax_fetch_data.php?id=0&type=34").fadeIn("slow");
 	}
+
+        $('#settings_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
+        $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
+	$('#footer_all_running_time').load("ajax_fetch_data.php?id=0&type=17").fadeIn("slow");
+        $('#cpu_status').load("ajax_fetch_data.php?id=0&type=25").fadeIn("slow");
+        $('#frost_status').load("ajax_fetch_data.php?id=0&type=26").fadeIn("slow");
+
         setTimeout(loop, delay);
   })();
 });
