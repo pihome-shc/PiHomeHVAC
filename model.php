@@ -759,7 +759,7 @@ echo '<div class="modal" id="sensors_history" tabindex="-1">
  	                        <table class="table table-fixed">
         	                        <thead>
                 	                        <tr>
-                                	                <th style="text-align:center; vertical-align:middle;" class="col-6"><small>'.$lang['last_record_update'].'</small></th>
+                                	                <th style="text-align:center; vertical-align:middle;" class="col-6"><small>'.$lang['reading_timestamp'].'</small></th>
                                         	        <th style="text-align:center; vertical-align:middle;" class="col-6"><small>'.$lang['value'].'</small></th>
 	                                        </tr>
         	                        </thead>
