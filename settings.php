@@ -136,7 +136,7 @@ $(document).ready(function(){
                         		}
                 		}
 			} else {
-				var title_text_1 = "<?php echo $lang['no_sensors_last24h'] ?>";
+				var title_text_1 = "<?php echo $lang['unable_to_retrieve_sensor_data'] ?>";
                         	$('#sensorhistory_text1').text(title_text_1);
 				$('#sensorhistory_value1').text('');
 				$('#sensorhistory_text2').text('');
