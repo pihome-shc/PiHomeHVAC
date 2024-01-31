@@ -92,18 +92,6 @@ $(document).ready(function(){
   var delay = '<?php echo $page_refresh ?>';
 
   (function loop() {
-
-        var data = '<?php echo $js_sensor_params ?>';
-        //console.log(data);
-        var obj = JSON.parse(data)
-        if (obj) {
-                //console.log(obj.length);
-                for (var y = 0; y < obj.length; y++) {
-                  $('#sensor_temp_' + obj[y].sensor_id).load("ajax_fetch_data.php?id=" + obj[y].sensor_id + "&type=16").fadeIn("slow");
-                  //console.log(obj[y].sensor_id);
-                }
-        }
-
 	//load sensor history if the modal is shown
         if ($('#sensors_history').is(':visible')) {
 		myId = document.getElementById("s_hist_id").value;
@@ -182,17 +170,17 @@ $(document).ready(function(){
                 }
         }
 
-        $('#z_states').load("ajax_fetch_data.php?id=0&type=33").fadeIn("slow");
-        $('#gw_sc_scripts').load("ajax_fetch_data.php?id=0&type=34").fadeIn("slow");
-
+        $('#settings_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
+        $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
+	$('#sensor_temps').load("ajax_fetch_data.php?id=0&type=16").fadeIn("slow");
+        $('#footer_all_running_time').load("ajax_fetch_data.php?id=0&type=17").fadeIn("slow");
         $('#controller_zone_logs').load("ajax_fetch_data.php?id=0&type=21").fadeIn("slow");
         $('#system_uptime').load("ajax_fetch_data.php?id=0&type=22").fadeIn("slow");
         $('#cpu_temps').load("ajax_fetch_data.php?id=0&type=23").fadeIn("slow");
         $('#cpu_status').load("ajax_fetch_data.php?id=0&type=25").fadeIn("slow");
-        $('#frost_status').load("ajax_fetch_data.php?id=0&type=26").fadeIn("slow");
-        $('#settings_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
-        $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
-        $('#footer_all_running_time').load("ajax_fetch_data.php?id=0&type=17").fadeIn("slow");
+	$('#frost_status').load("ajax_fetch_data.php?id=0&type=26").fadeIn("slow");
+        $('#z_states').load("ajax_fetch_data.php?id=0&type=33").fadeIn("slow");
+        $('#gw_sc_scripts').load("ajax_fetch_data.php?id=0&type=34").fadeIn("slow");
         setTimeout(loop, delay);
   })();
 });

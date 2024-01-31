@@ -579,23 +579,41 @@ if ($type <= 5) {
 	//----------------------
 	//process sensors by id
 	//----------------------
-        $query="SELECT id, name, sensor_id, sensor_child_id, sensor_type_id, current_val_1 FROM sensors WHERE id = {$id} LIMIT 1;";
-        $result = $conn->query($query);
-        $srow = mysqli_fetch_array($result);
-        $s_id = $srow['id'];
-        $s_name = $srow['name'];
-        $sensor_id = $srow['sensor_id'];
-        $sensor_child_id = $srow['sensor_child_id'];
-        $sensor_type_id = $srow['sensor_type_id'];
-        $sensor_current_val_1 = $srow['current_val_1'];
-        $query = "SELECT * FROM nodes where id = {$sensor_id} LIMIT 1;";
-        $nresult = $conn->query($query);
-        $nrow = mysqli_fetch_array($nresult);
-        $node_id = $nrow['node_id'];
-        $last_seen = $nrow['last_seen'];
-        if ($sensor_type_id != 4) { echo '<span class="text">&nbsp&nbsp<i class="bi bi-thermometer-half red"></i> - '.$sensor_current_val_1.$unit.'</span>';} else { echo '<span class="text">&nbsp&nbsp<i class="bi bi-thermometer-half red"></i></span>'; }
-        if (time() - strtotime($last_seen) > 60*60*24) { $disabled = "disabled"; $content_msg = $lang['no_sensors_last24h'];} else { $disabled = ""; $content_msg = "";}
-        echo '<span class="text-muted small" data-bs-toggle="tooltip" title="'.$content_msg.'"><button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' fw-bolder btn-xs" onclick="sensor_last24h(`'.$s_id.'`, `'.$s_name.'`, `'.$node_id.'`, `'.$sensor_child_id.'`);" '.$disabled.'><em>'.$last_seen.'&nbsp</em></button>&nbsp</span>';
+        $query = "SELECT * FROM sensors ORDER BY sensor_id asc;";
+        $results = $conn->query($query);
+	while ($srow = mysqli_fetch_assoc($results)) {
+	        $s_id = $srow['id'];
+        	$s_name = $srow['name'];
+	        $sensor_id = $srow['sensor_id'];
+        	$sensor_child_id = $srow['sensor_child_id'];
+	        $sensor_type_id = $srow['sensor_type_id'];
+        	$sensor_current_val_1 = $srow['current_val_1'];
+	        $query = "SELECT * FROM nodes where id = {$sensor_id} LIMIT 1;";
+        	$nresult = $conn->query($query);
+	        $nrow = mysqli_fetch_array($nresult);
+        	$node_id = $nrow['node_id'];
+	        $last_seen = $nrow['last_seen'];
+		$batquery = "select * from nodes_battery where node_id = '{$node_id}' ORDER BY id desc limit 1;";
+		$batresults = $conn->query($batquery);
+		$bcount = mysqli_num_rows($batresults);
+		if ($bcount > 0) { $brow = mysqli_fetch_array($batresults); }
+		$unit = SensorUnits($conn,$sensor_type_id);
+		echo '<div class="list-group-item">
+			<div class="form-group row">
+				<div class="text-start">&nbsp&nbsp'.$nrow['node_id'].'_'.$sensor_child_id.' - '.$s_name.'</div>
+			</div>
+			<div class="form-group row">';
+				if ($bcount > 0) { echo '<div class="text-start">&nbsp&nbsp<i class="bi bi-battery-half"></i> '.round($brow ['bat_level'],0).'% - '.$brow ['bat_voltage'].'</div>'; } else { echo '<div class="text-start">&nbsp&nbsp<i class="bi bi-battery-half"></i></div>'; }
+			echo '</div>
+			<div class="form-group row">
+				<div class="d-flex justify-content-between">';
+        				if ($sensor_type_id != 4) { echo '<span class="text">&nbsp&nbsp<i class="bi bi-thermometer-half red"></i> - '.$sensor_current_val_1.$unit.'</span>';} else { echo '<span class="text">&nbsp&nbsp<i class="bi bi-thermometer-half red"></i></span>'; }
+        				if (time() - strtotime($last_seen) > 60*60*24) { $disabled = "disabled"; $content_msg = $lang['no_sensors_last24h'];} else { $disabled = ""; $content_msg = "";}
+	        			echo '<span class="text-muted small" data-bs-toggle="tooltip" title="'.$content_msg.'"><button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' fw-bolder btn-xs" onclick="sensor_last24h(`'.$s_id.'`, `'.$s_name.'`, `'.$node_id.'`, `'.$sensor_child_id.'`);" '.$disabled.'><em>'.$last_seen.'&nbsp</em></button>&nbsp</span>
+        	                </div>
+			</div>
+		</div> ';
+	}
 } elseif ($type == 17) {
         //---------------------------------------
         //process running time for All Schedules
@@ -672,37 +690,25 @@ if ($type <= 5) {
         //------------------------------------------------------------
         //return the controller_zone_logs last entries for Recent Logs
         //------------------------------------------------------------
-	$query = "SELECT 'System Controller' AS name, controller_zone_logs.* FROM controller_zone_logs,
-			(SELECT `zone_id`,max(`id`) AS mid
-				FROM controller_zone_logs
-				GROUP BY `zone_id`) max_id
-			WHERE controller_zone_logs.zone_id = max_id.zone_id
-			AND controller_zone_logs.id = max_id.mid
-			AND controller_zone_logs.zone_id = 1
-		UNION
-		SELECT zone.name,controller_zone_logs.* FROM controller_zone_logs, zone,
-			(SELECT `zone_id`,max(`id`) AS mid
-				FROM controller_zone_logs
-				GROUP BY `zone_id`) max_id
-			WHERE controller_zone_logs.zone_id = max_id.zone_id
-			AND controller_zone_logs.id = max_id.mid
-			AND controller_zone_logs.zone_id = zone.id;";
-	$results = $conn->query($query);
-        echo '<table class="table table-bordered" id="controller_zone_logs">
-        	<thead>
-                	<tr>
-                        	<th class="col-2"><small>'.$lang['zone_name'].'</small></th>
-                                <th class="col-2"><small>'.$lang['start_datetime'].'</small></th>
-                                <th class="col-2"><small>'.$lang['start_cause'].'</small></th>
-                                <th class="col-2"><small>'.$lang['stop_datetime'].'</small></th>
-                                <th class="col-2"><small>'.$lang['stop_cause'].'</small></th>
-                                <th class="col-2"><small>'.$lang['expected_end_date_time'].'</small></th>
-                        </tr>
-		</thead>
-                <tbody>';
-                	while ($row = mysqli_fetch_assoc($results)) {
-                        	echo '<tr>
-                                	<td class="col-2">'.$row["name"].'</td>
+        $query = "SELECT 'System Controller' AS name, controller_zone_logs.* FROM controller_zone_logs,
+                        (SELECT `zone_id`,max(`id`) AS mid
+                                FROM controller_zone_logs
+                                GROUP BY `zone_id`) max_id
+                        WHERE controller_zone_logs.zone_id = max_id.zone_id
+                        AND controller_zone_logs.id = max_id.mid
+                        AND controller_zone_logs.zone_id = 1
+                UNION
+                SELECT zone.name,controller_zone_logs.* FROM controller_zone_logs, zone,
+                        (SELECT `zone_id`,max(`id`) AS mid
+                                FROM controller_zone_logs
+                                GROUP BY `zone_id`) max_id
+                        WHERE controller_zone_logs.zone_id = max_id.zone_id
+                        AND controller_zone_logs.id = max_id.mid
+                        AND controller_zone_logs.zone_id = zone.id;";
+        $results = $conn->query($query);
+                        while ($row = mysqli_fetch_assoc($results)) {
+                                echo '<tr>
+                                        <td class="col-2">'.$row["name"].'</td>
                                         <td class="col-2">'.$row["start_datetime"].'</td>
                                         <td class="col-2">'.$row["start_cause"].'</td>
                                         <td class="col-2">'.$row["stop_datetime"].'</td>
@@ -710,8 +716,6 @@ if ($type <= 5) {
                                         <td class="col-2">'.$row["expected_end_date_time"].'</td>
                                 </tr>';
                         }
-		echo '</tbody>
-	</table>';
 } elseif ($type == 22) {
         //---------------------------
         //update System Uptime modal

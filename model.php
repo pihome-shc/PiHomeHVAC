@@ -496,47 +496,20 @@ echo '
                 		<h5 class="modal-title">'.$lang['controller_zone_logs'].'</h5>
             		</div>
             		<div class="modal-body">
-				<p class="text-muted"> '.$lang['controller_zone_logs_text'].' </p>';
-		                $query = "SELECT 'System Controller' AS name, controller_zone_logs.* FROM controller_zone_logs,
-                		                (SELECT `zone_id`,max(`id`) AS mid
-                                		        FROM controller_zone_logs
-		                                        GROUP BY `zone_id`) max_id
-                		                WHERE controller_zone_logs.zone_id = max_id.zone_id
-                                		AND controller_zone_logs.id = max_id.mid
-		                                AND controller_zone_logs.zone_id = 1
-                		          UNION
-		                          SELECT zone.name,controller_zone_logs.* FROM controller_zone_logs, zone,
-                		                (SELECT `zone_id`,max(`id`) AS mid
-                                		        FROM controller_zone_logs
-		                                        GROUP BY `zone_id`) max_id
-                		                WHERE controller_zone_logs.zone_id = max_id.zone_id
-                                		AND controller_zone_logs.id = max_id.mid
-		                                AND controller_zone_logs.zone_id = zone.id;";
-                		$results = $conn->query($query);
-		                echo '<table class="table table-bordered" id="controller_zone_logs">
-                		        <thead>
-                                		<tr>
-		                                        <th class="col-2"><small>'.$lang['zone_name'].'</small></th>
-                		                        <th class="col-2"><small>'.$lang['start_datetime'].'</small></th>
-                                		        <th class="col-2"><small>'.$lang['start_cause'].'</small></th>
-		                                        <th class="col-2"><small>'.$lang['stop_datetime'].'</small></th>
-                		                        <th class="col-2"><small>'.$lang['stop_cause'].'</small></th>
-                                		        <th class="col-2"><small>'.$lang['expected_end_date_time'].'</small></th>
-		                                </tr>
-                		        </thead>
-		                        <tbody>';
-                		                while ($row = mysqli_fetch_assoc($results)) {
-                                		        echo '<tr>
-                                                		<td class="col-2">'.$row["name"].'</td>
-		                                                <td class="col-2">'.$row["start_datetime"].'</td>
-                		                                <td class="col-2">'.$row["start_cause"].'</td>
-                                		                <td class="col-2">'.$row["stop_datetime"].'</td>
-                                                		<td class="col-2">'.$row["stop_cause"].'</td>
-		                                                <td class="col-2">'.$row["expected_end_date_time"].'</td>
-                		                        </tr>';
-                		                }
-		                        echo '</tbody>
-                		</table>
+                                <p class="text-muted"> '.$lang['controller_zone_logs_text'].' </p>
+                                <table class="table table-bordered">
+                                        <thead>
+                                                <tr>
+                                                        <th class="col-2"><small>'.$lang['zone_name'].'</small></th>
+                                                        <th class="col-2"><small>'.$lang['start_datetime'].'</small></th>
+                                                        <th class="col-2"><small>'.$lang['start_cause'].'</small></th>
+                                                        <th class="col-2"><small>'.$lang['stop_datetime'].'</small></th>
+                                                        <th class="col-2"><small>'.$lang['stop_cause'].'</small></th>
+                                                        <th class="col-2"><small>'.$lang['expected_end_date_time'].'</small></th>
+                                                </tr>
+                                        </thead>
+                                        <tbody id="controller_zone_logs"></tbody>
+                                </table>
 			</div>
             		<div class="modal-footer">
                 		<button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
@@ -616,7 +589,7 @@ echo '
         </div>
 </div>';
 
-// Sensors status model
+// status sensors model
 echo '<div class="modal" id="status_sensors" tabindex="-1">
         <div class="modal-dialog">
                 <div class="modal-content">
@@ -625,40 +598,9 @@ echo '<div class="modal" id="status_sensors" tabindex="-1">
                                 <h5 class="modal-title">'.$lang['temperature_sensor'].'</h5>
                         </div>
                         <div class="modal-body">
-                                <p class="text-muted">'.$lang['temperature_sensor_text'].'</p>';
-                                $query = "SELECT * FROM sensors ORDER BY sensor_id asc;";
-                                $results = $conn->query($query);
-				echo '<div class="list-group">';
-					while ($srow = mysqli_fetch_assoc($results)) {
-                                                $s_id = $srow['id'];
-					        $s_name = $srow['name'];
-        					$sensor_id = $srow['sensor_id'];
-        					$sensor_child_id = $srow['sensor_child_id'];
-						$sensor_type_id = $srow['sensor_type_id'];
-                                                $sensor_current_val_1 = $srow['current_val_1'];
-						$query = "SELECT * FROM nodes where id = {$sensor_id} LIMIT 1;";
-						$nresult = $conn->query($query);
-						$nrow = mysqli_fetch_array($nresult);
-						$node_id = $nrow['node_id'];
-						$last_seen = $nrow['last_seen'];
-                                		$batquery = "select * from nodes_battery where node_id = '{$node_id}' ORDER BY id desc limit 1;";
-                                		$batresults = $conn->query($batquery);
-                                		$bcount = mysqli_num_rows($batresults);
-                                		if ($bcount > 0) { $brow = mysqli_fetch_array($batresults); }
-						$unit = SensorUnits($conn,$sensor_type_id);
-						echo '<div class="list-group-item">
-                                        		<div class="form-group row">
-                                                		<div class="text-start">&nbsp&nbsp'.$nrow['node_id'].'_'.$sensor_child_id.' - '.$s_name.'</div>
-                                        		</div>
-							<div class="form-group row">';
-								if ($bcount > 0) { echo '<div class="text-start">&nbsp&nbsp<i class="bi bi-battery-half"></i> '.round($brow ['bat_level'],0).'% - '.$brow ['bat_voltage'].'</div>'; } else { echo '<div class="text-start">&nbsp&nbsp<i class="bi bi-battery-half"></i></div>'; }
-							echo '</div>
-							<div class="form-group row">
-								<div class="d-flex justify-content-between" id="sensor_temp_'.$s_id.'"></div>
-							</div>
-						</div> ';
-					}
-				echo '</div>
+                                <p class="text-muted">'.$lang['temperature_sensor_text'].'</p>
+				<div class="list-group" id="sensor_temps">
+				</div>
 	                        <!-- /.list-group -->
                         </div>
                         <!-- /.modal-body -->
@@ -698,7 +640,7 @@ function sensor_last24h(id, name, node_id, child_id)
 
 <?php
 
-// Sensors status model
+// Sensors  model
 echo '<div class="modal" id="sensors_history" tabindex="-1">
         <div class="modal-dialog">
                 <div class="modal-content">
