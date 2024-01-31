@@ -172,15 +172,23 @@ $(document).ready(function(){
 
         $('#settings_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
         $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
-	$('#sensor_temps').load("ajax_fetch_data.php?id=0&type=16").fadeIn("slow");
+	if ($('#status_sensors').is(':visible')) {
+		$('#sensor_temps').load("ajax_fetch_data.php?id=0&type=16").fadeIn("slow");
+	}
         $('#footer_all_running_time').load("ajax_fetch_data.php?id=0&type=17").fadeIn("slow");
-        $('#controller_zone_logs').load("ajax_fetch_data.php?id=0&type=21").fadeIn("slow");
+        if ($('#sc_z_logs').is(':visible')) {
+	        $('#controller_zone_logs').load("ajax_fetch_data.php?id=0&type=21").fadeIn("slow");
+	}
         $('#system_uptime').load("ajax_fetch_data.php?id=0&type=22").fadeIn("slow");
         $('#cpu_temps').load("ajax_fetch_data.php?id=0&type=23").fadeIn("slow");
         $('#cpu_status').load("ajax_fetch_data.php?id=0&type=25").fadeIn("slow");
 	$('#frost_status').load("ajax_fetch_data.php?id=0&type=26").fadeIn("slow");
-        $('#z_states').load("ajax_fetch_data.php?id=0&type=33").fadeIn("slow");
-        $('#gw_sc_scripts').load("ajax_fetch_data.php?id=0&type=34").fadeIn("slow");
+        if ($('#zones_states').is(':visible')) {
+	        $('#z_states').load("ajax_fetch_data.php?id=0&type=33").fadeIn("slow");
+	}
+        if ($('#status_scripts').is(':visible')) {
+	        $('#gw_sc_scripts').load("ajax_fetch_data.php?id=0&type=34").fadeIn("slow");
+	}
         setTimeout(loop, delay);
   })();
 });
