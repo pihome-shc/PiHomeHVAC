@@ -62,7 +62,7 @@ dbpass = config.get("db", "dbpassword")
 dbname = config.get("db", "dbname")
 
 null_value = None
-minute_timer = time.time()
+hour_timer = time.time()
 gpio_recv = 0
 
 print(bc.dtm + time.ctime() + bc.ENDC + " - DS18B20 Temperature Sensors Script Started")
@@ -70,7 +70,7 @@ print("-" * 70)
 
 # Function for Storing DS18B20 Temperature Readings into MySQL
 def insertDB(IDs, temperature):
-    global minute_timer
+    global hour_timer
     global gpio_recv
     try:
         con = mdb.connect(dbhost, dbuser, dbpass, dbname)
@@ -152,7 +152,7 @@ def insertDB(IDs, temperature):
                 con.commit()
 
                 #update the gateway_logs entry
-                if time.time() - minute_timer <= 60:
+                if time.time() - hour_timer <= 60*60:
                     gpio_recv += 1
                     cur.execute(
                         "UPDATE gateway_logs SET gpio_recv = %s ORDER BY id DESC LIMIT 1;",
@@ -161,7 +161,7 @@ def insertDB(IDs, temperature):
                     con.commit()
                 else:
                     gpio_recv = 0
-                    minute_timer = time.time()
+                    hour_timer = time.time()
 
                 if mode == 1:
                     # Get previous data for this sensorr
