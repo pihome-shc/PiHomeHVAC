@@ -1145,7 +1145,7 @@ if ($type <= 5) {
 				$nresult = $conn->query($query);
         	                $nrowcount = mysqli_num_rows($nresult);
                 	        if ($nrowcount != 0){
-                        		echo '<div class="list-group-item d-flex justify-content-between"><span>'.$lang['gpio_per_minute'].':</span><span class="text-muted small"><em>'.$glrow['gpio_sent'].' - '.$glrow['gpio_recv'].'</em></span></div>';
+                        		echo '<div class="list-group-item d-flex justify-content-between"><span>'.$lang['gpio_per_hour'].':</span><span class="text-muted small"><em>'.$glrow['gpio_sent'].' - '.$glrow['gpio_recv'].'</em></span></div>';
 				}
 			}
 		}
