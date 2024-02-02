@@ -91,6 +91,16 @@ relay_lag_timer = dict()
 # initialise the relay_on_flag
 relay_on_flag = False
 
+#initialize the transaction counters
+mqtt_sent = 0
+mysensor_sent = 0
+gpio_sent = 0
+gpio_recv =0
+minute_timer = time.time()
+hour_timer = time.time()
+clear_minute_timer = False
+clear_hour_timer = False
+
 # Logging exceptions to log file
 logfile = "/var/www/logs/main.log"
 infomsg = "More info in log file: " + logfile
@@ -146,8 +156,20 @@ def set_relays(
     out_payload,
     enable_outgoing,
 ):
+    global mqtt_sent
+    global mysensor_sent
+    global gpio_sent
+    global minute_timer
+    global clear_minute_timer
+
     # node-id ; child-sensor-id ; command ; ack ; type ; payload \n
     if node_type.find("MySensor") != -1 and enable_outgoing == 1:  # process normal node
+        if time.time() - minute_timer <= 60:
+            mysensor_sent += 1
+            clear_minute_timer = False
+        else:
+            mysensor_sent = 0
+            clear_minute_timer = True
         if gatewaytype.find("serial") != -1:
             gw.write(
                 msg.encode("utf-8")
@@ -167,6 +189,11 @@ def set_relays(
             )
             con.commit()
     elif node_type.find("GPIO") != -1 and blinka:  # process GPIO mode
+        if time.time() - minute_timer <= 60 and not clear_minute_timer:
+            gpio_sent += 1
+        else:
+            gpio_sent = 0
+            clear_minute_timer = True
         child_id = str(out_child_id)
         if child_id in pindict:  # check if pin exists for this board
             pin_num = pindict[child_id]  # get pin identification
@@ -223,6 +250,11 @@ def set_relays(
             [n_id, out_child_id],
         )
         if cur.rowcount > 0:
+            if time.time() - minute_timer <= 60 and not clear_minute_timer:
+                mqtt_sent += 1
+            else :
+                mqtt_sent = 0
+                clear_minute_timer = True
             results_mqtt_r = cur.fetchone()
             description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
             mqtt_topic = results_mqtt_r[description_to_index["mqtt_topic"]]
@@ -370,6 +402,14 @@ def on_disconnect(client, userdata, rc):
 
 # To be run when an MQTT message is received to write the sensor value into messages_in
 def on_message(client, userdata, message):
+    global mqtt_msgcount
+    global clear_hour_timer
+    if time.time() - hour_timer <= 60*60:
+        mqtt_msgcount += 1
+        clear_hour_timer = False
+    else:
+        mqtt_msgcount = 0
+        clear_hour_timer = True
     print("\nMQTT messaged received.")
     print("Topic: %s" % message.topic)
     print("Message: %s" % message.payload.decode())
@@ -948,6 +988,7 @@ try:
         print(bc.grn + "Gateway Type:  Virtual", bc.ENDC)
 
     msgcount = 0  # Defining variable for counting messages processed
+    mqtt_msgcount = 0
 
     # Get the network address for use by Tasmota devices
     cur.execute(
@@ -1135,6 +1176,7 @@ try:
             relay_controller_heartbeat_dict[node_id] = time.time()
 
     while 1:
+        #initialize the transaction acounters
         cur.execute("SELECT c_f, test_mode FROM system LIMIT 1")
         row = cur.fetchone()
         system_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
@@ -1352,7 +1394,7 @@ try:
                     in_str = ''
 
             if dbgLevel >= 2:  # Debug print to screen
-                if time.strftime("%S", time.gmtime()) == "00" and msgcount != 0:
+                if time.time() - minute_timer >= 60:
                     print(bc.hed + "\nMessages processed in last 60s:	", msgcount)
                     if gatewaytype == "serial":
                         try:
@@ -1361,7 +1403,8 @@ try:
                             pass
                     print("Date & Time:                 	", time.ctime(), bc.ENDC)
                     msgcount = 0
-                if not sys.getsizeof(in_str) <= 22:
+                    clear_minute_timer = True
+                if not sys.getsizeof(in_str) <= 22 and not clear_minute_timer:
                     msgcount += 1
 
             if (
@@ -2660,6 +2703,36 @@ try:
                                 sys.exit(1)
 
                     # end if not gpio output
+
+        #update the gateway_transactions table
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        try:
+            cur.execute(
+                "UPDATE gateway_logs SET mqtt_sent = %s, mqtt_recv = %s, mysensors_sent = %s, mysensors_recv = %s, gpio_sent = %s, gpio_recv = %s, heartbeat = %s ORDER BY id DESC LIMIT 1;",
+                (mqtt_sent, mqtt_msgcount, mysensor_sent, msgcount, gpio_sent, gpio_recv, timestamp),
+            )
+            con.commit()
+        except mdb.Error as e:
+            # skip deadlock error (being caused when mysqldunp runs
+            if e.args[0] == 1213:
+                pass
+            else:
+                print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                print(traceback.format_exc())
+                logging.error(e)
+                logging.info(traceback.format_exc())
+                con.close()
+                if MQTT_CONNECTED == 1:
+                    mqttClient.disconnect()
+                    mqttClient.loop_stop()
+                print(infomsg)
+                sys.exit(1)
+
+        if clear_minute_timer :
+            minute_timer = time.time()
+        if clear_hour_timer :
+            hour_timer = time.time()
+
         time.sleep(0.1)
         if gatewaytype.find("wifi") != -1:
             fifo.task_done()

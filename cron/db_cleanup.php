@@ -13,7 +13,7 @@ echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
 echo "\033[31m";
 echo "*************************************************************\n";
 echo "* Database Cleanup Script Version 0.1 Build Date 13/05/2018 *\n";
-echo "* Update on 01/02/2024                                      *\n";
+echo "* Update on 10/04/218                                       *\n";
 echo "*                                      Have Fun - PiHome.eu *\n";
 echo "*************************************************************\n";
 echo " \033[0m \n";
@@ -22,8 +22,8 @@ require_once(__DIR__.'../../st_inc/connection.php');
 require_once(__DIR__.'../../st_inc/functions.php');
 
 //Set php script execution time in seconds
-ini_set('max_execution_time', 300);
-echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Database Cleanup Script Started \n";
+ini_set('max_execution_time', 300); 
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Database Cleanup Script Started \n"; 
 
 //Get the delete intervals
 $query = "SELECT * FROM db_cleanup LIMIT 1;";
@@ -38,17 +38,17 @@ $interval_4 = $row['relay_logs'];
 $query = "DELETE FROM messages_in WHERE datetime < DATE_SUB(curdate(), INTERVAL ".$interval_1.");";
 $result = $conn->query($query);
 if (isset($result)) {
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Temperature Records Deleted from Tables \n";
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Temperature Records Deleted from Tables \n"; 
 }else {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Temperature Records Delete from Tables Failed\n";
 	echo mysql_error()."\n";
 }
 
-//Delete Node Battery status older then 3 months.
+//Delete Node Battery status older then 3 months. 
 $query = "DELETE FROM nodes_battery WHERE `update` < DATE_SUB(CURDATE(), INTERVAL ".$interval_2.");";
 $result = $conn->query($query);
 if (isset($result)) {
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Node Battery Records Deleted from Tables \n";
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Node Battery Records Deleted from Tables \n"; 
 }else {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Node Battery Records Delete from Tables Failed\n";
 	echo mysql_error()."\n";
@@ -65,36 +65,36 @@ if (isset($result)) {
         echo mysql_error()."\n";
 }
 
-//Delete Gateway Logs data older then x days but leave the latest record.
+//Delete Gateway Logs data older then 3 days. 
 $query = "DELETE FROM `gateway_logs`
-	WHERE pid_datetime < DATE_SUB(now(), INTERVAL ".$interval_3.") AND id NOT IN (
+	WHERE pid_datetime < DATE_SUB(CURDATE(), INTERVAL ".$interval_3.") AND id != (
   		SELECT id
   		FROM (
     			SELECT id
     			FROM `gateway_logs`
     			ORDER BY id DESC
     			LIMIT 1
-  		) foo
+  		) myselect
 	);";
 $result = $conn->query($query);
 if (isset($result)) {
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Gateway Logs Records Deleted from Tables \n";
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Gateway Logs Records Deleted from Tables \n"; 
 }else {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Gateway Logs Records Delete from Tables Failed\n";
 	echo mysql_error()."\n";
 }
 
-//Delete Relay Logs data older then 3 days.
+//Delete Relay Logs data older then 3 days. 
 $query = "DELETE FROM relay_logs WHERE datetime < DATE_SUB(curdate(), INTERVAL ".$interval_4.");";
 $result = $conn->query($query);
 if (isset($result)) {
-	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Relay Logs Records Deleted from Tables \n";
+	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Relay Logs Records Deleted from Tables \n"; 
 }else {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Relay Logs Records Delete from Tables Failed\n";
 	echo mysql_error()."\n";
 }
 
-echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Database Cleanup Script Ended \n";
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Database Cleanup Script Ended \n"; 
 echo "\033[32m**************************************************************\033[0m  \n";
 if(isset($conn)) { $conn->close();}
 ?>
