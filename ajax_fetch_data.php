@@ -1115,38 +1115,38 @@ if ($type <= 5) {
 			$query = "select * FROM gateway_logs ORDER BY id DESC LIMIT 1;";
 			$result = $conn->query($query);
 			$glrow = mysqli_fetch_array($result);
-		}
-		echo '<div class="list-group-item d-flex justify-content-between"><span>'.$lang['smart_home_gateway_scr'].':</span><span class="text-muted small"><em>'.$gw_restarted.'</em></span></div>';
-		if ($gw_restarted == '0') {
-                        $query = "SELECT *
-                                FROM nodes
-                                LEFT JOIN sensors s ON nodes.id = s.sensor_id
-                                LEFT JOIN relays r ON nodes.id = r.relay_id
-                                WHERE nodes.type LIKE 'MQTT%';";
-                        $mqttresult = $conn->query($query);
-                        $mqttrowcount = mysqli_num_rows($mqttresult);
-			if ($mqttrowcount != 0){
-                		echo '<div class="list-group-item d-flex justify-content-between"><span>'.$lang['mqtt_per_hour'].':</span><span class="text-muted small"><em>'.$glrow['mqtt_sent'].' - '.$glrow['mqtt_recv'].'</em></span></div>';
-			}
-                        $query = "SELECT *
-                                FROM nodes
-                                LEFT JOIN sensors s ON nodes.id = s.sensor_id
-                                LEFT JOIN relays r ON nodes.id = r.relay_id
-                                WHERE nodes.type LIKE 'MySensor%';";
-                        $msresult = $conn->query($query);
-                        $msrowcount = mysqli_num_rows($msresult);
-			if ($msrowcount != 0){
-                        	echo '<div class="list-group-item d-flex justify-content-between"><span>'.$lang['mysensors_per_minute'].':</span><span class="text-muted small"><em>'.$glrow['mysensors_sent'].' - '.$glrow['mysensors_recv'].'</em></span></div>';
-			}
-			$query = "SELECT *
-				FROM nodes
-				LEFT JOIN sensors s ON nodes.id = s.sensor_id
-				LEFT JOIN relays r ON nodes.id = r.relay_id
-				WHERE nodes.type LIKE 'GPIO%' AND nodes.node_id != '0';";
-			$nresult = $conn->query($query);
-                        $nrowcount = mysqli_num_rows($nresult);
-                        if ($nrowcount != 0){
-                        	echo '<div class="list-group-item d-flex justify-content-between"><span>'.$lang['gpio_per_minute'].':</span><span class="text-muted small"><em>'.$glrow['gpio_sent'].' - '.$glrow['gpio_recv'].'</em></span></div>';
+			echo '<div class="list-group-item d-flex justify-content-between"><span>'.$lang['smart_home_gateway_scr'].':</span><span class="text-muted small"><em>'.$gw_restarted.'</em></span></div>';
+			if ($gw_restarted == '0') {
+                	        $query = "SELECT *
+                        	        FROM nodes
+                                	LEFT JOIN sensors s ON nodes.id = s.sensor_id
+	                                LEFT JOIN relays r ON nodes.id = r.relay_id
+        	                        WHERE nodes.type LIKE 'MQTT%';";
+                	        $mqttresult = $conn->query($query);
+                        	$mqttrowcount = mysqli_num_rows($mqttresult);
+				if ($mqttrowcount != 0){
+        	        		echo '<div class="list-group-item d-flex justify-content-between"><span>'.$lang['mqtt_per_hour'].':</span><span class="text-muted small"><em>'.$glrow['mqtt_sent'].' - '.$glrow['mqtt_recv'].'</em></span></div>';
+				}
+                        	$query = "SELECT *
+                                	FROM nodes
+	                                LEFT JOIN sensors s ON nodes.id = s.sensor_id
+        	                        LEFT JOIN relays r ON nodes.id = r.relay_id
+                	                WHERE nodes.type LIKE 'MySensor%';";
+                        	$msresult = $conn->query($query);
+	                        $msrowcount = mysqli_num_rows($msresult);
+				if ($msrowcount != 0){
+                	        	echo '<div class="list-group-item d-flex justify-content-between"><span>'.$lang['mysensors_per_minute'].':</span><span class="text-muted small"><em>'.$glrow['mysensors_sent'].' - '.$glrow['mysensors_recv'].'</em></span></div>';
+				}
+				$query = "SELECT *
+					FROM nodes
+					LEFT JOIN sensors s ON nodes.id = s.sensor_id
+					LEFT JOIN relays r ON nodes.id = r.relay_id
+					WHERE nodes.type LIKE 'GPIO%' AND nodes.node_id != '0';";
+				$nresult = $conn->query($query);
+        	                $nrowcount = mysqli_num_rows($nresult);
+                	        if ($nrowcount != 0){
+                        		echo '<div class="list-group-item d-flex justify-content-between"><span>'.$lang['gpio_per_minute'].':</span><span class="text-muted small"><em>'.$glrow['gpio_sent'].' - '.$glrow['gpio_recv'].'</em></span></div>';
+				}
 			}
 		}
 	echo '</div>
