@@ -267,6 +267,8 @@ def insertDB(IDs, temperature):
 temperature = []
 IDs = []
 skip_count = []
+minute_timer = time.time()
+counter = 0
 while True:
     for filename in os.listdir("/sys/bus/w1/devices"):
         if fnmatch.fnmatch(filename, "28-*"):
@@ -307,4 +309,15 @@ while True:
     old_temperature = temperature  # Update the previous tempearture record
     if len(temperature) > 0:
         insertDB(IDs, temperature)
+        if time.time() - minute_timer <= 60:
+            counter += 1
+        else:
+            counter = 0
+            minute_timer = time.time()
+            cur.execute(
+                "UPDATE gateway_logs SET gpio_sent = %s ORDER BY id DESC LIMIT 1;",
+                (gpio_sent, ),
+            )
+            con.commit()
+
     time.sleep(update_rate)
