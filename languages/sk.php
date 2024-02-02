@@ -1060,5 +1060,5 @@ $lang['reading_timestamp'] = "Sensor Reading Timestamp";
 $lang['unable_to_retrieve_sensor_data'] = "Unable to Retrieve Sensor Data";
 $lang['mqtt_per_hour'] = "MQTT Sent/Received  Messages Per Hour";
 $lang['mysensors_per_minute'] = "MySensors Sent/Received Messages Per Minute";
-$lang['gpio_per_minute'] = "GPIO Sent/Received Messages Per Minute";
+$lang['gpio_per_hour'] = "GPIO Sent/Received Messages Per Hour";
 ?>
