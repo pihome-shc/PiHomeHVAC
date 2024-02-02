@@ -62,12 +62,16 @@ dbpass = config.get("db", "dbpassword")
 dbname = config.get("db", "dbname")
 
 null_value = None
+minute_timer = time.time()
+gpio_recv = 0
 
 print(bc.dtm + time.ctime() + bc.ENDC + " - DS18B20 Temperature Sensors Script Started")
 print("-" * 70)
 
 # Function for Storing DS18B20 Temperature Readings into MySQL
 def insertDB(IDs, temperature):
+    global minute_timer
+    global gpio_recv
     try:
         con = mdb.connect(dbhost, dbuser, dbpass, dbname)
         cur = con.cursor()
@@ -146,6 +150,19 @@ def insertDB(IDs, temperature):
                     [payload, sensor_id],
                 )
                 con.commit()
+
+                #update the gateway_logs entry
+                if time.time() - minute_timer <= 60:
+                    gpio_recv += 1
+                    cur.execute(
+                        "UPDATE gateway_logs SET gpio_recv = %s ORDER BY id DESC LIMIT 1;",
+                        (gpio_recv, ),
+                    )
+                    con.commit()
+                else:
+                    gpio_recv = 0
+                    minute_timer = time.time()
+
                 if mode == 1:
                     # Get previous data for this sensorr
                     cur.execute(
@@ -267,8 +284,6 @@ def insertDB(IDs, temperature):
 temperature = []
 IDs = []
 skip_count = []
-minute_timer = time.time()
-counter = 0
 while True:
     for filename in os.listdir("/sys/bus/w1/devices"):
         if fnmatch.fnmatch(filename, "28-*"):
@@ -309,15 +324,5 @@ while True:
     old_temperature = temperature  # Update the previous tempearture record
     if len(temperature) > 0:
         insertDB(IDs, temperature)
-        if time.time() - minute_timer <= 60:
-            counter += 1
-        else:
-            counter = 0
-            minute_timer = time.time()
-            cur.execute(
-                "UPDATE gateway_logs SET gpio_sent = %s ORDER BY id DESC LIMIT 1;",
-                (gpio_sent, ),
-            )
-            con.commit()
 
     time.sleep(update_rate)

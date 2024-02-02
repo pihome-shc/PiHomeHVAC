@@ -95,7 +95,6 @@ relay_on_flag = False
 mqtt_sent = 0
 mysensor_sent = 0
 gpio_sent = 0
-gpio_recv =0
 minute_timer = time.time()
 hour_timer = time.time()
 clear_minute_timer = False
@@ -2708,8 +2707,8 @@ try:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         try:
             cur.execute(
-                "UPDATE gateway_logs SET mqtt_sent = %s, mqtt_recv = %s, mysensors_sent = %s, mysensors_recv = %s, gpio_sent = %s, gpio_recv = %s, heartbeat = %s ORDER BY id DESC LIMIT 1;",
-                (mqtt_sent, mqtt_msgcount, mysensor_sent, msgcount, gpio_sent, gpio_recv, timestamp),
+                "UPDATE gateway_logs SET mqtt_sent = %s, mqtt_recv = %s, mysensors_sent = %s, mysensors_recv = %s, gpio_sent = %s, heartbeat = %s ORDER BY id DESC LIMIT 1;",
+                (mqtt_sent, mqtt_msgcount, mysensor_sent, msgcount, gpio_sent, timestamp),
             )
             con.commit()
         except mdb.Error as e:
