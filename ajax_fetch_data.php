@@ -1112,6 +1112,8 @@ if ($type <= 5) {
 			$gw_restarted = $rowcount;
 		} else {
 			$gw_restarted = '0';
+                }
+                if ($nopids != 0) {
 			$query = "select * FROM gateway_logs ORDER BY id DESC LIMIT 1;";
 			$result = $conn->query($query);
 			$glrow = mysqli_fetch_array($result);
