@@ -1166,5 +1166,110 @@ if ($type <= 5) {
 		}
 		echo '<div class="list-group-item d-flex justify-content-between"><span>'.$lang['smart_home_gateway_scr'].':</span><span class="text-muted small"><em>'.$sc_restarted.'</em></span></div>';
 	echo '</div>';
+} elseif ($type == 35) {
+        //----------------------
+        //update ethernet modal
+        //-----------------------
+	foreach (scandir("/sys/class/net") as $file) {
+        	if (substr($file, 0, 1) == 'e') {
+                	$eth_name = trim($file);
+        	}
+	}
+	$rxdata = exec ("cat /sys/class/net/".$eth_name."/statistics/rx_bytes");
+	$txdata = exec ("cat /sys/class/net/".$eth_name."/statistics/tx_bytes");
+	$rxdata = $rxdata/1024; // convert to kb
+	$rxdata = $rxdata/1024; // convert to mb
+	$txdata = $txdata/1024; // convert to kb
+	$txdata = $txdata/1024; // convert to mb
+	$nicmac = exec ("cat /sys/class/net/".$eth_name."/address");
+	$nicpeed = exec ("cat /sys/class/net/".$eth_name."/speed");
+	$nicactive = exec ("cat /sys/class/net/".$eth_name."/operstate");
+        echo '<div class="list-group-item">
+		<div class="d-flex justify-content-between">
+			<span>
+				<i class="bi bi-diagram-2-fill green"></i>&nbsp'.$lang['status'].':
+			</span>
+			<span>'.$nicactive.'</span>
+		</div>
+	</div>
+	<div class="list-group-item">
+		<div class="d-flex justify-content-between">
+			<span>
+				<i class="bi bi-diagram-2-fill green"></i>&nbsp'.$lang['speed'].':
+			</span>
+			<span>'.$nicpeed.'Mb</span>
+		</div>
+	</div>
+	<div class="list-group-item">
+		<div class="d-flex justify-content-between">
+			<span>
+				<i class="bi bi-diagram-2-fill green"></i>&nbsp'.$lang['mac'].':
+			</span>
+			<span>'.$nicmac.'</span>
+		</div>
+	</div>
+	<div class="list-group-item">
+		<div class="d-flex justify-content-between">
+			<span>
+				<i class="bi bi-diagram-2-fill green"></i>&nbsp'.$lang['download'].':
+			</span>
+			<span>'.number_format($rxdata,0).' MB</span>
+		</div>
+	</div>
+	<div class="list-group-item">
+		<div class="d-flex justify-content-between">
+			<span>
+				<i class="bi bi-diagram-2-fill green"></i>&nbsp'.$lang['upload'].':
+			</span>
+			<span>'.number_format($txdata,0).' MB</span>
+		</div>
+	</div>';
+} elseif ($type == 36) {
+        //------------------
+        //update wifi modal
+        //------------------
+	$rxwifidata = exec ("cat /sys/class/net/wlan0/statistics/rx_bytes");
+	$txwifidata = exec ("cat /sys/class/net/wlan0/statistics/tx_bytes");
+	$rxwifidata = $rxwifidata/1024; // convert to kb
+	$rxwifidata = $rxwifidata/1024; // convert to mb
+
+	$txwifidata = $txwifidata/1024; // convert to kb
+	$txwifidata = $txwifidata/1024; // convert to mb
+	$wifimac = exec ("cat /sys/class/net/wlan0/address");
+	//$wifipeed = exec ("cat /sys/class/net/wlan0/speed");
+	//$wifipeed = exec("iwconfig wlan0 | grep -i --color quality");
+	$wifistatus = exec ("cat /sys/class/net/wlan0/operstate");
+	echo '<div class="list-group-item">
+		<div class="d-flex justify-content-between">
+                	<span>
+                        	<i class="bi bi-reception-4 green"></i> '.$lang['status'].':
+                	</span>
+                	<span>'.$wifistatus.'</span>
+        	</div>
+	</div>
+	<div class="list-group-item">
+        	<div class="d-flex justify-content-between">
+                	<span>
+                        	<i class="bi bi-reception-4 green"></i> '.$lang['mac'].':
+                	</span>
+                	<span>'.$wifimac.'</span>
+        	</div>
+	</div>
+	<div class="list-group-item">
+        	<div class="d-flex justify-content-between">
+                	<span>
+                        	<i class="bi bi-reception-4 green"></i> '.$lang['download'].':
+                	</span>
+                	<span>'.number_format($rxwifidata,0).' MB</span>
+        	</div>
+	</div>
+	<div class="list-group-item">
+        	<div class="d-flex justify-content-between">
+                	<span>
+                        	<i class="bi bi-reception-4 green"></i> '.$lang['upload'].':
+                	</span>
+                	<span>'.number_format($txwifidata,0).' MB</span>
+        	</div>
+	</div>';
 }
 ?>

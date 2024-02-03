@@ -193,6 +193,14 @@ $(document).ready(function(){
 	        $('#gw_sc_scripts').load("ajax_fetch_data.php?id=0&type=34").fadeIn("slow");
 	}
 
+        if ($('#eth_setup').is(':visible')) {
+                $('#eth_status').load("ajax_fetch_data.php?id=0&type=35").fadeIn("slow");
+        }
+
+        if ($('#wifi_setup').is(':visible')) {
+                $('#wifi_status').load("ajax_fetch_data.php?id=0&type=36").fadeIn("slow");
+        }
+
         $('#settings_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
         $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
 	$('#footer_all_running_time').load("ajax_fetch_data.php?id=0&type=17").fadeIn("slow");
