@@ -249,11 +249,11 @@ def set_relays(
             [n_id, out_child_id],
         )
         if cur.rowcount > 0:
-            if time.time() - minute_timer <= 60 and not clear_minute_timer:
+            if time.time() - hour_timer <= 60*60 and not clear_hour_timer:
                 mqtt_sent += 1
             else :
                 mqtt_sent = 0
-                clear_minute_timer = True
+                clear_hour_timer = True
             results_mqtt_r = cur.fetchone()
             description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
             mqtt_topic = results_mqtt_r[description_to_index["mqtt_topic"]]
