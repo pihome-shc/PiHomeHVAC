@@ -193,7 +193,7 @@ www-data ALL=(ALL) NOPASSWD:/bin/mv myfile1.tmp /etc/wpa_supplicant/wpa_supplica
 www-data ALL=(ALL) NOPASSWD:/sbin/ifconfig eth0
 www-data ALL=/bin/systemctl
 www-data ALL=NOPASSWD: /bin/systemctl
-www-data ALL=(ALL) NOPASSWD:/bin/pkill
+www-data ALL=(ALL) NOPASSWD:/user/bin/pkill
 ';
 if (file_exists($sudoersfile)) {
         $output = shell_exec('cat '.$sudoersfile);
