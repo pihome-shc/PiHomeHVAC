@@ -160,6 +160,8 @@ def set_relays(
     global gpio_sent
     global minute_timer
     global clear_minute_timer
+    global hour_timer
+    global clear_hour_timer
 
     # node-id ; child-sensor-id ; command ; ack ; type ; payload \n
     if node_type.find("MySensor") != -1 and enable_outgoing == 1:  # process normal node
