@@ -643,6 +643,95 @@ echo '<div class="modal" id="zones_states" tabindex="-1">
         <!-- /.modal-dialog -->
 </div>
 <!-- /.modal -->';
+
+// Relays Status Model
+echo '<div class="modal" id="status_relays" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+				<button type="button" class="close" data-bs-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">'.$lang['close'].'</span></button>
+				<h4 class="modal-title">'.$lang['relays_status'].'</h4>
+			</div>
+			<div class="modal-body">
+                                <p class="text-muted">'.$lang['relays_status_text'].'</p>
+                                <div class="list-group" id="relay_states"></div>
+			</div>
+                        <!-- /.modal-body -->
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                        </div>
+                </div>
+                <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->';
+?>
+<script language="javascript" type="text/javascript">
+function relay_log(id, name, relay_id)
+{
+        var myId = id;
+        var myName = name;
+        var myRelayId = relay_id;
+
+        $("#r_hist_id").val(myId);
+        $("#r_hist_name").val(myName);
+
+        var title1 = "<?php echo $lang['log_for_relay'] ?>"
+        var title2 = myName;
+        $('#relay_log_title1').text(title1);
+        $('#relay_log_title2').text(title2);
+        $('#relay_log_text1').text('<?php echo $lang["please_wait_text"] ?>');
+        $('#status_relays').modal('hide');
+        $('#relays_history').modal('show');
+}
+</script>
+
+<?php
+// Relay Log  model
+echo '<div class="modal" id="relays_history" tabindex="-1">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                                <h5 class="modal-title"><div id="relay_log_title1"></div><div id="relay_log_title2"></div></h5>
+                        </div>
+                        <div class="modal-body">
+                                <p class="text-muted" id="relay_log_text1"></p>
+                                <input type="hidden" id="r_hist_id" name="r_hist_id" value="0">
+                                <input type="hidden" id="r_hist_name" name="r_hist_name" value="0">
+                                <table class="table table-fixed">
+                                        <thead>
+                                                <tr>
+                                                        <th style="text-align:center; vertical-align:middle;" class="col-6"><small>'.$lang['relay_log_timestamp'].'</small></th>
+                                                        <th style="text-align:center; vertical-align:middle;" class="col-2"><small>'.$lang['state'].'</small></th>
+                                                        <th style="text-align:center; vertical-align:middle;" class="col-4"><small>'.$lang['zone_mode'].'</small></th>
+                                                 </tr>
+                                        </thead>
+                                        <tbody id= "relay_log_result"></tbody>
+                                </table>
+                        </div>
+                        <!-- /.modal-body -->
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" id="button_relay_log_hide">'.$lang['close'].'</button>
+                        </div>
+                </div>
+                <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->';
+?>
+<script language="javascript" type="text/javascript">
+$("#button_relay_log_hide").on("click", function(){
+        $("#relays_history").modal("show");
+        $('#relays_history').on("hidden.bs.modal", function (e) {
+                $("#status_relays").modal("show");
+        })
+        $("#relays_history").modal("hide");
+});
+</script>
+<?php
 }
 
 if ($model_num == 2) {

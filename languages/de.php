@@ -1034,4 +1034,12 @@ $lang['unable_to_retrieve_sensor_data'] = "Unable to Retrieve Sensor Data";
 $lang['mqtt_per_hour'] = "MQTT Sent/Received  Messages Per Hour";
 $lang['mysensors_per_minute'] = "MySensors Sent/Received Messages Per Minute";
 $lang['gpio_per_hour'] = "GPIO Sent/Received Messages Per Hour";
+$lang['relays_status'] = "Relays Status";
+$lang['relays_status_text'] = "Shows the Current ON/OFF Status of eaxh Relay.<br>Clicking on the Status Indicator will display the Log History for the Associated Relay.";
+$lang['log_for_relay'] = "Log For Relay - ";
+$lang['state'] = "State";
+$lang['relay_log_timestamp'] = "Timestamp";
+$lang['zone_mode'] = "Zone Mode";
+$lang['unable_to_retrieve_relay_log_data'] = "Unable to Retrieve Relay Log Data";
+$lang['relay_logs_for_zone'] = "Relay Logs for the Zone - ";
 ?>

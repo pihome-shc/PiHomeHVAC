@@ -135,6 +135,42 @@ $(document).ready(function(){
 		loadNames();
         }
 
+        if ($('#relays_history').is(':visible')) {
+                myId = document.getElementById("r_hist_id").value;
+                myName = document.getElementById("r_hist_name").value;
+                async function loadRelayLog() {
+                        var response = await fetch('ajax_fetch_relay_log.php?id=' + myId);
+                        var obj = await response.json();
+
+//                      console.log(myId);
+//			console.log(obj);
+                        if (obj.success) {
+                                if (Array.isArray(obj.state[myId])) {
+//                                      console.log(obj.state[myId].length);
+//                                      console.log(obj);
+                                        if (obj.state[myId].length > 0) {
+                                                var table = "" ;
+                                                for (var y = 0; y < obj.state[myId].length; y++){
+                                                        table += '<tr>';
+                                                        table += '<td style="text-align:center; vertical-align:middle;" class="col-6">' + obj.state[myId][y].datetime +'</td>'
+								+ '<td style="text-align:center; vertical-align:middle;" class="col-2">' + obj.state[myId][y].message +'</td>'
+                                                                + '<td style="text-align:center; vertical-align:middle;" class="col-4">' + obj.state[myId][y].zone_mode +'</td>';
+                                                        table += '</tr>';
+                                                }
+                                                document.getElementById("relay_log_result").innerHTML = table;
+                                                var title_text_1 = "<?php echo $lang['relay_logs_for_zone'] ?>" + obj.state[myId][0].zone_name;
+                                                $('#relay_log_text1').text(title_text_1);
+                                        }
+                               }
+                        } else {
+                                var title_text_1 = "<?php echo $lang['unable_to_retrieve_relay_log_data'] ?>";
+                                $('#relay_log_text1').text(title_text_1);
+                        }
+                }
+
+                loadRelayLog();
+        }
+
         if ($('#show_services').is(':visible')) {
 		//create array for service names
 		let obj_services = [
@@ -199,6 +235,10 @@ $(document).ready(function(){
 
         if ($('#wifi_setup').is(':visible')) {
                 $('#wifi_status').load("ajax_fetch_data.php?id=0&type=36").fadeIn("slow");
+        }
+
+        if ($('#status_relays').is(':visible')) {
+                $('#relay_states').load("ajax_fetch_data.php?id=0&type=37").fadeIn("slow");
         }
 
         $('#settings_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");

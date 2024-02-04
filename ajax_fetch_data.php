@@ -1273,5 +1273,32 @@ if ($type <= 5) {
                 	<span>'.number_format($txwifidata,0).' MB</span>
         	</div>
 	</div>';
+} elseif ($type == 37) {
+        //--------------------------
+        //update relay states modal
+        //--------------------------
+        $query = "SELECT * FROM relays ORDER BY relay_id asc;";
+        $results = $conn->query($query);
+        while ($rrow = mysqli_fetch_assoc($results)) {
+                $r_id = $rrow['id'];
+                $r_name = $rrow['name'];
+                $relay_id = $rrow['relay_id'];
+                $relay_child_id = $rrow['relay_child_id'];
+                $relay_type = $rrow['type'];
+                $query = "SELECT payload FROM messages_out where n_id = {$relay_id} AND child_id = {$relay_child_id} LIMIT 1;";
+                $mresult = $conn->query($query);
+                $mrow = mysqli_fetch_array($mresult);
+                $payload = $mrow['payload'];
+		if ($payload == 0) { $r_color = "red"; } else { $r_color = "green"; }
+                echo '<div class="list-group-item">
+                        <div class="form-group row">
+				<div class="d-flex justify-content-between">
+					<span class="text">&nbsp&nbsp'.$r_name.'</span>
+					<span class="text-muted small" data-bs-toggle="tooltip" title="'.$content_msg.'"><button class="btn-circle" style="background-color:'.$r_color.'" onclick="relay_log(`'.$r_id.'`, `'.$r_name.'`, `'.$relay_id.'`);"</button>&nbsp</span>
+
+				</div>
+                        </div>
+		</div>';
+	}
 }
 ?>
