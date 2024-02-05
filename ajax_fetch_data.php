@@ -1289,16 +1289,15 @@ if ($type <= 5) {
                 $mresult = $conn->query($query);
                 $mrow = mysqli_fetch_array($mresult);
                 $payload = $mrow['payload'];
+		$query = "SELECT * FROM relay_logs WHERE relay_id = {$r_id} ORDER BY id DESC;";
+		$lresult = $conn->query($query);
+		$lrow = mysqli_fetch_assoc($lresult);
+                $content_msg = $lrow['zone_mode'];
 		if ($payload == 0) { $r_color = "red"; } else { $r_color = "green"; }
-                echo '<div class="list-group-item">
-                        <div class="form-group row">
-				<div class="d-flex justify-content-between">
-					<span class="text">&nbsp&nbsp'.$r_name.'</span>
-					<span class="text-muted small" data-bs-toggle="tooltip" title="'.$content_msg.'"><button class="btn-circle" style="background-color:'.$r_color.'" onclick="relay_log(`'.$r_id.'`, `'.$r_name.'`, `'.$relay_id.'`);"</button>&nbsp</span>
-
-				</div>
-                        </div>
-		</div>';
+                echo '<tr>
+                        <td class="col-6">'.$r_name.'</td>
+                        <td class="col-2" style="text-align:center; vertical-align:middle;" data-bs-toggle="tooltip" title="'.$content_msg.'"><button class="btn-circle" style="background-color:'.$r_color.'" onclick="relay_log(`'.$r_id.'`, `'.$r_name.'`, `'.$relay_id.'`);"</button></td>
+                </tr>';
 	}
 }
 ?>

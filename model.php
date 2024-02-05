@@ -654,7 +654,15 @@ echo '<div class="modal" id="status_relays" tabindex="-1">
 			</div>
 			<div class="modal-body">
                                 <p class="text-muted">'.$lang['relays_status_text'].'</p>
-                                <div class="list-group" id="relay_states"></div>
+                                <table class="table table-fixed">
+                                        <thead>
+                                                <tr>
+                                                        <th class="col-6"><small>'.$lang['relay_name'].'</small></th>
+                                                        <th class="col-2" style="text-align:center; vertical-align:middle;" class="col-2"><small>'.$lang['state'].'</small></th>
+                                                 </tr>
+                                        </thead>
+                                        <tbody id= "relay_states"></tbody>
+                                </table>
 			</div>
                         <!-- /.modal-body -->
                         <div class="modal-footer">

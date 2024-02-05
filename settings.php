@@ -95,17 +95,13 @@ $(document).ready(function(){
 	//load sensor history if the modal is shown
         if ($('#sensors_history').is(':visible')) {
 		myId = document.getElementById("s_hist_id").value;
-//		console.log(myId);
                 myName = document.getElementById("s_hist_name").value;
         	async function loadNames() {
                 	var response = await fetch('ajax_fetch_temp24h.php?id=' + myId);
                 	var obj = await response.json();
 
-//			console.log(obj.state);
-			if (obj.success) {
+                        if (obj.success) {
                 		if (Array.isArray(obj.state[myId])) {
-//					console.log(obj.state[myId].length);
-//                        		console.log(obj);
                         		if (obj.state[myId].length > 0) {
                                 		var table = "" ;
                                 		for (var y = 0; y < obj.state[myId].length; y++){
@@ -142,12 +138,8 @@ $(document).ready(function(){
                         var response = await fetch('ajax_fetch_relay_log.php?id=' + myId);
                         var obj = await response.json();
 
-//                      console.log(myId);
-//			console.log(obj);
                         if (obj.success) {
                                 if (Array.isArray(obj.state[myId])) {
-//                                      console.log(obj.state[myId].length);
-//                                      console.log(obj);
                                         if (obj.state[myId].length > 0) {
                                                 var table = "" ;
                                                 for (var y = 0; y < obj.state[myId].length; y++){
