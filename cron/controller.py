@@ -87,7 +87,7 @@ def process_pump_relays(
         relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
         relay_id = relay[relay_to_index["relay_id"]]
         relay_child_id = relay[relay_to_index["relay_child_id"]]
-        relay_type = relay[relay_to_index["relay_type"]]
+        relay_type = relay[relay_to_index["type"]]
         relay_on_trigger = relay[relay_to_index["on_trigger"]]
 
         #Get data from nodes table
@@ -99,7 +99,7 @@ def process_pump_relays(
             nodes = cur.fetchone()
             nodes_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
             relay_node_id = nodes[nodes_to_index["node_id"]]
-            relay_type = nodes[nodes_to_index["type"]]
+            relay_node_type = nodes[nodes_to_index["type"]]
 
         #************************************************************************************
         # Pump Wired to Raspberry Pi GPIO Section: Pump Connected Raspberry Pi GPIO.
@@ -2542,7 +2542,7 @@ try:
                 #end for ($row = 0; $row < count($zone_commands); $row++)
 
                 #process any pump relays
-                if not pump_relays_dict:
+                if pump_relays_dict:
                     #array_walk($pump_relays, "process_pump_relays");
                     for key in pump_relays_dict:
                         process_pump_relays(key, pump_relays_dict[key])
