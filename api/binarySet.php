@@ -115,7 +115,7 @@ if(isset($_GET['zonename'])) {
                                         }
 
 
-                                        $query = "UPDATE zone_current_state SET status = '{$status}', status_prev = '{$status_current}' where zone_id = '{$zone_id}';";
+                                        $query = "UPDATE zone_current_state SET status = '{$status}', status_prev = '{$status_current}', add_on_toggle = 1 WHERE zone_id = '{$zone_id}';";
                                         $conn->query($query);
                                         if($conn->query($query)){
                                                 $update = 0;

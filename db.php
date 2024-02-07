@@ -934,7 +934,7 @@ if($what=="add_on"){
                         } else {
                                 if ($new_state == 0) { $mode = 75; } else { $mode = 74; }
                         }
-                        $query = "UPDATE zone_current_state SET mode  = {$mode}, status = {$new_state}, status_prev = {$da} WHERE zone_id = {$wid};";
+                        $query = "UPDATE zone_current_state SET mode  = {$mode}, status = {$new_state}, status_prev = {$da}, add_on_toggle = 1 WHERE zone_id = {$wid};";
                   	if ($conn->query($query)) {
                                 $update_error = 0;
                         } else {

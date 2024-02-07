@@ -26,7 +26,7 @@ print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
 print("* Script to communicate with MySensors Nodes, for more *")
 print("* info please check MySensors API.                     *")
 print("*      Build Date: 18/09/2017                          *")
-print("*      Version 0.24 - Last Modified 14/01/2024         *")
+print("*      Version 0.25 - Last Modified 06/02/2024         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -293,19 +293,19 @@ def set_relays(
             [timestamp, n_id],
         )
         con.commit()
-    # add a log record for relay changes
-    if node_type.find("Tasmota") != -1 :
-        relay_msg = out_payload
-    else :
-        if out_payload == out_on_trigger :
-            relay_msg = "ON"
-        else :
-            relay_msg = "OFF"
+    # add a log record for relay changes, check that this is a relay node
     cur.execute(
         "SELECT `id`, `name`, `type` FROM `relays` WHERE relay_id = (%s) AND relay_child_id = (%s) LIMIT 1",
         (n_id, out_child_id),
     )
     if cur.rowcount > 0:
+        if node_type.find("Tasmota") != -1:
+            relay_msg = out_payload
+        else :
+            if int(out_payload) == int(out_on_trigger) :
+                relay_msg = "ON"
+            else :
+                relay_msg = "OFF"
         relay = cur.fetchone()
         relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
         relay_id = relay[relay_to_index["id"]]
@@ -313,7 +313,11 @@ def set_relays(
         relay_type = relay[relay_to_index["type"]]
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         cur.execute(
-            "SELECT zone_current_state.mode, zr.zone_id, z.name, zr.zone_relay_id FROM zone_current_state JOIN zone_relays zr ON zone_current_state.zone_id = zr.zone_id JOIN zone z ON zr.zone_id = z.id WHERE zr.zone_relay_id = (%s);",
+            """SELECT zone_current_state.mode, zr.zone_id, z.name, zr.zone_relay_id
+               FROM zone_current_state
+               JOIN zone_relays zr ON zone_current_state.zone_id = zr.zone_id
+               JOIN zone z ON zr.zone_id = z.id
+               WHERE zr.zone_relay_id = (%s);""",
             (relay_id,),
         )
         if cur.rowcount > 0:
@@ -343,7 +347,7 @@ def set_relays(
                     (0, 0, relay_id, relay_name, relay_msg, zone_name, mode_msg, timestamp),
                 )
             con.commit()
-        elif relay_type == 1 :
+        elif relay_type == 1 : #Boiler relay
             cur.execute(
                 "SELECT `message` FROM `relay_logs` WHERE relay_id = (%s) ORDER BY id DESC LIMIT 1",
                 (relay_id,),
@@ -632,14 +636,15 @@ def on_message(client, userdata, message):
                             if mode == 0 or (cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((mqtt_payload < last_message_payload - resolution or mqtt_payload > last_message_payload + resolution) or tdelta > sensor_timeout))):
                                 if sensor_timeout > 0 and tdelta > sensor_timeout:
                                     mqtt_payload = last_message_payload
-                                print(
-                                    "5: Adding " + str_attribute + " Reading From Node ID:",
-                                    mqtt_node_id,
-                                    " Child Sensor ID:",
-                                    mqtt_child_sensor_id,
-                                    " PayLoad:",
-                                    mqtt_payload,
-                                )
+                                if dbgLevel >= 2 and dbgMsgIn == 1:
+                                    print(
+                                        "5: Adding " + str_attribute + " Reading From Node ID:",
+                                        mqtt_node_id,
+                                        " Child Sensor ID:",
+                                        mqtt_child_sensor_id,
+                                        " PayLoad:",
+                                        mqtt_payload,
+                                    )
                                 cur_mqtt.execute(
                                     "INSERT INTO `messages_in`(`node_id`, `sync`, `purge`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES (%s, 0, 0, %s, 0, %s, %s)",
                                     [mqtt_node_id, mqtt_child_sensor_id, mqtt_payload, timestamp],
@@ -849,12 +854,13 @@ def on_message(client, userdata, message):
                             ##cur.execute('UPDATE `nodes` SET `last_seen`=now() WHERE node_id = %s', [node_id])
                             con_mqtt.commit()
 
-                print(
-                    "5b: MQTT Sensor Processed on Node ID:",
-                    mqtt_node_id,
-                    " Child Sensor ID:",
-                    mqtt_child_sensor_id,
-                )
+                if dbgLevel >= 2 and dbgMsgIn == 1:
+                    print(
+                        "5b: MQTT Sensor Processed on Node ID:",
+                        mqtt_node_id,
+                        " Child Sensor ID:",
+                        mqtt_child_sensor_id,
+                    )
 
 class ProgramKilled(Exception):
     pass
@@ -1198,7 +1204,8 @@ try:
                 # For WT32-ETH01 Ver 2 Gateways, check that they are sending a regular Heartbeat message
                 if time.time() - heartbeat_timer >= gatewayheartbeat:
                     heartbeat_timer = time.time()
-                    print(bc.grn + "\nNO Heatbeat Message from Gateway", bc.ENDC)
+                    if dbgLevel >= 2 and dbgMsgIn == 1:
+                        print(bc.grn + "\nNO Heatbeat Message from Gateway", bc.ENDC)
                     raise GatewayException("No Heartbeat from Gateway at: - " + gatewaylocation)
 
                 # Send heartbeat message to gateway every 30seconds
