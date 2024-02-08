@@ -2306,7 +2306,7 @@ try:
                         mode_1 = floor(zone_mode_current/10)*10
                         mode_2 = floor(zone_mode/10)*10
 #                        print("mode_1",mode_1,"mode_2",mode_2,"zone_mode_current",zone_mode_current,"zone_mode",zone_mode,"zone_status",zone_status,"zone_status_prev",zone_status_prev,"zone_state",zone_state)
-                        if zone_add_on_toggle:
+                        if zone_add_on_toggle or zone_mode_current != zone_mode:
                             try:
                                 cur.execute(
                                     "UPDATE zone_current_state SET add_on_toggle = 0 WHERE `zone_id` = %s LIMIT 1;",
