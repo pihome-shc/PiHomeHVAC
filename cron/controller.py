@@ -87,7 +87,7 @@ def process_pump_relays(
         relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
         relay_id = relay[relay_to_index["relay_id"]]
         relay_child_id = relay[relay_to_index["relay_child_id"]]
-        relay_type = relay[relay_to_index["relay_type"]]
+        relay_type = relay[relay_to_index["type"]]
         relay_on_trigger = relay[relay_to_index["on_trigger"]]
 
         #Get data from nodes table
@@ -99,7 +99,7 @@ def process_pump_relays(
             nodes = cur.fetchone()
             nodes_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
             relay_node_id = nodes[nodes_to_index["node_id"]]
-            relay_type = nodes[nodes_to_index["type"]]
+            relay_node_type = nodes[nodes_to_index["type"]]
 
         #************************************************************************************
         # Pump Wired to Raspberry Pi GPIO Section: Pump Connected Raspberry Pi GPIO.
@@ -704,9 +704,10 @@ try:
                 )
                 if cur.rowcount == 0:
                     qry_str = """INSERT INTO `zone_current_state`(id, `sync`, `purge`, `zone_id`, `mode`, `status`, `status_prev`, `schedule`, `sch_time_id`, `temp_reading`, `temp_target`,
-                                 `temp_cut_in`, `temp_cut_out`, `controler_fault`, `controler_seen_time`, `sensor_fault`, `sensor_seen_time`, `sensor_reading_time`, `overrun`)
-                                  VALUES ({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {});""".format(
-                                  zone_id, 0, 0, zone_id, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 0,  NULL,  NULL, 0
+                                 `temp_cut_in`, `temp_cut_out`, `controler_fault`, `controler_seen_time`, `sensor_fault`, `sensor_seen_time`,
+                                  `sensor_reading_time`, `overrun`, `add_on_toggle`)
+                                  VALUES ({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {});""".format(
+                                  zone_id, 0, 0, zone_id, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 0,  NULL,  NULL, 0, 0
                                   )
                     cur.execute(qry_str)
                     con.commit()
@@ -724,6 +725,7 @@ try:
                     zone_overrun_prev = zone_current_state[zone_current_state_to_index["overrun"]]
                     zone_mode_current = zone_current_state[zone_current_state_to_index["mode"]]
                     zone_schedule_current = zone_current_state[zone_current_state_to_index["schedule"]]
+                    zone_add_on_toggle = zone_current_state[zone_current_state_to_index["add_on_toggle"]]
 
                     if (zone_id == livetemp_zone_id) and (livetemp_active == 1) and (zone_mode_current == 0):
                         cur.execute(
@@ -2299,66 +2301,77 @@ try:
                         #all zone ids and status to multidimensional Array. and increment array index.
                         zone_log_dict[zone_id] = zone_status
                     else:
-                        #Process Logs Category 1, 2 and 4 logs if zone status has changed
+                        #Process Logs Category 1, 2 and 5 logs if zone status has changed
                         #zone switching ON
                         mode_1 = floor(zone_mode_current/10)*10
                         mode_2 = floor(zone_mode/10)*10
-    #                    print("mode_1",mode_1,"mode_2",mode_1,"zone_mode_current",zone_mode_current,"zone_mode",zone_mode,"zone_status",zone_status,"zone_status_prev",zone_status_prev,"zone_state",zone_state)
-                        if zone_mode_current != zone_mode:
-                            if (mode_1 == 110 and mode_2 == 140) or (mode_1 == 140 and mode_2 == 110):
-                                try:
-                                    cur.execute(
-                                        "UPDATE add_on_logs SET stop_datetime = %s, stop_cause = %s WHERE `zone_id` = %s ORDER BY id DESC LIMIT 1;",
-                                        [time_stamp.strftime("%Y-%m-%d %H:%M:%S"), add_on_stop_cause, zone_id],
-                                    )
-                                    con.commit()  # commit above
-                                    if dbgLevel >= 2:
-                                        print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Add-On Log table updated Successfully.")
-                                except:
-                                    if dbgLevel >= 2:
-                                        print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Add-On Log table update failed.")
-                                if zone_mode == 114 or zone_mode == 21 or  zone_mode == 10:
-                                    qry_str = """INSERT INTO `add_on_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`,
-                                              `expected_end_date_time`) VALUES ({}, {}, {}, '{}', '{}', {}, {},{});""".format(0,0,zone_id,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),add_on_start_cause,NULL,NULL,NULL)
-                                else:
-                                    qry_str = """INSERT INTO `add_on_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`,
-                                              `expected_end_date_time`) VALUES ({}, {}, {}, '{}', '{}', {}, {},'{}');""".format(0,0,zone_id,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),add_on_start_cause,NULL,NULL,add_on_expected_end_date_time)
-                                try:
-                                    cur.execute(qry_str)
-                                    con.commit()
-                                    if dbgLevel >= 2:
-                                        print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Add-On Log table updated Successfully.")
-                                except:
-                                    if dbgLevel >= 2:
-                                        print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Add-On Log table update failed.")
-                            elif zone_status_prev == 0 and  (zone_status == 1 or zone_state  == 1):
-                                if zone_mode == 114 or zone_mode == 21 or  zone_mode == 10 or  zone_mode == 141:
-                                    qry_str = """INSERT INTO `add_on_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`,
-                                              `expected_end_date_time`) VALUES ({}, {}, {}, '{}', '{}', {}, {},{});""".format(0,0,zone_id,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),add_on_start_cause,NULL,NULL,NULL)
-                                else:
-                                    qry_str = """INSERT INTO `add_on_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`,
-                                              `expected_end_date_time`) VALUES ({}, {}, {}, '{}', '{}', {}, {},'{}');""".format(0,0,zone_id,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),add_on_start_cause,NULL,NULL,add_on_expected_end_date_time)
-                                try:
-                                    cur.execute(qry_str)
-                                    con.commit()
-                                    if dbgLevel >= 2:
-                                        print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " -   Add-On Log table updated Successfully.")
-                                except:
-                                    if dbgLevel >= 2:
-                                        print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " -   Add-On Log table update failed.")
-                            #zone switching OFF
-                            elif zone_status_prev == 1 and  zone_status == 0:
-                                try:
-                                    cur.execute(
-                                        "UPDATE add_on_logs SET stop_datetime = %s, stop_cause = %s WHERE `zone_id` = %s ORDER BY id DESC LIMIT 1;",
-                                        [time_stamp.strftime("%Y-%m-%d %H:%M:%S"), add_on_stop_cause, zone_id],
-                                    )
-                                    con.commit()  # commit above
-                                    if dbgLevel >= 2:
-                                        print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Add-On Log table updated Successfully.")
-                                except:
-                                    if dbgLevel >= 2:
-                                        print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Add-On Log table update failed.")
+#                        print("mode_1",mode_1,"mode_2",mode_2,"zone_mode_current",zone_mode_current,"zone_mode",zone_mode,"zone_status",zone_status,"zone_status_prev",zone_status_prev,"zone_state",zone_state)
+                        if zone_add_on_toggle or zone_mode_current != zone_mode:
+                            try:
+                                cur.execute(
+                                    "UPDATE zone_current_state SET add_on_toggle = 0 WHERE `zone_id` = %s LIMIT 1;",
+                                    [zone_id,],
+                                )
+                                con.commit()  # commit above
+                                if dbgLevel >= 2:
+                                    print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - add_on_toggle updated Successfully.")
+                                if (mode_1 == 110 and mode_2 == 140) or (mode_1 == 140 and mode_2 == 110):
+                                    try:
+                                        cur.execute(
+                                            "UPDATE add_on_logs SET stop_datetime = %s, stop_cause = %s WHERE `zone_id` = %s ORDER BY id DESC LIMIT 1;",
+                                            [time_stamp.strftime("%Y-%m-%d %H:%M:%S"), add_on_stop_cause, zone_id],
+                                        )
+                                        con.commit()  # commit above
+                                        if dbgLevel >= 2:
+                                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Add-On Log table updated Successfully.")
+                                    except:
+                                        if dbgLevel >= 2:
+                                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Add-On Log table update failed.")
+                                    if zone_mode == 114 or zone_mode == 21 or  zone_mode == 10:
+                                        qry_str = """INSERT INTO `add_on_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`,
+                                                  `expected_end_date_time`) VALUES ({}, {}, {}, '{}', '{}', {}, {},{});""".format(0,0,zone_id,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),add_on_start_cause,NULL,NULL,NULL)
+                                    else:
+                                        qry_str = """INSERT INTO `add_on_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`,
+                                                  `expected_end_date_time`) VALUES ({}, {}, {}, '{}', '{}', {}, {},'{}');""".format(0,0,zone_id,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),add_on_start_cause,NULL,NULL,add_on_expected_end_date_time)
+                                    try:
+                                        cur.execute(qry_str)
+                                        con.commit()
+                                        if dbgLevel >= 2:
+                                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Add-On Log table updated Successfully.")
+                                    except:
+                                        if dbgLevel >= 2:
+                                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Add-On Log table update failed.")
+                                elif (mode_1 == 0 and mode_2 == 110) or (zone_status_prev == 0 and  (zone_status == 1 or zone_state  == 1)):
+                                    if zone_mode == 114 or zone_mode == 21 or  zone_mode == 10 or  zone_mode == 141:
+                                        qry_str = """INSERT INTO `add_on_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`,
+                                                  `expected_end_date_time`) VALUES ({}, {}, {}, '{}', '{}', {}, {},{});""".format(0,0,zone_id,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),add_on_start_cause,NULL,NULL,NULL)
+                                    else:
+                                        qry_str = """INSERT INTO `add_on_logs`(`sync`, `purge`, `zone_id`, `start_datetime`, `start_cause`, `stop_datetime`, `stop_cause`,
+                                                  `expected_end_date_time`) VALUES ({}, {}, {}, '{}', '{}', {}, {},'{}');""".format(0,0,zone_id,time_stamp.strftime("%Y-%m-%d %H:%M:%S"),add_on_start_cause,NULL,NULL,add_on_expected_end_date_time)
+                                    try:
+                                        cur.execute(qry_str)
+                                        con.commit()
+                                        if dbgLevel >= 2:
+                                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Add-On Log table updated Successfully.")
+                                    except:
+                                        if dbgLevel >= 2:
+                                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Add-On Log table update failed.")
+                                #zone switching OFF
+                                elif (mode_1 !=0  and  mode_2 == 0) or (zone_status_prev == 1 and  zone_status == 0):
+                                    try:
+                                        cur.execute(
+                                            "UPDATE add_on_logs SET stop_datetime = %s, stop_cause = %s WHERE `zone_id` = %s ORDER BY id DESC LIMIT 1;",
+                                            [time_stamp.strftime("%Y-%m-%d %H:%M:%S"), add_on_stop_cause, zone_id],
+                                        )
+                                        con.commit()  # commit above
+                                        if dbgLevel >= 2:
+                                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Add-On Log table updated Successfully.")
+                                    except:
+                                        if dbgLevel >= 2:
+                                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Add-On Log table update failed.")
+                            except:
+                                if dbgLevel >= 2:
+                                    print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - add_on_toggle update failed.")
                         #end process Zone Cat 1 and 2 logs
                     if dbgLevel >= 2:
                         print("-" * line_len)
@@ -2542,7 +2555,7 @@ try:
                 #end for ($row = 0; $row < count($zone_commands); $row++)
 
                 #process any pump relays
-                if not pump_relays_dict:
+                if pump_relays_dict:
                     #array_walk($pump_relays, "process_pump_relays");
                     for key in pump_relays_dict:
                         process_pump_relays(key, pump_relays_dict[key])

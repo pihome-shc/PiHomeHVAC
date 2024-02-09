@@ -32,12 +32,12 @@ if(isset($_GET['id'])) {
 }
 //Form submit
 if (isset($_POST['submit'])) {
-        $holidays_enable = isset($_POST['holidays_enable']) ? $_POST['holidays_enable'] : "0";
+        $holidays_enable = isset($_POST['checkbox0']) ? $_POST['checkbox0'] : "0";
         $start_date_time = $_POST['start_date_time'];
         $end_date_time = $_POST['end_date_time'];
 
-		//Add or Edit Holiday record in Holidays Table
-		$query = "INSERT INTO holidays(id, `sync`, `purge`, status, start_date_time, end_date_time) VALUES ('{$id}', '0', '0', '{$holidays_enable}', '{$start_date_time}','{$end_date_time}') ON DUPLICATE KEY UPDATE sync = VALUES(sync), status = VALUES(status), start_date_time = VALUES(start_date_time), end_date_time = VALUES(end_date_time);";
+	//Add or Edit Holiday record in Holidays Table
+	$query = "INSERT INTO holidays(id, `sync`, `purge`, status, start_date_time, end_date_time) VALUES ('{$id}', '0', '0', '{$holidays_enable}', '{$start_date_time}','{$end_date_time}') ON DUPLICATE KEY UPDATE sync = VALUES(sync), status = VALUES(status), start_date_time = VALUES(start_date_time), end_date_time = VALUES(end_date_time);";
         $result = $conn->query($query);
         if ($result) {
 			if ($id==0){
@@ -92,7 +92,7 @@ if (isset($_POST['submit'])) {
 
 						<!-- Enable Holiday -->
 				                <div class="form-check">
-                                                        <input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" style="accent-color: #ff8839;" type="checkbox" value="1" id="checkbox0" name="holidsys_enable" <?php $check = ($holidays_row['status'] == 1) ? 'checked' : ''; echo $check; ?>>
+                                                        <input class="form-check-input form-check-input-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" style="accent-color: #ff8839;" type="checkbox" value="1" id="checkbox0" name="checkbox0" <?php $check = ($holidays_row['status'] == 1) ? 'checked' : ''; echo $check; ?>>
                                                         <label class="form-check-label" for="checkbox0"> <?php echo $lang['holidays_enable']; ?></label>
 
 							<div class="help-block with-errors"></div>

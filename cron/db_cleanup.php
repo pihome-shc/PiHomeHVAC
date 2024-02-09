@@ -66,7 +66,16 @@ if (isset($result)) {
 }
 
 //Delete Gateway Logs data older then 3 days. 
-$query = "DELETE FROM gateway_logs WHERE pid_datetime < DATE_SUB(curdate(), INTERVAL ".$interval_3.");";
+$query = "DELETE FROM `gateway_logs`
+	WHERE pid_datetime < DATE_SUB(CURDATE(), INTERVAL ".$interval_3.") AND id != (
+  		SELECT id
+  		FROM (
+    			SELECT id
+    			FROM `gateway_logs`
+    			ORDER BY id DESC
+    			LIMIT 1
+  		) myselect
+	);";
 $result = $conn->query($query);
 if (isset($result)) {
 	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Gateway Logs Records Deleted from Tables \n"; 

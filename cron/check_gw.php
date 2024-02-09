@@ -135,7 +135,9 @@ if ($gw_status == '0') {
 		$query = "UPDATE gateway SET pid = '{$out[0]}', pid_running_since = '{$pid_details}' LIMIT 1";
 		$conn->query($query);
 		echo mysqli_error($conn)."\n";
-		$query = "INSERT INTO gateway_logs (`sync`, `purge`, type, location, port, pid, pid_start_time, pid_datetime) VALUES ('0', '0', '{$gw_type}', '{$gw_location}', '{$gw_port}', '{$out[0]}', '{$pid_details}', '{$date_time}' )";
+                $query = "INSERT INTO gateway_logs (`sync`, `purge`, type, location, port, pid, pid_start_time, pid_datetime, mqtt_sent, mqtt_recv, mysensors_sent, mysensors_recv,
+                        gpio_sent, gpio_recv, heartbeat)
+                        VALUES ('0', '0', '{$gw_type}', '{$gw_location}', '{$gw_port}', '{$out[0]}', '{$pid_details}', '{$date_time}', 0, 0, 0, 0, 0, 0, NOW())";
 		$conn->query($query);
 		echo mysqli_error($conn)."\n";
 		echo $line;

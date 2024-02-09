@@ -49,30 +49,6 @@ if ($settings_id == 1) {
 	        if ($frost_sensor_c <= $row["frost_temp"]) { $fcolor = "red"; }
 	}
 }
-
-if ($settings_id <= 3) {
-	echo "
-	<script language='javascript' type='text/javascript'>
-	$('#ajaxModal').on('show.bs.modal', function(e) {
-	    //console.log($(e.relatedTarget).data('ajax'));
-	    $(this).find('#ajaxModalLabel').html('...');
-	    $(this).find('#ajaxModalBody').html('Waiting ...');
-	    $(this).find('#ajaxModalFooter').html('...');
-	    $(this).find('#ajaxModalContent').load($(e.relatedTarget).data('ajax'));
-	});
-	</script>";
-
-        echo "
-        <script language='javascript' type='text/javascript'>
-        $('#ajaxModal_lg').on('show.bs.modal', function(e) {
-            //console.log($(e.relatedTarget).data('ajax'));
-            $(this).find('#ajaxModalLabel').html('...');
-            $(this).find('#ajaxModalBody').html('Waiting ...');
-            $(this).find('#ajaxModalFooter').html('...');
-            $(this).find('#ajaxModalContent').load($(e.relatedTarget).data('ajax'));
-        });
-        </script>";
-}
 ?>
 
 <div class="container-fluid ps-0 pe-0">
@@ -139,9 +115,15 @@ if ($settings_id <= 3) {
 	        			       	<h3 class="status"></small></h3>
 				                </button>
 
-                                                <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-remote="false" data-bs-target="#ajaxModal_lg" data-ajax="ajax.php?Ajax=GetModal_Logs">
+                                                <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#sc_z_logs">
                                                 <h3 class="buttontop"><small><?php echo $lang['sc_zone_logs']; ?></small></h3>
                                                 <h3 class="degre" ><i class="bi bi-table" style="font-size: 1.5rem;"></i></h3>
+                                                <h3 class="status"></small></h3>
+                                                </button>
+
+                                                <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#zones_states">
+                                                <h3 class="buttontop"><small><?php echo $lang['zone_state']; ?></small></h3>
+                                                <h3 class="degre" ><i class="bi  bi-columns-gap orange" style="font-size: 1.5rem;"></i></h3>
                                                 <h3 class="status"></small></h3>
                                                 </button>
 
@@ -151,13 +133,19 @@ if ($settings_id <= 3) {
                                                 <h3 class="status"></small></h3>
                                                 </button>
 
-        	        		        <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Sensors">
+                                                <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style;?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#status_sensors">
 				                <h3 class="buttontop"><small><?php echo $lang['sensors']; ?></small></h3>
-                        		       	<h3 class="degre" ><i class="bi bi-thermometer-half red" style="font-size: 1.5rem;"></i></h3>
+                        		       	<h3 class="degre" ><i class="bi bi-thermometer-half blue" style="font-size: 1.5rem;"></i></h3>
 					        <h3 class="status"></small></h3>
         	        		        </button>
 
-			        	       	<button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Uptime">
+                                                <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#status_relays">
+                                                <h3 class="buttontop"><small><?php echo $lang['relays']; ?></small></h3>
+                                                <h3 class="degre" ><i class="bi bi-shuffle" style="font-size:1.5rem;"></i></h3>
+                                                <h3 class="status"></small></h3>
+                                                </button>
+
+                                                <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style;?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#s_uptime">
 	        				<h3 class="buttontop"><small><?php echo $lang['update_etc']; ?></small></h3>
 						<h3 class="degre" ><i class="bi bi-clock red" style="font-size: 1.5rem;"></i></h3>
 	       					<h3 class="status"></small></h3>
@@ -183,7 +171,7 @@ if ($settings_id <= 3) {
 		        			$system_cc = $result['payload'];
 	        			       	if ($system_cc < $max_cpu_temp - 10){$system_cc="#0bb71b";}elseif ($system_cc < $max_cpu_temp){$system_cc="#F0AD4E";}elseif ($system_cc > $max_cpu_temp){$system_cc="#ff0000";}
 		        	        	?>
-			        		<button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-remote="false"  data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_System">
+                                                <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#cpu_temp_history">
 			               		<h3 class="buttontop"><small><?php echo $lang['system']; ?> &deg;</small></h3>
 	        			        <h3 class="degre" style="margin-top:12px;"><i class="bi bi-cpu-fill" style="font-size: 1.5rem;"></i></h3>
 						<div id="cpu_status">
@@ -276,7 +264,7 @@ if ($settings_id <= 3) {
                                                 <h3 class="status"></small></h3>
                                                 </button>
 
-					        <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_OpenWeather">
+                                                <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="edit_gpio.php" data-bs-toggle="modal" data-bs-target="#modal_openweather">
         					<h3 class="buttontop"><small><?php echo $lang['openweather']; ?></small></h3>
 					        <h3 class="degre" ><i class="bi bi-cloud-sun" style="font-size: 1.5rem;"></i></h3>
 			        		<h3 class="status"></small></h3>
@@ -300,7 +288,7 @@ if ($settings_id <= 3) {
 				        	<h3 class="status"></small></h3>
 	        				</button>
 
-					        <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_MQTT">
+                                                <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#mqtt_connection">
 			        		<h3 class="buttontop"><small><?php echo $lang['mqtt']; ?></small></h3>
                                                 <h3 class="degre" ><img src="images/mqtt_32.png" class="colorize-purple" style="margin-top: -5px" width="25" height="25" alt=""></h3>
 						<h3 class="status"></small></h3>
@@ -332,7 +320,7 @@ if ($settings_id <= 3) {
                                                 <h3 class="status"></small></h3>
                                                 </button>
 
-		        			<button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Services">
+                                                <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#show_services">
 			        		<h3 class="buttontop"><small><?php echo $lang['services']; ?></small></h3>
 	                		        <h3 class="degre" ><i class="bi bi-gear-wide-connected" style="font-size: 1.5rem;"></i></h3>
 					        <h3 class="status"></small></h3>
@@ -516,43 +504,6 @@ if ($settings_id <= 3) {
         		</div>
          		<!-- /.row -->
 
-			<?php if ($settings_id <= 3) { ?>
-				<!-- Generic Ajax Modal -->
-				<div class="modal fade" id="ajaxModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  					<div class="modal-dialog">
-    						<div class="modal-content" id="ajaxModalContent">
-							<div class="modal-header <?php echo theme($conn, $theme, 'text_color'); ?> bg-<?php echo theme($conn, $theme, 'color'); ?>">
-        							<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-								<h5 class="modal-title" id="ajaxModalLabel">...</h5>
-							</div>
-      							<div class="modal-body" id="ajaxModalBody">
-       								<?php echo $lang['waiting']; ?>
-							</div>
-      							<div class="modal-footer" id="ajaxModalFooter">
-        							...
-							</div>
-		    				</div>
-			  		</div>
-				</div>
-
-                                <!-- Generic Ajax Modal Large-->
-                                <div class="modal fade" id="ajaxModal_lg" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog modal-lg">
-                                                <div class="modal-content" id="ajaxModalContent">
-                                                        <div class="modal-header <?php echo theme($conn, $theme, 'text_color'); ?> bg-<?php echo theme($conn, $theme, 'color'); ?>">
-                                                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                                                <h5 class="modal-title" id="ajaxModalLabel">...</h5>
-                                                        </div>
-                                                        <div class="modal-body" id="ajaxModalBody">
-                                                                <?php echo $lang['waiting']; ?>
-                                                        </div>
-                                                        <div class="modal-footer" id="ajaxModalFooter">
-                                                                ...
-                                                        </div>
-                                                </div>
-                                        </div>
-                                </div>
-			<?php } ?>
 			<?php
 			$model_num = $settings_id;
 			include("model.php");

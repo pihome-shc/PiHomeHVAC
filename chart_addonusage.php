@@ -63,7 +63,10 @@ while ($row = mysqli_fetch_assoc($resulta)) {
         $row = mysqli_fetch_array($result);
         $name = $row['name'];
 	// remove any orphan records where start_datetime is set without a previous stop_datetime
-        $query="SELECT id, zone_id, start_datetime, stop_datetime FROM add_on_log_view WHERE zone_id = '{$id}' AND start_datetime > current_timestamp() - interval 24 hour ORDER BY start_datetime ASC;";
+        $query="SELECT id, zone_id, start_datetime, stop_datetime
+		FROM add_on_log_view
+		WHERE zone_id = '{$id}' AND start_datetime > current_timestamp() - interval 24 hour AND stop_datetime IS NOT NULL
+		ORDER BY start_datetime ASC;";
         $results = $conn->query($query);
         $log_count=mysqli_num_rows($results);
         if ($log_count > 0) {

@@ -1056,10 +1056,17 @@ function away($conn,$button) {
 function holidays($conn,$button) {
 	global $button_style;
 
-        $query = "SELECT status FROM holidays WHERE NOW() between start_date_time AND end_date_time AND status = '1' LIMIT 1";
-        $result = $conn->query($query);
-        $holidays_status=mysqli_num_rows($result);
-        if ($holidays_status=='1'){$holidaystatus="red";}elseif ($holidays_status=='0'){$holidaystatus="blueinfo";}
+        $query = "SELECT COUNT(*) AS count_holiday_schedules FROM schedule_daily_time_zone JOIN holidays hs on schedule_daily_time_zone.holidays_id = hs.id WHERE hs.status = 1;";
+        $hresult = $conn->query($query);
+        $hrow = mysqli_fetch_array($hresult);
+        if ($hrow['count_holiday_schedules'] == 0) {
+		$holidaystatus = "black";
+	} else {
+	        $query = "SELECT status FROM holidays WHERE NOW() between start_date_time AND end_date_time AND status = '1' LIMIT 1";
+        	$result = $conn->query($query);
+        	$holidays_status=mysqli_num_rows($result);
+        	if ($holidays_status=='1'){$holidaystatus="red";}elseif ($holidays_status=='0'){$holidaystatus="blueinfo";}
+	}
         echo '<button type="button" class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-circle no-shadow '.$button_style.' mainbtn" onclick="relocate_page(`holidays.php`)">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
         <h3 class="degre"><i class="bi bi-airplane" style="font-size: 1.4rem; color: black"></i></h3>

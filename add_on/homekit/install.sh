@@ -6,36 +6,14 @@
 
 bash /var/www/api/enable_rewrite.sh
 
-echo "Installing/Updating nodejs"
-PROC=$(uname -m)
-if [ "${PROC}" == "armv6l" ]; then
-        echo 'Version' "${PROC}"
-        curl -o node-v11.15.0-linux-armv6l.tar.gz https://nodejs.org/dist/v11.15.0/node-v11.15.0-linux-armv6l.tar.gz
-        tar -xzf node-v11.15.0-linux-armv6l.tar.gz
-        sudo cp -r node-v11.15.0-linux-armv6l/* /usr/local/
-        rm node-v11.15.0-linux-armv6l.tar.gz
-        rm -R node-v11.15.0-linux-armv6l
-elif [ "${PROC}" == "aarch64" ]; then
-        echo 'Version' "${PROC}"
-        curl -o node-v15.13.0-linux-arm64.tar.gz https://nodejs.org/dist/v15.13.0/node-v15.13.0-linux-arm64.tar.gz
-        tar -xzf node-v15.13.0-linux-arm64.tar.gz
-        sudo cp -r node-v15.13.0-linux-arm64/* /usr/local/
-        rm node-v15.13.0-linux-arm64.tar.gz
-        rm -R node-v15.13.0-linux-arm64
-elif [ "${PROC}" == "x86_64" ]; then
-        echo 'Version' "${PROC}"
-        curl -o node-v15.13.0-linux-x64.tar.gz https://nodejs.org/dist/v15.13.0/node-v15.13.0-linux-x64.tar.gz
-        tar -xzf node-v15.13.0-linux-x64.tar.gz
-        sudo cp -r node-v15.13.0-linux-x64/* /usr/local/
-        rm node-v15.13.0-linux-x64.tar.gz
-        rm -R node-v15.13.0-linux-x64
-fi
+echo "Installing npm"
+sudo apt-get install -y npm
 
 echo "Installing Homebridge"
-sudo npm install -g --unsafe-perm homebridge homebridge-config-ui-x
-
-echo "Setup Homebridge Service"
-sudo hb-service install --user homebridge
+curl -sSfL https://repo.homebridge.io/KEY.gpg | sudo gpg --dearmor | sudo tee /usr/share/keyrings/homebridge.gpg  > /dev/null
+echo "deb [signed-by=/usr/share/keyrings/homebridge.gpg] https://repo.homebridge.io stable main" | sudo tee /etc/apt/sources.list.d/homebridge.list > /dev/null
+sudo apt-get update
+sudo apt-get install -y homebridge
 
 echo "Installing the WebHooks Plugin"
 sudo npm install -g homebridge-http-webhooks

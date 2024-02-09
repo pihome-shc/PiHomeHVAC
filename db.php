@@ -934,7 +934,7 @@ if($what=="add_on"){
                         } else {
                                 if ($new_state == 0) { $mode = 75; } else { $mode = 74; }
                         }
-                        $query = "UPDATE zone_current_state SET mode  = {$mode}, status = {$new_state}, status_prev = {$da} WHERE zone_id = {$wid};";
+                        $query = "UPDATE zone_current_state SET mode  = {$mode}, status = {$new_state}, status_prev = {$da}, add_on_toggle = 1 WHERE zone_id = {$wid};";
                   	if ($conn->query($query)) {
                                 $update_error = 0;
                         } else {
@@ -2265,6 +2265,77 @@ if($what=="hide_sensor_relay"){
         	        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
 	                return;
 		}
+        }
+}
+
+//Openweather Update
+if($what=="openweather_update"){
+        if($opp=="update"){
+	        $CityZip =  $_GET['CityZip'];
+        	$inp_City_Zip =  $_GET['inp_City_Zip'];
+                $country_code =  $_GET['country_code'];
+	        $inp_APIKEY =  $_GET['inp_APIKEY'];
+		if ($CityZip == 0) {
+	        	$query = "UPDATE system SET country = '".$country_code."', city = '".$inp_City_Zip."', zip = NULL, openweather_api = '".$inp_APIKEY."';";
+		} else {
+                        $query = "UPDATE system SET country = '".$country_code."', city = NULL, zip = '".$inp_City_Zip."', openweather_api = '".$inp_APIKEY."';";
+		}
+        	$update_error=0;
+	        if($conn->query($query)){
+        	        header('Content-type: application/json');
+                	echo json_encode(array('Success'=>'Success','Query'=>$query));
+	                return;
+        	}else{
+                	header('Content-type: application/json');
+	                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+        	        return;
+        	}
+	}
+}
+
+//Delete MQTT Connection
+if($what=="mqtt_connection"){
+        if($opp=="delete"){
+                $query = "DELETE FROM mqtt WHERE id = '".$wid."';";
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+}
+
+//Add or Update MQTT Connection
+if($what=="mqtt_broker"){
+	$conn_id =  $_GET['conn_id'];
+        $inp_Name =  $_GET['inp_Name'];
+        $inp_Ip =  $_GET['inp_Ip'];
+        $inp_Port =  $_GET['inp_Port'];
+        $inp_Username =  $_GET['inp_Username'];
+        $inp_Password =  enc_passwd($_GET['inp_Password']);
+        $inp_Enabled =  $_GET['inp_Enabled'];
+        $inp_Type =  $_GET['inp_Type'];
+
+        if($conn_id == "0"){
+        	$query = "INSERT INTO `mqtt`(`name`, `ip`, `port`, `username`, `password`, `enabled`, `type`)
+			VALUES ('{$inp_Name}', '{$inp_Ip}', '{$inp_Port}', '{$inp_Username}', '{$inp_Password}', '{$inp_Enabled}', '{$inp_Type}')";
+	} else {
+        	$query = "UPDATE mqtt SET name = '".$inp_Name."', ip = '".$inp_Ip."', Port = '".$inp_Port."', username = '".$inp_Username."', password = '".$inp_Password."',
+			enabled = '".$inp_Enabled."', type = '".$inp_Type."'
+			WHERE id = ".$conn_id.";";
+	}
+        if($conn->query($query)){
+        	header('Content-type: application/json');
+                echo json_encode(array('Success'=>'Success','Query'=>$query));
+                return;
+        }else{
+        	header('Content-type: application/json');
+                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                return;
         }
 }
 ?>
