@@ -1341,6 +1341,7 @@ try:
                                         relay_on_flag = True
                                         relay_lag_timer[relays_id] = 0
                             else:
+                                relay_lag_timer[relays_id] = 0
                                 relay_on_flag = True
 
                             if relay_on_flag:
