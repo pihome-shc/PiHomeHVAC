@@ -1293,7 +1293,7 @@ if ($type <= 5) {
 		$lresult = $conn->query($query);
 		$lrow = mysqli_fetch_assoc($lresult);
                 $content_msg = $lrow['zone_mode'];
-		if ($payload == 0) { $r_color = "red"; } else { $r_color = "green"; }
+		if ($lrow['message'] == "OFF" or $payload == 0) { $r_color = "red"; } else { $r_color = "green"; }
                 echo '<tr>
                         <td class="col-6">'.$r_name.'</td>
                         <td class="col-2" style="text-align:center; vertical-align:middle;" data-bs-toggle="tooltip" title="'.$content_msg.'"><button class="btn-circle" style="background-color:'.$r_color.'" onclick="relay_log(`'.$r_id.'`, `'.$r_name.'`, `'.$relay_id.'`);"</button></td>
