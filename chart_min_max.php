@@ -46,7 +46,10 @@ $min_array = array();
 $max_array = array();
 
 // CSV file to read into an Array
-$csvFile = '/home/pi/my_csv_file.csv';
+$query = "SELECT archive_file FROM graphs LIMIT 1;";
+$result = $conn->query($query);
+$row = mysqli_fetch_array($result);
+$csvFile = $row['archive_file'];
 
 $graph_id=1;
 
