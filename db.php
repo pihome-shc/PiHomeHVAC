@@ -1823,7 +1823,7 @@ if($what=="set_db_cleanup"){
 //enable graph categories to be displayed
 if($what=="enable_graphs"){
         $mask = 0;
-        for ($x = 0; $x <=  5; $x++) {
+        for ($x = 0; $x <=  6; $x++) {
                 $checkbox = 'checkbox_graph'.$x;
                 $enabled =  $_GET[$checkbox];
                 if ($enabled=='true'){$enabled = 1;} else {$enabled = 0;}
@@ -2336,6 +2336,25 @@ if($what=="mqtt_broker"){
         	header('Content-type: application/json');
                 echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
                 return;
+        }
+}
+
+//Graph Archiving
+if($what=="setup_graph_archive"){
+        if($opp=="update"){
+	        $archive_status = $_GET['archive_status'];
+        	$graph_archive_file = $_GET['graph_archive_file'];
+	        if ($archive_status=='true'){$archive_status = '1';} else {$archive_status = '0';}
+		$query = "UPDATE graphs SET archive_enable = '".$archive_status."', archive_file = '".$graph_archive_file."';";
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
         }
 }
 ?>

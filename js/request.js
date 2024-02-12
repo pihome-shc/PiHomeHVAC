@@ -1582,3 +1582,23 @@ function add_update_mqtt_broker(){
     .always(function() {
     });
 }
+
+//Graph Archiving
+function graph_archiving() {
+var idata="w=setup_graph_archive&o=update&archive_status="+document.getElementById("checkbox6").checked;
+    idata+="&graph_archive_file="+document.getElementById("graph_archive_file").value;
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=3"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("setup_graph_archive: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
