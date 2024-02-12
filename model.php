@@ -4329,10 +4329,12 @@ function show_hide_devices()
  var e = document.getElementById("node_type");
  var selected_node_type = e.options[e.selectedIndex].text;
  if(selected_node_type.includes("GPIO") || selected_node_type.includes("MQTT") || selected_node_type.includes("Dummy")) {
-        document.getElementById("add_devices_label").style.visibility = 'hidden';;
+        if(selected_node_type.includes("GPIO") || selected_node_type.includes("Dummy")) {
+                document.getElementById("add_devices_label").style.visibility = 'hidden';;
+        }
         if(selected_node_type.includes("MQTT")) {
                 document.getElementById("mqtt_type_label").style.display = 'block';;
-                document.getElementById("nodes_max_child_id").style.visibility = 'hidden';;
+                document.getElementById("nodes_max_child_id").style.visibility = 'visible';;
         } else {
                 document.getElementById("mqtt_type_label").style.display = 'none';;
         }
