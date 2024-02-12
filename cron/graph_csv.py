@@ -57,13 +57,13 @@ archive_enable = row[graph_to_index["archive_enable"]]
 
 if archive_enable:
     csv_file_path = row[graph_to_index["archive_file"]]
+    archive_pointer = row[graph_to_index["archive_pointer"]]
 
-    sql = 'SELECT name, payload, datetime FROM sensor_graphs ORDER BY name ASC, datetime ASC;'
-    try:
-        cur.execute(sql)
-        rows = cur.fetchall()
-    finally:
-        con.close()
+    cur.execute(
+        "SELECT id, name, payload, datetime FROM sensor_graphs WHERE id > %s ORDER BY name ASC, datetime ASC",
+        (archive_pointer,),
+    )
+    rows = cur.fetchall()
 
     # Continue only if there are rows returned.
     if rows:
@@ -71,24 +71,35 @@ if archive_enable:
         result = list()
 
         # The row name is the first entry for each entity in the description tuple.
-        column_names = list()
-        for i in cur.description:
-            column_names.append(i[0])
+#        column_names = list()
+#        for i in cur.description:
+#            column_names.append(i[0])
 
-    #    result.append(column_names)
+#        result.append(column_names)
+
         name = ''
         payload = ''
         for row in rows:
-            if row[0] != name or row[1] != payload:
+            if row[1] != name or row[2] != payload:
                 result.append(row)
-                name = row[0]
-                payload = row[1]
+                name = row[1]
+                payload = row[2]
+            if row[0] > archive_pointer:
+                archive_pointer = row[0]
 
         # Write result to file.
         with open(csv_file_path, 'a', newline='') as csvfile:
             csvwriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             for row in result:
                 csvwriter.writerow(row)
+
+        # Update the last record added pointer
+        cur.execute(
+            "UPDATE graphs SET archive_pointer = %s;",
+            (archive_pointer,),
+        )
+        con.commit()  # commit above
+
     else:
         sys.exit("No rows found for query: {}".format(sql))
 
