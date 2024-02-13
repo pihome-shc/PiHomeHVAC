@@ -65,7 +65,7 @@ function GetModal_Sensor_Graph($conn)
         } elseif ($type_id == 5) {
                 $title = $lang['pressure'];
         } elseif ($type_id == 7) {
-                $title = $lang['gas$lang['graph_max_text'] = "Maximum Readings by Day";'];
+                $title = $lang['gas'];
         }
         $title = $title.' '.$lang['graph'].' - '.$name;
         $graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
