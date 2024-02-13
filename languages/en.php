@@ -1088,5 +1088,4 @@ $lang['archive_file_path'] = "Full Path Name of Graph Archive File";
 $lang['min_max_graph'] = "Min/Max Graph";
 $lang['pressure'] = "Pressure";
 $lang['gas'] = "Gas";
-
 ?>
