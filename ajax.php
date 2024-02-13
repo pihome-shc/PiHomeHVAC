@@ -1,4 +1,3 @@
-<?php 
 /*
              __  __                             _
             |  \/  |                    /\     (_)
@@ -59,7 +58,15 @@ function GetModal_Sensor_Graph($conn)
 	$nodes_id = $row['sensor_id'];
 	$child_id = $row['sensor_child_id'];
 	$type_id = $row['sensor_type_id'];
-	if ($type_id == 1) { $title = $lang['temperature']; } else { $title = $lang['humidity']; }
+        if ($type_id == 1) {
+                $title = $lang['temperature'];
+        } elseif ($type_id == 2) {
+                $title = $lang['humidity'];
+        } elseif ($type_id == 5) {
+                $title = $lang['pressure'];
+        } elseif ($type_id == 7) {
+                $title = $lang['gas$lang['graph_max_text'] = "Maximum Readings by Day";'];
+        }
         $title = $title.' '.$lang['graph'].' - '.$name;
         $graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
 	$query="SELECT node_id FROM nodes WHERE id = {$nodes_id} LIMIT 1;";
