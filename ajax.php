@@ -1,3 +1,4 @@
+<?php 
 /*
              __  __                             _
             |  \/  |                    /\     (_)
@@ -58,15 +59,15 @@ function GetModal_Sensor_Graph($conn)
 	$nodes_id = $row['sensor_id'];
 	$child_id = $row['sensor_child_id'];
 	$type_id = $row['sensor_type_id'];
-        if ($type_id == 1) {
-                $title = $lang['temperature'];
-        } elseif ($type_id == 2) {
-                $title = $lang['humidity'];
+	if ($type_id == 1) {
+		$title = $lang['temperature'];
+	} elseif ($type_id == 2) {
+		$title = $lang['humidity'];
         } elseif ($type_id == 5) {
                 $title = $lang['pressure'];
         } elseif ($type_id == 7) {
                 $title = $lang['gas'];
-        }
+	}
         $title = $title.' '.$lang['graph'].' - '.$name;
         $graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
 	$query="SELECT node_id FROM nodes WHERE id = {$nodes_id} LIMIT 1;";
@@ -115,21 +116,21 @@ function GetModal_Sensor_Graph($conn)
         var xValues = [...<?php echo $js_array_x ?>];
         var yValues = [...<?php echo $js_array_y ?>];
 
-        var data = [
-                {
-                        type: 'scatter',
-                        x: xValues,
-                        y: yValues,
-                        hoverlabel: {
-                                bgcolor: 'black',
-                                font: {color: 'white'}
-                        },
-                        hovertemplate: 'At: %{x}<extra></extra>' +
+	var data = [
+		{
+  			type: 'scatter',
+  			x: xValues,
+  			y: yValues,
+  			hoverlabel: {
+    				bgcolor: 'black',
+    				font: {color: 'white'}
+  			},
+			hovertemplate: 'At: %{x}<extra></extra>' +
                         '<br><b>' + ytitle + ': </b>: %{y:.2f}\xB0<br>',
-                        showlegend: false,
-                        line: {shape: 'spline', color: '<?php echo $sensor_color[$graph_id]; ?>'}
-                }
-        ];
+			showlegend: false,
+			line: {shape: 'spline', color: '<?php echo $sensor_color[$graph_id]; ?>'}
+		}
+	];
 
 	var layout = {
   		xaxis: {
