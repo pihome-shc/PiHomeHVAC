@@ -96,27 +96,33 @@ function GetModal_Sensor_Graph($conn)
 
         <?php if($type_id == 1) { ?>
                 var ytitle = 'Temperature';
-        <?php } else { ?>
+        <?php } elseif ($type_id == 2) { ?>
                 var ytitle = 'Humidity';
+        <?php } elseif ($type_id == 5) { ?>
+                var ytitle = 'Pressure';
+        <?php } elseif ($type_id == 7) { ?>
+                var ytitle = 'Gas';
+        <?php } else { ?>
+                var ytitle = '';
         <?php } ?>
         var xValues = [...<?php echo $js_array_x ?>];
         var yValues = [...<?php echo $js_array_y ?>];
 
-	var data = [
-		{
-  			type: 'scatter',
-  			x: xValues,
-  			y: yValues,
-  			hoverlabel: {
-    				bgcolor: 'black',
-    				font: {color: 'white'}
-  			},
-			hovertemplate: 'At: %{x}<extra></extra>' +
-                        '<br><b>Temp: </b>: %{y:.2f}\xB0<br>',
-			showlegend: false,
-			line: {shape: 'spline', color: '<?php echo $sensor_color[$graph_id]; ?>'}
-		}
-	];
+        var data = [
+                {
+                        type: 'scatter',
+                        x: xValues,
+                        y: yValues,
+                        hoverlabel: {
+                                bgcolor: 'black',
+                                font: {color: 'white'}
+                        },
+                        hovertemplate: 'At: %{x}<extra></extra>' +
+                        '<br><b>' + ytitle + ': </b>: %{y:.2f}\xB0<br>',
+                        showlegend: false,
+                        line: {shape: 'spline', color: '<?php echo $sensor_color[$graph_id]; ?>'}
+                }
+        ];
 
 	var layout = {
   		xaxis: {
