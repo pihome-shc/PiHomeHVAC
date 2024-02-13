@@ -1085,4 +1085,8 @@ $lang['archive_graphs'] = "Archive Graphs";
 $lang['archive_graphs_text'] = "Archive Sensor Data to a CSV file for those Sensors with Graphing Enabled.";
 $lang['enable_graph_archive'] = "Enable Archiving of Graphs";
 $lang['archive_file_path'] = "Full Path Name of Graph Archive File";
+$lang['min_max_graph'] = "Min/Max Graph";
+$lang['pressure'] = "Pressure";
+$lang['gas'] = "Gas";
+
 ?>
