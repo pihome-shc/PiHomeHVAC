@@ -27,7 +27,7 @@ print("********************************************************")
 print("*               Graph csv File Script                  *")
 print("*                                                      *")
 print("*               Build Date: 09/02/2024                 *")
-print("*       Version 0.01 - Last Modified 12/02/2024        *")
+print("*       Version 0.01 - Last Modified 13/02/2024        *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -54,13 +54,12 @@ cur.execute("SELECT * FROM graphs LIMIT 1")
 row = cur.fetchone()
 graph_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
 archive_enable = row[graph_to_index["archive_enable"]]
-
 if archive_enable:
     csv_file_path = row[graph_to_index["archive_file"]]
-    archive_pointer = row[graph_to_index["archive_pointer"]]
-
+    archive_pointer = row[graph_to_index["archive_pointer"]].strftime("%Y-%m-%d %H:%M:%S")
+    sql = "SELECT name, payload, datetime FROM sensor_graphs WHERE datetime > %s ORDER BY name ASC, datetime ASC"
     cur.execute(
-        "SELECT id, name, payload, datetime FROM sensor_graphs WHERE id > %s ORDER BY name ASC, datetime ASC",
+        sql,
         (archive_pointer,),
     )
     rows = cur.fetchall()
@@ -80,12 +79,13 @@ if archive_enable:
         name = ''
         payload = ''
         for row in rows:
-            if row[1] != name or row[2] != payload:
+            if row[0] != name or row[1] != payload:
                 result.append(row)
-                name = row[1]
-                payload = row[2]
-            if row[0] > archive_pointer:
-                archive_pointer = row[0]
+                name = row[0]
+                payload = row[1]
+            dt = row[2].strftime("%Y-%m-%d %H:%M:%S")
+            if dt > archive_pointer:
+                archive_pointer = dt
 
         # Write result to file.
         with open(csv_file_path, 'a', newline='') as csvfile:
@@ -105,3 +105,4 @@ if archive_enable:
 
 cur.close()
 con.close()
+
