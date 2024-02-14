@@ -36,8 +36,16 @@ line_len = 100; #length of seperator lines
 
 import csv
 import sys
+import time
 import configparser
 import MySQLdb as mdb
+from datetime import datetime
+
+timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+print( "-" * 75)
+print(bc.dtm + time.ctime() + bc.ENDC + ' - Create CSV Archive File Script Started')
+print( "-" * 75)
 
 # Initialise the database access variables
 config = configparser.ConfigParser()
@@ -55,17 +63,18 @@ row = cur.fetchone()
 graph_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
 archive_enable = row[graph_to_index["archive_enable"]]
 if archive_enable:
+    update_flag = False
     csv_file_path = row[graph_to_index["archive_file"]]
     archive_pointer = row[graph_to_index["archive_pointer"]].strftime("%Y-%m-%d %H:%M:%S")
-    sql = "SELECT name, payload, datetime FROM sensor_graphs WHERE datetime > %s ORDER BY name ASC, datetime ASC"
     cur.execute(
-        sql,
+        "SELECT name, payload, datetime FROM sensor_graphs WHERE datetime > %s ORDER BY name ASC, datetime ASC",
         (archive_pointer,),
     )
     rows = cur.fetchall()
 
     # Continue only if there are rows returned.
     if rows:
+        update_flag = True
         # New empty list called 'result'. This will be written to a file.
         result = list()
 
@@ -83,9 +92,6 @@ if archive_enable:
                 result.append(row)
                 name = row[0]
                 payload = row[1]
-            dt = row[2].strftime("%Y-%m-%d %H:%M:%S")
-            if dt > archive_pointer:
-                archive_pointer = dt
 
         # Write result to file.
         with open(csv_file_path, 'a', newline='') as csvfile:
@@ -93,16 +99,60 @@ if archive_enable:
             for row in result:
                 csvwriter.writerow(row)
 
+        print(bc.dtm + time.ctime() + bc.ENDC + ' - ' + str(cur.rowcount) + ' New Sensor Entries Added to Archive File')
+    else:
+        print(bc.dtm + time.ctime() + bc.ENDC + ' - No New Sensor Entries Added to Archive File')
+
+    #get the outside temperature readings for the last 24 hours if it is active
+    cur.execute(
+        "SELECT * FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);"
+    )
+    if cur.rowcount > 0:
+        cur.execute(
+            "SELECT 'Outside Temp' AS name, payload, datetime FROM messages_in WHERE node_id = '1' AND child_id = 0 AND datetime > %s ORDER BY datetime ASC",
+            (archive_pointer,),
+        )
+        rows = cur.fetchall()
+
+        # Continue only if there are rows returned.
+        if rows:
+            update_flag = True
+            # New empty list called 'result'. This will be written to a file.
+            result = list()
+
+            name = ''
+            payload = ''
+            for row in rows:
+                if row[1] != payload:
+                    result.append(row)
+                    name = row[0]
+                    payload = row[1]
+
+            # Write result to file.
+            with open(csv_file_path, 'a', newline='') as csvfile:
+                csvwriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                for row in result:
+                    csvwriter.writerow(row)
+
+            print(bc.dtm + time.ctime() + bc.ENDC + ' - ' + str(cur.rowcount) + ' New Outside Temp Entries Added to Archive File')
+
+        else:
+            print(bc.dtm + time.ctime() + bc.ENDC + ' - NO New Outside Temp Added to Archive File')
+    else:
+        print(bc.dtm + time.ctime() + bc.ENDC + ' - Weather Temperature NOT Active.')
+
+    if update_flag:
         # Update the last record added pointer
         cur.execute(
             "UPDATE graphs SET archive_pointer = %s;",
-            (archive_pointer,),
+            (timestamp,),
         )
         con.commit()  # commit above
+        cur.close()
+        con.close()
+        print( "-" * 75)
+        print(bc.dtm + time.ctime() + bc.ENDC + ' - Updating Archive Pointer to: ' + str(timestamp))
 
-    else:
-        sys.exit("No rows found for query: {}".format(sql))
-
-cur.close()
-con.close()
-
+print( "-" * 75)
+print(bc.dtm + time.ctime() + bc.ENDC + ' - Create CSV Archive File Script Ended')
+print( "-" * 75)
