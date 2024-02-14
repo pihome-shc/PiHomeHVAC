@@ -1888,14 +1888,23 @@ $query = "SELECT * FROM sensors WHERE sensor_type_id = 1 ORDER BY name asc";
 $results = $conn->query($query);
 echo '  <table class="table table-bordered">
     <tr>
-        <th class="col-10"><small>'.$lang['sensor_name'].'</small></th>
+        <th class="col-8"><small>'.$lang['sensor_name'].'</small></th>
         <th class="col-2"><small>'.$lang['graph_num'].'</small></th>
+        <th class="col-2"><small>'.$lang['min_max_graph'].'</small></th>
     </tr>';
 while ($row = mysqli_fetch_assoc($results)) {
+    if ($row['min_max_graph'] == 1) { $enabled_check = 'checked'; } else { $enabled_check = ''; }
     echo '
         <tr>
             <td>'.$row["name"].'</td>
             <td><input id="graph_num'.$row["id"].'" type="text" class="float-left text" style="border: none" name="graph_num" size="3" value="'.$row["graph_num"].'" placeholder="Graph Number" required></td>
+            <td style="text-align:center; vertical-align:middle;">';
+                if ($row['graph_num'] != 0) {
+			echo '<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" id="checkbox_enable_graph'.$row['id'].'" name="enable_archive" value="1" '.$enabled_check.'>';
+		} else {
+			echo "N/A";
+		}
+            echo '</td>
         </tr>';
 }
 echo '
@@ -2543,7 +2552,7 @@ echo '<div class="modal fade" id="display_graphs" tabindex="-1" role="dialog" ar
                                 echo '<tr>
                                         <td>'.$myArr[$x].'</td>
             				<td style="text-align:center; vertical-align:middle;">
-               					<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" id="checkbox_graph'.$x.'" name="enabled" value="1" '.$enabled_check.'>
+						<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" id="checkbox_graph'.$x.'" name="enabled" value="1" '.$enabled_check.'>
             				</td>
                                 </tr>';
 				$m = $m << 1;

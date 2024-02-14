@@ -717,7 +717,10 @@ var x = document.getElementById("zone_graph_body").querySelectorAll("input");
 var i;
 var idata="w=setup_graph&o=update";
     for (i = 0; i < x.length; i++) {
-        idata+="&"+x[i].id+"="+x[i].value;
+        if(x[i].name == "enable_archive")
+             idata+="&"+x[i].id+"="+x[i].checked;
+        else
+             idata+="&"+x[i].id+"="+x[i].value;
     }
     idata+="&wid=0";
     $.get('db.php',idata)

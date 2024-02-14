@@ -1,0 +1,2 @@
+ALTER TABLE `sensors` ADD COLUMN IF NOT EXISTS `min_max_graph` TINYINT(1) NOT NULL DEFAULT '0' AFTER `show_it`;
+

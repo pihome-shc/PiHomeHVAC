@@ -17,8 +17,14 @@
 *************************************************************************"
 */
 
+//set argv1 from cmd line to debug
+if(isset($argv[1])) {
+	require_once('/var/www/st_inc/connection.php');
+	require_once('/var/www/st_inc/functions.php');
+}
+
 //create array of colours for the graphs
-$query ="SELECT name FROM sensors ORDER BY id ASC;";
+$query ="SELECT name FROM sensors ORDER BY name ASC;";
 $results = $conn->query($query);
 $counter = 0;
 $count = mysqli_num_rows($results) + 2; //extra space made for system temperature graph
@@ -41,6 +47,14 @@ echo "<h4>".$lang['graph_min_max']."</h4></p>".$lang['graph_min_text']."</p>";
 <br>
 
 <?php
+//compile an array containg the names of those sensors with min_max_graph set
+$graph_enable = array();
+$query = "SELECT name FROM sensors WHERE min_max_graph = 1;";
+$results = $conn->query($query);
+while ($row = mysqli_fetch_assoc($results)) {
+        $graph_enable[] = $row['name'];
+}
+
 //array to hold the minimum and maximum readings by sensor name and date
 $min_array = array();
 $max_array = array();
@@ -56,37 +70,43 @@ $graph_id=1;
 if (($handle = fopen($csvFile, "r")) !== FALSE) {
         //read first line of csv file
         $data = fgetcsv($handle, 1000, ",");
-        $sensor_name = $label = $data[0];
+        $sensor_name = $data[0];
         $sensor_min = $sensor_max = $data[1];
         $timestamp = $data[2];
         $date = date("d-m-Y",strtotime($timestamp));
-	$min_array[$sensor_name] = array();
-        $max_array[$sensor_name] = array();
 
         //loop through the rest of the file
         while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-                if ($data[0] == $sensor_name && date('d-m-Y', strtotime($data[2])) == $date) {
-                        if ($data[1] < $sensor_min) { $sensor_min = $data[1]; }
-                        if ($data[1] > $sensor_max) { $sensor_max = $data[1]; }
-                } else {
-	                if (!array_key_exists($sensor_name, $min_array)) {
-        	                $min_array[$sensor_name] = array();
-                	}
-			//only going to use the date part from the datetime
-			$pieces = explode(" ", $data[2]);
-                        $min_array[$sensor_name][] = array(strtotime($pieces[0]) * 1000, $sensor_min);
-                        if (!array_key_exists($sensor_name, $max_array)) {
-                                $max_array[$sensor_name] = array();
-                        }
-                        $max_array[$sensor_name][] = array(strtotime($pieces[0]) * 1000, $sensor_max);
-                        $sensor_name = $label = $data[0];
+		if (in_array($sensor_name, $graph_enable)) {
+	                if ($data[0] == $sensor_name && date('d-m-Y', strtotime($data[2])) == $date) {
+                	        if ($data[1] < $sensor_min) { $sensor_min = $data[1]; }
+                        	if ($data[1] > $sensor_max) { $sensor_max = $data[1]; }
+	                } else {
+		                if (!array_key_exists($sensor_name, $min_array)) {
+       			                $min_array[$sensor_name] = array();
+               			}
+				//only going to use the date part from the datetime
+				$pieces = explode(" ", $data[2]);
+       		                $min_array[$sensor_name][] = array(strtotime($pieces[0]) * 1000, $sensor_min);
+               		        if (!array_key_exists($sensor_name, $max_array)) {
+                       		        $max_array[$sensor_name] = array();
+	                        }
+       		                $max_array[$sensor_name][] = array(strtotime($pieces[0]) * 1000, $sensor_max);
+               		        $sensor_name = $data[0];
+                       		$sensor_reading = $sensor_min = $sensor_max = $data[1];
+                        	$date = date("d-m-Y",strtotime($data[2]));
+			}
+		} else {
+                	$sensor_name = $data[0];
                         $sensor_reading = $sensor_min = $sensor_max = $data[1];
-                        $date = date("d-m-Y",strtotime($timestamp));
-                }
+                        $date = date("d-m-Y",strtotime($data[2]));
+		}
 	}
-        // add last sensor entry
-	$min_array[$sensor_name][] = array(strtotime($pieces[0]) * 1000, $sensor_min);
-        $max_array[$sensor_name][] = array(strtotime($pieces[0]) * 1000, $sensor_max);
+        // if last sensor in the csv file is to be archived, then capture the last data
+	if ($sensor_name == end($graph_enable)) {
+		$min_array[$sensor_name][] = array(strtotime($pieces[0]) * 1000, $sensor_min);
+	        $max_array[$sensor_name][] = array(strtotime($pieces[0]) * 1000, $sensor_max);
+	}
         fclose($handle);
 }
 ?>

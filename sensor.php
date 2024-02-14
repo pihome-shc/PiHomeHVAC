@@ -49,6 +49,7 @@ if (isset($_POST['submit'])) {
 	$frost_temp = $_POST['frost_temp'];
 	if ($frost_temp == 0) { $frost_controller = 0; } else { $frost_controller = $_POST['frost_controller']; }
         $show_it = $_POST['show_it'];
+        $min_max_graph = $_POST['min_max_graph'];
         $graph_num = $_POST['graph_num'];
         $message_in = $_POST['message_in'];
 	$mode = $_POST['mode'];
@@ -59,13 +60,13 @@ if (isset($_POST['submit'])) {
 
         if ($id==0){
                 $query = "INSERT INTO `sensors` (`id`, `sync`, `purge`, `zone_id`, `sensor_id`, `sensor_child_id`, `correction_factor`, `sensor_type_id`, `index_id`, `pre_post`,
-                          `name`, `graph_num`, `show_it`, `message_in`, `frost_temp`, `frost_controller`, `mode`, `timeout`, `resolution`, `current_val_1`, `current_val_2`, `user_display`)
+                          `name`, `graph_num`, `show_it`, `min_max_graph`, `message_in`, `frost_temp`, `frost_controller`, `mode`, `timeout`, `resolution`, `current_val_1`, `current_val_2`, `user_display`)
                            VALUES ('{$id}', '{$sync}', '{$purge}', '0', '{$sensor_id}', '{$sensor_child_id}', '{$correction_factor}', '{$sensor_type_id}', '{$index_id}',
-                           '{$pre_post}', '{$name}', '0', '1', 1, '{$frost_temp}', '{$frost_controller}', '{$mode}', '{$timeout}', '{$resolution}', 0, 0, 0);";
+                           '{$pre_post}', '{$name}', '0', '1', '0', 1, '{$frost_temp}', '{$frost_controller}', '{$mode}', '{$timeout}', '{$resolution}', 0, 0, 0);";
         } else {
                 $query = "UPDATE `sensors` SET `sync` = '{$sync}',`purge` = '{$purge}',`sensor_id` = '{$sensor_id}',`sensor_child_id` = '{$sensor_child_id}',
                          `correction_factor` = '{$correction_factor}',`sensor_type_id` = '{$sensor_type_id}',`index_id` = '{$index_id}',`pre_post` = '{$pre_post}',
-                          `name` = '{$name}',`graph_num` = '{$graph_num}',`show_it` = '{$show_it}',`message_in` = '{$message_in}',`frost_temp` = '{$frost_temp}',`frost_controller` = '{$frost_controller}',
+                          `name` = '{$name}',`graph_num` = '{$graph_num}',`show_it` = '{$show_it}',`min_max_graph` = '{$min_max_graph}',`message_in` = '{$message_in}',`frost_temp` = '{$frost_temp}',`frost_controller` = '{$frost_controller}',
                           `mode` = '{$mode}', `timeout` = '{$timeout}', `resolution` = '{$resolution}' WHERE `id` = {$id};";
         }
 	$result = $conn->query($query);
@@ -269,6 +270,7 @@ if (isset($_POST['submit'])) {
 						<input type="hidden" id="graph_num" name="graph_num" value="<?php echo $row['graph_num']?>"/>
 						<input type="hidden" id="show_it" name="show_it" value="<?php echo $row['show_it']?>"/>
                                                 <input type="hidden" id="message_in" name="message_in" value="<?php echo $row['message_in']?>"/>
+                                                <input type="hidden" id="min_max_graph" name="min_max_graph" value="<?php echo $row['min_max_graph']?>"/>
 
 						<!-- Temperature Sensor Child ID -->
 						<div class="form-group" class="control-label" id="sensor_child_id_label" style="display:block"><label><?php echo $lang['sensor_child_id']; ?></label> <small class="text-muted"><?php echo $lang['sensor_child_id_info'];?></small>

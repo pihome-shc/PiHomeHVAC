@@ -1506,9 +1506,12 @@ if($what=="setup_graph"){
         $results = $conn->query($sel_query);
         $update_error = 0;
         while ($row = mysqli_fetch_assoc($results) and $update_error == 0) {
-                $input = 'graph_num'.$row['id'];
-                $graph_num =  $_GET[$input];
-                $query = "UPDATE sensors SET graph_num = ".$graph_num." WHERE id = ".$row['id']." LIMIT 1;";
+                $input1 = 'graph_num'.$row['id'];
+                $graph_num =  $_GET[$input1];
+                $input2 = 'checkbox_enable_graph'.$row['id'];
+                $enabled =  $_GET[$input2];
+                if ($enabled=='true'){$enabled = '1';} else {$enabled = '0';}
+                $query = "UPDATE sensors SET graph_num = ".$graph_num.", min_max_graph = ".$enabled." WHERE id = ".$row['id']." LIMIT 1;";
                 if(!$conn->query($query)){
                         $update_error = 1;
                 }
