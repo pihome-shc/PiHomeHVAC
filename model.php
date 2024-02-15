@@ -1866,55 +1866,63 @@ echo '
 </div>';
 
 //Graph model
-echo '
-<div class="modal fade" id="zone_graph" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
-                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['graph_settings'].'</h5>
-                <div class="dropdown float-right">
-                        <a class="" data-bs-toggle="dropdown" href="#">
-                                <i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-'.theme($conn, settings($conn, 'theme'), 'color').'">
-                                <li><a class="dropdown-item" href="pdf_download.php?file=displaying_temperature_sensors_graphs.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['displaying_temperature_sensors_graphs'].'</a></li>
-                        </ul>
-                </div>
-            </div>
-            <div class="modal-body" id="zone_graph_body">
-<p class="text-muted">'.$lang['graph_settings_text'].'</p>';
-$query = "SELECT * FROM sensors WHERE sensor_type_id = 1 ORDER BY name asc";
-$results = $conn->query($query);
-echo '  <table class="table table-bordered">
-    <tr>
-        <th class="col-8"><small>'.$lang['sensor_name'].'</small></th>
-        <th class="col-2"><small>'.$lang['graph_num'].'</small></th>
-        <th class="col-2"><small>'.$lang['min_max_graph'].'</small></th>
-    </tr>';
-while ($row = mysqli_fetch_assoc($results)) {
-    if ($row['min_max_graph'] == 1) { $enabled_check = 'checked'; } else { $enabled_check = ''; }
-    echo '
-        <tr>
-            <td>'.$row["name"].'</td>
-            <td><input id="graph_num'.$row["id"].'" type="text" class="float-left text" style="border: none" name="graph_num" size="3" value="'.$row["graph_num"].'" placeholder="Graph Number" required></td>
-            <td style="text-align:center; vertical-align:middle;">';
-                if ($row['graph_num'] != 0) {
-			echo '<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" id="checkbox_enable_graph'.$row['id'].'" name="enable_archive" value="1" '.$enabled_check.'>';
-		} else {
-			echo "N/A";
-		}
-            echo '</td>
-        </tr>';
-}
-echo '
-</table></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
-                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="setup_graph()">
-            </div>
-        </div>
-    </div>
+echo '<div class="modal fade" id="zone_graph" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+        	<div class="modal-content">
+            		<div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                		<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                		<h5 class="modal-title">'.$lang['graph_settings'].'</h5>
+                		<div class="dropdown float-right">
+                        		<a class="" data-bs-toggle="dropdown" href="#">
+                                		<i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
+                        		</a>
+                        		<ul class="dropdown-menu dropdown-menu-'.theme($conn, settings($conn, 'theme'), 'color').'">
+                                		<li><a class="dropdown-item" href="pdf_download.php?file=displaying_temperature_sensors_graphs.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['displaying_temperature_sensors_graphs'].'</a></li>
+                        		</ul>
+                		</div>
+            		</div>
+            		<div class="modal-body" id="zone_graph_body">
+				<p class="text-muted">'.$lang['graph_settings_text'].'</p>';
+				$query = "SELECT id, name, graph_num, min_max_graph, name AS sname
+					FROM sensors
+					WHERE sensor_type_id = 1
+					UNION
+					SELECT 0 AS id, 'Outside Temp' AS name, -1 AS graph_num, enable_archive AS min_max_graph, 'zzz' AS sname
+					FROM weather
+					ORDER BY sname ASC;";
+				$results = $conn->query($query);
+				echo '<table class="table table-bordered">
+    					<tr>
+        					<th class="col-8"><small>'.$lang['sensor_name'].'</small></th>
+        					<th class="col-2"><small>'.$lang['graph_num'].'</small></th>
+        					<th class="col-2"><small>'.$lang['min_max_graph'].'</small></th>
+    					</tr>';
+					while ($row = mysqli_fetch_assoc($results)) {
+    						if ($row['min_max_graph'] == 1) { $enabled_check = 'checked'; } else { $enabled_check = ''; }
+    						echo '<tr>
+            						<td>'.$row["name"].'</td>';
+							if ($row['graph_num'] == -1) {
+								echo '<td>N/A</td>';
+							} else {
+            							echo '<td><input id="graph_num'.$row["id"].'" type="text" class="float-left text" style="border: none" name="graph_num" size="3" value="'.$row["graph_num"].'" placeholder="Graph Number" required></td>';
+							}
+            						echo '<td style="text-align:center; vertical-align:middle;">';
+                						if ($row['graph_num'] != 0) {
+									echo '<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" id="checkbox_enable_graph'.$row['id'].'" name="enable_archive" value="1" '.$enabled_check.'>';
+								} else {
+									echo "N/A";
+								}
+            						echo '</td>
+        					</tr>';
+					}
+				echo '</table>
+			</div>
+            		<div class="modal-footer">
+                		<button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                		<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="setup_graph()">
+            		</div>
+        	</div>
+    	</div>
 </div>';
 
 //Sensor Limits model

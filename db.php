@@ -1502,7 +1502,13 @@ if($what=="setup_email"){
 
 //Setup Graph Setting
 if($what=="setup_graph"){
-        $sel_query = "SELECT `id` FROM sensors WHERE sensor_type_id = 1 ORDER BY name asc;";
+	$sel_query = "SELECT id, name, graph_num, min_max_graph, name AS sname
+			FROM sensors
+			WHERE sensor_type_id = 1
+ 			UNION
+			SELECT 0 AS id, 'Outside Temp' AS name, '' AS graph_num, enable_archive AS min_max_graph, 'zzz' AS sname
+			FROM weather
+	ORDER BY sname ASC;";
         $results = $conn->query($sel_query);
         $update_error = 0;
         while ($row = mysqli_fetch_assoc($results) and $update_error == 0) {
@@ -1511,7 +1517,11 @@ if($what=="setup_graph"){
                 $input2 = 'checkbox_enable_graph'.$row['id'];
                 $enabled =  $_GET[$input2];
                 if ($enabled=='true'){$enabled = '1';} else {$enabled = '0';}
-                $query = "UPDATE sensors SET graph_num = ".$graph_num.", min_max_graph = ".$enabled." WHERE id = ".$row['id']." LIMIT 1;";
+		if ($row['id'] == 0) {
+			$query = "UPDATE weather SET enable_archive = ".$enabled." LIMIT 1;";
+		} else {
+	                $query = "UPDATE sensors SET graph_num = ".$graph_num.", min_max_graph = ".$enabled." WHERE id = ".$row['id']." LIMIT 1;";
+		}
                 if(!$conn->query($query)){
                         $update_error = 1;
                 }
