@@ -125,13 +125,13 @@ if archive_enable:
             # New empty list called 'result'. This will be written to a file.
             result = list()
 
-            name = ''
+            id = ''
             payload = ''
             for row in rows:
-                if row[1] != payload:
+                if row[2] != payload:
                     result.append(row)
-                    name = row[0]
-                    payload = row[1]
+                    id = row[0]
+                    payload = row[2]
 
             # Write result to file.
             with open(csv_file_path, 'a', newline='') as csvfile:
