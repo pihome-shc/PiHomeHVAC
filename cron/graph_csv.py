@@ -90,13 +90,13 @@ if archive_enable:
 
 #        result.append(column_names)
 
-        name = ''
+        id = ''
         payload = ''
         for row in rows:
-            if row[0] != name or row[1] != payload:
+            if row[0] != id or row[2] != payload:
                 result.append(row)
-                name = row[0]
-                payload = row[1]
+                id = row[0]
+                payload = row[2]
 
         # Write result to file.
         with open(csv_file_path, 'a', newline='') as csvfile:
