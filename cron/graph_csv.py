@@ -114,7 +114,7 @@ if archive_enable:
     )
     if cur.rowcount > 0:
         cur.execute(
-            "SELECT 0 AS id, payload, datetime FROM messages_in WHERE node_id = '1' AND child_id = 0 AND datetime > %s ORDER BY datetime ASC;",
+            "SELECT 0 AS id, 'Outside Temp' AS name, payload, datetime FROM messages_in WHERE node_id = '1' AND child_id = 0 AND datetime > %s ORDER BY datetime ASC;",
             (archive_pointer,),
         )
         rows = cur.fetchall()
