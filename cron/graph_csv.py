@@ -67,7 +67,12 @@ if archive_enable:
     csv_file_path = row[graph_to_index["archive_file"]]
     archive_pointer = row[graph_to_index["archive_pointer"]].strftime("%Y-%m-%d %H:%M:%S")
     cur.execute(
-        "SELECT name, payload, datetime FROM sensor_graphs WHERE datetime > %s ORDER BY name ASC, datetime ASC",
+        """SELECT sensors.id, sg.payload, sg.datetime
+           FROM sensors
+           JOIN nodes n ON n.id = sensors.sensor_id
+           JOIN sensor_graphs sg ON sg.node_id = n.node_id AND sg.child_id = sensors.sensor_child_id
+           WHERE sg.datetime > %s
+           ORDER BY sg.name ASC, sensor_type_id, sg.datetime ASC;""",
         (archive_pointer,),
     )
     rows = cur.fetchall()
@@ -109,7 +114,7 @@ if archive_enable:
     )
     if cur.rowcount > 0:
         cur.execute(
-            "SELECT 'Outside Temp' AS name, payload, datetime FROM messages_in WHERE node_id = '1' AND child_id = 0 AND datetime > %s ORDER BY datetime ASC",
+            "SELECT 0 AS id, payload, datetime FROM messages_in WHERE node_id = '1' AND child_id = 0 AND datetime > %s ORDER BY datetime ASC;",
             (archive_pointer,),
         )
         rows = cur.fetchall()

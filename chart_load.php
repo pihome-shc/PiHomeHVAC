@@ -489,10 +489,17 @@ Timeformat specifiers
                 var x = item.datapoint[0];
                 var y = item.datapoint[1];
                 var color = item.series.color;
+                if (item.series.stype == "1") {
+                        var stype = "Temperature";
+                        var units = "&deg";
+                } else {
+                        var stype = "Humidity";
+                        var units = "%";
+                }
                 showTooltip(item.pageX,
                         item.pageY,
                         color,
-                        "<strong>" + item.series.label + "</strong> At: " + weekday[new Date(x).getDay()] + " " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"<br> <strong><?php echo $lang['temp']; ?>  : " + $.formatNumber(y, { format: "#,###", locale: "us" }) + "&deg</strong> ");
+                        "<strong>" + item.series.label + "</strong> At: " + weekday[new Date(x).getDay()] + " " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"<br> <strong>" + stype + "  : " + $.formatNumber(y, { format: "#,###", locale: "us" }) + units + "</strong> ");
             }
         } else {
             $("#tooltip").remove();
@@ -547,10 +554,17 @@ Timeformat specifiers
                 var x = item.datapoint[0];
                 var y = item.datapoint[1];
                 var color = item.series.color;
+		if (item.series.stype == '1') {
+                        var stype = "Temperature";
+			var units = "&deg";
+		} else {
+			var stype = "Humidity";
+			var units = "%";
+		}
                 showTooltip(item.pageX,
                         item.pageY,
                         color,
-                        "<strong>" + item.series.label + "</strong> At: " + weekday[new Date(x).getDay()] + " " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"<br> <strong><?php echo $lang['temp']; ?>  : " + $.formatNumber(y, { format: "#,###", locale: "us" }) + "&deg</strong> ");
+                        "<strong>" + item.series.label + "</strong> At: " + weekday[new Date(x).getDay()] + " " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"<br> <strong>" + stype + "  : " + $.formatNumber(y, { format: "#,###", locale: "us" }) + units + "</strong> ");
             }
         } else {
             $("#tooltip").remove();
