@@ -67,7 +67,7 @@ if archive_enable:
     csv_file_path = row[graph_to_index["archive_file"]]
     archive_pointer = row[graph_to_index["archive_pointer"]].strftime("%Y-%m-%d %H:%M:%S")
     cur.execute(
-        """SELECT sensors.id, sg.payload, sg.datetime
+        """SELECT sensors.id, sensors.name, sg.payload, sg.datetime
            FROM sensors
            JOIN nodes n ON n.id = sensors.sensor_id
            JOIN sensor_graphs sg ON sg.node_id = n.node_id AND sg.child_id = sensors.sensor_child_id

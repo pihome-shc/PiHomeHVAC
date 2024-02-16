@@ -83,18 +83,18 @@ if (($handle = fopen($csvFile, "r")) !== FALSE) {
         //read first line of csv file
         $data = fgetcsv($handle, 1000, ",");
         $sensor_id = $data[0];
-        $sensor_min = $sensor_max = $data[1];
+        $sensor_min = $sensor_max = $data[2];
         //only going to use the date part from the datetime
-        $date = date("d-m-Y",strtotime($data[2]));
+        $date = date("d-m-Y",strtotime($data[3]));
 
         //loop through the rest of the file
         while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
 		if (in_array($sensor_id, $graph_enable)) {
                         //only going to use the date part from the datetime
-                        $record_date = date("d-m-Y",strtotime($data[2]));
+                        $record_date = date("d-m-Y",strtotime($data[3]));
 	                if ($data[0] == $sensor_id && $record_date == $date) {
-                	        if ($data[1] < $sensor_min) { $sensor_min = $data[1]; }
-                        	if ($data[1] > $sensor_max) { $sensor_max = $data[1]; }
+                	        if ($data[2] < $sensor_min) { $sensor_min = $data[2]; }
+                        	if ($data[2] > $sensor_max) { $sensor_max = $data[2]; }
 	                } else {
 		                if (!array_key_exists($sensor_id, $min_array)) {
        			                $min_array[$sensor_id] = array();
@@ -105,14 +105,14 @@ if (($handle = fopen($csvFile, "r")) !== FALSE) {
 	                        }
        		                $max_array[$sensor_id][] = array(strtotime($date) * 1000, $sensor_max);
                		        $sensor_id = $data[0];
-                       		$sensor_reading = $sensor_min = $sensor_max = $data[1];
+                       		$sensor_reading = $sensor_min = $sensor_max = $data[2];
                         	$date = $record_date;
 			}
 		} else {
                 	$sensor_id = $data[0];
-                        $sensor_reading = $sensor_min = $sensor_max = $data[1];
+                        $sensor_reading = $sensor_min = $sensor_max = $data[2];
                         //only going to use the date part from the datetime
-                        $date = date("d-m-Y",strtotime($data[2]));
+                        $date = date("d-m-Y",strtotime($data[3]));
 		}
 	}
         // if last sensor in the csv file is to be archived, then capture the last data
