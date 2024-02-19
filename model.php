@@ -1866,46 +1866,63 @@ echo '
 </div>';
 
 //Graph model
-echo '
-<div class="modal fade" id="zone_graph" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
-                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['graph_settings'].'</h5>
-                <div class="dropdown float-right">
-                        <a class="" data-bs-toggle="dropdown" href="#">
-                                <i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-'.theme($conn, settings($conn, 'theme'), 'color').'">
-                                <li><a class="dropdown-item" href="pdf_download.php?file=displaying_temperature_sensors_graphs.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['displaying_temperature_sensors_graphs'].'</a></li>
-                        </ul>
-                </div>
-            </div>
-            <div class="modal-body" id="zone_graph_body">
-<p class="text-muted">'.$lang['graph_settings_text'].'</p>';
-$query = "SELECT * FROM sensors WHERE sensor_type_id = 1 ORDER BY name asc";
-$results = $conn->query($query);
-echo '  <table class="table table-bordered">
-    <tr>
-        <th class="col-10"><small>'.$lang['sensor_name'].'</small></th>
-        <th class="col-2"><small>'.$lang['graph_num'].'</small></th>
-    </tr>';
-while ($row = mysqli_fetch_assoc($results)) {
-    echo '
-        <tr>
-            <td>'.$row["name"].'</td>
-            <td><input id="graph_num'.$row["id"].'" type="text" class="float-left text" style="border: none" name="graph_num" size="3" value="'.$row["graph_num"].'" placeholder="Graph Number" required></td>
-        </tr>';
-}
-echo '
-</table></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
-                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="setup_graph()">
-            </div>
-        </div>
-    </div>
+echo '<div class="modal fade" id="zone_graph" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+        	<div class="modal-content">
+            		<div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                		<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                		<h5 class="modal-title">'.$lang['graph_settings'].'</h5>
+                		<div class="dropdown float-right">
+                        		<a class="" data-bs-toggle="dropdown" href="#">
+                                		<i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
+                        		</a>
+                        		<ul class="dropdown-menu dropdown-menu-'.theme($conn, settings($conn, 'theme'), 'color').'">
+                                		<li><a class="dropdown-item" href="pdf_download.php?file=displaying_temperature_sensors_graphs.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['displaying_temperature_sensors_graphs'].'</a></li>
+                        		</ul>
+                		</div>
+            		</div>
+            		<div class="modal-body" id="zone_graph_body">
+				<p class="text-muted">'.$lang['graph_settings_text'].'</p>';
+				$query = "SELECT id, name, graph_num, min_max_graph, name AS sname
+					FROM sensors
+					WHERE sensor_type_id = 1
+					UNION
+					SELECT 0 AS id, 'Outside Temp' AS name, -1 AS graph_num, enable_archive AS min_max_graph, 'zzz' AS sname
+					FROM weather
+					ORDER BY sname ASC;";
+				$results = $conn->query($query);
+				echo '<table class="table table-bordered">
+    					<tr>
+        					<th class="col-8"><small>'.$lang['sensor_name'].'</small></th>
+        					<th class="col-2"><small>'.$lang['graph_num'].'</small></th>
+        					<th class="col-2"><small>'.$lang['min_max_graph'].'</small></th>
+    					</tr>';
+					while ($row = mysqli_fetch_assoc($results)) {
+    						if ($row['min_max_graph'] == 1) { $enabled_check = 'checked'; } else { $enabled_check = ''; }
+    						echo '<tr>
+            						<td>'.$row["name"].'</td>';
+							if ($row['graph_num'] == -1) {
+								echo '<td>N/A</td>';
+							} else {
+            							echo '<td><input id="graph_num'.$row["id"].'" type="text" class="float-left text" style="border: none" name="graph_num" size="3" value="'.$row["graph_num"].'" placeholder="Graph Number" required></td>';
+							}
+            						echo '<td style="text-align:center; vertical-align:middle;">';
+                						if ($row['graph_num'] != 0) {
+									echo '<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" id="checkbox_enable_graph'.$row['id'].'" name="enable_archive" value="1" '.$enabled_check.'>';
+								} else {
+									echo "N/A";
+								}
+            						echo '</td>
+        					</tr>';
+					}
+				echo '</table>
+			</div>
+            		<div class="modal-footer">
+                		<button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                		<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="setup_graph()">
+            		</div>
+        	</div>
+    	</div>
 </div>';
 
 //Sensor Limits model
@@ -2533,17 +2550,17 @@ echo '<div class="modal fade" id="display_graphs" tabindex="-1" role="dialog" ar
                                 <th class="col-lg-1 text-center"><small>'.$lang['enabled'].'</small></th>
                         </tr>';
 			$myArr = [];
-			array_push($myArr, $lang['graph_temperature'], $lang['graph_humidity'], $lang['graph_addon_usage'], $lang['graph_saving'], $lang['graph_system_controller_usage'], $lang['graph_battery_usage']);
+			array_push($myArr, $lang['graph_temperature'], $lang['graph_humidity'], $lang['graph_addon_usage'], $lang['graph_saving'], $lang['graph_system_controller_usage'], $lang['graph_battery_usage'], $lang['graph_min_max']);
                         $query = "SELECT mask FROM graphs LIMIT 1;";
                         $result = $conn->query($query);
 			$row = mysqli_fetch_assoc($result);
 			$m = 1;
-                        for ($x = 0; $x <=  5; $x++) {
+                        for ($x = 0; $x <=  6; $x++) {
                         	if ($row['mask'] & $m) { $enabled_check = 'checked'; } else { $enabled_check = ''; }
                                 echo '<tr>
                                         <td>'.$myArr[$x].'</td>
             				<td style="text-align:center; vertical-align:middle;">
-               					<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" id="checkbox_graph'.$x.'" name="enabled" value="1" '.$enabled_check.'>
+						<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" id="checkbox_graph'.$x.'" name="enabled" value="1" '.$enabled_check.'>
             				</td>
                                 </tr>';
 				$m = $m << 1;
@@ -3197,6 +3214,39 @@ function set_type(value){
 }
 </script>
 <?php
+
+//enable graph archiving
+echo '<div class="modal fade" id="archive_graphs" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['archive_graphs'].'</h5>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">'.$lang['archive_graphs_text'].'</p>';
+                $query = "SELECT * FROM graphs LIMIT 1;";
+                $result = $conn->query($query);
+		$row = mysqli_fetch_array($result);
+        	echo '<div class="form-group" class="control-label">
+                	<div class="form-check">';
+                        	if ($row['archive_enable'] == '1'){ $checked = "checked"; } else { $checked = "" ; }
+				echo '<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" value="1" id="checkbox6" name="archive_status" '. $checked .'>
+                        	<label class="form-check-label" for="checkbox6">'.$lang['enable_graph_archive'].'</label>
+                	</div>
+        	</div>
+		<div class="form-group" class="control-label"><label>'.$lang['archive_file_path'].'</label>
+			<input class="form-control" type="text" id="graph_archive_file" name="graph_archive_file" value="'.$row['archive_file'].'" placeholder="Full Path Name of Graph Archive File ">
+        		<div class="help-block with-errors"></div></div>
+            	</div>
+                <div class="modal-footer">
+                        <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                        <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="graph_archiving()">
+            </div>
+        </div>
+    </div>
+</div>';
+
 }
 
 if ($model_num == 4) {
@@ -4329,12 +4379,10 @@ function show_hide_devices()
  var e = document.getElementById("node_type");
  var selected_node_type = e.options[e.selectedIndex].text;
  if(selected_node_type.includes("GPIO") || selected_node_type.includes("MQTT") || selected_node_type.includes("Dummy")) {
-        if(selected_node_type.includes("GPIO") || selected_node_type.includes("Dummy")) {
-                document.getElementById("add_devices_label").style.visibility = 'hidden';;
-        }
+        document.getElementById("add_devices_label").style.visibility = 'hidden';;
         if(selected_node_type.includes("MQTT")) {
                 document.getElementById("mqtt_type_label").style.display = 'block';;
-                document.getElementById("nodes_max_child_id").style.visibility = 'visible';;
+                document.getElementById("nodes_max_child_id").style.visibility = 'hidden';;
         } else {
                 document.getElementById("mqtt_type_label").style.display = 'none';;
         }

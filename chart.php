@@ -100,6 +100,11 @@ $grow = mysqli_fetch_assoc($result);
             							<a href="#battery-pills" class="nav-link" data-bs-toggle="tab">&nbsp&nbsp<i class="bi bi-graph-up"></i>&nbsp;&nbsp'.$lang['battery'].'</a>
         					</li>';
                                                 }
+                                                if ($grow['mask'] & 0b1000000) {
+                                                        echo '<li class="nav-item">
+                                                                <a href="#min-max-pills" class="nav-link" data-bs-toggle="tab">&nbsp&nbsp<i class="bi bi-graph-up"></i>&nbsp;&nbsp'.$lang['min_max'].'</a>
+                                                </li>';
+                                                }
 					?>
 					</ul>
 		        		<!-- Tab panes -->
@@ -135,6 +140,11 @@ $grow = mysqli_fetch_assoc($result);
 								include("chart_batteryusage.php");
 								echo '</div>';
 							}
+                                                        if ($grow['mask'] & 0b1000000) {
+                                                                echo '<div class="tab-pane fade active" id="min-max-pills"><br>';
+                                                                include("chart_min_max.php");
+                                                                echo '</div>';
+                                                        }
 							?>
 	        			</div>
 	        		</div>

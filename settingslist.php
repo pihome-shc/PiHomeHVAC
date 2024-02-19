@@ -282,6 +282,12 @@ if ($settings_id == 1) {
 			        		<h3 class="status"></small></h3>
 				        	</button>
 
+                                                <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#archive_graphs">
+                                                <h3 class="buttontop"><small><?php echo $lang['archive_graphs']; ?></small></h3>
+                                                <h3 class="degre" ><i class="bi bi-graph-down red" style="font-size: 1.5rem;"></i></h3>
+                                                <h3 class="status"></small></h3>
+                                                </button>
+
 	                			<button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#email_setting">
 						<h3 class="buttontop"><small><?php echo $lang['email']; ?></small></h3>
         					<h3 class="degre" ><i class="bi bi-envelope blueinfo" style="font-size: 1.5rem;"></i></h3>

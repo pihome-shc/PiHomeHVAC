@@ -59,7 +59,15 @@ function GetModal_Sensor_Graph($conn)
 	$nodes_id = $row['sensor_id'];
 	$child_id = $row['sensor_child_id'];
 	$type_id = $row['sensor_type_id'];
-	if ($type_id == 1) { $title = $lang['temperature']; } else { $title = $lang['humidity']; }
+	if ($type_id == 1) {
+		$title = $lang['temperature'];
+	} elseif ($type_id == 2) {
+		$title = $lang['humidity'];
+        } elseif ($type_id == 5) {
+                $title = $lang['pressure'];
+        } elseif ($type_id == 7) {
+                $title = $lang['gas'];
+	}
         $title = $title.' '.$lang['graph'].' - '.$name;
         $graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
 	$query="SELECT node_id FROM nodes WHERE id = {$nodes_id} LIMIT 1;";
@@ -96,8 +104,14 @@ function GetModal_Sensor_Graph($conn)
 
         <?php if($type_id == 1) { ?>
                 var ytitle = 'Temperature';
-        <?php } else { ?>
+        <?php } elseif ($type_id == 2) { ?>
                 var ytitle = 'Humidity';
+        <?php } elseif ($type_id == 5) { ?>
+                var ytitle = 'Pressure';
+        <?php } elseif ($type_id == 7) { ?>
+                var ytitle = 'Gas';
+        <?php } else { ?>
+                var ytitle = '';
         <?php } ?>
         var xValues = [...<?php echo $js_array_x ?>];
         var yValues = [...<?php echo $js_array_y ?>];
@@ -112,7 +126,7 @@ function GetModal_Sensor_Graph($conn)
     				font: {color: 'white'}
   			},
 			hovertemplate: 'At: %{x}<extra></extra>' +
-                        '<br><b>Temp: </b>: %{y:.2f}\xB0<br>',
+                        '<br><b>' + ytitle + ': </b>: %{y:.2f}\xB0<br>',
 			showlegend: false,
 			line: {shape: 'spline', color: '<?php echo $sensor_color[$graph_id]; ?>'}
 		}

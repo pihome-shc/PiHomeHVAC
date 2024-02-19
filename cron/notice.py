@@ -24,15 +24,23 @@ print("                       " +bc.SUB + "S M A R T   THERMOSTAT " + bc.ENDC)
 print("      ********************************************************")
 print("      *          Script to send status Email messages        *")
 print("      *                Build Date: 26/10/2021                *")
-print("      *      Version 0.06 - Last Modified 30/09/2023         *")
+print("      *      Version 0.07 - Last Modified 18/02/2024         *")
 print("      *                                 Have Fun - PiHome.eu *")
 print("      ********************************************************")
 print(" ")
 print(" " + bc.ENDC)
 
-import MySQLdb as mdb, datetime, sys, smtplib, string
+import MySQLdb as mdb, datetime, sys, string
 import configparser
 import subprocess
+
+# Import smtplib for the actual sending function
+import smtplib
+
+# Here are the email package modules we'll need
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 sline = "-----------------------------------------------------------------------------"
 # Initialise the database access varables
@@ -68,7 +76,7 @@ try:
         PORT = results[name_to_index['port']]
         TO = results[name_to_index['to']]
         FROM = results[name_to_index['from']]
-        SUBJECT = "MaxAir Status"
+        SUBJECT = "MaxAir Database Backup"
         MESSAGE = ""
         send_status = results[name_to_index['status']]
     else:
@@ -375,7 +383,6 @@ try:
     count = count[
         0]  # Parse first and the only one part of data table named "count" - there is number of records grabbed in SELECT above
     if count > 0:  # If greater then 0 then we have something to send out.
-        print(count)
         message = "Over CPU Max Temperature Recorded in last one Hour"
         query = ("SELECT * FROM notice WHERE message = '" + message + "'")
         cursorsel = con.cursor()
@@ -776,14 +783,18 @@ if send_status:
 
     if len(MESSAGE) > 0:
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Sending Email Message")
-        BODY = "\r\n".join((
-            "From: %s" % FROM,
-            "To: %s" % TO,
-            "Subject: %s" % SUBJECT,
-            "",
-            MESSAGE
-            ))
+        msg = MIMEMultipart()
+        msg['Subject'] = 'MaxAir Status'
+        me = FROM
+        to = [TO]
+        Body = MESSAGE
+        msg['From'] = me
+        msg['To'] =  ', '.join(to)
+        msg.preamble = 'System Status'
+        Body = MIMEText(Body) # convert the body to a MIME compatible string
+        msg.attach(Body) # attach it to your main message
 
+        # Send the email via our own SMTP server.
         try:
             if PORT == 465 :
                 server = smtplib.SMTP_SSL(HOST, PORT)
@@ -791,7 +802,7 @@ if send_status:
                 server = smtplib.SMTP(HOST, PORT)
             #server.set_debuglevel(1)
             server.login(USER, PASS)
-            server.sendmail(FROM, TO, BODY)
+            server.sendmail(FROM, TO, msg.as_string())
             server.quit()
         except:
             print(bc.fail + (

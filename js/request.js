@@ -717,7 +717,10 @@ var x = document.getElementById("zone_graph_body").querySelectorAll("input");
 var i;
 var idata="w=setup_graph&o=update";
     for (i = 0; i < x.length; i++) {
-        idata+="&"+x[i].id+"="+x[i].value;
+        if(x[i].name == "enable_archive")
+             idata+="&"+x[i].id+"="+x[i].checked;
+        else
+             idata+="&"+x[i].id+"="+x[i].value;
     }
     idata+="&wid=0";
     $.get('db.php',idata)
@@ -1578,6 +1581,26 @@ function add_update_mqtt_broker(){
     .fail(function( jqXHR, textStatus, errorThrown ){
         if(jqXHR==401 || jqXHR==403) return;
         console.log("add_update_mqtt_broker: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//Graph Archiving
+function graph_archiving() {
+var idata="w=setup_graph_archive&o=update&archive_status="+document.getElementById("checkbox6").checked;
+    idata+="&graph_archive_file="+document.getElementById("graph_archive_file").value;
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=3"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("setup_graph_archive: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
     })
     .always(function() {
     });

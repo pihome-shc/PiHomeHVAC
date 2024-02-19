@@ -457,5 +457,83 @@ Timeformat specifiers
     }).appendTo("body").fadeIn(200);
   }
 <?php } ?>
+
+<?php if($grow['mask'] & 0b1000000) { ?>
+// Create Min Graphs
+  var options_min = {
+	xaxis: { mode: "time", timeformat: "%b %Y"},
+    series: { lines: { show: true, lineWidth: 1, fill: false}, curvedLines: { apply: true,  active: true,  monotonicFit: true } },
+    grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf9f9"] }, borderColor: "#ff8839",},
+    legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
+  };
+
+  $(document).ready(function () {$.plot($("#min_readings"), min_dataset, options_min);$("#min_readings").UseTooltip3();});
+  var previousPoint = null, previousLabel = null;
+  var weekday = new Array(7);
+  weekday[0] = "Sunday";
+  weekday[1] = "Monday";
+  weekday[2] = "Tuesday";
+  weekday[3] = "Wednesday";
+  weekday[4] = "Thursday";
+  weekday[5] = "Friday";
+  weekday[6] = "Saturday";
+
+  $.fn.UseTooltip3 = function () {
+    $(this).bind("plothover", function (event, pos, item) {
+        if (item) {
+            if ((previousLabel != item.series.label) ||
+                 (previousPoint != item.dataIndex)) {
+                previousPoint = item.dataIndex;
+                previousLabel = item.series.label;
+                $("#tooltip").remove();
+                var x = item.datapoint[0];
+                var y = item.datapoint[1];
+                var color = item.series.color;
+                if (item.series.stype == "1") {
+                        var stype = "Temperature";
+                        var units = "&deg";
+                } else {
+                        var stype = "Humidity";
+                        var units = "%";
+                }
+                showTooltip_min_max(item.pageX,
+                        item.pageY,
+                        color,
+                        "<strong>" + item.series.label + "</strong> At: " + weekday[new Date(x).getDay()] + " " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"<br> <strong>" + stype + "  : " + $.formatNumber(y, { format: "#,###", locale: "us" }) + units + "</strong> ");
+            }
+        } else {
+            $("#tooltip").remove();
+            previousPoint = null;
+        }
+    });
+  };
+
+  function showTooltip_min_max(x, y, color, contents) {
+    $('<div id="tooltip">' + contents + '</div>').css({
+        position: 'absolute',
+        display: 'none',
+        top: y - 10,
+        left: x + 10,
+        border: '1px solid ' + color,
+        padding: '3px',
+        'font-size': '9px',
+        'border-radius': '5px',
+        'background-color': '#fff',
+        'font-family': 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+        opacity: 0.7
+    }).appendTo("body").fadeIn(200);
+  }
+
+// Create max Graphs
+  var options_max = {
+        xaxis: { mode: "time", timeformat: "%b %Y"},
+    series: { lines: { show: true, lineWidth: 1, fill: false}, curvedLines: { apply: true,  active: true,  monotonicFit: true } },
+    grid: { hoverable: true, borderWidth: 1,  backgroundColor: { colors: ["#ffffff", "#fdf9f9"] }, borderColor: "#ff8839",},
+    legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
+  };
+
+  $(document).ready(function () {$.plot($("#max_readings"), max_dataset, options_max);$("#max_readings").UseTooltip3();});
+
+<?php } ?>
 </script>
 

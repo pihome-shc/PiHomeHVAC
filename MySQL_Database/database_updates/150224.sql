@@ -1,0 +1,1 @@
+ALTER TABLE `weather` ADD COLUMN IF NOT EXISTS `enable_archive` TINYINT(1) NOT NULL DEFAULT '0' AFTER `last_update`;

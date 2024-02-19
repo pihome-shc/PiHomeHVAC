@@ -1502,13 +1502,26 @@ if($what=="setup_email"){
 
 //Setup Graph Setting
 if($what=="setup_graph"){
-        $sel_query = "SELECT `id` FROM sensors WHERE sensor_type_id = 1 ORDER BY name asc;";
+	$sel_query = "SELECT id, name, graph_num, min_max_graph, name AS sname
+			FROM sensors
+			WHERE sensor_type_id = 1
+ 			UNION
+			SELECT 0 AS id, 'Outside Temp' AS name, '' AS graph_num, enable_archive AS min_max_graph, 'zzz' AS sname
+			FROM weather
+	ORDER BY sname ASC;";
         $results = $conn->query($sel_query);
         $update_error = 0;
         while ($row = mysqli_fetch_assoc($results) and $update_error == 0) {
-                $input = 'graph_num'.$row['id'];
-                $graph_num =  $_GET[$input];
-                $query = "UPDATE sensors SET graph_num = ".$graph_num." WHERE id = ".$row['id']." LIMIT 1;";
+                $input1 = 'graph_num'.$row['id'];
+                $graph_num =  $_GET[$input1];
+                $input2 = 'checkbox_enable_graph'.$row['id'];
+                $enabled =  $_GET[$input2];
+                if ($enabled=='true'){$enabled = '1';} else {$enabled = '0';}
+		if ($row['id'] == 0) {
+			$query = "UPDATE weather SET enable_archive = ".$enabled." LIMIT 1;";
+		} else {
+	                $query = "UPDATE sensors SET graph_num = ".$graph_num.", min_max_graph = ".$enabled." WHERE id = ".$row['id']." LIMIT 1;";
+		}
                 if(!$conn->query($query)){
                         $update_error = 1;
                 }
@@ -1823,7 +1836,7 @@ if($what=="set_db_cleanup"){
 //enable graph categories to be displayed
 if($what=="enable_graphs"){
         $mask = 0;
-        for ($x = 0; $x <=  5; $x++) {
+        for ($x = 0; $x <=  6; $x++) {
                 $checkbox = 'checkbox_graph'.$x;
                 $enabled =  $_GET[$checkbox];
                 if ($enabled=='true'){$enabled = 1;} else {$enabled = 0;}
@@ -2336,6 +2349,25 @@ if($what=="mqtt_broker"){
         	header('Content-type: application/json');
                 echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
                 return;
+        }
+}
+
+//Graph Archiving
+if($what=="setup_graph_archive"){
+        if($opp=="update"){
+	        $archive_status = $_GET['archive_status'];
+        	$graph_archive_file = $_GET['graph_archive_file'];
+	        if ($archive_status=='true'){$archive_status = '1';} else {$archive_status = '0';}
+		$query = "UPDATE graphs SET archive_enable = '".$archive_status."', archive_file = '".$graph_archive_file."';";
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
         }
 }
 ?>
