@@ -91,7 +91,7 @@ if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
 // check session id cookie exists
 if(isset($_COOKIE["maxair_login"])) $s_id = $_COOKIE["maxair_login"]; else $s_id="";
 if ($s_id != "") {
-	if(isset($_COOKIE["user_login"])) $u_name_id = $_COOKIE["user_login"]; else $u_name="";
+	if(isset($_COOKIE["user_login"])) $u_name = $_COOKIE["user_login"]; else $u_name="";
 	if ($u_name != "") {
 		// check if this user has a 'persistant' type account
         	$query = "SELECT id, admin_account FROM user WHERE username = '{$u_name}' AND persist = 1 LIMIT 1;";
