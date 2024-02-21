@@ -91,23 +91,30 @@ if (file_exists("/etc/systemd/system/autohotspot.service") == 1) {
 // check session id cookie exists
 if(isset($_COOKIE["maxair_login"])) $s_id = $_COOKIE["maxair_login"]; else $s_id="";
 if ($s_id != "") {
-	// check if a user has logged on with this session id
-        $query = "SELECT `user`.id, `user`.username,`user`.admin_account, `user`.persist, `userhistory`.s_id
-		FROM `user`, `userhistory`
-		WHERE (`userhistory`.username = `user`.username) AND `user`.persist = 1 AND `userhistory`.s_id = '{$s_id}'
-		LIMIT 1;";
-        $result = $conn->query($query);
-        if (mysqli_num_rows($result) > 0) {
-		$found_user = mysqli_fetch_array($result);
-		if (password_verify($s_id, $found_user['s_id'])) { // check if this session exists in the userhistory table
-       			// user account found, restore session
-			// Set session variables
-       			$_SESSION['user_id'] = $found_user['id'];
-			$_SESSION['username'] = $found_user['username'];
-			$_SESSION['admin'] = $found_user['admin_account'];
-       			$_SESSION['persist'] = $found_user['persist'];
-			header('Location:home.php');
-			exit;
+	if(isset($_COOKIE["user_login"])) $u_name = $_COOKIE["user_login"]; else $u_name="";
+	if ($u_name != "") {
+		// check if this user has a 'persistant' type account
+        	$query = "SELECT id, admin_account FROM user WHERE username = '{$u_name}' AND persist = 1 LIMIT 1;";
+	        $result = $conn->query($query);
+        	if (mysqli_num_rows($result) > 0) {
+			$found_user = mysqli_fetch_array($result);
+			// check if this user has a session which exists in the userhistory table
+			$query = "SELECT s_id FROM userhistory WHERE username = '{$u_name}' ORDER BY id DESC;";
+			$results = $conn->query($query);
+			if (mysqli_num_rows($results) > 0) {
+				while ($row = mysqli_fetch_assoc($results)) {
+					if (password_verify($s_id, $row['s_id'])) {
+       						// user session id found, restore session
+						// Set session variables
+       						$_SESSION['user_id'] = $found_user['id'];
+						$_SESSION['username'] = $u_name;
+						$_SESSION['admin'] = $found_user['admin_account'];
+       						$_SESSION['persist'] = 1;
+						header('Location:home.php');
+						exit;
+					}
+				}
+			}
 		}
 	}
 }

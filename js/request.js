@@ -1605,3 +1605,28 @@ var idata="w=setup_graph_archive&o=update&archive_status="+document.getElementBy
     .always(function() {
     });
 }
+
+//update node max child id
+function update_max_child_id(){
+//var x = document.getElementsByTagName("input");
+var x = document.getElementById("nodes").querySelectorAll("input");
+var i;
+var idata="w=node_max_child_id&o=update";
+    for (i = 0; i < x.length; i++) {
+        idata+="&"+x[i].id+"="+x[i].value;
+    }
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=5"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("node_max_child_id: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
