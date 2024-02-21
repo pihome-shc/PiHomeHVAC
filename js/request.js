@@ -1616,7 +1616,6 @@ var idata="w=node_max_child_id&o=update";
         idata+="&"+x[i].id+"="+x[i].value;
     }
     idata+="&wid=0";
-    console.log(idata);
     $.get('db.php',idata)
     .done(function(odata){
         if(odata.Success)
