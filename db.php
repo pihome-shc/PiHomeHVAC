@@ -2370,5 +2370,32 @@ if($what=="setup_graph_archive"){
                 }
         }
 }
+
+//update Node Alerts Notice Interval
+if($what=="node_max_child_id"){
+        if($opp=="update"){
+	        $update_error=0;
+        	$sel_query = "SELECT * FROM nodes where status = 'Active' ORDER BY node_id asc";
+	        $results = $conn->query($sel_query);
+        	while ($row = mysqli_fetch_assoc($results) and $update_error == 0) {
+                	if(isset($_GET["max_child_id".$row['node_id']])) {
+                        	$max_child_id =  $_GET["max_child_id".$row['node_id']];
+        	               	$query = "UPDATE nodes SET max_child_id = '".$max_child_id."' WHERE node_id='".$row['node_id']."' LIMIT 1;";
+                	        if(!$conn->query($query)){
+                        		$update_error=1;
+				}
+                        }
+                }
+        }
+        if($update_error==0){
+                header('Content-type: application/json');
+                echo json_encode(array('Success'=>'Success','Query'=>$query));
+                return;
+        }else{
+                header('Content-type: application/json');
+                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                return;
+        }
+}
 ?>
 <?php if(isset($conn)) { $conn->close();} ?>

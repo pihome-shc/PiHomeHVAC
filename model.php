@@ -3876,7 +3876,7 @@ while ($row = mysqli_fetch_assoc($results)) {
         <tr>
             <td>'.$row["type"].'</td>
             <td>'.$row["node_id"].'</td>
-            <td>'.$row["max_child_id"].'</td>
+            <td><input id="max_child_id'.$row["node_id"].'" type="value" class="form-control float-right" style="border: none" name="max_child_id'.$row["node_id"].'" value="'.$row["max_child_id"].'" placeholder="Max Child ID"></td>
             <td>'.$row["name"].'</td>';
 	    if($zcount != 0) {
 		echo '<td><div class="tooltip-wrapper" data-bs-toggle="tooltip" title="'.$content_msg_z.'"><button class="btn btn-danger btn-xs disabled"><span class="bi bi-trash-fill black"></span></button> </div></td>';
@@ -3888,6 +3888,7 @@ while ($row = mysqli_fetch_assoc($results)) {
 echo '</table></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="update_max_child_id()">
                 <button type="button" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" data-bs-href="#" data-bs-toggle="modal" data-bs-target="#add_node">'.$lang['node_add'].'</button>
             </div>
         </div>
