@@ -2050,7 +2050,9 @@ def on_message(client, userdata, message):
                                         mqtt_category = int(
                                             results[mqtt_zone_view_to_index["category"]]
                                         )
-                                        if mqtt_category != 2:
+                                        mqtt_zone_sensors_id = results[mqtt_zone_view_to_index["sensors_id"]]
+
+                                        if mqtt_zone_sensors_id is not None:
                                             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                                             cur_mqtt.execute(
                                                 """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`,
