@@ -1070,4 +1070,13 @@ $lang['relay_log_timestamp'] = "Timestamp";
 $lang['zone_mode'] = "Zone Mode";
 $lang['unable_to_retrieve_relay_log_data'] = "Unable to Retrieve Relay Log Data";
 $lang['relay_logs_for_zone'] = "Relay Logs for the Zone - ";
+$lang['min_max'] = "Min/Max";
+$lang['graph_min_max'] = "Sensor Minimum and Maximum Readings";
+$lang['graph_min_text'] = "Minimum Readings by Day";
+$lang['graph_max_text'] = "Maximum Readings by Day";
+$lang['archive_graphs'] = "Archive Graphs";
+$lang['archive_graphs_text'] = "Archive Sensor Data to a CSV file for those Sensors with Graphing Enabled.";
+$lang['enable_graph_archive'] = "Enable Archiving of Graphs";
+$lang['archive_file_path'] = "Full Path Name of Graph Archive File";
+$lang['min_max_graph'] = "Min/Max Graph";
 ?>
