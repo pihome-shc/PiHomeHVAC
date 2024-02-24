@@ -852,7 +852,9 @@ def process_message(in_str):
                                         category = int(
                                             results[zone_view_to_index["category"]]
                                         )
-                                        if category != 2:
+                                        zone_sensors_id = results[zone_view_to_index["sensors_id"]]
+
+                                        if zone_sensors_id is not None:
                                             cur.execute(
                                                 """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`,
                                                    `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
@@ -2050,7 +2052,9 @@ def on_message(client, userdata, message):
                                         mqtt_category = int(
                                             results[mqtt_zone_view_to_index["category"]]
                                         )
-                                        if mqtt_category != 2:
+                                        mqtt_zone_sensors_id = results[mqtt_zone_view_to_index["sensors_id"]]
+
+                                        if mqtt_zone_sensors_id is not None:
                                             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                                             cur_mqtt.execute(
                                                 """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`,
