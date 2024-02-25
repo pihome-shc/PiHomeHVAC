@@ -1074,6 +1074,23 @@ function holidays($conn,$button) {
         </h3></button>';
 }
 
+function live_temp($conn,$button) {
+	global $button_style;
+
+	//query to check live temperature status
+	$c_f = settings($conn, 'c_f');
+	if ($c_f == 0) { $icon = 'thermostat_30_C.png'; } else { $icon = 'thermostat_30_F.png'; }
+	$query = "SELECT active FROM livetemp WHERE active = 1 LIMIT 1";
+	$result = $conn->query($query);
+	$lt_status=mysqli_num_rows($result);
+	if ($lt_status==1) {$lt_status='red';}else{$lt_status='blueinfo';}
+	echo '<button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-circle no-shadow '.$button_style.' mainbtn animated fadeIn" data-bs-toggle="modal" href="#livetemperature" data-bs-backdrop="static" data-bs-keyboard="false">
+	<h3 class="buttontop"><small>'.$button.'</small></h3>
+	<h3 class="degre" style="margin-top:5px;"><img src="images/'.$icon.'" border="0"></h3>
+	<h3 class="status"><small class="statuscircle"><i class="bi bi-circle-fill '.$lt_status.'" style="font-size: 0.55rem;"></i></small></h3>
+	</button>';
+}
+
 function enc_passwd($plain_password) {
 	if (file_exists("/sys/class/net/eth0")) {
     		exec("cat /sys/class/net/eth0/address", $key);
