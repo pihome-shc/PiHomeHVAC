@@ -48,19 +48,6 @@ $theme = settings($conn, 'theme');
                                 <h3 class="status"></h3>
                                 </button>';
 
-				//query to check live temperature status
-                		$c_f = settings($conn, 'c_f');
-		                if ($c_f == 0) { $icon = 'thermostat_30_C.png'; } else { $icon = 'thermostat_30_F.png'; }
-				$query = "SELECT active FROM livetemp WHERE active = 1 LIMIT 1";
-				$result = $conn->query($query);
-				$lt_status=mysqli_num_rows($result);
-				if ($lt_status==1) {$lt_status='red';}else{$lt_status='blueinfo';}
-				echo '<button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-circle no-shadow '.$button_style.' mainbtn animated fadeIn" data-bs-toggle="modal" href="#livetemperature" data-bs-backdrop="static" data-bs-keyboard="false">
-				<h3 class="buttontop"><small>'.$lang['live_temp'].'</small></h3>
-				<h3 class="degre" style="margin-top:5px;"><img src="images/'.$icon.'" border="0"></h3>
-				<h3 class="status"><small class="statuscircle"><i class="bi bi-circle-fill '.$lt_status.'" style="font-size: 0.55rem;"></i></small></h3>
-				</button>';
-
 		                //select addional onetouch buttons
                 		$button_params = [];
 		                $query = "SELECT * FROM button_page WHERE page = 2 ORDER BY index_id ASC";
@@ -69,7 +56,7 @@ $theme = settings($conn, 'theme');
                 		        while ($row = mysqli_fetch_assoc($results)) {
                                 		$var = $row['function'];
 		                                $var($conn, $lang[$var]);
-                		                if ($row['page'] == 2) { $button_params[] = array('button_id' =>$row['id'], 'button_name' =>$row['name']); }
+                		                if ($row['page'] == 2) { $button_params[] = array('button_id' =>$row['id'], 'button_name' =>$row['name'], 'button_function' =>$row['function']); }
 		                        }
                 		        $js_button_params = json_encode($button_params);
 		                }
@@ -106,94 +93,7 @@ $theme = settings($conn, 'theme');
                 		        </h3></button>';
                 		}
 
-				// live temperature modal
-                		$query = "SELECT zone_id, active FROM livetemp LIMIT 1";
-		                $result = $conn->query($query);
-                		$rowcount=mysqli_num_rows($result);
-		                if ($rowcount > 0) {
-	        		        $row = mysqli_fetch_array($result);
-		        	        $livetemp_zone_id = $row['zone_id'];
-                			$livetemp_active = $row['active'];
-			                if ($livetemp_active == 0) { $check_visible = 'display:none'; } else { $check_visible = 'display:block'; }
-        			        $query = "SELECT mode, temp_reading, temp_target FROM zone_current_state WHERE zone_id = ".$livetemp_zone_id." LIMIT 1";
-		                	$result = $conn->query($query);
-	        		        $row = mysqli_fetch_array($result);
-		        	        $zone_mode = $row['mode'];
-                			$zone_mode_main=floor($zone_mode/10)*10;
-		                        $query = "SELECT name, min_c, max_c, default_c FROM zone_view WHERE id =  ".$livetemp_zone_id." LIMIT 1";
-                		        $zresult = $conn->query($query);
-		                        $zrow = mysqli_fetch_array($zresult);
-                		        if ($zone_mode_main == 140) {
-                                		$set_temp = $zrow['default_c'];
-		                        } else {
-                		                $set_temp = $row['temp_target'];
-		                        }
-        			        switch ($zone_mode_main) {
-                	        		case 0:
-		                        	        $current_mode = "";
-                		                	break;
-	                        		case 50:
-		        	                        $current_mode = "Night Climate";
-                			                break;
-                        			case 60:
-		                                	$current_mode = "Boost";
-	        		                        break;
-        	                		case 70:
-		                	                $current_mode = "Override";
-                		        	        break;
-	                        		case 80:
-		        	                        $current_mode = "Schedule";
-                			                break;
-                        			case 140:
-			                                $current_mode = "Manual";
-        			                        break;
-                	        		default:
-		                        	        $current_mode = "";
-	        		        }
-		                        echo '<input type="hidden" id="zone_id" name="zone_id" value="'.$livetemp_zone_id.'"/>
-                		        <input type="hidden" id="min_c" name="min_c" value="'.DispSensor($conn,$zrow['min_c'],1).'"/>
-		                        <input type="hidden" id="max_c" name="max_c" value="'.DispSensor($conn,$zrow['max_c'],1).'"/>';
-				} // end if ($rowcount > 0)
-				echo '<div class="modal fade" id="livetemperature" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-					<div class="modal-dialog">
-						<div class="modal-content">
-							<div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
-								<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
-								<h5 class="modal-title">'.$lang['live_temperature'].'</h5>
-							</div>
-                		                        <div class="modal-body">
-                                		                <div style="text-align:center;">';
-        		                                                if ($zone_mode != 0) {
-	                                                		        if ($rowcount > 0) {
-                        	                                        		echo '<h4><br><p>'.$zrow["name"].' Zone '.$current_mode.' Temperature Control</p></h4><br>
-		                	                                                <input type="text" value="'.DispSensor($conn, $set_temp, 1).'" class="dial" id="livetemp_c" name="live_temp">
-                		        	                                        <div style="float:right;">
-                                			                                        <textarea id="load_temp" class="temperature-box card-footer-'.theme($conn, settings($conn, 'theme'), 'color').'" readonly="readonly" row="0" col="0" ></textarea>
-                                                			                </div>
-			                                        	                <div class="form-check" style="'.$check_visible.'">
-											     	<input class="form-check-input" type="checkbox" value="0" id="checkbox" name="status" checked Enabled>
-                                                                				<label class="form-check-label" for="checkbox"> '.$lang['livetemp_enable'].'</label>
-	                                                        			</div>';
-        	                                        		        } else {
-                	                                                		echo '<h4><br><p>'.$lang['livetemp_no_control_zone'].'</p></h4><br>';
-		        	                                                }
-									} else {
-										echo '<h4><br><p>'.$zrow["name"].' Zone '.$lang['no_livetemp'].'</p></h4><br>';
-									}
-                		                                echo '</div>
-                                		        </div>
-		                                        <!-- /.modal-body -->
-                		                        <div class="modal-footer"><button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['cancel'].'</button>';
-                                		                if ($rowcount > 0 && $zone_mode != 0) { echo '<input type="button" name="submit" value="'.$lang['apply'].'" class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' login btn-sm" onclick="update_livetemp()">'; }
-		                                        echo '</div>
-                					<!-- /.modal-footer -->
-						</div>
-						<!-- /.modal-content -->
-					</div>
-					<!-- /.modal-dialog -->
-				</div>
-				<!-- /.modal fade -->
-			</div>
+			echo '</div>
 			<!-- /.row -->
 		</div>'; ?>
 		<!-- /.card-body -->
@@ -248,21 +148,22 @@ $(function() {
 // update page data every x seconds
 $(document).ready(function(){
   var delay = '<?php echo $page_refresh ?>';
-  var live_temp_zone_id = '<?php echo $livetemp_zone_id ?>';
+  var live_temp_zone_id = document.getElementById("zone_id").value;
 
   (function loop() {
-    $('#load_temp').load("ajax_fetch_data.php?id=" + live_temp_zone_id + "&type=1").fadeIn("slow");
     //load() method fetch data from fetch.php page
-
     var data2 = '<?php echo $js_button_params ?>';
     if (data2.length > 0) {
             var obj2 = JSON.parse(data2)
-            //console.log(obj2.length);
+//            console.log(obj2);
 
             for (var y = 0; y < obj2.length; y++) {
+	      if (obj2[y].button_function == "live_temp") {
+    		$('#load_temp').load("ajax_fetch_data.php?id=" + live_temp_zone_id + "&type=1").fadeIn("slow");
+	      }
               $('#bs1_' + obj2[y].button_id).load("ajax_fetch_data.php?id=" + obj2[y].button_id + "&type=11").fadeIn("slow");
               $('#bs2_' + obj2[y].button_id).load("ajax_fetch_data.php?id=" + obj2[y].button_id + "&type=12").fadeIn("slow");
-	      //console.log(obj2[y].button_id);
+//	      console.log(obj2[y].button_name);
             }
     }
 

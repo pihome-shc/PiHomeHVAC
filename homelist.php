@@ -64,11 +64,13 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
 		<div class="card-body">
         		<div class="row <?php echo theme($conn, $theme, 'row_justification'); ?>">
 					<?php
-					echo '<button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-circle black-background no-shadow '.$button_style.' mainbtn animated fadeIn" onclick="relocate_page(`home.php?page_name=onetouch`)">
-					<h3 class="text-nowrap buttontop"><small>'.$lang['one_touch'].'</small></h3>
-			                <h3 class="degre" style="margin-top:0px;"><i class="bi bi-bullseye" style="font-size: 2rem;"></i></h3>
-			                <h3 class="status"></h3>
-			                </button>';
+					if ($user_display_mask == 0) {
+						echo '<button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-circle black-background no-shadow '.$button_style.' mainbtn animated fadeIn" onclick="relocate_page(`home.php?page_name=onetouch`)">
+						<h3 class="text-nowrap buttontop"><small>'.$lang['one_touch'].'</small></h3>
+				                <h3 class="degre" style="margin-top:0px;"><i class="bi bi-bullseye" style="font-size: 2rem;"></i></h3>
+				                <h3 class="status"></h3>
+			        	        </button>';
+					}
 
 					//following two variable set to 0 on start for array index.
 					$boost_index = '0';
@@ -188,7 +190,7 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
 
 	                		}
 
-					if ($mode_select == 0 ) {
+					if ($mode_select == 0 && $user_display_mask == 0) {
                                                 echo '<button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-circle no-shadow black-background '.$button_style.' mainbtn animated fadeIn" onclick="active_sc_mode()">
 		        	        	<h3 class="text-nowrap buttontop"><small>'.$lang['mode'].'</small></h3>
 	        			        <h3 class="degre" >'.$current_sc_mode.'</h3>';
@@ -210,7 +212,7 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
                 			                echo '<h3 class="statuszoon float-left text-dark"><small>&nbsp</small></h3>';
 		        	                }
                 			        echo '</button>';
-			                } else {
+			                } elseif ($user_display_mask == 0) {
 						echo '<button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-circle no-shadow black-background '.$button_style.' mainbtn animated fadeIn" onclick="relocate_page(`home.php?page_name=mode`)">
                 			        <h3 class="text-nowrap buttontop"><small>'.$current_sc_mode.'</small></h3>
 		                	        <h3 class="degre" >'.$lang['mode'].'</h3>';
@@ -814,7 +816,7 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
         	        		        while ($row = mysqli_fetch_assoc($results)) {
                 	                		$var = $row['function'];
 		        	                        $var($conn, $lang[$var]);
-							if ($row['page'] == 1) { $button_params[] = array('button_id' =>$row['id'], 'button_name' =>$row['name']); }
+							if ($row['page'] == 1) { $button_params[] = array('button_id' =>$row['id'], 'button_name' =>$row['name'], 'button_function' =>$row['function']); }
 		                        	}
 						$js_button_params = json_encode($button_params);
         	        		}
@@ -878,6 +880,7 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
 // update the screen data every x seconds
 $(document).ready(function(){
   var delay = '<?php echo $page_refresh ?>';
+  var live_temp_zone_id = document.getElementById("zone_id").value;
 
   (function loop() {
     var data = '<?php echo $js_zone_params ?>';
@@ -916,9 +919,13 @@ $(document).ready(function(){
             // console.log(obj2.length);
 
             for (var y = 0; y < obj2.length; y++) {
+              if (obj2[y].button_function == "live_temp") {
+                $('#load_temp').load("ajax_fetch_data.php?id=" + live_temp_zone_id + "&type=1").fadeIn("slow");
+              }
               $('#bs1_' + obj2[y].button_id).load("ajax_fetch_data.php?id=" + obj2[y].button_id + "&type=11").fadeIn("slow");
               $('#bs2_' + obj2[y].button_id).load("ajax_fetch_data.php?id=" + obj2[y].button_id + "&type=12").fadeIn("slow");
-              // console.log(obj2[y].button_id);
+//              console.log(obj2[y].button_id);
+//              console.log(obj2[y].button_function);
             }
     }
 
