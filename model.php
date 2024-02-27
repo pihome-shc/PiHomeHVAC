@@ -1187,7 +1187,15 @@ echo '
         	<div class="modal-content">
             		<div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
                         	<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
-                			<h5 class="modal-title">'.$lang['user_accounts'].'</h5>
+                		<h5 class="modal-title">'.$lang['user_accounts'].'</h5>
+		                <div class="dropdown float-right">
+                			<a class="" data-bs-toggle="dropdown" href="#">
+                                		<i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
+                                	</a>
+                                	<ul class="dropdown-menu dropdown-menu-'.theme($conn, settings($conn, 'theme'), 'color').'">
+                                        	<li><a class="dropdown-item" href="pdf_download.php?file=setup_user_accounts.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_user_accounts'].'</a></li>
+                                	</ul>
+                        	</div>
             		</div>
             		<div class="modal-body">
                         	<p class="text-muted"> '.$lang['user_accounts_text'].' </p>';
@@ -2502,6 +2510,14 @@ echo '<div class="modal fade" id="set_buttons" tabindex="-1" role="dialog" aria-
             <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
 		<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title">'.$lang['set_buttons'].'</h5>
+                <div class="dropdown float-right">
+                	<a class="" data-bs-toggle="dropdown" href="#">
+                        	<i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-'.theme($conn, settings($conn, 'theme'), 'color').'">
+                        	<li><a class="dropdown-item" href="pdf_download.php?file=setup_user_accounts.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_user_accounts'].'</a></li>
+                        </ul>
+                </div>
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['set_buttons_text'].'</p>
@@ -4913,6 +4929,14 @@ echo '<div class="modal fade" id="hide_sensor_relay" tabindex="-1" role="dialog"
             <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
 		<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
                 <h5 class="modal-title">'.$lang['hide_sensor_relay'].'</h5>
+                <div class="dropdown float-right">
+                	<a class="" data-bs-toggle="dropdown" href="#">
+                        	<i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-'.theme($conn, settings($conn, 'theme'), 'color').'">
+                        	<li><a class="dropdown-item" href="pdf_download.php?file=setup_user_accounts.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_user_accounts'].'</a></li>
+                        </ul>
+                </div>
             </div>
             <div class="modal-body">
 		<p class="text-muted">'.$lang['hide_sensor_relay_text'].'</p>';

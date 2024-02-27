@@ -190,7 +190,17 @@ $persist = $row['persist'];
                 <div class="col-lg-12">
 		        <div class="card border-<?php echo theme($conn, $theme, 'color'); ?>">
         		        <div class="card-header <?php echo theme($conn, $theme, 'text_color'); ?> card-header-<?php echo theme($conn, $theme, 'color'); ?>">
-                	        	<?php echo $title; ?>
+					<div class="d-flex justify-content-between">
+						<div><?php echo $title; ?></div>
+                				<div class="dropdown float-right">
+                        				<a class="" data-bs-toggle="dropdown" href="#">
+                                				<i class="bi bi-file-earmark-pdf text-white" style="font-size: 1.2rem;"></i>
+                        				</a>
+                        				<ul class="dropdown-menu dropdown-menu-<?php echo theme($conn, settings($conn, 'theme'), 'color') ?>">
+                                				<li><a class="dropdown-item" href="pdf_download.php?file=setup_user_accounts.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp<?php echo $lang['setup_user_accounts'] ?></a></li>
+                        				</ul>
+                				</div>
+					</div>
                         	</div>
 	                        <!-- /.card-header -->
         	      		<div class="card-body">
