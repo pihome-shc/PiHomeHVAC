@@ -260,6 +260,7 @@ def get_schedule_status(
                 low_temp = offset[offset_to_index["low_temperature"]]
                 high_temp = offset[offset_to_index["high_temperature"]]
                 sensors_id = offset[offset_to_index["sensors_id"]]
+                start_time_offset = offset[offset_to_index["start_time_offset"]]
                 if sensors_id == 0:
                     cur.execute("SELECT c FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);")
                     if cur.rowcount > 0:
