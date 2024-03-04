@@ -260,23 +260,39 @@ def get_schedule_status(
                 low_temp = offset[offset_to_index["low_temperature"]]
                 high_temp = offset[offset_to_index["high_temperature"]]
                 sensors_id = offset[offset_to_index["sensors_id"]]
-                cur.execute(
-                    "SELECT current_val_1 FROM sensors WHERE id = %s LIMIT 1;",
-                    (sensors_id,),
-                )
-                if cur.rowcount > 0:
-                    sensor = cur.fetchone()
-                    sensor_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                    outside_temp = sensor[sensor_to_index["current_val_1"]]
-                    if outside_temp >= low_temp and outside_temp <= high_temp:
-                        temp_span = high_temp - low_temp
-                        step_size = start_time_offset/temp_span
-                        start_time_temp_offset = (high_temp - outside_temp) * step_size
-                    elif outside_temp < low_temp:
-                        start_time_temp_offset = start_time_offset
-                    else:
-                        start_time_temp_offset = 0;
-                    start_time = start_time - (start_time_temp_offset * 60)
+                if sensors_id == 0:
+                    cur.execute("SELECT c FROM weather WHERE last_update > DATE_SUB( NOW(), INTERVAL 24 HOUR);")
+                    if cur.rowcount > 0:
+                        weather = cur.fetchone()
+                        weather_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                        outside_temp = int(weather[weather_to_index["c"]])
+                        if outside_temp >= low_temp and outside_temp <= high_temp:
+                            temp_span = high_temp - low_temp
+                            step_size = start_time_offset/temp_span
+                            start_time_temp_offset = (high_temp - outside_temp) * step_size
+                        elif outside_temp < low_temp:
+                            start_time_temp_offset = start_time_offset
+                        else:
+                            start_time_temp_offset = 0;
+                        start_time = start_time - (start_time_temp_offset * 60)
+                else:
+                    cur.execute(
+                        "SELECT current_val_1 FROM sensors WHERE id = %s LIMIT 1;",
+                        (sensors_id,),
+                    )
+                    if cur.rowcount > 0:
+                        sensor = cur.fetchone()
+                        sensor_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                        outside_temp = sensor[sensor_to_index["current_val_1"]]
+                        if outside_temp >= low_temp and outside_temp <= high_temp:
+                            temp_span = high_temp - low_temp
+                            step_size = start_time_offset/temp_span
+                            start_time_temp_offset = (high_temp - outside_temp) * step_size
+                        elif outside_temp < low_temp:
+                            start_time_temp_offset = start_time_offset
+                        else:
+                            start_time_temp_offset = 0;
+                        start_time = start_time - (start_time_temp_offset * 60)
 
             run_time = end_time - start_time
             cur.execute(
