@@ -50,6 +50,15 @@ import traceback
 import subprocess
 from math import floor
 
+try:
+    import pymysql
+except:
+    python_ver = subprocess.check_output("python3 -V", shell=True).decode("utf-8").split()
+    if int(python_ver[1].split(".")[1]) < 11:
+        os.system("pip3 install pymysql")
+    else:
+        os.system("pip3 install --break-system-packages pymysql")
+
 # Debug print to screen configuration
 dbgLevel = 3  # 0-off, 1-info, 2-detailed, 3-all
 dbgMsgOut = 1  # 0-disabled, 1-enabled, show details of outgoing messages

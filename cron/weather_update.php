@@ -84,7 +84,7 @@ if ($row['openweather_api'] != NULL){
                         $result = $conn->query($query);
                         $wcount = $result->num_rows;
                         if ($wcount == 0) {
-        			$query = "INSERT INTO weather VALUES(1, 0, '{$location}', '{$weather_c}', '{$wind_speed}', '{$title}', '{$description}', '{$sunrise}', '{$sunset}', '{$icon}', '{$date_time}');";
+        			$query = "INSERT INTO weather VALUES(1, 0, '{$location}', '{$weather_c}', '{$wind_speed}', '{$title}', '{$description}', '{$sunrise}', '{$sunset}', '{$icon}', '{$date_time}', 0);";
                         } else {
 				$query = "update weather SET sync = '0', location = '{$location}', c = '{$weather_c}', wind_speed = '{$wind_speed}', title = '{$title}', description = '{$description}', sunrise = '{$sunrise}', sunset = '{$sunset}', img = '{$icon}' WHERE id = '1' LIMIT 1";
 			}	
