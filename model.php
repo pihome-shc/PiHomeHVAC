@@ -189,7 +189,7 @@ echo '
                                         <a href="#" class="list-group-item"><img src="images/linux.svg" width="20" height="20" alt="">&nbspVERSION - '.$rval["VERSION"].'</a>
                                         <a href="#" class="list-group-item"><img src="images/linux.svg" width="20" height="20" alt="">&nbspDISTRIBUTION - '.$rval["ID"].'</a>
                                 </div>
-                        </div
+                        </div>
                         <div class="modal-footer">
                                 <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
                         </div>
