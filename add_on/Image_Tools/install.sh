@@ -43,7 +43,12 @@ python3 db_config.py
 
 echo "Copy scripts to /usr/local/bin and set permisions"
 
-chown -R www-data:www-data ./image_utils
+OS=($(awk -F= '$1=="ID_LIKE" { print $2 ;}' /etc/os-release))
+if [[ $OS =~ "debian" ]]; then
+   chown -R www-data:www-data ./image_utils
+elif [[ $OS =~ "arch" ]]; then
+   chown -R http:http ./image_utils
+fi
 chmod +x ./image_utils/image-*
 sudo cp -p ./image_utils/image-* /usr/local/bin
 
