@@ -174,37 +174,27 @@ echo '<div class="modal" id="documentation" tabindex="-1">
 </div>';
 
 //OS version model
-//$osversion = exec ("cat /etc/os-release");
-//$lines=file('/etc/os-release');
-$lines=array();
-$fp=fopen('/etc/os-release', 'r');
-while ($fp && !feof($fp)){
-    $line=fgets($fp);
-    //process line however you like
-    $line=trim($line);
-    //add to array
-    $lines[]=$line;
-}
-fclose($fp);
+$rval = os_info();
 echo '
 <div class="modal fade" id="os_version" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
-			<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['os_version'].'</h5>
-            </div>
-            <div class="modal-body">
-			   <div class="list-group">
-				<a href="#" class="list-group-item"><img src="images/linux.svg" width="20" height="20" alt="">&nbsp'.$lines[1].'</a>
-				<a href="#" class="list-group-item"><img src="images/linux.svg" width="20" height="20" alt="">&nbsp'.$lines[3].'</a>
-				</div>
-           </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
-            </div>
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                                <h5 class="modal-title">'.$lang['os_version'].'</h5>
+                        </div>
+                        <div class="modal-body">
+                                <div class="list-group">
+                                        <a href="#" class="list-group-item"><img src="images/linux.svg" width="20" height="20" alt="">&nbspNAME - '.$rval["NAME"].'</a>
+                                        <a href="#" class="list-group-item"><img src="images/linux.svg" width="20" height="20" alt="">&nbspVERSION - '.$rval["VERSION"].'</a>
+                                        <a href="#" class="list-group-item"><img src="images/linux.svg" width="20" height="20" alt="">&nbspDISTRIBUTION - '.$rval["ID"].'</a>
+                                </div>
+                        </div>
+                        <div class="modal-footer">
+                                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                        </div>
+                </div>
         </div>
-    </div>
 </div>';
 
 //MaxAir Versions
