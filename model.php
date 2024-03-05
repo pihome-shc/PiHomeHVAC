@@ -185,9 +185,13 @@ echo '
                         </div>
                         <div class="modal-body">
                                 <div class="list-group">
-                                        <a href="#" class="list-group-item"><img src="images/linux.svg" width="20" height="20" alt="">&nbspNAME - '.$rval["NAME"].'</a>
-                                        <a href="#" class="list-group-item"><img src="images/linux.svg" width="20" height="20" alt="">&nbspVERSION - '.$rval["VERSION"].'</a>
-                                        <a href="#" class="list-group-item"><img src="images/linux.svg" width="20" height="20" alt="">&nbspDISTRIBUTION - '.$rval["ID"].'</a>
+                                        <a href="#" class="list-group-item"><img src="images/linux.svg" width="20" height="20" alt="">&nbspNAME - '.$rval["NAME"].'</a>';
+					if (array_key_exists("VERSION",$rval)) {
+                                        	echo '<a href="#" class="list-group-item"><img src="images/linux.svg" width="20" height="20" alt="">&nbspVERSION - '.$rval["VERSION"].'</a>';
+					} elseif (array_key_exists("BUILD_ID",$rval)) {
+                                                echo '<a href="#" class="list-group-item"><img src="images/linux.svg" width="20" height="20" alt="">&nbspBUILD ID - '.$rval["BUILD_ID"].'</a>';
+					}
+                                        echo '<a href="#" class="list-group-item"><img src="images/linux.svg" width="20" height="20" alt="">&nbspDISTRIBUTION - '.$rval["ID"].'</a>
                                 </div>
                         </div>
                         <div class="modal-footer">

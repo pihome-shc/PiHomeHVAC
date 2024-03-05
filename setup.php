@@ -185,15 +185,21 @@ echo $output;
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Finished Installing Scheduling \n";
 
 // Check/Add sudoers file /etc/sudoers.d/maxair
+$rval = os_info();
+if (strpos($rval["ID_LIKE"], "debian") !== false) {
+	$web_user_name = "www-data";
+} else {
+	$web_user_name = "http";
+}
 $sudoersfile = '/etc/sudoers.d/maxair';
-$message = 'www-data ALL=(ALL) NOPASSWD:/sbin/iwlist wlan0 scan
-www-data ALL=(ALL) NOPASSWD:/sbin/reboot
-www-data ALL=(ALL) NOPASSWD:/sbin/shutdown -h now
-www-data ALL=(ALL) NOPASSWD:/bin/mv myfile1.tmp /etc/wpa_supplicant/wpa_supplicant.conf
-www-data ALL=(ALL) NOPASSWD:/sbin/ifconfig eth0
-www-data ALL=/bin/systemctl
-www-data ALL=NOPASSWD: /bin/systemctl
-www-data ALL=(ALL) NOPASSWD:/usr/bin/pkill
+$message = $web_user_name.' ALL=(ALL) NOPASSWD:/sbin/iwlist wlan0 scan
+'.$web_user_name.' ALL=(ALL) NOPASSWD:/sbin/reboot
+'.$web_user_name.' ALL=(ALL) NOPASSWD:/sbin/shutdown -h now
+'.$web_user_name.' ALL=(ALL) NOPASSWD:/bin/mv myfile1.tmp /etc/wpa_supplicant/wpa_supplicant.conf
+'.$web_user_name.' ALL=(ALL) NOPASSWD:/sbin/ifconfig eth0
+'.$web_user_name.' ALL=/bin/systemctl
+'.$web_user_name.' ALL=NOPASSWD: /bin/systemctl
+'.$web_user_name.' ALL=(ALL) NOPASSWD:/usr/bin/pkill
 ';
 if (file_exists($sudoersfile)) {
         $output = shell_exec('cat '.$sudoersfile);
@@ -738,5 +744,35 @@ function show_status($done, $total, $size=30) {
     if($done == $total) {
         echo "\n";
     }
+}
+
+function os_info() {
+        if (strtolower(substr(PHP_OS, 0, 5)) === 'linux')
+        {
+            $vars = array();
+            $files = glob('/etc/*-release');
+
+            foreach ($files as $file)
+            {
+                $lines = array_filter(array_map(function($line) {
+
+                    // split value from key
+                    $parts = explode('=', $line);
+
+                    // makes sure that "useless" lines are ignored (together with array_filter)
+                    if (count($parts) !== 2) return false;
+
+                    // remove quotes, if the value is quoted
+                    $parts[1] = str_replace(array('"', "'"), '', $parts[1]);
+                    return $parts;
+
+                }, file($file)));
+
+                foreach ($lines as $line)
+                    $vars[$line[0]] = $line[1];
+            }
+
+        return $vars;
+        }
 }
 ?>
