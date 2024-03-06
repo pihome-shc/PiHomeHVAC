@@ -364,7 +364,12 @@ $rval = getDir('/var/www/code_updates');
 <?php
 $query="select * from weather;";
 $result=$conn->query($query);
-$weather = mysqli_fetch_array($result);
+$rowcount = mysqli_num_rows($result);
+if($rowcount > 0) {
+        $weather = mysqli_fetch_array($result);
+} else {
+        $weather['img'] = "04d";
+}
 $c_f = settings($conn, 'c_f');
 if($c_f==1 || $c_f=='1')
 {
