@@ -101,7 +101,11 @@ if ($rowcount > 0) {
 	echo '<input type="hidden" id="zone_id" name="zone_id" value="'.$livetemp_zone_id.'"/>
         <input type="hidden" id="min_c" name="min_c" value="'.DispSensor($conn,$zrow['min_c'],1).'"/>
 	<input type="hidden" id="max_c" name="max_c" value="'.DispSensor($conn,$zrow['max_c'],1).'"/>';
-} // end if ($rowcount > 0)
+} else { // end if ($rowcount > 0)
+        echo '<input type="hidden" id="zone_id" name="zone_id" value=""/>
+        <input type="hidden" id="min_c" name="min_c" value=""/>
+        <input type="hidden" id="max_c" name="max_c" value=""/>';
+} // end if ($rowcount = 0)
 echo '<div class="modal fade" id="livetemperature" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">

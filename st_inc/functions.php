@@ -1012,7 +1012,7 @@ function offset($conn,$button) {
 	<button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-circle no-shadow '.$button_style.' mainbtn animated fadeIn" data-bs-toggle="modal" href="#offset_setup" data-bs-backdrop="static" data-bs-keyboard="false">
         <h3 class="buttontop"><small>'.$button.'</small></h3>
         <h3 class="degre"><i class="bi bi-clock"  style="font-size: 1.4rem; color: black"></i></h3>
-        <h3 class="status"><small class="statuscircle" id="bs1_3"><i class="bi bi-circle-fill '.$offset_status.'" style="font-size: 0.55rem;"></i></small><small class="statuszoon" id=bs2_3">'.$start_time_temp_offset.'&nbsp</small>
+        <h3 class="status"><small class="statuscircle" id="bs1_3"><i class="bi bi-circle-fill '.$offset_status.'" style="font-size: 0.55rem;"></i></small><small class="statuszoon" id="bs2_3">'.$start_time_temp_offset.'&nbsp</small>
         </h3></button></div>';
 }
 
