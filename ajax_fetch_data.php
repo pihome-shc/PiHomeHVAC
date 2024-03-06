@@ -36,6 +36,12 @@ require_once(__DIR__.'/st_inc/functions.php');
 require_once(__DIR__.'/st_inc/session.php');
 
 $theme = settings($conn, 'theme');
+$rval = os_info();
+if (strpos($rval["ID_LIKE"], "debian") !== false) {
+        $web_user_name = "www-data";
+} else {
+        $web_user_name = "http";
+}
 
 if(isset($_GET['id'])) { $id = $_GET['id']; }
 if(isset($_GET['type'])) { $type = $_GET['type']; }
@@ -951,9 +957,9 @@ if ($type <= 5) {
             			similar_text($rval['stderr'],'We trust you have received the usual lecture from the local System Administrator. It usually boils down to these three things: #1) Respect the privacy of others. #2) Think before you type. #3) With great power comes great responsibility. sudo: no tty present and no askpass program specified',$per);
             			if($per>80) {
 					if(substr($id,0,10)=='homebridge') {
-                				$rval['stdout']='www-data cannot issue  hb-service commands.<br/><br/>If you would like it to be able to, add<br/><code>www-data ALL=/usr/bin/hb-service<br/>www-data ALL=NOPASSWD: /usr/bin/hb-service</code><br/>to /etc/sudoers.d/010_pi-nopasswd.';
+                				$rval['stdout']=$web_user_name.' cannot issue  hb-service commands.<br/><br/>If you would like it to be able to, add<br/><code>'.$web_user_name.' ALL=/usr/bin/hb-service<br/>'.$web_user_name.' ALL=NOPASSWD: /usr/bin/hb-service</code><br/>to /etc/sudoers.d/010_pi-nopasswd.';
 					} else {
-						$rval['stdout']='www-data cannot issue systemctl commands.<br/><br/>If you would like it to be able to, add<br/><code>www-data ALL=/bin/systemctl<br/>www-data ALL=NOPASSWD: /bin/systemctl</code><br/>to /etc/sudoers.d/010_pi-nopasswd.';
+						$rval['stdout']=$web_user_name.' cannot issue systemctl commands.<br/><br/>If you would like it to be able to, add<br/><code>'.$web_user_name.' ALL=/bin/systemctl<br/>'.$web_user_name.' ALL=NOPASSWD: /bin/systemctl</code><br/>to /etc/sudoers.d/010_pi-nopasswd.';
 					}
                 			$rval['stderr']='';
             			}

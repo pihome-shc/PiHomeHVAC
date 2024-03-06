@@ -19,6 +19,12 @@
 *************************************************************************"
 */
 $theme = settings($conn, 'theme');
+$rval = os_info();
+if (strpos($rval["ID_LIKE"], "debian") !== false) {
+        $web_user_name = "www-data";
+} else {
+        $web_user_name = "http";
+}
 
 if ($model_num == 1) {
 // show frost protection
@@ -1553,7 +1559,7 @@ echo '<div class="modal fade" id="show_services" tabindex="-1" role="dialog" ari
                                                 $per='';
                                                 similar_text($sval['stderr'],'Hint: You are currently not seeing messages from other users and the system. Users in the \'systemd-journal\' group can see all messages. Pass -q to turn off this notice. No journal files were opened due to insufficient permissions.',$per);
                                                 if($per>80) {
-                                                        $sval['stdout']='www-data cannot access journalctl.<br/><br/>If you would like it to be able to, run<br/><code>sudo usermod -a -G systemd-journal www-data</code><br/>and then reboot the RPi.';
+                                                        $sval['stdout']=$web_user_name.' cannot access journalctl.<br/><br/>If you would like it to be able to, run<br/><code>sudo usermod -a -G systemd-journal '.$web_user_name.'</code><br/>and then reboot the RPi.';
 						}
         					echo '<span class="list-group-item">
 							<div class="d-flex justify-content-start">';
