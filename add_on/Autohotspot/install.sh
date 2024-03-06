@@ -121,7 +121,36 @@ check_wificountry()
         #echo "Checking iwlist sudo access"
         if [ ! -f "/etc/sudoers.d/MaxAir" ]; then
                 echo "Creating a sudo file for iwlist."
-                cp "$cpath/config/MaxAir" /etc/sudoers.d
+                OS=($(awk -F= '$1=="ID_LIKE" { print $2 ;}' /etc/os-release))
+                if [[ $OS =~ "debian" ]]; then
+                   cat > /etc/sudoers.d <<- "EOF"
+                   #www-data ALL=(ALL) NOPASSWD:/usr/sbin/iwlist wlan0 scan
+                   #www-data ALL=(ALL) NOPASSWD:/usr/sbin/reboot
+                   #www-data ALL=(ALL) NOPASSWD:/usr/bin/mv myfile.tmp /etc/wpa_supplicant/wpa_supplicant.conf
+                   #www-data ALL=(ALL) NOPASSWD:/usr/sbin/ifconfig eth0
+
+                   www-data ALL=(ALL) NOPASSWD:/sbin/iwlist wlan0 scan
+                   www-data ALL=(ALL) NOPASSWD:/sbin/iwconfig wlan0
+                   www-data ALL=(ALL) NOPASSWD:/sbin/reboot
+                   www-data ALL=(ALL) NOPASSWD:/sbin/ifconfig eth0
+                   www-data ALL=(ALL) NOPASSWD:/bin/mv myfile2.tmp /etc/wpa_supplicant/wpa_supplicant.conf
+                   www-data ALL=(ALL) NOPASSWD:/bin/rm myfile*.tmp
+                   EOF
+                elif [[ $OS =~ "arch" ]]; then
+                   cat > /etc/sudoers.d <<- "EOF"
+                   #http ALL=(ALL) NOPASSWD:/usr/sbin/iwlist wlan0 scan
+                   #http ALL=(ALL) NOPASSWD:/usr/sbin/reboot
+                   #http ALL=(ALL) NOPASSWD:/usr/bin/mv myfile.tmp /etc/wpa_supplicant/wpa_supplicant.conf
+                   #http ALL=(ALL) NOPASSWD:/usr/sbin/ifconfig eth0
+
+                   http ALL=(ALL) NOPASSWD:/sbin/iwlist wlan0 scan
+                   http ALL=(ALL) NOPASSWD:/sbin/iwconfig wlan0
+                   http ALL=(ALL) NOPASSWD:/sbin/reboot
+                   http ALL=(ALL) NOPASSWD:/sbin/ifconfig eth0
+                   http ALL=(ALL) NOPASSWD:/bin/mv myfile2.tmp /etc/wpa_supplicant/wpa_supplicant.conf
+                   http ALL=(ALL) NOPASSWD:/bin/rm myfile*.tmp
+                   EOF
+                fi
         fi
 }
 
