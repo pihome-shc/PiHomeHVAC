@@ -138,8 +138,8 @@ void before(){
   pinMode (8, INPUT);
   digitalWrite (8, HIGH); // turn on internal pullup
   int val_D8 = digitalRead(8) ^ 1;   // read the input pin
-  int node_low = 0 + val_D5 + (val_D6 * 2);
-  int node_high = 20 + (val_D7 + (val_D8 * 2)) * 10;
+  int node_low = 0 + val_D6 + (val_D5 * 2);
+  int node_high = 20 + (val_D8 + (val_D7 * 2)) * 10;
   //set MY_NODE_ID based on the jumper settings, options 20-23, 30-33, 40-43 or 50-53
   //no jumpers will give set MY_NODE_ID to 20, all jumpers installed will set MY_NODE_ID to 53 
   myNodeId = node_high + node_low;
