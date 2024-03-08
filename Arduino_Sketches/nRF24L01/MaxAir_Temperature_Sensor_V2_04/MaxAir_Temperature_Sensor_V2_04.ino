@@ -14,7 +14,7 @@
 // *****************************************************************
 
 // Enable debug prints to serial monitor
-#define MY_DEBUG
+//#define MY_DEBUG
 
 //Set MY_SPLASH_SCREEN_DISABLED to disable MySensors splash screen. (This saves 120 bytes of flash)
 #define MY_SPLASH_SCREEN_DISABLED
