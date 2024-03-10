@@ -26,7 +26,7 @@ print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
 print("* Script to communicate with MySensors Nodes, for more *")
 print("* info please check MySensors API.                     *")
 print("*      Build Date: 18/09/2017                          *")
-print("*      Version 0.27 - Last Modified 19/02/2024         *")
+print("*      Version 0.28 - Last Modified 09/03/2024         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -1749,277 +1749,346 @@ def on_disconnect(client, userdata, rc):
 
 # To be run when an MQTT message is received to write the sensor value into messages_in
 def on_message(client, userdata, message):
-    global mqtt_msgcount
-    global clear_hour_timer
-    if time.time() - hour_timer <= 60*60:
-        mqtt_msgcount += 1
-        clear_hour_timer = False
-    else:
-        mqtt_msgcount = 0
-        clear_hour_timer = True
-    print("\nMQTT messaged received.")
-    print("Topic: %s" % message.topic)
-    print("Message: %s" % message.payload.decode())
-    cur_mqtt.execute(
-        """SELECT `nodes`.id, `nodes`.node_id, `mqtt_devices`.id AS mqtt_id, `mqtt_devices`.child_id, `mqtt_devices`.attribute, `mqtt_devices`.min_value
-           FROM `mqtt_devices`, `nodes`
-           WHERE `mqtt_devices`.nodes_id = `nodes`.id AND `mqtt_devices`.type = 0 AND `mqtt_devices`.mqtt_topic = (%s)""",
-        [message.topic],
-    )
-    on_msg_description_to_index = dict(
-        (d[0], i) for i, d in enumerate(cur_mqtt.description)
-    )
-    for child in cur_mqtt.fetchall():
-        sensors_id = child[on_msg_description_to_index["id"]]
-        mqtt_id = child[on_msg_description_to_index["mqtt_id"]]
-        mqtt_node_id = child[on_msg_description_to_index["node_id"]]
-        mqtt_child_sensor_id = int(child[on_msg_description_to_index["child_id"]])
-        mqtt_min_value = child[on_msg_description_to_index["min_value"]]
-        # Update node last seen
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        try:
+    if not os.path.isfile("/tmp/db_cleanup_running"):
+        global mqtt_msgcount
+        global clear_hour_timer
+        if time.time() - hour_timer <= 60*60:
+            mqtt_msgcount += 1
+            clear_hour_timer = False
+        else:
+            mqtt_msgcount = 0
+            clear_hour_timer = True
+        print("\nMQTT messaged received.")
+        print("Topic: %s" % message.topic)
+        print("Message: %s" % message.payload.decode())
+        cur_mqtt.execute(
+            """SELECT `nodes`.id, `nodes`.node_id, `mqtt_devices`.id AS mqtt_id, `mqtt_devices`.child_id, `mqtt_devices`.attribute, `mqtt_devices`.min_value
+               FROM `mqtt_devices`, `nodes`
+               WHERE `mqtt_devices`.nodes_id = `nodes`.id AND `mqtt_devices`.type = 0 AND `mqtt_devices`.mqtt_topic = (%s)""",
+            [message.topic],
+        )
+        on_msg_description_to_index = dict(
+            (d[0], i) for i, d in enumerate(cur_mqtt.description)
+        )
+        for child in cur_mqtt.fetchall():
+            sensors_id = child[on_msg_description_to_index["id"]]
+            mqtt_id = child[on_msg_description_to_index["mqtt_id"]]
+            mqtt_node_id = child[on_msg_description_to_index["node_id"]]
+            mqtt_child_sensor_id = int(child[on_msg_description_to_index["child_id"]])
+            mqtt_min_value = child[on_msg_description_to_index["min_value"]]
+            # Update node last seen
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            try:
+                cur_mqtt.execute(
+                    'UPDATE `nodes` SET `last_seen`= %s WHERE `node_id`= %s',
+                    [timestamp, mqtt_node_id],
+                )
+                con_mqtt.commit()
+            except mdb.Error as e:
+                # skip deadlock error (being caused when mysqldunp runs
+                if e.args[0] == 1213:
+                    pass
+                else:
+                    print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                    print(traceback.format_exc())
+                    logging.error(e)
+                    logging.info(traceback.format_exc())
+                    con.close()
+                    if MQTT_CONNECTED == 1:
+                        mqttClient.disconnect()
+                        mqttClient.loop_stop()
+                    print(infomsg)
+                    sys.exit(1)
+
+            # Update the mqtt_devices last seen
             cur_mqtt.execute(
-                'UPDATE `nodes` SET `last_seen`= %s WHERE `node_id`= %s',
-                [timestamp, mqtt_node_id],
+                'UPDATE `mqtt_devices` SET `last_seen` = %s WHERE `id` = %s',
+                [timestamp, mqtt_id],
             )
             con_mqtt.commit()
-        except mdb.Error as e:
-            # skip deadlock error (being caused when mysqldunp runs
-            if e.args[0] == 1213:
-                pass
-            else:
-                print("DB Error %d: %s" % (e.args[0], e.args[1]))
-                print(traceback.format_exc())
-                logging.error(e)
-                logging.info(traceback.format_exc())
-                con.close()
-                if MQTT_CONNECTED == 1:
-                    mqttClient.disconnect()
-                    mqttClient.loop_stop()
-                print(infomsg)
-                sys.exit(1)
-
-        # Update the mqtt_devices last seen
-        cur_mqtt.execute(
-            'UPDATE `mqtt_devices` SET `last_seen` = %s WHERE `id` = %s',
-            [timestamp, mqtt_id],
-        )
-        con_mqtt.commit()
-        # Process incomming STATE change messages for switches toggled by an external agent
-        if fnmatch.fnmatch(message.topic, '*/STATE*'):
-            mqtt_payload = mqtt_payload = json.loads(message.payload.decode())
-            for e in mqtt_payload: # iterator over a dictionary
-                if fnmatch.fnmatch(e, 'POWER*'):
-                    if child[on_msg_description_to_index["attribute"]] == e:
-                        mqtt_payload = mqtt_payload.get(e)
-                        cur_mqtt.execute(
-                            'SELECT payload FROM messages_out WHERE node_id = %s AND child_id = %s LIMIT 1;',
-                            [mqtt_node_id, mqtt_child_sensor_id],
-                        )
-                        result = cur_mqtt.fetchone()
-                        if cur_mqtt.rowcount > 0:
-                            mqtt_message_to_index = dict(
-                                (d[0], i) for i, d in enumerate(cur_mqtt.description)
+            # Process incomming STATE change messages for switches toggled by an external agent
+            if fnmatch.fnmatch(message.topic, '*/STATE*'):
+                mqtt_payload = mqtt_payload = json.loads(message.payload.decode())
+                for e in mqtt_payload: # iterator over a dictionary
+                    if fnmatch.fnmatch(e, 'POWER*'):
+                        if child[on_msg_description_to_index["attribute"]] == e:
+                            mqtt_payload = mqtt_payload.get(e)
+                            cur_mqtt.execute(
+                                'SELECT payload FROM messages_out WHERE node_id = %s AND child_id = %s LIMIT 1;',
+                                [mqtt_node_id, mqtt_child_sensor_id],
                             )
-                            current_state = result[mqtt_message_to_index["payload"]]
-#                            print(current_state,mqtt_payload)
-                            if (current_state == "0" and mqtt_payload == "ON") or (current_state == "1" and mqtt_payload == "OFF"):
-                                if dbgLevel >= 2 and dbgMsgIn == 1:
-                                     print(
-                                         "17: Update MQTT Switch STATE Node ID:",
-                                         mqtt_node_id,
-                                         " Child Sensor ID:",
-                                          mqtt_child_sensor_id,
-                                         " PayLoad:",
-                                         mqtt_payload,
-                                     )
-                                if mqtt_payload == "ON":
-                                    new_payload = "1"
-                                else:
-                                    new_payload = "0"
-                                # Get previous data for this controller
-                                cur_mqtt.execute(
-                                    """SELECT relays.relay_id, zone_relays.zone_id
-                                       FROM zone_relays, relays
-                                       WHERE (relays.id = zone_relays.zone_relay_id) AND relays.relay_id = %s AND relays.relay_child_id = %s LIMIT 1;""",
-                                    [sensors_id, mqtt_child_sensor_id],
+                            result = cur_mqtt.fetchone()
+                            if cur_mqtt.rowcount > 0:
+                                mqtt_message_to_index = dict(
+                                    (d[0], i) for i, d in enumerate(cur_mqtt.description)
                                 )
-                                result = cur_mqtt.fetchone()
-                                if cur_mqtt.rowcount > 0:
-                                    mqtt_relay_to_index = dict(
-                                        (d[0], i) for i, d in enumerate(cur_mqtt.description)
-                                    )
-                                    mqtt_zone_id = result[mqtt_relay_to_index["zone_id"]]
+                                current_state = result[mqtt_message_to_index["payload"]]
+    #                            print(current_state,mqtt_payload)
+                                if (current_state == "0" and mqtt_payload == "ON") or (current_state == "1" and mqtt_payload == "OFF"):
+                                    if dbgLevel >= 2 and dbgMsgIn == 1:
+                                         print(
+                                             "17: Update MQTT Switch STATE Node ID:",
+                                             mqtt_node_id,
+                                             " Child Sensor ID:",
+                                              mqtt_child_sensor_id,
+                                             " PayLoad:",
+                                             mqtt_payload,
+                                         )
+                                    if mqtt_payload == "ON":
+                                        new_payload = "1"
+                                    else:
+                                        new_payload = "0"
+                                    # Get previous data for this controller
                                     cur_mqtt.execute(
-                                        'SELECT id, mode, status FROM zone_current_state WHERE zone_id = %s LIMIT 1;',
-                                        [mqtt_zone_id],
+                                        """SELECT relays.relay_id, zone_relays.zone_id
+                                           FROM zone_relays, relays
+                                           WHERE (relays.id = zone_relays.zone_relay_id) AND relays.relay_id = %s AND relays.relay_child_id = %s LIMIT 1;""",
+                                        [sensors_id, mqtt_child_sensor_id],
                                     )
                                     result = cur_mqtt.fetchone()
                                     if cur_mqtt.rowcount > 0:
-                                        mqtt_zone_state_to_index = dict(
+                                        mqtt_relay_to_index = dict(
                                             (d[0], i) for i, d in enumerate(cur_mqtt.description)
                                         )
-                                        zone_current_state_id = result[mqtt_zone_state_to_index["id"]]
-                                        zone_current_status = result[mqtt_zone_state_to_index["status"]]
-                                        zone_mode = result[mqtt_zone_state_to_index["mode"]]
-                                        main_mode = floor(zone_mode/10)*10
-                                        if main_mode == 80:
-                                            if new_payload == "0":
-                                                new_mode = 75
-                                                new_status = 0
+                                        mqtt_zone_id = result[mqtt_relay_to_index["zone_id"]]
+                                        cur_mqtt.execute(
+                                            'SELECT id, mode, status FROM zone_current_state WHERE zone_id = %s LIMIT 1;',
+                                            [mqtt_zone_id],
+                                        )
+                                        result = cur_mqtt.fetchone()
+                                        if cur_mqtt.rowcount > 0:
+                                            mqtt_zone_state_to_index = dict(
+                                                (d[0], i) for i, d in enumerate(cur_mqtt.description)
+                                            )
+                                            zone_current_state_id = result[mqtt_zone_state_to_index["id"]]
+                                            zone_current_status = result[mqtt_zone_state_to_index["status"]]
+                                            zone_mode = result[mqtt_zone_state_to_index["mode"]]
+                                            main_mode = floor(zone_mode/10)*10
+                                            if main_mode == 80:
+                                                if new_payload == "0":
+                                                    new_mode = 75
+                                                    new_status = 0
+                                                else:
+                                                    new_mode = 74
+                                                    new_status = 1
                                             else:
-                                                new_mode = 74
-                                                new_status = 1
-                                        else:
-                                            if new_payload == "0":
-                                                new_mode = 0
-                                                new_status = 0
-                                            else:
-                                                new_mode = 114
-                                                new_status = 1
-                                        # Update the zone_current_state table
-                                        cur_mqtt.execute(
-                                            "UPDATE zone_current_state SET mode = %s, status = %s, status_prev = %s  WHERE id = %s;",
-                                            (new_mode, new_status, zone_current_status, zone_current_state_id,),
-                                        )
-                                        con.commit()
-                                        # Update the messages_out table
-                                        cur_mqtt.execute(
-                                            "UPDATE messages_out SET payload = %s  WHERE n_id = %s AND child_id = %s",
-                                            (new_payload, sensors_id, mqtt_child_sensor_id,),
-                                        )
-                                        con.commit()
-                                        # Update the zone_relays table
-                                        cur_mqtt.execute(
-                                            "UPDATE zone_relays SET state = %s WHERE zone_id = %s;",
-                                            (new_status, mqtt_zone_id,),
-                                        )
-                                        con.commit()
-                                        # Update the zone table
-                                        cur_mqtt.execute(
-                                            "UPDATE zone SET zone_state = %s WHERE id = %s;",
-                                            (new_status, mqtt_zone_id,),
-                                        )
-                                        con.commit()
-        else:
-            # Process incomming Sensor messages
-            if child[on_msg_description_to_index["attribute"]] == "":
-                mqtt_payload = float(message.payload.decode())
-                str_attribute = "Temperature"
+                                                if new_payload == "0":
+                                                    new_mode = 0
+                                                    new_status = 0
+                                                else:
+                                                    new_mode = 114
+                                                    new_status = 1
+                                            # Update the zone_current_state table
+                                            cur_mqtt.execute(
+                                                "UPDATE zone_current_state SET mode = %s, status = %s, status_prev = %s  WHERE id = %s;",
+                                                (new_mode, new_status, zone_current_status, zone_current_state_id,),
+                                            )
+                                            con.commit()
+                                            # Update the messages_out table
+                                            cur_mqtt.execute(
+                                                "UPDATE messages_out SET payload = %s  WHERE n_id = %s AND child_id = %s",
+                                                (new_payload, sensors_id, mqtt_child_sensor_id,),
+                                            )
+                                            con.commit()
+                                            # Update the zone_relays table
+                                            cur_mqtt.execute(
+                                                "UPDATE zone_relays SET state = %s WHERE zone_id = %s;",
+                                                (new_status, mqtt_zone_id,),
+                                            )
+                                            con.commit()
+                                            # Update the zone table
+                                            cur_mqtt.execute(
+                                                "UPDATE zone SET zone_state = %s WHERE id = %s;",
+                                                (new_status, mqtt_zone_id,),
+                                            )
+                                            con.commit()
             else:
-                mqtt_payload = json.loads(message.payload.decode())
-                attribute = child[on_msg_description_to_index["attribute"]]
-                mqtt_payload = deep_get(mqtt_payload, attribute)
-                if attribute.find(".") != -1:
-                    str_attribute = attribute.split(".")[1]
+                # Process incomming Sensor messages
+                if child[on_msg_description_to_index["attribute"]] == "":
+                    mqtt_payload = float(message.payload.decode())
+                    str_attribute = "Temperature"
                 else:
-                    str_attribute = attribute
-            if mqtt_payload is not None:
-                # Get reading type (continous or on-change)
-                cur_mqtt.execute(
-                    'SELECT sensor_type_id, mode, timeout, correction_factor, resolution FROM sensors WHERE sensor_id = %s AND sensor_child_id = %s LIMIT 1;',
-                    [sensors_id, mqtt_child_sensor_id],
-                )
-                if cur_mqtt.rowcount > 0:
-                    result = cur_mqtt.fetchone()
-                    sensor_to_index = dict(
-                        (d[0], i) for i, d in enumerate(cur_mqtt.description)
-                    )
-                    sensor_type_id = result[sensor_to_index["sensor_type_id"]]
-                    mode = result[sensor_to_index["mode"]]
-                    sensor_timeout = int(result[sensor_to_index["timeout"]])*60
-                    tdelta = 0
-                    last_message_payload = 0
-                    resolution = float(result[sensor_to_index["resolution"]])
-                    correction_factor = float(result[sensor_to_index["correction_factor"]])
-                    mqtt_payload = mqtt_payload + correction_factor
-                    # Update last reading for this sensor
+                    mqtt_payload = json.loads(message.payload.decode())
+                    attribute = child[on_msg_description_to_index["attribute"]]
+                    mqtt_payload = deep_get(mqtt_payload, attribute)
+                    if attribute.find(".") != -1:
+                        str_attribute = attribute.split(".")[1]
+                    else:
+                        str_attribute = attribute
+                if mqtt_payload is not None:
+                    # Get reading type (continous or on-change)
                     cur_mqtt.execute(
-                        "UPDATE `sensors` SET `current_val_1` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
-                        [mqtt_payload, sensors_id, mqtt_child_sensor_id],
-                    )
-                    con_mqtt.commit()
-                    # Check is sensor is attached to a zone which is being graphed
-                    cur_mqtt.execute(
-                        """SELECT sensors.id, sensors.zone_id, nodes.node_id, sensors.sensor_child_id, sensors.name, sensors.graph_num, sensors.message_in, sensors.sensor_type_id
-                           FROM sensors, `nodes`
-                           WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = %s AND sensors.sensor_child_id = %s LIMIT 1;""",
-                        [mqtt_node_id, mqtt_child_sensor_id],
+                        'SELECT sensor_type_id, mode, timeout, correction_factor, resolution FROM sensors WHERE sensor_id = %s AND sensor_child_id = %s LIMIT 1;',
+                        [sensors_id, mqtt_child_sensor_id],
                     )
                     if cur_mqtt.rowcount > 0:
-                        results = cur_mqtt.fetchone()
-                        mqtt_sensor_to_index = dict(
+                        result = cur_mqtt.fetchone()
+                        sensor_to_index = dict(
                             (d[0], i) for i, d in enumerate(cur_mqtt.description)
                         )
-                        mqtt_sensor_id = int(results[mqtt_sensor_to_index["id"]])
-                        mqtt_sensor_name = results[mqtt_sensor_to_index["name"]]
-                        mqtt_zone_id = results[mqtt_sensor_to_index["zone_id"]]
-                        mqtt_sensor_type_id = results[mqtt_sensor_to_index["sensor_type_id"]]
-                        # type = results[zone_view_to_index['type']]
-                        # category = int(results[zone_view_to_index['category']])
-                        mqtt_graph_num = int(results[mqtt_sensor_to_index["graph_num"]])
-                        mqtt_msg_in = int(results[mqtt_sensor_to_index["message_in"]])
-                        # sensor exists and it is required to update the messages_in table
-                        if mqtt_msg_in == 1:
-                            if mode == 1:
-                                # Get previous data for this sensorr
-                                cur_mqtt.execute(
-                                    'SELECT datetime, payload FROM messages_in_view_24h WHERE node_id = %s AND child_id = %s ORDER BY id DESC LIMIT 1;',
-                                    [mqtt_node_id, mqtt_child_sensor_id],
-                                )
-                                results = cur_mqtt.fetchone()
-                                if cur_mqtt.rowcount > 0:
-                                    mqtt_message_to_index = dict(
-                                        (d[0], i) for i, d in enumerate(cur_mqtt.description)
-                                    )
-                                    last_message_datetime = results[mqtt_message_to_index["datetime"]]
-                                    last_message_payload = float(results[mqtt_message_to_index["payload"]])
-                                    tdelta = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() -  datetime.strptime(str(last_message_datetime), "%Y-%m-%d %H:%M:%S").timestamp()
-                            if mode == 0 or (cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((mqtt_payload < last_message_payload - resolution or mqtt_payload > last_message_payload + resolution) or tdelta > sensor_timeout))):
-                                if sensor_timeout > 0 and tdelta > sensor_timeout:
-                                    mqtt_payload = last_message_payload
-                                if dbgLevel >= 2 and dbgMsgIn == 1:
-                                    print(
-                                        "5: Adding " + str_attribute + " Reading From Node ID:",
-                                        mqtt_node_id,
-                                        " Child Sensor ID:",
-                                        mqtt_child_sensor_id,
-                                        " PayLoad:",
-                                        mqtt_payload,
-                                    )
-                                cur_mqtt.execute(
-                                    "INSERT INTO `messages_in`(`node_id`, `sync`, `purge`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES (%s, 0, 0, %s, 0, %s, %s)",
-                                    [mqtt_node_id, mqtt_child_sensor_id, mqtt_payload, timestamp],
-                                )
-                                con_mqtt.commit()
+                        sensor_type_id = result[sensor_to_index["sensor_type_id"]]
+                        mode = result[sensor_to_index["mode"]]
+                        sensor_timeout = int(result[sensor_to_index["timeout"]])*60
+                        tdelta = 0
+                        last_message_payload = 0
+                        resolution = float(result[sensor_to_index["resolution"]])
+                        correction_factor = float(result[sensor_to_index["correction_factor"]])
+                        mqtt_payload = mqtt_payload + correction_factor
+                        # Update last reading for this sensor
+                        cur_mqtt.execute(
+                            "UPDATE `sensors` SET `current_val_1` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
+                            [mqtt_payload, sensors_id, mqtt_child_sensor_id],
+                        )
+                        con_mqtt.commit()
                         # Check is sensor is attached to a zone which is being graphed
-                        if  mqtt_sensor_type_id == 1 and mqtt_graph_num > 0:
-                            if mode == 1:
-                                # Get previous data for this sensorr
-                                cur_mqtt.execute(
-                                    'SELECT datetime, payload FROM sensor_graphs WHERE node_id = %s AND child_id = %s ORDER BY id DESC LIMIT 1;',
-                                    [mqtt_node_id, mqtt_child_sensor_id],
-                                )
-                                results = cur_mqtt.fetchone()
-                                if cur_mqtt.rowcount > 0:
-                                    mqtt_message_to_index = dict(
-                                        (d[0], i) for i, d in enumerate(cur_mqtt.description)
+                        cur_mqtt.execute(
+                            """SELECT sensors.id, sensors.zone_id, nodes.node_id, sensors.sensor_child_id, sensors.name, sensors.graph_num, sensors.message_in, sensors.sensor_type_id
+                               FROM sensors, `nodes`
+                               WHERE (sensors.sensor_id = nodes.`id`) AND  nodes.node_id = %s AND sensors.sensor_child_id = %s LIMIT 1;""",
+                            [mqtt_node_id, mqtt_child_sensor_id],
+                        )
+                        if cur_mqtt.rowcount > 0:
+                            results = cur_mqtt.fetchone()
+                            mqtt_sensor_to_index = dict(
+                                (d[0], i) for i, d in enumerate(cur_mqtt.description)
+                            )
+                            mqtt_sensor_id = int(results[mqtt_sensor_to_index["id"]])
+                            mqtt_sensor_name = results[mqtt_sensor_to_index["name"]]
+                            mqtt_zone_id = results[mqtt_sensor_to_index["zone_id"]]
+                            mqtt_sensor_type_id = results[mqtt_sensor_to_index["sensor_type_id"]]
+                            # type = results[zone_view_to_index['type']]
+                            # category = int(results[zone_view_to_index['category']])
+                            mqtt_graph_num = int(results[mqtt_sensor_to_index["graph_num"]])
+                            mqtt_msg_in = int(results[mqtt_sensor_to_index["message_in"]])
+                            # sensor exists and it is required to update the messages_in table
+                            if mqtt_msg_in == 1:
+                                if mode == 1:
+                                    # Get previous data for this sensorr
+                                    cur_mqtt.execute(
+                                        'SELECT datetime, payload FROM messages_in_view_24h WHERE node_id = %s AND child_id = %s ORDER BY id DESC LIMIT 1;',
+                                        [mqtt_node_id, mqtt_child_sensor_id],
                                     )
-                                    last_message_datetime = results[mqtt_message_to_index["datetime"]]
-                                    last_message_payload = float(results[mqtt_message_to_index["payload"]])
-                                    tdelta = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() -  datetime.strptime(str(last_message_datetime), "%Y-%m-%d %H:%M:%S").timestamp()
-                            if mode == 0 or (cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((mqtt_payload < last_message_payload - resolution or mqtt_payload > last_message_payload + resolution) or tdelta > sensor_timeout))):
-                                if sensor_timeout > 0 and tdelta > sensor_timeout:
-                                    mqtt_payload = last_message_payload
-                                cur_mqtt.execute("SELECT c_f FROM system LIMIT 1")
-                                row = cur_mqtt.fetchone()
-                                system_to_index = dict((d[0], i) for i, d in enumerate(cur_mqtt.description))
-                                c_f = row[system_to_index["c_f"]]  # 0 = centigrade, 1 = fahrenheit
-                                if c_f:
-                                    mqtt_payload = round((mqtt_payload * 9/5) + 32, 1)
+                                    results = cur_mqtt.fetchone()
+                                    if cur_mqtt.rowcount > 0:
+                                        mqtt_message_to_index = dict(
+                                            (d[0], i) for i, d in enumerate(cur_mqtt.description)
+                                        )
+                                        last_message_datetime = results[mqtt_message_to_index["datetime"]]
+                                        last_message_payload = float(results[mqtt_message_to_index["payload"]])
+                                        tdelta = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() -  datetime.strptime(str(last_message_datetime), "%Y-%m-%d %H:%M:%S").timestamp()
+                                if mode == 0 or (cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((mqtt_payload < last_message_payload - resolution or mqtt_payload > last_message_payload + resolution) or tdelta > sensor_timeout))):
+                                    if sensor_timeout > 0 and tdelta > sensor_timeout:
+                                        mqtt_payload = last_message_payload
+                                    if dbgLevel >= 2 and dbgMsgIn == 1:
+                                        print(
+                                            "5: Adding " + str_attribute + " Reading From Node ID:",
+                                            mqtt_node_id,
+                                            " Child Sensor ID:",
+                                            mqtt_child_sensor_id,
+                                            " PayLoad:",
+                                            mqtt_payload,
+                                        )
+                                    cur_mqtt.execute(
+                                        "INSERT INTO `messages_in`(`node_id`, `sync`, `purge`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES (%s, 0, 0, %s, 0, %s, %s)",
+                                        [mqtt_node_id, mqtt_child_sensor_id, mqtt_payload, timestamp],
+                                    )
+                                    con_mqtt.commit()
+                            # Check is sensor is attached to a zone which is being graphed
+                            if  mqtt_sensor_type_id == 1 and mqtt_graph_num > 0:
+                                if mode == 1:
+                                    # Get previous data for this sensorr
+                                    cur_mqtt.execute(
+                                        'SELECT datetime, payload FROM sensor_graphs WHERE node_id = %s AND child_id = %s ORDER BY id DESC LIMIT 1;',
+                                        [mqtt_node_id, mqtt_child_sensor_id],
+                                    )
+                                    results = cur_mqtt.fetchone()
+                                    if cur_mqtt.rowcount > 0:
+                                        mqtt_message_to_index = dict(
+                                            (d[0], i) for i, d in enumerate(cur_mqtt.description)
+                                        )
+                                        last_message_datetime = results[mqtt_message_to_index["datetime"]]
+                                        last_message_payload = float(results[mqtt_message_to_index["payload"]])
+                                        tdelta = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() -  datetime.strptime(str(last_message_datetime), "%Y-%m-%d %H:%M:%S").timestamp()
+                                if mode == 0 or (cur_mqtt.rowcount == 0 or (cur_mqtt.rowcount > 0 and ((mqtt_payload < last_message_payload - resolution or mqtt_payload > last_message_payload + resolution) or tdelta > sensor_timeout))):
+                                    if sensor_timeout > 0 and tdelta > sensor_timeout:
+                                        mqtt_payload = last_message_payload
+                                    cur_mqtt.execute("SELECT c_f FROM system LIMIT 1")
+                                    row = cur_mqtt.fetchone()
+                                    system_to_index = dict((d[0], i) for i, d in enumerate(cur_mqtt.description))
+                                    c_f = row[system_to_index["c_f"]]  # 0 = centigrade, 1 = fahrenheit
+                                    if c_f:
+                                        mqtt_payload = round((mqtt_payload * 9/5) + 32, 1)
+                                    if dbgLevel >= 2 and dbgMsgIn == 1:
+                                        print(
+                                            "5a: Adding Temperature Reading to Graph Table From Node ID:",
+                                            mqtt_node_id,
+                                            " Child Sensor ID:",
+                                            mqtt_child_sensor_id,
+                                            " PayLoad:",
+                                            mqtt_payload,
+                                        )
+                                    if mqtt_zone_id == 0:
+                                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                        cur_mqtt.execute(
+                                            """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`)
+                                               VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                                            (
+                                                0,
+                                                0,
+                                                mqtt_sensor_id,
+                                                mqtt_sensor_name,
+                                                "Sensor",
+                                                0,
+                                                mqtt_node_id,
+                                                mqtt_child_sensor_id,
+                                                0,
+                                                mqtt_payload,
+                                                timestamp,
+                                            ),
+                                        )
+                                        con_mqtt.commit()
+                                    else:
+                                        cur_mqtt.execute(
+                                            'SELECT * FROM `zone_view` where id = %s LIMIT 1;',
+                                            [mqtt_zone_id],
+                                        )
+                                        results = cur_mqtt.fetchone()
+                                        if cur_mqtt.rowcount > 0:
+                                            mqtt_zone_view_to_index = dict(
+                                                (d[0], i) for i, d in enumerate(cur_mqtt.description)
+                                            )
+                                            mqtt_zone_name = results[mqtt_zone_view_to_index["name"]]
+                                            mqtt_type = results[mqtt_zone_view_to_index["type"]]
+                                            mqtt_category = int(
+                                                results[mqtt_zone_view_to_index["category"]]
+                                            )
+                                            mqtt_zone_sensors_id = results[mqtt_zone_view_to_index["sensors_id"]]
+
+                                            if mqtt_zone_sensors_id is not None:
+                                                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                                cur_mqtt.execute(
+                                                    """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`,
+                                                       `datetime`)
+                                                       VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                                                    (
+                                                        0,
+                                                        0,
+                                                        mqtt_sensor_id,
+                                                        mqtt_zone_name,
+                                                        mqtt_type,
+                                                        mqtt_category,
+                                                        mqtt_node_id,
+                                                        mqtt_child_sensor_id,
+                                                        0,
+                                                        mqtt_payload,
+                                                        timestamp,
+                                                    ),
+                                                )
+                                                con_mqtt.commit()
+                            elif mqtt_sensor_type_id == 2:
                                 if dbgLevel >= 2 and dbgMsgIn == 1:
                                     print(
-                                        "5a: Adding Temperature Reading to Graph Table From Node ID:",
+                                        "6a: Adding Humidity Reading to Graph Table From Node ID:",
                                         mqtt_node_id,
                                         " Child Sensor ID:",
                                         mqtt_child_sensor_id,
@@ -2061,15 +2130,13 @@ def on_message(client, userdata, message):
                                         mqtt_category = int(
                                             results[mqtt_zone_view_to_index["category"]]
                                         )
-                                        mqtt_zone_sensors_id = results[mqtt_zone_view_to_index["sensors_id"]]
-
-                                        if mqtt_zone_sensors_id is not None:
+                                        if mqtt_category != 2:
                                             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                                             cur_mqtt.execute(
                                                 """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`,
                                                    `datetime`)
                                                    VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                                                (
+                                               (
                                                     0,
                                                     0,
                                                     mqtt_sensor_id,
@@ -2084,144 +2151,78 @@ def on_message(client, userdata, message):
                                                 ),
                                             )
                                             con_mqtt.commit()
-                        elif mqtt_sensor_type_id == 2:
-                            if dbgLevel >= 2 and dbgMsgIn == 1:
-                                print(
-                                    "6a: Adding Humidity Reading to Graph Table From Node ID:",
-                                    mqtt_node_id,
-                                    " Child Sensor ID:",
-                                    mqtt_child_sensor_id,
-                                    " PayLoad:",
-                                    mqtt_payload,
-                                )
-                            if mqtt_zone_id == 0:
-                                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                                cur_mqtt.execute(
-                                    """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`)
-                                       VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                                    (
-                                        0,
-                                        0,
-                                        mqtt_sensor_id,
-                                        mqtt_sensor_name,
-                                        "Sensor",
-                                        0,
-                                        mqtt_node_id,
-                                        mqtt_child_sensor_id,
-                                        0,
-                                        mqtt_payload,
-                                        timestamp,
-                                    ),
-                                )
-                                con_mqtt.commit()
-                            else:
-                                cur_mqtt.execute(
-                                    'SELECT * FROM `zone_view` where id = %s LIMIT 1;',
-                                    [mqtt_zone_id],
-                                )
-                                results = cur_mqtt.fetchone()
-                                if cur_mqtt.rowcount > 0:
-                                    mqtt_zone_view_to_index = dict(
-                                        (d[0], i) for i, d in enumerate(cur_mqtt.description)
-                                    )
-                                    mqtt_zone_name = results[mqtt_zone_view_to_index["name"]]
-                                    mqtt_type = results[mqtt_zone_view_to_index["type"]]
-                                    mqtt_category = int(
-                                        results[mqtt_zone_view_to_index["category"]]
-                                    )
-                                    if mqtt_category != 2:
-                                        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                                        cur_mqtt.execute(
-                                            """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`,
-                                               `datetime`)
-                                               VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                                           (
-                                                0,
-                                                0,
-                                                mqtt_sensor_id,
-                                                mqtt_zone_name,
-                                                mqtt_type,
-                                                mqtt_category,
-                                                mqtt_node_id,
-                                                mqtt_child_sensor_id,
-                                                0,
-                                                mqtt_payload,
-                                                timestamp,
-                                            ),
-                                        )
-                                        con_mqtt.commit()
 
-                # Check if MQTT Device has min_value set, if so then store the battery level for this device
-                if mqtt_min_value != 0:
-                    # Create a battery attribute
-                    if child[on_msg_description_to_index["attribute"]].find(".") != -1:
-                        battery_attribute = child[on_msg_description_to_index["attribute"]].split(".")[0] + ".Battery"
-                    else:
-                        battery_attribute = "Battery"
-                    # Re-get the MQTT message
-                    mqtt_payload = json.loads(message.payload.decode())
-                    # Get the battery level value
-                    mqtt_payload = deep_get(mqtt_payload, battery_attribute)
-                    if  mqtt_payload is not None:
-                        bat_voltage = 3 * (mqtt_payload/100)
-                        bat_level = mqtt_payload
-                        bat_update = False
-                        mqtt_bat_id = mqtt_node_id + "-" + str(mqtt_child_sensor_id)
-                        cur_mqtt.execute(
-                            'SELECT * FROM `battery` where node_id = %s LIMIT 1;',
-                            [mqtt_bat_id],
-                        )
-                        if cur_mqtt.rowcount == 0:
-                            bat_update = True
-                            if dbgLevel >= 2 and dbgMsgIn == 1:
-                                print(
-                                    "9c: Adding Battery for MQTT Device:",
-                                    mqtt_bat_id,
-                                )
-                            cur_mqtt.execute(
-                                "INSERT INTO `battery`(`node_id`) VALUES (%s)",
-                                [mqtt_bat_id,],
-                            )
-                            con_mqtt.commit()
+                    # Check if MQTT Device has min_value set, if so then store the battery level for this device
+                    if mqtt_min_value != 0:
+                        # Create a battery attribute
+                        if child[on_msg_description_to_index["attribute"]].find(".") != -1:
+                            battery_attribute = child[on_msg_description_to_index["attribute"]].split(".")[0] + ".Battery"
                         else:
+                            battery_attribute = "Battery"
+                        # Re-get the MQTT message
+                        mqtt_payload = json.loads(message.payload.decode())
+                        # Get the battery level value
+                        mqtt_payload = deep_get(mqtt_payload, battery_attribute)
+                        if  mqtt_payload is not None:
+                            bat_voltage = 3 * (mqtt_payload/100)
+                            bat_level = mqtt_payload
+                            bat_update = False
+                            mqtt_bat_id = mqtt_node_id + "-" + str(mqtt_child_sensor_id)
                             cur_mqtt.execute(
-                                'SELECT `bat_level`, `update` FROM `nodes_battery` where `node_id` = %s AND `update` > DATE_SUB( NOW(), INTERVAL 24 HOUR) ORDER BY id DESC LIMIT 1;',
+                                'SELECT * FROM `battery` where node_id = %s LIMIT 1;',
                                 [mqtt_bat_id],
                             )
                             if cur_mqtt.rowcount == 0:
                                 bat_update = True
+                                if dbgLevel >= 2 and dbgMsgIn == 1:
+                                    print(
+                                        "9c: Adding Battery for MQTT Device:",
+                                        mqtt_bat_id,
+                                    )
+                                cur_mqtt.execute(
+                                    "INSERT INTO `battery`(`node_id`) VALUES (%s)",
+                                    [mqtt_bat_id,],
+                                )
+                                con_mqtt.commit()
                             else:
-                                row = cur_mqtt.fetchone()
-                                row_to_index = dict(
-                                    (d[0], i) for i, d in enumerate(cur_mqtt.description)
+                                cur_mqtt.execute(
+                                    'SELECT `bat_level`, `update` FROM `nodes_battery` where `node_id` = %s AND `update` > DATE_SUB( NOW(), INTERVAL 24 HOUR) ORDER BY id DESC LIMIT 1;',
+                                    [mqtt_bat_id],
                                 )
-                                if row[row_to_index["bat_level"]] != bat_level:
+                                if cur_mqtt.rowcount == 0:
                                     bat_update = True
-                        if bat_update:
-                            if dbgLevel >= 2 and dbgMsgIn == 1:
-                                print(
-                                    "9: Adding Battery Voltage & Level for MQTT Device:",
-                                    mqtt_bat_id,
-                                    "Battery Voltage:",
-                                    bat_voltage,
-                                    "Battery Level:",
-                                    bat_level,
+                                else:
+                                    row = cur_mqtt.fetchone()
+                                    row_to_index = dict(
+                                        (d[0], i) for i, d in enumerate(cur_mqtt.description)
+                                    )
+                                    if row[row_to_index["bat_level"]] != bat_level:
+                                        bat_update = True
+                            if bat_update:
+                                if dbgLevel >= 2 and dbgMsgIn == 1:
+                                    print(
+                                        "9: Adding Battery Voltage & Level for MQTT Device:",
+                                        mqtt_bat_id,
+                                        "Battery Voltage:",
+                                        bat_voltage,
+                                        "Battery Level:",
+                                        bat_level,
+                                    )
+                                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                cur_mqtt.execute(
+                                    "INSERT INTO nodes_battery(`sync`, `purge`, `node_id`, `bat_voltage`, `bat_level`, `update`) VALUES(%s,%s,%s,%s,%s,%s)",
+                                    (0, 0, mqtt_bat_id, bat_voltage, bat_level, timestamp),
                                 )
-                            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                            cur_mqtt.execute(
-                                "INSERT INTO nodes_battery(`sync`, `purge`, `node_id`, `bat_voltage`, `bat_level`, `update`) VALUES(%s,%s,%s,%s,%s,%s)",
-                                (0, 0, mqtt_bat_id, bat_voltage, bat_level, timestamp),
-                            )
-                            ##cur.execute('UPDATE `nodes` SET `last_seen`=now() WHERE node_id = %s', [node_id])
-                            con_mqtt.commit()
+                                ##cur.execute('UPDATE `nodes` SET `last_seen`=now() WHERE node_id = %s', [node_id])
+                                con_mqtt.commit()
 
-                if dbgLevel >= 2 and dbgMsgIn == 1:
-                    print(
-                        "5b: MQTT Sensor Processed on Node ID:",
-                        mqtt_node_id,
-                        " Child Sensor ID:",
-                        mqtt_child_sensor_id,
-                    )
+                    if dbgLevel >= 2 and dbgMsgIn == 1:
+                        print(
+                            "5b: MQTT Sensor Processed on Node ID:",
+                            mqtt_node_id,
+                            " Child Sensor ID:",
+                            mqtt_child_sensor_id,
+                        )
 
 class ProgramKilled(Exception):
     pass
@@ -2544,255 +2545,256 @@ try:
             relay_controller_heartbeat_dict[node_id] = time.time()
 
     while 1:
-        #initialize the transaction acounters
-        cur.execute("SELECT c_f, test_mode FROM system LIMIT 1")
-        row = cur.fetchone()
-        system_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-        c_f = row[system_to_index["c_f"]]  # 0 = centigrade, 1 = fahrenheit
-        test_mode = row[system_to_index["test_mode"]]
+        if not os.path.isfile("/tmp/db_cleanup_running"):
+            #initialize the transaction acounters
+            cur.execute("SELECT c_f, test_mode FROM system LIMIT 1")
+            row = cur.fetchone()
+            system_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+            c_f = row[system_to_index["c_f"]]  # 0 = centigrade, 1 = fahrenheit
+            test_mode = row[system_to_index["test_mode"]]
 
-        ## Terminate gateway script if no route to network gateway
-        if gatewaytype == "wifi":
-            if not gateway_v2 or gatewayheartbeat == 0:
-                if time.time() - ping_timer >= 60:
-                    ping_timer = time.time()
-                    gateway_up = (
-                        True if os.system("ping -c 1 " + gatewaylocation) == 0 else False
-                    )
-                    if not gateway_up:
-                        raise GatewayException("Unable to contact Gateway at: - " + gatewaylocation)
-            else:
-                # For WT32-ETH01 Ver 2 Gateways, check that they are sending a regular Heartbeat message
-                if time.time() - heartbeat_timer >= gatewayheartbeat:
-                    heartbeat_timer = time.time()
-                    if dbgLevel >= 2 and dbgMsgIn == 1:
-                        print(bc.grn + "\nNO Heatbeat Message from Gateway", bc.ENDC)
-                    raise GatewayException("No Heartbeat from Gateway at: - " + gatewaylocation)
-
-                # Send heartbeat message to gateway every 30seconds
-                if time.time() - wifi_gateway_heartbeat >= 30:
-                    wifi_gateway_heartbeat = time.time()
-                    msg = "0;0;0;0;24;Gateway Script Heartbeat \n"
-                    if dbgLevel >= 3 and dbgMsgOut == 1:
-                        print(bc.grn + "\nHeatbeat Message to Gateway", bc.ENDC)
-                        print("Date & Time:                 ", time.ctime())
-                        print(
-                            "Full Message to Send:        ", msg.replace("\n", "\\n")
+            ## Terminate gateway script if no route to network gateway
+            if gatewaytype == "wifi":
+                if not gateway_v2 or gatewayheartbeat == 0:
+                    if time.time() - ping_timer >= 60:
+                        ping_timer = time.time()
+                        gateway_up = (
+                            True if os.system("ping -c 1 " + gatewaylocation) == 0 else False
                         )
-                    gw.send(msg.encode("utf-8"))
+                        if not gateway_up:
+                            raise GatewayException("Unable to contact Gateway at: - " + gatewaylocation)
+                else:
+                    # For WT32-ETH01 Ver 2 Gateways, check that they are sending a regular Heartbeat message
+                    if time.time() - heartbeat_timer >= gatewayheartbeat:
+                        heartbeat_timer = time.time()
+                        if dbgLevel >= 2 and dbgMsgIn == 1:
+                            print(bc.grn + "\nNO Heatbeat Message from Gateway", bc.ENDC)
+                        raise GatewayException("No Heartbeat from Gateway at: - " + gatewaylocation)
 
-        ## Outgoing messages
-        con.commit()
-        ## Heartbeat to Relay Controllers if script version >= 0.34
-        heartbeat_sent = False
-        cur.execute(
-            "SELECT `node_id` FROM `nodes` where node_id > 0 AND `sketch_version` >= 0.34 AND `type` LIKE 'MySensor' AND (`name` LIKE '%Relay%' OR `name` LIKE '%Controller%');"
-        )  # MySQL query statement
-        nodes = cur.fetchall()
-        if cur.rowcount > 0:
-            nodes_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-            for n in nodes:
-                node_id = int(n[nodes_to_index["node_id"]])
-                if time.time() - relay_controller_heartbeat_dict[node_id] >= 30:
-                    relay_controller_heartbeat_dict[node_id] = time.time()
-                    msg = str(node_id) + ";0;0;0;24;Relay Heartbeat \n"
-                    if dbgLevel >= 3 and dbgMsgOut == 1:
-                        print(bc.grn + "\nHeatbeat Message to Relay Controller Node ID - " + str(node_id), bc.ENDC)
-                        print("Date & Time:                 ", time.ctime())
-                        print(
-                            "Full Message to Send:        ", msg.replace("\n", "\\n")
-                        )
-                    gw.send(msg.encode("utf-8"))
-                    heartbeat_sent = True # block any other pending message
+                    # Send heartbeat message to gateway every 30seconds
+                    if time.time() - wifi_gateway_heartbeat >= 30:
+                        wifi_gateway_heartbeat = time.time()
+                        msg = "0;0;0;0;24;Gateway Script Heartbeat \n"
+                        if dbgLevel >= 3 and dbgMsgOut == 1:
+                            print(bc.grn + "\nHeatbeat Message to Gateway", bc.ENDC)
+                            print("Date & Time:                 ", time.ctime())
+                            print(
+                                "Full Message to Send:        ", msg.replace("\n", "\\n")
+                            )
+                        gw.send(msg.encode("utf-8"))
 
-        if (heartbeat_sent == False):
+            ## Outgoing messages
+            con.commit()
+            ## Heartbeat to Relay Controllers if script version >= 0.34
+            heartbeat_sent = False
             cur.execute(
-                "SELECT COUNT(*) FROM `messages_out` where sent = 0"
+                "SELECT `node_id` FROM `nodes` where node_id > 0 AND `sketch_version` >= 0.34 AND `type` LIKE 'MySensor' AND (`name` LIKE '%Relay%' OR `name` LIKE '%Controller%');"
             )  # MySQL query statement
-            count = cur.fetchone()  # Grab all messages from database for Outgoing.
-            count = count[
-                0
-            ]  # Parse first and the only one part of data table named "count" - there is number of records grabbed in SELECT above
-            if count > 0:  # If greater then 0 then we have something to send out.
+            nodes = cur.fetchall()
+            if cur.rowcount > 0:
+                nodes_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                for n in nodes:
+                    node_id = int(n[nodes_to_index["node_id"]])
+                    if time.time() - relay_controller_heartbeat_dict[node_id] >= 30:
+                        relay_controller_heartbeat_dict[node_id] = time.time()
+                        msg = str(node_id) + ";0;0;0;24;Relay Heartbeat \n"
+                        if dbgLevel >= 3 and dbgMsgOut == 1:
+                            print(bc.grn + "\nHeatbeat Message to Relay Controller Node ID - " + str(node_id), bc.ENDC)
+                            print("Date & Time:                 ", time.ctime())
+                            print(
+                                "Full Message to Send:        ", msg.replace("\n", "\\n")
+                            )
+                        gw.send(msg.encode("utf-8"))
+                        heartbeat_sent = True # block any other pending message
+
+            if (heartbeat_sent == False):
                 cur.execute(
-                    "SELECT * FROM `messages_out` where sent = 0"
-                )  # grab all messages that where not send yet (sent ==0)
-                msg = cur.fetchall()
-                msg_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                for m in msg:
-                    out_id = int(m[msg_to_index["id"]])  # Record ID - only DB info,
-                    n_id = m[msg_to_index["n_id"]]  # Node Table ID
-                    node_id = m[msg_to_index["node_id"]]  # Node ID
-                    out_child_id = m[msg_to_index["child_id"]]  # Child ID of the node where sensor/relay is attached.
-                    out_sub_type = m[msg_to_index["sub_type"]]  # Command Type
-                    out_ack = m[msg_to_index["ack"]]  # Ack req/resp
-                    out_type = m[msg_to_index["type"]]  # Type
-                    db_payload = m[msg_to_index["payload"]]  # Payload to send out.
-                    out_payload = db_payload
-                    sent = m[msg_to_index["sent"]]  # Status of message either its sent or not. (1 for sent, 0 for not sent yet)
-                    cur.execute("SELECT type, name, sketch_version FROM `nodes` where id = (%s)", (n_id,))
-                    nd = cur.fetchone()
-                    node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                    node_type = nd[node_to_index["type"]]
-                    node_name = nd[node_to_index["name"]]
-                    sketch_version = float(nd[node_to_index["sketch_version"]])
-                    if sketch_version > 0:
-                        sketch_version = int(sketch_version * 100)
-                    if (node_type.find("MQTT") != -1 and MQTT_CONNECTED == 1) or node_type.find("MQTT") == -1:
-                        # Get the trigger level if the node/child is present in the relays table
-                        cur.execute(
-                            "SELECT COUNT(*) FROM `relays` where relay_id = (%s) AND relay_child_id = (%s) LIMIT 1",
-                            (
-                                n_id,
-                                out_child_id,
-                            ),
-                        )
-                        count = cur.fetchone()  # Grab all messages from database for Outgoing.
-                        count = count[
-                            0
-                        ]  # Parse first and the only one part of data table named "count" - there is number of records grabbed in SELECT above
-                        if count > 0:  # If greater then 0 then it is a relay, so get the trigger level.
+                    "SELECT COUNT(*) FROM `messages_out` where sent = 0"
+                )  # MySQL query statement
+                count = cur.fetchone()  # Grab all messages from database for Outgoing.
+                count = count[
+                    0
+                ]  # Parse first and the only one part of data table named "count" - there is number of records grabbed in SELECT above
+                if count > 0:  # If greater then 0 then we have something to send out.
+                    cur.execute(
+                        "SELECT * FROM `messages_out` where sent = 0"
+                    )  # grab all messages that where not send yet (sent ==0)
+                    msg = cur.fetchall()
+                    msg_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                    for m in msg:
+                        out_id = int(m[msg_to_index["id"]])  # Record ID - only DB info,
+                        n_id = m[msg_to_index["n_id"]]  # Node Table ID
+                        node_id = m[msg_to_index["node_id"]]  # Node ID
+                        out_child_id = m[msg_to_index["child_id"]]  # Child ID of the node where sensor/relay is attached.
+                        out_sub_type = m[msg_to_index["sub_type"]]  # Command Type
+                        out_ack = m[msg_to_index["ack"]]  # Ack req/resp
+                        out_type = m[msg_to_index["type"]]  # Type
+                        db_payload = m[msg_to_index["payload"]]  # Payload to send out.
+                        out_payload = db_payload
+                        sent = m[msg_to_index["sent"]]  # Status of message either its sent or not. (1 for sent, 0 for not sent yet)
+                        cur.execute("SELECT type, name, sketch_version FROM `nodes` where id = (%s)", (n_id,))
+                        nd = cur.fetchone()
+                        node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                        node_type = nd[node_to_index["type"]]
+                        node_name = nd[node_to_index["name"]]
+                        sketch_version = float(nd[node_to_index["sketch_version"]])
+                        if sketch_version > 0:
+                            sketch_version = int(sketch_version * 100)
+                        if (node_type.find("MQTT") != -1 and MQTT_CONNECTED == 1) or node_type.find("MQTT") == -1:
+                            # Get the trigger level if the node/child is present in the relays table
                             cur.execute(
-                                "SELECT id, type, on_trigger, lag_time FROM `relays` where relay_id = (%s) AND relay_child_id = (%s) LIMIT 1",
+                                "SELECT COUNT(*) FROM `relays` where relay_id = (%s) AND relay_child_id = (%s) LIMIT 1",
                                 (
                                     n_id,
                                     out_child_id,
                                 ),
                             )
-                            r = cur.fetchone()
-                            relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                            relays_id = r[relay_to_index["id"]]
-                            relay_type = r[relay_to_index["type"]]
-                            out_on_trigger = r[relay_to_index["on_trigger"]]
-                            relay_lag = r[relay_to_index["lag_time"]]
-                        else:
-                            relay_lag = 0
-
-                        if gatewayenableoutgoing == 1 or (
-                            node_type.find("GPIO") != -1 and gatewayenableoutgoing == 0 and blinka
-                        ):
-                            if node_type.find("MySensor") != -1 and node_name.find("Controller") != -1 and sketch_version >= 34:
-                                out_payload = XNOR(out_on_trigger, out_payload)
-
-                            # if a relay ON command check if relay has a ON lag time setting
-                            if db_payload == "1" and (relay_lag != 0 and test_mode == 0):
-                                if relay_lag_timer.get(relays_id) == 0:
-                                    # initialise relay ON trigger timer
-                                    relay_lag_timer[relays_id] = time.time()
-                                else:
-                                    # if lag time has expired then set the relay ON flag and re-initialise the counter
-                                    if time.time() -  relay_lag_timer.get(relays_id) >= relay_lag:
-                                        relay_on_flag = True
-                                        relay_lag_timer[relays_id] = 0
-                            else:
-                                relay_lag_timer[relays_id] = 0
-                                relay_on_flag = True
-
-                            if relay_on_flag:
-                                # set relays when level is LOW or when HIGH and the Lag setting is 0 or the lag timer has expired
-                                msg = str(node_id)  # Node ID
-                                msg += ";"  # Separator
-                                msg += str(out_child_id)  # Child ID of the Node.
-                                msg += ";"  # Separator
-                                msg += str(out_sub_type)
-                                msg += ";"  # Separator
-                                msg += str(out_ack)
-                                msg += ";"  # Separator
-                                msg += str(out_type)
-                                msg += ";"  # Separator
-                                msg += str(out_payload)  # Payload from DB
-                                msg += " \n"  # New line
-                                if dbgLevel >= 3 and dbgMsgOut == 1:
-                                    if test_mode != 0:
-                                        print(bc.WARN + "\nOPERATING IN TEST MODE" + bc.ENDC)
-                                    print(
-                                        bc.grn + "\nTotal Messages to Sent:      ", count, bc.ENDC
-                                    )  # Print how many Messages we have to send out.
-                                    print("Date & Time:                 ", time.ctime())
-                                    print(
-                                        "Message From Database:       ",
-                                        out_id,
-                                        node_id,
+                            count = cur.fetchone()  # Grab all messages from database for Outgoing.
+                            count = count[
+                                0
+                            ]  # Parse first and the only one part of data table named "count" - there is number of records grabbed in SELECT above
+                            if count > 0:  # If greater then 0 then it is a relay, so get the trigger level.
+                                cur.execute(
+                                    "SELECT id, type, on_trigger, lag_time FROM `relays` where relay_id = (%s) AND relay_child_id = (%s) LIMIT 1",
+                                    (
+                                        n_id,
                                         out_child_id,
-                                        out_sub_type,
-                                        out_ack,
-                                        out_type,
-                                        out_payload,
-                                        sent,
-                                    )  # Print what will be sent including record id and sent status.
-                                    print(
-                                        "Full Message to Send:        ", msg.replace("\n", "\\n")
-                                    )  # Print Full Message
-                                    print("Node ID:                     ", node_id)
-                                    print("Child Sensor ID:             ", out_child_id)
-                                    print("Command Type:                ", out_sub_type)
-                                    print("Ack Req/Resp:                ", out_ack)
-                                    print("Type:                        ", out_type)
-                                    print("Pay Load:                    ", out_payload)
-                                    print("Node Type:                   ", node_type)
-                                # node-id ; child-sensor-id ; command ; ack ; type ; payload
-                                set_relays(
-                                    msg,
-                                    n_id,
-                                    node_type,
-                                    sketch_version,
-                                    out_id,
-                                    out_child_id,
-                                    out_on_trigger,
-                                    out_payload,
-                                    gatewayenableoutgoing,
+                                    ),
                                 )
-                                # reset the relay_on_flag ready for next pass through
-                                relay_on_flag = False
+                                r = cur.fetchone()
+                                relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                                relays_id = r[relay_to_index["id"]]
+                                relay_type = r[relay_to_index["type"]]
+                                out_on_trigger = r[relay_to_index["on_trigger"]]
+                                relay_lag = r[relay_to_index["lag_time"]]
+                            else:
+                                relay_lag = 0
 
-        # remove any sensor_graphs table records older than 24 hours
-        timestamp = (datetime.now()- timedelta(hours = 24)).strftime("%Y-%m-%d %H:%M:%S")
-        cur.execute(
-            'DELETE FROM sensor_graphs WHERE datetime < (%s)', (timestamp,)
-        )
+                            if gatewayenableoutgoing == 1 or (
+                                node_type.find("GPIO") != -1 and gatewayenableoutgoing == 0 and blinka
+                            ):
+                                if node_type.find("MySensor") != -1 and node_name.find("Controller") != -1 and sketch_version >= 34:
+                                    out_payload = XNOR(out_on_trigger, out_payload)
 
-        ## Incoming messages
-        if gatewaytype != "virtual":
-            if gatewaytype == "serial":
-                in_str = gw.readline()  # Here is receiving part of the code for serial GW
-                in_str = in_str.decode("utf-8")
-                process_message(in_str)
-            else:
-                # Here is receiving part of the code for Wifi
-                #process the incomming message
-                while not fifo.empty():
-                    process_message(fifo.get())
+                                # if a relay ON command check if relay has a ON lag time setting
+                                if db_payload == "1" and (relay_lag != 0 and test_mode == 0):
+                                    if relay_lag_timer.get(relays_id) == 0:
+                                        # initialise relay ON trigger timer
+                                        relay_lag_timer[relays_id] = time.time()
+                                    else:
+                                        # if lag time has expired then set the relay ON flag and re-initialise the counter
+                                        if time.time() -  relay_lag_timer.get(relays_id) >= relay_lag:
+                                            relay_on_flag = True
+                                            relay_lag_timer[relays_id] = 0
+                                else:
+                                    relay_lag_timer[relays_id] = 0
+                                    relay_on_flag = True
 
-        #update the gateway_transactions table
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        try:
+                                if relay_on_flag:
+                                    # set relays when level is LOW or when HIGH and the Lag setting is 0 or the lag timer has expired
+                                    msg = str(node_id)  # Node ID
+                                    msg += ";"  # Separator
+                                    msg += str(out_child_id)  # Child ID of the Node.
+                                    msg += ";"  # Separator
+                                    msg += str(out_sub_type)
+                                    msg += ";"  # Separator
+                                    msg += str(out_ack)
+                                    msg += ";"  # Separator
+                                    msg += str(out_type)
+                                    msg += ";"  # Separator
+                                    msg += str(out_payload)  # Payload from DB
+                                    msg += " \n"  # New line
+                                    if dbgLevel >= 3 and dbgMsgOut == 1:
+                                        if test_mode != 0:
+                                            print(bc.WARN + "\nOPERATING IN TEST MODE" + bc.ENDC)
+                                        print(
+                                            bc.grn + "\nTotal Messages to Sent:      ", count, bc.ENDC
+                                        )  # Print how many Messages we have to send out.
+                                        print("Date & Time:                 ", time.ctime())
+                                        print(
+                                            "Message From Database:       ",
+                                            out_id,
+                                            node_id,
+                                            out_child_id,
+                                            out_sub_type,
+                                            out_ack,
+                                            out_type,
+                                            out_payload,
+                                            sent,
+                                        )  # Print what will be sent including record id and sent status.
+                                        print(
+                                            "Full Message to Send:        ", msg.replace("\n", "\\n")
+                                        )  # Print Full Message
+                                        print("Node ID:                     ", node_id)
+                                        print("Child Sensor ID:             ", out_child_id)
+                                        print("Command Type:                ", out_sub_type)
+                                        print("Ack Req/Resp:                ", out_ack)
+                                        print("Type:                        ", out_type)
+                                        print("Pay Load:                    ", out_payload)
+                                        print("Node Type:                   ", node_type)
+                                    # node-id ; child-sensor-id ; command ; ack ; type ; payload
+                                    set_relays(
+                                        msg,
+                                        n_id,
+                                        node_type,
+                                        sketch_version,
+                                        out_id,
+                                        out_child_id,
+                                        out_on_trigger,
+                                        out_payload,
+                                        gatewayenableoutgoing,
+                                    )
+                                    # reset the relay_on_flag ready for next pass through
+                                    relay_on_flag = False
+
+            # remove any sensor_graphs table records older than 24 hours
+            timestamp = (datetime.now()- timedelta(hours = 24)).strftime("%Y-%m-%d %H:%M:%S")
             cur.execute(
-                "UPDATE gateway_logs SET mqtt_sent = %s, mqtt_recv = %s, mysensors_sent = %s, mysensors_recv = %s, gpio_sent = %s, heartbeat = %s ORDER BY id DESC LIMIT 1;",
-                (mqtt_sent, mqtt_msgcount, mysensor_sent, msgcount, gpio_sent, timestamp),
+                'DELETE FROM sensor_graphs WHERE datetime < (%s)', (timestamp,)
             )
-            con.commit()
-        except mdb.Error as e:
-            # skip deadlock error (being caused when mysqldunp runs
-            if e.args[0] == 1213:
-                pass
-            else:
-                print("DB Error %d: %s" % (e.args[0], e.args[1]))
-                print(traceback.format_exc())
-                logging.error(e)
-                logging.info(traceback.format_exc())
-                con.close()
-                if MQTT_CONNECTED == 1:
-                    mqttClient.disconnect()
-                    mqttClient.loop_stop()
-                print(infomsg)
-                sys.exit(1)
 
-        if clear_minute_timer :
-            minute_timer = time.time()
-        if clear_hour_timer :
-            hour_timer = time.time()
+            ## Incoming messages
+            if gatewaytype != "virtual":
+                if gatewaytype == "serial":
+                    in_str = gw.readline()  # Here is receiving part of the code for serial GW
+                    in_str = in_str.decode("utf-8")
+                    process_message(in_str)
+                else:
+                    # Here is receiving part of the code for Wifi
+                    #process the incomming message
+                    while not fifo.empty():
+                        process_message(fifo.get())
 
-        time.sleep(0.1)
+            #update the gateway_transactions table
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            try:
+                cur.execute(
+                    "UPDATE gateway_logs SET mqtt_sent = %s, mqtt_recv = %s, mysensors_sent = %s, mysensors_recv = %s, gpio_sent = %s, heartbeat = %s ORDER BY id DESC LIMIT 1;",
+                    (mqtt_sent, mqtt_msgcount, mysensor_sent, msgcount, gpio_sent, timestamp),
+                )
+                con.commit()
+            except mdb.Error as e:
+                # skip deadlock error (being caused when mysqldunp runs
+                if e.args[0] == 1213:
+                    pass
+                else:
+                    print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                    print(traceback.format_exc())
+                    logging.error(e)
+                    logging.info(traceback.format_exc())
+                    con.close()
+                    if MQTT_CONNECTED == 1:
+                        mqttClient.disconnect()
+                        mqttClient.loop_stop()
+                    print(infomsg)
+                    sys.exit(1)
+
+            if clear_minute_timer :
+                minute_timer = time.time()
+            if clear_hour_timer :
+                hour_timer = time.time()
+
+            time.sleep(0.1)
 
 except GatewayException as e:
     print(format(e))

@@ -21,6 +21,9 @@ echo " \033[0m \n";
 require_once(__DIR__.'../../st_inc/connection.php');
 require_once(__DIR__.'../../st_inc/functions.php');
 
+//Create a script running flag file
+$running_flag = "/tmp/db_cleanup_running";
+fopen($running_flag, 'w');
 //Set php script execution time in seconds
 ini_set('max_execution_time', 300); 
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Database Cleanup Script Started \n"; 
@@ -96,5 +99,8 @@ if (isset($result)) {
 
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Database Cleanup Script Ended \n"; 
 echo "\033[32m**************************************************************\033[0m  \n";
+
+//Delete the script running flag file
+unlink($running_flag);
 if(isset($conn)) { $conn->close();}
 ?>
