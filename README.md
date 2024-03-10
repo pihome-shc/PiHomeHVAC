@@ -1,6 +1,6 @@
 # MaxAir - Smart Thermostat
 
-### Note: Now at Version 3.02.
+### Note: Now at Version 3.03.
 
 The previous version, PiHome, was centered around the creation of zones, this version is more centered around devices.
 
