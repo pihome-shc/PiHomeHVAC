@@ -186,10 +186,16 @@ echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Finished Installing Scheduling \
 
 // Check/Add sudoers file /etc/sudoers.d/maxair
 $rval = os_info();
-if (strpos($rval["ID_LIKE"], "debian") !== false) {
-	$web_user_name = "www-data";
+$rval = os_info();
+if (array_key_exists('ID_LIKE', $rval)) {
+        $os_name = $rval["ID_LIKE"];
 } else {
-	$web_user_name = "http";
+        $os_name = $rval["ID"];
+}
+if (strpos($os_name, "debian") !== false) {
+        $web_user_name = "www-data";
+} else {
+        $web_user_name = "http";
 }
 $sudoersfile = '/etc/sudoers.d/maxair';
 $message = $web_user_name.' ALL=(ALL) NOPASSWD:/sbin/iwlist wlan0 scan
