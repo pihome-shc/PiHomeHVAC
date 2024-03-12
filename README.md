@@ -108,12 +108,23 @@ The core requirements for the SBC are as stated above, MaxAir has been successfu
 * BeagleBone Black and BeagleBone Green (with eMMC on-board storage)
 
 ## How To Install
+MaxAir can be installed on both Debian/Ubuntu or ArchLinux operating systems, the pre-requisite in both instances is a functioning LAMP stack (Linux, Apache, MySQL and PHP).
+
+To install on Debian/Ubuntu:
 * sudo rm -R /var/www
 * sudo apt -y install git
 * sudo git clone https://github.com/pihome-shc/PiHomeHVAC.git "/var/www"
 * sudo chown -R www-data:www-data /var/www
 * cd /var/www
 * sudo php ./setup.php
+
+To install on ArchLinux:
+* sudo rm -R /srv/http
+* sudo pacman -S git
+* sudo git clone https://github.com/pihome-shc/PiHomeHVAC.git "/srv/http"
+* sudo chown -R http:http /srv/http
+* cd /srv/http
+* sudo php ./setup.php (setup.php will create a symbolic link /var/www to /srv/http, for compatibility)
 
 ### For more detailed instructiosn vist [PiHome](http://www.pihome.eu "PiHome - Smart Heating Control") website 
 
