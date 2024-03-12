@@ -32,6 +32,7 @@ print(" " + bc.ENDC)
 import os, time, fnmatch, filecmp
 import MySQLdb as mdb
 import configparser
+import csv, pathlib
 
 # Initialise the database access varables
 config = configparser.ConfigParser()
@@ -41,11 +42,18 @@ dbuser = config.get('db', 'dbusername')
 dbpass = config.get('db', 'dbpassword')
 dbname = config.get('db', 'dbname')
 
+#parse /etc/os_release
+path = pathlib.Path("/etc/os-release")
+with open(path) as stream:
+    reader = csv.reader(stream, delimiter="=")
+    os_release = dict(reader)
+
 def report_recursive(dcmp):
     global target_dir
     global source_dir
     global code_update_dir
     global database_update_dir
+    global web_user
 
     # update existing code modules
     for name in dcmp.diff_files:
@@ -61,16 +69,16 @@ def report_recursive(dcmp):
                 for x in sub_dirs:
                     update_path = update_path + '/' + x
                     if not os.path.isdir(update_path):
-                        cmd = 'install -d -g www-data -o www-data ' + update_path
+                        cmd = 'install -d -g ' + web_user + ' -o ' + web_user + ' ' + update_path
                         os.system(cmd)
                 path = target_dir + '/' + dcmp.left[18:] + '/' + name
                 if os.path.isdir(source_dir + '/' + dcmp.left[18:] + '/' + name):
-                    cmd = 'install -d -g www-data -o www-data  ' + code_update_dir + '/' + dcmp.left[18:] + '/' + name
+                    cmd = 'install -d -g ' + web_user + ' -o ' + web_user + '  ' + code_update_dir + '/' + dcmp.left[18:] + '/' + name
                     os.system(cmd)
         else:
             update_path = code_update_dir
             path = target_dir + '/' + name
-        cmd = 'install -c -m 644 -g www-data -o www-data ' + dcmp.left + '/' + name + ' ' + update_path
+        cmd = 'install -c -m 644 -g ' + web_user + ' -o ' + web_user + ' ' + dcmp.left + '/' + name + ' ' + update_path
         os.system(cmd)
         print(path)
 
@@ -89,11 +97,11 @@ def report_recursive(dcmp):
                 for x in sub_dirs:
                     update_path = update_path + '/' + x
                     if not os.path.isdir(update_path):
-                        cmd = 'install -d -g www-data -o www-data  ' + update_path
+                        cmd = 'install -d -g ' + web_user + ' -o ' + web_user + '  ' + update_path
                         os.system(cmd)
                 path = target_dir + '/' + dcmp.left[18:] + '/' + name
                 if os.path.isdir(source_dir + '/' + dcmp.left[18:] + '/' + name):
-                    cmd = 'install -d -g www-data -o www-data  ' + code_update_dir + '/' + dcmp.left[18:] + '/' + name
+                    cmd = 'install -d -g ' + web_user + ' -o ' + web_user + '  ' + code_update_dir + '/' + dcmp.left[18:] + '/' + name
                     os.system(cmd)
                     copy_dir = True
         else:
@@ -105,7 +113,7 @@ def report_recursive(dcmp):
         if copy_dir :
             cmd = 'rsync -avzh ' + dcmp.left + '/' + name + ' ' + update_path
         else :
-            cmd = 'install -c -m 644 -g www-data -o www-data ' + dcmp.left + '/' + name + ' ' + update_path
+            cmd = 'install -c -m 644 -g ' + web_user + ' -o ' + web_user + ' ' + dcmp.left + '/' + name + ' ' + update_path
         os.system(cmd)
         print(path)
 
@@ -120,6 +128,13 @@ source_dir = '/var/www/temp_dir'
 target_dir = '/var/www'
 code_update_dir = '/var/www/code_updates'
 db_update_dir = '/var/www/database_updates'
+
+#set the web user dependant on OS distribution
+if "debian" in os_release['ID']:
+    web_user = "' + web_user + '"
+else:
+    web_user = "http"
+
 try:
     con = mdb.connect(dbhost, dbuser, dbpass, dbname)
     cursorselect = con.cursor()
