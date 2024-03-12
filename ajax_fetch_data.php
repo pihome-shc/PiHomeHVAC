@@ -37,10 +37,14 @@ require_once(__DIR__.'/st_inc/session.php');
 
 $theme = settings($conn, 'theme');
 $rval = os_info();
-if (strpos($rval["ID_LIKE"], "debian") !== false) {
-        $web_user_name = "www-data";
+if (array_key_exists('ID', $rval)) {
+        if (strpos($rval["ID"], "debian") !== false || strpos($rval["ID"], "ubuntu") !== false) {
+                $web_user_name = "www-data";
+        } elseif (strpos($rval["ID"], "archarm") !== false) {
+                $web_user_name = "http";
+        }
 } else {
-        $web_user_name = "http";
+        $web_user_name = "www-data";;
 }
 
 if(isset($_GET['id'])) { $id = $_GET['id']; }
