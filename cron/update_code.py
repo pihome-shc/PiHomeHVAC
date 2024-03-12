@@ -42,12 +42,6 @@ dbuser = config.get('db', 'dbusername')
 dbpass = config.get('db', 'dbpassword')
 dbname = config.get('db', 'dbname')
 
-#parse /etc/os_release
-path = pathlib.Path("/etc/os-release")
-with open(path) as stream:
-    reader = csv.reader(stream, delimiter="=")
-    os_release = dict(reader)
-
 def report_recursive(dcmp):
     global target_dir
     global source_dir
@@ -129,9 +123,14 @@ target_dir = '/var/www'
 code_update_dir = '/var/www/code_updates'
 db_update_dir = '/var/www/database_updates'
 
+#parse /etc/os_release
+path = pathlib.Path("/etc/os-release")
+with open(path) as stream:
+    reader = csv.reader(stream, delimiter="=")
+    os_release = dict(reader)
 #set the web user dependant on OS distribution
 if "debian" in os_release['ID']:
-    web_user = "' + web_user + '"
+    web_user = "www-data"
 else:
     web_user = "http"
 
