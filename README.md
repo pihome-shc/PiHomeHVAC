@@ -80,9 +80,9 @@ Version 3.03 Introduces Graph Archiving. Optionally all sensors which generate a
 
 ## Requirements
 Basic knowledge of command line with following main components for MaxAir to function.
-* Either the Raspbian or Armbian Operating System
+* Either the Debian or Ubuntu or ArchLinux Operating System
 * Apache Web Server
-* PHP 7.x
+* PHP 7.x or higher
 * Python 3.x
 * MySQL/MariaDB
 * Adafruit Blinka
