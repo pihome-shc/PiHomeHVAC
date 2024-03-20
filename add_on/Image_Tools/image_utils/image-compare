@@ -98,7 +98,7 @@ rsync --version &> /dev/null
 if [ $? -ne 0 ]; then
   errexit "rsync not installed (run: apt-get install rsync)"
 fi
-BOOTMNT="${MNTPATH}$(sed -n 's|^\S\+\s\+\(/boot\S*\)\s\+vfat\s\+.*$|\1|p' /etc/fstab)"
+BOOTMNT="${MNTPATH}$(sed -n 's|^\S\+\s\+\(/boot\S*\)\s\+.*$|\1|p' /etc/fstab)"
 IMGFILE=""
 OPTIONS=()
 while [ $# -gt 0 ]; do
@@ -111,7 +111,7 @@ while [ $# -gt 0 ]; do
     -o|--options)
       OIFS=${IFS}
       IFS=','
-      OPTIONS=($2)
+      OPTIONS+=($2)
       IFS=${OIFS}
       shift 2
       ;;
