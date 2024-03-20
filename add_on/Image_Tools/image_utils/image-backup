@@ -1,0 +1,521 @@
+#!/bin/bash
+
+trap '{ stty sane; echo ""; errexit "Aborted"; }' SIGINT SIGTERM
+
+MNTPATH="/tmp/img-backup-mnt"
+
+ONEMB=$((1024 * 1024))
+
+errexit()
+{
+  echo ""
+  echo -e "$1"
+  echo ""
+  if [ "${MNTED}" = "TRUE" ]; then
+    umount "${BOOTMNT}/" &> /dev/null
+    umount "${MNTPATH}/" &> /dev/null
+  fi
+  rm -rf "${MNTPATH}/" &> /dev/null
+  rmloop
+  exit 1
+}
+
+mkloop()
+{
+  LOOP="$(losetup -f --show -P "${IMGFILE}")"
+  if [ $? -ne 0 ]; then
+    errexit "Unable to create loop device"
+  fi
+}
+
+rmloop()
+{
+  if [ "${LOOP}" != "" ]; then
+    losetup -d "${LOOP}"
+    LOOP="" 
+  fi
+}
+
+mntimg()
+{
+  mkloop
+  if [ ! -d "${MNTPATH}/" ]; then
+    mkdir "${MNTPATH}/"
+    if [ $? -ne 0 ]; then
+      errexit "Unable to make ROOT partition mount point"
+    fi
+  fi
+  mount "${LOOP}p2" "${MNTPATH}/"
+  if [ $? -ne 0 ]; then
+    errexit "Unable to mount image ROOT partition"
+  fi
+  MNTED=TRUE
+  if [ ! -d "${BOOTMNT}/" ]; then
+    mkdir -p "${BOOTMNT}/"
+    if [ $? -ne 0 ]; then
+      errexit "Unable to make BOOT partition mount point"
+    fi
+  fi
+  mount "${LOOP}p1" "${BOOTMNT}/"
+  if [ $? -ne 0 ]; then
+    errexit "Unable to mount image BOOT partition"
+  fi
+}
+
+umntimg()
+{
+  umount "${BOOTMNT}/"
+  if [ $? -ne 0 ]; then
+    errexit "Unable to unmount image BOOT partition"
+  fi
+  umount "${MNTPATH}/"
+  if [ $? -ne 0 ]; then
+    errexit "Unable to unmount image ROOT partition"
+  fi
+  MNTED=FALSE
+  rmloop
+  rm -r "${MNTPATH}/"
+}
+
+fsckerr()
+{
+  errexit "Filesystem appears corrupted "$1" resize2fs"
+}
+
+usage()
+{
+  errexit "Usage: $0 [options] [pathto/imagefile for incremental backup]\n\
+-h,--help       This usage description\n\
+-i,--initial    pathto/filename of image file [,inital size MB [,added space for incremental MB]]\n\
+-n,--noexpand   Do not expand filesystem on first run after restore\n\
+-o,--options    Additional rsync options (comma separated)\n\
+-u,--ubuntu     Ubuntu (Deprecated)\n\
+-x,--extract    Extract image from NOOBS (force BOOT partition to -01 / ROOT partition to -02)"
+}
+
+backup()
+{
+  mntimg
+  sync
+  rsync -aDH --partial --numeric-ids --delete --force --exclude "${MNTPATH}" --exclude '/dev' --exclude '/lost+found' --exclude '/media' --exclude '/mnt' \
+--exclude '/proc' --exclude '/run' --exclude '/sys' --exclude '/tmp' --exclude '/var/swap' --exclude '/etc/udev/rules.d/70-persistent-net.rules' \
+--exclude '/var/lib/asterisk/astdb.sqlite3-journal' "${OPTIONS[@]}" / "${MNTPATH}/"
+  if [[ $? -ne 0 && $? -ne 24 ]]; then
+    errexit "Unable to create backup"
+  fi
+  mkdir -p "${MNTPATH}/dev/" "${MNTPATH}/lost+found/" "${MNTPATH}/media/" "${MNTPATH}/mnt/" "${MNTPATH}/proc/" "${MNTPATH}/run/" "${MNTPATH}/sys/" "${MNTPATH}/tmp/"
+  if [ $? -ne 0 ]; then
+    errexit "Unable to create image directories"
+  fi
+  chmod a+rwxt "${MNTPATH}/tmp/"
+  if [ "${EXTRACT}" = "TRUE" ]; then
+    sed -i "/^[[:space:]]*#/!s|^\(.*root=\)\S\+\(\s\+.*\)$|\1PARTUUID=${PTUUID}-02\2|" "${BOOTMNT}/cmdline.txt"
+    sed -i "/^[[:space:]]*#/!s|^\S\+\(\s\+/boot\S*\s\+vfat\s\+.*\)$|PARTUUID=${PTUUID}-01\1|" "${MNTPATH}/etc/fstab"
+    sed -i "/^[[:space:]]*#/!s|^\S\+\(\s\+/\s\+.*\)$|PARTUUID=${PTUUID}-02\1|" "${MNTPATH}/etc/fstab"
+  fi
+  if [[ "${OSID}" != "ubuntu" && "${NOEXPAND}" = "FALSE" && "${ROOT_TYPE}" != "f2fs" && $(grep -v '^[[:space:]]*#' "${MNTPATH}/etc/rc.local" | grep -c 'resize-root-fs') -eq 0 ]]; then
+    cat <<\EOF1 > "${MNTPATH}/etc/resize-root-fs"
+#!/bin/bash
+
+ROOT_PART="$(mount | sed -n 's|^\(/dev/.*\) on / .*|\1|p')"
+ROOT_DEV="$(sed 's/[0-9]\+$//' <<< "${ROOT_PART}")"
+if [[ "${ROOT_DEV}" = "/dev/mmcblk0p" || "${ROOT_DEV}" = "/dev/nvme0n1p" ]]; then
+  ROOT_DEV="${ROOT_DEV:0:(${#ROOT_DEV} - 1)}"
+fi
+START=$(sfdisk -d "${ROOT_DEV}" | sed -n "s|^${ROOT_PART}\s\+:.*start=\s*\([0-9]\+\).*$|\1|p")
+PTTYPE="$(blkid "${ROOT_DEV}" | sed -n 's|^.*PTTYPE="\(\S\+\)".*|\1|p')"
+if [ "${PTTYPE}" = "dos" ]; then
+  sfdisk --delete "${ROOT_DEV}" 2 > /dev/null
+  echo "${START},+" | sfdisk --no-reread --no-tell-kernel -N2 "${ROOT_DEV}" &> /dev/null
+else
+  PARTUUID="$(blkid "${ROOT_PART}" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')"
+  sgdisk -d 2 "${ROOT_DEV}" > /dev/null
+  sgdisk -n 2:${START}:0 "${ROOT_DEV}" > /dev/null
+  sgdisk -u 2:${PARTUUID} "${ROOT_DEV}" > /dev/null
+fi
+cat <<\EOF2 > /etc/init.d/resize_root_fs
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides: resize_root_fs
+# Required-Start:
+# Required-Stop:
+# Default-Start: 3
+# Default-Stop:
+# Short-Description: Resize root filesystem
+# Description:
+### END INIT INFO
+
+case "$1" in
+  start)
+    resize2fs "$(mount | sed -n 's|^\(/dev/.*\) on / .*|\1|p')"
+    update-rc.d resize_root_fs remove
+    rm /etc/init.d/resize_root_fs
+    ;;
+  *)
+    exit 3
+    ;;
+esac
+EOF2
+chmod +x /etc/init.d/resize_root_fs
+update-rc.d resize_root_fs defaults
+sed -i '/resize-root-fs/d' /etc/rc.local
+rm /etc/resize-root-fs
+shutdown --no-wall -r now
+EOF1
+    chmod +x "${MNTPATH}/etc/resize-root-fs"
+    sed -i 's|^exit 0$|/etc/resize-root-fs\nexit 0|' "${MNTPATH}/etc/rc.local"
+  fi
+  sync
+  umntimg
+  mkloop
+  fatlabel "${LOOP}p1" "$(fatlabel ${ROOT_DEV_P}1 | sed -n '$p')" &> /dev/null
+  e2label "${LOOP}p2" "$(e2label ${ROOT_DEV_P}2)" &> /dev/null
+  rmloop
+}
+
+LOOP=""
+MNTED=FALSE
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+if [ $(id -u) -ne 0 ]; then
+  errexit "$0 must be run as root user"
+fi
+PGMNAME="$(basename $0)"
+for PID in $(pidof -x -o %PPID "${PGMNAME}"); do
+  if [ ${PID} -ne $$ ]; then
+    errexit "${PGMNAME} is already running"
+  fi
+done
+gdisk -l "${DEVICE}" &> /dev/null
+if [ $? -eq 127 ]; then
+  echo ""
+  echo "gdisk not installed"
+  echo ""
+  echo -n "Ok to install gdisk (y/n)? "
+  while read -r -n 1 -s answer; do
+    if [[ "${answer}" = [yYnN] ]]; then
+      echo "${answer}"
+      if [[ "${answer}" = [yY] ]]; then
+        break
+      else
+        errexit "Aborted"
+      fi
+    fi
+  done
+  echo ""
+  echo "Installing gdisk"
+  echo ""
+  apt-get update
+  apt-get install gdisk
+fi
+rsync --version &> /dev/null
+if [ $? -ne 0 ]; then
+  errexit "rsync not installed (run: apt-get install rsync)"
+fi
+OSID="$(sed -n 's|^ID=\(.*\)|\1|p' /etc/os-release)"
+BOOTMNT="${MNTPATH}$(sed -n 's|^\S\+\s\+\(/boot\S*\)\s\+.*$|\1|p' /etc/fstab)"
+if [ "${BOOTMNT}" = "${MNTPATH}/boot/firmware" ]; then
+  BOOTSIZE=512
+else
+  BOOTSIZE=256
+fi
+ROOT_PART="$(mount | sed -n 's|^\(/dev/.*\) on / .*|\1|p')"
+ROOT_DEV_P="$(sed 's/[0-9]\+$//' <<< "${ROOT_PART}")"
+ROOT_DEV="${ROOT_DEV_P}"
+if [[ "${ROOT_DEV}" = "/dev/mmcblk0p" || "${ROOT_DEV}" = "/dev/nvme0n1p" ]]; then
+  ROOT_DEV="${ROOT_DEV:0:(${#ROOT_DEV} - 1)}"
+fi
+ROOT_TYPE=$(blkid "${ROOT_PART}" | sed -n 's|^.*TYPE="\(\S\+\)".*|\1|p')
+PTTYPE="$(blkid "${ROOT_DEV}" | sed -n 's|^.*PTTYPE="\(\S\+\)".*|\1|p')"
+if [[ "${PTTYPE}" != "dos" && "${PTTYPE}" != "gpt" ]]; then
+  errexit "Unsupported partition table type: ${PTTYPE}"
+fi
+PARTUUID_B="$(blkid "${ROOT_DEV_P}1" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')"
+PARTUUID_R="$(blkid "${ROOT_PART}" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')"
+PTUUID="$(blkid "${ROOT_DEV}" | sed -n 's|^.*PTUUID="\(\S\+\)".*|\1|p')"
+DFKFREE=$(df | grep "% /$" | awk '{print $3}')
+INISIZE=$(((${DFKFREE} + (${DFKFREE} / 5)) / 1024))
+IMGNAME=""
+IMGSIZE=""
+IMGINCR=""
+IMGFILE=""
+OPTIONS=()
+EXTRACT=FALSE
+NOEXPAND=FALSE
+while [ $# -gt 0 ]; do
+  case "$1" in
+
+    -h|--help)
+      usage
+      ;;
+
+    -i|--initial)
+      OIFS=${IFS}
+      IFS=','
+      INITIAL=($2)
+      IFS=${OIFS}
+      IMGNAME=${INITIAL[0]}
+      IMGSIZE=${INITIAL[1]}
+      IMGINCR=${INITIAL[2]}
+      shift 2
+      ;;
+
+    -n|--noexpand)
+      NOEXPAND=TRUE
+      shift
+      ;;
+
+    -o|--options)
+      OIFS=${IFS}
+      IFS=','
+      OPTIONS+=($2)
+      IFS=${OIFS}
+      shift 2
+      ;;
+
+    -u|--ubuntu)
+      shift
+      ;;
+
+    -x|--extract)
+      EXTRACT=TRUE
+      shift
+      ;;
+
+    -*|--*)
+      usage
+      ;;
+
+    *)
+      IMGFILE="$1"
+      shift
+      ;;
+
+  esac
+done
+if [ "${IMGFILE}" = "" ]; then
+  if [ "${IMGNAME}" != "" ]; then
+    IMGFILE="${IMGNAME}"
+    if [[ ! "${IMGFILE}" =~ ^/mnt/.*$ && ! "${IMGFILE}" =~ ^/media/.*$ ]]; then
+      errexit "${IMGFILE} does not begin with /mnt/ or /media/"
+    fi
+    if [ -d "${IMGFILE}" ]; then
+      errexit "${IMGFILE} is a directory"
+    fi
+    if [ "${IMGSIZE}" = "" ]; then
+      IMGSIZE=${INISIZE}
+    fi
+    IRFSSIZE=${IMGSIZE}
+    if [ "${IMGINCR}" = "" ]; then
+      IMGINCR=0
+    fi
+    ADDMB=${IMGINCR}
+  else
+    while :
+    do
+      echo ""
+      read -r -e -i "${IMGFILE}" -p "Image file to create? " IMGFILE
+      if [ "${IMGFILE}" = "" ]; then
+        continue
+      elif [[ ! "${IMGFILE}" =~ ^/mnt/.*$ && ! "${IMGFILE}" =~ ^/media/.*$ ]]; then
+        echo ""
+        echo "${IMGFILE} does not begin with /mnt/ or /media/"
+        continue
+      fi
+      if [ -d "${IMGFILE}" ]; then
+        echo ""
+        echo "${IMGFILE} is a directory"
+      elif [ -f "${IMGFILE}" ]; then
+        echo ""
+        echo -n "${IMGFILE} already exists, Ok to delete (y/n)? "
+        while read -r -n 1 -s answer; do
+          if [[ "${answer}" = [yYnN] ]]; then
+            echo "${answer}"
+            if [[ "${answer}" = [yY] ]]; then
+              break 2
+            else
+              break 1
+            fi
+          fi
+        done
+      else
+        break
+      fi
+    done
+    echo ""
+    read -r -e -p "Initial image file ROOT filesystem size (MB) [${INISIZE}]? " IRFSSIZE
+    if [ "${IRFSSIZE}" = "" ]; then
+      IRFSSIZE=${INISIZE}
+    fi
+    if [ "${ROOT_TYPE}" != "f2fs" ]; then
+      echo ""
+      read -r -e -p "Added space for incremental updates after shrinking (MB) [0]? " ADDMB
+      if [ "${ADDMB}" = "" ]; then
+        ADDMB=0
+      fi
+    fi
+    echo ""
+    echo -n "Create ${IMGFILE} (y/n)? "
+    while read -r -n 1 -s answer; do
+      if [[ "${answer}" = [yYnN] ]]; then
+        echo "${answer}"
+        if [[ "${answer}" = [yY] ]]; then
+          break
+        else
+          errexit "Aborted"
+        fi
+      fi
+    done
+  fi
+  if [ -f "${IMGFILE}" ]; then
+    rm "${IMGFILE}"
+    if [ $? -ne 0 ]; then
+      errexit "Unable to delete existing image file"
+    fi
+  fi
+  truncate -s $(((${IRFSSIZE} + ${BOOTSIZE}) * ${ONEMB})) "${IMGFILE}"
+  if [ $? -ne 0 ]; then
+    errexit "Unable to create image file"
+  fi
+  if [ "${PTTYPE}" = "dos" ]; then
+    echo "label: dos" | sfdisk "${IMGFILE}" > /dev/null
+    sfdisk "${IMGFILE}" <<EOF > /dev/null
+,${BOOTSIZE}MiB,c
+,+,83
+EOF
+  else
+    sgdisk -Z "${IMGFILE}" &> /dev/null
+    sgdisk -n 1:0:+${BOOTSIZE}M "${IMGFILE}" &> /dev/null
+    sgdisk -t 1:0700 "${IMGFILE}" > /dev/null
+    sgdisk -n 2:0:0 "${IMGFILE}" &> /dev/null
+    sgdisk -t 2:8300 "${IMGFILE}" > /dev/null
+    gdisk "${IMGFILE}" <<EOF > /dev/null
+r
+h
+1
+n
+0c
+n
+n
+w
+y
+EOF
+  fi
+  mkloop
+  mkfs.vfat -F 32 -n boot -s 4 "${LOOP}p1" &> /dev/null
+  if [ $? -ne 0 ]; then
+    errexit "Unable to create image BOOT filesystem"
+  fi
+  dosfsck "${LOOP}p1" > /dev/null
+  if [ $? -ne 0 ]; then
+    errexit "Image BOOT filesystem appears corrupted"
+  fi
+  if [ "${ROOT_TYPE}" = "f2fs" ]; then
+    mkfs.f2fs "${LOOP}p2" > /dev/null
+  else
+    mkfs.ext4 -b 4096 -L rootfs -q "${LOOP}p2" > /dev/null
+  fi
+  if [ $? -ne 0 ]; then
+    errexit "Unable to create image ROOT filesystem"
+  fi
+  rmloop
+  echo ""
+  echo "Starting full backup (for incremental backups, run: $0 ${IMGFILE})"
+  backup
+  if [ "${ROOT_TYPE}" != "f2fs" ]; then
+    echo ""
+    mkloop
+    e2fsck -f -n "${LOOP}p2"
+    if [ $? -ne 0 ]; then
+      fsckerr "before"
+    fi
+    echo ""
+    resize2fs -f -M "${LOOP}p2"
+    resize2fs -f -M "${LOOP}p2"
+    resize2fs -f -M "${LOOP}p2"
+    e2fsck -f -n "${LOOP}p2"
+    if [ $? -ne 0 ]; then
+      fsckerr "after"
+    fi
+    INFO="$(tune2fs -l "${LOOP}p2" 2>/dev/null)"
+    rmloop
+    NEWSIZE=$(sed -n 's|^Block count:\s*\(.*\)|\1|p' <<< "${INFO}")
+    BLKSIZE=$(sed -n 's|^Block size:\s*\(.*\)|\1|p' <<< "${INFO}")
+    IMGFILE_P="${IMGFILE}"
+    if [[ "${IMGFILE_P: -1}" =~ ^[[:digit:]]$ ]]; then
+      IMGFILE_P+='p'
+    fi
+    START=$(sfdisk -d ${IMGFILE} | sed -n "s|^${IMGFILE_P}2\s\+:.*start=\s*\([0-9]\+\).*$|\1|p")
+    NEWEND=$((${START} + (${NEWSIZE} * (${BLKSIZE} / 512)) + ((${ADDMB} * ${ONEMB}) / 512) - 1))
+    if [ "${PTTYPE}" = "gpt" ]; then
+      ((NEWEND += 33))
+    fi
+    truncate -s $(((${NEWEND} + 1) * 512)) "${IMGFILE}"
+    if [ "${PTTYPE}" = "dos" ]; then
+      sfdisk --delete "${IMGFILE}" 2 > /dev/null
+      echo "${START},+" | sfdisk -N2 "${IMGFILE}" &> /dev/null
+      fdisk "${IMGFILE}" <<EOF > /dev/null
+x
+i
+0x${PTUUID}
+r
+w
+EOF
+    else
+      sgdisk -Z "${IMGFILE}" &> /dev/null
+      sgdisk -n 1:0:+${BOOTSIZE}M "${IMGFILE}" &> /dev/null
+      sgdisk -t 1:0700 "${IMGFILE}" > /dev/null
+      sgdisk -n 2:0:0 "${IMGFILE}" &> /dev/null
+      sgdisk -t 2:8300 "${IMGFILE}" > /dev/null
+      sgdisk -u 1:"${PARTUUID_B}" "${IMGFILE}" > /dev/null
+      sgdisk -u 2:"${PARTUUID_R}" "${IMGFILE}" > /dev/null
+      sgdisk -U "${PTUUID}" "${IMGFILE}" > /dev/null
+      gdisk "${IMGFILE}" <<EOF > /dev/null
+r
+h
+1
+n
+0c
+n
+n
+w
+y
+EOF
+    fi
+    if [ ${ADDMB} -ne 0 ]; then
+      echo ""
+      mkloop
+      e2fsck -f -n "${LOOP}p2"
+      if [ $? -ne 0 ]; then
+        fsckerr "before"
+      fi
+      echo ""
+      resize2fs -f "${LOOP}p2"
+      e2fsck -f -n "${LOOP}p2"
+      if [ $? -ne 0 ]; then
+        fsckerr "after"
+      fi
+      rmloop
+    fi
+  fi
+  mntimg
+  while read DIR
+  do
+    touch -r "${DIR}" "${MNTPATH}${DIR}"
+  done <<< "$(echo "$(rsync -aDH --dry-run --itemize-changes --partial --numeric-ids --delete --force --exclude "${MNTPATH}" --exclude '/dev' \
+--exclude '/lost+found' --exclude '/media' --exclude '/mnt' --exclude '/proc' --exclude '/run' --exclude '/sys' --exclude '/tmp' --exclude '/var/swap' \
+--exclude '/etc/udev/rules.d/70-persistent-net.rules' --exclude '/var/lib/asterisk/astdb.sqlite3-journal' "${OPTIONS[@]}" / "${MNTPATH}/")" | \
+sed -n "s|^\.d\.\.t\.\.\.\.\.\.\s\+\(.*$\)|/\1|p")"
+  umntimg
+  echo ""
+else
+  if [[ ! "${IMGFILE}" =~ ^/mnt/.*$ && ! "${IMGFILE}" =~ ^/media/.*$ ]]; then
+    errexit "${IMGFILE} does not begin with /mnt/ or /media/"
+  fi
+  if [ -d "${IMGFILE}" ]; then
+    errexit "${IMGFILE} is a directory"
+  elif [ ! -f "${IMGFILE}" ]; then
+    errexit "${IMGFILE} not found"
+  fi
+  backup
+fi
+sync
