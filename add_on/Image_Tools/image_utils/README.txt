@@ -25,7 +25,7 @@ image-backup /media/backup.img
 image-backup --initial /media/backup.img,,5000 --noexpand --options --exclude-from=/home/pi/exclude.txt,--delete-excluded
 
 
-Image-check:
+image-check:
 
 Usage: image-check imagefile [W95|Linux]
 
@@ -36,7 +36,7 @@ image-check will check the integrity of a standard 'raw' image file.
 
 image-chroot:
 
-Usage: image-backup [options] pathto/imagefile
+Usage: image-chroot [options] pathto/imagefile
 -h,--help       This usage description
 -u,--ubuntu     Ubuntu (Deprecated)
 
@@ -45,7 +45,7 @@ image-chroot performs a linux 'chroot' to an image file.  The current user will 
 
 image-compare:
 
-Usage: image-backup [options] pathto/imagefile
+Usage: image-compare [options] pathto/imagefile
 -h,--help       This usage description
 -o,--options    Additional rsync options (comma separated)
 -u,--ubuntu     Ubuntu (Deprecated)
@@ -55,7 +55,7 @@ image-compare compares a running Raspbian system to an existing standard 'raw' i
 
 image-info:
 
-Usage: image-backup [options] pathto/imagefile
+Usage: image-info [options] pathto/imagefile
 -h,--help       This usage description
 -u,--ubuntu     Ubuntu (Deprecated)
 

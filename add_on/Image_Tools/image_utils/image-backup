@@ -119,7 +119,7 @@ backup()
 
 ROOT_PART="$(mount | sed -n 's|^\(/dev/.*\) on / .*|\1|p')"
 ROOT_DEV="$(sed 's/[0-9]\+$//' <<< "${ROOT_PART}")"
-if [ "${ROOT_DEV}" = "/dev/mmcblk0p" ]; then
+if [[ "${ROOT_DEV}" = "/dev/mmcblk0p" || "${ROOT_DEV}" = "/dev/nvme0n1p" ]]; then
   ROOT_DEV="${ROOT_DEV:0:(${#ROOT_DEV} - 1)}"
 fi
 START=$(sfdisk -d "${ROOT_DEV}" | sed -n "s|^${ROOT_PART}\s\+:.*start=\s*\([0-9]\+\).*$|\1|p")
@@ -212,7 +212,7 @@ if [ $? -ne 0 ]; then
   errexit "rsync not installed (run: apt-get install rsync)"
 fi
 OSID="$(sed -n 's|^ID=\(.*\)|\1|p' /etc/os-release)"
-BOOTMNT="${MNTPATH}$(sed -n 's|^\S\+\s\+\(/boot\S*\)\s\+vfat\s\+.*$|\1|p' /etc/fstab)"
+BOOTMNT="${MNTPATH}$(sed -n 's|^\S\+\s\+\(/boot\S*\)\s\+.*$|\1|p' /etc/fstab)"
 if [ "${BOOTMNT}" = "${MNTPATH}/boot/firmware" ]; then
   BOOTSIZE=512
 else
@@ -221,7 +221,7 @@ fi
 ROOT_PART="$(mount | sed -n 's|^\(/dev/.*\) on / .*|\1|p')"
 ROOT_DEV_P="$(sed 's/[0-9]\+$//' <<< "${ROOT_PART}")"
 ROOT_DEV="${ROOT_DEV_P}"
-if [ "${ROOT_DEV}" = "/dev/mmcblk0p" ]; then
+if [[ "${ROOT_DEV}" = "/dev/mmcblk0p" || "${ROOT_DEV}" = "/dev/nvme0n1p" ]]; then
   ROOT_DEV="${ROOT_DEV:0:(${#ROOT_DEV} - 1)}"
 fi
 ROOT_TYPE=$(blkid "${ROOT_PART}" | sed -n 's|^.*TYPE="\(\S\+\)".*|\1|p')
@@ -267,7 +267,7 @@ while [ $# -gt 0 ]; do
     -o|--options)
       OIFS=${IFS}
       IFS=','
-      OPTIONS=($2)
+      OPTIONS+=($2)
       IFS=${OIFS}
       shift 2
       ;;

@@ -48,7 +48,7 @@ mntimg()
     errexit "Unable to mount image ROOT partition"
   fi
   MNTED=TRUE
-  BOOTMNT="${MNTPATH}$(sed -n 's|^\S\+\s\+\(/boot\S*\)\s\+vfat\s\+.*$|\1|p' "${MNTPATH}/etc/fstab")"
+  BOOTMNT="${MNTPATH}$(sed -n 's|^\S\+\s\+\(/boot\S*\)\s\+.*$|\1|p' "${MNTPATH}/etc/fstab")"
   if [ ! -d "${BOOTMNT}/" ]; then
     mkdir -p "${BOOTMNT}/"
     if [ $? -ne 0 ]; then

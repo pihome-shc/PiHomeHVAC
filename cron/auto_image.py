@@ -25,7 +25,7 @@ print("********************************************************")
 print("*       Script Auto Image System to a gz file and      *")
 print("*         send Confirmation Email message.             *")
 print("*                Build Date: 19/10/2022                *")
-print("*      Version 0.02 - Last Modified 11/11/2022         *")
+print("*      Version 0.03 - Last Modified 23/03/2024         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" ")
@@ -157,14 +157,7 @@ if ai_result[image_to_index['enabled']] == 1:
         # Image file path
         imagefname = destination + dbname + "_" + datetime.datetime.now().strftime("%Y_%m_%d") + ".img";
         # Create the image file
-        if os.path.exists('/etc/armbian-release'):
-            imagefname = destination + dbname + "_" + datetime.datetime.now().strftime("%Y_%m_%d") + ".img";
-            regex = re.compile('mmcblk.')
-            result = subprocess.run(['lsblk'], stdout=subprocess.PIPE)
-            disk_name = re.findall(regex, result.stdout.decode('utf-8'))[0]
-            cmd = "sudo dcfldd bs=4M if=/dev/" + disk_name + " | gzip > " + imagefname + ".gz"
-        else:
-            cmd = "sudo /usr/local/bin/image-backup -i " + imagefname
+        cmd = "sudo /usr/local/bin/image-backup -i " + imagefname
         print(cmd)
         os.system(cmd)
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - System Image File Created")
