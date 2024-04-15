@@ -1650,7 +1650,8 @@ def set_relays(
                FROM zone_current_state
                JOIN zone_relays zr ON zone_current_state.zone_id = zr.zone_id
                JOIN zone z ON zr.zone_id = z.id
-               WHERE zr.zone_relay_id = (%s);""",
+               WHERE zr.zone_relay_id = (%s)
+               AND (zone_current_state.status = 1 OR zone_current_state.status_prev = 1);""",
             (relay_id,),
         )
         if cur.rowcount > 0:
