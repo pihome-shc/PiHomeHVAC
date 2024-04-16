@@ -152,16 +152,31 @@ if ai_result[image_to_index['enabled']] == 1:
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     elapsed_time = datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() - datetime.datetime.strptime(str(last_image_creation), "%Y-%m-%d %H:%M:%S").timestamp()
     if elapsed_time >= freq:
+        print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Stopping MaxAir Job Scheduler")
+        print("--------------------------------------------------------------------")
+        cmd = "sudo /usr/bin/sudo /bin/systemctl stop pihome_jobs_schedule.service"
+        os.system(cmd)
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Creating System Image File")
         print("--------------------------------------------------------------------")
         # Image file path
         imagefname = destination + dbname + "_" + datetime.datetime.now().strftime("%Y_%m_%d") + ".img";
         # Create the image file
-        cmd = "sudo /usr/local/bin/image-backup -i " + imagefname
+        if os.path.exists('/etc/armbian-release'):
+            imagefname = destination + dbname + "_" + datetime.datetime.now().strftime("%Y_%m_%d") + ".img";
+            regex = re.compile('mmcblk.')
+            result = subprocess.run(['lsblk'], stdout=subprocess.PIPE)
+            disk_name = re.findall(regex, result.stdout.decode('utf-8'))[0]
+            cmd = "sudo dcfldd bs=4M if=/dev/" + disk_name + " | gzip > " + imagefname + ".gz"
+        else:
+            cmd = "sudo /usr/local/bin/image-backup -i " + imagefname
         print(cmd)
         os.system(cmd)
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - System Image File Created")
         print("--------------------------------------------------------------------")
+        print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Re-starting MaxAir Job Scheduler")
+        print("--------------------------------------------------------------------")
+        cmd = "sudo /usr/bin/sudo /bin/systemctl start pihome_jobs_schedule.service"
+        os.system(cmd)
 
         # Record datetime of backup creation
         con = mdb.connect(dbhost, dbuser, dbpass, dbname)
