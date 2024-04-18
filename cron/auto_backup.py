@@ -152,6 +152,10 @@ if ab_result[backup_to_index['enabled']] == 1:
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     elapsed_time = datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() - datetime.datetime.strptime(str(last_backup), "%Y-%m-%d %H:%M:%S").timestamp()
     if elapsed_time >= freq:
+        print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Stopping MaxAir Job Scheduler")
+        print("--------------------------------------------------------------------")
+        cmd = "sudo /usr/bin/sudo /bin/systemctl stop pihome_jobs_schedule.service"
+        os.system(cmd)
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Creating Database Backup SQL File")
         print("------------------------------------------------------------------")
         # Temporary file storage path
@@ -164,6 +168,11 @@ if ab_result[backup_to_index['enabled']] == 1:
         os.system(cmd)
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Database Backup SQL File Created")
         print("------------------------------------------------------------------")
+
+        print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Re-starting MaxAir Job Scheduler")
+        print("--------------------------------------------------------------------")
+        cmd = "sudo /usr/bin/sudo /bin/systemctl start pihome_jobs_schedule.service"
+        os.system(cmd)
 
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Creating ZIP Archive of SQL File")
         print("------------------------------------------------------------------")
