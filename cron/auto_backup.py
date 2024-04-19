@@ -156,6 +156,10 @@ if ab_result[backup_to_index['enabled']] == 1:
         print("--------------------------------------------------------------------")
         cmd = "sudo /usr/bin/sudo /bin/systemctl stop pihome_jobs_schedule.service"
         os.system(cmd)
+        cmd = "sudo /usr/bin/pkill -f controller.py"
+        os.system(cmd)
+        cmd = "sudo /usr/bin/pkill -f gateway.py"
+        os.system(cmd)
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Creating Database Backup SQL File")
         print("------------------------------------------------------------------")
         # Temporary file storage path
