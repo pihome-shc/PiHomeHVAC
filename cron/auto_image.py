@@ -31,6 +31,8 @@ print("********************************************************")
 print(" ")
 print(" " + bc.ENDC)
 
+line_len = 70
+
 import MySQLdb as mdb, datetime, sys, smtplib, string, os
 import configparser
 import subprocess, re
@@ -146,26 +148,52 @@ if ai_result[image_to_index['enabled']] == 1:
                 con.close()
 
     print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Create System Image File Script Started")
-    print("--------------------------------------------------------------------")
+    print("-" * line_len)
 
     # Check if image file is required
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     elapsed_time = datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() - datetime.datetime.strptime(str(last_image_creation), "%Y-%m-%d %H:%M:%S").timestamp()
     if elapsed_time >= freq:
+        con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+        cursorupdate = con.cursor()
+        print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Suspend Gateway and Controller Processing")
+        print("-" * line_len)
+        # put controller in test mode to suspend database activity
+        cursorupdate.execute(
+            "UPDATE `system` SET `test_mode`= 4;"
+        )
+        con.commit()
+        # create flag file to suspend Gatewau processing
+        running_flag = file = open('/tmp/db_cleanup_running', 'w+')
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Creating System Image File")
-        print("--------------------------------------------------------------------")
+        print("-" * line_len)
         # Image file path
         imagefname = destination + dbname + "_" + datetime.datetime.now().strftime("%Y_%m_%d") + ".img";
         # Create the image file
-        cmd = "sudo /usr/local/bin/image-backup -i " + imagefname
+        if os.path.exists('/etc/armbian-release'):
+            imagefname = destination + dbname + "_" + datetime.datetime.now().strftime("%Y_%m_%d") + ".img";
+            regex = re.compile('mmcblk.')
+            result = subprocess.run(['lsblk'], stdout=subprocess.PIPE)
+            disk_name = re.findall(regex, result.stdout.decode('utf-8'))[0]
+            cmd = "sudo dcfldd bs=4M if=/dev/" + disk_name + " | gzip > " + imagefname + ".gz"
+        else:
+            cmd = "sudo /usr/local/bin/image-backup -i " + imagefname
         print(cmd)
         os.system(cmd)
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - System Image File Created")
-        print("--------------------------------------------------------------------")
+        print("-" * line_len)
+        print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Restore Gateway and Controller Processing")
+        print("-" * line_len)
+
+        # remove the flag file and clear test_mode
+        if os.path.exists('/tmp/db_cleanup_running'):
+            os.remove('/tmp/db_cleanup_running')
+        cursorupdate.execute(
+            "UPDATE `system` SET `test_mode`= 0;"
+        )
+        con.commit()
 
         # Record datetime of backup creation
-        con = mdb.connect(dbhost, dbuser, dbpass, dbname)
-        cursorupdate = con.cursor()
         cursorupdate.execute(
             "UPDATE `auto_image` SET `last_image_creation`=%s, `sync`=0 WHERE `id` = %s",
             [timestamp, image_id],
@@ -177,7 +205,7 @@ if ai_result[image_to_index['enabled']] == 1:
         #Check to see if confirmation email is to be sent
         if ai_result[image_to_index['email_confirmation']] == 1:
             print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Emailing Confrmation")
-            print("--------------------------------------------------------------------")
+            print("-" * line_len)
 
             # Send Email Message
             msg = MIMEMultipart()
@@ -206,13 +234,13 @@ if ai_result[image_to_index['enabled']] == 1:
                     datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - ERROR Sending Email Message")
 
             print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Email Sent")
-            print("--------------------------------------------------------------------")
+            print("-" * line_len)
     else :
             print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - System Image File Creation Not Yet Scheduled")
-            print("--------------------------------------------------------------------")
+            print("-" * line_len)
 
     print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Checking for Rotation Deletions")
-    print("--------------------------------------------------------------------")
+    print("-" * line_len)
     list_of_files = glob.glob(destination + 'maxair_*.img')
     for f in list_of_files:
         c_time = os.path.getctime(f)
@@ -224,20 +252,20 @@ if ai_result[image_to_index['enabled']] == 1:
         # Check if a backup file should be rotated is required
         if elapsed_time >= rot:
             print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Rotating System Image File")
-            print("--------------------------------------------------------------------")
+            print("-" * line_len)
             cmd = 'rm -r ' + f
             os.system(cmd)
             print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " File - " + f + " Deleted")
-            print("--------------------------------------------------------------------")
+            print("-" * line_len)
 
     print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Rotation Deletion Check Ended")
-    print("--------------------------------------------------------------------")
+    print("-" * line_len)
 
     print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - System Image File Creation Script Ended \n")
-    print("--------------------------------------------------------------------")
+    print("-" * line_len)
 else :
     if con:
         con.close()
     print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - System Image File Creation Script NOT Enabled \n")
-    print("--------------------------------------------------------------------")
+    print("-" * line_len)
 

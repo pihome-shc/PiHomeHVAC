@@ -31,6 +31,8 @@ print("********************************************************")
 print(" ")
 print(" " + bc.ENDC)
 
+line_len = 70
+
 import MySQLdb as mdb, datetime, sys, smtplib, string, os
 import configparser
 import subprocess
@@ -146,14 +148,14 @@ if ab_result[backup_to_index['enabled']] == 1:
                 con.close()
 
     print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Database Backup Script Started")
-    print("------------------------------------------------------------------")
+    print("-" * line_len)
 
     # Check if new backup is required
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     elapsed_time = datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").timestamp() - datetime.datetime.strptime(str(last_backup), "%Y-%m-%d %H:%M:%S").timestamp()
     if elapsed_time >= freq:
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Creating Database Backup SQL File")
-        print("------------------------------------------------------------------")
+        print("-" * line_len)
         # Temporary file storage path
         tempPath = "./"
         # Backup file path
@@ -163,10 +165,10 @@ if ab_result[backup_to_index['enabled']] == 1:
         cmd = "mysqldump --ignore-table=" + dbname + ".backup --add-drop-table --host=" + dbhost +" --user=" + dbuser + " --password=" + dbpass + " " + dbname + " > " + tempfname
         os.system(cmd)
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Database Backup SQL File Created")
-        print("------------------------------------------------------------------")
+        print("-" * line_len)
 
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Creating ZIP Archive of SQL File")
-        print("------------------------------------------------------------------")
+        print("-" * line_len)
         # Record datetime of backup creation
         con = mdb.connect(dbhost, dbuser, dbpass, dbname)
         cursorupdate = con.cursor()
@@ -183,12 +185,12 @@ if ab_result[backup_to_index['enabled']] == 1:
         os.system(cmd)
 
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - ZIP Archive Created")
-        print("------------------------------------------------------------------")
+        print("-" * line_len)
 
         # Check if sent email copy is enabled, if so use local copy as the source
         if ab_result[backup_to_index['email_backup']] == 1:
             print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Emailing the ZIP Archive File")
-            print("------------------------------------------------------------------")
+            print("-" * line_len)
 
             # Send Email Message
             msg = MIMEMultipart()
@@ -220,11 +222,11 @@ if ab_result[backup_to_index['enabled']] == 1:
                     datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - ERROR Sending Email Message")
 
             print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Email Sent")
-            print("------------------------------------------------------------------")
+            print("-" * line_len)
         #Check to see if confirmation email is to be sent
         if ab_result[backup_to_index['email_confirmation']] == 1:
             print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Emailing Backup Confrmation")
-            print("------------------------------------------------------------------")
+            print("-" * line_len)
 
             # Send Email Message
             msg = MIMEMultipart()
@@ -253,27 +255,27 @@ if ab_result[backup_to_index['enabled']] == 1:
                     datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - ERROR Sending Email Message")
 
             print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Email Sent")
-            print("------------------------------------------------------------------")
+            print("-" * line_len)
         # Copy the local archive copy to the destination
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Copying Archive File to Destination Folder")
-        print("------------------------------------------------------------------")
+        print("-" * line_len)
         cmd = "cp " + zipfname  + " " + destination
         os.system(cmd)
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Copied to - " + destination)
-        print("------------------------------------------------------------------")
+        print("-" * line_len)
         # Delete the local archive copy
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Deleting Local Archive File")
-        print("------------------------------------------------------------------")
+        print("-" * line_len)
         cmd = "rm -f ./" + zipfname
         os.system(cmd)
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Deleted - " + zipfname)
-        print("------------------------------------------------------------------")
+        print("-" * line_len)
     else :
             print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Backup Not Yet Scheduled")
-            print("------------------------------------------------------------------")
+            print("-" * line_len)
 
     print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Checking for Rotation Deletions")
-    print("------------------------------------------------------------------")
+    print("-" * line_len)
     list_of_files = glob.glob(destination + 'maxair_*.gz')
     for f in list_of_files:
         c_time = os.path.getctime(f)
@@ -285,20 +287,20 @@ if ab_result[backup_to_index['enabled']] == 1:
         # Check if a backup file should be rotated is required
         if elapsed_time >= rot:
             print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Rotating Database Backup SQL File")
-            print("------------------------------------------------------------------")
+            print("-" * line_len)
             cmd = 'rm -r ' + f
             os.system(cmd)
             print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " File - " + f + " Deleted")
-            print("------------------------------------------------------------------")
+            print("-" * line_len)
 
     print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Rotation Deletion Check Ended")
-    print("------------------------------------------------------------------")
+    print("-" * line_len)
 
     print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Database Backup Script Ended \n")
-    print("------------------------------------------------------------------")
+    print("-" * line_len)
 else :
     if con:
         con.close()
     print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Database Backup Script NOT Enabled \n")
-    print("------------------------------------------------------------------")
+    print("-" * line_len)
 
