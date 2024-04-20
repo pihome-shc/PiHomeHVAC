@@ -148,9 +148,6 @@ IPAddress myDNS(8, 8, 8, 8);
 #include <MySensors.h>
 #include <DNSServer.h>
 #include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
-//#include <Arduino_Helpers.h>
-//#include <AH/STL/algorithm>
-//#include <AH/STL/iterator>
 
 //for LED WiFi connection status
 #include <Ticker.h>
