@@ -1,4 +1,4 @@
-# Stetch for ESP8266 Gateway Board with WEMOS D1 Mini ESP32 Adapter.
+# Sketch for ESP8266 Gateway Board with WEMOS D1 Mini ESP32 Adapter.
 
 **Implements WirelessManager.**
 
