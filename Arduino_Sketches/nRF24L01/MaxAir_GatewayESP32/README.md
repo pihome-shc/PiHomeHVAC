@@ -14,24 +14,26 @@
 
 | Pin Name      | Function                                                     |
 | ------------- | ------------------------------------------------------------ |
-| TX0           | Serial OUT                                                   |
-| RX0 (IO3)     | Serial IN and i2c SCL                                        |
-| IO0           | Program Select Jumper (10K Pullup Resistor to 3V3)           |
-| IO2           | Radio MOSI                                                   |
-| IO4           | Radio CE                                                     |
-| TXD (IO5)     | Set Relay Trigger HIGH or LOW (10K Pullup Resistor to 3V3)   |
-| IO12          | Radio MISO                                                   |
-| IO14          | Radio SCK                                                    |
-| IO15          | Radio SS                                                     |
-| RXD (IO17)    | RX LED                                                       |
-| CFG (IO32)    | Clear WiFi Credentials Jumper (10K Pullup Resistor to 3V3) and i2c SDA |
-| 485_EN (IO33) | TX LED                                                       |
-| IO35          | ERR LED                                                      |
-| IO36          | Radio IRQ (10K Pullup Resistor to 3V3)                       |
-| IO39          | Used as ADC, Disable WiFi (low), Disable Ethernet (High)     |
-| 5V            | 5volt Power Input                                            |
-| 3V3           | 3.3volt Power Out to Radio                                   |
+| RSR           |                                                              |
+| SVP           |                                                              |
+| IO26          | Clear WiFi Settings Jumper (10K Pullup Resistor to 3V3)      |
+| IO18          | Radio SCK                                                    |
+| IO19          | Radio MISO                                                   |
+| IO23          | Radio MOSI                                                   |
+| IO05          | Radio SS                                                     |
+| 3.3V          | 3.3volt Power Out to Radio                                   |
+| TCK(IO13)     | Set NRF Radio Channel 75 Jumper (10K Pullup Resistor to 3V3) |
+| CMD           |                                                              |
+| TXD           | Serial Out                                                   |
+| RXD           | Serial In                                                    |
+| IO22          | Radio CE (10K Pullup Resistor to 3V3)                        |
+| IO21          | ERR LED                                                      |
+| IO17          | TX LED                                                       |
+| IO16          | ERR LED                                                      |
 | GND           | Common Ground                                                |
+| 5V            | 5volt Power Input                                            |
+| TD0           |                                                              |
+| GDD           |                                                              |
 
 **Install support for ESP32 boards by using Addional Boards Manager URL: https://dl.espressif.com/dl/package_esp32_index.json and searching for esp32**
 
