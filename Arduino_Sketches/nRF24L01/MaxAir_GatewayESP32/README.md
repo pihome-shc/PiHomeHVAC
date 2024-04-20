@@ -8,6 +8,8 @@
 
 **Jumper to select NRF Channel 74, rather than the default of Channel 91.**
 
+**Enables the use of the existing 0n-board ERR, TX and TX LEDs.**
+
 **Compiled using version 1.0.6 esp32 by Espressif Systems (will not compile with version 2.0.x).**
 
 ### Pin Usage
