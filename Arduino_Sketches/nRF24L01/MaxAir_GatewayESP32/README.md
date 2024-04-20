@@ -12,7 +12,7 @@
 
 **Compiled using version 1.0.6 esp32 by Espressif Systems (will not compile with version 2.0.x).**
 
-### Pin Usage
+### Pin Usage (Onlt the Inner set of pins are used)
 
 | Pin Name      | Function                                                     |
 | ------------- | ------------------------------------------------------------ |
@@ -34,7 +34,7 @@
 | IO16          | ERR LED                                                      |
 | GND           | Common Ground                                                |
 | 5V            | 5volt Power Input                                            |
-| TD0           |                                                              |
+| TD0(IO15)     | Radio IRQ                                                    |
 | GDD           |                                                              |
 
 **Install support for ESP32 boards by using Addional Boards Manager URL: https://dl.espressif.com/dl/package_esp32_index.json and searching for esp32**
