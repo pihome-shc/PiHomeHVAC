@@ -49,24 +49,24 @@
     RFM95_BW31_25CR48SF512  31.25   4/8   512   Slow, long range
     RFM95_BW125CR48SF4096   125   4/8   4096  Slow, long range 
   */
-  #define MY_RFM95_IRQ_PIN 36
+  #define MY_RFM95_IRQ_PIN 15
   #define MY_RFM95_IRQ_NUM digitalPinToInterrupt(MY_RFM95_IRQ_PIN)
-  #define MY_RFM95_CS_PIN 15
+  #define MY_RFM95_CS_PIN 5
 #endif
 
 #ifdef MY_RADIO_RFM69
   #define MY_TRANSPORT_STATE_TIMEOUT_MS  (3*1000ul)
   #define MY_RFM69_FREQUENCY RFM69_868MHZ // Set your frequency here
   #define MY_IS_RFM69HW // Omit if your RFM is not "H"
-  #define MY_RFM69_IRQ_PIN 36
+  #define MY_RFM69_IRQ_PIN 15
   #define MY_RFM69_IRQ_NUM digitalPinToInterrupt(MY_RFM69_IRQ_PIN)
-  #define MY_RFM69_CS_PIN 15 // NSS. Use MY_RFM69_SPI_CS for older versions (before 2.2.0)
+  #define MY_RFM69_CS_PIN 5 // NSS. Use MY_RFM69_SPI_CS for older versions (before 2.2.0)
 #endif
 
 #ifdef MY_RADIO_RF24
   #define MY_RF24_PA_LEVEL RF24_PA_HIGH
   //#define MY_DEBUG_VERBOSE_RF24
-//  #define MY_RF24_IRQ_PIN 22
+//  #define MY_RF24_IRQ_PIN 15
 //  #define MY_RF24_IRQ_NUM digitalPinToInterrupt(MY_RF24_IRQ_PIN)
   //#define MY_RX_MESSAGE_BUFFER_FEATURE
   //#define MY_RX_MESSAGE_BUFFER_SIZE 5
@@ -84,8 +84,6 @@
   //#define MY_RF24_CHANNEL 91
   int8_t myChannel;
   #define MY_RF24_CHANNEL myChannel
-
-  
 
   //RF24_250KBPS for 250kbs, RF24_1MBPS for 1Mbps, or RF24_2MBPS for 2Mbps
   #define MY_RF24_DATARATE RF24_250KBPS
@@ -144,7 +142,6 @@ IPAddress myDNS(8, 8, 8, 8);
 #endif
 
 #include <WiFiClient.h>
-
 #include <MySensors.h>
 #include <DNSServer.h>
 #include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
