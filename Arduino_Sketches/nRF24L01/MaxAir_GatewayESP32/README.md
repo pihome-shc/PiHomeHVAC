@@ -43,5 +43,4 @@
 
 **Programing mode:**
 
-![prog_wt32](https://user-images.githubusercontent.com/46624596/165151005-1c7dc885-25be-42cb-b770-7853ee7b7912.JPG)
-
+![esp32_wemos](https://github.com/twa127/PiHomeHVAC/assets/46624596/7a7ac8b4-c082-4dcf-b571-a032bd5e3c91)
