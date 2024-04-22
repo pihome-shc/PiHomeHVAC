@@ -129,7 +129,7 @@ with open(path) as stream:
     reader = csv.reader(stream, delimiter="=")
     os_release = dict(reader)
 #set the web user dependant on OS distribution
-if "debian" in os_release['ID'] or "ubuntu" in os_release['ID']:
+if "debian" in os_release['ID'] or "ubuntu" in os_release['ID'] or "raspbian" in os_release['ID']:
     web_user = "www-data"
 else:
     web_user = "http"
