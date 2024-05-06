@@ -309,8 +309,9 @@ void setup()
     Serial.println(WiFi.localIP());
   #endif
   
-  //turn off blinking on-board led after WiFi connection
+  //turn off blinking on-board led after WiFi connection and leave in the ON state
   ticker.detach();    
+  digitalWrite(LED_BUILTIN, 1);     // set the LED ON
 
   setupWebServer();
 }
