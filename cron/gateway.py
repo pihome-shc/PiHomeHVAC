@@ -1634,6 +1634,11 @@ def set_relays(
     if cur.rowcount > 0:
         if node_type.find("Tasmota") != -1:
             relay_msg = out_payload
+        elif node_type.find("GPIO") != -1:
+            if int(out_payload) == 1 :
+                relay_msg = "ON"
+            else :
+                relay_msg = "OFF"
         else :
             if int(out_payload) == int(out_on_trigger) :
                 relay_msg = "ON"
