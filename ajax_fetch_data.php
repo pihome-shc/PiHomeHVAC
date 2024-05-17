@@ -111,7 +111,7 @@ if ($type <= 5) {
 
 	if ($zone_category == 1 || $zone_category == 2  || $zone_category == 5) {
         	if ($zone_mode == 0) { $add_on_active = 0; } else { $add_on_active = 1; }
-                if ($add_on_active == 1 && $zone_category != 5) { $add_on_colour = "green"; } elseif ($add_on_active == 0 || ($add_on_active == 1 && $zone_category == 5)) {$add_on_colour = "black"; }
+                if (($add_on_active == 1 && $away_status == 0) && $zone_category != 5) { $add_on_colour = "green"; } elseif ($add_on_active == 0 || ($add_on_active == 1 && $zone_category == 5)) {$add_on_colour = "black"; }
 	}
 
 	//get the sensor id
@@ -158,13 +158,13 @@ if ($type <= 5) {
                 } else {
                 	if ($add_on_active == 0) {
                         	$add_on_mode = 0;
-                        } elseif ($zone_category == 1) {
+                        } elseif ($zone_category == 1 || $zone_category == 2) {
                         	$add_on_mode = $zone_mode;
                       	} else {
                         	$add_on_mode = 114;
                         }
                 }
-                if ($away_status == 1 && $away_sch == 1 ) { $zone_mode = 90; }
+                if ($away_status == 1 && $away_sch == 1 ) { $add_on_mode = 90; }
                 $rval=getIndicators($conn, $add_on_mode, $zone_temp_target);
         } else {
                 if ($away_status == 1 && $away_sch == 1 ) {
