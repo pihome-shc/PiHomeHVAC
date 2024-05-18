@@ -743,10 +743,62 @@ if($what=="away"){
 		$da= $row['status'];
 		if($da=="1"){ $set="0"; }else{ $set="1"; }
 		$query = "UPDATE away SET status = '{$set}', sync = '0', start_datetime = '{$time}' LIMIT 1";
-		$conn->query($query);
-
+                if(!$conn->query($query)){
+                	header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                	return;
+                }
+		// if 'Away@ is switching OFF, then restore and Switch type zones to previous state
+		if($set == "0") {
+		        $query = "SELECT z.id, zt.category, state, zcs.schedule
+				FROM zone_relays
+				JOIN zone z ON z.id = zone_relays.zone_id
+				JOIN zone_type zt ON zt.id = z.type_id
+				JOIN zone_current_state zcs ON zcs.zone_id = z.id
+				WHERE zt.category = 2;";
+        		$results = $conn->query($query);
+			while ($zrow = mysqli_fetch_assoc($results)) {
+				$zone_id = $zrow['id'];
+				$zone_state = $zrow['state'];
+				$sch_active = $zrow['schedule'];
+                                if($zone_state == 1){
+	                                if ($sch_active == 0) {
+        	                                $mode = 114;
+                	                } else {
+                        	                $mode = 74;
+                                	}
+             	                   	$query = "UPDATE zone_current_state SET mode  = {$mode}, status = {$zone_state} WHERE zone_id = {$zone_id};";
+                	           	if(!$conn->query($query)){
+                        			header('Content-type: application/json');
+                        			echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        			return;
+                                	}
+                			$query = "UPDATE zone SET zone_state = {$zone_state} WHERE id = {$zone_id} LIMIT 1;";
+                			if(!$conn->query($query)){
+			                        header('Content-type: application/json');
+                        			echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        			return;
+                			}
+					$query = "UPDATE messages_out SET payload = '{$zone_state}', datetime = '{$time}', sent = '0' WHERE zone_id = {$zone_id};";
+                                        if(!$conn->query($query)){
+			                        header('Content-type: application/json');
+                        			echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        			return;
+                                        }
+				}
+			}
+		}
+		// update the 'Away Button" message if it exists
 		$query = "UPDATE messages_out SET payload = '{$set}', datetime = '{$time}', sent = '0' WHERE zone_id = '0' AND node_id = {$row['away_button_id']} AND child_id = {$row['away_button_child_id']} LIMIT 1";
-		$conn->query($query);
+                if($conn->query($query)){
+                      	header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
 	}
 }
 
