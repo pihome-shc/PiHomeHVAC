@@ -1420,6 +1420,8 @@ def process_message(in_str):
                         payload,
                     )
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                temp = payload.split(",")
+                r_mask = int(temp[2])
                 try:
                     cur.execute(
                         "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE type = 'MySensor' AND node_id = %s",
