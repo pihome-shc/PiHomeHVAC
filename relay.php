@@ -67,8 +67,8 @@ if (isset($_POST['submit'])) {
 	$m_out_id = $_POST['m_out_id'];
 	$lag_time = $_POST['lag_time'];
 	//Add or Edit relay record to relays Table
-	$query = "INSERT INTO `relays` (`id`, `sync`, `purge`, `relay_id`, `relay_child_id`, `name`, `type`, `on_trigger`, `lag_time`, `user_display`)
-		VALUES ('{$id}', '{$sync}', '{$purge}', '{$selected_relay_id}', '{$relay_child_id}', '{$name}', '{$type}', '{$on_trigger}', '{$lag_time}', 0)
+	$query = "INSERT INTO `relays` (`id`, `sync`, `purge`, `relay_id`, `relay_child_id`, `name`, `type`, `on_trigger`, `lag_time`, `user_display`, `state`)
+		VALUES ('{$id}', '{$sync}', '{$purge}', '{$selected_relay_id}', '{$relay_child_id}', '{$name}', '{$type}', '{$on_trigger}', '{$lag_time}', 0, 0)
 		ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), relay_id='{$selected_relay_id}', relay_child_id='{$relay_child_id}', name=VALUES(name),
 		type=VALUES(type), on_trigger=VALUES(on_trigger), lag_time=VALUES(lag_time);";
 	$result = $conn->query($query);
