@@ -1050,4 +1050,5 @@ $lang['enable_graph_archive'] = "Enable Archiving of Graphs";
 $lang['archive_file_path'] = "Full Path Name of Graph Archive File";
 $lang['min_max_graph'] = "Min/Max Graph";
 $lang['setup_user_accounts'] = "Setup User Accounts";
+$lang['wifi_not_found'] = "NO WiFi Interface Found";
 ?>
