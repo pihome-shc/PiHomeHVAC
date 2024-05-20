@@ -9,7 +9,7 @@
 // *****************************************************************
 // *           Heating Zone Controller Relay Sketch                *
 // *            Version 0.34 Build Date 06/11/2017                 *
-// *            Last Modification Date 26/03/2023                  *
+// *            Last Modification Date 20/05/2024                  *
 // *                                          Have Fun - PiHome.eu *
 // *****************************************************************
 
@@ -31,50 +31,34 @@
 //#define MY_RADIO_RFM69
 //#define MY_RADIO_RFM95
 
-//https://forum.mysensors.org/topic/10386/what-is-the-good-wait-time/7
-//Connect the nRF24 IRQ pin to pin 2 on your Arduino
-//that last value may be lower (e.g. 5) when running out of memory
-//This will listen to the interrupt from the nRF24 when a message comes in and immediately pause the running code to retrieve the message.
-//Then your code continues and any messages stored will be processed outside the loop() function automatically. The wait() call(s) can be removed from your code.
+#ifdef MY_RADIO_RF24
+  #define MY_RF24_PA_LEVEL RF24_PA_LOW
+  //#define MY_DEBUG_VERBOSE_RF24
+  #define MY_RF24_IRQ_PIN 2
+  //#define MY_RF24_IRQ_NUM digitalPinToInterrupt(MY_RF24_IRQ_PIN)
+  //#define MY_RX_MESSAGE_BUFFER_FEATURE
+  //#define MY_RX_MESSAGE_BUFFER_SIZE 5
 
-//Define this to use the IRQ pin of the RF24 module (optional). 
-#define MY_RF24_IRQ_PIN 2
-#define MY_RX_MESSAGE_BUFFER_FEATURE
-#define MY_RX_MESSAGE_BUFFER_SIZE 5
+  // We have to move CE/CSN pins for NRF radio
+  #ifndef MY_RF24_CE_PIN
+    #define MY_RF24_CE_PIN 9
+  #endif
+  #ifndef MY_RF24_CS_PIN
+    #define MY_RF24_CS_PIN 10
+  #endif
 
-// * - RF24_PA_MIN = -18dBm
-// * - RF24_PA_LOW = -12dBm
-// * - RF24_PA_HIGH = -6dBm
-// * - RF24_PA_MAX = 0dBm
-// Set LOW transmit power level as default, if you have an amplified NRF-module and
-// power your radio separately with a good regulator you can turn up PA level.
-// RF24_PA_MIN RF24_PA_LOW RF24_PA_HIGH RF24_PA_MAX RF24_PA_ERROR
-#define MY_RF24_PA_LEVEL RF24_PA_MIN
-//#define MY_DEBUG_VERBOSE_RF24
+  // RF channel for the sensor net, 0-127
+  #define MY_RF24_CHANNEL 91
 
-/**
- * @brief RF channel for the sensor net, 0-125.
- * Frequencies: 2400 Mhz - 2525 Mhz
- * @see https://www.nordicsemi.com/eng/nordic/download_resource/8765/2/42877161/2726
- * - 0 => 2400 Mhz (RF24 channel 1)
- * - 1 => 2401 Mhz (RF24 channel 2)
- * - 76 => 2476 Mhz (RF24 channel 77)
- * - 83 => 2483 Mhz (RF24 channel 84)
- * - 124 => 2524 Mhz (RF24 channel 125)
- * - 125 => 2525 Mhz (RF24 channel 126)
- * In some countries there might be limitations, in Germany for example only the range
- * 2400,0 - 2483,5 Mhz is allowed.
- * @see http://www.bundesnetzagentur.de/SharedDocs/Downloads/DE/Sachgebiete/Telekommunikation/Unternehmen_Institutionen/Frequenzen/Allgemeinzuteilungen/2013_10_WLAN_2,4GHz_pdf.pdf
- */
+  //RF24_250KBPS for 250kbs, RF24_1MBPS for 1Mbps, or RF24_2MBPS for 2Mbps
+  #define MY_RF24_DATARATE RF24_250KBPS
+#endif
  
-//Default RF channel Default is 76
-#define MY_RF24_CHANNEL	91
-
 //PiHome Zone Controller Node ID
-#define MY_NODE_ID 102
-
-//RF24_250KBPS for 250kbs, RF24_1MBPS for 1Mbps, or RF24_2MBPS for 2Mbps
-#define MY_RF24_DATARATE RF24_250KBPS
+//#define MY_NODE_ID 101
+#define BASE_NODE_ID 101
+int8_t myNodeId;
+#define MY_NODE_ID myNodeId
 
 //Enable Signing 
 //#define MY_SIGNING_SIMPLE_PASSWD "pihome2019"
@@ -106,74 +90,130 @@
 
 #define RELAY_1 3  // Arduino Digital I/O pin number for first relay (second on pin+1 etc)
 #define NUMBER_OF_RELAYS 6 // Total number of attached relays
-#define RELAY_ON 0  // GPIO value to write to turn on attached relay
-#define RELAY_OFF 1 // GPIO value to write to turn off attached relay
+#define RELAY_ON 1  // GPIO value to write to turn on attached relay
+#define RELAY_OFF 0 // GPIO value to write to turn off attached relay
 
-int oldStatus = RELAY_OFF;
-int COMMS = 0;
-unsigned long WAIT_TIME = 600000; // Wait time (in milliseconds) best to keep it for 10 Minuts
+//int oldStatus = RELAY_OFF;
 
+byte pinarray[] = { 3, 4, 5, 6, 7, 8 };
 long double send_heartbeat_time = millis();
 long double recieve_heartbeat_time = millis();
 long double HEARTBEAT_TIME = 30000; // Send heartbeat every seconds
+int trigger = 1; // set LOW to indicate the relays are posotive level triggered
+char heartbeat_str[] = "Heartbeat,10x,abc";
 
 #define CHILD_ID_TXT 255
 MyMessage msgTxt(CHILD_ID_TXT, V_TEXT);
 
+// xnor function to be used to apply relay trigger setting
+bool xnor(int a, int b)
+{
+  if (a == b) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 void before()
 {
-	for (int sensor=1, pin=RELAY_1; sensor<=NUMBER_OF_RELAYS; sensor++, pin++) {
-		// Then set relay pins in output mode
-		pinMode(pin, OUTPUT);
-		//digitalWrite(pin, loadState(sensor)?RELAY_ON:RELAY_OFF); // Set relay to last known state (using eeprom storage)
-		//Turn Off Zone Relay on Power On, This will protect On Power Failure and keep zone off. 
-		digitalWrite(pin, RELAY_OFF);
-		//digitalWrite(pin, RELAY_ON);
-		delay(100);
-	}
+  myNodeId = BASE_NODE_ID;
+  // heartbeat message including NODE_ID
+  heartbeat_str[12] = 48 + (myNodeId%10);
+  #ifdef MY_DEBUG
+    Serial.print("MY_NODE_ID: ");
+    Serial.println(myNodeId);
+    Serial.print("TRIGGER: ");
+    Serial.println(trigger);
+  #endif
+
+  // relays 1-6 are connected to pins D3-D8
+  // initialize the relays to the OFF state
+  for (int pin=0; pin<NUMBER_OF_RELAYS; pin++) {
+    pinMode(pinarray[pin], OUTPUT);
+    digitalWrite(pinarray[pin], xnor(trigger, RELAY_OFF));
+    delay(500);
+    #ifdef MY_DEBUG
+      Serial.print("Initialize Pin: ");
+      Serial.print(pinarray[pin]);
+      Serial.print(" - ");
+      Serial.println(xnor(trigger, RELAY_OFF));
+    #endif
+  }
+  #ifdef MY_DEBUG
+    Serial.println("INITIAL CONFIGURATION FINISHED");
+  #endif
 }
 
 void setup(){
-	wdt_disable();
-	//do something here if needed 
-	wdt_enable (WDTO_8S);
+  wdt_disable();
+  //do something here if needed 
+  wdt_enable (WDTO_8S);
+  #ifdef MY_DEBUG
+    Serial.println("WATCHDOG CONFIGURED");
+  #endif
+  sendHeartbeat();
 }
 
 //declare reset function @ address 0
 void(* resetFunc) (void) = 0; 
 
 void presentation(){
-	// Send the sketch version information to the gateway and Controller
-	sendSketchInfo(SKETCH_NAME, SKETCH_VERSION);
-	for (int sensor=1, pin=RELAY_1; sensor<=NUMBER_OF_RELAYS; sensor++, pin++) {
-		// Register all sensors to gw (they will be created as child devices)
-		present(sensor, S_BINARY);
-		delay(200);
-	}
+  // Send the sketch version information to the gateway and Controller
+  sendSketchInfo(SKETCH_NAME, SKETCH_VERSION);
+  for (int sensor=1; sensor<=NUMBER_OF_RELAYS; sensor++) {
+    // Register all sensors to gw (they will be created as child devices)
+    present(sensor, S_BINARY);
+    delay(200);
+  }
 }
 
 void loop(){
+  // send a heatbeat signal to the gateway
   long double temp = (millis() - send_heartbeat_time);
   if (temp > HEARTBEAT_TIME) {
     // If it exceeds the heartbeat time then send a heartbeat
-    send(msgTxt.set("Heartbeat"));
+    // Build an 8 bit mask for the current relay ON/OFF states by reading PORTS B, C and D
+    // Read digital pins 3 - 8
+    byte port_mask = (PORTD >> 3) + ((PORTB & 0b00000001) << 5);
+    // If 8 Releay controller, the add A0 and A1 pin states
+    #ifdef MY_DEBUG
+      Serial.print("Current Relay States: ");
+      Serial.println(port_mask);
+    #endif
+    String myString = String(port_mask);
+    if (port_mask < 10) {
+      heartbeat_str[14] = '0';
+      heartbeat_str[15] = '0';
+      heartbeat_str[16] = myString[0];
+    } else if (port_mask >= 10 and port_mask < 100) {
+      heartbeat_str[14] = '0';
+      heartbeat_str[15] = myString[0];
+      heartbeat_str[16] = myString[1];
+    } else {
+      heartbeat_str[14] = myString[0];
+      heartbeat_str[15] = myString[1];
+      heartbeat_str[16] = myString[2];
+    }
+    send(msgTxt.set(heartbeat_str));
+    // reset the heartbeat timer
     send_heartbeat_time = millis();
-    Serial.println("Sent heartbeat" );
+    #ifdef MY_DEBUG
+      Serial.print("Sent heartbeat NODE_ID: ");
+      Serial.println(myNodeId);
+    #endif
   }
 
+  // check that a heartbeat signal has been sent from the gateway
   temp = (millis() - recieve_heartbeat_time);
   if (temp > (HEARTBEAT_TIME * 2)) {
-    #if defined(PCF8575_ATTACHED)
-      // If it exceeds the heartbeat time then set all relays OFF
-      for(int i=0;i<NUMBER_OF_RELAYS;i++) {
-        pcf8575.digitalWrite(i, xnor(trigger, RELAY_OFF));
-      }
+    #ifdef MY_DEBUG
+      Serial.println("No heartbeat recieved" );
     #endif
     recieve_heartbeat_time = millis();
-    Serial.println("No heartbeat recieved" );
-    for (int sensor=1, pin=RELAY_1; sensor<=NUMBER_OF_RELAYS; sensor++, pin++) {
-      // Register all sensors to gw (they will be created as child devices)
-      digitalWrite(pin, RELAY_OFF);
+    // set all relays to the OFF state
+    for (int pin=0; pin<NUMBER_OF_RELAYS; pin++) {
+      digitalWrite(pinarray[pin], xnor(trigger, RELAY_OFF));
       delay(100);
     }
     //call reset function 
@@ -184,52 +224,57 @@ void loop(){
   }
 }
 
-void sendHeartbeat(){
-
-}
+//void sendHeartbeat(){
+//}
 
 void receive(const MyMessage &message){
-	// We only expect one type of message from controller. But we better check anyway.
-	if (message.type==V_STATUS) {
-		//Set the Comms variable to 1 when v_status received 
-		COMMS = 1;
-		//Reset to Watch Dog to not to reboot 
-		wdt_reset();
-		// Change relay state
-		digitalWrite(message.sensor-1+RELAY_1, message.getBool()?RELAY_ON:RELAY_OFF);
-		delay(100);
-		// Write some debug info
-		#ifdef MY_DEBUG
-			Serial.print("Incoming Change for Relay: ");
-			Serial.print(message.sensor);
-			Serial.print(" - New Status: ");
-			Serial.println(message.getBool());
-		#endif
-	}
-	if (message.type==V_VAR1) {
-		Serial.print("Node ID:    ");
-		Serial.println(message.destination);
-		Serial.print("Type:    "); //Message type, the number assigned
-		Serial.println(message.type); // V_VAR1 is 24 zero. etc.
-		Serial.print("Child:   "); // Child ID of the Sensor/Device
-		Serial.println(message.sensor);
-		Serial.print("Payload: "); // This is where the wheels fall off
-		Serial.println(message.getString()); // This works great!
-		//if (message.sensor==99 && message.type==24 && message.getString()=="99"){
-		if (message.sensor==99 && message.type==24){
-			Serial.print("Reboot Command Received!!! \n");
-			Serial.print("..::Rebooting Controller::.. \n");
-			for (int sensor=1, pin=RELAY_1; sensor<=NUMBER_OF_RELAYS; sensor++, pin++) {
-				// Register all sensors to gw (they will be created as child devices)
-				digitalWrite(pin, RELAY_OFF);
-				delay(100);
-			}
-			//call reset function 
-			resetFunc();
-		}
-    		if (message.destination==MY_NODE_ID && message.type==24){
-      			Serial.println("Heartbeat Recieved from Gateway Script");
-      			recieve_heartbeat_time = millis();
-    		}
-	}
+  // We only expect one type of message from controller. But we better check anyway.
+  if (message.type==V_STATUS) {
+    int pin = message.sensor - 1;
+    digitalWrite(pinarray[pin], message.getBool()?xnor(trigger, RELAY_OFF):xnor(trigger, RELAY_ON));
+    // Store state in eeprom
+    saveState(message.sensor, message.getBool());
+    delay(100);
+    // Write some debug info
+    #ifdef MY_DEBUG
+      Serial.print("Incoming Change for Relay: ");
+      Serial.print(message.sensor);
+      Serial.print(" - pin: ");
+      Serial.print(pinarray[pin]);
+      Serial.print(" - New Status: ");
+      Serial.println(message.getBool());
+    #endif
+  }
+  if (message.type==V_VAR1) {
+    #ifdef MY_DEBUG
+      Serial.print("Node ID:    ");
+      Serial.println(message.destination);
+      Serial.print("Type:    "); //Message type, the number assigned
+      Serial.println(message.type); // V_VAR1 is 24 zero. etc.
+      Serial.print("Child:   "); // Child ID of the Sensor/Device
+      Serial.println(message.sensor);
+      Serial.print("Payload: "); // This is where the wheels fall off
+      Serial.println(message.getString()); // This works great!
+    #endif
+    //if (message.sensor==99 && message.type==24 && message.getString()=="99"){
+    if (message.sensor==99 && message.type==24){
+      #ifdef MY_DEBUG
+        Serial.print("Reboot Command Received!!! \n");
+        Serial.print("..::Rebooting Controller::.. \n");
+      #endif
+      for (int pin=0; pin<NUMBER_OF_RELAYS; pin++) {
+        digitalWrite(pinarray[pin], xnor(trigger, RELAY_OFF));
+        delay(100);
+      }
+      //call reset function 
+      resetFunc();
+    }
+    // a heartbeat message has been sent to this NODE_ID, so reset the heartbeat timer
+    if (message.destination==MY_NODE_ID && message.type==24){
+      #ifdef MY_DEBUG
+        Serial.println("Heartbeat Recieved from Gateway Script");
+      #endif
+      recieve_heartbeat_time = millis();
+    }
+  }
 }
