@@ -99,7 +99,12 @@ def process_pump_relays(
             nodes = cur.fetchone()
             nodes_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
             relay_node_id = nodes[nodes_to_index["node_id"]]
-            relay_node_type = nodes[nodes_to_index["type"]]
+            sketch_version = float(nodes[nodes_to_index["sketch_version"]])
+            sketch_version = int(sketch_version * 100)
+            if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version < 34:
+                relay_node_type = relay[relay_to_index["type"]]
+            else:
+                relay_node_type = 'MySensor2'
 
         #************************************************************************************
         # Pump Wired to Raspberry Pi GPIO Section: Pump Connected Raspberry Pi GPIO.
@@ -321,6 +326,16 @@ def get_schedule_status(
     rval_dict["sch_count"] = sch_count
     return rval_dict
 
+#resysnc the relays if MySensor type and shetch_version > 0.34 (multi controller type interface)
+def resync():
+    cur.execute("""UPDATE messages_out
+                     JOIN relays r ON r.relay_id = messages_out.n_id AND r.relay_child_id = messages_out.child_id
+                     JOIN nodes n ON n.id = messages_out.n_id
+                     SET messages_out.sent = 0
+                     WHERE r.state != messages_out.payload AND n.type = 'MySensor' AND n.sketch_version >= 0.34;"""
+               )
+    con.commit()  # commit above
+
 #---------------------
 #Start processing loop
 #---------------------
@@ -448,6 +463,9 @@ try:
                         if z[zones_to_index["category"]] == 1 or z[zones_to_index["category"]]:
                             print("Found")
 
+            #resync relays
+            resync()
+
             #Mode 0 is EU Boiler Mode, Mode 1 is US HVAC Mode
             system_controller_mode = settings_dict.get('mode') & 0b1
 
@@ -502,7 +520,12 @@ try:
                     heat_relay_node_id = nodes[nodes_to_index["node_id"]]
                     heat_relay_seen = nodes[nodes_to_index["last_seen"]]
                     heat_relay_notice = nodes[nodes_to_index["notice_interval"]]
-                    heat_relay_type = nodes[nodes_to_index["type"]]
+                    sketch_version = float(nodes[nodes_to_index["sketch_version"]])
+                    sketch_version = int(sketch_version * 100)
+                    if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version < 34:
+                        heat_relay_type = nodes[nodes_to_index["type"]]
+                    else:
+                        heat_relay_type = 'MySensor2'
 
             #system operating in HVAC Mode
             if system_controller_mode == 1:
@@ -543,7 +566,12 @@ try:
                         cool_relay_node_id = nodes[nodes_to_index["node_id"]]
                         cool_relay_seen = nodes[nodes_to_index["last_seen"]]
                         cool_relay_notice = nodes[nodes_to_index["notice_interval"]]
-                        cool_relay_type = nodes[nodes_to_index["type"]]
+                        sketch_version = float(nodes[nodes_to_index["sketch_version"]])
+                        sketch_version = int(sketch_version * 100)
+                        if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version < 34:
+                            cool_relay_type = nodes[nodes_to_index["type"]]
+                        else:
+                            cool_relay_type = 'MySensor2'
 
                 cur.execute(
                     "SELECT * FROM `relays` WHERE id = %s LIMIT 1",
@@ -573,7 +601,12 @@ try:
                         fan_relay_node_id = nodes[nodes_to_index["node_id"]]
                         fan_relay_seen = nodes[nodes_to_index["last_seen"]]
                         fan_relay_notice = nodes[nodes_to_index["notice_interval"]]
-                        fan_relay_type = nodes[nodes_to_index["type"]]
+                        sketch_version = float(nodes[nodes_to_index["sketch_version"]])
+                        sketch_version = int(sketch_version * 100)
+                        if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version < 34:
+                            fan_relay_type = nodes[nodes_to_index["type"]]
+                        else:
+                            fan_relay_type = 'MySensor2'
 
             if system_controller_mode == 0:
                 if sc_mode == 0:
@@ -689,7 +722,7 @@ try:
                 zone_category = z[zones_to_index["category"]]
                 zone_max_operation_time=z[zones_to_index["max_operation_time"]]
                 cur.execute("""SELECT zone_relays.id AS zc_id, cid.node_id as relay_id, zr.relay_child_id, zr.on_trigger, zr.type AS relay_type_id, zone_relays.zone_relay_id,
-                               zone_relays.state, zone_relays.current_state, ctype.`type`
+                               zone_relays.state, zone_relays.current_state, ctype.`type`, ctype.`sketch_version`
                                FROM zone_relays
                                join relays zr on zone_relay_id = zr.id
                                join nodes ctype on zr.relay_id = ctype.id
@@ -712,7 +745,12 @@ try:
                     controllers_dict[zone_id][zc_id ]["controller_relay_id"] = relay[relay_to_index["zone_relay_id"]]
                     controllers_dict[zone_id][zc_id ]["zone_controller_state"] = relay[relay_to_index["state"]]
                     controllers_dict[zone_id][zc_id ]["zone_controller_current_state"] = relay[relay_to_index["current_state"]]
-                    controllers_dict[zone_id][zc_id ]["zone_controller_type"] = relay[relay_to_index["type"]]
+                    sketch_version = float(relay[relay_to_index["sketch_version"]])
+                    sketch_version = int(sketch_version * 100)
+                    if relay[relay_to_index["type"]] == 'MySensor' and sketch_version < 34:
+                        controllers_dict[zone_id][zc_id ]["zone_controller_type"] = relay[relay_to_index["type"]]
+                    else:
+                        controllers_dict[zone_id][zc_id ]["zone_controller_type"] = 'MySensor2'
                     controllers_dict[zone_id][zc_id ]["manual_button_override"] = 0
                 #query to check if zone_current_state record exists tor the zone
                 cur.execute(
@@ -2521,7 +2559,7 @@ try:
 
                                 #***************************************************************************************
                                 # Zone Valve Wired over I2C Interface Make sure you have i2c Interface enabled
-            	            #****************************************************************************************
+            	                #****************************************************************************************
                                 if 'I2C' in zone_controller_type:
                                     subprocess.call("/var/www/cron/i2c/i2c_relay.py " + zone_controler_id + " " + zone_controler_child_id + " " + str(zone_command), shell=True)
                                     print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Relay Board: " + zone_controler_id + " Relay No: "  + zone_controler_child_id + " Status: " + str(zone_command))
@@ -2554,14 +2592,14 @@ try:
                                         )
                                         con.commit()  # commit above
 
-                                        if zone_category != 3:
-                                            if zone_override_status == 0:
-                                                cur.execute(
-                                                    "UPDATE zone_relays SET state = %s, current_state = %s WHERE id = %s LIMIT 1;",
-                                                    [zone_command, zone_command, zc_id],
-                                                )
-                                            con.commit()  # commit above
-                                #end if ($manual_button_override ==
+                                if zone_category != 3:
+                                    if zone_override_status == 0:
+                                        cur.execute(
+                                            "UPDATE zone_relays SET state = %s, current_state = %s WHERE id = %s LIMIT 1;",
+                                            [zone_command, zone_command, zc_id],
+                                        )
+                                        con.commit()  # commit above
+                            #end if ($manual_button_override == 0)
                         elif zone_relay_type_id == 5: #end if ($zone_relay_type_id == 0)
                             if not pump_relays_dict: #add first pump type relay
                                 pump_relays_dict[controller_relay_id] = zone_command
@@ -2665,7 +2703,7 @@ try:
                         #************************************************************************************************************
                         #update messages_out table with sent status to 0 and payload to as system controller status.
                         if active_sc_mode != 5: #process if NOT  HVAC fan only mode
-                            if system_controller_mode == 1 and (off_relay_type == 'MySensor' or off_relay_type == 'MQTT'):
+                            if system_controller_mode == 1 and (off_relay_type.find("MySensor") != -1 or off_relay_type == 'MQTT'):
                                 cur.execute(
                                     "SELECT node_id FROM nodes WHERE id = %s LIMIT 1;",
                                     (off_relay_id, ),
@@ -2681,7 +2719,7 @@ try:
                                     con.commit()  # commit above
                                     if dbgLevel >= 2:
                                         print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - System Controller Node ID: " + bc.red + str(node_id)+ bc.ENDC + " Child ID: " + bc.red + str(off_relay_child_id) + bc.ENDC)
-                            if on_relay_type == 'MySensor' or on_relay_type == 'MQTT':
+                            if on_relay_type.find("MySensor") != -1 or on_relay_type == 'MQTT':
                                 cur.execute(
                                     "SELECT node_id FROM nodes WHERE id = %s LIMIT 1;",
                                     (on_relay_id, ),
@@ -2697,7 +2735,7 @@ try:
                                     con.commit()  # commit above
                                     if dbgLevel >= 2:
                                         print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - System Controller Node ID: " + bc.red + str(node_id)+ bc.ENDC + " Child ID: " + bc.red + str(off_relay_child_id) + bc.ENDC)
-                        if system_controller_mode == 1 and (fan_relay_type == 'MySensor' or fan_relay_type == 'MQTT'):
+                        if system_controller_mode == 1 and (fan_relay_type.find("MySensor") != -1 or fan_relay_type == 'MQTT'):
                             cur.execute(
                                 "SELECT node_id FROM nodes WHERE id = %s LIMIT 1;",
                                 (fan_relay_id, ),
@@ -2877,7 +2915,7 @@ try:
                         # System Controller Wirelss Section:      MySensors Wireless or MQTT Relay module for your System Controller
                         #************************************************************************************************************
                         #update messages_out table with sent status to 0 and payload to as system controller status.
-                        if heat_relay_type == 'MySensor' or heat_relay_type == 'MQTT':
+                        if heat_relay_type.find("MySensor") != -1 or heat_relay_type == 'MQTT':
                             cur.execute(
                                 "SELECT node_id FROM nodes WHERE id = %s LIMIT 1;",
                                 (heat_relay_id, ),
@@ -2895,7 +2933,7 @@ try:
                                      print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - System Controller Node ID: " + bc.red + str(node_id)+ bc.ENDC + " Child ID: " + bc.red + str(heat_relay_child_id) + bc.ENDC)
                         if system_controller_mode == 1:
                             #update messages_out table with sent status to 0 and payload to as system controller status.
-                            if cool_relay_type == 'MySensor' or cool_relay_type == 'MQTT': # HVAC cool relay OFF
+                            if cool_relay_type.find("MySensor") != -1 or cool_relay_type == 'MQTT': # HVAC cool relay OFF
                                 cur.execute(
                                     "SELECT node_id FROM nodes WHERE id = %s LIMIT 1;",
                                     (cool_relay_id, ),
@@ -2909,7 +2947,7 @@ try:
                                         [node_id, cool_relay_child_id],
                                     )
                                     con.commit()  # commit above
-                            if fan_relay_type == 'MySensor' or fan_relay_type == 'MQTT': # HVAC cool relay OFF
+                            if fan_relay_type.find("MySensor") != -1 or fan_relay_type == 'MQTT': # HVAC cool relay OFF
                                 cur.execute(
                                     "SELECT node_id FROM nodes WHERE id = %s LIMIT 1;",
                                     (fan_relay_id, ),
