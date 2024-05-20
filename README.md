@@ -1,6 +1,6 @@
 # MaxAir - Smart Thermostat
 
-### Note: Now at Version 3.03.
+### Note: Now at Version 3.04.
 
 The previous version, PiHome, was centered around the creation of zones, this version is more centered around devices.
 
@@ -52,6 +52,8 @@ Version 3.01 Update Bootstrap from Version 5.2.3 to 5.3.2 and Bootstrap Icons fr
 Version 3.02 Change to the operation of cascading popup screens where they now return to the previous popup, rather than returning to the originating 'Settings' menu screen. This release also contains minor bug fixes.
 
 Version 3.03 Introduces Graph Archiving. Optionally all sensors which generate a graph can be archived to a CSV file at midnight each day, the storage path can be set to any location prefered. Additionally a new Graph category, Min/Max, has been added, it used the data from the archive file to display separate graphs for the minimum and maximum sensor readings on a daily basis.
+
+Version 3.04 Adds support for MySensor relay sketches which use 'Heartbeat' signals rather than continually rewrite relay update data. 
 
 ## Setup:
 
