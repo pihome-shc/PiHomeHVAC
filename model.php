@@ -304,35 +304,55 @@ echo '
 </div>';
 
 //wifi model
-$rxwifidata = exec ("cat /sys/class/net/wlan0/statistics/rx_bytes");
-$txwifidata = exec ("cat /sys/class/net/wlan0/statistics/tx_bytes");
-$rxwifidata = $rxwifidata/1024; // convert to kb
-$rxwifidata = $rxwifidata/1024; // convert to mb
+if (is_dir("/sys/class/net/wlan0")) {
+        $rxwifidata = exec ("cat /sys/class/net/wlan0/statistics/rx_bytes");
+        $txwifidata = exec ("cat /sys/class/net/wlan0/statistics/tx_bytes");
+        $rxwifidata = $rxwifidata/1024; // convert to kb
+        $rxwifidata = $rxwifidata/1024; // convert to mb
 
-$txwifidata = $txwifidata/1024; // convert to kb
-$txwifidata = $txwifidata/1024; // convert to mb
-$wifimac = exec ("cat /sys/class/net/wlan0/address");
-//$wifipeed = exec ("cat /sys/class/net/wlan0/speed");
-//$wifipeed = exec("iwconfig wlan0 | grep -i --color quality");
-$wifistatus = exec ("cat /sys/class/net/wlan0/operstate");
-echo '
-<div class="modal fade" id="wifi_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
-			<button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
-                <h5 class="modal-title">'.$lang['wifi_settings'].'</h5>
-            </div>
-            <div class="modal-body">
-			<p class="text-muted"> '.$lang['wifi_settings_text'].' </p>
-			<div class="list-group" id="wifi_status"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
-            </div>
-        </div>
-    </div>
-</div>';
+        $txwifidata = $txwifidata/1024; // convert to kb
+        $txwifidata = $txwifidata/1024; // convert to mb
+        $wifimac = exec ("cat /sys/class/net/wlan0/address");
+        //$wifipeed = exec ("cat /sys/class/net/wlan0/speed");
+        //$wifipeed = exec("iwconfig wlan0 | grep -i --color quality");
+        $wifistatus = exec ("cat /sys/class/net/wlan0/operstate");
+        echo '
+        <div class="modal fade" id="wifi_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                        <div class="modal-content">
+                                <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                                        <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                                        <h5 class="modal-title">'.$lang['wifi_settings'].'</h5>
+                                </div>
+                                <div class="modal-body">
+                                        <p class="text-muted"> '.$lang['wifi_settings_text'].' </p>
+                                        <div class="list-group" id="wifi_status"></div>
+                                </div>
+                                <div class="modal-footer">
+                                        <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                                </div>
+                        </div>
+                </div>
+        </div>';
+} else {
+        echo '
+        <div class="modal fade" id="wifi_setup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                        <div class="modal-content">
+                                <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                                        <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                                        <h5 class="modal-title">'.$lang['wifi_settings'].'</h5>
+                                </div>
+                                <div class="modal-body">
+                                        <p class="text-muted"> '.$lang['wifi_not_found'].' </p>
+                                </div>
+                                <div class="modal-footer">
+                                        <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                                </div>
+                        </div>
+                </div>
+        </div>';
+}
 
 //ethernet model
 echo '
