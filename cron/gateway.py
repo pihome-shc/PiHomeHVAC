@@ -1467,11 +1467,11 @@ def process_message(in_str):
                         else:
                             state = 0
                         try:
-                        cur.execute(
-                            "UPDATE `relays` SET `state`= %s WHERE relay_id = %s AND relay_child_id = %s;",
-                            [state, relay_id, relay_child_id],
-                        )
-                        con.commit()
+                            cur.execute(
+                                "UPDATE `relays` SET `state`= %s WHERE relay_id = %s AND relay_child_id = %s;",
+                                [state, relay_id, relay_child_id],
+                            )
+                            con.commit()
                         except mdb.Error as e:
                             # skip deadlock error (being caused when mysqldunp runs
                             if e.args[0] == 1213:
