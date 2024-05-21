@@ -101,67 +101,67 @@ def process_pump_relays(
             relay_node_id = nodes[nodes_to_index["node_id"]]
             sketch_version = float(nodes[nodes_to_index["sketch_version"]])
             sketch_version = int(sketch_version * 100)
-            if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version < 34 and relay_node_d != '0':
-                relay_node_type = relay[relay_to_index["type"]]
+            if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version >= 34 and relay_node_id != '0':
+                    relay_node_type = 'MySensor2'
             else:
-                relay_node_type = 'MySensor2'
+                relay_node_type = nodes[nodes_to_index["type"]]
 
-        #************************************************************************************
-        # Pump Wired to Raspberry Pi GPIO Section: Pump Connected Raspberry Pi GPIO.
-        #*************************************************************************************
-        if 'GPIO' in relay_node_type:
-            if relay_on_trigger == 1:
-                relay_on = '1' #GPIO value to write to turn on attached relay
-                relay_off = '0' #GPIO value to write to turn off attached relay
-            else:
-                relay_on = '0' #GPIO value to write to turn on attached relay
-                relay_off = '1' #GPIO value to write to turn off attached relay
-            if command == 1:
-                relay_status = relay_on
-            else:
-                relay_status = relay_off
-            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Pump: GIOP Relay Status:  " + bc.red + relay_status + bc.ENDC + " ("  + relay_on + "=On, " + relay_off + "=off)")
-            cur.execute(
-                "UPDATE `messages_out` set sent = 0, payload = %s  WHERE node_id = %s AND child_id = %s;",
-                [str(command), relay_node_id, relay_child_id],
-            )
-            con.commit()  # commit above
-
-        #************************************************************************************
-        # Pump Wired over I2C Interface Make sure you have i2c Interface enabled
-        #*************************************************************************************
-        if 'I2C' in relay_node_type:
-            subprocess.call("/var/www/cron/i2c/i2c_relay.py " + relay_node_id + " " + relay_child_id + " " + str(command), shell=True)
-            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Pump: Relay Board: " + relay_node_id + " Relay No: "  + relay_child_id + " Status: " + str(command))
-
-        #************************************************************************************
-        # Pump Wireless Section: MySensors Wireless or MQTT Relay module for your Pump control.
-        #*************************************************************************************
-        if 'MySensor'  in relay_node_type or 'MQTT' in relay_node_type:
-            #update messages_out table with sent status to 0 and payload to as zone status.
-            cur.execute(
-                "UPDATE `messages_out` set sent = 0, payload = %s  WHERE node_id = %s AND child_id = %s;",
-                [str(command), relay_node_id, relay_child_id],
-            )
-            con.commit()  # commit above
-
-        #************************************************************************************
-        # Sonoff Switch Section: Tasmota WiFi Relay module for your Zone control.
-        #*************************************************************************************
-        if 'Tasmota' in relay_node_type:
-            cur.execute(
-                "SELECT * FROM http_messages WHERE zone_id = %s AND message_type = %s LIMIT 1;",
-                (relay_id, str(command)),
-            )
-            if cur.rowcount > 0:
-                http = cur.fetchone()
-                http_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                add_on_msg =  http[http_to_index["command"]] + " " + http[http_to_index["parameter"]]
+            #************************************************************************************
+            # Pump Wired to Raspberry Pi GPIO Section: Pump Connected Raspberry Pi GPIO.
+            #*************************************************************************************
+            if 'GPIO' in relay_node_type:
+                if relay_on_trigger == 1:
+                    relay_on = '1' #GPIO value to write to turn on attached relay
+                    relay_off = '0' #GPIO value to write to turn off attached relay
+                else:
+                    relay_on = '0' #GPIO value to write to turn on attached relay
+                    relay_off = '1' #GPIO value to write to turn off attached relay
+                if command == 1:
+                    relay_status = relay_on
+                else:
+                    relay_status = relay_off
+                print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Pump: GIOP Relay Status:  " + bc.red + relay_status + bc.ENDC + " ("  + relay_on + "=On, " + relay_off + "=off)")
                 cur.execute(
                     "UPDATE `messages_out` set sent = 0, payload = %s  WHERE node_id = %s AND child_id = %s;",
-                    [add_on_msg, relay_node_id, relay_child_id],
+                    [str(command), relay_node_id, relay_child_id],
                 )
                 con.commit()  # commit above
+
+            #************************************************************************************
+            # Pump Wired over I2C Interface Make sure you have i2c Interface enabled
+            #*************************************************************************************
+            if 'I2C' in relay_node_type:
+                subprocess.call("/var/www/cron/i2c/i2c_relay.py " + relay_node_id + " " + relay_child_id + " " + str(command), shell=True)
+                print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Pump: Relay Board: " + relay_node_id + " Relay No: "  + relay_child_id + " Status: " + str(command))
+
+            #************************************************************************************
+            # Pump Wireless Section: MySensors Wireless or MQTT Relay module for your Pump control.
+            #*************************************************************************************
+            if 'MySensor'  in relay_node_type or 'MQTT' in relay_node_type:
+                #update messages_out table with sent status to 0 and payload to as zone status.
+                cur.execute(
+                    "UPDATE `messages_out` set sent = 0, payload = %s  WHERE node_id = %s AND child_id = %s;",
+                    [str(command), relay_node_id, relay_child_id],
+                )
+                con.commit()  # commit above
+
+            #************************************************************************************
+            # Sonoff Switch Section: Tasmota WiFi Relay module for your Zone control.
+            #*************************************************************************************
+            if 'Tasmota' in relay_node_type:
+                cur.execute(
+                    "SELECT * FROM http_messages WHERE zone_id = %s AND message_type = %s LIMIT 1;",
+                    (relay_id, str(command)),
+                )
+                if cur.rowcount > 0:
+                    http = cur.fetchone()
+                    http_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                    add_on_msg =  http[http_to_index["command"]] + " " + http[http_to_index["parameter"]]
+                    cur.execute(
+                        "UPDATE `messages_out` set sent = 0, payload = %s  WHERE node_id = %s AND child_id = %s;",
+                        [add_on_msg, relay_node_id, relay_child_id],
+                    )
+                    con.commit()  # commit above
 
 #return schedule status
 def get_schedule_status(
@@ -522,10 +522,10 @@ try:
                     heat_relay_notice = nodes[nodes_to_index["notice_interval"]]
                     sketch_version = float(nodes[nodes_to_index["sketch_version"]])
                     sketch_version = int(sketch_version * 100)
-                    if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version < 34 and heat_relay_node_id != '0':
-                        heat_relay_type = nodes[nodes_to_index["type"]]
-                    else:
+                    if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version >= 34 and heat_relay_node_id != '0':
                         heat_relay_type = 'MySensor2'
+                    else:
+                        heat_relay_type = nodes[nodes_to_index["type"]]
 
             #system operating in HVAC Mode
             if system_controller_mode == 1:
@@ -568,10 +568,10 @@ try:
                         cool_relay_notice = nodes[nodes_to_index["notice_interval"]]
                         sketch_version = float(nodes[nodes_to_index["sketch_version"]])
                         sketch_version = int(sketch_version * 100)
-                        if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version < 34 and cool_relay_node_id != '0':
-                            cool_relay_type = nodes[nodes_to_index["type"]]
-                        else:
+                        if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version >= 34 and cool_relay_node_id != '0':
                             cool_relay_type = 'MySensor2'
+                        else:
+                            cool_relay_type = nodes[nodes_to_index["type"]]
 
                 cur.execute(
                     "SELECT * FROM `relays` WHERE id = %s LIMIT 1",
@@ -603,10 +603,10 @@ try:
                         fan_relay_notice = nodes[nodes_to_index["notice_interval"]]
                         sketch_version = float(nodes[nodes_to_index["sketch_version"]])
                         sketch_version = int(sketch_version * 100)
-                        if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version < 34 and fan_relay_node_id != '0':
-                            fan_relay_type = nodes[nodes_to_index["type"]]
-                        else:
+                        if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version >= 34 and fan_relay_node_id != '0':
                             fan_relay_type = 'MySensor2'
+                        else:
+                            fan_relay_type = nodes[nodes_to_index["type"]]
 
             if system_controller_mode == 0:
                 if sc_mode == 0:
@@ -747,10 +747,10 @@ try:
                     controllers_dict[zone_id][zc_id ]["zone_controller_current_state"] = relay[relay_to_index["current_state"]]
                     sketch_version = float(relay[relay_to_index["sketch_version"]])
                     sketch_version = int(sketch_version * 100)
-                    if relay[relay_to_index["type"]] == 'MySensor' and sketch_version < 34 and relay[relay_to_index["relay_id"]] != '0':
-                        controllers_dict[zone_id][zc_id ]["zone_controller_type"] = relay[relay_to_index["type"]]
-                    else:
+                    if relay[relay_to_index["type"]] == 'MySensor' and sketch_version >= 34 and relay[relay_to_index["relay_id"]] != '0':
                         controllers_dict[zone_id][zc_id ]["zone_controller_type"] = 'MySensor2'
+                    else:
+                        controllers_dict[zone_id][zc_id ]["zone_controller_type"] = relay[relay_to_index["type"]]
                     controllers_dict[zone_id][zc_id ]["manual_button_override"] = 0
                 #query to check if zone_current_state record exists tor the zone
                 cur.execute(
