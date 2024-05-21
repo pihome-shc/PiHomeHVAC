@@ -101,7 +101,7 @@ def process_pump_relays(
             relay_node_id = nodes[nodes_to_index["node_id"]]
             sketch_version = float(nodes[nodes_to_index["sketch_version"]])
             sketch_version = int(sketch_version * 100)
-            if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version < 34:
+            if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version < 34 and relay_node_d != '0':
                 relay_node_type = relay[relay_to_index["type"]]
             else:
                 relay_node_type = 'MySensor2'
@@ -522,7 +522,7 @@ try:
                     heat_relay_notice = nodes[nodes_to_index["notice_interval"]]
                     sketch_version = float(nodes[nodes_to_index["sketch_version"]])
                     sketch_version = int(sketch_version * 100)
-                    if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version < 34:
+                    if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version < 34 and heat_relay_node_id != '0':
                         heat_relay_type = nodes[nodes_to_index["type"]]
                     else:
                         heat_relay_type = 'MySensor2'
@@ -568,7 +568,7 @@ try:
                         cool_relay_notice = nodes[nodes_to_index["notice_interval"]]
                         sketch_version = float(nodes[nodes_to_index["sketch_version"]])
                         sketch_version = int(sketch_version * 100)
-                        if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version < 34:
+                        if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version < 34 and cool_relay_node_id != '0':
                             cool_relay_type = nodes[nodes_to_index["type"]]
                         else:
                             cool_relay_type = 'MySensor2'
@@ -603,7 +603,7 @@ try:
                         fan_relay_notice = nodes[nodes_to_index["notice_interval"]]
                         sketch_version = float(nodes[nodes_to_index["sketch_version"]])
                         sketch_version = int(sketch_version * 100)
-                        if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version < 34:
+                        if nodes[nodes_to_index["type"]] == 'MySensor' and sketch_version < 34 and fan_relay_node_id != '0':
                             fan_relay_type = nodes[nodes_to_index["type"]]
                         else:
                             fan_relay_type = 'MySensor2'
@@ -747,7 +747,7 @@ try:
                     controllers_dict[zone_id][zc_id ]["zone_controller_current_state"] = relay[relay_to_index["current_state"]]
                     sketch_version = float(relay[relay_to_index["sketch_version"]])
                     sketch_version = int(sketch_version * 100)
-                    if relay[relay_to_index["type"]] == 'MySensor' and sketch_version < 34:
+                    if relay[relay_to_index["type"]] == 'MySensor' and sketch_version < 34 and relay[relay_to_index["relay_id"]] != '0':
                         controllers_dict[zone_id][zc_id ]["zone_controller_type"] = relay[relay_to_index["type"]]
                     else:
                         controllers_dict[zone_id][zc_id ]["zone_controller_type"] = 'MySensor2'
