@@ -77,9 +77,9 @@ int8_t myNodeId;
 //#define MY_TRANSPORT_WAIT_READY_MS 3000
 
 //If Following LED Blink does not work then modify C:\Program Files (x86)\Arduino\libraries\MySensors_2_1_1\MyConfig.h 
-#define MY_DEFAULT_ERR_LED_PIN 16 //A0 previous version 8 
-#define MY_DEFAULT_TX_LED_PIN 14
-#define MY_DEFAULT_RX_LED_PIN 15
+#define MY_DEFAULT_ERR_LED_PIN 16 //A2 
+#define MY_DEFAULT_TX_LED_PIN 14 //A0
+#define MY_DEFAULT_RX_LED_PIN 15 //A1
 #define MY_WITH_LEDS_BLINKING_INVERSE
 
 #define MY_DEFAULT_LED_BLINK_PERIOD 400
