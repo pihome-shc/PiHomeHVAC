@@ -1400,7 +1400,53 @@ def process_message(in_str):
                         print(infomsg)
                         sys.exit(1)
 
-                # The Heartbeat timer is reset within the socket read thread
+                # create a bit mask for relays, derived from the data sent with the heartbeat message
+                # Note: this is only relavent for gateway relay controller sketch versions 038 and later
+                temp = payload.split(",")
+                # there should be 3 elements to the payload message, the string 'Heartbeat' + the node_id + the relay mask
+                if len(temp) == 3:
+                    r_mask = int(temp[2])
+                    cur.execute(
+                        """SELECT relays.relay_id, relays.relay_child_id, n.node_id
+                           FROM `relays`
+                           JOIN nodes n ON n.id = relays.relay_id
+                           WHERE n.type = 'MySensor'
+                           AND n.sketch_version >= 0.34
+                           ORDER BY relays.relay_child_id;"""
+                    )  # MySQL query statemen
+                    relays = cur.fetchall()
+                    relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                    for relay in relays:
+                        relay_id = relay[relay_to_index["relay_id"]]
+                        relay_child_id = relay[relay_to_index["relay_child_id"]]
+                        mask = pow(2, relay_child_id - 1)
+                        if r_mask & mask != 0:
+                            state = 1
+                        else:
+                            state = 0
+                        try:
+                            cur.execute(
+                                "UPDATE `relays` SET `state`= %s WHERE relay_id = %s AND relay_child_id = %s;",
+                                [state, relay_id, relay_child_id],
+                            )
+                            con.commit()
+                        except mdb.Error as e:
+                            # skip deadlock error (being caused when mysqldunp runs
+                            if e.args[0] == 1213:
+                                pass
+                            else:
+                                print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                print(traceback.format_exc())
+                                logging.error(e)
+                                logging.info(traceback.format_exc())
+                                con.close()
+                                if MQTT_CONNECTED == 1:
+                                    mqttClient.disconnect()
+                                    mqttClient.loop_stop()
+                                print(infomsg)
+                                sys.exit(1)
+
+            # The Heartbeat timer is reset within the socket read thread
 
                 # ..::Step Seventeen::..
                 # Update Relay Controller last seen
