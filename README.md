@@ -53,7 +53,7 @@ Version 3.02 Change to the operation of cascading popup screens where they now r
 
 Version 3.03 Introduces Graph Archiving. Optionally all sensors which generate a graph can be archived to a CSV file at midnight each day, the storage path can be set to any location prefered. Additionally a new Graph category, Min/Max, has been added, it used the data from the archive file to display separate graphs for the minimum and maximum sensor readings on a daily basis.
 
-Version 3.04 Adds support for MySensor relay sketches which use 'Heartbeat' signals rather than continually rewrite relay update data. 
+Version 3.04 Adds support for MySensor relay sketches which use 'Heartbeat' signals ie. the WT32-ETH01 adapter where the sketch version is > 037 and the Zone Controller or Multi Controller where the sketch version is > 0.33. For these adapters the relay state will only be updated on change rather than being continually rewrite, additionally any unallocated relays will be restored to the OFF state by the 'Heartbeat' process. 
 
 ## Setup:
 
