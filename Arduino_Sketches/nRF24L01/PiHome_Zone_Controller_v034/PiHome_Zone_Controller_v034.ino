@@ -283,8 +283,10 @@ void receive(const MyMessage &message){
     Serial.print("Relay Mask: ");
     Serial.println(message.getUInt());      
     for (int pin=0; pin<NUMBER_OF_RELAYS; pin++) {
-      digitalWrite(pinarray[pin], xnor(trigger, RELAY_OFF));
-      delay(100);
+      if (bitRead(message.getUInt(), pin) == 1) {
+        digitalWrite(pinarray[pin], xnor(trigger, RELAY_OFF));
+        delay(100);
+      }
     }
   }
 }
