@@ -303,4 +303,13 @@ void receive(const MyMessage &message){
       recieve_heartbeat_time = millis();
     }
 	}
+  // Clear any unallocated relays when the Gateway script heartbeat message is returned
+  if (message.type==V_VAR3) {
+    Serial.print("Relay Mask: ");
+    Serial.println(message.getUInt());      
+    for (int pin=0; pin<NUMBER_OF_RELAYS; pin++) {
+      digitalWrite(pinarray[pin], xnor(trigger, RELAY_OFF));
+      delay(100);
+    }
+  }
 }
