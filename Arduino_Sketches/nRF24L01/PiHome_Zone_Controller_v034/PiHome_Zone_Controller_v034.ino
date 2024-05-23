@@ -9,7 +9,7 @@
 // *****************************************************************
 // *           Heating Zone Controller Relay Sketch                *
 // *            Version 0.34 Build Date 06/11/2017                 *
-// *            Last Modification Date 20/05/2024                  *
+// *            Last Modification Date 23/05/2024                  *
 // *                                          Have Fun - PiHome.eu *
 // *****************************************************************
 
@@ -26,33 +26,34 @@
 #define SKETCH_VERSION "0.34"
 
 // Enable and select radio type attached
-#define MY_RADIO_RF24
+//#define MY_RADIO_RF24
 //#define MY_RADIO_NRF5_ESB
 //#define MY_RADIO_RFM69
-//#define MY_RADIO_RFM95
-
-#ifdef MY_RADIO_RF24
-  #define MY_RF24_PA_LEVEL RF24_PA_LOW
-  //#define MY_DEBUG_VERBOSE_RF24
-  #define MY_RF24_IRQ_PIN 2
-  //#define MY_RF24_IRQ_NUM digitalPinToInterrupt(MY_RF24_IRQ_PIN)
-  //#define MY_RX_MESSAGE_BUFFER_FEATURE
-  //#define MY_RX_MESSAGE_BUFFER_SIZE 5
-
-  // We have to move CE/CSN pins for NRF radio
-  #ifndef MY_RF24_CE_PIN
-    #define MY_RF24_CE_PIN 9
-  #endif
-  #ifndef MY_RF24_CS_PIN
-    #define MY_RF24_CS_PIN 10
-  #endif
-
-  // RF channel for the sensor net, 0-127
-  #define MY_RF24_CHANNEL 91
-
-  //RF24_250KBPS for 250kbs, RF24_1MBPS for 1Mbps, or RF24_2MBPS for 2Mbps
-  #define MY_RF24_DATARATE RF24_250KBPS
-#endif
+#define MY_RADIO_RFM95
+//#define   MY_DEBUG_VERBOSE_RFM95
+#define MY_RFM95_MAX_POWER_LEVEL_DBM (20) //Set max TX power in dBm if local legislation requires this - 1mW = 0dBm, 10mW = 10dBm, 25mW = 14dBm, 100mW = 20dBm
+#define MY_RFM95_FREQUENCY (RFM95_434MHZ) //The frequency to use - RFM95_169MHZ, RFM95_315MHZ, RFM95_434MHZ, RFM95_868MHZ, RFM95_915MHZ
+#define MY_RFM95_MODEM_CONFIGRUATION RFM95_BW125CR45SF128 
+/* 
+#define MY_RFM95_MODEM_CONFIGRUATION RFM95_BW125CR45SF128 
+RFM95 modem configuration.
+BW = Bandwidth in kHz CR = Error correction code SF = Spreading factor, chips / symbol
+CONFIG           BW    CR    SF    Comment
+RFM95_BW125CR45SF128  125   4/5   128   Default, medium range
+RFM95_BW500CR45SF128  500   4/5   128   Fast, short range
+RFM95_BW31_25CR48SF512  31.25   4/8   512   Slow, long range
+RFM95_BW125CR48SF4096   125   4/8   4096  Slow, long range 
+*/
+//#define MY_RFM95_TCXO // Enable to force your radio to use an external frequency source (e.g. TCXO, if present). This allows for better stability using SF 9 to 12. 
+//#define MY_RFM95_TX_POWER_DBM   (13u) //Set TX power level, default 13dBm (overridden if ATC mode enabled) 
+//#define MY_RFM95_TCXO // Enable to force your radio to use an external frequency source (e.g. TCXO, if present). This allows for better stability using SF 9 to 12. 
+//#define MY_RFM95_TX_POWER_DBM   (13u) //Set TX power level, default 13dBm (overridden if ATC mode enabled) 
+//#define MY_RFM95_ATC_TARGET_RSSI (-70)  //target RSSI -70dBm Target RSSI level (in dBm) for RFM95 ATC mode. 
+#define MY_TRANSPORT_STATE_TIMEOUT_MS  (3*1000ul) //general state timeout (in ms) 
+#define RFM95_RETRY_TIMEOUT_MS  (3000ul)
+#define MY_RFM95_IRQ_PIN 2
+#define MY_RFM95_IRQ_NUM digitalPinToInterrupt(MY_RFM95_IRQ_PIN)
+#define MY_RFM95_CS_PIN 8
  
 //PiHome Zone Controller Node ID
 //#define MY_NODE_ID 101
@@ -76,9 +77,9 @@ int8_t myNodeId;
 //#define MY_TRANSPORT_WAIT_READY_MS 3000
 
 //If Following LED Blink does not work then modify C:\Program Files (x86)\Arduino\libraries\MySensors_2_1_1\MyConfig.h 
-#define MY_DEFAULT_ERR_LED_PIN 16 //A2 
-#define MY_DEFAULT_TX_LED_PIN 14 // A0
-#define MY_DEFAULT_RX_LED_PIN 15 // A1
+#define MY_DEFAULT_ERR_LED_PIN 16 //A0 previous version 8 
+#define MY_DEFAULT_TX_LED_PIN 14
+#define MY_DEFAULT_RX_LED_PIN 15
 #define MY_WITH_LEDS_BLINKING_INVERSE
 
 #define MY_DEFAULT_LED_BLINK_PERIOD 400
@@ -89,13 +90,13 @@ int8_t myNodeId;
 #include <avr/wdt.h>
 
 #define RELAY_1 3  // Arduino Digital I/O pin number for first relay (second on pin+1 etc)
-#define NUMBER_OF_RELAYS 6 // Total number of attached relays
+#define NUMBER_OF_RELAYS 5 // Total number of attached relays
 #define RELAY_ON 1  // GPIO value to write to turn on attached relay
 #define RELAY_OFF 0 // GPIO value to write to turn off attached relay
 
 //int oldStatus = RELAY_OFF;
 
-byte pinarray[] = { 3, 4, 5, 6, 7, 8 };
+byte pinarray[] = { 3, 4, 5, 6, 7 };
 long double send_heartbeat_time = millis();
 long double recieve_heartbeat_time = millis();
 long double HEARTBEAT_TIME = 30000; // Send heartbeat every seconds
@@ -275,6 +276,15 @@ void receive(const MyMessage &message){
         Serial.println("Heartbeat Recieved from Gateway Script");
       #endif
       recieve_heartbeat_time = millis();
+    }
+  }
+  // Clear any unallocated relays when the Gateway script heartbeat message is returned
+  if (message.type==V_VAR3) {
+    Serial.print("Relay Mask: ");
+    Serial.println(message.getUInt());      
+    for (int pin=0; pin<NUMBER_OF_RELAYS; pin++) {
+      digitalWrite(pinarray[pin], xnor(trigger, RELAY_OFF));
+      delay(100);
     }
   }
 }
