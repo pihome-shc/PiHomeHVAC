@@ -26,7 +26,7 @@ print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
 print("* Script to communicate with MySensors Nodes, for more *")
 print("* info please check MySensors API.                     *")
 print("*      Build Date: 18/09/2017                          *")
-print("*      Version 0.29 - Last Modified 21/05/2024         *")
+print("*      Version 0.29 - Last Modified 23/05/2024         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -1401,7 +1401,7 @@ def process_message(in_str):
                         sys.exit(1)
 
                 # create a bit mask for relays, derived from the data sent with the heartbeat message
-                # Note: this is only relavent for gateway relay controller sketch versions 038 and later
+                # Note: this is only relavent for relay sketch versions 034 and later
                 temp = payload.split(",")
                 # there should be 3 elements to the payload message, the string 'Heartbeat' + the node_id + the relay mask
                 if len(temp) == 3:
@@ -1446,7 +1446,7 @@ def process_message(in_str):
                                 print(infomsg)
                                 sys.exit(1)
 
-            # The Heartbeat timer is reset within the socket read thread
+                # The Heartbeat timer is reset within the socket read thread
 
                 # ..::Step Seventeen::..
                 # Update Relay Controller last seen
@@ -2622,7 +2622,7 @@ try:
     heartbeat_timer = time.time()
     # check for relay controller using heartbeats
     cur.execute(
-        "SELECT `node_id` FROM `nodes` where node_id > 0 AND `sketch_version` >= 0.34 AND `type` LIKE 'MySensor' AND (`name` LIKe '%Relay%' OR `name` LIKe '%Controller%');"
+        "SELECT `node_id` FROM `nodes` where node_id > 0 AND `sketch_version` >= 0.34 AND `type` LIKE 'MySensor' AND (`name` LIKE '%Relay%' OR `name` LIKE '%Controller%');"
     )  # MySQL query statement
     if cur.rowcount > 0:
         # create dictionary for relay lag timer
@@ -2672,23 +2672,77 @@ try:
                             )
                         gw.send(msg.encode("utf-8"))
 
+                        # Send a mask representing the unallocated relays
+                        cur.execute(
+                            """SELECT relays.relay_child_id
+                               FROM `relays`
+                               JOIN nodes n ON n.id = relays.relay_id
+                               WHERE n.node_id = '0'
+                               AND n.type = 'MySensor'
+                               AND n.sketch_version >= 0.34
+                               ORDER BY relays.relay_child_id;"""
+                        )  # MySQL query statemen
+                        relays = cur.fetchall()
+                        relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                        mask = 0
+                        for relay in relays:
+                            relay_child_id = relay[relay_to_index["relay_child_id"]]
+                            mask = mask + pow(2, relay_child_id - 1)
+                        max_child_id = 16 # The PCF8575 I2C controller on the WT32-ETH01 Gateway can drive 16 relays
+                        mask = mask^(pow(2,max_child_id)-1)
+                        msg = "0;0;0;0;26;" + str(mask) + " \n"
+                        if dbgLevel >= 3 and dbgMsgOut == 1:
+                            print(bc.grn + "\nUnallocated Gateway Relay Controller Mask", bc.ENDC)
+                            print("Date & Time:                 ", time.ctime())
+                            print(
+                                "Full Message to Send:        ", msg.replace("\n", "\\n")
+                            )
+                        gw.send(msg.encode("utf-8"))
+
             ## Outgoing messages
             con.commit()
             ## Heartbeat to Relay Controllers if script version >= 0.34
             heartbeat_sent = False
             cur.execute(
-                "SELECT `node_id` FROM `nodes` where node_id > 0 AND `sketch_version` >= 0.34 AND `type` LIKE 'MySensor' AND (`name` LIKE '%Relay%' OR `name` LIKE '%Controller%');"
+                "SELECT `node_id`, `max_child_id` FROM `nodes` where node_id > 0 AND `sketch_version` >= 0.34 AND `type` LIKE 'MySensor' AND (`name` LIKE '%Relay%' OR `name` LIKE '%Controller%');"
             )  # MySQL query statement
             nodes = cur.fetchall()
             if cur.rowcount > 0:
                 nodes_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
                 for n in nodes:
                     node_id = int(n[nodes_to_index["node_id"]])
+                    max_child_id = n[nodes_to_index["max_child_id"]]
                     if time.time() - relay_controller_heartbeat_dict[node_id] >= 30:
                         relay_controller_heartbeat_dict[node_id] = time.time()
                         msg = str(node_id) + ";0;0;0;24;Relay Heartbeat \n"
                         if dbgLevel >= 3 and dbgMsgOut == 1:
                             print(bc.grn + "\nHeatbeat Message to Relay Controller Node ID - " + str(node_id), bc.ENDC)
+                            print("Date & Time:                 ", time.ctime())
+                            print(
+                                "Full Message to Send:        ", msg.replace("\n", "\\n")
+                            )
+                        gw.send(msg.encode("utf-8"))
+
+                        # Send a mask representing the unallocated relays
+                        cur.execute(
+                            """SELECT relays.relay_child_id
+                               FROM `relays`
+                               JOIN nodes n ON n.id = relays.relay_id
+                               WHERE n.node_id = (%s)
+                               AND n.type = 'MySensor'
+                               AND n.sketch_version >= 0.34
+                               ORDER BY relays.relay_child_id;""", (node_id,)
+                        )  # MySQL query statemen
+                        relays = cur.fetchall()
+                        relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                        mask = 0
+                        for relay in relays:
+                            relay_child_id = relay[relay_to_index["relay_child_id"]]
+                            mask = mask + pow(2, relay_child_id - 1)
+                        mask = mask^(pow(2,max_child_id)-1)
+                        msg = str(node_id) + ";0;0;0;26;" + str(mask) + " \n"
+                        if dbgLevel >= 3 and dbgMsgOut == 1:
+                            print(bc.grn + "\nUnallocated Relay Controller Mask", bc.ENDC)
                             print("Date & Time:                 ", time.ctime())
                             print(
                                 "Full Message to Send:        ", msg.replace("\n", "\\n")
