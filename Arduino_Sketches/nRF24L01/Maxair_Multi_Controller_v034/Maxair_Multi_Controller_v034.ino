@@ -9,7 +9,7 @@
 // *****************************************************************
 // *          8 Channel Multi Controller Relay Sketch              *
 // *            Version 0.34 Build Date 06/11/2017                 *
-// *            Last Modification Date 01/05/2024                  *
+// *            Last Modification Date 23/05/2024                  *
 // *                                          Have Fun - PiHome.eu *
 // *****************************************************************
 
