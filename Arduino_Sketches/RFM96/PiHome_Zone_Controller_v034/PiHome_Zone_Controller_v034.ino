@@ -77,9 +77,9 @@ int8_t myNodeId;
 //#define MY_TRANSPORT_WAIT_READY_MS 3000
 
 //If Following LED Blink does not work then modify C:\Program Files (x86)\Arduino\libraries\MySensors_2_1_1\MyConfig.h 
-#define MY_DEFAULT_ERR_LED_PIN 16 //A2 
-#define MY_DEFAULT_TX_LED_PIN 14 //A0
-#define MY_DEFAULT_RX_LED_PIN 15 //A1
+#define MY_DEFAULT_ERR_LED_PIN 16 //A0 previous version 8 
+#define MY_DEFAULT_TX_LED_PIN 14
+#define MY_DEFAULT_RX_LED_PIN 15
 #define MY_WITH_LEDS_BLINKING_INVERSE
 
 #define MY_DEFAULT_LED_BLINK_PERIOD 400
@@ -90,13 +90,13 @@ int8_t myNodeId;
 #include <avr/wdt.h>
 
 #define RELAY_1 3  // Arduino Digital I/O pin number for first relay (second on pin+1 etc)
-#define NUMBER_OF_RELAYS 5 // Total number of attached relays
+#define NUMBER_OF_RELAYS 6 // Total number of attached relays
 #define RELAY_ON 1  // GPIO value to write to turn on attached relay
 #define RELAY_OFF 0 // GPIO value to write to turn off attached relay
 
 //int oldStatus = RELAY_OFF;
 
-byte pinarray[] = { 3, 4, 5, 6, 7 };
+byte pinarray[] = { 3, 4, 5, 6, 7, 8 };
 long double send_heartbeat_time = millis();
 long double recieve_heartbeat_time = millis();
 long double HEARTBEAT_TIME = 30000; // Send heartbeat every seconds
@@ -276,6 +276,17 @@ void receive(const MyMessage &message){
         Serial.println("Heartbeat Recieved from Gateway Script");
       #endif
       recieve_heartbeat_time = millis();
+    }
+  }
+  // Clear any unallocated relays when the Gateway script heartbeat message is returned
+  if (message.type==V_VAR3) {
+    Serial.print("Relay Mask: ");
+    Serial.println(message.getUInt());      
+    for (int pin=0; pin<NUMBER_OF_RELAYS; pin++) {
+      if (bitRead(message.getUInt(), pin) == 1) {
+        digitalWrite(pinarray[pin], xnor(trigger, RELAY_OFF));
+        delay(100);
+      }
     }
   }
 }
