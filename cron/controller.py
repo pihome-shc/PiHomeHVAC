@@ -76,6 +76,7 @@ def script_run_time(script_start_timestamp, int_time_stamp):
 def process_pump_relays(
     relay_id,
     command,
+    command_prev
 ):
     #Get data from relays table
     cur.execute(
@@ -106,62 +107,64 @@ def process_pump_relays(
             else:
                 relay_node_type = nodes[nodes_to_index["type"]]
 
-            #************************************************************************************
-            # Pump Wired to Raspberry Pi GPIO Section: Pump Connected Raspberry Pi GPIO.
-            #*************************************************************************************
-            if 'GPIO' in relay_node_type:
-                if relay_on_trigger == 1:
-                    relay_on = '1' #GPIO value to write to turn on attached relay
-                    relay_off = '0' #GPIO value to write to turn off attached relay
-                else:
-                    relay_on = '0' #GPIO value to write to turn on attached relay
-                    relay_off = '1' #GPIO value to write to turn off attached relay
-                if command == 1:
-                    relay_status = relay_on
-                else:
-                    relay_status = relay_off
-                print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Pump: GIOP Relay Status:  " + bc.red + relay_status + bc.ENDC + " ("  + relay_on + "=On, " + relay_off + "=off)")
-                cur.execute(
-                    "UPDATE `messages_out` set sent = 0, payload = %s  WHERE node_id = %s AND child_id = %s;",
-                    [str(command), relay_node_id, relay_child_id],
-                )
-                con.commit()  # commit above
-
-            #************************************************************************************
-            # Pump Wired over I2C Interface Make sure you have i2c Interface enabled
-            #*************************************************************************************
-            if 'I2C' in relay_node_type:
-                subprocess.call("/var/www/cron/i2c/i2c_relay.py " + relay_node_id + " " + relay_child_id + " " + str(command), shell=True)
-                print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Pump: Relay Board: " + relay_node_id + " Relay No: "  + relay_child_id + " Status: " + str(command))
-
-            #************************************************************************************
-            # Pump Wireless Section: MySensors Wireless or MQTT Relay module for your Pump control.
-            #*************************************************************************************
-            if 'MySensor'  in relay_node_type or 'MQTT' in relay_node_type:
-                #update messages_out table with sent status to 0 and payload to as zone status.
-                cur.execute(
-                    "UPDATE `messages_out` set sent = 0, payload = %s  WHERE node_id = %s AND child_id = %s;",
-                    [str(command), relay_node_id, relay_child_id],
-                )
-                con.commit()  # commit above
-
-            #************************************************************************************
-            # Sonoff Switch Section: Tasmota WiFi Relay module for your Zone control.
-            #*************************************************************************************
-            if 'Tasmota' in relay_node_type:
-                cur.execute(
-                    "SELECT * FROM http_messages WHERE zone_id = %s AND message_type = %s LIMIT 1;",
-                    (relay_id, str(command)),
-                )
-                if cur.rowcount > 0:
-                    http = cur.fetchone()
-                    http_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                    add_on_msg =  http[http_to_index["command"]] + " " + http[http_to_index["parameter"]]
+            #update on change or continuously for MySensor relay adapter where sketch version < 0.34 or Gateway Relay Controller where sketch version < 0.38
+            if command != command_prev or relay_node_type == "MySensor":
+                #************************************************************************************
+                # Pump Wired to Raspberry Pi GPIO Section: Pump Connected Raspberry Pi GPIO.
+                #*************************************************************************************
+                if 'GPIO' in relay_node_type:
+                    if relay_on_trigger == 1:
+                        relay_on = '1' #GPIO value to write to turn on attached relay
+                        relay_off = '0' #GPIO value to write to turn off attached relay
+                    else:
+                        relay_on = '0' #GPIO value to write to turn on attached relay
+                        relay_off = '1' #GPIO value to write to turn off attached relay
+                    if command == 1:
+                        relay_status = relay_on
+                    else:
+                        relay_status = relay_off
+                    print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Pump: GIOP Relay Status:  " + bc.red + relay_status + bc.ENDC + " ("  + relay_on + "=On, " + relay_off + "=off)")
                     cur.execute(
                         "UPDATE `messages_out` set sent = 0, payload = %s  WHERE node_id = %s AND child_id = %s;",
-                        [add_on_msg, relay_node_id, relay_child_id],
+                        [str(command), relay_node_id, relay_child_id],
                     )
                     con.commit()  # commit above
+
+                #************************************************************************************
+                # Pump Wired over I2C Interface Make sure you have i2c Interface enabled
+                #*************************************************************************************
+                if 'I2C' in relay_node_type:
+                    subprocess.call("/var/www/cron/i2c/i2c_relay.py " + relay_node_id + " " + relay_child_id + " " + str(command), shell=True)
+                    print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Pump: Relay Board: " + relay_node_id + " Relay No: "  + relay_child_id + " Status: " + str(command))
+
+                #************************************************************************************
+                # Pump Wireless Section: MySensors Wireless or MQTT Relay module for your Pump control.
+                #*************************************************************************************
+                if 'MySensor'  in relay_node_type or 'MQTT' in relay_node_type:
+                    #update messages_out table with sent status to 0 and payload to as zone status.
+                    cur.execute(
+                        "UPDATE `messages_out` set sent = 0, payload = %s  WHERE node_id = %s AND child_id = %s;",
+                        [str(command), relay_node_id, relay_child_id],
+                    )
+                    con.commit()  # commit above
+
+                #************************************************************************************
+                # Sonoff Switch Section: Tasmota WiFi Relay module for your Zone control.
+                #*************************************************************************************
+                if 'Tasmota' in relay_node_type:
+                    cur.execute(
+                        "SELECT * FROM http_messages WHERE zone_id = %s AND message_type = %s LIMIT 1;",
+                        (relay_id, str(command)),
+                    )
+                    if cur.rowcount > 0:
+                        http = cur.fetchone()
+                        http_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                        add_on_msg =  http[http_to_index["command"]] + " " + http[http_to_index["parameter"]]
+                        cur.execute(
+                            "UPDATE `messages_out` set sent = 0, payload = %s  WHERE node_id = %s AND child_id = %s;",
+                            [add_on_msg, relay_node_id, relay_child_id],
+                        )
+                        con.commit()  # commit above
 
 #return schedule status
 def get_schedule_status(
@@ -2602,19 +2605,23 @@ try:
                                         con.commit()  # commit above
                             #end if ($manual_button_override == 0)
                         elif zone_relay_type_id == 5: #end if ($zone_relay_type_id == 0)
+                            # create dictionary for each pump relay id, containing the current and previous zone ON/OFF commands
                             if not pump_relays_dict: #add first pump type relay
-                                pump_relays_dict[controller_relay_id] = zone_command
+                                pump_relays_dict[controller_relay_id] = {}
+                                pump_relays_dict[controller_relay_id]["zone_command"] = zone_command
+                                pump_relays_dict[controller_relay_id]["zone_status_prev"] = zone_status_prev
                             elif controller_relay_id in pump_relays_dict and zone_command == 1:
-                                pump_relays_dict[controller_relay_id] = zone_command
+                                pump_relays_dict[controller_relay_id]["zone_command"] = zone_command
+                                pump_relays_dict[controller_relay_id]["zone_status_prev"] = zone_status_prev
 
-                    #end for ($crow = 0; $crow < count($controllers); $crow++)
-                #end for ($row = 0; $row < count($zone_commands); $row++)
+                    #for key in controllers_dict[zone_id]:
+                #end for zc in zone_commands_dict:
 
                 #process any pump relays
                 if pump_relays_dict:
                     #array_walk($pump_relays, "process_pump_relays");
                     for key in pump_relays_dict:
-                        process_pump_relays(key, pump_relays_dict[key])
+                        process_pump_relays(key, pump_relays_dict[key]["zone_command"], pump_relays_dict[key]["zone_status_prev"])
 
                 #For debug info only
                 if dbgLevel == 1:
