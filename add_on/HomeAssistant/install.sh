@@ -21,7 +21,7 @@ else
 fi
 
 echo "Installing Phyton modules"
-sudo pip3 install -r $REQUIREMENTS
+sudo pip3 install -r $REQUIREMENTS --break-system-packages
 
 echo "Creating service for auto start"
 sudo cp /var/www/add_on/HomeAssistant/HA_integration.service /etc/systemd/system/HA_integration.service
