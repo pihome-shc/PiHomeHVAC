@@ -9,7 +9,7 @@
 // *****************************************************************
 // *           Heating Zone Controller Relay Sketch                *
 // *            Version 0.34 Build Date 06/11/2017                 *
-// *            Last Modification Date 24/05/2024                  *
+// *            Last Modification Date 27/05/2024                  *
 // *                                          Have Fun - PiHome.eu *
 // *****************************************************************
 
@@ -95,7 +95,7 @@ byte pinarray[] = { 3, 4, 5, 6, 7, 8 };
 long double send_heartbeat_time = millis();
 long double recieve_heartbeat_time = millis();
 long double HEARTBEAT_TIME = 30000; // Send heartbeat every seconds
-int trigger = 1; // set LOW to indicate the relays are posotive level triggered
+int trigger = 0; // set LOW to indicate the relays are zero level triggered
 char heartbeat_str[] = "Heartbeat,10x,abc";
 
 #define CHILD_ID_TXT 255
@@ -172,6 +172,10 @@ void loop(){
     // Build an 8 bit mask for the current relay ON/OFF states by reading PORTS B, C and D
     // Read digital pins 3 - 8
     byte port_mask = (PORTD >> 3) + ((PORTB & 0b00000001) << 5);
+    // Invert bits depending on value of 'trigger'
+    if (trigger == 0) {
+      port_mask = ~port_mask;
+    }
     // If 8 Releay controller, the add A0 and A1 pin states
     #ifdef MY_DEBUG
       Serial.print("Current Relay States: ");
