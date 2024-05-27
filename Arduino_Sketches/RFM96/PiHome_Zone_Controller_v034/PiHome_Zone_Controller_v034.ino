@@ -9,7 +9,7 @@
 // *****************************************************************
 // *           Heating Zone Controller Relay Sketch                *
 // *            Version 0.34 Build Date 06/11/2017                 *
-// *            Last Modification Date 20/05/2024                  *
+// *            Last Modification Date 27/05/2024                  *
 // *                                          Have Fun - PiHome.eu *
 // *****************************************************************
 
@@ -177,7 +177,10 @@ void loop(){
     // Build an 8 bit mask for the current relay ON/OFF states by reading PORTS B, C and D
     // Read digital pins 3 - 8
     byte port_mask = (PORTD >> 3) + ((PORTB & 0b00000001) << 5);
-    // If 8 Releay controller, the add A0 and A1 pin states
+    // Invert bits depending on value of 'trigger'
+    if (trigger == 0) {
+      port_mask = ~port_mask;
+    }
     #ifdef MY_DEBUG
       Serial.print("Current Relay States: ");
       Serial.println(port_mask);
