@@ -1,0 +1,1 @@
+ALTER TABLE `relays` CHANGE `state` `state` TINYINT(1) NULL DEFAULT '0' COMMENT '0 = OFF, 1 = ON';
