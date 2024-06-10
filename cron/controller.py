@@ -75,8 +75,7 @@ def script_run_time(script_start_timestamp, int_time_stamp):
 #set on/off for pump type relays
 def process_pump_relays(
     relay_id,
-    command,
-    command_prev
+    command
 ):
     #Get data from relays table
     cur.execute(
@@ -107,8 +106,16 @@ def process_pump_relays(
             else:
                 relay_node_type = nodes[nodes_to_index["type"]]
 
+            #Get current state from messages_ou table
+            cur.execute(
+                "SELECT payload FROM `messages_out` WHERE n_id = %s AND child_id = %s LIMIT 1",
+                (relay_id, relay_child_id),
+            )
+            messages_out = cur.fetchone()
+            messages_out_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+            payload = messages_out[messages_out_to_index["payload"]]
             #update on change or continuously for MySensor relay adapter where sketch version < 0.34 or Gateway Relay Controller where sketch version < 0.38
-            if command != command_prev or relay_node_type == "MySensor":
+            if command != int(payload) or relay_node_type == "MySensor":
                 #************************************************************************************
                 # Pump Wired to Raspberry Pi GPIO Section: Pump Connected Raspberry Pi GPIO.
                 #*************************************************************************************
@@ -2621,7 +2628,7 @@ try:
                 if pump_relays_dict:
                     #array_walk($pump_relays, "process_pump_relays");
                     for key in pump_relays_dict:
-                        process_pump_relays(key, pump_relays_dict[key]["zone_command"], pump_relays_dict[key]["zone_status_prev"])
+                        process_pump_relays(key, pump_relays_dict[key]["zone_command"])
 
                 #For debug info only
                 if dbgLevel == 1:

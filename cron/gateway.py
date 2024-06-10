@@ -1589,6 +1589,9 @@ def set_relays(
     global clear_hour_timer
 
     # node-id ; child-sensor-id ; command ; ack ; type ; payload \n
+    if node_type == 'MySensor' and ((sketch_version >= 34 and out_id != '0') or (sketch_version >= 38 and out_id == '0')):
+        node_type = "MySensor2"
+
     if node_type.find("MySensor") != -1 and enable_outgoing == 1:  # process normal node
         if time.time() - minute_timer <= 60:
             mysensor_sent += 1
@@ -1797,6 +1800,14 @@ def set_relays(
                     "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
                     (0, 0, relay_id, relay_name, relay_msg, 'System Controller', 'State Change', timestamp),
                 )
+            con.commit()
+
+        # Update the 'state' value in the relays table for all types except 'MySensor2' as these are updated by the 'Heartbeat' signal processing
+        if node_type != "MySensor2":
+            cur.execute(
+                "UPDATE `relays` SET `state`= %s WHERE relay_id = %s AND relay_child_id = %s;",
+                (int(out_payload), n_id, out_child_id,),
+            )
             con.commit()
 
 # MQTT specific functions
