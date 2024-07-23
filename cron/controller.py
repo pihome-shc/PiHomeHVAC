@@ -341,8 +341,9 @@ def resync():
     cur.execute("""UPDATE messages_out
                      JOIN relays r ON r.relay_id = messages_out.n_id AND r.relay_child_id = messages_out.child_id
                      JOIN nodes n ON n.id = messages_out.n_id
-                     SET messages_out.sent = 0
-                     WHERE r.state != messages_out.payload AND n.type = 'MySensor'
+                     JOIN zone_relays zr ON zr.zone_relay_id = r.id
+                     SET messages_out.payload = zr.state, messages_out.sent = 0
+                     WHERE zr.state != messages_out.payload AND n.type = 'MySensor'
                      AND ((n.node_id != '0' AND n.sketch_version >= 0.34) OR (n.node_id = '0' AND n.sketch_version >= 0.38));"""
                )
     con.commit()  # commit above
