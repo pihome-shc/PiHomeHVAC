@@ -3287,6 +3287,45 @@ echo '<div class="modal fade" id="archive_graphs" tabindex="-1" role="dialog" ar
     </div>
 </div>';
 
+//Zone Current State Logs
+echo '<div class="modal fade" id="zone_current_state_logs" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['zone_current_state_logs'].'</h5>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">'.$lang['enable_zone_current_state_logs_text'].'</p>
+                <table class="table table-bordered">
+                        <tr>
+                                <th class="col-lg-2 text-center"><small>'.$lang['zone'].'</small></th>
+                                <th class="col-lg-1 text-center"><small>'.$lang['enabled'].'</small></th>
+                        </tr>';
+                        $query = "SELECT zone_id, z.name, log_it
+                                  FROM zone_current_state
+                                  JOIN zone z ON zone_id = z.id
+                                  ORDER BY z.type_id, z.id ASC;";
+                        $results = $conn->query($query);
+                        while ($row = mysqli_fetch_assoc($results)) {
+                                if ($row['log_it']) { $enabled_check = 'checked'; } else { $enabled_check = ''; }
+                                echo '<tr>
+                                        <td>'.$row['name'].'</td>
+                                        <td style="text-align:center; vertical-align:middle;">
+                                                <input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" id="checkbox_zone_current_state'.$row['zone_id'].'" name="enabled" value="1" '.$enabled_check.'>
+                                        </td>
+                                </tr>';
+                        }
+                echo '</table>
+            </div>
+                <div class="modal-footer">
+                        <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+                        <input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="enable_zone_current_state_logs()">
+            </div>
+        </div>
+    </div>
+</div>';
+
 }
 
 if ($model_num == 4) {
