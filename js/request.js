@@ -1630,3 +1630,27 @@ var idata="w=node_max_child_id&o=update";
     .always(function() {
     });
 }
+
+//enable logging of the zone_current_state table
+function enable_zone_current_state_logs() {
+var x = document.getElementById("zone_current_state_logs").querySelectorAll("input");
+var i;
+var idata="w=enable_zone_current_state_logs&o=update";
+    for (i = 0; i < x.length; i++) {
+        idata+="&"+x[i].id+"="+x[i].checked;
+    }
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=3"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("enable_zone_current_state_logs: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
