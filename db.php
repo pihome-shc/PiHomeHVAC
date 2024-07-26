@@ -2473,5 +2473,33 @@ if($what=="node_max_child_id"){
                 return;
         }
 }
+
+//enable logging of zone_current_state to a file
+if($what=="enable_zone_current_state_logs"){
+        if($opp=="update"){
+                $update_error=0;
+                $sel_query = "SELECT zone_id FROM zone_current_state;";
+                $results = $conn->query($sel_query);
+                while ($row = mysqli_fetch_assoc($results) and $update_error == 0) {
+                        $checkbox = 'checkbox_zone_current_state'.$row['zone_id'];
+                        $enabled =  $_GET[$checkbox];
+                        if ($enabled=='true'){$enabled = 1;} else {$enabled = 0;}
+                        $query = "UPDATE zone_current_state SET log_it = '".$enabled."' WHERE zone_id='".$row['zone_id']."' LIMIT 1;";
+                        if(!$conn->query($query)){
+                                $update_error=1;
+                        }
+                }
+        }
+
+        if($update_error==0){
+                header('Content-type: application/json');
+                echo json_encode(array('Success'=>'Success','Query'=>$query));
+                return;
+        }else{
+                header('Content-type: application/json');
+                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                return;
+        }
+}
 ?>
 <?php if(isset($conn)) { $conn->close();} ?>
