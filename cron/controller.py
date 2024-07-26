@@ -753,7 +753,6 @@ try:
                 index = 0
                 controllers_dict[zone_id] = {}
                 for relay in relays:
-    #                print("T1",zone_id,relay[relay_to_index["zc_id"]])
                     zc_id = relay[relay_to_index["zc_id"]]
                     controllers_dict[zone_id][zc_id] = {}
                     controllers_dict[zone_id][zc_id ]["controler_id"] = relay[relay_to_index["relay_id"]]
