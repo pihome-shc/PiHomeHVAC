@@ -1070,4 +1070,6 @@ $lang['archive_file_path'] = "Full Path Name of Graph Archive File";
 $lang['min_max_graph'] = "Min/Max Graph";
 $lang['setup_user_accounts'] = "Setup User Accounts";
 $lang['wifi_not_found'] = "NO WiFi Interface Found";
+$lang['zone_current_state_logs'] = "Zone State Log";
+$lang['enable_zone_current_state_logs_text'] = "Enable logging of the 'zone_current_state' table to an individual file for each zone. The file will be created at ../logs and will be of the format 'zoneXX_current_state.log' where XX is the zone ID";
 ?>
