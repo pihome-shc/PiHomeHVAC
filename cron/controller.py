@@ -477,7 +477,6 @@ try:
             #Mode 0 is EU Boiler Mode, Mode 1 is US HVAC Mode
             system_controller_mode = settings_dict.get('mode') & 0b1
 
-
             #create a 'old_flags' dictionary for each 'zone_id' in the 'zone_current_state' table and set initial value
             cur.execute("SELECT zone_id FROM zone_current_state;")
             if cur.rowcount > 0:
