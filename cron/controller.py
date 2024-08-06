@@ -336,7 +336,7 @@ def resync():
                      JOIN nodes n ON n.id = messages_out.n_id
                      JOIN zone_relays zr ON zr.zone_relay_id = r.id
                      SET messages_out.payload = zr.state, messages_out.sent = 0
-                     WHERE zr.state != messages_out.payload AND n.type = 'MySensor'
+                     WHERE (CAST(zr.state as char(255)) != messages_out.payload OR CAST(r.state as char(255)) != messages_out.payload) AND n.type = 'MySensor'
                      AND ((n.node_id != '0' AND n.sketch_version >= 0.34) OR (n.node_id = '0' AND n.sketch_version >= 0.38));"""
                )
     con.commit()  # commit above
