@@ -3237,6 +3237,7 @@ try:
             cur.execute(
                 'DELETE FROM sensor_graphs WHERE datetime < (%s)', (timestamp,)
             )
+            con.commit()
 
             ## Incoming messages
             if gatewaytype != "virtual":
@@ -3322,7 +3323,8 @@ except ProgramKilled as e:
     logging.error(e)
     logging.info(traceback.format_exc())
 finally:
-    con.close()
+    if con.open:
+        con.close()
     if MQTT_CONNECTED == 1:
         mqttClient.disconnect()
         mqttClient.loop_stop()
