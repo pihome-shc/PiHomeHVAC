@@ -2748,6 +2748,7 @@ try:
                 mqttClient.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
                 signal.signal(signal.SIGTERM, signal_handler)
                 signal.signal(signal.SIGINT, signal_handler)
+                mqttClient._connect_timeout = 10.0
                 mqtt_con = 0
                 while 1:
                     try:
