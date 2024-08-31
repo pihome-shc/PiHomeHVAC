@@ -2748,7 +2748,24 @@ try:
                 mqttClient.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
                 signal.signal(signal.SIGTERM, signal_handler)
                 signal.signal(signal.SIGINT, signal_handler)
-                mqttClient.connect(MQTT_HOSTNAME, MQTT_PORT)
+                mqtt_con = 0
+                while 1:
+                    try:
+                        mqttClient.connect(MQTT_HOSTNAME, MQTT_PORT)
+                        break
+                    except OSError as e:
+                        mqtt_con = mqtt_con + 1
+                        if mqtt_con >= 5:
+                            print("OS Error %d: %s" % (e.args[0], e.args[1]))
+                            print(traceback.format_exc())
+                            logging.error(e)
+                            logging.info(traceback.format_exc())
+                            con.close()
+                            if MQTT_CONNECTED == 1:
+                                mqttClient.disconnect()
+                                mqttClient.loop_stop()
+                            print(infomsg)
+                            sys.exit(1)
                 mqttClient.loop_start()
                 MQTT_CONNECTED = 1
 
