@@ -2,7 +2,7 @@
 # ********************************************************
 # *    GPIO Pin Mapping Support for Adafruit Blinka      *
 # *    Build Date: 06/02/2021 Version 0.01               *
-# *    Last Modified: 27/01/2023                         *
+# *    Last Modified: 02/10/2024                         *
 # *                                 Have Fun - PiHome.eu *
 # ********************************************************
 
