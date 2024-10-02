@@ -208,7 +208,7 @@ elif board.board_id.find('ORANGE_PI_3') != -1:
         "24": "PH3",
         "26": "PL8",
     }
-elif board.board_id.find('ORANGE_PI_4_LTS') != -1 or board.board_id.find('ORANGE_PI_5'):
+elif board.board_id.find('ORANGE_PI_4_LTS') != -1 or board.board_id.find('ORANGE_PI_5') != -1:
     pindict = {
         "3": "D3",
         "5": "D5",
