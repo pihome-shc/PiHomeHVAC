@@ -1081,7 +1081,7 @@ echo '
 					ksort($fileList);
 					$fileList = array_reverse($fileList, TRUE);
 					foreach ($fileList as $file) {
-						echo '<button type="button" class="warning list-group-item list-group-item-action" style="font-size: 0.6rem;" onclick="restore_db(`'.$file.'`);" data-confirm="'.$lang['restore_db_warning'].'">'.$file.'</button>';
+						echo '<button type="button" class="warning list-group-item list-group-item-action" style="font-size: 0.6rem;" onclick="restore_db(`'.$file.'`);" data-confirm="'.$lang['restore_db_warning'].$lang["restore_db_delay"].'">'.$file.'</button>';
 					}
 				echo '</ul>
 			</div>
