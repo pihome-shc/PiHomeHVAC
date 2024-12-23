@@ -29,7 +29,7 @@ if(isset($argv[1])) {
 	$fileName = $argv[1];
 	//Check php version before doing anything else
 	$version = explode('.', PHP_VERSION);
-	if ($version[0] > 7){
+	if ($version[0] > 8){
 		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - PiHome Supported on php version 5.x you are running version \033[41m".phpversion()."\033[0m \n";
 		echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Please visit http://www.pihome.eu/2017/10/11/apache-php-mysql-raspberry-pi-lamp/ to install correction version. \n";
 		exit();
