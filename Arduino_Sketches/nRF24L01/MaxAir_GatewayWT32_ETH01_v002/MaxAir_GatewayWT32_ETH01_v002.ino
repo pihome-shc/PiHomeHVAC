@@ -41,7 +41,7 @@
 // Enable debug prints to serial monitor
 #define MY_DEBUG
 //Define Sketch Version
-#define SKETCH_VERSION "0.37"
+#define SKETCH_VERSION "0.39"
 
 // *** Comment out the following line if the sketch is being used with the original version of the PCB, or if the PCF8575 is not installd ***
 #define PCF8575_ATTACHED
@@ -110,7 +110,7 @@
   #endif
 
   // RF channel for the sensor net, 0-127
-  #define MY_RF24_CHANNEL 91
+  #define MY_RF24_CHANNEL 74
 
   //RF24_250KBPS for 250kbs, RF24_1MBPS for 1Mbps, or RF24_2MBPS for 2Mbps
   #define MY_RF24_DATARATE RF24_250KBPS
@@ -194,6 +194,8 @@ IPAddress myDNS(8, 8, 8, 8);
 
   // Set i2c address
   PCF8575 pcf8575(&I2C_0, 0x20, SDA_0, SCL_0);
+  int r_mask = 0;
+  char r_mask_binary[] = "0000000000000000";
 #endif
 
 //for LED status
@@ -261,10 +263,19 @@ long double send_heartbeat_time = millis();
 long double recieve_heartbeat_time = millis();
 long double HEARTBEAT_TIME = 30000;
 int trigger;
+char heartbeat_str[] = "Heartbeat,0,abcde";
 
 #define CHILD_ID_TXT 255
 MyMessage msgTxt(CHILD_ID_TXT, V_TEXT);
 
+// Structure and array to hold Node IDs and last seen times
+struct node{
+  uint8_t n_id;
+  long double n_time;
+};
+
+node nodes[256]; // maximum number of nodes
+int nodes_pos = 0; // counter for actual number of nodes connected
 // initialize varables, to be set depending on ADC reading
 int enable_eth = 1;
 int enable_wifi = 1;
@@ -372,7 +383,8 @@ void setup()
       //bool begin(uint8_t phy_addr=ETH_PHY_ADDR, int power=ETH_PHY_POWER, int mdc=ETH_PHY_MDC, int mdio=ETH_PHY_MDIO, 
       //           eth_phy_type_t type=ETH_PHY_TYPE, eth_clock_mode_t clk_mode=ETH_CLK_MODE);
       //ETH.begin(ETH_PHY_ADDR, ETH_PHY_POWER, ETH_PHY_MDC, ETH_PHY_MDIO, ETH_PHY_TYPE, ETH_CLK_MODE);
-      ETH.begin(ETH_PHY_ADDR, ETH_PHY_POWER);
+      //ETH.begin(ETH_PHY_ADDR, ETH_PHY_POWER);
+      ETH.begin();
 
       // Static IP, leave without this line to get IP via DHCP
       //bool config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPAddress dns1 = 0, IPAddress dns2 = 0);
@@ -411,10 +423,43 @@ void loop()
 {
   long double temp = (millis() - send_heartbeat_time);
   if (temp > HEARTBEAT_TIME) {
-    // If it exceeds the heartbeat time then send a heartbeat
-    send(msgTxt.set("Heartbeat"));
+    String myString = String(r_mask);
+    if (r_mask < 10) {
+      heartbeat_str[12] = '0';
+      heartbeat_str[13] = '0';
+      heartbeat_str[14] = '0';
+      heartbeat_str[15] = '0';
+      heartbeat_str[16] = myString[0];
+    } else if (r_mask >= 10 and r_mask < 100) {
+      heartbeat_str[12] = '0';
+      heartbeat_str[13] = '0';
+      heartbeat_str[14] = '0';
+      heartbeat_str[15] = myString[0];
+      heartbeat_str[16] = myString[1];
+    } else if (r_mask >= 100 and r_mask < 1000){
+      heartbeat_str[12] = '0';
+      heartbeat_str[13] = '0';
+      heartbeat_str[14] = myString[0];
+      heartbeat_str[15] = myString[1];
+      heartbeat_str[16] = myString[2];
+    } else if (r_mask >= 1000 and r_mask < 10000){
+      heartbeat_str[12] = '0';
+      heartbeat_str[13] = myString[0];
+      heartbeat_str[14] = myString[1];
+      heartbeat_str[15] = myString[2];
+      heartbeat_str[16] = myString[3];
+    } else {
+      heartbeat_str[12] = myString[0];
+      heartbeat_str[13] = myString[1];
+      heartbeat_str[14] = myString[2];
+      heartbeat_str[15] = myString[3];
+      heartbeat_str[16] = myString[4];
+    }
+   // If it exceeds the heartbeat time then send a heartbeat
+    send(msgTxt.set(heartbeat_str));
     send_heartbeat_time = millis();
-    Serial.println("Sent heartbeat" );
+    Serial.print("Sent Heartbeat: " );
+    Serial.println(heartbeat_str);
   }
 
   temp = (millis() - recieve_heartbeat_time);
@@ -502,6 +547,14 @@ void showRootPage(){
   #ifdef MY_RADIO_RF24
     page+="<tr>"; page+= "<td>Channel</td>"; page+= "<td>"; page += MY_RF24_CHANNEL; page+= "</td>"; page+="</tr>";
   #endif
+  page+="<tr>"; page+= "<td>Nodes Connected in the Last 10 Minutes</td>"; page+= "<td>";
+  for (byte i = 0; i < nodes_pos; i++) {
+    if (millis() - nodes[i].n_time <= 600000) {
+      page += nodes[i].n_id;
+      page += " ";
+    }
+  }
+  page+= "</td>"; page+="</tr>";
   page+="<tr>"; page+= "<td>Network Transmited Messages</td>"; page+= "<td>"; page += MsgTx; page+= "</td>"; page+="</tr>";
   page+="<tr>"; page+= "<td>Network Received Messages</td>"; page+= "<td>"; page += MsgRx; page+= "</td>"; page+="</tr>";
   page+="<tr>"; page+= "<td>Gateway Transmit Message</td>"; page+= "<td>"; page += GWMsgTx; page+= "</td>"; page+="</tr>";
@@ -511,6 +564,9 @@ void showRootPage(){
   page+="<tr>"; page+= "<td>Gateway Transport Hardware Failure</td>"; page+= "<td>"; page += GWErTran; page+= "</td>"; page+="</tr>";
   page+="<tr>"; page+= "<td>Gateway Missed Heartbeat Count</td>"; page+= "<td>"; page += Missed_Heartbeat; page+= "</td>"; page+="</tr>";
   page+="<tr>"; page+= "<td>Gateway Sketch Version</td>"; page+= "<td>"; page += SKETCH_VERSION; page+= "</td>"; page+="</tr>";
+  #ifdef PCF8575_ATTACHED
+    page+="<tr>"; page+= "<td>Relay Mask</td>"; page+= "<td>"; page += r_mask_binary; page+= "</td>"; page+="</tr>";
+  #endif
 
   page+="</table></div></body></html>";
 
@@ -547,16 +603,60 @@ void sendHeartbeat()
 
 void receive(const MyMessage &message)
 {
+  // Maintain a structure array for connected nodes
+  bool n_found = false;
+  uint8_t node_id = message.sender;
+  
+  if (nodes_pos > 0) { // Only check for correct position in array, if array not empty
+    // Check if the Node ID already exists in the array and if found then update the time
+    for (byte i = 0; i < nodes_pos; i++) {
+      if (node_id == nodes[i].n_id) {
+        nodes[i].n_time = millis();
+        n_found = true; 
+      }
+    }
+    if (!n_found) { // Node ID not found so need to insert at correct position in the array
+      bool n_insert = false;
+      for (byte i = 0; i < nodes_pos; i++) {
+        if (node_id < nodes[i].n_id) {
+          for (byte j = nodes_pos; j > i; j--) {
+            nodes[j] = {nodes[j - 1].n_id, millis()};
+          }
+          nodes[i] = {node_id, millis()};
+          nodes_pos++;
+          n_insert = true;
+          break;
+        }
+      }
+      if (!n_insert) { // New value is larger than all existing Node Ids, so add at end of array
+        nodes[nodes_pos++] = {node_id, millis()};
+      }
+    }
+  } else {
+    // Add the first Node ID to the array
+    nodes[nodes_pos++] = {node_id, millis()};
+  }
+
   #if defined(PCF8575_ATTACHED)
     // We only expect one type of message from controller. But we better check anyway.
     if (message.getType()==V_VAR2) {
       // Change relay state
-      pcf8575.digitalWrite(message.getSensor()-1, message.getBool()?RELAY_ON:RELAY_OFF);
+      pcf8575.digitalWrite(message.getSensor()-1, message.getBool()?xnor(trigger, RELAY_OFF):xnor(trigger, RELAY_ON));
+      // Update the relay mask
+      if (xnor(trigger, message.getBool())) {
+        bitSet(r_mask, message.getSensor()-1);
+        r_mask_binary[16-message.getSensor()] = '1';
+      } else {
+        bitClear(r_mask, message.getSensor()-1);
+        r_mask_binary[16-message.getSensor()] = '0';
+      }
       // Write some debug info
       Serial.print("Incoming change for sensor:");
       Serial.print(message.getSensor());
       Serial.print(", New status: ");
-      Serial.println(message.getBool());
+      Serial.print(message.getBool());
+      Serial.print(", Relay Mask: ");
+      Serial.println(r_mask);
     }
     if (message.type==V_VAR1) {
       Serial.print("Node ID:    ");
@@ -568,8 +668,17 @@ void receive(const MyMessage &message)
       Serial.print("Payload: "); // This is where the wheels fall off
       Serial.println(message.getString()); // This works great!
       if (message.destination==0 && message.type==24){
-        Serial.println("Heartbeat Recieved from Gateway Script");
-        recieve_heartbeat_time = millis();
+         recieve_heartbeat_time = millis();
+      }
+    }
+    // Clear any unallocated relays when the Gateway script heartbeat message is returned
+    if (message.type==V_VAR3) {
+      Serial.print("Relay Mask: ");
+      Serial.println(message.getUInt());      
+      for (int pin=0; pin<NUMBER_OF_RELAYS; pin++) {
+        if (bitRead(message.getUInt(), pin) == 1) {
+          pcf8575.digitalWrite(pin, xnor(trigger, RELAY_OFF));
+        }
       }
     }
   #endif
