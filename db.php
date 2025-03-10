@@ -165,95 +165,113 @@ if($what=="override"){
 }
 //Boost
 if($what=="boost"){
-	if($opp=="active"){
-		$query = "SELECT * FROM boost WHERE status = '1' limit 1;";
-		$result = $conn->query($query);
-		$boost_row = mysqli_fetch_assoc($result);
-		$boost_status = $boost_row['status'];
-		$boost_time = $boost_row['time'];
-		if ($boost_status == 1){
-			$time = $boost_time;
-		}else {
-			$time = date("Y-m-d H:i:s");
-		}
-		$query = "SELECT * FROM boost WHERE id ='".$wid."';";
-		$results = $conn->query($query);
-		$row = mysqli_fetch_assoc($results);
-		$boost_status= $row['status'];
-		$zone_id=$row['zone_id'];
-		if($boost_status=="1"){ $set="0"; }else{ $set="1";}
-		$query = "UPDATE boost SET status = '{$set}', sync = '0', time = '{$time}' WHERE id = '{$wid}' LIMIT 1";
-		$conn->query($query);
-		//this line update message out
-		$query = "UPDATE messages_out SET payload = '{$set}', datetime = '{$time}', sent = '0', sync = '0' WHERE zone_id = '{$zone_id}' AND node_id = {$row['boost_button_id']} AND child_id = {$row['boost_button_child_id']} LIMIT 1";
-		$conn->query($query);
-		//HVAC mode - only allow 1 active boost, so clear all others
-		if (settings($conn, 'mode') == 1 and $set == "1") {
-	                $query = "UPDATE boost SET status = '0', sync = '0' WHERE id <> '{$wid}';";
-	                $conn->query($query);
-		}
-	}
-	if($opp=="delete"){
-		//get list of Boost console Id and Child ID
-		$query = "select * from boost WHERE id = '".$wid."';";
-		$results = $conn->query($query);
-		$row = mysqli_fetch_assoc($results);
-		$boost_button_id= $row['boost_button_id'];
-		$boost_button_child_id=$row['boost_button_child_id'];
-		//delete from message_out related to this boost.
-		$query = "DELETE FROM messages_out WHERE node_id = '".$boost_button_id."' AND child_id = '".$boost_button_child_id."' LIMIT 1;"; 
-		$conn->query($query);
-		//Now Mark for deletion from Boost
-		$query = "DELETE FROM boost WHERE id = '".$wid."'LIMIT 1;";
-		$conn->query($query);
-		if($conn->query($query)){
-            		header('Content-type: application/json');
-            		echo json_encode(array('Success'=>'Success','Query'=>$query));
-            		return;
-        	}else{
-            		header('Content-type: application/json');
-            		echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
-            		return;
-        	}
-	}
-	if($opp=="add"){
-		$datetime = date("Y-m-d H:i:s");
-		if ($wid == 0) { $zone_id = $_GET['zone_id']; } else { $hvac_mode = $_GET['zone_id']; }
-		$boost_time = $_GET['boost_time'];
-		$boost_temperature = $_GET['boost_temperature'];
-		$boost_console_id = $_GET['boost_console_id'];
-		$boost_button_child_id = $_GET['boost_button_child_id'];
-		//If boost Console is selected then add to messages_out table.
-		if ($boost_console_id != '0'){
-			$query = "INSERT INTO `messages_out`(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`) VALUES ('0', '0', '{$boost_console_id}', '{$boost_button_child_id}', '1', '0', '2', '0', '0', '{$datetime}', '{$zone_id}')";
-			$conn->query($query);
-		}
-		//Add record to Boost table
-		if ($wid == 0) {
-			$query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `boost_button_id`, `boost_button_child_id`, `hvac_mode`) VALUES ('0', '0', '0', '{$zone_id}', '{$datetime}', '{$boost_temperature}', '{$boost_time}', '{$boost_console_id}', '{$boost_button_child_id}', '0')";
-		} else {
-	                $query = "SELECT id FROM zone WHERE name = 'HVAC' limit 1;";
-        	        $result = $conn->query($query);
-                	$zone_row = mysqli_fetch_assoc($result);
-                	$zone_id = $zone_row['id'];
-                        $query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `boost_button_id`, `boost_button_child_id`, `hvac_mode`) VALUES ('0', '0', '0', '{$zone_id}', '{$datetime}', '{$boost_temperature}', '{$boost_time}', '{$boost_console_id}', '{$boost_button_child_id}', '{$hvac_mode}')";
-		}
-		if($conn->query($query)){
-            		header('Content-type: application/json');
-            		echo json_encode(array('Success'=>'Success','Query'=>$query));
-            		return;
-        	}else{
-            		header('Content-type: application/json');
-            		echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
-            		return;
-        	}
-	}
-	if($opp=="update"){
-		$datetime = date("Y-m-d H:i:s");
+        if($opp=="active"){
+                $query = "SELECT * FROM boost WHERE status = '1' limit 1;";
+                $result = $conn->query($query);
+                $boost_row = mysqli_fetch_assoc($result);
+                $boost_status = $boost_row['status'];
+                $boost_time = $boost_row['time'];
+                if ($boost_status == 1){
+                        $time = $boost_time;
+                }else {
+                        $time = date("Y-m-d H:i:s");
+                }
+                $query = "SELECT * FROM boost WHERE id ='".$wid."';";
+                $results = $conn->query($query);
+                $row = mysqli_fetch_assoc($results);
+                $boost_status= $row['status'];
+                $zone_id=$row['zone_id'];
+                if($boost_status=="1"){ $set="0"; }else{ $set="1";}
+                $query = "UPDATE boost SET status = '{$set}', sync = '0', time = '{$time}' WHERE id = '{$wid}' LIMIT 1";
+                $conn->query($query);
+                //this line update message out
+                $query = "UPDATE messages_out SET payload = '{$set}', datetime = '{$time}', sent = '0', sync = '0' WHERE zone_id = '{$zone_id}' AND node_id = {$row['boost_button_id']}
+                        AND child_id = ".$row['boost_button_child_id']++." LIMIT 1";
+                $conn->query($query);
+                $query = "UPDATE messages_out SET payload = '{$set}', datetime = '{$time}', sent = '0', sync = '0' WHERE zone_id = '{$zone_id}' AND node_id = {$row['boost_button_id']}
+                        AND child_id = ".$row['boost_button_child_id']." LIMIT 1";
+                $conn->query($query);
+                //HVAC mode - only allow 1 active boost, so clear all others
+                if ((settings($conn, 'mode') & 0b1) == 1 and $set == "1") {
+                        $query = "UPDATE boost SET status = '0', sync = '0' WHERE id <> '{$wid}';";
+                        $conn->query($query);
+                }
+        }
+        if($opp=="delete"){
+                //get list of Boost console Id and Child ID
+                $query = "select * from boost WHERE id = '".$wid."';";
+                $results = $conn->query($query);
+                $row = mysqli_fetch_assoc($results);
+                $boost_button_id= $row['boost_button_id'];
+                $boost_button_child_id=$row['boost_button_child_id'];
+                //delete from message_out related to this boost.
+                $query = "DELETE FROM messages_out WHERE node_id = '".$boost_button_id."' AND child_id = '".$boost_button_child_id++."' LIMIT 1;";
+                $conn->query($query);
+                $query = "DELETE FROM messages_out WHERE node_id = '".$boost_button_id."' AND child_id = '".$boost_button_child_id."' LIMIT 1;";
+                $conn->query($query);
+                //Now Mark for deletion from Boost
+                $query = "DELETE FROM boost WHERE id = '".$wid."' LIMIT 1;";
+                $conn->query($query);
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+        if($opp=="add"){
+                $datetime = date("Y-m-d H:i:s");
+                if ($wid == 0) { $zone_id = $_GET['zone_id']; } else { $hvac_mode = $_GET['zone_id']; }
+                $boost_time = $_GET['boost_time'];
+                $boost_temperature = $_GET['boost_temperature'];
+                $boost_console_id = $_GET['boost_console_id'];
+                $boost_button_child_id = $_GET['boost_button_child_id'];
+                $query = "SELECT id FROM nodes WHERE node_id = '".$boost_console_id."' LIMIT 1;";
+                $nresult = $conn->query($query);
+                $nodes_row = mysqli_fetch_assoc($nresult);
+                $n_id = $nodes_row['id'];
+                //If boost Console is selected then add to messages_out table.
+                if ($boost_console_id != '0'){
+                        $query = "INSERT INTO `messages_out`(`sync`, `purge`, `n_id`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`)
+                                VALUES ('0', '0', '{$n_id}', '{$boost_console_id}', {$boost_button_child_id}, '1', '0', '2', '0', '0', '{$datetime}', '{$zone_id}')";
+                        $conn->query($query);
+                        $query = "INSERT INTO `messages_out`(`sync`, `purge`, `n_id`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`)
+                                VALUES ('0', '0', '{$n_id}', '{$boost_console_id}', {$boost_button_child_id} + 1, '1', '0', '2', '0', '0', '{$datetime}', '{$zone_id}')";
+                        $conn->query($query);
+                }
+                //Add record to Boost table
+                if ($wid == 0) {
+                        $query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `boost_button_id`, `boost_button_child_id`, `hvac_mode`)
+                                VALUES ('0', '0', '0', '{$zone_id}', '{$datetime}', '{$boost_temperature}', '{$boost_time}', '{$boost_console_id}', '{$boost_button_child_id}', '0')";
+                } else {
+                        $query = "SELECT id FROM zone WHERE name = 'HVAC' limit 1;";
+                        $result = $conn->query($query);
+                        $zone_row = mysqli_fetch_assoc($result);
+                        $zone_id = $zone_row['id'];
+                        $query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `boost_button_id`, `boost_button_child_id`, `hvac_mode`)
+                                VALUES ('0', '0', '0', '{$zone_id}', '{$datetime}', '{$boost_temperature}', '{$boost_time}', '{$boost_console_id}', '{$boost_button_child_id}',
+                                '{$hvac_mode}')";
+                }
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+        if($opp=="update"){
+                $datetime = date("Y-m-d H:i:s");
                 if ((settings($conn, 'mode') & 0b1) == 0) {
                         $sel_query = "SELECT boost.id, boost.`status`, boost.sync, boost.zone_id, zone_idx.index_id, zone_type.category, zone.name,
-                        boost.temperature, boost.minute, boost_button_id, boost_button_child_id, hvac_mode, ts.sensor_type_id
+                        boost.temperature, boost.minute, n.id AS n_id, boost_button_id, boost_button_child_id, hvac_mode, ts.sensor_type_id
                         FROM boost
+                        JOIN nodes n ON n.node_id = boost.boost_button_id
                         JOIN zone ON boost.zone_id = zone.id
                         JOIN zone zone_idx ON boost.zone_id = zone_idx.id
                         JOIN zone_type ON zone_type.id = zone.type_id
@@ -267,30 +285,26 @@ if($what=="boost"){
                         JOIN sensors ts ON zs.zone_sensor_id = ts.id
                         ORDER BY hvac_mode ASC;";
                 }
-		$results = $conn->query($sel_query);
-		while ($row = mysqli_fetch_assoc($results)) {
-			$id = $row['id'];
-			if (settings($conn, 'mode') == 0) {
-	                        $input1 = 'minute'.$id;
-        	                $input2 = 'temperature'.$id;
-				$input3= 'boost_button_id'.$id;
-				$input4 = 'boost_button_child_id'.$id;
-	                        $input5 = 'id'.$id;
-        	                $input6 = 'hvac_mode'.$id;
-				$input7 = 'sensor_type'.$id;
-	                        $minute = $_GET[$input1];
-        	                $temperature = $_GET[$input2];
-	                        $boost_button_id = $_GET[$input3];
-        	                $boost_button_child_id = $_GET[$input4];
-	                        $zone_id = $_GET[$input5];
-        	                $hvac_mode = $_GET[$input6];
-				$sensor_type = $_GET[$input7];
-                                if ($row['boost_button_id'] != 0) {
-                                        //Delete all boost console records from messages_out
-                                        $query = "DELETE FROM messages_out WHERE node_id = '{$boost_button_id}';";
-                                        $conn->query($query);
-                                }
-			} else {
+                $results = $conn->query($sel_query);
+                while ($row = mysqli_fetch_assoc($results)) {
+                        $id = $row['id'];
+                        $n_id = $row['n_id'];
+                        if ((settings($conn, 'mode') & 0b1) == 0) {
+                                $input1 = 'minute'.$id;
+                                $input2 = 'temperature'.$id;
+                                $input3= 'boost_button_id'.$id;
+                                $input4 = 'boost_button_child_id'.$id;
+                                $input5 = 'id'.$id;
+                                $input6 = 'hvac_mode'.$id;
+                                $input7 = 'sensor_type'.$id;
+                                $minute = $_GET[$input1];
+                                $temperature = $_GET[$input2];
+                                $boost_button_id = $_GET[$input3];
+                                $boost_button_child_id = $_GET[$input4];
+                                $zone_id = $_GET[$input5];
+                                $hvac_mode = $_GET[$input6];
+                                $sensor_type = $_GET[$input7];
+                        } else {
                                 $input1 = 'minute'.$id;
                                 $input2 = 'temperature'.$id;
                                 $input3 = 'zone_id'.$id;
@@ -303,44 +317,54 @@ if($what=="boost"){
                                 $zone_id = $_GET[$input3];
                                 $hvac_mode = $_GET[$input4];
                                 $sensor_type = $_GET[$input5];
-			}
-			//Update Boost table
-			$upd_query = "UPDATE boost SET minute = '".$minute."', temperature = '".SensorToDB($conn, $temperature, $sensor_type)."', boost_button_id = '".$boost_button_id."', boost_button_child_id = '".$boost_button_child_id."', hvac_mode = '".$hvac_mode."' WHERE id='".$row['id']."' LIMIT 1;";
-			$conn->query($upd_query);
-			$update_error=0;
-			if(!$conn->query($upd_query)){
-				$update_error=1;
-			}
-		}
-                if (settings($conn, 'mode') == 0) {
-			$query = "SELECT * FROM boost WHERE boost_button_id != 0 ORDER BY id asc;";
-			$results = $conn->query($query);
-			while ($row = mysqli_fetch_assoc($results)) {
-				$zone_id = $row['zone_id'];
-				$boost_button_id = $row['boost_button_id'];
-				$boost_button_child_id = $row['boost_button_child_id'];
-				$ins_query = "INSERT INTO `messages_out`(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `ack`, `type`, `payload`, `sent`, `datetime`, `zone_id`) VALUES ('0', '0', '{$boost_button_id}', '{$boost_button_child_id}', '1', '0', '2', '0', '0', '{$datetime}', '{$zone_id}')";
-				$conn->query($ins_query);
-				$insert_error=0;
-				if(!$conn->query($ins_query)){
-					$insert_error=1;
-				}
-			}
-		}
-		if($update_error==0 and $insert_error==0){
-			header('Content-type: application/json');
-			echo json_encode(array('Success'=>'Success','Query'=>$upd_query));
-			return;
-		}else{
-			header('Content-type: application/json');
-			if($update_error==1) {
-				echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $upd_query));
-			} else {
-                                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $ins_query));
-			}
-			return;
-		}
-	}
+                        }
+                        //Update Boost table
+                        $upd_query = "UPDATE boost SET minute = '".$minute."', temperature = '".SensorToDB($conn, $temperature, $sensor_type)."', boost_button_id = '".$boost_button_id."',
+                                      boost_button_child_id = '".$boost_button_child_id."', hvac_mode = '".$hvac_mode."' WHERE id='".$row['id']."' LIMIT 1;";
+                        $conn->query($upd_query);
+                        $update_error=0;
+                        if(!$conn->query($upd_query)){
+                                $update_error=1;
+                        }
+                }
+                if ((settings($conn, 'mode') & 0b1) == 0 && $update_error == 0) {
+                        $query = "SELECT * FROM boost WHERE boost_button_id != 0 ORDER BY id asc;";
+                        $results = $conn->query($query);
+                        $cnt = 1;
+                        while ($row = mysqli_fetch_assoc($results)) {
+                                $zone_id = $row['zone_id'];
+                                $boost_button_id = $row['boost_button_id'];
+                                $update_query = "UPDATE `messages_out` SET `child_id` = ".$cnt.", `sent` = 0 WHERE `node_id` = '".$boost_button_id."' AND `child_id` = ".$cnt.";";
+                                if(!$conn->query($update_query)){
+                                        $update_error=1;
+                                        break;
+                                } else {
+                                        $cnt = $cnt + 1;
+                                        $update_query = "UPDATE `messages_out` SET `child_id` = ".$cnt.", `sent` = 0 WHERE `node_id` = '".$boost_button_id."' AND `child_id` = ".$cnt.";";
+                                        if(!$conn->query($update_query)){
+                                                $update_error=1;
+                                                break;
+                                        }
+                                }
+                                $cnt = $cnt + 1;
+                        }
+                        if($update_error==0) {
+                                $update_query = "UPDATE `messages_out` SET `sent` = 0 WHERE `node_id` = '".$boost_button_id."' AND `child_id` = 7;";
+                                if(!$conn->query($update_query)){
+                                        $update_error=1;
+                                }
+                        }
+                }
+                if($update_error==0){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$upd_query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $upd_query));
+                        return;
+                }
+        }
 }
 
 //Offset
@@ -743,10 +767,62 @@ if($what=="away"){
 		$da= $row['status'];
 		if($da=="1"){ $set="0"; }else{ $set="1"; }
 		$query = "UPDATE away SET status = '{$set}', sync = '0', start_datetime = '{$time}' LIMIT 1";
-		$conn->query($query);
-
+                if(!$conn->query($query)){
+                	header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                	return;
+                }
+		// if 'Away@ is switching OFF, then restore and Switch type zones to previous state
+		if($set == "0") {
+		        $query = "SELECT z.id, zt.category, state, zcs.schedule
+				FROM zone_relays
+				JOIN zone z ON z.id = zone_relays.zone_id
+				JOIN zone_type zt ON zt.id = z.type_id
+				JOIN zone_current_state zcs ON zcs.zone_id = z.id
+				WHERE zt.category = 2;";
+        		$results = $conn->query($query);
+			while ($zrow = mysqli_fetch_assoc($results)) {
+				$zone_id = $zrow['id'];
+				$zone_state = $zrow['state'];
+				$sch_active = $zrow['schedule'];
+                                if($zone_state == 1){
+	                                if ($sch_active == 0) {
+        	                                $mode = 114;
+                	                } else {
+                        	                $mode = 74;
+                                	}
+             	                   	$query = "UPDATE zone_current_state SET mode  = {$mode}, status = {$zone_state} WHERE zone_id = {$zone_id};";
+                	           	if(!$conn->query($query)){
+                        			header('Content-type: application/json');
+                        			echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        			return;
+                                	}
+                			$query = "UPDATE zone SET zone_state = {$zone_state} WHERE id = {$zone_id} LIMIT 1;";
+                			if(!$conn->query($query)){
+			                        header('Content-type: application/json');
+                        			echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        			return;
+                			}
+					$query = "UPDATE messages_out SET payload = '{$zone_state}', datetime = '{$time}', sent = '0' WHERE zone_id = {$zone_id};";
+                                        if(!$conn->query($query)){
+			                        header('Content-type: application/json');
+                        			echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        			return;
+                                        }
+				}
+			}
+		}
+		// update the 'Away Button" message if it exists
 		$query = "UPDATE messages_out SET payload = '{$set}', datetime = '{$time}', sent = '0' WHERE zone_id = '0' AND node_id = {$row['away_button_id']} AND child_id = {$row['away_button_child_id']} LIMIT 1";
-		$conn->query($query);
+                if($conn->query($query)){
+                      	header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
 	}
 }
 
@@ -2000,8 +2076,9 @@ if($what=="auto_backup"){
 //Restore Database
 if($what=="database_restore"){
         $filePath =  $_GET['wid'];
-        shell_exec("nohup php restore_database.php ".$filePath.">/dev/null 2>&1 &");
         $info_message = "Database Restore Request Started, This process may take some time complete..." ;
+        shell_exec("nohup php restore_database.php ".$filePath.">/dev/null 2>&1 &");
+        sleep(30);
 }
 
 //Sensor Messages
@@ -2387,6 +2464,34 @@ if($what=="node_max_child_id"){
                         }
                 }
         }
+        if($update_error==0){
+                header('Content-type: application/json');
+                echo json_encode(array('Success'=>'Success','Query'=>$query));
+                return;
+        }else{
+                header('Content-type: application/json');
+                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                return;
+        }
+}
+
+//enable logging of zone_current_state to a file
+if($what=="enable_zone_current_state_logs"){
+        if($opp=="update"){
+                $update_error=0;
+                $sel_query = "SELECT zone_id FROM zone_current_state;";
+                $results = $conn->query($sel_query);
+                while ($row = mysqli_fetch_assoc($results) and $update_error == 0) {
+                        $checkbox = 'checkbox_zone_current_state'.$row['zone_id'];
+                        $enabled =  $_GET[$checkbox];
+                        if ($enabled=='true'){$enabled = 1;} else {$enabled = 0;}
+                        $query = "UPDATE zone_current_state SET log_it = '".$enabled."' WHERE zone_id='".$row['zone_id']."' LIMIT 1;";
+                        if(!$conn->query($query)){
+                                $update_error=1;
+                        }
+                }
+        }
+
         if($update_error==0){
                 header('Content-type: application/json');
                 echo json_encode(array('Success'=>'Success','Query'=>$query));

@@ -1063,7 +1063,7 @@ $lang['mqtt_per_hour'] = "MQTT Sent/Received  Messages Per Hour";
 $lang['mysensors_per_minute'] = "MySensors Sent/Received Messages Per Minute";
 $lang['gpio_per_hour'] = "GPIO Sent/Received Messages Per Hour";
 $lang['relays_status'] = "Relays Status";
-$lang['relays_status_text'] = "Shows the Current ON/OFF Status of eaxh Relay.<br>Clicking on the Status Indicator will display the Log History for the Associated Relay.";
+$lang['relays_status_text'] = "Shows the Current ON/OFF Status of each Relay.<br>Clicking on the Status Indicator will display the Log History for the Associated Relay.";
 $lang['log_for_relay'] = "Log For Relay - ";
 $lang['state'] = "State";
 $lang['relay_log_timestamp'] = "Timestamp";
@@ -1080,4 +1080,7 @@ $lang['enable_graph_archive'] = "Enable Archiving of Graphs";
 $lang['archive_file_path'] = "Full Path Name of Graph Archive File";
 $lang['min_max_graph'] = "Min/Max Graph";
 $lang['setup_user_accounts'] = "Setup User Accounts";
+$lang['wifi_not_found'] = "NO WiFi Interface Found";
+$lang['zone_current_state_logs'] = "Zone State Log";
+$lang['enable_zone_current_state_logs_text'] = "Enable logging of the 'zone_current_state' table to an individual file for each zone. The file will be created at ../logs and will be of the format 'zoneXX_current_state.log' where XX is the zone ID";
 ?>

@@ -671,7 +671,7 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
                                                 $away_sch = ($schedule >> 1) & 0b1;
                 			        if ($zone_current_state['mode'] == 0) { $add_on_active = 0; } else { $add_on_active = 1; }
 
-			                        if ($add_on_active == 1) { $add_on_colour = "green"; } elseif ($add_on_active == 0) { $add_on_colour = "black"; }
+			                        if ($add_on_active == 1 && $away_status == 0) { $add_on_colour = "green"; } elseif ($add_on_active == 0) { $add_on_colour = "black"; }
                                                 if ($zone_category == 5) {
 							$add_on_colour = "black";
 	 						echo '<button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-circle no-shadow '.$button_style.' mainbtn animated fadeIn" data-bs-href="#" data-bs-toggle="modal" data-remote="false" data-bs-target="#ajaxModal" data-ajax="ajax.php?Ajax=GetModal_Schedule_List,'.$zone_id.'">';
@@ -697,7 +697,7 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
 			                        } else {
                 			                if ($add_on_active == 0) {
 								$add_on_mode = 0;
-							} elseif ($zone_category == 1) {
+							} elseif ($zone_category == 1 || $zone_category == 2) {
 								$add_on_mode = $zone_current_state['mode'];
 							} else {
 								$add_on_mode = 114;

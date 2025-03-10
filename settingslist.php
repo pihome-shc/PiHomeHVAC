@@ -312,6 +312,12 @@ if ($settings_id == 1) {
                         			<h3 class="status"></small></h3>
 			                	</button>
 
+                                                <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#zone_current_state_logs">
+                                                <h3 class="buttontop"><small><?php echo $lang['zone_current_state_logs']; ?></small></h3>
+                                                <h3 class="degre" ><i class="bi bi-filetype-txt blueinfo" style="font-size: 1.5rem;"></i></h3>
+                                                <h3 class="status"></small></h3>
+                                                </button>
+
 						<?php if ($c_f == 0) { $icon = 'thermostat_30_C.png'; } else { $icon = 'thermostat_30_F.png'; } ?>
                                                 <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#livetemp_zone">
                                 		<h3 class="buttontop"><small><?php echo $lang['live_temp']; ?></small></h3>

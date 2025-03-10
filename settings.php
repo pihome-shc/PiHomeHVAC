@@ -155,6 +155,8 @@ $(document).ready(function(){
                                         }
                                }
                         } else {
+                                var table = "" ;
+                                document.getElementById("relay_log_result").innerHTML = table;
                                 var title_text_1 = "<?php echo $lang['unable_to_retrieve_relay_log_data'] ?>";
                                 $('#relay_log_text1').text(title_text_1);
                         }

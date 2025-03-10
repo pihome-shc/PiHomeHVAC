@@ -200,7 +200,7 @@ if ($grow['mask'] & 0b1) {
                 showTooltip(item.pageX,
                         item.pageY,
                         color,
-                        "<strong>" + item.series.label + "</strong> At: " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"<br> <strong><?php echo $lang['temp']; ?>  : " + $.formatNumber(y, { format: "#,###", locale: "us" }) + "&deg;</strong> ");
+                        "<strong>" + item.series.label + "</strong> At: " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"<br> <strong><?php echo $lang['temp']; ?>  : " + $.formatNumber(y, { format: "#,##0", locale: "us" }) + "&deg;</strong> ");
             }
         } else {
             $("#tooltip").remove();
@@ -252,7 +252,7 @@ if ($grow['mask'] & 0b1) {
                 showTooltiphu(item.pageX,
                         item.pageY,
                         color,
-                        "<strong>" + item.series.label + "</strong> At: " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"<br> <strong><?php echo $lang['humid']; ?>  : " + $.formatNumber(y, { format: "#,###", locale: "us" }) + "%rh</strong> ");
+                        "<strong>" + item.series.label + "</strong> At: " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"<br> <strong><?php echo $lang['humid']; ?>  : " + $.formatNumber(y, { format: "#,##0", locale: "us" }) + "%rh</strong> ");
             }
         } else {
             $("#tooltip").remove();
@@ -372,7 +372,7 @@ Timeformat specifiers
                 var y = item.datapoint[1];
                 var color = item.series.color;
                 showTooltipu(item.pageX, item.pageY, color,
-                "<strong>" + item.series.label + " in " + z +" <strong><br><?php echo $lang['hours']; ?> : " + $.formatNumber(y, { format: "#,###", locale: "us" }) + "</strong> ");
+                "<strong>" + item.series.label + " in " + z +" <strong><br><?php echo $lang['hours']; ?> : " + $.formatNumber(y, { format: "#,##0", locale: "us" }) + "</strong> ");
             }
         } else {
             $("#tooltip").remove();
@@ -432,7 +432,7 @@ Timeformat specifiers
                 showTooltip(item.pageX,
                         item.pageY,
                         color,
-                        "<strong>" + item.series.label + "</strong> At: " + weekday[new Date(x).getDay()] + " " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"<br> <strong><?php echo $lang['battery_level']; ?>  : " + $.formatNumber(y, { format: "#,###", locale: "us" }) + "%</strong> ");
+                        "<strong>" + item.series.label + "</strong> At: " + weekday[new Date(x).getDay()] + " " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"<br> <strong><?php echo $lang['battery_level']; ?>  : " + $.formatNumber(y, { format: "#,##0", locale: "us" }) + "%</strong> ");
             }
         } else {
             $("#tooltip").remove();
@@ -499,7 +499,7 @@ Timeformat specifiers
                 showTooltip_min_max(item.pageX,
                         item.pageY,
                         color,
-                        "<strong>" + item.series.label + "</strong> At: " + weekday[new Date(x).getDay()] + " " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"<br> <strong>" + stype + "  : " + $.formatNumber(y, { format: "#,###", locale: "us" }) + units + "</strong> ");
+                        "<strong>" + item.series.label + "</strong> At: " + weekday[new Date(x).getDay()] + " " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"<br> <strong>" + stype + "  : " + $.formatNumber(y, { format: "#,##0", locale: "us" }) + units + "</strong> ");
             }
         } else {
             $("#tooltip").remove();

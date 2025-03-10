@@ -49,24 +49,24 @@
     RFM95_BW31_25CR48SF512  31.25   4/8   512   Slow, long range
     RFM95_BW125CR48SF4096   125   4/8   4096  Slow, long range 
   */
-  #define MY_RFM95_IRQ_PIN 15
+  #define MY_RFM95_IRQ_PIN 36
   #define MY_RFM95_IRQ_NUM digitalPinToInterrupt(MY_RFM95_IRQ_PIN)
-  #define MY_RFM95_CS_PIN 5
+  #define MY_RFM95_CS_PIN 15
 #endif
 
 #ifdef MY_RADIO_RFM69
   #define MY_TRANSPORT_STATE_TIMEOUT_MS  (3*1000ul)
   #define MY_RFM69_FREQUENCY RFM69_868MHZ // Set your frequency here
   #define MY_IS_RFM69HW // Omit if your RFM is not "H"
-  #define MY_RFM69_IRQ_PIN 15
+  #define MY_RFM69_IRQ_PIN 36
   #define MY_RFM69_IRQ_NUM digitalPinToInterrupt(MY_RFM69_IRQ_PIN)
-  #define MY_RFM69_CS_PIN 5 // NSS. Use MY_RFM69_SPI_CS for older versions (before 2.2.0)
+  #define MY_RFM69_CS_PIN 15 // NSS. Use MY_RFM69_SPI_CS for older versions (before 2.2.0)
 #endif
 
 #ifdef MY_RADIO_RF24
   #define MY_RF24_PA_LEVEL RF24_PA_HIGH
   //#define MY_DEBUG_VERBOSE_RF24
-//  #define MY_RF24_IRQ_PIN 15
+//  #define MY_RF24_IRQ_PIN 22
 //  #define MY_RF24_IRQ_NUM digitalPinToInterrupt(MY_RF24_IRQ_PIN)
   //#define MY_RX_MESSAGE_BUFFER_FEATURE
   //#define MY_RX_MESSAGE_BUFFER_SIZE 5
@@ -84,6 +84,8 @@
   //#define MY_RF24_CHANNEL 91
   int8_t myChannel;
   #define MY_RF24_CHANNEL myChannel
+
+  
 
   //RF24_250KBPS for 250kbs, RF24_1MBPS for 1Mbps, or RF24_2MBPS for 2Mbps
   #define MY_RF24_DATARATE RF24_250KBPS
@@ -142,13 +144,23 @@ IPAddress myDNS(8, 8, 8, 8);
 #endif
 
 #include <WiFiClient.h>
+
 #include <MySensors.h>
 #include <DNSServer.h>
 #include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
+//#include <Arduino_Helpers.h>
+//#include <AH/STL/algorithm>
+//#include <AH/STL/iterator>
 
 //for LED WiFi connection status
 #include <Ticker.h>
 Ticker ticker;
+
+//watchdog timer
+#include <esp_task_wdt.h>
+//60 seconds WDT
+#define WDT_TIMEOUT 60000
+
 
 void tick(){
   //toggle state
@@ -207,6 +219,7 @@ const char* host = "maxairgw";
 // Send/Recieve a heartbeat message once every 30 seconds.
 long double send_heartbeat_time = millis();
 long double recieve_heartbeat_time = millis();
+long double watchdog_time = millis();
 long double HEARTBEAT_TIME = 30000;
 #define CHILD_ID_TXT 255
 MyMessage msgTxt(CHILD_ID_TXT, V_TEXT);
@@ -242,6 +255,9 @@ void before(){
     Serial.print("MY_RF24_CHANNEL: ");
     Serial.println(MY_RF24_CHANNEL);
   #endif
+  //initialize the watchdog timer
+  esp_task_wdt_init(WDT_TIMEOUT, true); //enable panic so ESP32 restarts
+  esp_task_wdt_add(NULL); //add current thread to WDT watch
 }
 
 void setup()
@@ -293,8 +309,9 @@ void setup()
     Serial.println(WiFi.localIP());
   #endif
   
-  //turn off blinking on-board led after WiFi connection
+  //turn off blinking on-board led after WiFi connection and leave in the ON state
   ticker.detach();    
+  digitalWrite(LED_BUILTIN, 1);     // set the LED ON
 
   setupWebServer();
 }
@@ -309,7 +326,17 @@ void presentation(){
 
 void loop()
 {
-  long double temp = (millis() - send_heartbeat_time);
+  //reset the watchdog every 30 seconds if loop running, otherwise watchdof=g will reboot after 60 seconds
+  long double temp = (millis() - watchdog_time);
+  if (temp > WDT_TIMEOUT/2) {
+    esp_task_wdt_reset();
+    watchdog_time = millis();
+    #ifdef MY_DEBUG
+      Serial.println("WATCHDOG Reset" );
+    #endif
+  }
+  
+  temp = (millis() - send_heartbeat_time);
   if (temp > HEARTBEAT_TIME) {
     // If it exceeds the heartbeat time then send a heartbeat
     send(msgTxt.set("Heartbeat"));
@@ -320,7 +347,8 @@ void loop()
   }
 
   temp = (millis() - recieve_heartbeat_time);
-  if (temp > (HEARTBEAT_TIME * 2)) {
+  // Test if no hearbeat has been recieved from the gateway.py script in the last 120 seconds
+  if (temp > (HEARTBEAT_TIME * 4)) {
     recieve_heartbeat_time = millis();
     Missed_Heartbeat++;
     #ifdef MY_DEBUG
