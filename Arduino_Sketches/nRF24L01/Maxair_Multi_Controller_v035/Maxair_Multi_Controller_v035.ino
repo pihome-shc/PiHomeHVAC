@@ -9,7 +9,7 @@
 // *****************************************************************
 // *          8 Channel Multi Controller Relay Sketch              *
 // *            Version 0.34 Build Date 06/11/2017                 *
-// *            Last Modification Date 13/03/2025                  *
+// *            Last Modification Date 27/05/2024                  *
 // *                                          Have Fun - PiHome.eu *
 // *****************************************************************
 
@@ -23,7 +23,7 @@
 //Define Sketch Name 
 #define SKETCH_NAME "Multi Controller Relay"
 //Define Sketch Version 
-#define SKETCH_VERSION "0.34"
+#define SKETCH_VERSION "0.35"
 
 // Enable and select radio type attached
 #define MY_RADIO_RF24
@@ -265,8 +265,6 @@ void receive(const MyMessage &message){
     // Store state in eeprom
     saveState(message.sensor, message.getBool());
     delay(100);
-    // Use relay update to reset heartbeat timer
-    recieve_heartbeat_time = millis();
     // Write some debug info
     #ifdef MY_DEBUG
       Serial.print("Incoming Change for Relay: ");
