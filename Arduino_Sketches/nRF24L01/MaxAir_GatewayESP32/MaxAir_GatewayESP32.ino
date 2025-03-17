@@ -8,7 +8,7 @@
 //                 S M A R T   T H E R M O S T A T
 // *****************************************************************
 // *      MaxAir MySensors WiFi Gateway Based on ESP32 Sketch      *
-// *            Version 0.1 Build Date 19/04/2024                  *
+// *            Version 0.2 Build Date 17/03/2025                  *
 // *                                          Have Fun - PiHome.eu *
 // *****************************************************************
 
@@ -189,6 +189,7 @@ unsigned long GWErTx = 0;
 unsigned long GWErVer = 0;
 unsigned long GWErTran = 0;
 unsigned long Missed_Heartbeat = 0;
+unsigned long Lost_WiFi_Connection = 0;
 
 //String WebPage = "<h1>MaxAir Smart Home Gateway</h1>";
 String WebPage = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\" name=\"viewport\" content=\"width=device-width, initial-scale=1, user-scalable=no\"/><title>MaxAir Smart Home Gateway</title></head><body>";
@@ -223,6 +224,8 @@ long double watchdog_time = millis();
 long double HEARTBEAT_TIME = 30000;
 #define CHILD_ID_TXT 255
 MyMessage msgTxt(CHILD_ID_TXT, V_TEXT);
+
+unsigned long previousMillis = millis();
 
 // Structure and array to hold Node IDs and last seen times
 struct node{
@@ -326,6 +329,19 @@ void presentation(){
 
 void loop()
 {
+unsigned long currentMillis = millis();
+  // if WiFi is down, try reconnecting
+  if ((WiFi.status() != WL_CONNECTED) && (currentMillis - previousMillis >= WDT_TIMEOUT)) {
+    Serial.print(millis());
+    Serial.println("Reconnecting to WiFi...");
+    WiFi.disconnect();
+    WiFi.reconnect();
+    Lost_WiFi_Connection++;
+
+    //ESP.restart(); //Or completly restart the ESP32
+    previousMillis = currentMillis;
+  }
+  
   //reset the watchdog every 30 seconds if loop running, otherwise watchdof=g will reboot after 60 seconds
   long double temp = (millis() - watchdog_time);
   if (temp > WDT_TIMEOUT/2) {
@@ -440,6 +456,7 @@ void showRootPage(){
   page+="<tr>"; page+= "<td>Gateway Protocol Version Mismatch</td>"; page+= "<td>"; page += GWErVer; page+= "</td>"; page+="</tr>";
   page+="<tr>"; page+= "<td>Gateway Transport Hardware Failure</td>"; page+= "<td>"; page += GWErTran; page+= "</td>"; page+="</tr>";
   page+="<tr>"; page+= "<td>Gateway Missed Heartbeat Count</td>"; page+= "<td>"; page += Missed_Heartbeat; page+= "</td>"; page+="</tr>";
+  page+="<tr>"; page+= "<td>Lost WiFi Connection Count</td>"; page+= "<td>"; page += Lost_WiFi_Connection; page+= "</td>"; page+="</tr>";
 page+="<tr>"; page+= "<td>Gateway Sketch Version</td>"; page+= "<td>"; page += SKETCH_VERSION; page+= "</td>"; page+="</tr>";
 
   page+="</table></div></body></html>";
