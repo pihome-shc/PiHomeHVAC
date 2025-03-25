@@ -2806,7 +2806,11 @@ try:
             node_id = nd[node_to_index["node_id"]]
             node_type = nd[node_to_index["type"]]
             node_name = nd[node_to_index["name"]]
-            sketch_version = float(nd[node_to_index["sketch_version"]])
+            if nd[node_to_index["sketch_version"]].isnumeric():
+                sketch_version = float(nd[node_to_index["sketch_version"]])
+            else:
+                sketch_version = 0
+                
             if sketch_version > 0:
                 sketch_version = int(sketch_version * 100)
 
