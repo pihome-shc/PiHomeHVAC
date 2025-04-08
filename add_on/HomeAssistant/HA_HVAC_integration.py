@@ -4,7 +4,6 @@ import datetime as dt
 import signal
 import sys
 import socket
-import platform
 import threading
 import time
 from datetime import timedelta
@@ -12,6 +11,13 @@ from re import findall
 import subprocess
 from subprocess import check_output
 import paho.mqtt.client as mqtt
+import platform
+if int(platform.python_version().split(".")[1]) < 8:
+    import pkg_resources
+    paho_version = pkg_resources.get_distribution("paho-mqtt").version
+else:
+    from importlib.metadata import version
+    paho_version = version("paho-mqtt")
 import psutil
 import pytz
 import csv
@@ -189,6 +195,107 @@ def get_last_message():
     return str(as_local(utc_from_timestamp(time.time())).isoformat())
 
 
+## MQTT specific functions
+# Function run when the MQTT client connect to the brooker for paho-mqtt Version 1
+def on_connect_1(client, userdata, flags, rc):
+    con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+    cur = con.cursor()
+    if rc == 0:
+        MQTT_CONNECTED = 1
+        print("\nConnected to broker")
+        subscribe_topics = []
+        cur.execute(
+            'SELECT DISTINCT `mqtt_topic` FROM `mqtt_devices` WHERE `type` = "0"'
+        )
+        if cur.rowcount > 0:
+            for node in cur.fetchall():
+                subscribe_topics.append((f"{node[0]}", 0))
+            client.subscribe(subscribe_topics)
+            print("Subscribed to the followint MQTT topics:")
+            for topic in subscribe_topics:
+                print(topic[0])
+        else:
+            print("\nConnection failed\n")
+            MQTT_CONNECTED = 0
+    else:
+        print("\nConnection failed\n")
+        MQTT_CONNECTED = 0
+    cur.close()
+    con.close()
+
+# Function run when the MQTT client disconnects to the brooker for paho-mqtt Version 1
+def on_disconnect_1(client, userdata, rc):
+    MQTT_CONNECTED = 0
+    if (con.open):
+        con.close()
+    if rc != 0:
+        print("\nUnexpected disconnection.\n")
+        cmd = 'sudo pkill -f gateway.py'
+        os.system(cmd)
+    else:
+        print("\nSuccessfully disconnected from the brooker\n")
+
+# Function run when the MQTT client connect to the brooker for paho-mqtt Version 2
+def on_connect_2(client, userdata, flags, reason_code, properties):
+    con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+    cur = con.cursor()
+    if reason_code.is_failure:
+        print("\nConnection failed\n")
+        MQTT_CONNECTED = 0
+    else:
+        # we should always subscribe from on_connect callback to be sure
+        # our subscribed is persisted across reconnections.
+        MQTT_CONNECTED = 1
+        print("\nConnected to broker")
+        subscribe_topics = []
+        cur.execute(
+            'SELECT DISTINCT `mqtt_topic` FROM `mqtt_devices` WHERE `type` = "0"'
+        )
+        if cur.rowcount > 0:
+            for node in cur.fetchall():
+                subscribe_topics.append((f"{node[0]}", 0))
+            client.subscribe(subscribe_topics)
+            print("Subscribed to the followint MQTT topics:")
+            for topic in subscribe_topics:
+                print(topic[0])
+        else:
+            print("\nConnection failed\n")
+            MQTT_CONNECTED = 0
+    cur.close()
+    con.close()
+
+# Function run when the MQTT client disconnects to the brooker for paho-mqtt Version 2
+def on_disconnect_2(client, userdata, flags, reason_code, properties):
+    MQTT_CONNECTED = 0
+    if (con.open):
+        con.close()
+    if reason_code == 0:
+        print("\nSuccessfully disconnected from the brooker\n")
+    if reason_code > 0:
+        print("\nUnexpected disconnection.\n")
+        cmd = 'sudo pkill -f gateway.py'
+        os.system(cmd)
+
+# Function run when the MQTT client publishes a message to the brooker for paho-mqtt Version 2
+def on_publish(client, userdata, mid, reason_codes):
+    # reason_code and properties will only be present in MQTTv5. It's always unset in MQTTv3
+    try:
+        print("mid: "+str(mid))
+        userdata.remove(mid)
+    except KeyError:
+        print("on_publish() is called with a mid not present in unacked_publish")
+        print("This is due to an unavoidable race-condition:")
+        print("* publish() return the mid of the message sent.")
+        print("* mid from publish() is added to unacked_publish by the main thread")
+        print("* on_publish() is called by the loop_start thread")
+        print("While unlikely (because on_publish() will be called after a network round-trip),")
+        print(" this is a race-condition that COULD happen")
+        print("")
+        print("The best solution to avoid race-condition is using the msg_info from publish()")
+        print("We could also try using a list of acknowledged mid rather than removing from pending list,")
+        print("but remember that mid could be re-used !")
+
+# To be run when an MQTT message is received to write the sensor value into messages_in for both paho-mqtt Version 1 and Version 2
 def on_message(client, userdata, message):
     con = mdb.connect(dbhost, dbuser, dbpass, dbname)
     cur = con.cursor()
@@ -1129,8 +1236,16 @@ if __name__ == "__main__":
                 check=True                                  # raise exception if program fails
             )
             MQTT_PASSWORD = result.stdout.decode("utf-8").split()[0] # result.stdout contains a byte-string
-            mqttClient = mqtt.Client(MQTT_CLIENT_ID)
-            mqttClient.on_connect = on_connect  # attach function to callback
+            if paho_version.find("1.5.0") != -1:
+                mqttClient = mqtt.Client(MQTT_CLIENT_ID)
+                mqttClient.on_connect = on_connect_1  # attach function to callback
+                mqttClient.on_disconnect = on_disconnect_1
+            else:
+                mqttClient = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=MQTT_CLIENT_ID)
+                mqttClient.on_connect = on_connect_2  # attach function to callback
+                mqttClient.on_disconnect = on_disconnect_2
+                mqttClient.on_pubish = on_publish
+
             mqttClient.on_message = on_message
             deviceName = MQTT_deviceName.replace(" ", "").lower()
             deviceNameDisplay = MQTT_deviceName
