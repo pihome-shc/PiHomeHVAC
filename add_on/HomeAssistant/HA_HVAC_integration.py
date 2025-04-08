@@ -558,6 +558,7 @@ def get_wifi_ssid():
 
 
 def get_rpi_power_status():
+    _underVoltage = new_under_voltage()
     return _underVoltage.get()
 
 
@@ -696,10 +697,13 @@ def get_zone(zone, SC_Mode):
     cur.execute(
         "SELECT `status` FROM `boost` WHERE `zone_id` = (%s)", [MA_Zone_ID[zone]]
     )
-    if cur.fetchone()[0] == 0:
-        zone_status.append("OFF")
+    if cur.rowcount > 0:
+        if cur.fetchone()[0] == 0:
+            zone_status.append("OFF")
+        else:
+            zone_status.append("ON")
     else:
-        zone_status.append("ON")
+        zone_status.append("0")
     # [5] - Batt Level & [6] - Batt Voltage
     if MA_Zone_Type[zone] == "MySensor":
         cur.execute(
