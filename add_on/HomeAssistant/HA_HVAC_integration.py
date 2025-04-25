@@ -6,6 +6,7 @@ import sys
 import socket
 import threading
 import time
+import logging
 from datetime import timedelta
 from re import findall
 import subprocess
@@ -35,6 +36,8 @@ if CHECK_RPI_POWER:
     if new_under_voltage() is None:
         CHECK_RPI_POWER = False
 
+logging.basicConfig(level=logging.WARNING)
+
 DEFAULT_TIME_ZONE = None
 WAIT_TIME_SECONDS = 60
 MQTT_deviceName = "MaxAir"
@@ -44,6 +47,10 @@ CHECK_AVAILABLE_UPDATES = bool(True)
 CHECK_WIFI_STRENGHT = bool(True)
 CHECK_WIFI_SSID = bool(False)
 CHECK_DRIVES = bool(True)
+FIRST_RECONNECT_DELAY = 1
+RECONNECT_RATE = 2
+MAX_RECONNECT_COUNT = 12
+MAX_RECONNECT_DELAY = 60
 
 # Initialise the database access variables
 config = configparser.ConfigParser()
@@ -137,8 +144,23 @@ for row in results:
     sensor_node = cur.fetchone()
     MA_Sensor_Node_ID.append(sensor_node[description_to_index_nodes["node_id"]])
     MA_Sensor_Type.append(sensor_node[description_to_index_nodes["type"]])
-con.close()
 
+MA_Boost_Zone_ID = []
+MA_Boost_Zone_Name = []
+HA_Boost_Zone_Name = []
+# get boost info
+cur.execute(
+    'SELECT DISTINCT `boost`.`zone_id`, `zone`.`name` FROM `boost`, `zone` WHERE `boost`.`zone_id` = `zone`.`id`;'
+)
+BOOSTS = cur.rowcount
+description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+results = cur.fetchall()
+for row in results:
+    MA_Boost_Zone_ID.append(row[description_to_index["zone_id"]])
+    MA_Boost_Zone_Name.append(row[description_to_index["name"]])
+    HA_Boost_Zone_Name.append(row[description_to_index["name"]].lower().replace(" ", ""))
+
+con.close()
 
 class ProgramKilled(Exception):
     pass
@@ -195,107 +217,6 @@ def get_last_message():
     return str(as_local(utc_from_timestamp(time.time())).isoformat())
 
 
-## MQTT specific functions
-# Function run when the MQTT client connect to the brooker for paho-mqtt Version 1
-def on_connect_1(client, userdata, flags, rc):
-    con = mdb.connect(dbhost, dbuser, dbpass, dbname)
-    cur = con.cursor()
-    if rc == 0:
-        MQTT_CONNECTED = 1
-        print("\nConnected to broker")
-        subscribe_topics = []
-        cur.execute(
-            'SELECT DISTINCT `mqtt_topic` FROM `mqtt_devices` WHERE `type` = "0"'
-        )
-        if cur.rowcount > 0:
-            for node in cur.fetchall():
-                subscribe_topics.append((f"{node[0]}", 0))
-            client.subscribe(subscribe_topics)
-            print("Subscribed to the followint MQTT topics:")
-            for topic in subscribe_topics:
-                print(topic[0])
-        else:
-            print("\nConnection failed\n")
-            MQTT_CONNECTED = 0
-    else:
-        print("\nConnection failed\n")
-        MQTT_CONNECTED = 0
-    cur.close()
-    con.close()
-
-# Function run when the MQTT client disconnects to the brooker for paho-mqtt Version 1
-def on_disconnect_1(client, userdata, rc):
-    MQTT_CONNECTED = 0
-    if (con.open):
-        con.close()
-    if rc != 0:
-        print("\nUnexpected disconnection.\n")
-        cmd = 'sudo pkill -f gateway.py'
-        os.system(cmd)
-    else:
-        print("\nSuccessfully disconnected from the brooker\n")
-
-# Function run when the MQTT client connect to the brooker for paho-mqtt Version 2
-def on_connect_2(client, userdata, flags, reason_code, properties):
-    con = mdb.connect(dbhost, dbuser, dbpass, dbname)
-    cur = con.cursor()
-    if reason_code.is_failure:
-        print("\nConnection failed\n")
-        MQTT_CONNECTED = 0
-    else:
-        # we should always subscribe from on_connect callback to be sure
-        # our subscribed is persisted across reconnections.
-        MQTT_CONNECTED = 1
-        print("\nConnected to broker")
-        subscribe_topics = []
-        cur.execute(
-            'SELECT DISTINCT `mqtt_topic` FROM `mqtt_devices` WHERE `type` = "0"'
-        )
-        if cur.rowcount > 0:
-            for node in cur.fetchall():
-                subscribe_topics.append((f"{node[0]}", 0))
-            client.subscribe(subscribe_topics)
-            print("Subscribed to the followint MQTT topics:")
-            for topic in subscribe_topics:
-                print(topic[0])
-        else:
-            print("\nConnection failed\n")
-            MQTT_CONNECTED = 0
-    cur.close()
-    con.close()
-
-# Function run when the MQTT client disconnects to the brooker for paho-mqtt Version 2
-def on_disconnect_2(client, userdata, flags, reason_code, properties):
-    MQTT_CONNECTED = 0
-    if (con.open):
-        con.close()
-    if reason_code == 0:
-        print("\nSuccessfully disconnected from the brooker\n")
-    if reason_code > 0:
-        print("\nUnexpected disconnection.\n")
-        cmd = 'sudo pkill -f gateway.py'
-        os.system(cmd)
-
-# Function run when the MQTT client publishes a message to the brooker for paho-mqtt Version 2
-def on_publish(client, userdata, mid, reason_codes):
-    # reason_code and properties will only be present in MQTTv5. It's always unset in MQTTv3
-    try:
-        print("mid: "+str(mid))
-        userdata.remove(mid)
-    except KeyError:
-        print("on_publish() is called with a mid not present in unacked_publish")
-        print("This is due to an unavoidable race-condition:")
-        print("* publish() return the mid of the message sent.")
-        print("* mid from publish() is added to unacked_publish by the main thread")
-        print("* on_publish() is called by the loop_start thread")
-        print("While unlikely (because on_publish() will be called after a network round-trip),")
-        print(" this is a race-condition that COULD happen")
-        print("")
-        print("The best solution to avoid race-condition is using the msg_info from publish()")
-        print("We could also try using a list of acknowledged mid rather than removing from pending list,")
-        print("but remember that mid could be re-used !")
-
-# To be run when an MQTT message is received to write the sensor value into messages_in for both paho-mqtt Version 1 and Version 2
 def on_message(client, userdata, message):
     con = mdb.connect(dbhost, dbuser, dbpass, dbname)
     cur = con.cursor()
@@ -313,17 +234,17 @@ def on_message(client, userdata, message):
             "UPDATE `system_controller` SET `sc_mode` = (%s)",
             [message.payload.decode()],
         )
-    elif message.topic[-11:] == "aux_command":
-        zone = HA_Zone_Name.index(message.topic.split("/")[1])
+    elif message.topic[-13:] == "boost_command":
+        boost = HA_Boost_Zone_Name.index(message.topic.split("/")[2])
         if message.payload.decode() == "ON":  # Turn boost on
             cur.execute(
                 "UPDATE `boost` SET `status` = 1 WHERE `zone_id` = (%s)",
-                [MA_Zone_ID[zone]],
+                [MA_Boost_Zone_ID[boost]],
             )
         else:  # Turn boost off
             cur.execute(
                 "UPDATE `boost` SET `status` = 0 WHERE `zone_id` = (%s)",
-                [MA_Zone_ID[zone]],
+                [MA_Boost_Zone_ID[boost]],
             )
     elif message.topic[-11:] == "target_temp":
         zone = HA_Zone_Name.index(message.topic.split("/")[1])
@@ -334,7 +255,6 @@ def on_message(client, userdata, message):
     con.commit()
     con.close()
     updateSensors()
-
 
 def updateSensors():
     SC_Mode = get_SC_mode()
@@ -456,6 +376,21 @@ def updateSensors():
         retain=False,
     )
 
+    # Boosts status
+    for boost in range(BOOSTS):
+        boost_status = get_boost(boost)
+        payload_str = "{" + f'"boost_status": "{boost_status}"' + " }"
+#        payload_str = "{" + f'"boiler_status": "{boost_status}"' + " }"
+#        print(f"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}/state", payload_str)
+        mqttClient.publish(
+#            topic=f"{MQTT_TOPIC}SC/state",
+##            topic=f"homeassistant/binary_sensor/{deviceName}/{HA_Boost_Zone_Name[boost]}/state",
+##            topic=f"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}_boost/state",
+            topic=f"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}/state",
+            payload=payload_str,
+            qos=1,
+            retain=False,
+        )
 
 def get_updates():
     nFiles = 0
@@ -647,7 +582,7 @@ def get_zone(zone, SC_Mode):
     cur = con.cursor()
     zone_status = []
     cur.execute(
-        "SELECT `status`, `temp_reading`, `temp_target`, sensor_seen_time FROM `zone_current_state` WHERE `id` = (%s)",
+        "SELECT `status`, `temp_reading`, `temp_target`, IFNULL(`sensor_seen_time`,0) AS `sensor_seen_time` FROM `zone_current_state` WHERE `id` = (%s)",
         [MA_Zone_ID[zone]],
     )
     description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
@@ -695,7 +630,7 @@ def get_zone(zone, SC_Mode):
     zone_status.append(results[3])
     # [4] - Boost Status
     cur.execute(
-        "SELECT `status` FROM `boost` WHERE `zone_id` = (%s)", [MA_Zone_ID[zone]]
+        "SELECT DISTINCT `status` FROM `boost` WHERE `zone_id` = (%s)", [MA_Zone_ID[zone]]
     )
     if cur.rowcount > 0:
         if cur.fetchone()[0] == 0:
@@ -703,7 +638,7 @@ def get_zone(zone, SC_Mode):
         else:
             zone_status.append("ON")
     else:
-        zone_status.append("0")
+        zone_status.append("OFF")
     # [5] - Batt Level & [6] - Batt Voltage
     if MA_Zone_Type[zone] == "MySensor":
         cur.execute(
@@ -727,6 +662,20 @@ def get_zone(zone, SC_Mode):
     con.close()
     return zone_status
 
+def get_boost(boost):
+    con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+    cur = con.cursor()
+    boost_status = []
+    cur.execute(
+        "SELECT DISTINCT `status` FROM `boost` WHERE `zone_id` = (%s) LIMIT 1",
+        [MA_Boost_Zone_ID[boost]],
+    )
+    result = cur.fetchone()
+    con.close()
+    if result[0] == 1:
+        return "ON"
+    else:
+        return "OFF"
 
 def get_host_name():
     return socket.gethostname()
@@ -1098,7 +1047,7 @@ def send_config_message(mqttClient):
                 + f'"name":"{deviceNameDisplay} {MA_Sensor_Name[sensor]} Temperature",'
                 + f'"unique_id":"{deviceName}_{HA_Sensor_Name[sensor]}_temperature",'
                 + f'"device":{{"identifiers":["{deviceName}_sensor"],'
-                + f'"name":"{deviceNameDisplay} {MA_Sensor_Name[sensor]}","model":"Stand-alone Temperature sensor", "manufacturer":"PiHome"}},'
+                + f'"name":"{deviceNameDisplay} {MA_Sensor_Name[sensor]}","model":"Stand-alone Temperature sensor", "manufacturer":"MaxAir"}},'
             )
         elif MA_Sensor_Measurement[sensor] == 2:  # Humidity sensor
             payload_str = (
@@ -1109,7 +1058,7 @@ def send_config_message(mqttClient):
                 + f'"name":"{deviceNameDisplay} {MA_Sensor_Name[sensor]} Humidity",'
                 + f'"unique_id":"{deviceName}_{HA_Sensor_Name[sensor]}_humidity",'
                 + f'"device":{{"identifiers":["{deviceName}_sensor"],'
-                + f'"name":"{deviceNameDisplay} {MA_Sensor_Name[sensor]}","model":"Stand-alone Humidity sensor", "manufacturer":"PiHome"}},'
+                + f'"name":"{deviceNameDisplay} {MA_Sensor_Name[sensor]}","model":"Stand-alone Humidity sensor", "manufacturer":"MaxAir"}},'
             )
         payload_str = (
             payload_str
@@ -1176,7 +1125,7 @@ def send_config_message(mqttClient):
             + f'"temperature_command_topic":"{MQTT_TOPIC}{HA_Zone_Name[zone]}/target_temp",'
             + f'"json_attributes_topic":"{MQTT_TOPIC}{HA_Zone_Name[zone]}/attributes",'
             + f'"device":{{"identifiers":["{deviceName}_{HA_Zone_Name[zone]}"],'
-            + f'"name":"{deviceNameDisplay} {MA_Zone_Name[zone]}","model":"{MA_Zone_Type[zone]}", "manufacturer":"PiHome"}}'
+            + f'"name":"{deviceNameDisplay} {MA_Zone_Name[zone]}","model":"{MA_Zone_Type[zone]}", "manufacturer":"MaxAir"}}'
             + "}"
         )
         mqttClient.publish(
@@ -1186,10 +1135,31 @@ def send_config_message(mqttClient):
             retain=True,
         )
 
+    for boost in range(BOOSTS):
+        mqttClient.publish(
+            topic=f"homeassistant/switch/{deviceName}/{HA_Boost_Zone_Name[boost]}/config",
+            payload='{'
+            + f'"name":"{deviceNameDisplay} {MA_Boost_Zone_Name[boost]} BOOST",'
+#            + f'"state_topic":"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}_boost/state",'
+            + f'"state_topic":"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}/state",'
+            + f'"command_topic":"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}/boost_command",'
+            + '"value_template":"{{value_json.boost_status}}",'
+            + f'"unique_id":"{deviceName}_{HA_Boost_Zone_Name[boost]}_boost_status",'
+            + f'"availability_topic":"{MQTT_TOPIC}availability",'
+            + f'"device":{{"identifiers":["{deviceName}_boost"],'
+            + f'"name":"{deviceNameDisplay} BOOST","model":"MaxAir {deviceNameDisplay}", "manufacturer":"MaxAir"}},'
+            + '"payload_on" : "ON" ,'
+            + '"payload_off" : "OFF" ,'
+            + '"force_update":true'
+            + f"}}",
+            qos=1,
+            retain=True,
+        )
+
     mqttClient.publish(f"{MQTT_TOPIC}availability", "online", retain=True)
 
 
-def on_connect(client, userdata, flags, rc):
+def on_connect_1(client, userdata, flags, rc):
     if rc == 0:
         write_message_to_console("Connected to broker")
         subscribe_topics = [
@@ -1204,13 +1174,100 @@ def on_connect(client, userdata, flags, rc):
             subscribe_topics.append(
                 (f"{MQTT_TOPIC}{HA_Zone_Name[zone]}/target_temp", 0)
             )
+        for boost in range(BOOSTS):
+            subscribe_topics.append(
+                (f"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}/boost_command", 0)
+            )
         client.subscribe(subscribe_topics)
         mqttClient.publish(f"{MQTT_TOPIC}availability", "online", retain=True)
     else:
         write_message_to_console("Connection failed")
 
+def on_disconnect_1(client, userdata, reason_code):
+    write_message_to_console("Disconnected with result code: " + str(reason_code))
+    reconnect_count, reconnect_delay = 0, FIRST_RECONNECT_DELAY
+    while reconnect_count < MAX_RECONNECT_COUNT:
+        write_message_to_console("Reconnecting in " + str(reconnect_delay) +  " seconds...")
+        time.sleep(reconnect_delay)
+
+        try:
+            client.reconnect()
+            write_message_to_console("Reconnected successfully!")
+            return
+        except Exception as err:
+            write_message_to_console(str(err) + " Reconnect failed. Retrying...")
+
+        reconnect_delay *= RECONNECT_RATE
+        reconnect_delay = min(reconnect_delay, MAX_RECONNECT_DELAY)
+        reconnect_count += 1
+    write_message_to_console("Reconnect failed after %s attempts. Exiting... " + str(reconnect_count))
+
+# Function run when the MQTT client connect to the brooker for paho-mqtt Version 2
+def on_connect_2(client, userdata, flags, reason_code, properties):
+    if reason_code.is_failure:
+        write_message_to_console("\nConnection failed\n")
+    else:
+        write_message_to_console("Connected to broker")
+        subscribe_topics = [
+            ("homeassistant/status", 0),
+            (f"{MQTT_TOPIC}SC/away_command", 0),
+            (f"{MQTT_TOPIC}SC/mode_command", 0),
+        ]
+        for zone in range(ZONES):
+            subscribe_topics.append(
+                (f"{MQTT_TOPIC}{HA_Zone_Name[zone]}/aux_command", 0)
+            )
+            subscribe_topics.append(
+                (f"{MQTT_TOPIC}{HA_Zone_Name[zone]}/target_temp", 0)
+            )
+        for boost in range(BOOSTS):
+            subscribe_topics.append(
+                (f"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}/boost_command", 0)
+            )
+        client.subscribe(subscribe_topics)
+        mqttClient.publish(f"{MQTT_TOPIC}availability", "online", retain=True)
+
+# Function run when the MQTT client disconnects to the brooker for paho-mqtt Version 2
+def on_disconnect_2(client, userdata, flags, reason_code, properties):
+    write_message_to_console("Disconnected with result code: " + str(reason_code))
+    reconnect_count, reconnect_delay = 0, FIRST_RECONNECT_DELAY
+    while reconnect_count < MAX_RECONNECT_COUNT:
+        write_message_to_console("Reconnecting in " + str(reconnect_delay) + " seconds...")
+        time.sleep(reconnect_delay)
+
+        try:
+            client.reconnect()
+            write_message_to_console("Reconnected successfully!")
+            return
+        except Exception as err:
+            write_message_to_console(str(err) + "Reconnect failed. Retrying...")
+
+        reconnect_delay *= RECONNECT_RATE
+        reconnect_delay = min(reconnect_delay, MAX_RECONNECT_DELAY)
+        reconnect_count += 1
+    write_message_to_console("Reconnect failed after %s attempts. Exiting... " + str(reconnect_count))
+
+# Function run when the MQTT client publishes a message to the brooker for paho-mqtt Version 2
+def on_publish_1(client, userdata, mid, reason_codes, properties):
+    # reason_code and properties will only be present in MQTTv5. It's always unset in MQTTv3
+    try:
+        print(client, userdata, mid, reason_codes, properties)
+#        userdata.remove(mid)
+    except KeyError:
+        write_message_to_console("on_publish() is called with a mid not present in unacked_publish")
+        write_message_to_console("This is due to an unavoidable race-condition:")
+        write_message_to_console("* publish() return the mid of the message sent.")
+        write_message_to_console("* mid from publish() is added to unacked_publish by the main thread")
+        write_message_to_console("* on_publish() is called by the loop_start thread")
+        write_message_to_console("While unlikely (because on_publish() will be called after a network round-trip),")
+        write_message_to_console(" this is a race-condition that COULD happen")
+        write_message_to_console("")
+        write_message_to_console("The best solution to avoid race-condition is using the msg_info from publish()")
+        write_message_to_console("We could also try using a list of acknowledged mid rather than removing from pending list,")
+        write_message_to_console("but remember that mid could be re-used !")
 
 if __name__ == "__main__":
+    write_message_to_console("paho-mqtt Version: " + str(paho_version))
     # Check that MQTT details have been added
     con = mdb.connect(dbhost, dbuser, dbpass, dbname)
     cur = con.cursor()
@@ -1221,7 +1278,7 @@ if __name__ == "__main__":
     if cur.rowcount > 0:
         if cur.rowcount > 1:
             # If more than one MQTT connection has been defined do not connect
-            print(
+            write_message_to_console(
                 "More than one MQTT connection defined in MaxAir for Home Assistant integration, please remove the unused ones."
             )
             MQTT_CONNECTED = 0
@@ -1242,14 +1299,16 @@ if __name__ == "__main__":
             MQTT_PASSWORD = result.stdout.decode("utf-8").split()[0] # result.stdout contains a byte-string
             if paho_version.find("1.5.0") != -1:
                 mqttClient = mqtt.Client(MQTT_CLIENT_ID)
+                mqttClient.enable_logger()
                 mqttClient.on_connect = on_connect_1  # attach function to callback
-                mqttClient.on_disconnect = on_disconnect_1
+                mqttClient.on_disconnect = on_disconnect_1  # attach function to callback
             else:
                 mqttClient = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=MQTT_CLIENT_ID)
+                mqttClient.enable_logger()
                 mqttClient.on_connect = on_connect_2  # attach function to callback
-                mqttClient.on_disconnect = on_disconnect_2
-                mqttClient.on_pubish = on_publish
-
+                mqttClient.on_disconnect = on_disconnect_2  # attach function to callback
+#                mqttClient.on_publish = on_publish_1
+#            mqttClient = mqtt.Client(protocol=mqtt.MQTTv311)
             mqttClient.on_message = on_message
             deviceName = MQTT_deviceName.replace(" ", "").lower()
             deviceNameDisplay = MQTT_deviceName
@@ -1271,7 +1330,7 @@ if __name__ == "__main__":
             mqttClient.loop_start()
     else:
         # If no MQTT connection has been defined do not connect
-        print(
+        write_message_to_console(
             "Home Assistant integration is disabled. To enable MQTT Home Assistant integration enter the connection details under Settings > System Configuration > MQTT."
         )
 
@@ -1282,8 +1341,10 @@ if __name__ == "__main__":
         except ProgramKilled:
             write_message_to_console("Program killed: running cleanup code")
             mqttClient.publish(f"{MQTT_TOPIC}availability", "offline", retain=True)
-            mqttClient.disconnect()
             mqttClient.loop_stop()
+            MQTT_CONNECTED = 0
+            if (con.open):
+                con.close()
             sys.stdout.flush()
             job.stop()
             break
