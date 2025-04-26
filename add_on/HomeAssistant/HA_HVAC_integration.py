@@ -410,12 +410,7 @@ def updateSensors():
     for boost in range(BOOSTS):
         boost_status = get_boost(boost)
         payload_str = "{" + f'"boost_status": "{boost_status}"' + " }"
-#        payload_str = "{" + f'"boiler_status": "{boost_status}"' + " }"
-#        print(f"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}/state", payload_str)
         mqttClient.publish(
-#            topic=f"{MQTT_TOPIC}SC/state",
-##            topic=f"homeassistant/binary_sensor/{deviceName}/{HA_Boost_Zone_Name[boost]}/state",
-##            topic=f"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}_boost/state",
             topic=f"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}/state",
             payload=payload_str,
             qos=1,
@@ -1170,7 +1165,6 @@ def send_config_message(mqttClient):
             topic=f"homeassistant/switch/{deviceName}/{HA_Boost_Zone_Name[boost]}/config",
             payload='{'
             + f'"name":"{deviceNameDisplay} {MA_Boost_Zone_Name[boost]} BOOST",'
-#            + f'"state_topic":"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}_boost/state",'
             + f'"state_topic":"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}/state",'
             + f'"command_topic":"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}/boost_command",'
             + '"value_template":"{{value_json.boost_status}}",'
@@ -1277,25 +1271,7 @@ def on_disconnect_2(client, userdata, flags, reason_code, properties):
         reconnect_count += 1
     write_message_to_console("Reconnect failed after %s attempts. Exiting... " + str(reconnect_count))
 
-# Function run when the MQTT client publishes a message to the brooker for paho-mqtt Version 2
-def on_publish_1(client, userdata, mid, reason_codes, properties):
-    # reason_code and properties will only be present in MQTTv5. It's always unset in MQTTv3
-    try:
-        print(client, userdata, mid, reason_codes, properties)
-#        userdata.remove(mid)
-    except KeyError:
-        write_message_to_console("on_publish() is called with a mid not present in unacked_publish")
-        write_message_to_console("This is due to an unavoidable race-condition:")
-        write_message_to_console("* publish() return the mid of the message sent.")
-        write_message_to_console("* mid from publish() is added to unacked_publish by the main thread")
-        write_message_to_console("* on_publish() is called by the loop_start thread")
-        write_message_to_console("While unlikely (because on_publish() will be called after a network round-trip),")
-        write_message_to_console(" this is a race-condition that COULD happen")
-        write_message_to_console("")
-        write_message_to_console("The best solution to avoid race-condition is using the msg_info from publish()")
-        write_message_to_console("We could also try using a list of acknowledged mid rather than removing from pending list,")
-        write_message_to_console("but remember that mid could be re-used !")
-
+# -----------------------------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     write_message_to_console("paho-mqtt Version: " + str(paho_version))
     # Check that MQTT details have been added
@@ -1337,8 +1313,6 @@ if __name__ == "__main__":
                 mqttClient.enable_logger()
                 mqttClient.on_connect = on_connect_2  # attach function to callback
                 mqttClient.on_disconnect = on_disconnect_2  # attach function to callback
-#                mqttClient.on_publish = on_publish_1
-#            mqttClient = mqtt.Client(protocol=mqtt.MQTTv311)
             mqttClient.on_message = on_message
             deviceName = MQTT_deviceName.replace(" ", "").lower()
             deviceNameDisplay = MQTT_deviceName
