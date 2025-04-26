@@ -1,4 +1,34 @@
 #!/usr/bin/env python3
+class bc:
+    hed = "\033[95m"
+    dtm = "\033[0;36;40m"
+    ENDC = "\033[0m"
+    SUB = "\033[3;30;45m"
+    WARN = "\033[0;31;40m"
+    grn = "\033[0;32;40m"
+    wht = "\033[0;37;40m"
+    ylw = "\033[93m"
+    fail = "\033[91m"
+
+
+print(bc.hed + " ")
+print("    __  __                             _         ")
+print("   |  \/  |                    /\     (_)        ")
+print("   | \  / |   __ _  __  __    /  \     _   _ __  ")
+print("   | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| ")
+print("   | |  | | | (_| |  >  <   / ____ \  | | | |    ")
+print("   |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
+print(" ")
+print("        " + bc.SUB + "S M A R T   T H E R M O S T A T " + bc.ENDC)
+print(bc.WARN + " ")
+print("********************************************************")
+print("*           Home Assistant Integration Script          *")
+print("*      Build Date: 26/04/2025                          *")
+print("*      Version 0.01 - Last Modified 26/04/2025         *")
+print("*                                 Have Fun - PiHome.eu *")
+print("********************************************************")
+print(" " + bc.ENDC)
+
 import argparse
 import datetime as dt
 import signal
@@ -190,7 +220,7 @@ class Job(threading.Thread):
 
 
 def write_message_to_console(message):
-    print(message)
+    print(bc.grn + message + bc.ENDC)
     sys.stdout.flush()
 
 
