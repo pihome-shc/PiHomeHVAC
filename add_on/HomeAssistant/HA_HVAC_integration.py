@@ -180,7 +180,7 @@ MA_Boost_Zone_Name = []
 HA_Boost_Zone_Name = []
 # get boost info
 cur.execute(
-    'SELECT DISTINCT `boost`.`zone_id`, `zone`.`name` FROM `boost`, `zone` WHERE `boost`.`zone_id` = `zone`.`id`;'
+    'SELECT  `boost`.`zone_id`, CONCAT(`zone`.`name`, "_", `boost`.`temperature`, "_", `boost`.`minute`) AS `name`  FROM `boost`, `zone` WHERE `boost`.`zone_id` = `zone`.`id`;'
 )
 BOOSTS = cur.rowcount
 description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
@@ -655,7 +655,7 @@ def get_zone(zone, SC_Mode):
     zone_status.append(results[3])
     # [4] - Boost Status
     cur.execute(
-        "SELECT DISTINCT `status` FROM `boost` WHERE `zone_id` = (%s)", [MA_Zone_ID[zone]]
+        "SELECT `status` FROM `boost` WHERE `zone_id` = (%s)", [MA_Zone_ID[zone]]
     )
     if cur.rowcount > 0:
         if cur.fetchone()[0] == 0:
@@ -692,7 +692,7 @@ def get_boost(boost):
     cur = con.cursor()
     boost_status = []
     cur.execute(
-        "SELECT DISTINCT `status` FROM `boost` WHERE `zone_id` = (%s) LIMIT 1",
+        "SELECT `status` FROM `boost` WHERE `zone_id` = (%s) LIMIT 1",
         [MA_Boost_Zone_ID[boost]],
     )
     result = cur.fetchone()
