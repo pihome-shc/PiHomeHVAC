@@ -175,17 +175,19 @@ for row in results:
     MA_Sensor_Node_ID.append(sensor_node[description_to_index_nodes["node_id"]])
     MA_Sensor_Type.append(sensor_node[description_to_index_nodes["type"]])
 
+MA_Boost_ID = []
 MA_Boost_Zone_ID = []
 MA_Boost_Zone_Name = []
 HA_Boost_Zone_Name = []
 # get boost info
 cur.execute(
-    'SELECT  `boost`.`zone_id`, CONCAT(`zone`.`name`, "_", `boost`.`temperature`, "_", `boost`.`minute`) AS `name`  FROM `boost`, `zone` WHERE `boost`.`zone_id` = `zone`.`id`;'
+    'SELECT  `boost`.`id`, `boost`.`zone_id`, CONCAT(`zone`.`name`, "_", `boost`.`temperature`, "_", `boost`.`minute`) AS `name`  FROM `boost`, `zone` WHERE `boost`.`zone_id` = `zone`.`id`;'
 )
 BOOSTS = cur.rowcount
 description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
 results = cur.fetchall()
 for row in results:
+    MA_Boost_ID.append(row[description_to_index["id"]])
     MA_Boost_Zone_ID.append(row[description_to_index["zone_id"]])
     MA_Boost_Zone_Name.append(row[description_to_index["name"]])
     HA_Boost_Zone_Name.append(row[description_to_index["name"]].lower().replace(" ", ""))
@@ -268,13 +270,13 @@ def on_message(client, userdata, message):
         boost = HA_Boost_Zone_Name.index(message.topic.split("/")[2])
         if message.payload.decode() == "ON":  # Turn boost on
             cur.execute(
-                "UPDATE `boost` SET `status` = 1 WHERE `zone_id` = (%s)",
-                [MA_Boost_Zone_ID[boost]],
+                "UPDATE `boost` SET `status` = 1 WHERE `id` = (%s)",
+                [MA_Boost_ID[boost]],
             )
         else:  # Turn boost off
             cur.execute(
-                "UPDATE `boost` SET `status` = 0 WHERE `zone_id` = (%s)",
-                [MA_Boost_Zone_ID[boost]],
+                "UPDATE `boost` SET `status` = 0 WHERE `id` = (%s)",
+                [MA_Boost_ID[boost]],
             )
     elif message.topic[-11:] == "target_temp":
         zone = HA_Zone_Name.index(message.topic.split("/")[1])
@@ -692,8 +694,8 @@ def get_boost(boost):
     cur = con.cursor()
     boost_status = []
     cur.execute(
-        "SELECT `status` FROM `boost` WHERE `zone_id` = (%s) LIMIT 1",
-        [MA_Boost_Zone_ID[boost]],
+        "SELECT `status` FROM `boost` WHERE `id` = (%s) LIMIT 1",
+        [MA_Boost_ID[boost]],
     )
     result = cur.fetchone()
     con.close()
