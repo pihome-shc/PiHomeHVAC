@@ -453,15 +453,18 @@ def updateSensors():
     )
 
     # Boosts status
-    for boost in range(BOOSTS):
-        boost_status = get_boost(boost)
-        payload_str = "{" + f'"boost_status": "{boost_status}"' + " }"
-        mqttClient.publish(
-            topic=f"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}/state",
-            payload=payload_str,
-            qos=1,
-            retain=False,
-        )
+    try:
+        for boost in range(BOOSTS):
+            boost_status = get_boost(boost)
+            payload_str = "{" + f'"boost_status": "{boost_status}"' + " }"
+            mqttClient.publish(
+                topic=f"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}/state",
+                payload=payload_str,
+                qos=1,
+                retain=False,
+            )
+    except:
+        pass
 
 def get_updates():
     nFiles = 0
