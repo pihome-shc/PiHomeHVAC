@@ -56,6 +56,7 @@ from pytz import timezone
 import MySQLdb as mdb
 import configparser
 import os
+import numpy as n
 
 try:
     from rpi_bad_power import new_under_voltage
@@ -175,13 +176,17 @@ for row in results:
     MA_Sensor_Node_ID.append(sensor_node[description_to_index_nodes["node_id"]])
     MA_Sensor_Type.append(sensor_node[description_to_index_nodes["type"]])
 
+# populate the boost info
 MA_Boost_ID = []
 MA_Boost_Zone_ID = []
 MA_Boost_Zone_Name = []
+global HA_Boost_Zone_Name
 HA_Boost_Zone_Name = []
 # get boost info
 cur.execute(
-    'SELECT  `boost`.`id`, `boost`.`zone_id`, CONCAT(`zone`.`name`, "_", `boost`.`temperature`, "_", `boost`.`minute`) AS `name`  FROM `boost`, `zone` WHERE `boost`.`zone_id` = `zone`.`id`;'
+    """SELECT  `boost`.`id`, `boost`.`zone_id`, CONCAT(`zone`.`name`, '_', `boost`.`temperature`, '_', `boost`.`minute`) AS `name`
+       FROM `boost`, `zone`
+       WHERE `boost`.`zone_id` = `zone`.`id`;"""
 )
 BOOSTS = cur.rowcount
 description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
@@ -250,8 +255,6 @@ def get_last_message():
 
 
 def on_message(client, userdata, message):
-    con = mdb.connect(dbhost, dbuser, dbpass, dbname)
-    cur = con.cursor()
     if (message.topic == "homeassistant/status") and (
         message.payload.decode() == "online"
     ):
@@ -289,6 +292,47 @@ def on_message(client, userdata, message):
     updateSensors()
 
 def updateSensors():
+    # check if BOOST configurtion has changed
+    con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+    cur = con.cursor()
+    cur.execute(
+        """SELECT  CONCAT(`zone`.`name`, '_', `boost`.`temperature`, '_', `boost`.`minute`) AS `name`
+           FROM `boost`, `zone`
+           WHERE `boost`.`zone_id` = `zone`.`id`;"""
+    )
+    if cur.rowcount > 0:
+        temp_array_1 = []
+        results = cur.fetchall()
+        for row in results:
+            temp_array_1.append(row[0].lower().replace(" ", ""))
+
+        narr1 = n.array([temp_array_1])
+        narr2 = n.array([HA_Boost_Zone_Name])
+
+        result_variable = (narr1 == narr2).all()
+        if(result_variable == False):
+            # changed so re-populate the boost info
+            MA_Boost_ID.clear()
+            MA_Boost_Zone_ID.clear()
+            MA_Boost_Zone_Name.clear()
+            HA_Boost_Zone_Name.clear()
+            cur.execute(
+                """SELECT  `boost`.`id`, `boost`.`zone_id`, CONCAT(`zone`.`name`, '_', `boost`.`temperature`, '_', `boost`.`minute`) AS `name`
+                   FROM `boost`, `zone`
+                   WHERE `boost`.`zone_id` = `zone`.`id`;"""
+            )
+            BOOSTS = cur.rowcount
+            description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+            results = cur.fetchall()
+            for row in results:
+                MA_Boost_ID.append(row[description_to_index["id"]])
+                MA_Boost_Zone_ID.append(row[description_to_index["zone_id"]])
+                MA_Boost_Zone_Name.append(row[description_to_index["name"]])
+                HA_Boost_Zone_Name.append(row[description_to_index["name"]].lower().replace(" ", ""))
+            # re-send configuration
+            send_config_message(mqttClient)
+    con.close()
+
     SC_Mode = get_SC_mode()
     payload_str = (
         "{"
@@ -601,7 +645,6 @@ def get_sensor(sensor):
             sensor_status.append("0")
     con.close()
     return sensor_status
-
 
 # [0 - Zone Status, 1 - Traget Temp, 2 - Current Temp, 3 - Last seen, 4- Boost Status, 5 - Batt Level, 6 - Batt Voltage]
 def get_zone(zone, SC_Mode):
