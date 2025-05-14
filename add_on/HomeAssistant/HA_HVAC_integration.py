@@ -117,12 +117,13 @@ MA_Zone_ID = []
 MA_Zone_Name = []
 MA_Zone_Type = []
 HA_Zone_Name = []
+HA_Zone_UID = []
 # Get MaxAir mode (0 - Boiler, 1 - HVAC)
 cur.execute("SELECT `mode` FROM `system` LIMIT 1;")
 MA_Mode = cur.fetchone()[0]
 MA_Mode = MA_Mode & 0b1
 # Get Zone info
-cur.execute("""SELECT `n`.`node_id`, `zone_sensors`.`zone_id`, z.name, s.frost_temp, n.type
+cur.execute("""SELECT `n`.`node_id`, `zone_sensors`.`zone_id`, z.name, s.frost_temp, n.type, CONCAT(`zone_sensors`.`zone_id`, '_', `z`.`name`) AS `uid`
                FROM `zone_sensors`
                JOIN sensors s ON s.id = `zone_sensor_id`
                JOIN nodes n ON n.id = s.`sensor_id`
@@ -138,8 +139,16 @@ for row in results:
     HA_Zone_Name.append(row[description_to_index["name"]].lower().replace(" ", ""))
     MA_Frost_Protection.append(row[description_to_index["frost_temp"]])
     MA_Zone_Type.append(row[description_to_index["type"]])
+    HA_Zone_UID.append(row[description_to_index["uid"]].lower().replace(" ", ""))
 
 # Get stand alone sensors info
+MA_Sensor_Node_ID = []
+MA_Sensor_Child_ID = []
+MA_Sensor_Measurement = []
+MA_Sensor_Name = []
+HA_Sensor_Name = []
+MA_Sensor_Type = []
+# Get Sensor info
 MA_Sensor_Node_ID = []
 MA_Sensor_Child_ID = []
 MA_Sensor_Measurement = []
@@ -166,16 +175,13 @@ for row in results:
     MA_Sensor_Type.append(row[description_to_index["type"]])
     HA_Sensor_UID.append(row[description_to_index["uid"]].lower().replace(" ", ""))
 
-# populate the boost info
 MA_Boost_ID = []
 MA_Boost_Zone_ID = []
 MA_Boost_Zone_Name = []
 HA_Boost_Zone_Name = []
 # get boost info
 cur.execute(
-    """SELECT  `boost`.`id`, `boost`.`zone_id`, CONCAT(`zone`.`name`, '_', `boost`.`temperature`, '_', `boost`.`minute`) AS `name`
-       FROM `boost`, `zone`
-       WHERE `boost`.`zone_id` = `zone`.`id`;"""
+    'SELECT  `boost`.`id`, `boost`.`zone_id`, CONCAT(`zone`.`name`, "_", `boost`.`temperature`, "_", `boost`.`minute`) AS `name`  FROM `boost`, `zone` WHERE `boost`.`zone_id` = `zone`.`id`;'
 )
 BOOSTS = cur.rowcount
 description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
@@ -244,6 +250,8 @@ def get_last_message():
 
 
 def on_message(client, userdata, message):
+    con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+    cur = con.cursor()
     if (message.topic == "homeassistant/status") and (
         message.payload.decode() == "online"
     ):
@@ -367,8 +375,53 @@ def check_maxair_changes():
                 HA_Sensor_UID.append(row[description_to_index["uid"]].lower().replace(" ", ""))
             changed = True
 
+    # check if zone configurtion has changed
+    cur.execute(
+        """SELECT CONCAT(`zone_sensors`.`zone_id`, '_', `z`.`name`) AS `uid`
+           FROM `zone_sensors`
+           JOIN zone z ON z.id = zone_sensors.zone_id
+           ORDER BY zone_sensors.zone_sensor_id;"""
+    )
+    if cur.rowcount > 0:
+        temp_array_1 = []
+        results = cur.fetchall()
+        for row in results:
+            temp_array_1.append(row[0].lower().replace(" ", ""))
+
+        narr1 = n.array([temp_array_1])
+        narr2 = n.array([HA_Zone_UID])
+
+        result_variable = (narr1 == narr2).all()
+        if(result_variable == False):
+            MA_Zone_Sensor_ID.clear()
+            MA_Frost_Protection.clear()
+            MA_Zone_ID.clear()
+            MA_Zone_Name.clear()
+            MA_Zone_Type.clear()
+            HA_Zone_Name.clear()
+            HA_Zone_UID.clear()
+            cur.execute("""SELECT `n`.`node_id`, `zone_sensors`.`zone_id`, z.name, s.frost_temp, n.type, CONCAT(`zone_sensors`.`zone_id`, '_', `z`.`name`) AS `uid`
+                           FROM `zone_sensors`
+                           JOIN sensors s ON s.id = `zone_sensor_id`
+                           JOIN nodes n ON n.id = s.`sensor_id`
+                           JOIN zone z ON z.id = zone_sensors.zone_id
+                           ORDER BY zone_sensors.zone_sensor_id;""")
+            ZONES = cur.rowcount
+            description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+            results = cur.fetchall()
+            for row in results:
+                MA_Zone_ID.append(row[description_to_index["zone_id"]])
+                MA_Zone_Sensor_ID.append(row[description_to_index["node_id"]])
+                MA_Zone_Name.append(row[description_to_index["name"]])
+                HA_Zone_Name.append(row[description_to_index["name"]].lower().replace(" ", ""))
+                MA_Frost_Protection.append(row[description_to_index["frost_temp"]])
+                MA_Zone_Type.append(row[description_to_index["type"]])
+                HA_Zone_UID.append(row[description_to_index["uid"]].lower().replace(" ", ""))
+            changed = True
+
     # on change re-send configuration
     if changed:
+        mqttClient.disconnect()
         send_config_message(mqttClient)
 
     con.close()
@@ -495,19 +548,17 @@ def updateSensors():
         qos=1,
         retain=False,
     )
-    try:
-        # Boosts status
-        for boost in range(BOOSTS):
-            boost_status = get_boost(boost)
-            payload_str = "{" + f'"boost_status": "{boost_status}"' + " }"
-            mqttClient.publish(
-                topic=f"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}/state",
-                payload=payload_str,
-                qos=1,
-                retain=False,
-            )
-    except:
-        pass
+
+    # Boosts status
+    for boost in range(BOOSTS):
+        boost_status = get_boost(boost)
+        payload_str = "{" + f'"boost_status": "{boost_status}"' + " }"
+        mqttClient.publish(
+            topic=f"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}/state",
+            payload=payload_str,
+            qos=1,
+            retain=False,
+        )
 
 def get_updates():
     nFiles = 0
@@ -691,6 +742,7 @@ def get_sensor(sensor):
             sensor_status.append("0")
     con.close()
     return sensor_status
+
 
 # [0 - Zone Status, 1 - Traget Temp, 2 - Current Temp, 3 - Last seen, 4- Boost Status, 5 - Batt Level, 6 - Batt Voltage]
 def get_zone(zone, SC_Mode):
