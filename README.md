@@ -117,7 +117,9 @@ To install on Debian/Ubuntu:
 * sudo apt -y install git
 * sudo git clone https://github.com/pihome-shc/PiHomeHVAC.git "/var/www"
 * sudo chown -R www-data:www-data /var/www
-* cd /var/www
+* cd /var/www/prerequisites
+* sudo bash ./install.sh (accept all defaults, when asked to enter a new password for the mariadb us passw0rd)
+* cd ../
 * sudo php ./setup.php
 
 To install on ArchLinux:
@@ -125,10 +127,10 @@ To install on ArchLinux:
 * sudo pacman -S git
 * sudo git clone https://github.com/pihome-shc/PiHomeHVAC.git "/srv/http"
 * sudo chown -R http:http /srv/http
-* cd /srv/http
+* cd /srv/http/prerequisites
+* sudo bash ./install.sh (accept all defaults, when asked to enter a new password for the mariadb us passw0rd)
+* cd ../
 * sudo php ./setup.php (setup.php will create a symbolic link /var/www to /srv/http, for compatibility)
-
-### For more detailed instructiosn vist [PiHome](http://www.pihome.eu "PiHome - Smart Heating Control") website 
 
 
 ## Secial Thanks to
