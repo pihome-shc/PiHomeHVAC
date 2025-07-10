@@ -66,11 +66,12 @@ if (isset($_POST['submit'])) {
         $purge= '0';
 	$m_out_id = $_POST['m_out_id'];
 	$lag_time = $_POST['lag_time'];
+        $fail_timeout = $_POST['fail_timeout'];
 	//Add or Edit relay record to relays Table
-	$query = "INSERT INTO `relays` (`id`, `sync`, `purge`, `relay_id`, `relay_child_id`, `name`, `type`, `on_trigger`, `lag_time`, `user_display`, `state`)
-		VALUES ('{$id}', '{$sync}', '{$purge}', '{$selected_relay_id}', '{$relay_child_id}', '{$name}', '{$type}', '{$on_trigger}', '{$lag_time}', 0, 0)
+	$query = "INSERT INTO `relays` (`id`, `sync`, `purge`, `relay_id`, `relay_child_id`, `name`, `type`, `on_trigger`, `lag_time`, `user_display`, `state`, `fail_timeout`)
+		VALUES ('{$id}', '{$sync}', '{$purge}', '{$selected_relay_id}', '{$relay_child_id}', '{$name}', '{$type}', '{$on_trigger}', '{$lag_time}', 0, 0, '{$fail_timeout}')
 		ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), relay_id='{$selected_relay_id}', relay_child_id='{$relay_child_id}', name=VALUES(name),
-		type=VALUES(type), on_trigger=VALUES(on_trigger), lag_time=VALUES(lag_time);";
+		type=VALUES(type), on_trigger=VALUES(on_trigger), lag_time=VALUES(lag_time), fail_timeout=VALUES(fail_timeout);";
 	$result = $conn->query($query);
         $temp_id = mysqli_insert_id($conn);
 	if ($result) {
@@ -317,6 +318,16 @@ if (isset($_POST['submit'])) {
 							<input class="form-control" placeholder="Relay ON Lag Time" value="<?php if(isset($row['lag_time'])) { echo $row['lag_time']; } else { echo "0"; } ?>" id="lag_time" name="lag_time" data-bs-error="<?php echo $lang['relay_lag_time_help']; ?>" autocomplete="off" required>
 							<div class="help-block with-errors"></div>
 						</div>
+
+                                                <!-- Relay Fail Timout -->
+                                                        <div class="form-group" class="control-label" id="fail_timeout_label" style="display:block"><label><?php echo$lang['fail_timeout'];?></label> <small class="text-muted"><?php echo $lang['fail_timeout_info'];?></small>
+                                                        <select id="fail_timeout" name="fail_timeout" class="form-control select2" autocomplete="off">
+                                                        <?php for ($x = 0; $x <=  120; $x = $x + 10) {
+                                                                echo '<option value="'.$x.'" ' . ($x==$row['fail_timeout'] ? 'selected' : '') . '>'.$x.'</option>';
+                                                        } ?>
+                                                        </select>
+                                                        <div class="help-block with-errors"></div>
+                                                </div>
 
                                                 <br>
 						<!-- Buttons -->

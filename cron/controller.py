@@ -27,7 +27,7 @@ print("********************************************************")
 print("*              System Controller Script                *")
 print("*                                                      *")
 print("*               Build Date: 10/02/2023                 *")
-print("*       Version 0.04 - Last Modified 12/03/2025        *")
+print("*       Version 0.05 - Last Modified 02/07/2025        *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -742,6 +742,7 @@ try:
             zones = cur.fetchall()
             zones_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
             controllers_dict = {}
+            sensors_dict = {}
             for z in zones:
                 zone_status=z[zones_to_index["status"]]
                 zone_state_current = z[zones_to_index["zone_state"]]
@@ -750,6 +751,45 @@ try:
                 zone_type=z[zones_to_index["type"]]
                 zone_category = z[zones_to_index["category"]]
                 zone_max_operation_time=z[zones_to_index["max_operation_time"]]
+
+                # create an array for the sensors attached to this zone
+                cur.execute("""SELECT zone_sensors.id AS zs_id, n.id as n_id, s.sensor_child_id, s.name, s.sensor_type_id, zone_sensors.zone_sensor_id,
+                               zone_sensors.min_c, zone_sensors.max_c, zone_sensors.default_c, zone_sensors.default_m, zone_sensors.hysteresis_time, zone_sensors.sp_deadband,
+                               s.frost_controller, s.frost_temp, s.fail_timeout, s.current_val_1, s.`last_seen` AS `sensor_last_seen`,
+                               n.`type`, n.`sketch_version`, n.`last_seen` AS `node_last_seen`, n.`notice_interval`
+                               FROM zone_sensors
+                               JOIN sensors s ON zone_sensor_id = s.id
+                               JOIN nodes n ON s.sensor_id = n.id
+                               WHERE zone_sensors.zone_id = %s
+                               ORDER BY zone_sensors.id;""",
+                               (zone_id,),
+                )
+                sensors = cur.fetchall()
+                sensor_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                index = 0
+                sensors_dict[zone_id] = {}
+                for sensor in sensors:
+                    zs_id = sensor[sensor_to_index["zs_id"]]
+                    sensors_dict[zone_id][zs_id] = {}
+                    sensors_dict[zone_id][zs_id ]["sensor_id"] = sensor[sensor_to_index["zone_sensor_id"]]
+                    sensors_dict[zone_id][zs_id ]["sensor_child_id"] = sensor[sensor_to_index["sensor_child_id"]]
+                    sensors_dict[zone_id][zs_id ]["sensor_name"] = sensor[sensor_to_index["name"]]
+                    sensors_dict[zone_id][zs_id ]["sensor_type_id"] = sensor[sensor_to_index["sensor_type_id"]]
+                    sensors_dict[zone_id][zs_id ]["frost_controller"] = sensor[sensor_to_index["frost_controller"]]
+                    sensors_dict[zone_id][zs_id ]["frost_temp"] = sensor[sensor_to_index["frost_temp"]]
+                    sensors_dict[zone_id][zs_id ]["current_val_1"] = sensor[sensor_to_index["current_val_1"]]
+                    sensors_dict[zone_id][zs_id ]["min_c"] = sensor[sensor_to_index["min_c"]]
+                    sensors_dict[zone_id][zs_id ]["max_c"] = sensor[sensor_to_index["max_c"]]
+                    sensors_dict[zone_id][zs_id ]["default_c"] = sensor[sensor_to_index["default_c"]]
+                    sensors_dict[zone_id][zs_id ]["default_m"] = sensor[sensor_to_index["default_m"]]
+                    sensors_dict[zone_id][zs_id ]["hysteresis_time"] = sensor[sensor_to_index["hysteresis_time"]]
+                    sensors_dict[zone_id][zs_id ]["sp_deadband"] = sensor[sensor_to_index["sp_deadband"]]
+                    sensors_dict[zone_id][zs_id ]["sensor_last_seen"] = sensor[sensor_to_index["sensor_last_seen"]]
+                    sensors_dict[zone_id][zs_id ]["sensor_notice_interval"] = sensor[sensor_to_index["fail_timeout"]]
+                    sensors_dict[zone_id][zs_id ]["node_last_seen"] = sensor[sensor_to_index["node_last_seen"]]
+                    sensors_dict[zone_id][zs_id ]["node_notice_interval"] = sensor[sensor_to_index["notice_interval"]]
+
+                # create an array for the relays attached to this zone
                 cur.execute("""SELECT zone_relays.id AS zc_id, cid.node_id as relay_id, zr.relay_child_id, zr.on_trigger, zr.type AS relay_type_id, zone_relays.zone_relay_id,
                                zone_relays.state, zone_relays.current_state, ctype.`type`, ctype.`sketch_version`
                                FROM zone_relays
@@ -844,84 +884,94 @@ try:
 
                 # process if a sensor is attached to this zone
                 if zone_category == 0 or zone_category == 1 or zone_category == 3 or zone_category == 4 or zone_category == 5:
-                    cur.execute(
-                        """SELECT zone_sensors.*, sensors.sensor_id, sensors.sensor_child_id, sensors.name, sensors.sensor_type_id, sensors.frost_controller,
-                        sensors.frost_temp, sensors.current_val_1
-                        FROM  zone_sensors, sensors
-                        WHERE (zone_sensors.zone_sensor_id = sensors.id) AND zone_sensors.zone_id = %s LIMIT 1;""",
-                        (zone_id,),
-                    )
-                    sensor_rowcount = cur.rowcount
-                    if sensor_rowcount > 0:
-                        sensor = cur.fetchone()
-                        sensor_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                        zone_min_c = sensor[sensor_to_index["min_c"]]
-                        zone_max_c = sensor[sensor_to_index["max_c"]]
-                        zone_hysteresis_time = sensor[sensor_to_index["hysteresis_time"]]
-                        zone_sp_deadband = sensor[sensor_to_index["sp_deadband"]]
-                        zone_sensor_id = sensor[sensor_to_index["sensor_id"]]
-                        zone_sensor_child_id = sensor[sensor_to_index["sensor_child_id"]]
-                        default_c = sensor[sensor_to_index["default_c"]]
-                        sensor_type_id = sensor[sensor_to_index["sensor_type_id"]]
-                        zone_sensor_name = sensor[sensor_to_index["name"]]
-                        zone_frost_controller = sensor[sensor_to_index["frost_controller"]]
-                        zone_frost_temp = sensor[sensor_to_index["frost_temp"]]
-                        zone_maintain_default = sensor[sensor_to_index["default_m"]]
-                        zone_c = sensor[sensor_to_index["current_val_1"]]
-                        sensor_found = False
-                        # check if an MQTT type sensor
-                        cur.execute(
-                            "SELECT * FROM `mqtt_devices` WHERE nodes_id = %s AND child_id = %s LIMIT 1",
-                            (zone_sensor_id, zone_sensor_child_id),
-                        )
-                        if cur.rowcount > 0:
-                            sensor_found = True
-                            mqtt_device = cur.fetchone()
-                            mqtt_device_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                            zone_node_id = mqtt_device[mqtt_device_to_index["nodes_id"]]
-                            node_name = mqtt_device[mqtt_device_to_index["name"]]
-                            temp_reading_time = mqtt_device[mqtt_device_to_index["last_seen"]]
-                        else:
-                            cur.execute(
-                                "SELECT * FROM `nodes` WHERE id = %s AND status IS NOT NULL LIMIT 1",
-                                (zone_sensor_id,),
-                            )
+                    index = 0
+                    zone_sensors_count = len(sensors_dict[zone_id])
+                    if zone_sensors_count > 0:
+                        zone_sensor_found = True
+                        for key in sensors_dict[zone_id]:
+                            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            time_stamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
+                            interval_minutes = int(sensors_dict[zone_id][key]["sensor_notice_interval"])
+                            # Convert to Unix timestamp
+                            now_ts = time.mktime(time_stamp.timetuple())
+                            last_seen_ts = time.mktime(sensors_dict[zone_id][key]["sensor_last_seen"].timetuple())
+#                            print(d1_ts)
+                            time_delta = int(now_ts - last_seen_ts) / 60
+                            # They are now in seconds, subtract and then divide by 60 to get minutes.
+#                            print(int(d2_ts-d1_ts) / 60)
+#                            print(time_delta, interval_minutes, sensors_dict[zone_id][key]["sensor_last_seen"])
+                            if time_delta < interval_minutes or interval_minutes == 0:
+                                current_val_1 = sensors_dict[zone_id][key]["current_val_1"]
+                                zone_sensor_name = sensors_dict[zone_id][key]["sensor_name"]
+                                zone_frost_controller = sensors_dict[zone_id][key]["frost_controller"]
+                                zone_frost_temp = sensors_dict[zone_id][key]["frost_temp"]
+                                if index == 0:
+                                    zone_c = current_val_1
+                                    zone_hysteresis_time = sensor[sensor_to_index["hysteresis_time"]]
+                                    zone_sp_deadband = sensors_dict[zone_id][key]["sp_deadband"]
+                                    zone_min_c = sensors_dict[zone_id][key]["min_c"]
+                                    zone_max_c = sensors_dict[zone_id][key]["max_c"]
+                                    default_c = sensors_dict[zone_id][key]["default_c"]
+                                else:
+                                    zone_c = zone_c + current_val_1
+                                # process the frost control
+                                # check frost protection linked to this zone controller
+                                if zone_frost_controller != 0:
+                                    frost_active = 0
+                                    frost_target_c = 99
+                                    frost_sensor_c = current_val_1
+                                    if frost_sensor_c < (zone_frost_temp - zone_sp_deadband) and zone_frost_temp != 0:
+                                        frost_active = 1
+                                        #use the lowest value if multiple values
+                                        if zone_frost_temp < frost_target_c:
+                                            frost_target_c = zone_frost_temp
+                                    elif frost_sensor_c >= (frost_target_c - zone_sp_deadband) and frost_sensor_c < frost_target_c:
+                                        frost_active = 2
+                                        #use the lowest value if multiple values
+                                        if zone_frost_temp < frost_target_c:
+                                            frost_target_c = zone_frost_temp
+                                else:
+                                    frost_active = 0
+                                if dbgLevel == 1:
+                                    print("Sensor Name - " + zone_sensor_name + ", Frost Target Temperture - " + str(frost_target_c) + ", Frost Sensor Temperature - " + str(frost_sensor_c))
+                                index = index + 1
+
+                        # calculate the average zone temperature
+                        zone_c = float(zone_c / index)
+			# if more than 1 sensor attached to the zone, then create a message_in table entry for the average zone temperature
+                        if index > 1:
+                            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            time_stamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
+                            node_id = "zavg_" + str(zone_id)
+                            qry_str = "SELECT payload, datetime FROM messages_in WHERE node_id = '" + node_id + "' ORDER BY id DESC LIMIT 1;"
+                            cur.execute(qry_str)
                             if cur.rowcount > 0:
-                                sensor_found = True
-                                zone_node = cur.fetchone()
-                                zone_node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                                zone_node_id = zone_node[zone_node_to_index["node_id"]]
-                                node_name = zone_node[zone_node_to_index["name"]]
-                                temp_reading_time = zone_node[zone_node_to_index["last_seen"]]
-                        if sensor_found:
-                            #check frost protection linked to this zone controller
-                            if zone_frost_controller != 0:
-                                frost_active = 0
-                                frost_target_c = 99
-                                frost_sensor_c = zone_c
-                                if frost_sensor_c < (zone_frost_temp - zone_sp_deadband) and zone_frost_temp != 0:
-                                    frost_active = 1
-                                    #use the lowest value if multiple values
-                                    if zone_frost_temp < frost_target_c:
-                                        frost_target_c = zone_frost_temp
-                                elif frost_sensor_c >= (frost_target_c - zone_sp_deadband) and frost_sensor_c < frost_target_c:
-                                    frost_active = 2
-                                    #use the lowest value if multiple values
-                                    if zone_frost_temp < frost_target_c:
-                                        frost_target_c = zone_frost_temp
+                                row = cur.fetchone()
+                                messages_in_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                                payload = float(row[messages_in_to_index["payload"]])
+                                sensor_last_reading_time = row[messages_in_to_index["datetime"]]
+                                time_delta = (time_stamp - sensor_last_reading_time).seconds
                             else:
-                                frost_active = 0
-                            if dbgLevel == 1:
-                                print("Sensor Name - " + zone_sensor_name + ", Frost Target Temperture - " + str(frost_target_c) + ", Frost Sensor Temperature - " + str(frost_sensor_c))
-                        else:
-                            zone_c = None;
-                            temp_reading_time = None;
-                            frost_active = 0
+                                payload = - 999
+                                sensor_last_reading_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                time_delta = 0
+                            # only add chenged values or if no update has occured 10 minutes
+                            if zone_c != payload or time_delta > 600:
+                                cur.execute(
+                                    "INSERT INTO `messages_in`(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s)",
+                                    (0, 0, "zavg_" + str(zone_id), 0, 0, zone_c, timestamp),
+                                )
+                                con.commit()
+                    else:
+                        zone_sensor_found = False
+                        zone_c = None;
+                        temp_reading_time = None;
+                        frost_active = 0
                 else:
                     zone_frost_controller = 0
 
                 #only process active zones with a sensor or a category 2 type zone
-                if zone_status == 1 and (sensor_rowcount != 0 or zone_category == 2):
+                if zone_status == 1 and (zone_sensor_found or zone_category == 2):
                     rval = get_schedule_status(
                         zone_id,
                         holidays_status,
@@ -1375,38 +1425,19 @@ try:
                         else:
                             hysteresis = 0
 
-                        # check if an MQTT type sensor
-                        sensor_found = False
-                        cur.execute(
-                            "SELECT * FROM `mqtt_devices` WHERE nodes_id = %s AND child_id = %s LIMIT 1",
-                            (zone_sensor_id, zone_sensor_child_id),
-                        )
-                        if cur.rowcount > 0:
-                            sensor_found = True
-                            mqtt_device = cur.fetchone()
-                            mqtt_device_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                            #sensor_seen_time = node[node_to_index['last_seen']] #not using this cause it updates on battery update
-                            sensor_notice = mqtt_device[mqtt_device_to_index['notice_interval']]
-                        else:
-                            #Check sensor notice interval and notice logic
-                            cur.execute(
-                                "SELECT * FROM nodes WHERE id =%s AND status IS NOT NULL LIMIT 1;",
-                                (zone_sensor_id,),
-                            )
-                            if cur.rowcount > 0:
-                                sensor_found = True
-                                node = cur.fetchone()
-                                node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                                #sensor_seen_time = node[node_to_index['last_seen']] #not using this cause it updates on battery update
-                                sensor_notice = node[node_to_index['notice_interval']]
-                        if sensor_found:
-                            if sensor_notice > 0 and temp_reading_time is not None and settings_dict["test_mode"] != 3:
-                                sensor_seen_time = temp_reading_time #using time from messages_in
-                                if sensor_seen_time <  time_stamp + datetime.timedelta(minutes =- sensor_notice):
-                                    zone_fault = 1
-                                    zone_sensor_fault = 1
-                                    if dbgLevel >= 2:
-                                        print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Temperature sensor communication timeout for This Zone. Last temperature reading: " + str(temp_reading_time))
+                        # check if any sensors attached to this zone have not reported
+                        if zone_sensor_found:
+                            for key in sensors_dict[zone_id]:
+                                sensor_name = sensors_dict[zone_id][key]["sensor_name"]
+                                sensor_notice = sensors_dict[zone_id][key]["sensor_notice_interval"]
+                                temp_reading_time = sensors_dict[zone_id][key]["sensor_last_seen"]
+                                if sensor_notice > 0 and temp_reading_time is not None and settings_dict["test_mode"] != 3:
+                                    sensor_seen_time = temp_reading_time #using time from messages_in
+                                    if sensor_seen_time <  time_stamp + datetime.timedelta(minutes =- sensor_notice):
+                                        zone_fault = 1
+                                        zone_sensor_fault = 1
+                                        if dbgLevel >= 2:
+                                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - " + str(sensor_name) + " Temperature sensor communication timeout for This Zone. Last temperature reading: " + str(temp_reading_time))
 
                         #Check system controller notice interval and notice logic
                         if heat_relay_notice > 0:
@@ -2280,21 +2311,31 @@ try:
                     if zone_category == 1:
                         if dbgLevel >= 2:
                             print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Mode     " + bc.red + str(zone_mode) + bc.ENDC)
-                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Sensor Reading     " + bc.red + str(int(zone_c)) + bc.ENDC)
+                            if zone_sensors_count > 1:
+                                sensor_index = 1
+                                for key in sensors_dict[zone_id]:
+                                    print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Sensor(" + str(sensor_index) + ") Reading       " + bc.red + str(sensors_dict[zone_id][key]["current_val_1"]) + bc.ENDC)
+                                    sensor_index = sensor_index + 1
+                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Control Temperature     " + bc.red + str(int(zone_c)) + bc.ENDC)
                     elif zone_category == 2:
                         if dbgLevel >= 2:
                             print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Mode     " + bc.red + str(zone_mode) + bc.ENDC)
                     else:
                         if dbgLevel >= 2:
                             print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Mode     " + bc.red + str(zone_mode) + bc.ENDC)
-                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Sensor Reading     " + bc.red + str(zone_c) + bc.ENDC)
-                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Weather Factor     " + bc.red + str(weather_fact) + bc.ENDC)
-                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: DeadBand           " + bc.red + str(zone_sp_deadband) + bc.ENDC)
+                            if zone_sensors_count > 1:
+                                sensor_index = 1
+                                for key in sensors_dict[zone_id]:
+                                    print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Sensor(" + str(sensor_index) + ") Reading       " + bc.red + str(sensors_dict[zone_id][key]["current_val_1"]) + bc.ENDC)
+                                    sensor_index = sensor_index + 1
+                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Control Temperature     " + bc.red + str(zone_c) + bc.ENDC)
+                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Weather Factor          " + bc.red + str(weather_fact) + bc.ENDC)
+                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: DeadBand                " + bc.red + str(zone_sp_deadband) + bc.ENDC)
                             if zone_category == 5:
-                                print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Cut In Temperature        " + bc.red + str(temp_cut_out_rising) + bc.ENDC)
+                                print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Cut In Temperature      " + bc.red + str(temp_cut_out_rising) + bc.ENDC)
                             else:
-                                print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Cut In Temperature        " + bc.red + str(temp_cut_out_falling) + bc.ENDC)
-                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Cut Out Temperature       " + bc.red + str(temp_cut_out) + bc.ENDC)
+                                print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Cut In Temperature      " + bc.red + str(temp_cut_out_falling) + bc.ENDC)
+                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Cut Out Temperature     " + bc.red + str(temp_cut_out) + bc.ENDC)
 
                     for key in controllers_dict[zone_id]:
                         zone_controler_id = controllers_dict[zone_id][key]["controler_id"]

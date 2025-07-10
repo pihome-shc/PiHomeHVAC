@@ -279,26 +279,39 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
 						if ($sch_status == 1) { $active_schedule = 1; }
 
 						//get the sensor id
-			        	        $query = "SELECT * FROM sensors WHERE zone_id = '{$zone_id}' LIMIT 1;";
-        			        	$result = $conn->query($query);
-			                	$sensor = mysqli_fetch_array($result);
-		        		        $temperature_sensor_id=$sensor['sensor_id'];
-			                	$temperature_sensor_child_id=$sensor['sensor_child_id'];
-                			        $sensor_type_id=$sensor['sensor_type_id'];
-		                	        $ajax_modal_24h = "ajax.php?Ajax=GetModal_Sensor_Graph,".$sensor['id'].",0";
-                		        	$ajax_modal_1h = "ajax.php?Ajax=GetModal_Sensor_Graph,".$sensor['id'].",1";
-
-						//get the node id
-        	        			$query = "SELECT node_id FROM nodes WHERE id = '{$temperature_sensor_id}' LIMIT 1;";
-			                	$result = $conn->query($query);
-                				$nodes = mysqli_fetch_array($result);
-		                		$zone_node_id=$nodes['node_id'];
+//			        	        $query = "SELECT * FROM sensors WHERE zone_id = '{$zone_id}';";
+        					$query = "SELECT * FROM `sensors` WHERE (now() < DATE_ADD(`last_seen`, INTERVAL `fail_timeout` MINUTE) OR `fail_timeout` = 0) AND zone_id = '{$zone_id}';";
+        			        	$sresults = $conn->query($query);
+                                                $sensor_count = mysqli_num_rows($sresults);
+						// multiple rows if a zone using multiple sensors
+						$zone_c = 0;
+                                                while ($srow = mysqli_fetch_assoc($sresults)) {
+                                                        $s_id = $srow['id'];
+                                                        $sensor_id = $srow['sensor_id'];
+                                                        $sensor_child_id = $srow['sensor_child_id'];
+                                                        $sensor_type_id = $srow['sensor_type_id'];
+							$zone_c = $zone_c + $srow['current_val_1'];
+                                                }
+						$zone_c = $zone_c / $sensor_count;
+						// if average zone temperature, then set chilf id to zero, for getting readings from the messages_in table
+						if ($sensor_count > 1) {
+							$zone_node_id = "zavg_".$zone_id; 
+                                                        $sensor_child_id = 0;
+						} else {
+							//get the node id
+        		        			$query = "SELECT node_id FROM nodes WHERE id = '{$sensor_id}' LIMIT 1;";
+				                	$result = $conn->query($query);
+                					$nodes = mysqli_fetch_array($result);
+		                			$zone_node_id = $nodes['node_id'];
+						}
+                                              	$ajax_modal_24h = "ajax.php?Ajax=GetModal_Sensor_Graph,".$s_id.",0";
+                                              	$ajax_modal_1h = "ajax.php?Ajax=GetModal_Sensor_Graph,".$s_id.",1";
 
 						//query to get temperature from messages_in_view_24h table view
-			                        $query = "SELECT * FROM messages_in WHERE node_id = '{$zone_node_id}' AND child_id = '{$temperature_sensor_child_id}' ORDER BY id desc LIMIT 1;";
-						$result = $conn->query($query);
-						$sensor = mysqli_fetch_array($result);
-						$zone_c = $sensor['payload'];
+//			                        $query = "SELECT * FROM messages_in WHERE node_id = '{$zone_node_id}' AND child_id = '{$sensor_child_id}' ORDER BY id desc LIMIT 1;";
+//						$mresult = $conn->query($query);
+//						$m_in = mysqli_fetch_array($mresult);
+//						$zone_c = $m_in['payload'];
 						//Zone Main Mode
 					/*	0 - idle
 						10 - fault
@@ -336,6 +349,9 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
 							if ($zone_c == 0) { echo '<h3 class="degre" id="zd_'.$zone_id.'">OFF</h3>'; } else { echo '<h3 class="degre" id="zd_'.$zone_id.'">ON</h3>'; }
 						} else {
 							$unit = SensorUnits($conn,$sensor_type_id);
+                                                        if ($sensor_count > 1) { // add symbol to indicate that this is an average reading
+                                                                $unit = $unit .$lang['mean'];
+                                                        }
         		                		echo '<h3 class="degre" id="zd_'.$zone_id.'">'.number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit.'</h3>';
 						}
 						echo '<h3 class="status">';

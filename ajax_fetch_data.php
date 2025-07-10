@@ -115,13 +115,17 @@ if ($type <= 5) {
 	}
 
 	//get the sensor id
-	$query = "SELECT * FROM sensors WHERE zone_id = '{$id}' LIMIT 1;";
-	$result = $conn->query($query);
-	$sensor = mysqli_fetch_array($result);
-	$temperature_sensor_id=$sensor['sensor_id'];
-	$temperature_sensor_child_id=$sensor['sensor_child_id'];
-	$sensor_type_id=$sensor['sensor_type_id'];
-	$zone_c = $sensor['current_val_1'];
+//	$query = "SELECT * FROM sensors WHERE zone_id = '{$id}';";
+	$query = "SELECT * FROM `sensors` WHERE (now() < DATE_ADD(`last_seen`, INTERVAL `fail_timeout` MINUTE) OR `fail_timeout` = 0) AND zone_id = '{$id}';";
+	$sresults = $conn->query($query);
+        $sensor_count = mysqli_num_rows($sresults);
+	$zone_c = 0;
+        while ($srow = mysqli_fetch_assoc($sresults)) {
+		$sensor_id = $srow['sensor_id'];
+                $sensor_type_id = $srow['sensor_type_id'];
+		$zone_c = $zone_c + $srow['current_val_1'];
+	}
+	$zone_c = $zone_c/$sensor_count;
 	//Zone Main Mode
 	/*	0 - idle
 		10 - fault
@@ -180,6 +184,9 @@ if ($type <= 5) {
                         if ($zone_category != 2) {
 				if ($sensor_type_id != 3) {
                                 	$unit = SensorUnits($conn,$sensor_type_id);
+					if ($sensor_count > 1) { // add symbol to indicate that this is an average reading
+						$unit = $unit . $lang['mean'];
+					}
                                		 echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit;
                         	} else {
                                 	if ($add_on_active == 0) { echo 'OFF'; } else { echo 'ON'; }
