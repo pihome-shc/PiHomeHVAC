@@ -940,8 +940,6 @@ try:
                         zone_c = float(zone_c / index)
 			# if more than 1 sensor attached to the zone, then create a message_in table entry for the average zone temperature
                         if index > 1:
-                            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                            time_stamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
                             node_id = "zavg_" + str(zone_id)
                             qry_str = "SELECT payload, datetime FROM messages_in WHERE node_id = '" + node_id + "' ORDER BY id DESC LIMIT 1;"
                             cur.execute(qry_str)
@@ -949,14 +947,18 @@ try:
                                 row = cur.fetchone()
                                 messages_in_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
                                 payload = float(row[messages_in_to_index["payload"]])
-                                sensor_last_reading_time = row[messages_in_to_index["datetime"]]
-                                time_delta = (time_stamp - sensor_last_reading_time).seconds
+                                timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                time_stamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
+                                # Convert to Unix timestamp
+                                now_ts = time.mktime(time_stamp.timetuple())
+                                last_seen_ts = time.mktime(row[messages_in_to_index["datetime"]].timetuple())
+                                time_delta = int(now_ts - last_seen_ts) / 60
                             else:
                                 payload = - 999
                                 sensor_last_reading_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                                 time_delta = 0
                             # only add chenged values or if no update has occured 10 minutes
-                            if zone_c != payload or time_delta > 600:
+                            if zone_c != payload or time_delta > 10:
                                 cur.execute(
                                     "INSERT INTO `messages_in`(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s)",
                                     (0, 0, "zavg_" + str(zone_id), 0, 0, zone_c, timestamp),
