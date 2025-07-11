@@ -4140,6 +4140,8 @@ echo '
                         	<li><a class="dropdown-item" href="pdf_download.php?file=switch_zone_state_control.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['switch_zone_state_control'].'</a></li>
                                 <li class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="pdf_download.php?file=negative_gradient_zone.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['negative_gradient_zone'].'</a></li>
+                                <li class="dropdown-divider"></li>
+				<li><a class="dropdown-item" href="pdf_download.php?file=setup_guide_multiple_sensors.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_guide_multiple_sensors'].'</a></li>
                         </ul>
                 </div>
             </div>
