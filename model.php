@@ -4714,6 +4714,8 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
 				<li><a class="dropdown-item" href="pdf_download.php?file=setup_guide_sensors.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_guide_sensors'].'</a></li>
                                 <li class="dropdown-divider"></li>
 				<li><a class="dropdown-item" href="pdf_download.php?file=setup_sensor_notifications.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_sensor_notifications'].'</a></li>
+                                <li class="dropdown-divider"></li>
+				<li><a class="dropdown-item" href="pdf_download.php?file=setup_guide_multiple_sensors.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_guide_multiple_sensors'].'</a></li>
                     	</ul>
                 </div>
             </div>
