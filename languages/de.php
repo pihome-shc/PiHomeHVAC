@@ -1067,4 +1067,5 @@ $lang['fail_timeout_info'] = "Maximum interval in Minutes before the device is c
 $lang['attached_sensors'] = "Attached Sensors";
 $lang['attached_sensors_info'] = "Green - has not exceeded timeout or no timeout set<br>Red - Exceeded set timeout";
 $lang['average_temperature'] = "Average Temperature";
+$lang['setup_guide_multiple_sensors'] = "Setup Zones with Multiple Sensors";
 ?>
