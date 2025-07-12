@@ -936,7 +936,7 @@ $(document).ready(function(){
 
             for (var y = 0; y < obj2.length; y++) {
               if (obj2[y].button_function == "live_temp") {
-                $('#load_temp').load("ajax_fetch_data.php?id=" + live_temp_zone_id + "&type=1").fadeIn("slow");
+                $('#load_temp').load("ajax_fetch_data.php?id=" + live_temp_zone_id + "&type=38").fadeIn("slow");
               }
               $('#bs1_' + obj2[y].button_id).load("ajax_fetch_data.php?id=" + obj2[y].button_id + "&type=11").fadeIn("slow");
               $('#bs2_' + obj2[y].button_id).load("ajax_fetch_data.php?id=" + obj2[y].button_id + "&type=12").fadeIn("slow");
