@@ -77,7 +77,7 @@ if ($rowcount > 0) {
         $holidays_status = 0;
 }
 
-if ($type <= 5) {
+if ($type <= 5 || $type == 38) {
 	//---------------
 	//process  zones
 	//---------------
@@ -126,6 +126,7 @@ if ($type <= 5) {
 		$zone_c = $zone_c + $srow['current_val_1'];
 	}
 	$zone_c = $zone_c/$sensor_count;
+	$unit = SensorUnits($conn,$sensor_type_id);
 	//Zone Main Mode
 	/*	0 - idle
 		10 - fault
@@ -183,11 +184,11 @@ if ($type <= 5) {
                 case 1:
                         if ($zone_category != 2) {
 				if ($sensor_type_id != 3) {
-                                	$unit = SensorUnits($conn,$sensor_type_id);
 					if ($sensor_count > 1) { // add symbol to indicate that this is an average reading
-						$unit = $unit . $lang['mean'];
+						echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit.$lang['mean'];
+					} else {
+                               		 	echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit;
 					}
-                               		 echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit;
                         	} else {
                                 	if ($add_on_active == 0) { echo 'OFF'; } else { echo 'ON'; }
 				}
@@ -207,6 +208,10 @@ if ($type <= 5) {
 	        case 5:
         	        if($overrun == 1) { echo '<i class="bi bi-play-fill orange-red">'; }
                 	break;
+		// livetemp
+		case 38:
+			echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit;
+			break;
 	        default:
 	}
 } elseif ($type == 6 || $type == 7 || $type == 8)  {
