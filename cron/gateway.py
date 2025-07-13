@@ -2254,8 +2254,8 @@ def on_message(client, userdata, message):
                         mqtt_payload = mqtt_payload + correction_factor
                         # Update last reading for this sensor
                         cur_mqtt.execute(
-                            "UPDATE `sensors` SET `current_val_1` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
-                            [mqtt_payload, sensors_id, mqtt_child_sensor_id],
+                            "UPDATE `sensors` SET `current_val_1` = %s, `last_seen` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
+                            [mqtt_payload, timestamp, sensors_id, mqtt_child_sensor_id],
                         )
                         con_mqtt.commit()
                         # Check is sensor is attached to a zone which is being graphed
