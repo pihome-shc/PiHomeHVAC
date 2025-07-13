@@ -738,8 +738,8 @@ def process_message(in_str):
                     resolution = float(results[sensor_to_index["resolution"]])
                     # Update last reading for this sensor
                     cur.execute(
-                        "UPDATE `sensors` SET `current_val_1` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
-                        [payload, sensor_id, child_sensor_id],
+                        "UPDATE `sensors` SET `current_val_1` = %s, `last_seen` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
+                        [payload, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), sensor_id, child_sensor_id],
                     )
                     con.commit()
                     # # Check is sensor is attached to a zone which is being graphed
@@ -942,8 +942,8 @@ def process_message(in_str):
                     n_id = int(results[sensor_to_index["n_id"]])
                     # Update last reading for this sensor
                     cur.execute(
-                        "UPDATE `sensors` SET `current_val_1` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
-                        [payload, n_id, child_sensor_id],
+                        "UPDATE `sensors` SET `current_val_1` = %s, `last_seen` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
+                        [payload, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), n_id, child_sensor_id],
                     )
                     con.commit()
                     # type = results[zone_view_to_index['type']]
@@ -1064,8 +1064,8 @@ def process_message(in_str):
                     sensor_id = int(result[node_to_index["id"]])
                     # Update last reading for this sensor
                     cur.execute(
-                        "UPDATE `sensors` SET `current_val_1` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
-                        [payload, sensor_id, child_sensor_id],
+                        "UPDATE `sensors` SET `current_val_1` = %s `last_seen` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
+                        [payload, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), sensor_id, child_sensor_id],
                     )
                     con.commit()
 
@@ -2255,7 +2255,7 @@ def on_message(client, userdata, message):
                         # Update last reading for this sensor
                         cur_mqtt.execute(
                             "UPDATE `sensors` SET `current_val_1` = %s, `last_seen` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
-                            [mqtt_payload, timestamp, sensors_id, mqtt_child_sensor_id],
+                            [mqtt_payload, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), sensors_id, mqtt_child_sensor_id],
                         )
                         con_mqtt.commit()
                         # Check is sensor is attached to a zone which is being graphed
