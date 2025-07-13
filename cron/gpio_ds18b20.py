@@ -146,8 +146,8 @@ def insertDB(IDs, temperature):
                 resolution = float(results[sensor_to_index["resolution"]])
                 # Update last reading for this sensor
                 cur.execute(
-                    "UPDATE `sensors` SET `current_val_1` = %s WHERE sensor_id = %s AND sensor_child_id = 0",
-                    [payload, sensor_id],
+                    "UPDATE `sensors` SET `current_val_1` = %s, `last_seen` = %s WHERE sensor_id = %s AND sensor_child_id = 0",
+                    [payload, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), sensor_id],
                 )
                 con.commit()
 
