@@ -3529,8 +3529,8 @@ echo '
 				}
 			echo '</div>
 			<!-- /.modal-body -->
-        	   	<div class="modal-footer">
-				<button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>';
+        	   	<div class="modal-footer">';
+				if ($brow['heat_relay_id'] != 0) { echo'<button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>'; }
 				if ($ncount > 0) { echo '<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="system_controller_settings('.(settings($conn, 'mode') & 0b1).')">'; }
 
             		echo '</div>
