@@ -448,42 +448,23 @@ try:
             min = i[sensor_to_index['min']]
             max = i[sensor_to_index['max']]
             # get the sensor node and child id
-            query = ("SELECT name, sensor_id, sensor_child_id FROM sensors WHERE id = '" + sensors_id + "' LIMIT 1")
+            query = ("SELECT name, sensor_id, sensor_child_id, current_val_1 FROM sensors WHERE id = '" + sensors_id + "' LIMIT 1")
             cursorsel = con.cursor()
             cursorsel.execute(query)
-            name_to_index = dict(
-                (d[0], i)
-                for i, d
-                in enumerate(cursorsel.description)
-            )
-            result = cursorsel.fetchone()
-            cursorsel.close()
-            name = result[name_to_index['name']]
-            sensor_id = result[name_to_index['sensor_id']]
-            sensor_id = str(sensor_id)
-            sensor_child_id = result[name_to_index['sensor_child_id']]
-            sensor_child_id = str(sensor_child_id)
-            # get the node id for this sensor
-            query = ("SELECT node_id FROM nodes WHERE id = '" + sensor_id + "' LIMIT 1")
-            cursorsel = con.cursor()
-            cursorsel.execute(query)
-            node_to_index = dict(
-                (d[0], i)
-                for i, d
-                in enumerate(cursorsel.description)
-            )
-            result = cursorsel.fetchone()
-            cursorsel.close()
-            node_id = result[node_to_index['node_id']]
-            node_id = str(node_id)
-            # get last temperature for this sensor
-            query = ("SELECT payload FROM messages_in_view_24h WHERE node_id = '" + node_id + "' AND child_id = '" + sensor_child_id + "' LIMIT 1;")
-            cursorsel = con.cursor()
-            cursorsel.execute(query)
-            result = cursorsel.fetchone()
-            cursorsel.close()
-            if cursorsel.rowcount > 0: # check if we have any data for this sensor
-                sensor_temp = result[0]
+            if cursorsel.rowcount > 0:
+                name_to_index = dict(
+                    (d[0], i)
+                    for i, d
+                    in enumerate(cursorsel.description)
+                )
+                result = cursorsel.fetchone()
+                cursorsel.close()
+                name = result[name_to_index['name']]
+                sensor_id = result[name_to_index['sensor_id']]
+                sensor_id = str(sensor_id)
+                sensor_child_id = result[name_to_index['sensor_child_id']]
+                sensor_child_id = str(sensor_child_id)
+                sensor_temp = result[name_to_index['current_val_1']]
                 if sensor_temp < min or sensor_temp > max:
                     if sensor_temp < min:
                         message = "Sensor - " + name + " is Below Minimum Limit"
