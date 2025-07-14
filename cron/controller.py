@@ -937,7 +937,8 @@ try:
                                 index = index + 1
 
                         # calculate the average zone temperature
-                        zone_c = float(zone_c / index)
+                        if index > 0:
+                            zone_c = float(zone_c / index)
 			# if more than 1 sensor attached to the zone, then create a message_in table entry for the average zone temperature
                         if index > 1:
                             node_id = "zavg_" + str(zone_id)
@@ -1429,6 +1430,7 @@ try:
 
                         # check if any sensors attached to this zone have not reported
                         if zone_sensor_found:
+                            z_sensor_fault = 0
                             for key in sensors_dict[zone_id]:
                                 sensor_name = sensors_dict[zone_id][key]["sensor_name"]
                                 sensor_notice = sensors_dict[zone_id][key]["sensor_notice_interval"]
@@ -1437,9 +1439,14 @@ try:
                                     sensor_seen_time = temp_reading_time #using time from messages_in
                                     if sensor_seen_time <  time_stamp + datetime.timedelta(minutes =- sensor_notice):
                                         zone_fault = 1
-                                        zone_sensor_fault = 1
+                                        z_sensor_fault = z_sensor_fault + 1
                                         if dbgLevel >= 2:
                                             print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - " + str(sensor_name) + " Temperature sensor communication timeout for This Zone. Last temperature reading: " + str(temp_reading_time))
+                            #Set zone_sensor_fault only if ALL sensors fail
+                            if z_sensor_fault == len(sensors_dict[zone_id]):
+                                zone_sensor_fault = 1
+                            else:
+                                zone_sensor_fault = 0
 
                         #Check system controller notice interval and notice logic
                         if heat_relay_notice > 0:
