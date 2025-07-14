@@ -1438,15 +1438,16 @@ try:
                                 if sensor_notice > 0 and temp_reading_time is not None and settings_dict["test_mode"] != 3:
                                     sensor_seen_time = temp_reading_time #using time from messages_in
                                     if sensor_seen_time <  time_stamp + datetime.timedelta(minutes =- sensor_notice):
-                                        zone_fault = 1
                                         z_sensor_fault = z_sensor_fault + 1
                                         if dbgLevel >= 2:
                                             print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - " + str(sensor_name) + " Temperature sensor communication timeout for This Zone. Last temperature reading: " + str(temp_reading_time))
                             #Set zone_sensor_fault only if ALL sensors fail
                             if z_sensor_fault == len(sensors_dict[zone_id]):
                                 zone_sensor_fault = 1
+                                zone_fault = 1
                             else:
                                 zone_sensor_fault = 0
+                                zone_fault = 0
 
                         #Check system controller notice interval and notice logic
                         if heat_relay_notice > 0:
