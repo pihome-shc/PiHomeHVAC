@@ -84,7 +84,7 @@ if (isset($_POST['submit'])) {
 		$error = "<p>".$lang['sensor_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
 	}
 	$message_success .= "<p>".$lang['do_not_refresh']."</p>";
-	header("Refresh: 10; url=home.php");
+	header("Refresh: 10; url=home.php?page_name=onetouch");
 	// After update on all required tables, set $id to mysqli_insert_id.
 	if ($id==0){$id=$temp_id;}
 }
