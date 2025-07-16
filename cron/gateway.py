@@ -2025,9 +2025,10 @@ def on_message(client, userdata, message):
         else:
             mqtt_msgcount = 0
             clear_hour_timer = True
+        message_str = message.payload.decode()
         print("\nMQTT messaged received.")
         print("Topic: %s" % message.topic)
-        print("Message: %s" % message.payload.decode())
+        print("Message: %s" % message_str)
         cur_mqtt.execute(
             """SELECT `nodes`.id, `nodes`.node_id, `mqtt_devices`.id AS mqtt_id, `mqtt_devices`.child_id, `mqtt_devices`.attribute, `mqtt_devices`.min_value
                FROM `mqtt_devices`, `nodes`
@@ -2233,7 +2234,8 @@ def on_message(client, userdata, message):
                         str_attribute = attribute.split(".")[1]
                     else:
                         str_attribute = attribute
-                if mqtt_payload is not None:
+                message_str_json = json.loads(message_str)
+                if "Temperature" in message_str_json and "Humidity" in message_str_json and "DewPoint" in message_str_json and message_str_json['DewPoint'] is not None and mqtt_payload is not None or "DewPoint" not in message_str_json:
                     # Get reading type (continous or on-change)
                     cur_mqtt.execute(
                         'SELECT sensor_type_id, mode, timeout, correction_factor, resolution FROM sensors WHERE sensor_id = %s AND sensor_child_id = %s LIMIT 1;',
