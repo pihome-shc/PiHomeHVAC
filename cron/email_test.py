@@ -114,7 +114,7 @@ if send_status:
                 server = smtplib.SMTP_SSL(HOST, PORT)
             else :
                 server = smtplib.SMTP(HOST, PORT)
-            #server.set_debuglevel(1)
+            server.set_debuglevel(1)
             server.login(USER, PASS)
             server.sendmail(FROM, TO, msg.as_string())
             server.quit()
