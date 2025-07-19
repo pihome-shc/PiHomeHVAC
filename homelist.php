@@ -283,6 +283,13 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
         					$query = "SELECT * FROM `sensors` WHERE (now() < DATE_ADD(`last_seen`, INTERVAL `fail_timeout` MINUTE) OR `fail_timeout` = 0) AND zone_id = '{$zone_id}';";
         			        	$sresults = $conn->query($query);
                                                 $sensor_count = mysqli_num_rows($sresults);
+                                                // catch startup condition where the sensors have not yet been read
+                                                $sensor_count = mysqli_num_rows($sresults);
+                                                if ($sensor_count == 0) {
+                                                        $query = "SELECT * FROM `sensors` WHERE zone_id = '{$zone_id}';";
+                                                        $sresults = $conn->query($query);
+                                                        $sensor_count = mysqli_num_rows($sresults);
+                                                }
 						// multiple rows if a zone using multiple sensors
 						$zone_c = 0;
                                                 while ($srow = mysqli_fetch_assoc($sresults)) {
