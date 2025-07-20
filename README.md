@@ -1,6 +1,6 @@
 # MaxAir - Smart Thermostat
 
-### Note: Now at Version 3.07.
+### Note: Now at Version 3.08.
 
 The previous version, PiHome, was centered around the creation of zones, this version is more centered around devices.
 
@@ -60,6 +60,8 @@ Version 3.05 Changes to ESP32-ETH01 Gateway Controller sketch to only write upda
 Version 3.06 Remove dependancy on paho-mqtt Version 1.5. Changes to Multi-Controller sketch.
 
 Version 3.07 Adds support zones with multiple sensors, using average sensor temperature reading. Update to Bootstrap Version 3.5.7.
+
+Version 3.08 Change to Notification EMail to add timestamps.
 
 ## Setup:
 
