@@ -822,8 +822,9 @@ if send_status:
         results = cursorselect.fetchall()
         cursorselect.close()
         if cursorselect.rowcount > 0:
+            MESSAGE = MESSAGE + "Message Sent - " + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + "\n\n"
             for i in results:
-                MESSAGE = MESSAGE + i[name_to_index['message']] + "\n"
+                MESSAGE = MESSAGE + (i[name_to_index['datetime']].strftime("%Y-%m-%d %H:%M:%S")) + " - " + i[name_to_index['message']] + "\n\n"
 
     except mdb.Error as e:
         print("Error %d: %s" % (e.args[0], e.args[1]))
