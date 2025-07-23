@@ -118,7 +118,13 @@ if ($type <= 5 || $type == 38) {
 //	$query = "SELECT * FROM sensors WHERE zone_id = '{$id}';";
 	$query = "SELECT * FROM `sensors` WHERE (now() < DATE_ADD(`last_seen`, INTERVAL `fail_timeout` MINUTE) OR `fail_timeout` = 0) AND zone_id = '{$id}';";
 	$sresults = $conn->query($query);
+        // catch startup condition where the sensors have not yet been read
         $sensor_count = mysqli_num_rows($sresults);
+        if ($sensor_count == 0) {
+                $query = "SELECT * FROM `sensors` WHERE zone_id = '{$zone_id}';";
+                $sresults = $conn->query($query);
+                $sensor_count = mysqli_num_rows($sresults);
+        }
 	$zone_c = 0;
         while ($srow = mysqli_fetch_assoc($sresults)) {
 		$sensor_id = $srow['sensor_id'];
