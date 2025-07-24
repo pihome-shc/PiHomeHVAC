@@ -481,7 +481,8 @@ if (isset($_POST['submit'])) {
 //        	$rowzonesensors = mysqli_fetch_assoc($result);
                 $index = 0;
                 while ($srow = mysqli_fetch_assoc($sresult)) {
-                        $zone_sensors[$index] = array('sensor_id' =>$srow['sensor_id'], 'sensor_child_id' =>$srow['sensor_child_id'],'zone_sensor_id' =>$srow['zone_sensor_id'], 'zone_sensor_name' =>$srow['name'], 'type' =>$srow['sensor_type_id']);
+//                        $zone_sensors[$index] = array('sensor_id' =>$srow['sensor_id'], 'sensor_child_id' =>$srow['sensor_child_id'],'zone_sensor_id' =>$srow['zone_sensor_id'], 'zone_sensor_name' =>$srow['name'], 'type' =>$srow['sensor_type_id']);
+                        $zone_sensors[$index] = array('sensor_id' =>$srow['sensor_id'], 'sensor_child_id' =>$srow['sensor_child_id'],'zone_sensor_id' =>$srow['zone_sensor_id'],'zone_sensor_name' =>$srow['name'], 'type' =>$srow['sensor_type_id'], 'min_c' =>$srow['min_c'], 'max_c' =>$srow['max_c'], 'default_c' =>$srow['default_c'],'default_m' =>$srow['default_m'], 'hysteresis_time' =>$srow['hysteresis_time'], 'sp_deadband' =>$srow['sp_deadband']);
                         $index = $index + 1;
                 }
                 $sensor_count = $index;
@@ -583,7 +584,7 @@ $count_num_sensors =count($sensorArray);
 						</div>
 
                                                 <!-- Sensor Type -->
-                                                <input type="hidden" id="selected_sensor_type_id" name="selected_sensor_type_id" value="<?php if(isset($rowzonesensors['sensor_type_id'])) { echo $rowzonesensors['sensor_type_id']; } else {echo "1";} ?>"/>
+                                                <input type="hidden" id="selected_sensor_type_id" name="selected_sensor_type_id" value="<?php if(isset($zone_sensors[0]['sensor_type_id'])) { echo $zone_sensors[0]['sensor_type_id']; } else {echo "1";} ?>"/>
                                                 <div class="form-group" class="control-label" id="sen_type" style="display:block"><label id="sen_type_label_1"><?php echo $lang['sensor_type']; ?></label> <small class="text-muted" id="sen_type_label_2"><?php echo $lang['sensor_type_info'];?></small>
 							<select name="sen_type" id="sen_type" onchange="page_map('', this.options[this.selectedIndex].value)" class="form-select" autocomplete="off" required>
                                                                 <?php
@@ -843,7 +844,7 @@ $count_num_sensors =count($sensorArray);
 						<input type="hidden" id="default_h_label_text" name="default_h_label_text" value="<?php echo $lang['default_humidity']; ?>"/>
 						<input type="hidden" id="default_h_label_info" name="default_h_label_info" value="<?php echo $lang['zone_default_humidity_info']; ?>"/>
 						<div class="form-group" class="control-label" style="display:block"><label id="default_c_label_1"><?php echo $lang['default_temperature']; ?></label> <small class="text-muted" id="default_c_label_2"><?php echo $lang['zone_default_temperature_info'];?></small>
-							<input class="form-control" placeholder="<?php echo $lang['zone_default_temperature_help']; ?>" value="<?php if(isset($rowzonesensors['default_c'])) { echo DispSensor($conn,$rowzonesensors['default_c'],$rowzonesensors['sensor_type_id']); } else {echo DispSensor($conn,'25',$rowzonesensors['sensor_type_id']);}  ?>" id="default_c" name="default_c" data-bs-error="<?php echo $lang['zone_default_temperature_error']; ?>"  autocomplete="off" required>
+							<input class="form-control" placeholder="<?php echo $lang['zone_default_temperature_help']; ?>" value="<?php if(isset($zone_sensors[0]['default_c'])) { echo DispSensor($conn,$zone_sensors[0]['default_c'],$zone_sensors[0]['sensor_type_id']); } else {echo DispSensor($conn,'25',$zone_sensors[0]['sensor_type_id']);}  ?>" id="default_c" name="default_c" data-bs-error="<?php echo $lang['zone_default_temperature_error']; ?>"  autocomplete="off" required>
 							<div class="help-block with-errors"></div>
 						</div>
 
@@ -852,8 +853,8 @@ $count_num_sensors =count($sensorArray);
 	                                                <select class="form-select" type="text" id="m_default" name="m_default" onchange=set_default_m(this.options[this.selectedIndex].value)>
 								<?php
                 	                                        echo '
-								<option value="0" ' . ($rowzonesensors["default_m"]=='0' ? 'selected' : '') . '>'.$lang['no'].'</option>
-                                	                        <option value="1" ' . ($rowzonesensors["default_m"]=='1' ? 'selected' : '') . '>'.$lang['yes'].'</option>
+								<option value="0" ' . ($zone_sensors[0]["default_m"]=='0' ? 'selected' : '') . '>'.$lang['no'].'</option>
+                                	                        <option value="1" ' . ($zone_sensors[0]["default_m"]=='1' ? 'selected' : '') . '>'.$lang['yes'].'</option>
 								';
 								?>
                                                 	</select>
@@ -866,7 +867,7 @@ $count_num_sensors =count($sensorArray);
                                                         document.getElementById("maintain_default").value = valuetext;
                                                 }
                                                 </script>
-                                                <input type="hidden" id="maintain_default" name="maintain_default" value="<?php echo $rowzonesensors["default_m"]?>"/>
+                                                <input type="hidden" id="maintain_default" name="maintain_default" value="<?php echo $zone_sensors[0]["default_m"]?>"/>
 
 						<!-- Minimum Temperature -->
                                                 <input type="hidden" id="min_c_label_text" name="min_c_label_text" value="<?php echo $lang['min_temperature']; ?>"/>
@@ -874,7 +875,7 @@ $count_num_sensors =count($sensorArray);
                                                 <input type="hidden" id="min_h_label_text" name="min_h_label_text" value="<?php echo $lang['min_humidity']; ?>"/>
                                                 <input type="hidden" id="min_h_label_info" name="min_h_label_info" value="<?php echo $lang['zone_min_humidity_info']; ?>"/>
 						<div class="form-group" class="control-label" style="display:block"><label id="min_c_label_1"><?php echo $lang['min_temperature']; ?></label> <small class="text-muted" id="min_c_label_2"><?php echo $lang['zone_min_temperature_info'];?></small>
-							<input class="form-control" placeholder="<?php echo $lang['zone_min_temperature_help']; ?>" value="<?php if(isset($rowzonesensors['min_c'])) { echo DispSensor($conn,$rowzonesensors['min_c'],$rowzonesensors['sensor_type_id']); } else {echo DispSensor($conn,'15',$rowzonesensors['sensor_type_id']);}  ?>" id="min_c" name="min_c" data-bs-error="<?php echo $lang['zone_min_temperature_error']; ?>"  autocomplete="off" required>
+							<input class="form-control" placeholder="<?php echo $lang['zone_min_temperature_help']; ?>" value="<?php if(isset($zone_sensors[0]['min_c'])) { echo DispSensor($conn,$zone_sensors[0]['min_c'],$zone_sensors[0]['sensor_type_id']); } else {echo DispSensor($conn,'15',$zone_sensors[0]['sensor_type_id']);}  ?>" id="min_c" name="min_c" data-bs-error="<?php echo $lang['zone_min_temperature_error']; ?>"  autocomplete="off" required>
 							<div class="help-block with-errors"></div>
 						</div>
 
@@ -884,7 +885,7 @@ $count_num_sensors =count($sensorArray);
 						<input type="hidden" id="max_h_label_text" name="max_h_label_text" value="<?php echo $lang['max_humidity']; ?>"/>
 						<input type="hidden" id="max_h_label_info" name="max_h_label_info" value="<?php echo $lang['zone_max_humidity_info']; ?>"/>
 						<div class="form-group" class="control-label" style="display:block"><label id="max_c_label_1"><?php echo $lang['max_temperature']; ?></label> <small class="text-muted" id="max_c_label_2"><?php echo $lang['zone_max_temperature_info'];?></small>
-							<input class="form-control" placeholder="<?php echo $lang['zone_max_temperature_help']; ?>" value="<?php if(isset($rowzonesensors['max_c'])) { echo DispSensor($conn,$rowzonesensors['max_c'],$rowzonesensors['sensor_type_id']); } else {echo DispSensor($conn,'25',$rowzonesensors['sensor_type_id']);}  ?>" id="max_c" name="max_c" data-bs-error="<?php echo $lang['zone_max_temperature_error']; ?>"  autocomplete="off" required>
+							<input class="form-control" placeholder="<?php echo $lang['zone_max_temperature_help']; ?>" value="<?php if(isset($zone_sensors[0]['max_c'])) { echo DispSensor($conn,$zone_sensors[0]['max_c'],$zone_sensors[0]['sensor_type_id']); } else {echo DispSensor($conn,'25',$zone_sensors[0]['sensor_type_id']);}  ?>" id="max_c" name="max_c" data-bs-error="<?php echo $lang['zone_max_temperature_error']; ?>"  autocomplete="off" required>
 							<div class="help-block with-errors"></div>
 						</div>
 						<?php // Removed 29/01/2022 by twa as these 2 parameters are never used
@@ -897,14 +898,14 @@ $count_num_sensors =count($sensorArray);
 
 							<!-- Hysteresis Time -->
 							<div class="form-group" class="control-label" id="hysteresis_time_label" style="display:block"><label><?php echo $lang['hysteresis_time']; ?></label> <small class="text-muted"><?php echo $lang['zone_hysteresis_info'];?></small>
-								<input class="form-control" placeholder="<?php echo $lang['zone_hysteresis_time_help']; ?>" value="<?php if(isset($rowzonesensors['hysteresis_time'])) { echo $rowzonesensors['hysteresis_time']; } else {echo '3';} ?>" id="hysteresis_time" name="hysteresis_time" data-bs-error="<?php echo $lang['zone_hysteresis_time_error']; ?>"  autocomplete="off" required>
+								<input class="form-control" placeholder="<?php echo $lang['zone_hysteresis_time_help']; ?>" value="<?php if(isset($zone_sensors[0]['hysteresis_time'])) { echo $zone_sensors[0]['hysteresis_time']; } else {echo '3';} ?>" id="hysteresis_time" name="hysteresis_time" data-bs-error="<?php echo $lang['zone_hysteresis_time_error']; ?>"  autocomplete="off" required>
 								<div class="help-block with-errors"></div>
 							</div>
 						<?php } ?>
 
 						<!-- Setpoint Deadband -->
 						<div class="form-group" class="control-label" id="sp_deadband_label" style="display:block"><label><?php echo $lang['zone_sp_deadband']; ?></label> <small class="text-muted"><?php echo $lang['zone_sp_deadband_info'];?></small>
-							<input class="form-control" placeholder="<?php echo $lang['zone_sp_deadband_help']; ?>" value="<?php if(isset($rowzonesensors['sp_deadband'])) { echo $rowzonesensors['sp_deadband']; } else {echo '0.5';} ?>" id="sp_deadband" name="sp_deadband" data-bs-error="<?php echo $lang['zone_sp_deadband_error'] ; ?>"  autocomplete="off" required>
+							<input class="form-control" placeholder="<?php echo $lang['zone_sp_deadband_help']; ?>" value="<?php if(isset($zone_sensors[0]['sp_deadband'])) { echo $zone_sensors[0]['sp_deadband']; } else {echo '0.5';} ?>" id="sp_deadband" name="sp_deadband" data-bs-error="<?php echo $lang['zone_sp_deadband_error'] ; ?>"  autocomplete="off" required>
 							<div class="help-block with-errors"></div>
 						</div>
 
@@ -917,7 +918,7 @@ $count_num_sensors =count($sensorArray);
                                                         <?php for ($i = 0; $i < $sensor_count; $i++) { ?>
                                                         	<div class="wrap" id>
 									<!-- Sensor ID -->
-									<div class="form-group" class="control-label" id="sensor_id" style="display:block"><label id="sensor_id_label_1"><?php echo $lang['secondary_temperature_sensor']; ?></label> <small class="text-muted" id="sensor_id_label_2"><?php echo $lang['zone_sensor_id_info'];?></small>
+									<div class="form-group" class="control-label" id="sensor_id" style="display:block"><label id="sensor_id_label_1"><?php echo $lang['primary_temperature_sensor']; ?></label> <small class="text-muted" id="sensor_id_label_2"><?php echo $lang['zone_sensor_id_info'];?></small>
 										<input type="hidden" id="selected_sensors_id[]" name="selected_sensors_id[]" value="<?php echo $zone_sensors[$i]['zone_sensor_id']?>"/>
 										<div class="entry input-group col-12" id="sen_id - <?php echo $i ?>">
 											<select id="sens_id<?php echo $i ?>" onchange="SensorIDList(this.options[this.selectedIndex].value, <?php echo $i ?>)" name="sens_id<?php echo $i ?>" class="form-select" data-bs-error="<?php echo $lang['zone_temp_sensor_id_error']; ?>" autocomplete="off">
