@@ -127,12 +127,8 @@ $(document).ready(function() {
 				<input type="hidden" id="selected_sensors_id[]" name="selected_sensors_id[]" value="<?php echo $zone_sensors[$i]['zone_sensor_id']?>"/>
 				<div class="entry input-group col-12" id="sen_id - <?php echo $i ?>">
 					<select id="sens_idx" onchange="SensorIDList(this.options[this.selectedIndex].value, s_index)" name="sens_idx" class="form-select" data-bs-error="<?php echo $lang['zone_temp_sensor_id_error']; ?>" autocomplete="off">
-                                                <?php if(isset($zone_sensors[$i]["zone_sensor_name"])) { echo '<option selected >'.$zone_sensors[$i]["zone_sensor_name"].'</option>'; } ?>
-                                                <?php  if ($i == 0) {
-							$query = "SELECT id, name, sensor_type_id FROM sensors WHERE sensor_type_id = 1 ORDER BY id ASC;";
-						} else {
-                                                        $query = "SELECT id, name, sensor_type_id FROM sensors WHERE sensor_type_id = 1 AND fail_timeout > 0 ORDER BY id ASC;";
-						}
+                                                <?php if(isset($zone_sensors[$i]["zone_sensor_name"])) { echo '<option selected >'.$zone_sensors[$i]["zone_sensor_name"].'</option>'; }
+						$query = "SELECT id, name, sensor_type_id FROM sensors WHERE sensor_type_id = 1 ORDER BY id ASC;";
                                                 $result = $conn->query($query);
                                                 echo "<option></option>";
                                                 while ($datarw=mysqli_fetch_array($result)) {
