@@ -500,7 +500,7 @@ echo '
                                 <h5 class="modal-title">'.$lang['cpu_temperature'].'</h5>
                         </div>
                         <div class="modal-body">';
-                                $query = "select * from messages_in where node_id = 0 order by datetime desc limit 5";
+                                $query = "select * from messages_in where node_id = '0' order by datetime desc limit 5";
                                 $results = $conn->query($query);
                                 echo '<p class="text-muted"> '.$lang['cpu_temperature_text'].' </p>
 		                <div id="cpu_temps">
