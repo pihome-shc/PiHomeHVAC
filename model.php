@@ -3560,7 +3560,7 @@ if ((settings($conn, 'mode') & 0b1) == 0) {
 }
 
 if ((settings($conn, 'mode') & 0b1) == 0) {
-	$query = "SELECT boost.id, boost.`status`, boost.sync, boost.zone_id, zone_idx.index_id, zone_type.category, zone.name, 
+	$query = "SELECT DISTINCT boost.id, boost.`status`, boost.sync, boost.zone_id, zone_idx.index_id, zone_type.category, zone.name, 
         boost.temperature, boost.minute, boost_button_id, boost_button_child_id, hvac_mode, ts.sensor_type_id
         FROM boost
         JOIN zone ON boost.zone_id = zone.id
