@@ -3806,7 +3806,7 @@ echo '
             <div class="modal-body">
 <p class="text-muted"> '.$lang['override_settings_text'].'</p>';
 if ((settings($conn, 'mode') & 0b1) == 0) { //boiler mode
-	$query = "SELECT override.`status`, override.sync, override.purge, override.zone_id, zone_idx.index_id, zone_type.category, zone.name,
+	$query = "SELECT DISTINCT override.`status`, override.sync, override.purge, override.zone_id, zone_idx.index_id, zone_type.category, zone.name,
 	override.time, override.temperature, override.hvac_mode, ts.sensor_type_id
 	FROM override
 	JOIN zone ON override.zone_id = zone.id
