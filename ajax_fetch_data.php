@@ -771,7 +771,7 @@ if ($type <= 5 || $type == 38) {
         //update display last 5 CPU temps modal
         //--------------------------------------
 	echo '<div id="cpu_temps">';
-        	$query = "select * from messages_in where node_id = 0 order by datetime desc limit 5";
+        	$query = "select * from messages_in where node_id = '0' order by datetime desc limit 5";
                 $results = $conn->query($query);
                 echo '<div class="list-group">';
                 	while ($row = mysqli_fetch_assoc($results)) {
