@@ -880,7 +880,7 @@ if ($type <= 5 || $type == 38) {
         //return the current cpu tempeature status
         //----------------------------------------
 	$max_cpu_temp = settings($conn, 'max_cpu_temp');
-	$query = "select * from messages_in where node_id = 0 ORDER BY id DESC LIMIT 1";
+	$query = "select * from messages_in where node_id = '0' ORDER BY id DESC LIMIT 1";
 	$result = $conn->query($query);
 	$result = mysqli_fetch_array($result);
 	$system_cc = $result['payload'];
