@@ -25,6 +25,24 @@ require_once(__DIR__ . '/st_inc/functions.php');
 
 if(isset($_GET['id'])) {
         $settings_id = $_GET['id'];
+        if ($settings_id == "7") {
+                $show_sensor_modal = 1;
+                $settings_id = 6;
+        } else {
+                $show_sensor_modal = 0;
+        }
+        if ($settings_id == "8") {
+                $show_relay_modal = 1;
+                $settings_id = 6;
+        } else {
+                $show_relay_modal = 0;
+        }
+        if ($settings_id == "9") {
+                $show_zone_modal = 1;
+                $settings_id = 5;
+        } else {
+                $show_zone_modal = 0;
+        }
 }
 
 $theme = settings($conn, 'theme');
