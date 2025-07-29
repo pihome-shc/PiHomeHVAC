@@ -2813,7 +2813,7 @@ try:
                 sketch_version = float(nd[node_to_index["sketch_version"]])
             else:
                 sketch_version = 0
-                
+
             if sketch_version > 0:
                 sketch_version = int(sketch_version * 100)
 
@@ -2837,7 +2837,49 @@ try:
                     else:
                         # initialise the lag timer dictionary key and value and set the relay state from the current database value
                         relay_lag_timer[relays_id] = 0
-                        out_payload = db_payload
+                        # check if starting where the previous system state was overrun, if so clear the relay state
+                        cur.execute(
+                            """SELECT `zone`.`id`, `zone`.`name` AS `zone_name`, `zone`.`zone_state`, `zr`.`zone_relay_id`, `r`.`relay_child_id`, `r`.`name` AS `relay_name`, `m`.`payload`
+                               FROM `zone`
+                               JOIN `zone_relays` `zr` ON `zr`.`zone_id` = `zone`.`id`
+                               JOIN `relays` `r` ON `r`.`id` = `zr`.`zone_relay_id`
+                               JOIN `messages_out` `m` ON `m`.`n_id` = `r`.`relay_id` AND `m`.`child_id` = `r`.`relay_child_id`
+                               WHERE `m`.`n_id` = (%s) AND `m`.`child_id` = (%s) AND `zone`.`zone_state` = 0 AND `m`.`payload` = '1' LIMIT 1;""",
+                            (n_id, out_child_id),
+                        )
+                        if cur.rowcount == 0: # was not in overrun state so use database payload value
+                            out_payload = db_payload
+                        else: # was in overrun state, so relay state to OFF (no need to set SENT as the relay state will be set in set_relays routine) and add a relay_logs record
+                            zone_state = cur.fetchone()
+                            zone_state_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                            out_payload = 0
+                            cur.execute(
+                                "UPDATE `messages_out` SET `payload` = %s WHERE `n_id` = %s AND `child_id` = %s",
+                                (out_payload, n_id, out_child_id),
+                            )
+                            # determine relay type for the appropriate message
+                            if node_type.find("Tasmota") != -1:
+                                relay_msg = out_payload
+                            elif node_type.find("GPIO") != -1:
+                                if int(out_payload) == 1 :
+                                    relay_msg = "ON"
+                                else :
+                                    relay_msg = "OFF"
+                            else :
+                                if int(out_payload) == int(out_on_trigger) :
+                                    relay_msg = "ON"
+                                else :
+                                    relay_msg = "OFF"
+                            # set mode message to Hysteresis Stopped
+                            main_mode = 100
+                            sub_mode = 0
+                            mode_msg = main_mode_dict[main_mode] + " - " + sub_mode_dict[sub_mode]
+                            # update relay logs message
+                            cur.execute(
+                                "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+                                (0, 0, zone_state[zone_state_to_index["zone_relay_id"]], zone_state[zone_state_to_index["relay_name"]], relay_msg, zone_state[zone_state_to_index["zone_name"]], mode_msg, datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+                            )
+                        con.commit()
                     # action trigger setting for MySensor relays attached to the combined gateway/controller
                     if node_type.find("MySensor") != -1 and node_name.find("Controller") != -1 and sketch_version >= 34:
                         out_payload = XNOR(out_on_trigger, out_payload)
