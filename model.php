@@ -4209,6 +4209,21 @@ echo '
         </div>
     </div>
 </div>';
+if ($show_zone_modal == 1) {
+        ?>
+        <script type="text/javascript">
+                $(function(){
+                        //instantiate your content as modal
+                        $('#zone_setup').modal({
+                        //modal options here, like keyboard: false for e.g.
+                        });
+
+                        //show the modal when dom is ready
+                        $('#zone_setup').modal('show');
+                });
+        </script>
+        <?php
+}
 
 //gateway model
 echo '
@@ -4621,6 +4636,21 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
         </div>
     </div>
 </div>';
+if ($show_relay_modal == 1) {
+        ?>
+        <script type="text/javascript">
+                $(function(){
+                        //instantiate your content as modal
+                        $('#relay_setup').modal({
+                        //modal options here, like keyboard: false for e.g.
+                        });
+
+                        //show the modal when dom is ready
+                        $('#relay_setup').modal('show');
+                });
+        </script>
+        <?php
+}
 
 //Test Relays
 echo '<div class="modal fade" id="test_relays" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -4800,6 +4830,21 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
         </div>
     </div>
 </div>';
+if ($show_sensor_modal == 1) {
+        ?>
+        <script type="text/javascript">
+                $(function(){
+                        //instantiate your content as modal
+                        $('#sensor_setup').modal({
+                        //modal options here, like keyboard: false for e.g.
+                        });
+
+                        //show the modal when dom is ready
+                        $('#sensor_setup').modal('show');
+                });
+        </script>
+        <?php
+}
 
 //Sensor Message
 echo '
