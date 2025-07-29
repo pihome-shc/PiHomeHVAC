@@ -102,8 +102,13 @@ if (isset($_POST['submit'])) {
         $message_success .= "<p>".$lang['do_not_refresh']."</p>";
 
 	header("Refresh: 10; url=home.php?page_name=onetouch");
-	// After update on all required tables, set $id to mysqli_insert_id.
-	if ($id==0){$id=$temp_id;}
+        // After update on all required tables, set $id to mysqli_insert_id.
+        if ($id==0) {
+                header("Refresh: 10; url=home.php?page_name=onetouch");
+                $id=$temp_id;
+        } else {
+                header("Refresh: 10; url=settings.php?s_id=8");
+        }
 }
 ?>
 <!-- ### Visible Page ### -->
