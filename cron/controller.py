@@ -983,8 +983,6 @@ try:
                 for key in controllers_dict[zone_id]:
                     zone_controler_id = controllers_dict[zone_id][key]["controler_id"]
                     zone_controler_child_id = controllers_dict[zone_id][key]["controler_child_id"]
-                    zone_fault = 0
-                    zone_ctr_fault = 0
                     controler_found = False
                     # check if an MQTT type sensor
                     cur.execute(
@@ -1023,7 +1021,9 @@ try:
                                 zone_ctr_fault = 1
                                 if dbgLevel >= 2:
                                     print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone valve communication timeout for This Zone. Node Last Seen: " + str(controler_seen_time))
-					
+                            else:
+                                zone_fault = 0
+                                zone_ctr_fault = 0
                 #only process active zones with a sensor or a category 2 type zone
                 if zone_status == 1 and (zone_sensor_found or zone_category == 2):
                     rval = get_schedule_status(
@@ -1233,11 +1233,7 @@ try:
                                         )
                                         con.commit()  # commit above
                     else:
-                        zone_fault = 0
-                        zone_ctr_fault = 0
-                        zone_sensor_fault = 0
                         manual_button_override = 0
-                        controler_seen_time = ""
 
                     #query to check boost status and get temperature from boost table
                     cur.execute(
@@ -2506,6 +2502,13 @@ try:
                         print("-" * line_len)
                     #process Zone Cat 1 and 2 logs
                 else: #end if($zone_status == 1)
+                    # capture any zone controller faults skipped due to zone sensor failure
+                    cur.execute(
+                        """UPDATE zone_current_state SET controler_fault = %s, controler_seen_time = %s
+                        WHERE zone_id = %s LIMIT 1;""",
+                        [zone_ctr_fault, controler_seen_time, zone_id],
+                    )
+                    con.commit()  # commit above
                     print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Name     " + zone_name)
                     print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Type     " + zone_type)
                     print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: ID       " + str(zone_id))
