@@ -940,7 +940,7 @@ try:
                         if index > 0:
                             zone_c = float(zone_c / index)
 			# if more than 1 sensor attached to the zone, then create a message_in table entry for the average zone temperature
-                        if index > 1:
+                        elif index > 1:
                             node_id = "zavg_" + str(zone_id)
                             qry_str = "SELECT payload, datetime FROM messages_in WHERE node_id = '" + node_id + "' ORDER BY id DESC LIMIT 1;"
                             cur.execute(qry_str)
@@ -965,6 +965,12 @@ try:
                                     (0, 0, "zavg_" + str(zone_id), 0, 0, zone_c, timestamp),
                                 )
                                 con.commit()
+                        # index is 0, no active sensor detected
+                        else:
+                            zone_sensor_found = False
+                            zone_c = None;
+                            temp_reading_time = None;
+                            frost_active = 0
                     else:
                         zone_sensor_found = False
                         zone_c = None;
@@ -1064,7 +1070,14 @@ try:
                                     controler_notice = node[node_to_index["notice_interval"]]
                             if controler_found:
                                 if controler_notice > 0 and settings_dict["test_mode"] != 3:
-                                    if controler_seen_time <  time_stamp + datetime.timedelta(minutes =- controler_notice):
+                                    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                    time_stamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
+                                    interval_minutes = int(controler_notice)
+                                    # Convert to Unix timestamp
+                                    now_ts = time.mktime(time_stamp.timetuple())
+                                    last_seen_ts = time.mktime(controler_seen_time.timetuple())
+                                    time_delta = int(now_ts - last_seen_ts) / 60
+                                    if time_delta < controler_notice and settings_dict["test_mode"] != 3:
                                         zone_fault = 1
                                         zone_ctr_fault = 1
                                         if dbgLevel >= 2:
