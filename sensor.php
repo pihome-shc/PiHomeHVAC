@@ -31,6 +31,10 @@ if(isset($_GET['id'])) {
 } else {
 	$id = 0;
 }
+
+$uri = $_SERVER['QUERY_STRING'];
+if (strpos($uri, "id=") !== false) { $link = "settings.php?s_id=7"; } else { $link = "home.php"; }
+
 //Form submit
 if (isset($_POST['submit'])) {
         $pre_post = isset($_POST['pre_post']) ? $_POST['pre_post'] : "0";
@@ -414,7 +418,7 @@ if (isset($_POST['submit'])) {
 						<br>
 						<!-- Buttons -->
 						<input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-sm">
-						<a href="home.php"><button type="button" class="btn btn-primary-<?php echo theme($conn, $theme, 'color'); ?> btn-sm"><?php echo $lang['cancel']; ?></button></a>
+						<a href="<?php echo $link; ?>"><button type="button" class="btn btn-primary-<?php echo theme($conn, $theme, 'color'); ?> btn-sm"><?php echo $lang['cancel']; ?></button></a>
 					</form>
 				</div>
                 		<!-- /.card-body -->
