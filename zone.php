@@ -34,6 +34,10 @@ if(isset($_GET['id'])) {
 	$sensor_count = 1;
 }
 
+
+$uri = $_SERVER['QUERY_STRING'];
+if (strpos($uri, "id=") !== false) { $link = "settings.php?s_id=9"; } else { $link = "home.php"; }
+
 //used to suppress display of Max Operating Time and Hysteresis Time input fields, 0 = fields supressed, 1 = fields displayed
 $no_max_op_hys = 0;
 
@@ -1061,7 +1065,7 @@ $count_num_sensors =count($sensorArray);
 
 						<!-- Buttons -->
 						<input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-sm">
-						<a href="home.php"><button type="button" class="btn btn-primary-<?php echo theme($conn, $theme, 'color'); ?> btn-sm"><?php echo $lang['cancel']; ?></button></a>
+						<a href="<?php echo $link; ?>"><button type="button" class="btn btn-primary-<?php echo theme($conn, $theme, 'color'); ?> btn-sm"><?php echo $lang['cancel']; ?></button></a>
 					</form>
 				</div>
                         	<!-- /.card-body -->
