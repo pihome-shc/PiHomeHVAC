@@ -4204,7 +4204,7 @@ echo '
 	    </div>
 	    <div class="modal-footer">
                 <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
-                <a class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" href="zone.php">'.$lang['zone_add'].'</a>
+                <a class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" href="zone.php?id=0">'.$lang['zone_add'].'</a>
             </div>
         </div>
     </div>
@@ -4631,7 +4631,7 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
 	    </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
-                <a class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" href="relay.php">'.$lang['relay_add'].'</a>
+                <a class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" href="relay.php?id=0">'.$lang['relay_add'].'</a>
             </div>
         </div>
     </div>
@@ -4825,7 +4825,7 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
 		<div class="modal-footer">
                 	<button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
                 	<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="show_sensors()">
-                	<a class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" href="sensor.php">'.$lang['sensor_add'].'</a>
+                	<a class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" href="sensor.php?id=0">'.$lang['sensor_add'].'</a>
             </div>
         </div>
     </div>
