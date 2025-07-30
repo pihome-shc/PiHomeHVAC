@@ -27,7 +27,7 @@ print("********************************************************")
 print("*              System Controller Script                *")
 print("*                                                      *")
 print("*               Build Date: 10/02/2023                 *")
-print("*       Version 0.05 - Last Modified 02/07/2025        *")
+print("*       Version 0.06 - Last Modified 30/07/2025        *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -979,6 +979,51 @@ try:
                 else:
                     zone_frost_controller = 0
 
+                # test for zone controller fault
+                for key in controllers_dict[zone_id]:
+                    zone_controler_id = controllers_dict[zone_id][key]["controler_id"]
+                    zone_controler_child_id = controllers_dict[zone_id][key]["controler_child_id"]
+                    zone_fault = 0
+                    zone_ctr_fault = 0
+                    controler_found = False
+                    # check if an MQTT type sensor
+                    cur.execute(
+                        "SELECT * FROM `mqtt_devices` WHERE nodes_id = %s AND child_id = %s AND type = 0 LIMIT 1",
+                        (zone_controler_id, zone_controler_child_id),
+                    )
+                    if cur.rowcount > 0:
+                        controler_found = True
+                        mqtt_device = cur.fetchone()
+                        mqtt_device_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                        controler_seen_time = mqtt_device[mqtt_device_to_index["last_seen"]]
+                        controler_notice = mqtt_device[mqtt_device_to_index["notice_interval"]]
+                    else:
+                        #Get data from nodes table
+                        cur.execute(
+                            "SELECT * FROM nodes WHERE node_id = %s AND status IS NOT NULL LIMIT 1;",
+                            (zone_controler_id,),
+                        )
+                        if cur.rowcount > 0:
+                            controler_found = True
+                            node = cur.fetchone()
+                            node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                            controler_seen_time = node[node_to_index["last_seen"]]
+                            controler_notice = node[node_to_index["notice_interval"]]
+                    if controler_found:
+                        if controler_notice > 0 and settings_dict["test_mode"] != 3:
+                            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            time_stamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
+                            interval_minutes = int(controler_notice)
+                            # Convert to Unix timestamp
+                            now_ts = time.mktime(time_stamp.timetuple())
+                            last_seen_ts = time.mktime(controler_seen_time.timetuple())
+                            time_delta = int(now_ts - last_seen_ts) / 60
+                            if time_delta < controler_notice and settings_dict["test_mode"] != 3:
+                                zone_fault = 1
+                                zone_ctr_fault = 1
+                                if dbgLevel >= 2:
+                                    print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone valve communication timeout for This Zone. Node Last Seen: " + str(controler_seen_time))
+					
                 #only process active zones with a sensor or a category 2 type zone
                 if zone_status == 1 and (zone_sensor_found or zone_category == 2):
                     rval = get_schedule_status(
@@ -1037,51 +1082,7 @@ try:
                     if zone_category != 3:
                         manual_button_override = 0
                         for key in controllers_dict[zone_id]:
-                            zone_controler_id = controllers_dict[zone_id][key]["controler_id"]
-                            zone_controler_child_id = controllers_dict[zone_id][key]["controler_child_id"]
                             zone_controller_type = controllers_dict[zone_id][key]["zone_controller_type"]
-                            zone_fault = 0
-                            zone_ctr_fault = 0
-                            zone_sensor_fault = 0
-
-                            controler_found = False
-                            # check if an MQTT type sensor
-                            cur.execute(
-                                "SELECT * FROM `mqtt_devices` WHERE nodes_id = %s AND child_id = %s AND type = 0 LIMIT 1",
-                                (zone_controler_id, zone_controler_child_id),
-                            )
-                            if cur.rowcount > 0:
-                                controler_found = True
-                                mqtt_device = cur.fetchone()
-                                mqtt_device_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                                controler_seen_time = mqtt_device[mqtt_device_to_index["last_seen"]]
-                                controler_notice = mqtt_device[mqtt_device_to_index["notice_interval"]]
-                            else:
-                                #Get data from nodes table
-                                cur.execute(
-                                    "SELECT * FROM nodes WHERE node_id = %s AND status IS NOT NULL LIMIT 1;",
-                                    (zone_controler_id,),
-                                )
-                                if cur.rowcount > 0:
-                                    controler_found = True
-                                    node = cur.fetchone()
-                                    node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                                    controler_seen_time = node[node_to_index["last_seen"]]
-                                    controler_notice = node[node_to_index["notice_interval"]]
-                            if controler_found:
-                                if controler_notice > 0 and settings_dict["test_mode"] != 3:
-                                    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                                    time_stamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
-                                    interval_minutes = int(controler_notice)
-                                    # Convert to Unix timestamp
-                                    now_ts = time.mktime(time_stamp.timetuple())
-                                    last_seen_ts = time.mktime(controler_seen_time.timetuple())
-                                    time_delta = int(now_ts - last_seen_ts) / 60
-                                    if time_delta < controler_notice and settings_dict["test_mode"] != 3:
-                                        zone_fault = 1
-                                        zone_ctr_fault = 1
-                                        if dbgLevel >= 2:
-                                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone valve communication timeout for This Zone. Node Last Seen: " + str(controler_seen_time))
 
                             #if add-on controller then process state change from GUI or api call
                             if zone_category == 2:
