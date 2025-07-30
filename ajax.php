@@ -461,104 +461,109 @@ function GetModal_Schedule_List($conn)
 				echo '</li
 			</div>
 		</ul><br>';
-  		if ($system_controller_fault == '1') {
-			$date_time = date('Y-m-d H:i:s');
-			$datetime1 = strtotime("$date_time");
-			$datetime2 = strtotime("$system_controller_seen");
-			$interval  = abs($datetime2 - $datetime1);
-			$ctr_minutes   = round($interval / 60);
-			echo '
-			<ul class="list-group">
-				<li class="list-group-item">
-					<div class="header">
-						<div class="d-flex justify-content-between">
-							<span>
-								<strong class="primary-font red">System Controller Fault!!!</strong>
-							</span>
-							<span>
-								<small class="text-muted">
-									<i class="bi bi-clock icon-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
-								</small>
-							</span>
-						</div>
-						<br>
-						<p>Node ID '.$system_controller_node_id.' last seen at '.$system_controller_seen.' </p>
-						<p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
-					</div>
-				</li>
-			</ul>';
-
-  		}elseif ($zone_ctr_fault == '1') {
-			$date_time = date('Y-m-d H:i:s');
-			$datetime1 = strtotime("$date_time");
-			echo '
-			<ul class="list-group">
-				<li class="list-group-item">
-					<div class="header">';
-						$cquery = "SELECT `zone_relays`.`zone_id`, `zone_relays`.`zone_relay_id`, n.`last_seen`, n.`notice_interval` FROM `zone_relays`
-						LEFT JOIN `relays` r on `zone_relays`.`zone_relay_id` = r.`id`
-						LEFT JOIN `nodes` n ON r.`relay_id` = n.`id`
-						WHERE `zone_relays`.`zone_id` = ".$zone_id.";";
-						$cresults = $conn->query($cquery);
-						while ($crow = mysqli_fetch_assoc($cresults)) {
-							$datetime2 = strtotime($crow['last_seen']);
-							$interval  = abs($datetime2 - $datetime1);
-							$ctr_minutes   = round($interval / 60);
-							$zone_relay_id = $crow['zone_relay_id'];
-        	                                        echo '<div class="d-flex justify-content-between">
-	                                                        <span>
-                                                  	              <strong class="primary-font red">Controller Fault!!!</strong>
-                                                        	</span>
-                                                        	<span>
-                                                                	<small class="text-muted">
-                                                                        	<i class="bi bi-clock icon-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
-                                                                	</small>
-                                                        	</span>
-                                                	</div>
-                                                	<br>
-                                                	<p>Controller ID '.$zone_relay_id.' last seen at '.$crow['last_seen'].' </p>';
-						}
-						echo '<p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
-					</div>
-				</li>
-			</ul>';
-		//echo $zone_senros_txt;
-		}elseif ($zone_sensor_fault == '1'){
-			$date_time = date('Y-m-d H:i:s');
-			$datetime1 = strtotime("$date_time");
-			echo '
-			<ul class="list-group">
-				<li class="list-group-item">
-					<div class="header">';
-                                                $cquery = "SELECT `zone_sensors`.`zone_id`, `zone_sensors`.`zone_sensor_id`, n.`last_seen`, n.`notice_interval`
-						FROM `zone_sensors`
-                                                LEFT JOIN `sensors` s on `zone_sensors`.`zone_sensor_id` = s.`id`
-                                                LEFT JOIN `nodes` n ON s.`sensor_id` = n.`id`
-                                                WHERE `zone_sensors`.`zone_id` = ".$zone_id.";";
-                                                $sresults = $conn->query($cquery);
-                                                while ($srow = mysqli_fetch_assoc($sresults)) {
-                                                        $datetime2 = strtotime($srow['last_seen']);
-                                                        $interval  = abs($datetime2 - $datetime1);
-                                                        $sensor_minutes   = round($interval / 60);
-                                                        $zone_sensor_id = $srow['zone_sensor_id'];
-                                                        echo '<div class="d-flex justify-content-between">
+                if ($system_controller_fault == '1' || $zone_ctr_fault == '1' || $zone_sensor_fault == '1') {
+                        if ($system_controller_fault == '1') {
+                                $date_time = date('Y-m-d H:i:s');
+                                $datetime1 = strtotime("$date_time");
+                                $datetime2 = strtotime("$system_controller_seen");
+                                $interval  = abs($datetime2 - $datetime1);
+                                $ctr_minutes   = round($interval / 60);
+                                echo '
+                                <ul class="list-group">
+                                        <li class="list-group-item">
+                                                <div class="header">
+                                                        <div class="d-flex justify-content-between">
                                                                 <span>
-                                                                      <strong class="primary-font red">Sensor Fault!!!</strong>
+                                                                        <strong class="primary-font red">System Controller Fault!!!</strong>
                                                                 </span>
                                                                 <span>
                                                                         <small class="text-muted">
-                                                                                <i class="bi bi-clock icon-fw"></i> '.secondsToWords(($sensor_minutes)*60).' ago
+                                                                                <i class="bi bi-clock icon-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
                                                                         </small>
                                                                 </span>
                                                         </div>
                                                         <br>
-                                                        <p>Sensor ID '.$zone_sensor_id.' last seen at '.$srow['last_seen'].' </p>';
-                                                }
-                                                echo '<p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
-					</div>
-				</li>
-			</ul>';
-		}else{
+                                                        <p>Node ID '.$system_controller_node_id.' last seen at '.$system_controller_seen.' </p>
+                                                        <p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
+                                                </div>
+                                        </li>
+                                </ul>';
+                        }
+
+                        if ($zone_ctr_fault == '1') {
+                                $date_time = date('Y-m-d H:i:s');
+                                $datetime1 = strtotime("$date_time");
+                                echo '
+                                <ul class="list-group">
+                                        <li class="list-group-item">
+                                                <div class="header">';
+                                                        $cquery = "SELECT `zone_relays`.`zone_id`, `zone_relays`.`zone_relay_id`, n.`last_seen`, n.`notice_interval` FROM `zone_relays`
+                                                        LEFT JOIN `relays` r on `zone_relays`.`zone_relay_id` = r.`id`
+                                                        LEFT JOIN `nodes` n ON r.`relay_id` = n.`id`
+                                                        WHERE `zone_relays`.`zone_id` = ".$zone_id.";";
+                                                        $cresults = $conn->query($cquery);
+                                                        while ($crow = mysqli_fetch_assoc($cresults)) {
+                                                                $datetime2 = strtotime($crow['last_seen']);
+                                                                $interval  = abs($datetime2 - $datetime1);
+                                                                $ctr_minutes   = round($interval / 60);
+                                                                $zone_relay_id = $crow['zone_relay_id'];
+                                                                echo '<div class="d-flex justify-content-between">
+                                                                        <span>
+                                                                              <strong class="primary-font red">Controller Fault!!!</strong>
+                                                                        </span>
+                                                                        <span>
+                                                                                <small class="text-muted">
+                                                                                        <i class="bi bi-clock icon-fw"></i> '.secondsToWords(($ctr_minutes)*60).' ago
+                                                                                </small>
+                                                                        </span>
+                                                                </div>
+                                                                <br>
+                                                                <p>Controller ID '.$zone_relay_id.' last seen at '.$crow['last_seen'].' </p>';
+                                                        }
+                                                        echo '<p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
+                                                </div>
+                                        </li>
+                                </ul>';
+                        //echo $zone_senros_txt;
+                        }
+
+                        if ($zone_sensor_fault == '1'){
+                                $date_time = date('Y-m-d H:i:s');
+                                $datetime1 = strtotime("$date_time");
+                                echo '
+                                <ul class="list-group">
+                                        <li class="list-group-item">
+                                                <div class="header">';
+                                                        $cquery = "SELECT `zone_sensors`.`zone_id`, `zone_sensors`.`zone_sensor_id`, n.`last_seen`, n.`notice_interval`
+                                                        FROM `zone_sensors`
+                                                        LEFT JOIN `sensors` s on `zone_sensors`.`zone_sensor_id` = s.`id`
+                                                        LEFT JOIN `nodes` n ON s.`sensor_id` = n.`id`
+                                                        WHERE `zone_sensors`.`zone_id` = ".$zone_id.";";
+                                                        $sresults = $conn->query($cquery);
+                                                        while ($srow = mysqli_fetch_assoc($sresults)) {
+                                                                $datetime2 = strtotime($srow['last_seen']);
+                                                                $interval  = abs($datetime2 - $datetime1);
+                                                                $sensor_minutes   = round($interval / 60);
+                                                                $zone_sensor_id = $srow['zone_sensor_id'];
+                                                                echo '<div class="d-flex justify-content-between">
+                                                                        <span>
+                                                                              <strong class="primary-font red">Sensor Fault!!!</strong>
+                                                                        </span>
+                                                                        <span>
+                                                                                <small class="text-muted">
+                                                                                        <i class="bi bi-clock icon-fw"></i> '.secondsToWords(($sensor_minutes)*60).' ago
+                                                                                </small>
+                                                                        </span>
+                                                                </div>
+                                                                <br>
+                                                                <p>Sensor ID '.$zone_sensor_id.' last seen at '.$srow['last_seen'].' </p>';
+                                                        }
+                                                        echo '<p class="text-info">Heating system will resume its normal operation once this issue is fixed. </p>
+                                                </div>
+                                        </li>
+                                </ul>';
+                        }
+ 		} else {
 			if ($sensor_type_id != 3) {
 				//if temperature control active display cut in and cut out levels
                                 $c_f = settings($conn, 'c_f');
