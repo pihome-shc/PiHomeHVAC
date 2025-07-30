@@ -1016,7 +1016,7 @@ try:
                             now_ts = time.mktime(time_stamp.timetuple())
                             last_seen_ts = time.mktime(controler_seen_time.timetuple())
                             time_delta = int(now_ts - last_seen_ts) / 60
-                            if time_delta < controler_notice and settings_dict["test_mode"] != 3:
+                            if time_delta > controler_notice and settings_dict["test_mode"] != 3:
                                 zone_fault = 1
                                 zone_ctr_fault = 1
                                 if dbgLevel >= 2:
