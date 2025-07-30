@@ -935,7 +935,14 @@ try:
                                 if dbgLevel == 1:
                                     print("Sensor Name - " + zone_sensor_name + ", Frost Target Temperture - " + str(frost_target_c) + ", Frost Sensor Temperature - " + str(frost_sensor_c))
                                 index = index + 1
-
+                            # sensor timeed out so get last reading
+                            else:
+                                zone_c = sensors_dict[zone_id][key]["current_val_1"]
+                                zone_hysteresis_time = sensor[sensor_to_index["hysteresis_time"]]
+                                zone_sp_deadband = sensors_dict[zone_id][key]["sp_deadband"]
+                                zone_min_c = sensors_dict[zone_id][key]["min_c"]
+                                zone_max_c = sensors_dict[zone_id][key]["max_c"]
+                                default_c = sensors_dict[zone_id][key]["default_c"]
                         # calculate the average zone temperature
                         if index > 0:
                             zone_c = float(zone_c / index)
@@ -965,12 +972,6 @@ try:
                                     (0, 0, "zavg_" + str(zone_id), 0, 0, zone_c, timestamp),
                                 )
                                 con.commit()
-                        # index is 0, no active sensor detected
-                        else:
-                            zone_sensor_found = False
-                            zone_c = None;
-                            temp_reading_time = None;
-                            frost_active = 0
                     else:
                         zone_sensor_found = False
                         zone_c = None;
@@ -1019,11 +1020,48 @@ try:
                             if time_delta > controler_notice and settings_dict["test_mode"] != 3:
                                 zone_fault = 1
                                 zone_ctr_fault = 1
+#                                zone_mode = 10
                                 if dbgLevel >= 2:
                                     print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone valve communication timeout for This Zone. Node Last Seen: " + str(controler_seen_time))
                             else:
                                 zone_fault = 0
                                 zone_ctr_fault = 0
+
+                # check if any sensors attached to this zone have not reported
+                if zone_sensor_found:
+                    z_sensor_fault = 0
+                    for key in sensors_dict[zone_id]:
+                        sensor_name = sensors_dict[zone_id][key]["sensor_name"]
+                        sensor_notice = sensors_dict[zone_id][key]["sensor_notice_interval"]
+                        temp_reading_time = sensors_dict[zone_id][key]["sensor_last_seen"]
+                        if sensor_notice > 0 and temp_reading_time is not None and settings_dict["test_mode"] != 3:
+                            sensor_seen_time = temp_reading_time #using time from messages_in
+                            if sensor_seen_time <  time_stamp + datetime.timedelta(minutes =- sensor_notice):
+                                z_sensor_fault = z_sensor_fault + 1
+                                if dbgLevel >= 2:
+                                    print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - " + str(sensor_name) + " Temperature sensor communication timeout for This Zone. Last temperature reading: " + str(temp_reading_time))
+                    #Set zone_sensor_fault only if ALL sensors fail
+                    if z_sensor_fault == len(sensors_dict[zone_id]):
+                        zone_sensor_fault = 1
+                        zone_fault = 1
+#                        zone_mode = 10
+                    else:
+                        zone_sensor_fault = 0
+                        zone_fault = 0
+                else:
+                    zone_sensor_fault = 1
+                    zone_fault = 1
+#                    zone_mode = 10
+
+                #Check system controller notice interval and notice logic
+                if heat_relay_notice > 0:
+                    heat_relay_seen_time = heat_relay_seen
+                    if heat_relay_seen_time  < time_stamp + datetime.timedelta(minutes =- heat_relay_notice) and settings_dict["test_mode"] != 3:
+                        zone_fault = 1
+#                        zone_mode = 10
+                        if dbgLevel >= 2:
+                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - System Controller controler communication timeout. System Controller Last Seen: " + str(heat_relay_seen))
+
                 #only process active zones with a sensor or a category 2 type zone
                 if zone_status == 1 and (zone_sensor_found or zone_category == 2):
                     rval = get_schedule_status(
@@ -1438,35 +1476,6 @@ try:
                         else:
                             hysteresis = 0
 
-                        # check if any sensors attached to this zone have not reported
-                        if zone_sensor_found:
-                            z_sensor_fault = 0
-                            for key in sensors_dict[zone_id]:
-                                sensor_name = sensors_dict[zone_id][key]["sensor_name"]
-                                sensor_notice = sensors_dict[zone_id][key]["sensor_notice_interval"]
-                                temp_reading_time = sensors_dict[zone_id][key]["sensor_last_seen"]
-                                if sensor_notice > 0 and temp_reading_time is not None and settings_dict["test_mode"] != 3:
-                                    sensor_seen_time = temp_reading_time #using time from messages_in
-                                    if sensor_seen_time <  time_stamp + datetime.timedelta(minutes =- sensor_notice):
-                                        z_sensor_fault = z_sensor_fault + 1
-                                        if dbgLevel >= 2:
-                                            print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - " + str(sensor_name) + " Temperature sensor communication timeout for This Zone. Last temperature reading: " + str(temp_reading_time))
-                            #Set zone_sensor_fault only if ALL sensors fail
-                            if z_sensor_fault == len(sensors_dict[zone_id]):
-                                zone_sensor_fault = 1
-                                zone_fault = 1
-                            else:
-                                zone_sensor_fault = 0
-                                zone_fault = 0
-
-                        #Check system controller notice interval and notice logic
-                        if heat_relay_notice > 0:
-                            heat_relay_seen_time = heat_relay_seen
-                            if heat_relay_seen_time  < time_stamp + datetime.timedelta(minutes =- heat_relay_notice) and settings_dict["test_mode"] != 3:
-                                zone_fault = 1
-                                if dbgLevel >= 2:
-                                    print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - System Controller controler communication timeout. System Controller Last Seen: " + str(heat_relay_seen))
-
                         #create array zone states, used to determine if new zone log table entry is required
                         z_state_dict[zone_id] = zone_state_current
                     #end Check Zone category 0 or 1
@@ -1479,6 +1488,7 @@ try:
                         active_sc_mode = 1
                     else:
                         active_sc_mode = sc_mode
+
                     #check no zone fault and if not a switch zone (cat 2) that there is a valid zone sensor reading
                     if zone_fault == 0 and (zone_c is not None or zone_category == 2):
 
@@ -2503,12 +2513,13 @@ try:
                     #process Zone Cat 1 and 2 logs
                 else: #end if($zone_status == 1)
                     # capture any zone controller faults skipped due to zone sensor failure
-                    cur.execute(
-                        """UPDATE zone_current_state SET controler_fault = %s, controler_seen_time = %s
-                        WHERE zone_id = %s LIMIT 1;""",
-                        [zone_ctr_fault, controler_seen_time, zone_id],
-                    )
-                    con.commit()  # commit above
+                    print(zone_mode)
+#                    cur.execute(
+#                        """UPDATE zone_current_state SET mode = %s, controler_fault = %s, sensor_fault = %s
+#                        WHERE zone_id = %s LIMIT 1;""",
+#                        [zone_mode, zone_ctr_fault, zone_sensor_fault, zone_id],
+#                    )
+#                    con.commit()  # commit above
                     print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Name     " + zone_name)
                     print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: Type     " + zone_type)
                     print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone: ID       " + str(zone_id))
