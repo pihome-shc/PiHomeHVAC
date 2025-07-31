@@ -1026,6 +1026,9 @@ try:
                             else:
                                 zone_fault = 0
                                 zone_ctr_fault = 0
+                        else:
+                            zone_fault = 0
+                            zone_ctr_fault = 0
 
                 # check if any sensors attached to this zone have not reported
                 if zone_sensor_found:
