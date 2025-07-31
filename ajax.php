@@ -534,10 +534,9 @@ function GetModal_Schedule_List($conn)
                                 <ul class="list-group">
                                         <li class="list-group-item">
                                                 <div class="header">';
-                                                        $cquery = "SELECT `zone_sensors`.`zone_id`, `zone_sensors`.`zone_sensor_id`, n.`last_seen`, n.`notice_interval`
+                                                        $cquery = "SELECT `zone_sensors`.`zone_id`, `zone_sensors`.`zone_sensor_id`, s.`last_seen`, s.`fail_timeout`
                                                         FROM `zone_sensors`
                                                         LEFT JOIN `sensors` s on `zone_sensors`.`zone_sensor_id` = s.`id`
-                                                        LEFT JOIN `nodes` n ON s.`sensor_id` = n.`id`
                                                         WHERE `zone_sensors`.`zone_id` = ".$zone_id.";";
                                                         $sresults = $conn->query($cquery);
                                                         while ($srow = mysqli_fetch_assoc($sresults)) {
