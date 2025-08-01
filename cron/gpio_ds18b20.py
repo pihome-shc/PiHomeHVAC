@@ -4,6 +4,8 @@ from decimal import Decimal
 import configparser
 from datetime import datetime
 import math
+import subprocess
+import shlex
 
 class bc:
     hed = "\033[0;36;40m"
@@ -38,7 +40,7 @@ print("***********************************************************")
 print("*   PiHome DS18B20 Temperature Sensors Data to MySQL DB   *")
 print("* Use this script if you have DS18B20 Temperature sensors *")
 print("* Connected directly on Raspberry Pi GPIO.                *")
-print("*                                  Build Date: 26/11/2022 *")
+print("*                                  Build Date: 01/08/2025 *")
 print("*                                    Have Fun - PiHome.eu *")
 print("***********************************************************")
 print(" " + bc.ENDC)
@@ -279,15 +281,33 @@ def insertDB(IDs, temperature):
         logger.error(e)
         print(bc.dtm + time.ctime() + bc.ENDC + " - DB Connection Closed: %s" % e)
 
-
 # Read DS18B20 Sensors and Save Them to MySQL
 temperature = []
 IDs = []
 skip_count = []
+cmd = 'cat /sys/bus/w1/devices/w1_bus_master1/w1_master_slaves'
+args = shlex.split(cmd)
 while True:
-    for filename in os.listdir("/sys/bus/w1/devices"):
-        if fnmatch.fnmatch(filename, "28-*"):
-            with open("/sys/bus/w1/devices/" + filename + "/w1_slave") as fileobj:
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    s = p.communicate()[0]
+    res = s.split()
+
+    # create a list of the currently active sensors
+    IDs_current = []
+    for filename in res:
+        w1_name = filename.decode("utf-8")
+        IDs_current.append(w1_name)
+    # loop through IDs to identify any missing sensors
+    for id in IDs:
+        if id not in IDs_current:
+            # remove items from the 3 lists if the sensor is no longer connected
+            index = IDs.index(id)
+            temperature = [element for i, element in enumerate(temperature) if i != index]
+            IDs = [element for i, element in enumerate(IDs) if i != index]
+            skip_count = [element for i, element in enumerate(skip_count) if i != index]
+    for id in IDs_current:
+        if fnmatch.fnmatch(id, "28-*"):
+            with open("/sys/bus/w1/devices/" + id + "/w1_slave") as fileobj:
                 lines = fileobj.readlines()
                 # print lines
                 if len(lines) > 0:
@@ -296,11 +316,11 @@ while True:
                         current_temperature = (
                             float(lines[1][pok + 1 : pok + 6]) / 1000
                         )  # Current tempearture reading
-                        current_ID = filename  # Current sensor ID
+                        current_ID = id  # Current sensor ID
                         if (
-                            filename in IDs
+                            id in IDs
                         ):  # Check if data from this sensor had alread been received
-                            i = IDs.index(filename)  # Find the index for the sensore
+                            i = IDs.index(id)  # Find the index for the sensore
                             if (
                                 skip_count[i] == skip_max
                             ):  # If the maximum number of readings as been reached force and update
@@ -320,7 +340,7 @@ while True:
                             IDs.append(current_ID)
                             skip_count.append(0)
                     else:
-                        logger.error("Error reading sensor with ID: %s" % (filename))
+                        logger.error("Error reading sensor with ID: %s" % (id))
     old_temperature = temperature  # Update the previous tempearture record
     if len(temperature) > 0:
         insertDB(IDs, temperature)
