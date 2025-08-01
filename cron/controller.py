@@ -947,7 +947,7 @@ try:
                         if index > 0:
                             zone_c = float(zone_c / index)
 			# if more than 1 sensor attached to the zone, then create a message_in table entry for the average zone temperature
-                        elif index > 1:
+                        if index > 1:
                             node_id = "zavg_" + str(zone_id)
                             qry_str = "SELECT payload, datetime FROM messages_in WHERE node_id = '" + node_id + "' ORDER BY id DESC LIMIT 1;"
                             cur.execute(qry_str)
