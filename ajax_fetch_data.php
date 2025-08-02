@@ -131,7 +131,7 @@ if ($type <= 5 || $type == 38) {
                 $sensor_type_id = $srow['sensor_type_id'];
 		$zone_c = $zone_c + $srow['current_val_1'];
 	}
-	$zone_c = $zone_c/$sensor_count;
+        if ($sensor_count > 0) { $zone_c = $zone_c/$sensor_count; }
 	$unit = SensorUnits($conn,$sensor_type_id);
 	//Zone Main Mode
 	/*	0 - idle
