@@ -979,6 +979,7 @@ try:
                         frost_active = 0
                 else:
                     zone_frost_controller = 0
+                    zone_sensor_found = False
 
                 # test for zone controller fault
                 for key in controllers_dict[zone_id]:
@@ -1053,7 +1054,7 @@ try:
                         zone_fault = 0
                 else:
                     zone_sensor_fault = 1
-                    zone_fault = 1
+#                    zone_fault = 1
 #                    zone_mode = 10
 
                 #Check system controller notice interval and notice logic
