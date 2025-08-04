@@ -1,6 +1,6 @@
 # MaxAir - Smart Thermostat
 
-### Note: Now at Version 3.09.
+### Note: Now at Version 3.10.
 
 The previous version, PiHome, was centered around the creation of zones, this version is more centered around devices.
 
@@ -65,6 +65,8 @@ Version 3.08 Change to Notification EMail to add timestamps.
 
 Version 3.09 Bug Fix to ensure that if a system power failure occurs during a zone overrun phase, then the system will return with the zone relay switched OFF.
 Update – if zone, or sensor, or relay edit is initiated from the Settings menu, then after committing the change, the user is returned to the popup menu from which the edit was initiated.
+
+Version 3.10 Improvements in display and processing of multi-sensor zones, includes a new table 'sensor_average'.
 
 ## Setup:
 
