@@ -224,6 +224,27 @@ if (isset($_POST['submit'])) {
                 	$error .= "<p>".$lang['zone_sensor_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
 		}
 
+                if ($id!=0){ //if in edit mode delete existing zone sensor records for the current zone
+                        $query = "DELETE FROM `sensor_average` WHERE `zone_id` = '{$cnt_id}';";
+                        $result = $conn->query($query);
+                }
+                //loop through zone controller for the current zone and replace zone_sensors records to cope with individual deleted zone sensors
+                if (count($zsensors) > 1)  {
+			$sensor_average_id = "zavg_".$cnt_id;
+                        $query = "INSERT INTO `sensor_average` (`sync`, `purge`, `zone_id`, `sensor_id`, `graph_num`, `show_it`, `min_max_graph`, `message_in`, `current_val_1`, `last_seen`)
+                                VALUES ('{$sync}', '{$purge}', '{$cnt_id}', '{$sensor_average_id}', '0', '0', '0', '1', NULL, NULL);";
+                        $result = $conn->query($query);
+                        if ($result) {
+	                        if ($id==0){
+        	                        $message_success .= "<p>".$lang['sensor_average_record_add_success']."</p>";
+                	        } else {
+                        	        $message_success .= "<p>".$lang['sensor_average_record_update_success']."</p>";
+                        	}
+                	} else {
+                        	$error .= "<p>".$lang['sensor_average_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
+                	}
+		}
+
 	        // if in edit mode then clear any previous sensor to zone allocations
 		if ($id != 0){
         		$query = "UPDATE `sensors` SET `zone_id` = 0 WHERE `zone_id` = '{$cnt_id}';";

@@ -345,9 +345,9 @@ $lang['confirm_dell_active_zone_type'] = "Vous êtes sur le point de SUPPRIMER u
 $lang['confirm_dell_de_active_zone_type'] = "Vous êtes sur le point de SUPPRIMER un type de zone qui n'est PAS utilisé";
 $lang['confirm_dell_active_zone'] = "Vous êtes sur le point de SUPPRIMER une ZONE ACTIVE";
 $lang['confirm_dell_de_active_zone'] = "Vous êtes sur le point de SUPPRIMER UNE AUCUNE ZONE active";
-//***********************************************************************************************************************************
+// ***********************************************************************************************************************************
 //                                                        Requires Translation
-//***********************************************************************************************************************************
+// ***********************************************************************************************************************************
 $lang['add_on'] = "Add On";
 $lang['add_on_http'] = "HTTP";
 $lang['add_on_settings'] = "Add-On HTTP Messages";
@@ -1085,4 +1085,7 @@ $lang['attached_sensors'] = "Attached Sensors";
 $lang['attached_sensors_info'] = "Green - has not exceeded timeout or no timeout set<br>Red - Exceeded set timeout";
 $lang['average_temperature'] = "Average Temperature";
 $lang['setup_guide_multiple_sensors'] = "Setup Zones with Multiple Sensors";
+$lang['sensor_average_record_add_success'] = "Average Sensor Record Added Successfully.";
+$lang['sensor_average_record_update_success'] = "Average Sensor Record Updated Successfully.";
+$lang['sensor_average_record_fail'] = "Average Sensor Record Add/Update Failed:";
 ?>

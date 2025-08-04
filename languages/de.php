@@ -416,9 +416,9 @@ $lang['http_parameter_info'] = "HTTP-Parameter, der mit einem Befehl an Tasmota 
 $lang['add_on_messages'] = "HTTP-Nachrichten hinzufügen";
 $lang['add_on_add_info_text'] = "HTTP-Nachrichten, die vom Tasmota Controller gesendet und empfangen werden sollen";
 $lang['no_tasmota'] = "Keine Tasmota-Controller";
-//***********************************************************************************************************************************
+// ***********************************************************************************************************************************
 //                                                        Requires Translation
-//***********************************************************************************************************************************
+// ***********************************************************************************************************************************
 $lang['sunset_enable'] = "Enable Sunset & Set Offset in Minutes ";
 $lang['sunset_enable_info'] = "Enable Sunset Override for Start Time with an Offset in minutes eg -30 is 30 minutes before sunset";
 $lang['select_zone'] = "Select Zone/s";
@@ -1068,4 +1068,7 @@ $lang['attached_sensors'] = "Attached Sensors";
 $lang['attached_sensors_info'] = "Green - has not exceeded timeout or no timeout set<br>Red - Exceeded set timeout";
 $lang['average_temperature'] = "Average Temperature";
 $lang['setup_guide_multiple_sensors'] = "Setup Zones with Multiple Sensors";
+$lang['sensor_average_record_add_success'] = "Average Sensor Record Added Successfully.";
+$lang['sensor_average_record_update_success'] = "Average Sensor Record Updated Successfully.";
+$lang['sensor_average_record_fail'] = "Average Sensor Record Add/Update Failed:";
 ?>

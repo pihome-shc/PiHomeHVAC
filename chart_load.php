@@ -25,9 +25,9 @@ $result = $conn->query($query);
 while ($row = mysqli_fetch_assoc($result)) {
         $datetime = $row['datetime'];
         $payload = $row['payload'];
-        if ($row['node_id'] == 0) {
+        if ($row['node_id'] == '0') {
                 $system_c[] = array(strtotime($datetime) * 1000, DispSensor($conn,$payload,1));
-        } elseif ($row['node_id'] == 1) {
+        } elseif ($row['node_id'] == '1') {
                 $weather_c[] = array(strtotime($datetime) * 1000, DispSensor($conn,$payload,1));
         }
 }
@@ -43,13 +43,19 @@ $sunset = $weather_row['sunset']* 1000 ;
 //http://php.net/manual/en/function.date-sun-info.php
 
 //check which graphs are enabled as a 6 bit mask
-$query ="SELECT mask FROM graphs LIMIT 1;";
+$query ="SELECT `mask` FROM `graphs` LIMIT 1;";
 $result = $conn->query($query);
 $grow = mysqli_fetch_assoc($result);
 
 if ($grow['mask'] & 0b1) {
 	// create datasets based on all available sensors
-	$querya ="SELECT * FROM sensors WHERE graph_num > 0 AND sensor_type_id = 1 ORDER BY id ASC;";
+	$querya ="SELECT `id`, `name`, `sensor_id`, `sensor_child_id`, `graph_num`  FROM `sensors` WHERE `graph_num` > 0 AND `sensor_type_id` = 1 ORDER BY `id` ASC;";
+	$querya ="SELECT `id`, `name`, `sensor_id`, `sensor_child_id`, `graph_num`  FROM `sensors` WHERE `graph_num` > 0 AND `sensor_type_id` = 1
+		UNION
+		SELECT sensor_average.id, CONCAT(zone.name,' - Average') AS name, sensor_average.sensor_id, '0' AS sensor_child_id, sensor_average.graph_num
+		FROM sensor_average, zone
+		WHERE sensor_average.zone_id = zone.id AND `graph_num` > 0
+		ORDER BY `id` ASC;";
 	$resulta = $conn->query($querya);
 	$graph1 = '';
 	$graph2 = '';
@@ -58,11 +64,16 @@ if ($grow['mask'] & 0b1) {
 	while ($row = mysqli_fetch_assoc($resulta)) {
         	// grab the sensor names to be displayed in the plot legend
 		$name=$row['name'];
-		$id=$row['id'];
-	  	$graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
+		if (strpos($row['sensor_id'], "zavg_") !== false) {
+			$id = substr($row['sensor_id'], strpos($row['sensor_id'], "_") + 1);
+                        $graph_id = substr($row['sensor_id'], strpos($row['sensor_id'], "_") + 1).'.0';
+		} else {
+			$id=$row['id'];
+	                $graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
+		}
         	$graph_num = $row['graph_num'];
                 if(strpos($name, 'Water') !== false) { $graph_water = $graph_num; }
-		$query="select * from sensor_graphs where zone_id = {$id};";
+		$query="SELECT * FROM `sensor_graphs` WHERE `zone_id` = {$id};";
         	$result = $conn->query($query);
 	        // create array of pairs of x and y values for every zone
         	$graph1_temp = array();

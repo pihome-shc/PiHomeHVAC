@@ -1915,11 +1915,13 @@ echo '<div class="modal fade" id="zone_graph" tabindex="-1" role="dialog" aria-l
             		</div>
             		<div class="modal-body" id="zone_graph_body">
 				<p class="text-muted">'.$lang['graph_settings_text'].'</p>';
-				$query = "SELECT id, name, graph_num, min_max_graph, name AS sname
+				$query = "SELECT id, sensor_id, name, graph_num, min_max_graph, name AS sname
 					FROM sensors
 					WHERE sensor_type_id = 1
+                                        UNION
+                                        SELECT sensor_average.id, sensor_average.sensor_id, zone.name, sensor_average.graph_num, sensor_average.min_max_graph, zone.name AS sname FROM sensor_average, zone WHERE sensor_average.zone_id = zone.id
 					UNION
-					SELECT 0 AS id, 'Outside Temp' AS name, -1 AS graph_num, enable_archive AS min_max_graph, 'zzz' AS sname
+					SELECT 0 AS id, '' AS sensor_id, 'Outside Temp' AS name, -1 AS graph_num, enable_archive AS min_max_graph, 'zzz' AS sname
 					FROM weather
 					ORDER BY sname ASC;";
 				$results = $conn->query($query);
@@ -1930,9 +1932,11 @@ echo '<div class="modal fade" id="zone_graph" tabindex="-1" role="dialog" aria-l
         					<th class="col-2"><small>'.$lang['min_max_graph'].'</small></th>
     					</tr>';
 					while ($row = mysqli_fetch_assoc($results)) {
+                                                $s_name = $row["name"];
+						if (strpos($row['sensor_id'], "zavg_") !== false) { $s_name = $s_name." (Avg)"; }
     						if ($row['min_max_graph'] == 1) { $enabled_check = 'checked'; } else { $enabled_check = ''; }
     						echo '<tr>
-            						<td>'.$row["name"].'</td>';
+            						<td>'.$s_name.'</td>';
 							if ($row['graph_num'] == -1) {
 								echo '<td>N/A</td>';
 							} else {

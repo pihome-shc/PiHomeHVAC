@@ -24,7 +24,13 @@ if(isset($argv[1])) {
 }
 
 //create array of colours for the graphs
-$query ="SELECT id, name, sensor_type_id FROM sensors ORDER BY name ASC;";
+//$query ="SELECT id, name, sensor_type_id FROM sensors ORDER BY name ASC;";
+$query = "SELECT `id`, `name`, `sensor_type_id` FROM `sensors`
+                UNION
+                SELECT sensor_average.id, CONCAT(zone.name,' - Average') AS name, '1' AS sensor_type_id
+                FROM sensor_average, zone
+                WHERE sensor_average.zone_id = zone.id
+                ORDER BY `id` ASC;";
 $results = $conn->query($query);
 $counter = 0;
 $count = mysqli_num_rows($results) + 2; //extra space made for system temperature graph
@@ -56,7 +62,10 @@ echo "<h4>".$lang['graph_min_max']."</h4></p>".$lang['graph_min_text']."</p>";
 <?php
 //compile an array containg the names of those sensors with min_max_graph set
 $graph_enable = array();
-$query = "SELECT id FROM sensors WHERE min_max_graph = 1;";
+$query = "SELECT id FROM sensors WHERE min_max_graph = 1
+	UNION
+	SELECT id FROM sensor_average WHERE min_max_graph = 1
+	ORDER BY id ASC;";
 $results = $conn->query($query);
 while ($row = mysqli_fetch_assoc($results)) {
         $graph_enable[] = $row['id'];

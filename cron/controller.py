@@ -27,7 +27,7 @@ print("********************************************************")
 print("*              System Controller Script                *")
 print("*                                                      *")
 print("*               Build Date: 10/02/2023                 *")
-print("*       Version 0.06 - Last Modified 30/07/2025        *")
+print("*       Version 0.07 - Last Modified 04/08/2025        *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -888,6 +888,7 @@ try:
                     zone_sensors_count = len(sensors_dict[zone_id])
                     if zone_sensors_count > 0:
                         zone_sensor_found = True
+                        sensor_update = True # used to ensure only one table entry when multiple sensors are producing a single average value
                         for key in sensors_dict[zone_id]:
                             timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                             time_stamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
@@ -895,11 +896,8 @@ try:
                             # Convert to Unix timestamp
                             now_ts = time.mktime(time_stamp.timetuple())
                             last_seen_ts = time.mktime(sensors_dict[zone_id][key]["sensor_last_seen"].timetuple())
-#                            print(d1_ts)
-                            time_delta = int(now_ts - last_seen_ts) / 60
                             # They are now in seconds, subtract and then divide by 60 to get minutes.
-#                            print(int(d2_ts-d1_ts) / 60)
-#                            print(time_delta, interval_minutes, sensors_dict[zone_id][key]["sensor_last_seen"])
+                            time_delta = int(now_ts - last_seen_ts) / 60
                             if time_delta < interval_minutes or interval_minutes == 0:
                                 current_val_1 = sensors_dict[zone_id][key]["current_val_1"]
                                 zone_sensor_name = sensors_dict[zone_id][key]["sensor_name"]
@@ -943,35 +941,108 @@ try:
                                 zone_min_c = sensors_dict[zone_id][key]["min_c"]
                                 zone_max_c = sensors_dict[zone_id][key]["max_c"]
                                 default_c = sensors_dict[zone_id][key]["default_c"]
+                        node_id = "zavg_" + str(zone_id)
+                        qry_str = "SELECT payload, datetime FROM messages_in WHERE node_id = '" + node_id + "' ORDER BY id DESC LIMIT 1;"
+                        cur.execute(qry_str)
+                        if cur.rowcount > 0:
+                            row = cur.fetchone()
+                            messages_in_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                            payload = float(row[messages_in_to_index["payload"]])
+                            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            time_stamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
+                            # Convert to Unix timestamp
+                            now_ts = time.mktime(time_stamp.timetuple())
+                            last_seen_ts = time.mktime(row[messages_in_to_index["datetime"]].timetuple())
+                            time_delta = int(now_ts - last_seen_ts) / 60
+                        else:
+                            payload = - 999
+                            sensor_last_reading_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         # calculate the average zone temperature
                         if index > 0:
-                            zone_c = float(zone_c / index)
-			# if more than 1 sensor attached to the zone, then create a message_in table entry for the average zone temperature
-                        if index > 1:
-                            node_id = "zavg_" + str(zone_id)
-                            qry_str = "SELECT payload, datetime FROM messages_in WHERE node_id = '" + node_id + "' ORDER BY id DESC LIMIT 1;"
+                            zone_c = round(float(zone_c / index),2)
+                            # check if there is an average sensor allocated to this zone
+                            qry_str = "SELECT * FROM `sensor_average` WHERE `zone_id` = " + str(zone_id) + " LIMIT 1;"
                             cur.execute(qry_str)
                             if cur.rowcount > 0:
                                 row = cur.fetchone()
-                                messages_in_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                                payload = float(row[messages_in_to_index["payload"]])
-                                timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                                time_stamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
-                                # Convert to Unix timestamp
-                                now_ts = time.mktime(time_stamp.timetuple())
-                                last_seen_ts = time.mktime(row[messages_in_to_index["datetime"]].timetuple())
-                                time_delta = int(now_ts - last_seen_ts) / 60
-                            else:
-                                payload = - 999
-                                sensor_last_reading_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                                time_delta = 0
+                                sensor_average_in_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                                graph_num = row[sensor_average_in_to_index["graph_num"]]
+                                msg_in = row[sensor_average_in_to_index["message_in"]]
+                                # was a zone with multiple sensors, so need to get value from any remanining active sensors
+                                # only add chenged values or if no update has occured 10 minutes
+                                if zone_c != payload or time_delta > 10:
+                                    if sensor_update:
+                                        cur.execute(
+                                            "UPDATE `sensor_average` SET `current_val_1` = %s WHERE `sensor_id` = %s;",
+                                            (float(zone_c), node_id),
+                                        )
+                                        if msg_in == 1:
+                                            cur.execute(
+                                                "INSERT INTO `messages_in`(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s)",
+                                                (0, 0, node_id, 0, 0, zone_c, timestamp),
+                                            )
+                                        if graph_num > 0:
+                                            cur.execute(
+                                                    """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`,
+                                                       `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                                                    (
+                                                        0,
+                                                        0,
+                                                        zone_id,
+                                                        zone_name,
+                                                        "Sensor",
+                                                        0,
+                                                        node_id,
+                                                        0,
+                                                        0,
+                                                        payload,
+                                                        timestamp,
+                                                    ),
+                                                )
+                                        con.commit()
+                                        sensor_update = False
+
+			# if more than 1 sensor attached to the zone, then create a message_in table entry for the average zone temperature
+                        if index > 1:
                             # only add chenged values or if no update has occured 10 minutes
                             if zone_c != payload or time_delta > 10:
-                                cur.execute(
-                                    "INSERT INTO `messages_in`(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s)",
-                                    (0, 0, "zavg_" + str(zone_id), 0, 0, zone_c, timestamp),
-                                )
-                                con.commit()
+                                if sensor_update:
+                                    qry_str = "SELECT * FROM `sensor_average` WHERE `zone_id` = " + str(zone_id) + " LIMIT 1;"
+                                    cur.execute(qry_str)
+                                    if cur.rowcount > 0:
+                                        row = cur.fetchone()
+                                        sensor_average_in_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                                        graph_num = row[sensor_average_in_to_index["graph_num"]]
+                                        msg_in = row[sensor_average_in_to_index["message_in"]]
+                                        cur.execute(
+                                            "UPDATE `sensor_average` SET `current_val_1` = %s WHERE `sensor_id` = %s;",
+                                            (float(zone_c), node_id),
+                                        )
+                                        if msg_in == 1:
+                                             cur.execute(
+                                                "INSERT INTO `messages_in`(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s)",
+                                                (0, 0, node_id, 0, 0, zone_c, timestamp),
+                                            )
+                                        if graph_num > 0:
+                                            cur.execute(
+                                                    """INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`,
+                                                       `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                                                    (
+                                                        0,
+                                                        0,
+                                                        zone_id,
+                                                        zone_name,
+                                                        "Sensor",
+                                                        0,
+                                                        node_id,
+                                                        0,
+                                                        0,
+                                                        payload,
+                                                        timestamp,
+                                                    ),
+                                                )
+                                        con.commit()
+                                        sensor_update = False
                     else:
                         zone_sensor_found = False
                         zone_c = None;
@@ -3293,6 +3364,7 @@ try:
                             'DELETE FROM schedule_night_climat_zone WHERE `purge`= 1;',
                             'DELETE FROM controller_zone_logs WHERE `purge`= 1;',
                             'DELETE FROM zone_sensors WHERE `purge`= 1;',
+                            'DELETE FROM sensor_average WHERE `purge`= 1;',
                             'DELETE FROM zone_relays WHERE `purge`= 1;',
                             'DELETE FROM livetemp WHERE `purge`= 1 LIMIT 1;',
                             'DELETE FROM zone WHERE `purge`= 1 LIMIT 1;',
