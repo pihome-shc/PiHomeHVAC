@@ -1111,10 +1111,18 @@ try:
                         temp_reading_time = sensors_dict[zone_id][key]["sensor_last_seen"]
                         if sensor_notice > 0 and temp_reading_time is not None and settings_dict["test_mode"] != 3:
                             sensor_seen_time = temp_reading_time #using time from messages_in
-                            if sensor_seen_time <  time_stamp + datetime.timedelta(minutes =- sensor_notice):
+                            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            time_stamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
+                            interval_minutes = int(sensor_notice)
+                            # Convert to Unix timestamp
+                            now_ts = time.mktime(time_stamp.timetuple())
+                            last_seen_ts = time.mktime(sensor_seen_time.timetuple())
+                            time_delta = int(now_ts - last_seen_ts) / 60
+                            if time_delta > sensor_notice:
                                 z_sensor_fault = z_sensor_fault + 1
                                 if dbgLevel >= 2:
                                     print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - " + str(sensor_name) + " Temperature sensor communication timeout for This Zone. Last temperature reading: " + str(temp_reading_time))
+
                     #Set zone_sensor_fault only if ALL sensors fail
                     if z_sensor_fault == len(sensors_dict[zone_id]):
                         zone_sensor_fault = 1
@@ -1131,7 +1139,14 @@ try:
                 #Check system controller notice interval and notice logic
                 if heat_relay_notice > 0:
                     heat_relay_seen_time = heat_relay_seen
-                    if heat_relay_seen_time  < time_stamp + datetime.timedelta(minutes =- heat_relay_notice) and settings_dict["test_mode"] != 3:
+                    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    time_stamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
+                    interval_minutes = int(heat_relay_notice)
+                    # Convert to Unix timestamp
+                    now_ts = time.mktime(time_stamp.timetuple())
+                    last_seen_ts = time.mktime(heat_relay_seen_time.timetuple())
+                    time_delta = int(now_ts - last_seen_ts) / 60
+                    if (time_delta > heat_relay_notice) and settings_dict["test_mode"] != 3:
                         zone_fault = 1
 #                        zone_mode = 10
                         if dbgLevel >= 2:
