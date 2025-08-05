@@ -27,7 +27,7 @@ print("********************************************************")
 print("*              System Controller Script                *")
 print("*                                                      *")
 print("*               Build Date: 10/02/2023                 *")
-print("*       Version 0.07 - Last Modified 04/08/2025        *")
+print("*       Version 0.08 - Last Modified 05/08/2025        *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -55,6 +55,20 @@ if len(sys.argv) == 1:
     dbgLevel = 0  # 0-off, 1-info, 2-detailed, 3-all
 else:
     dbgLevel = int(sys.argv[1])
+
+#check if exceeded timeout
+def exceeded_timeout(notice, seen_time):
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    time_stamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
+    interval_minutes = int(notice)
+    # Convert to Unix timestamp
+    now_ts = time.mktime(time_stamp.timetuple())
+    last_seen_ts = time.mktime(seen_time.timetuple())
+    time_delta = int(now_ts - last_seen_ts) / 60
+    if time_delta > interval_minutes:
+        return True
+    else:
+        return False
 
 #check if within a datetime window
 def isNowInTimePeriod(startTime, endTime, nowTime):
@@ -1082,14 +1096,7 @@ try:
                             controler_notice = node[node_to_index["notice_interval"]]
                     if controler_found:
                         if controler_notice > 0 and settings_dict["test_mode"] != 3:
-                            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                            time_stamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
-                            interval_minutes = int(controler_notice)
-                            # Convert to Unix timestamp
-                            now_ts = time.mktime(time_stamp.timetuple())
-                            last_seen_ts = time.mktime(controler_seen_time.timetuple())
-                            time_delta = int(now_ts - last_seen_ts) / 60
-                            if time_delta > controler_notice and settings_dict["test_mode"] != 3:
+                            if exceeded_timeout(controler_notice, controler_seen_time) and settings_dict["test_mode"] != 3:
                                 zone_fault = 1
                                 zone_ctr_fault = 1
 #                                zone_mode = 10
@@ -1111,14 +1118,7 @@ try:
                         temp_reading_time = sensors_dict[zone_id][key]["sensor_last_seen"]
                         if sensor_notice > 0 and temp_reading_time is not None and settings_dict["test_mode"] != 3:
                             sensor_seen_time = temp_reading_time #using time from messages_in
-                            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                            time_stamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
-                            interval_minutes = int(sensor_notice)
-                            # Convert to Unix timestamp
-                            now_ts = time.mktime(time_stamp.timetuple())
-                            last_seen_ts = time.mktime(sensor_seen_time.timetuple())
-                            time_delta = int(now_ts - last_seen_ts) / 60
-                            if time_delta > sensor_notice:
+                            if exceeded_timeout(sensor_notice, sensor_seen_time):
                                 z_sensor_fault = z_sensor_fault + 1
                                 if dbgLevel >= 2:
                                     print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - " + str(sensor_name) + " Temperature sensor communication timeout for This Zone. Last temperature reading: " + str(temp_reading_time))
@@ -1139,14 +1139,7 @@ try:
                 #Check system controller notice interval and notice logic
                 if heat_relay_notice > 0:
                     heat_relay_seen_time = heat_relay_seen
-                    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    time_stamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
-                    interval_minutes = int(heat_relay_notice)
-                    # Convert to Unix timestamp
-                    now_ts = time.mktime(time_stamp.timetuple())
-                    last_seen_ts = time.mktime(heat_relay_seen_time.timetuple())
-                    time_delta = int(now_ts - last_seen_ts) / 60
-                    if (time_delta > heat_relay_notice) and settings_dict["test_mode"] != 3:
+                    if exceeded_timeout(heat_relay_notice, heat_relay_seen_time) and settings_dict["test_mode"] != 3:
                         zone_fault = 1
 #                        zone_mode = 10
                         if dbgLevel >= 2:
