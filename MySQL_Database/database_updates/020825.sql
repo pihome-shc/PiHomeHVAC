@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS `sensor_average` (
 ) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf16 COLLATE=utf16_bin;
 
 INSERT INTO `sensor_average` (`sync`, `purge`, `zone_id`, `sensor_id`, `graph_num`, `show_it`, `min_max_graph`, `message_in`, `current_val_1`, `last_seen`)
-SELECT DISTINCT 0 AS `sync`, 0 AS `purge`, `zone_id`, CONCAT('zavg_',`zone_id`) AS sensor_id, 0 AS `graph_num`, 0 AS `show_it`, 0 AS `min_max_graph`, 1 AS `message_in`, NULL AS `current_va>
+SELECT DISTINCT 0 AS `sync`, 0 AS `purge`, `zone_id`, CONCAT('zavg_',`zone_id`) AS sensor_id, 0 AS `graph_num`, 0 AS `show_it`, 0 AS `min_max_graph`, 1 AS `message_in`, NULL AS `current_val_1`, NULL AS `last_seen`
 from (
     SELECT t.*, count(*) over(partition by zone_id) cnt
     FROM zone_sensors t
