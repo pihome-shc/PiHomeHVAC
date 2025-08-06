@@ -234,30 +234,39 @@ echo '
                                 $query = "SELECT name FROM repository WHERE status = 1 LIMIT 1;";
                                 $result = $conn->query($query);
                                 $row = mysqli_fetch_assoc($result);
-                                $file2 = file('https://raw.githubusercontent.com/'.$row['name'].'/master/st_inc/db_config.ini');
-                                $pieces =  explode(' ', $file2[count($file2) - 4]);
-                                $code_v_github = array_pop($pieces);
-                                $pieces =  explode(' ', $file2[count($file2) - 3]);
-                                $code_b_github = array_pop($pieces);
-                                $pieces =  explode(' ', $file2[count($file2) - 2]);
-                                $db_v_github = array_pop($pieces);
-                                $pieces =  explode(' ', $file2[count($file2) - 1]);
-                                $db_b_github = array_pop($pieces);
+                                $url = 'https://raw.githubusercontent.com/'.$row['name'].'/master/st_inc/db_config.ini';
+                                $file_headers = @get_headers($url);
+                                if(!$file_headers || $file_headers[0] == 'HTTP/1.1 404 Not Found') {
+                                } else {
+                                        $file2 = file($url);
+                                        $pieces =  explode(' ', $file2[count($file2) - 4]);
+                                        $code_v_github = array_pop($pieces);
+                                        $pieces =  explode(' ', $file2[count($file2) - 3]);
+                                        $code_b_github = array_pop($pieces);
+                                        $pieces =  explode(' ', $file2[count($file2) - 2]);
+                                        $db_v_github = array_pop($pieces);
+                                        $pieces =  explode(' ', $file2[count($file2) - 1]);
+                                        $db_b_github = array_pop($pieces);
+                                }
                                 //get latest Bootstrap version number
-                                $result = file_get_contents('https://getbootstrap.com/docs/versions/');
-                                if (strlen($result) > 0) {
-                                        $search = 'Last update was ';
-                                        $start = stripos($result, $search);
-                                        if ($start !== false) {
-                                                $start = $start + strlen($search) + 1;
-                                                $end = stripos($result, '.</p>', $offset = $start);
-                                                $length = $end - $start;
-                                                $bootstrap_ver = substr($result, $start, $length);
+                                if(!$file_headers || $file_headers[0] == 'HTTP/1.1 404 Not Found') {
+                                } else {
+                                        $url = 'https://getbootstrap.com/docs/versions/';
+                                        $result = file_get_contents($url);
+                                        if (strlen($result) > 0) {
+                                                $search = 'Last update was ';
+                                                $start = stripos($result, $search);
+                                                if ($start !== false) {
+                                                        $start = $start + strlen($search) + 1;
+                                                        $end = stripos($result, '.</p>', $offset = $start);
+                                                        $length = $end - $start;
+                                                        $bootstrap_ver = substr($result, $start, $length);
+                                                } else {
+                                                        $bootstrap_ver = "Not Found";
+                                                }
                                         } else {
                                                 $bootstrap_ver = "Not Found";
                                         }
-                                } else {
-                                        $bootstrap_ver = "Not Found";
                                 }
 
                                 echo '<p class="text-muted"> '.$lang['maxair_versions_text'].' <br>'.$lang['repository'].' - https://github.com/'.$row['name'].'.git</p>
