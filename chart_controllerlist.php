@@ -36,8 +36,8 @@ $query="SELECT date(start_datetime) as date,
 	GROUP BY date(start_datetime) desc";
 
 $result = $conn->query($query);
-if (mysql_num_rows($result) != 0) {
-        echo '<table id="example" class="table table-bordered table-hover dt-responsive" width="100%">';
+if(mysqli_num_rows($result) > 0){
+	echo '<table id="example" class="table table-bordered table-hover dt-responsive" width="100%">';
         echo '<thead><tr><th>Date</th><th>T. Min</th><th class="all">On Min</th><th>S. Min</th><th> <i class="bi bi-tree-fill green"></th></tr></thead><tbody>';
         while ($row = mysqli_fetch_assoc($result)) {
                 echo '
