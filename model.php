@@ -2594,12 +2594,22 @@ echo '<div class="modal fade" id="display_graphs" tabindex="-1" role="dialog" ar
                                 <th class="col-lg-1 text-center"><small>'.$lang['enabled'].'</small></th>
                         </tr>';
 			$myArr = [];
-			array_push($myArr, $lang['graph_temperature'], $lang['graph_humidity'], $lang['graph_addon_usage'], $lang['graph_saving'], $lang['graph_system_controller_usage'], $lang['graph_battery_usage'], $lang['graph_min_max']);
+			array_push($myArr, $lang['graph_temperature'], $lang['graph_humidity'], $lang['graph_addon_usage'], $lang['graph_saving'], $lang['graph_system_controller_usage'], $lang['graph_battery_usage']);
+                        // only display min_max selection if archiving has been enabled
+                        $query = "SELECT archive_enable FROM graphs LIMIT 1;";
+                        $result = $conn->query($query);
+                        $row = mysqli_fetch_assoc($result);
+                        if ($row["archive_enable"] != 0) {
+                                array_push($myArr, $lang['graph_min_max']);
+                                $graph_cnt = 6;
+                        } else {
+                                $graph_cnt = 5;
+                        }
                         $query = "SELECT mask FROM graphs LIMIT 1;";
                         $result = $conn->query($query);
 			$row = mysqli_fetch_assoc($result);
 			$m = 1;
-                        for ($x = 0; $x <=  6; $x++) {
+                        for ($x = 0; $x <= $graph_num; $x++) {
                         	if ($row['mask'] & $m) { $enabled_check = 'checked'; } else { $enabled_check = ''; }
                                 echo '<tr>
                                         <td>'.$myArr[$x].'</td>
