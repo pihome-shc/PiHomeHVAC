@@ -2609,7 +2609,7 @@ echo '<div class="modal fade" id="display_graphs" tabindex="-1" role="dialog" ar
                         $result = $conn->query($query);
 			$row = mysqli_fetch_assoc($result);
 			$m = 1;
-                        for ($x = 0; $x <= $graph_num; $x++) {
+                        for ($x = 0; $x <= $graph_cnt; $x++) {
                         	if ($row['mask'] & $m) { $enabled_check = 'checked'; } else { $enabled_check = ''; }
                                 echo '<tr>
                                         <td>'.$myArr[$x].'</td>
