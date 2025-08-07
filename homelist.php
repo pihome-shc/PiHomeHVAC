@@ -32,6 +32,11 @@ $page_refresh = page_refresh($conn);
 
 // set the display mask for standalone sensors and add-on controllers
 $user_id = $_SESSION['user_id'];
+$query = "SELECT admin_account FROM user WHERE id<='{$user_id}' LIMIT 1;";
+$result = $conn->query($query);
+$row = mysqli_fetch_array($result);
+$access_level = $row["admin_account"];
+
 if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display everything so mask = 0
 	$user_display_mask = 0;
 } else {
@@ -212,7 +217,7 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
                 			                echo '<h3 class="statuszoon float-left text-dark"><small>&nbsp</small></h3>';
 		        	                }
                 			        echo '</button>';
-			                } elseif ($user_display_mask == 0) {
+			                } elseif ($user_display_mask == 0 || $access_level == 1) {
 						echo '<button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-circle no-shadow black-background '.$button_style.' mainbtn animated fadeIn" onclick="relocate_page(`home.php?page_name=mode`)">
                 			        <h3 class="text-nowrap buttontop"><small>'.$current_sc_mode.'</small></h3>
 		                	        <h3 class="degre" >'.$lang['mode'].'</h3>';
@@ -960,3 +965,4 @@ $(document).ready(function(){
   })();
 });
 </script>
+
