@@ -244,7 +244,7 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
 					//loop through zones
 					$active_schedule = 0;
 					$zone_params = [];
-                    $query = "SELECT `zone`.`id`,`zone`.`name`, `zt`.`type`, `zt`.`category`
+                    $query = "SELECT DISTINCT `zone`.`id`,`zone`.`name`, `zt`.`type`, `zt`.`category`
                             FROM `zone`
                             JOIN `zone_type` `zt` ON `zt`.`id` = `zone`.`type_id`
                             JOIN `sensors` `s` ON `s`.`zone_id` = `zone`.`id`
@@ -970,5 +970,6 @@ $(document).ready(function(){
   })();
 });
 </script>
+
 
 
