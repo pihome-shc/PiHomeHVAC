@@ -54,7 +54,7 @@ if (isset($_POST['submit'])) {
 	} else {
 		$payload = 0;
 	}
-        if(strpos($node_name, 'Gateway Controller Relay') !== false) {
+        if(strpos($node_name, 'Gateway Controller Relay' || strpos($node_name, 'Olimex Gateway Controller') !== false) !== false) {
                 $message_type = 25;
         } else {
                 $message_type = 2;
