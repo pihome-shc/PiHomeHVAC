@@ -244,7 +244,12 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
 					//loop through zones
 					$active_schedule = 0;
 					$zone_params = [];
-					$query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 0 OR `zone_type`.`category` = 3 OR `zone_type`.`category` = 4) ORDER BY `zone`.`index_id` ASC;";
+                    $query = "SELECT `zone`.`id`,`zone`.`name`, `zt`.`type`, `zt`.`category`
+                            FROM `zone`
+                            JOIN `zone_type` `zt` ON `zt`.`id` = `zone`.`type_id`
+                            JOIN `sensors` `s` ON `s`.`zone_id` = `zone`.`id`
+                            WHERE (`zone`.`type_id` = `zt`.`id`) AND (`zt`.`category` = 0 OR `zt`.`category` = 3 OR `zt`.`category` = 4)
+                            ORDER BY `zone`.`index_id` ASC;";
 					$results = $conn->query($query);
 					while ($row = mysqli_fetch_assoc($results)) {
 						$zone_id=$row['id'];
@@ -965,4 +970,5 @@ $(document).ready(function(){
   })();
 });
 </script>
+
 
