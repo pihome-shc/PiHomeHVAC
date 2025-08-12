@@ -3980,7 +3980,7 @@ while ($row = mysqli_fetch_assoc($results)) {
             <td>'.$row["node_id"].'</td>
             <td><input id="max_child_id'.$row["node_id"].'" type="value" class="form-control float-right" style="border: none" name="max_child_id'.$row["node_id"].'" value="'.$row["max_child_id"].'" placeholder="Max Child ID"></td>
             <td>'.$row["name"].'</td>';
-	    if($zcount != 0) {
+	    if($zcount != 0 || strpos($row["type"], "GPIO") !== false) {
 		echo '<td><div class="tooltip-wrapper" data-bs-toggle="tooltip" title="'.$content_msg_z.'"><button class="btn btn-danger btn-xs disabled"><span class="bi bi-trash-fill black"></span></button> </div></td>';
 	    } else {
 		echo '<td><button class="btn warning btn-danger btn-xs" onclick="delete_node('.$row["id"].');" data-confirm="'.$content_msg.'"><span class="bi bi-trash-fill black"></span></button> </td>';
