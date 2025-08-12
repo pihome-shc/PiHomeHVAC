@@ -64,7 +64,11 @@ if(($what=="zone") && ($opp=="delete")){
         $conn->query($query);
 
         //Delete Average Sensors record
-        $query = "UPDATE sensor_average SET zone_sensors.purge='1' WHERE zone_id = '".$wid."'";
+        $query = "UPDATE sensor_average SET sensor_average.purge='1' WHERE zone_id = '".$wid."'";
+        $conn->query($query);
+
+        //Delete Zone Current State record
+        $query = "UPDATE zone_current_state SET zone_current_state.purge='1' WHERE zone_id = '".$wid."'";
         $conn->query($query);
 
         //Delete Controller-Zone-Logs record
