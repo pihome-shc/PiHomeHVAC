@@ -1453,7 +1453,7 @@ echo '<div class="modal fade" id="max_cpu_temp" tabindex="-1" role="dialog" aria
                 $row = mysqli_fetch_array($result);
                 echo '<div class="form-group" class="control-label"><label>'.$lang['temperature'].'</label> <small class="text-muted"> </small>
                 <select class="form-select" type="text" id="m_cpu_temp" name="m_cpu_temp" >';
-                for ($x = 40; $x <=  70; $x = $x + 5) {
+                for ($x = 40; $x <=  80; $x = $x + 5) {
                         echo '<option value="'.$x.'" ' . ($x==$row['max_cpu_temp'] ? 'selected' : '') . '>'.$x.'&deg;</option>';
                 }
                 echo '</select>
