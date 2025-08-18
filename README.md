@@ -1,6 +1,6 @@
 # MaxAir - Smart Thermostat
 
-### Note: Now at Version 3.10.
+### Note: Now at Version 3.11.
 
 The previous version, PiHome, was centered around the creation of zones, this version is more centered around devices.
 
@@ -67,6 +67,8 @@ Version 3.09 Bug Fix to ensure that if a system power failure occurs during a zo
 Update – if zone, or sensor, or relay edit is initiated from the Settings menu, then after committing the change, the user is returned to the popup menu from which the edit was initiated.
 
 Version 3.10 Improvements in display and processing of multi-sensor zones, includes a new table 'sensor_average'.
+
+Version 3.11 User account management revised, to create three distint levels of access to the system; Level 0 - system administrator, with full access to the system, Level 1 - user with configuration access to the system and Level 2 - user with display only access. Support added for the 'Olimex Gateway', which functions as a gateway plus relay controller plus multiple DS18B20 sensor support.
 
 ## Setup:
 
