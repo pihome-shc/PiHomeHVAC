@@ -460,6 +460,109 @@ def process_message(in_str):
                             print(infomsg)
                             sys.exit(1)
 
+                    # ..::Step One E::..
+                    # First time Sensor Attached to the Gateway Controller Node Comes online.
+            if (
+                node_id == '0'
+                and child_sensor_id != 255
+                and message_type == 0
+                and (sub_type == 22 or sub_type == 23)
+            ):
+                if sub_type == 22:
+                    sensor_node_id = '200'
+                else:
+                    sensor_node_id = '201'
+                cur.execute(
+                    "SELECT COUNT(*) FROM `nodes` where type = 'MySensor' AND node_id = (%s)", (sensor_node_id,)
+                )
+                row = cur.fetchone()
+                row = int(row[0])
+                if row == 0:
+                    cur.execute(
+                        "SELECT `ms_version`, `sketch_version` FROM `nodes` where type = 'MySensor' AND node_id = '0';"
+                    )
+                    row = cur.fetchone()
+                    ms_version = row[0]
+                    sketch_version = float(row[1])
+                    sketch_version = int(sketch_version * 100)
+                    if dbgLevel >= 2 and dbgMsgIn == 1:
+                        print(
+                            "1-E: Adding Node ID:",
+                            sensor_node_id,
+                            "MySensors Version:",
+                            ms_version,
+                        )
+                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    try:
+                        cur.execute(
+                            "INSERT INTO nodes(`sync`, `purge`, `type`, `node_id`, `max_child_id`, `sub_type`, `name`, `last_seen`, `notice_interval`, `min_value`, `status`, `ms_version`, `sketch_version`, `repeater`) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                            (
+                                0,
+                                0,
+                                "MySensor",
+                                sensor_node_id,
+                                0,
+                                0,
+                                "Temperature Sensor",
+                                timestamp,
+                                0,
+                                0,
+                                "Active",
+                                ms_version,
+                                sketch_version,
+                                1,
+                            ),
+                        )
+                        con.commit()
+                    except mdb.Error as e:
+                        # skip deadlock error (being caused when mysqldunp runs
+                        if e.args[0] == 1213:
+                            pass
+                        else:
+                            print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                            print(traceback.format_exc())
+                            logging.error(e)
+                            logging.info(traceback.format_exc())
+                            con.close()
+                            if MQTT_CONNECTED == 1:
+                                mqttClient.disconnect()
+                                mqttClient.loop_stop()
+                            print(infomsg)
+                            sys.exit(1)
+                else:
+                    cur.execute(
+                        "SELECT `ms_version`, `sketch_version` FROM `nodes` where type = 'MySensor' AND node_id = '0';"
+                    )
+                    row = cur.fetchone()
+                    ms_version = row[0]
+                    if dbgLevel >= 2 and dbgMsgIn == 1:
+                        print(
+                            "1-E: Node ID:",
+                            sensor_node_id,
+                            " Already Exist In Node Table, Updating MS Version",
+                        )
+                    try:
+                        cur.execute(
+                            "UPDATE nodes SET ms_version = %s where type = 'MySensor' AND node_id = %s",
+                            (ms_version, child_sensor_id),
+                        )
+                        con.commit()
+                    except mdb.Error as e:
+                        # skip deadlock error (being caused when mysqldunp runs
+                        if e.args[0] == 1213:
+                            pass
+                        else:
+                            print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                            print(traceback.format_exc())
+                            logging.error(e)
+                            logging.info(traceback.format_exc())
+                            con.close()
+                            if MQTT_CONNECTED == 1:
+                                mqttClient.disconnect()
+                                mqttClient.loop_stop()
+                            print(infomsg)
+                            sys.exit(1)
+
                 # ..::Step Two A::..
                 # Add Nodes Name i.e. Relay, Temperature Sensor etc. to Nodes Table.
             if (
@@ -646,7 +749,7 @@ def process_message(in_str):
                         print(infomsg)
                         sys.exit(1)
 
-                # ..::Step Four A::..
+                # ..::Step Four B::..
                 # Add Node Child ID to Node Table
                 # 25;0;0;0;6;
             if (
@@ -684,6 +787,48 @@ def process_message(in_str):
                         print(infomsg)
                         sys.exit(1)
 
+                # ..::Step Four C::..
+                # Add Node Child ID to Node Table
+                # 25;0;0;0;6;
+            if (
+                node_id == '0'
+                and child_sensor_id != 255
+                and message_type == 0
+                and (sub_type == 22 or sub_type == 23)
+            ):
+                if sub_type == 22:
+                    sensor_node_id = '200'
+                else:
+                    sensor_node_id = '201'
+                if dbgLevel >= 2 and dbgMsgIn == 1:
+                    print(
+                        "4-C: Adding Node's Max Child ID for Gateway Controller Sensor Node ID:",
+                        sensor_node_id,
+                        " Child Sensor ID:",
+                        child_sensor_id,
+                    )
+                try:
+                    cur.execute(
+                        "UPDATE nodes SET max_child_id = %s WHERE type = 'MySensor' AND node_id = %s",
+                        (child_sensor_id, sensor_node_id),
+                    )
+                    con.commit()
+                except mdb.Error as e:
+                    # skip deadlock error (being caused when mysqldunp runs
+                    if e.args[0] == 1213:
+                        pass
+                    else:
+                        print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                        print(traceback.format_exc())
+                        logging.error(e)
+                        logging.info(traceback.format_exc())
+                        con.close()
+                        if MQTT_CONNECTED == 1:
+                            mqttClient.disconnect()
+                            mqttClient.loop_stop()
+                        print(infomsg)
+                        sys.exit(1)
+
                 # ..::Step Five::..
                 # Add Temperature Reading to database
             if (
@@ -691,8 +836,19 @@ def process_message(in_str):
                 and child_sensor_id != 255
                 and message_type == 1
                 and sub_type == 0
+            ) or (
+                node_id == '0'
+                and child_sensor_id != 200
+                and child_sensor_id != 201
+                and child_sensor_id != 255
+                and message_type == 1
+                and (sub_type == 0 or sub_type == 25)
             ):
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                if node_id == '0' and sub_type == 0:
+                    node_id = '200'
+                else:
+                    node_id = '201'
                 try:
                     cur.execute(
                         "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE node_id = %s",
@@ -1410,6 +1566,12 @@ def process_message(in_str):
                 and message_type == 1
                 and sub_type == 47
             ):
+                cur.execute(
+                    "SELECT `sketch_version` FROM `nodes` where type = 'MySensor' AND node_id = '0';"
+                )
+                row = cur.fetchone()
+                sketch_version = float(row[0])
+                sketch_version = int(sketch_version * 100)
                 if dbgLevel >= 2 and dbgMsgIn == 1:
                     print(
                         "16: Updating last seen for Gateway Relay Controller:",

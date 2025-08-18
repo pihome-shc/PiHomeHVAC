@@ -61,7 +61,7 @@ $theme = settings($conn, 'theme');
                 		        $js_button_params = json_encode($button_params);
 		                }
 
-                		if($_SESSION['admin'] == 1) {
+                		if($_SESSION['access'] != 2) {
 					echo '<button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-circle no-shadow black-background '.$button_style.' mainbtn animated fadeIn" onclick="relocate_page(`theme.php`)">
                                         <h3 class="buttontop"><small>'.$lang['add_theme'].'</small></h3>
                                         <h3 class="degre" style="margin-top: 10px;"><i class="bi bi-plus-square-fill icon-2x orange"></i></h3>

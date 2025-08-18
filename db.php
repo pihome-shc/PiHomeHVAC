@@ -1659,7 +1659,7 @@ if($what=="show_sensors"){
 //update Node Alerts Notice Interval
 if($what=="node_alerts"){
         $update_error=0;
-        $sel_query = "SELECT * FROM nodes where status = 'Active' ORDER BY id";
+        $sel_query = "SELECT * FROM nodes where status = 'Active' ORDER BY node_id asc";
         $results = $conn->query($sel_query);
         while ($row = mysqli_fetch_assoc($results) and $update_error == 0) {
                 $id = $row['id'];
@@ -1670,8 +1670,8 @@ if($what=="node_alerts"){
                                 $update_error=1;
                         }
                 }
-                if(isset($_GET["min_value".$id])) {
-                        $min_value =  $_GET["min_value".$id];
+                if(isset($_GET["min_value".$node_id])) {
+                        $min_value =  $_GET["min_value".$node_id];
                         if($min_value != 'N/A'){
                                 $query = "UPDATE nodes SET min_value = '".$min_value."' WHERE id='".$row['id']."' LIMIT 1;";
                                 if(!$conn->query($query)){

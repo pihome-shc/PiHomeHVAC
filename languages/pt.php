@@ -1113,4 +1113,6 @@ $lang['setup_guide_multiple_sensors'] = "Setup Zones with Multiple Sensors";
 $lang['sensor_average_record_add_success'] = "Average Sensor Record Added Successfully.";
 $lang['sensor_average_record_update_success'] = "Average Sensor Record Updated Successfully.";
 $lang['sensor_average_record_fail'] = "Average Sensor Record Add/Update Failed:";
+$lang['access_level'] = "User Access Level";
+$lang['access_level_info'] = "Level 1 User are able to configure all systems features and settings.<br>Level 2 Users have display only access.";
 ?>

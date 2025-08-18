@@ -1453,7 +1453,7 @@ echo '<div class="modal fade" id="max_cpu_temp" tabindex="-1" role="dialog" aria
                 $row = mysqli_fetch_array($result);
                 echo '<div class="form-group" class="control-label"><label>'.$lang['temperature'].'</label> <small class="text-muted"> </small>
                 <select class="form-select" type="text" id="m_cpu_temp" name="m_cpu_temp" >';
-                for ($x = 40; $x <=  80; $x = $x + 5) {
+                for ($x = 40; $x <=  70; $x = $x + 5) {
                         echo '<option value="'.$x.'" ' . ($x==$row['max_cpu_temp'] ? 'selected' : '') . '>'.$x.'&deg;</option>';
                 }
                 echo '</select>
@@ -3980,7 +3980,7 @@ while ($row = mysqli_fetch_assoc($results)) {
             <td>'.$row["node_id"].'</td>
             <td><input id="max_child_id'.$row["node_id"].'" type="value" class="form-control float-right" style="border: none" name="max_child_id'.$row["node_id"].'" value="'.$row["max_child_id"].'" placeholder="Max Child ID"></td>
             <td>'.$row["name"].'</td>';
-	    if($zcount != 0 || strpos($row["type"], "GPIO") !== false) {
+	    if($zcount != 0) {
 		echo '<td><div class="tooltip-wrapper" data-bs-toggle="tooltip" title="'.$content_msg_z.'"><button class="btn btn-danger btn-xs disabled"><span class="bi bi-trash-fill black"></span></button> </div></td>';
 	    } else {
 		echo '<td><button class="btn warning btn-danger btn-xs" onclick="delete_node('.$row["id"].');" data-confirm="'.$content_msg.'"><span class="bi bi-trash-fill black"></span></button> </td>';
@@ -4455,7 +4455,7 @@ echo '
 $query = "SELECT nodes.*, battery.id AS batt
 FROM nodes
 LEFT JOIN battery ON battery.node_id = nodes.node_id
-WHERE status = 'Active' ORDER BY nodes.id asc;";
+WHERE status = 'Active' ORDER BY nodes.node_id asc;";
 $results = $conn->query($query);
 echo '<table>
     <tr>
@@ -4474,11 +4474,11 @@ while ($row = mysqli_fetch_assoc($results)) {
             <td>'.$row['node_id'].'</td>
             <td>'.$row['name'].'</td>
             <td>'.$row['last_seen'].'</td>
-            <td><input id="interval'.$row["id"].'" type="value" class="form-control float-right" style="border: none" name="interval'.$row["id"].'" value="'.$row["notice_interval"].'" placeholder="Notice Interval" required></td>';
+            <td><input id="interval'.$row["node_id"].'" type="value" class="form-control float-right" style="border: none" name="interval'.$row["node_id"].'" value="'.$row["notice_interval"].'" placeholder="Notice Interval" required></td>';
 	    if(!isset($row['batt'])) {
-	            echo '<td><input id="min_value'.$row["id"].'" type="value" class="form-control float-right" style="border: none" name="min_value'.$row["id"].'" value="N/A" readonly="readonly" placeholder="Min Value"></td>';
+	            echo '<td><input id="min_value'.$row["node_id"].'" type="value" class="form-control float-right" style="border: none" name="min_value'.$row["node_id"].'" value="N/A" readonly="readonly" placeholder="Min Value"></td>';
 	    } else {
-                    echo '<td><input id="min_value'.$row["id"].'" type="value" class="form-control float-right" style="border: none" name="min_value'.$row["id"].'" value="'.$row["min_value"].'" placeholder="Min Value"></td>';
+                    echo '<td><input id="min_value'.$row["node_id"].'" type="value" class="form-control float-right" style="border: none" name="min_value'.$row["node_id"].'" value="'.$row["min_value"].'" placeholder="Min Value"></td>';
 	    }
         echo '</tr>';
 

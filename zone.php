@@ -539,6 +539,9 @@ if (isset($_POST['submit'])) {
         $query = "SELECT id, relay_id, name FROM relays WHERE type > 0 LIMIT 1;";
 	$result = $conn->query($query);
 	$rowsystem_controller = mysqli_fetch_assoc($result);
+} else {
+	$sensor_count = 1;
+	$controller_count = 1;
 }
 
 // get the list of available sensors in to array

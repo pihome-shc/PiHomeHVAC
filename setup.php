@@ -224,7 +224,7 @@ if (file_exists($sudoersfile)) {
 
 // Add User table data 
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Creating User Table.  \n";
-$query_user = "REPLACE INTO `user` (`id`, `account_enable`, `fullname`, `username`, `email`, `password`, `cpdate`, `account_date`, `admin_account`) VALUES(1, 1, 'Administrator', 'admin', '', '0f5f9ba0136d5a8588b3fc70ec752869', 'date1', 'date2', 1);";
+$query_user = "REPLACE INTO `user` (`id`, `account_enable`, `fullname`, `username`, `email`, `password`, `cpdate`, `account_date`, `access_level`) VALUES(1, 1, 'Administrator', 'admin', '', '0f5f9ba0136d5a8588b3fc70ec752869', 'date1', 'date2', 0);";
 $query_user = str_replace("date1",$date_time,$query_user);
 $query_user = str_replace("date2",$date_time,$query_user);
 $results = $conn->query($query_user);

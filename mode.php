@@ -305,7 +305,7 @@ $theme = settings($conn, 'theme');
                         }
                 }
 
-                if($_SESSION['admin'] == 1) {
+                if($_SESSION['access'] != 2) {
 			for ($x = 0; $x <=  4 + ($system_controller_mode * 3); $x++) { ?>
 	                        <a style="color: #777; cursor: pointer; text-decoration: none;" href="javascript:set_sc_mode(<?php echo $x; ?>)">
         	                <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle btn-xxl mainbtn">

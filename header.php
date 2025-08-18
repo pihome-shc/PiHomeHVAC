@@ -131,7 +131,7 @@ $theme = settings($conn, 'theme');
                     </a>
                 </li>
 
-		<?php if ($_SESSION['admin'] == 1) { ?>
+		<?php if ($_SESSION['access'] != 2) { ?>
                 	<!-- /.dropdown-settings -->
                 	<li class="nav-item dropdown">
                     		<a class="nav-link dropdown-toggle <?php echo theme($conn, settings($conn, 'theme'), 'text_color'); ?>" data-bs-toggle="dropdown" href="#">
@@ -168,7 +168,7 @@ $theme = settings($conn, 'theme');
                     <!-- /.dropdown-user -->
                 </li>
  
-                <?php if ($_SESSION['admin'] == 1 && scan_dir('/var/www/code_updates')) { ?>
+                <?php if ($_SESSION['access'] != 2 && scan_dir('/var/www/code_updates')) { ?>
                         <li class="nav-item">
                             <a class="nav-link" data-bs-toggle="modal" href="#code_update_Modal" data-bs-backdrop="static" data-bs-keyboard="false">
                                 <i class="bi bi-download <?php echo theme($conn, settings($conn, 'theme'), 'text_color'); ?>" style="font-size: 1.2rem;"></i>
@@ -176,7 +176,7 @@ $theme = settings($conn, 'theme');
                         </li>
                 <?php } ?>
 
-                <?php if ($_SESSION['admin'] == 1 && scan_dir('/var/www/database_updates')) { ?>
+                <?php if ($_SESSION['access'] != 2 && scan_dir('/var/www/database_updates')) { ?>
                         <li class="nav-item">
                             <a class="nav-link" data-bs-toggle="modal" href="#database_update_Modal" data-bs-backdrop="static" data-bs-keyboard="false">
                                 <i class="bi bi-server <?php echo theme($conn, settings($conn, 'theme'), 'text_color'); ?>" style="font-size: 1.2rem;"></i>

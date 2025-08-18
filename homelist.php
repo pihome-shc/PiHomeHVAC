@@ -32,10 +32,10 @@ $page_refresh = page_refresh($conn);
 
 // set the display mask for standalone sensors and add-on controllers
 $user_id = $_SESSION['user_id'];
-$query = "SELECT admin_account FROM user WHERE id<='{$user_id}' LIMIT 1;";
+$query = "SELECT access_level FROM user WHERE id = '{$user_id}' LIMIT 1;";
 $result = $conn->query($query);
 $row = mysqli_fetch_array($result);
-$access_level = $row["admin_account"];
+$access_level = $row["access_level"];
 
 if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display everything so mask = 0
 	$user_display_mask = 0;
@@ -194,8 +194,7 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
 						}
 
 	                		}
-
-					if ($mode_select == 0 && $user_display_mask == 0) {
+					if ($mode_select == 0 && $access_level != 2) {
                                                 echo '<button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-circle no-shadow black-background '.$button_style.' mainbtn animated fadeIn" onclick="active_sc_mode()">
 		        	        	<h3 class="text-nowrap buttontop"><small>'.$lang['mode'].'</small></h3>
 	        			        <h3 class="degre" >'.$current_sc_mode.'</h3>';
@@ -216,8 +215,8 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
 			                        } else {
                 			                echo '<h3 class="statuszoon float-left text-dark"><small>&nbsp</small></h3>';
 		        	                }
-                			        echo '</button>';
-			                } elseif ($user_display_mask == 0 || $access_level == 1) {
+                			        echo '</button>';;
+			                } elseif ($access_level != 2) {
 						echo '<button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-circle no-shadow black-background '.$button_style.' mainbtn animated fadeIn" onclick="relocate_page(`home.php?page_name=mode`)">
                 			        <h3 class="text-nowrap buttontop"><small>'.$current_sc_mode.'</small></h3>
 		                	        <h3 class="degre" >'.$lang['mode'].'</h3>';
@@ -244,12 +243,12 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
 					//loop through zones
 					$active_schedule = 0;
 					$zone_params = [];
-                    $query = "SELECT DISTINCT `zone`.`id`,`zone`.`name`, `zt`.`type`, `zt`.`category`
-                            FROM `zone`
-                            JOIN `zone_type` `zt` ON `zt`.`id` = `zone`.`type_id`
-                            JOIN `sensors` `s` ON `s`.`zone_id` = `zone`.`id`
-                            WHERE (`zone`.`type_id` = `zt`.`id`) AND (`zt`.`category` = 0 OR `zt`.`category` = 3 OR `zt`.`category` = 4)
-                            ORDER BY `zone`.`index_id` ASC;";
+					$query = "SELECT DISTINCT `zone`.`id`,`zone`.`name`, `zt`.`type`, `zt`.`category`
+						FROM `zone`
+						JOIN `zone_type` `zt` ON `zt`.`id` = `zone`.`type_id`
+						JOIN `sensors` `s` ON `s`.`zone_id` = `zone`.`id`
+						WHERE (`zone`.`type_id` = `zt`.`id`) AND (`zt`.`category` = 0 OR `zt`.`category` = 3 OR `zt`.`category` = 4)
+						ORDER BY `zone`.`index_id` ASC;";
 					$results = $conn->query($query);
 					while ($row = mysqli_fetch_assoc($results)) {
 						$zone_id=$row['id'];
@@ -296,7 +295,7 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
                                                 // catch startup condition where the sensors have not yet been read
                                                 $sensor_count = mysqli_num_rows($sresults);
                                                 if ($sensor_count == 0) {
-                                                        $query = "SELECT * FROM `sensors` WHERE zone_id = '{$zone_id}';";
+                                                         $query = "SELECT * FROM `sensors` WHERE zone_id = '{$zone_id}';";
                                                         $sresults = $conn->query($query);
                                                         $sensor_count = mysqli_num_rows($sresults);
                                                 }
@@ -970,6 +969,4 @@ $(document).ready(function(){
   })();
 });
 </script>
-
-
 
