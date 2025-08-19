@@ -1337,5 +1337,69 @@ if ($type <= 5 || $type == 38) {
                         <td class="col-2" style="text-align:center; vertical-align:middle;" data-bs-toggle="tooltip" title="'.$content_msg.'"><button class="btn-circle" style="background-color:'.$r_color.'" onclick="relay_log(`'.$r_id.'`, `'.$r_name.'`, `'.$relay_id.'`);"</button></td>
                 </tr>';
 	}
+} elseif ($type == 39) {
+        //-----------------------------
+        //update system controller mode
+        //-----------------------------
+        $query = "SELECT * FROM system_controller LIMIT 1";
+        $result = $conn->query($query);
+        $row = mysqli_fetch_array($result);
+        if ($result->num_rows > 0) {
+                $sc_mode  = $row['sc_mode'];
+                //Mode 0 is EU Boiler Mode, Mode 1 is US HVAC Mode
+                $system_controller_mode = settings($conn, 'mode') & 0b1;
+                //if in HVAC mode display the mode selector
+                if ($system_controller_mode == 1) {
+                        switch ($sc_mode) {
+                                case 0:
+                                        $current_sc_mode = $lang['mode_off'];
+                                        break;
+                                case 1:
+                                        $current_sc_mode = $lang['mode_timer'];
+                                        break;
+                                case 2:
+                                        $current_sc_mode = $lang['mode_timer'];
+                                        break;
+                                case 3:
+                                        $current_sc_mode = $lang['mode_timer'];
+                                        break;
+                                case 4:
+                                        $current_sc_mode = $lang['mode_auto'];
+                                        break;
+                                case 5:
+                                        $current_sc_mode = $lang['mode_fan'];
+                                        break;
+                                case 6:
+                                        $current_sc_mode = $lang['mode_heat'];
+                                        break;
+                                case 7:
+                                        $current_sc_mode = $lang['mode_cool'];
+                                        break;
+                                default:
+                                        $current_sc_mode = $lang['mode_off'];
+                        }
+                } else {
+                        switch ($sc_mode) {
+                                case 0:
+                                        $current_sc_mode = $lang['mode_off'];
+                                        break;
+                                case 1:
+                                        $current_sc_mode = $lang['mode_timer'];
+                                        break;
+                                case 2:
+                                        $current_sc_mode = $lang['mode_ce'];
+                                        break;
+                                case 3:
+                                        $current_sc_mode = $lang['mode_hw'];
+                                        break;
+                                case 4:
+                                        $current_sc_mode = $lang['mode_both'];
+                                        break;
+                                default:
+                                        $current_sc_mode = $lang['mode_off'];
+                        }
+                }
+        echo $current_sc_mode;
+        }
 }
 ?>
