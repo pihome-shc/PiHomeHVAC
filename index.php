@@ -247,8 +247,8 @@ if (isset($_POST['submit'])) {
 				}
 				redirect_to($url);
 			} else {
-				// add entry to database if login is success
-				$query = "INSERT INTO userhistory(username, password, date, audit, ipaddress) VALUES ('{$username}', '{$password}', '{$lastlogin}', 'Failed', '{$ip}')";
+				// add entry to database if login is failed
+                $query = "INSERT INTO userhistory(username, password, date, audit, ipaddress, s_id) VALUES ('{$username}', '{$password}', '{$lastlogin}', 'Failed', '{$ip}', '{$s_id}')";
 				$result = $conn->query($query);
 				// username/password was not found in the database
 				$error_message = $lang['user_pass_error'];
