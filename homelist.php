@@ -197,7 +197,7 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
 					if ($mode_select == 0 && $access_level != 2) {
                                                 echo '<button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-circle no-shadow black-background '.$button_style.' mainbtn animated fadeIn" onclick="active_sc_mode()">
 		        	        	<h3 class="text-nowrap buttontop"><small>'.$lang['mode'].'</small></h3>
-	        			        <h3 class="degre" >'.$current_sc_mode.'</h3>';
+	        			        <h3 class="degre" id="sc_mode">'.$current_sc_mode.'</h3>';
 		                        	if ($system_controller_mode == 1) {
                 		                	switch ($sc_mode) {
                                 		        	case 1:
@@ -219,7 +219,7 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
 			                } elseif ($access_level != 2) {
 						echo '<button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-circle no-shadow black-background '.$button_style.' mainbtn animated fadeIn" onclick="relocate_page(`home.php?page_name=mode`)">
                 			        <h3 class="text-nowrap buttontop"><small>'.$current_sc_mode.'</small></h3>
-		                	        <h3 class="degre" >'.$lang['mode'].'</h3>';
+		                	        <h3 class="degre" id="sc_mode">'.$lang['mode'].'</h3>';
                 		        	if ($system_controller_mode == 1) {
                                 			switch ($sc_mode) {
 		                                        	case 1:
@@ -961,6 +961,7 @@ $(document).ready(function(){
             }
     }
 
+    $('#sc_mode').load("ajax_fetch_data.php?id=0&type=39").fadeIn("slow");
     $('#sc_status').load("ajax_fetch_data.php?id=0&type=24").fadeIn("slow");
     $('#homelist_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
     $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
@@ -969,4 +970,5 @@ $(document).ready(function(){
   })();
 });
 </script>
+
 
