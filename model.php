@@ -4474,11 +4474,11 @@ while ($row = mysqli_fetch_assoc($results)) {
             <td>'.$row['node_id'].'</td>
             <td>'.$row['name'].'</td>
             <td>'.$row['last_seen'].'</td>
-            <td><input id="interval'.$row["node_id"].'" type="value" class="form-control float-right" style="border: none" name="interval'.$row["node_id"].'" value="'.$row["notice_interval"].'" placeholder="Notice Interval" required></td>';
+            <td><input id="interval'.$row["id"].'" type="value" class="form-control float-right" style="border: none" name="interval'.$row["id"].'" value="'.$row["notice_interval"].'" placeholder="Notice Interval" required></td>';
 	    if(!isset($row['batt'])) {
-	            echo '<td><input id="min_value'.$row["node_id"].'" type="value" class="form-control float-right" style="border: none" name="min_value'.$row["node_id"].'" value="N/A" readonly="readonly" placeholder="Min Value"></td>';
+	            echo '<td><input id="min_value'.$row["id"].'" type="value" class="form-control float-right" style="border: none" name="min_value'.$row["id"].'" value="N/A" readonly="readonly" placeholder="Min Value"></td>';
 	    } else {
-                    echo '<td><input id="min_value'.$row["node_id"].'" type="value" class="form-control float-right" style="border: none" name="min_value'.$row["node_id"].'" value="'.$row["min_value"].'" placeholder="Min Value"></td>';
+                echo '<td><input id="min_value'.$row["id"].'" type="value" class="form-control float-right" style="border: none" name="min_value'.$row["id"].'" value="'.$row["min_value"].'" placeholder="Min Value"></td>';
 	    }
         echo '</tr>';
 
