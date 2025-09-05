@@ -1071,27 +1071,29 @@ try:
                     zone_controler_id = controllers_dict[zone_id][key]["controler_id"]
                     zone_controler_child_id = controllers_dict[zone_id][key]["controler_child_id"]
                     controler_found = False
-                    # check if an MQTT type sensor
+                    #Get data from nodes table
                     cur.execute(
-                        "SELECT * FROM `mqtt_devices` WHERE nodes_id = %s AND child_id = %s AND type = 0 LIMIT 1",
-                        (zone_controler_id, zone_controler_child_id),
+                        "SELECT * FROM nodes WHERE node_id = %s AND status IS NOT NULL LIMIT 1;",
+                        (zone_controler_id,),
                     )
                     if cur.rowcount > 0:
                         controler_found = True
-                        mqtt_device = cur.fetchone()
-                        mqtt_device_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                        controler_seen_time = mqtt_device[mqtt_device_to_index["last_seen"]]
-                        controler_notice = mqtt_device[mqtt_device_to_index["notice_interval"]]
-                    else:
-                        #Get data from nodes table
-                        cur.execute(
-                            "SELECT * FROM nodes WHERE node_id = %s AND status IS NOT NULL LIMIT 1;",
-                            (zone_controler_id,),
-                        )
-                        if cur.rowcount > 0:
-                            controler_found = True
-                            node = cur.fetchone()
-                            node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                        node = cur.fetchone()
+                        node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                        nodes_id = node[node_to_index["id"]]
+                        nodes_type = node[node_to_index["type"]]
+                        if 'MQTT' in nodes_type:
+                            # check if an MQTT type sensor
+                            cur.execute(
+                                "SELECT * FROM `mqtt_devices` WHERE nodes_id = %s AND child_id = %s AND type = 0 LIMIT 1",
+                                (nodes_id, zone_controler_child_id),
+                            )
+                            if cur.rowcount > 0:
+                                mqtt_device = cur.fetchone()
+                                mqtt_device_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                                controler_seen_time = mqtt_device[mqtt_device_to_index["last_seen"]]
+                                controler_notice = mqtt_device[mqtt_device_to_index["notice_interval"]]
+                        else:
                             controler_seen_time = node[node_to_index["last_seen"]]
                             controler_notice = node[node_to_index["notice_interval"]]
                     if controler_found:
@@ -1101,7 +1103,7 @@ try:
                                 zone_ctr_fault = 1
 #                                zone_mode = 10
                                 if dbgLevel >= 2:
-                                    print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone valve communication timeout for This Zone. Node Last Seen: " + str(controler_seen_time))
+                                    print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone valve communication timeout for This Zone. Node Last Seen: ">
                             else:
                                 zone_fault = 0
                                 zone_ctr_fault = 0
