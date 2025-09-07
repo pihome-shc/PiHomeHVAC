@@ -1103,7 +1103,7 @@ try:
                                 zone_ctr_fault = 1
 #                                zone_mode = 10
                                 if dbgLevel >= 2:
-                                    print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone valve communication timeout for This Zone. Node Last Seen: ">
+                                    print(bc.dtm + script_run_time(script_start_timestamp, int_time_stamp) + bc.ENDC + " - Zone valve communication timeout for This Zone. Node Last Seen: " + str(controler_seen_time))
                             else:
                                 zone_fault = 0
                                 zone_ctr_fault = 0
