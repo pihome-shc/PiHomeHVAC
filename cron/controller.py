@@ -1077,7 +1077,6 @@ try:
                         (zone_controler_id,),
                     )
                     if cur.rowcount > 0:
-                        controler_found = True
                         node = cur.fetchone()
                         node_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
                         nodes_id = node[node_to_index["id"]]
@@ -1089,11 +1088,13 @@ try:
                                 (nodes_id, zone_controler_child_id),
                             )
                             if cur.rowcount > 0:
+                                controler_found = True
                                 mqtt_device = cur.fetchone()
                                 mqtt_device_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
                                 controler_seen_time = mqtt_device[mqtt_device_to_index["last_seen"]]
                                 controler_notice = mqtt_device[mqtt_device_to_index["notice_interval"]]
                         else:
+                            controler_found = True
                             controler_seen_time = node[node_to_index["last_seen"]]
                             controler_notice = node[node_to_index["notice_interval"]]
                     if controler_found:
