@@ -1082,7 +1082,7 @@ try:
                         nodes_id = node[node_to_index["id"]]
                         nodes_type = node[node_to_index["type"]]
                         if 'MQTT' in nodes_type:
-                            # check if an MQTT type sensor
+                            # check if an MQTT type state sensor
                             cur.execute(
                                 "SELECT * FROM `mqtt_devices` WHERE nodes_id = %s AND child_id = %s AND type = 0 LIMIT 1",
                                 (nodes_id, zone_controler_child_id),
@@ -1093,6 +1093,18 @@ try:
                                 mqtt_device_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
                                 controler_seen_time = mqtt_device[mqtt_device_to_index["last_seen"]]
                                 controler_notice = mqtt_device[mqtt_device_to_index["notice_interval"]]
+                            else:
+                                # not a relay state sensor, so check if an MQTT type relay controller
+                                cur.execute(
+                                    "SELECT * FROM `mqtt_devices` WHERE nodes_id = %s AND child_id = %s AND type = 1 LIMIT 1",
+                                    (nodes_id, zone_controler_child_id),
+                                )
+                                if cur.rowcount > 0:
+                                    controler_found = True
+                                    mqtt_device = cur.fetchone()
+                                    mqtt_device_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                                    controler_seen_time = mqtt_device[mqtt_device_to_index["last_seen"]]
+                                    controler_notice = mqtt_device[mqtt_device_to_index["notice_interval"]]
                         else:
                             controler_found = True
                             controler_seen_time = node[node_to_index["last_seen"]]
