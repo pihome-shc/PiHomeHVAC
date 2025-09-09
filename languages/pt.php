@@ -348,9 +348,9 @@ $lang['confirm_dell_active_zone_type'] = "Você está prestes a excluir um tipo 
 $lang['confirm_dell_de_active_zone_type'] = "Você está prestes a excluir um tipo de zona que não está em uso";
 $lang['confirm_dell_active_zone'] = "Você está prestes a excluir uma zona ativa";
 $lang['confirm_dell_de_active_zone'] = "Você está prestes a EXCLUIR UMA ZONA NENHUM ativa";
-//***********************************************************************************************************************************
+// ***********************************************************************************************************************************
 //                                                        Requires Translation
-//***********************************************************************************************************************************
+// ***********************************************************************************************************************************
 $lang['add_on'] = "Add On";
 $lang['add_on_http'] = "HTTP";
 $lang['add_on_settings'] = "Add-On HTTP Messages";
@@ -1097,4 +1097,22 @@ $lang['setup_user_accounts'] = "Setup User Accounts";
 $lang['wifi_not_found'] = "NO WiFi Interface Found";
 $lang['zone_current_state_logs'] = "Zone State Log";
 $lang['enable_zone_current_state_logs_text'] = "Enable logging of the 'zone_current_state' table to an individual file for each zone. The file will be created at ../logs and will be of the format 'zoneXX_current_state.log' where XX is the zone ID";
+$lang['sensor_relay_jumper_settings'] = "Sensor and Multi Controller PCB Jumper Settings";
+$lang['add_sensor'] = "Add an Additional Sensor to be attached to this Zone. ";
+$lang['remove_sensor'] = "Remove this Sensor from this Zone. ";
+$lang['sensor_record_clear_success'] = "Sensor Record Clear Successfully.";
+$lang['primary_temperature_sensor'] = "Primary Temperature Sensor";
+$lang['secondary_temperature_sensor'] = "Secondary Temperature Sensor";
+$lang['mean'] = "<small style='font-size:10px'>avg</small>";
+$lang['fail_timeout'] = "Fail Timeout";
+$lang['fail_timeout_info'] = "Maximum interval in Minutes before the device is considered to have failed to reported. Fault monitoring is disabled for the device if Timeout is set to 0.";
+$lang['attached_sensors'] = "Attached Sensors";
+$lang['attached_sensors_info'] = "Green - has not exceeded timeout or no timeout set<br>Red - Exceeded set timeout";
+$lang['average_temperature'] = "Average Temperature";
+$lang['setup_guide_multiple_sensors'] = "Setup Zones with Multiple Sensors";
+$lang['sensor_average_record_add_success'] = "Average Sensor Record Added Successfully.";
+$lang['sensor_average_record_update_success'] = "Average Sensor Record Updated Successfully.";
+$lang['sensor_average_record_fail'] = "Average Sensor Record Add/Update Failed:";
+$lang['access_level'] = "User Access Level";
+$lang['access_level_info'] = "Level 1 User are able to configure all systems features and settings.<br>Level 2 Users have display only access.";
 ?>

@@ -25,6 +25,24 @@ require_once(__DIR__ . '/st_inc/functions.php');
 
 if(isset($_GET['id'])) {
         $settings_id = $_GET['id'];
+        if ($settings_id == "7") {
+                $show_sensor_modal = 1;
+                $settings_id = 6;
+        } else {
+                $show_sensor_modal = 0;
+        }
+        if ($settings_id == "8") {
+                $show_relay_modal = 1;
+                $settings_id = 6;
+        } else {
+                $show_relay_modal = 0;
+        }
+        if ($settings_id == "9") {
+                $show_zone_modal = 1;
+                $settings_id = 5;
+        } else {
+                $show_zone_modal = 0;
+        }
 }
 
 $theme = settings($conn, 'theme');
@@ -378,11 +396,13 @@ if ($settings_id == 1) {
                                 	                	</button>
 							<?php } ?>
 
-	        	        		<button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#user_setup">
-				                <h3 class="buttontop"><small><?php echo $lang['user_accounts']; ?></small></h3>
-						<h3 class="degre" ><i class="bi bi-person-fill blue" style="font-size: 1.5rem;"></i></h3>
-				        	<h3 class="status"></small></h3>
-	        				</button>
+						<?php if ($_SESSION['access'] == 0) { ?>
+		        	        		<button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#user_setup">
+					                <h3 class="buttontop"><small><?php echo $lang['user_accounts']; ?></small></h3>
+							<h3 class="degre" ><i class="bi bi-person-fill blue" style="font-size: 1.5rem;"></i></h3>
+					        	<h3 class="status"></small></h3>
+	        					</button>
+						<?php } ?>
 
 						<button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#sw_install">
                         			<h3 class="buttontop"><small><?php echo $lang['software_install']; ?></small></h3>

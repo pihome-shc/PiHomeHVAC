@@ -24,7 +24,7 @@ print("                       " +bc.SUB + "S M A R T   THERMOSTAT " + bc.ENDC)
 print("      ********************************************************")
 print("      *          Script to send status Email messages        *")
 print("      *                Build Date: 26/10/2021                *")
-print("      *      Version 0.07 - Last Modified 18/02/2024         *")
+print("      *      Version 0.08 - Last Modified 08/07/2025         *")
 print("      *                                 Have Fun - PiHome.eu *")
 print("      ********************************************************")
 print(" ")
@@ -426,7 +426,7 @@ print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht 
 print(sline)
 
 # *************************************************************************************************************
-# Check if any Sensors have exceeded set thier limits
+# Check if any Sensors have exceeded set thier temperature limits
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Checking Sensors for Out of Limits Temperature")
 
 try:
@@ -448,42 +448,23 @@ try:
             min = i[sensor_to_index['min']]
             max = i[sensor_to_index['max']]
             # get the sensor node and child id
-            query = ("SELECT name, sensor_id, sensor_child_id FROM sensors WHERE id = '" + sensors_id + "' LIMIT 1")
+            query = ("SELECT name, sensor_id, sensor_child_id, current_val_1 FROM sensors WHERE id = '" + sensors_id + "' LIMIT 1")
             cursorsel = con.cursor()
             cursorsel.execute(query)
-            name_to_index = dict(
-                (d[0], i)
-                for i, d
-                in enumerate(cursorsel.description)
-            )
-            result = cursorsel.fetchone()
-            cursorsel.close()
-            name = result[name_to_index['name']]
-            sensor_id = result[name_to_index['sensor_id']]
-            sensor_id = str(sensor_id)
-            sensor_child_id = result[name_to_index['sensor_child_id']]
-            sensor_child_id = str(sensor_child_id)
-            # get the node id for this sensor
-            query = ("SELECT node_id FROM nodes WHERE id = '" + sensor_id + "' LIMIT 1")
-            cursorsel = con.cursor()
-            cursorsel.execute(query)
-            node_to_index = dict(
-                (d[0], i)
-                for i, d
-                in enumerate(cursorsel.description)
-            )
-            result = cursorsel.fetchone()
-            cursorsel.close()
-            node_id = result[node_to_index['node_id']]
-            node_id = str(node_id)
-            # get last temperature for this sensor
-            query = ("SELECT payload FROM messages_in_view_24h WHERE node_id = '" + node_id + "' AND child_id = '" + sensor_child_id + "' LIMIT 1;")
-            cursorsel = con.cursor()
-            cursorsel.execute(query)
-            result = cursorsel.fetchone()
-            cursorsel.close()
-            if cursorsel.rowcount > 0: # check if we have any data for this sensor
-                sensor_temp = result[0]
+            if cursorsel.rowcount > 0:
+                name_to_index = dict(
+                    (d[0], i)
+                    for i, d
+                    in enumerate(cursorsel.description)
+                )
+                result = cursorsel.fetchone()
+                cursorsel.close()
+                name = result[name_to_index['name']]
+                sensor_id = result[name_to_index['sensor_id']]
+                sensor_id = str(sensor_id)
+                sensor_child_id = result[name_to_index['sensor_child_id']]
+                sensor_child_id = str(sensor_child_id)
+                sensor_temp = result[name_to_index['current_val_1']]
                 if sensor_temp < min or sensor_temp > max:
                     if sensor_temp < min:
                         message = "Sensor - " + name + " is Below Minimum Limit"
@@ -533,6 +514,76 @@ finally:
         con.close()
 
 print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Sensor Limits Check Finished")
+print(sline)
+
+# *************************************************************************************************************
+# Check if any Sensors have exceeded thier fail_timeout limit
+print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Checking Sensors for Fail Timeout Error")
+
+try:
+    con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+    cursorselect = con.cursor()
+    query = ("SELECT id, name, sensor_id, sensor_child_id, fail_timeout, last_seen FROM sensors WHERE fail_timeout > 0 AND last_seen IS NOT NULL")
+    cursorselect.execute(query)
+    sensor_to_index = dict(
+        (d[0], i)
+        for i, d
+        in enumerate(cursorselect.description)
+    )
+    results = cursorselect.fetchall()
+    cursorselect.close()
+    if cursorselect.rowcount > 0:  # Some Sensors have limits set
+        for i in results:  # loop through sensors with limits
+            sensors_id = i[sensor_to_index['sensor_id']]
+            sensors_id = str(sensors_id)
+            id = i[sensor_to_index['id']]
+            name = i[sensor_to_index['name']]
+            notice_interval = i[sensor_to_index['fail_timeout']]
+            lst_seen = i[sensor_to_index['last_seen']]
+            timeDifference = (datetime.datetime.now() - last_seen)
+            time_difference_in_minutes = (timeDifference.days * 24 * 60) + (timeDifference.seconds / 60)
+            message = name + " " + str(id) + " last reported on " + str(last_seen)
+            # select any records in the notice table which match the current message
+            query = ("SELECT * FROM notice WHERE message = '" + message + "'")
+            cursorsel = con.cursor()
+            cursorsel.execute(query)
+            name_to_index = dict(
+                (d[0], i)
+                for i, d
+                in enumerate(cursorsel.description)
+            )
+            messages = cursorsel.fetchone()
+            cursorsel.close()
+            if time_difference_in_minutes >= notice_interval and notice_interval > 0:  # Active Sensor found which has not reported in the last test interval
+                cursorupdate = con.cursor()
+                if cursorsel.rowcount > 0:  # This message already exists
+                    if messages[name_to_index['status']] == 1:  # This node has already sent an email with this content
+                        cursorupdate.execute("UPDATE notice SET status = '0'")  # so clear status to stop further emails
+                else:  # new notification so add a new message to the notification table
+                    cursorupdate.execute(
+                        'INSERT INTO notice (sync, `purge`, datetime, message, status) VALUES(%s,%s,%s,%s,%s)',
+                        (0, 0, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), message, 1))
+                    print(bc.blu + (
+                        datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - " + name + " " + str(id) + " - Last Reported " + str(
+                        notice_interval) + " Minutes Ago.")
+
+                cursorupdate.close()
+                con.commit()
+            else:  # node has now reported so delete any 'notice' records
+                query = "DELETE FROM notice WHERE message LIKE '" + name + " " + str(id) + "%'"
+                cursordelete = con.cursor()
+                cursordelete.execute(query)
+                cursordelete.close()
+                con.commit()
+
+except mdb.Error as e:
+    print("Error %d: %s" % (e.args[0], e.args[1]))
+    sys.exit(1)
+finally:
+    if con:
+        con.close()
+
+print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Sensor Fail Timeout Check Finished")
 print(sline)
 
 # *************************************************************************************************************
@@ -771,8 +822,9 @@ if send_status:
         results = cursorselect.fetchall()
         cursorselect.close()
         if cursorselect.rowcount > 0:
+            MESSAGE = MESSAGE + "Message Sent - " + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + "\n\n"
             for i in results:
-                MESSAGE = MESSAGE + i[name_to_index['message']] + "\n"
+                MESSAGE = MESSAGE + (i[name_to_index['datetime']].strftime("%Y-%m-%d %H:%M:%S")) + " - " + i[name_to_index['message']] + "\n\n"
 
     except mdb.Error as e:
         print("Error %d: %s" % (e.args[0], e.args[1]))

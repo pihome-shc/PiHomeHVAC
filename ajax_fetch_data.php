@@ -77,7 +77,7 @@ if ($rowcount > 0) {
         $holidays_status = 0;
 }
 
-if ($type <= 5) {
+if ($type <= 5 || $type == 38) {
 	//---------------
 	//process  zones
 	//---------------
@@ -115,13 +115,27 @@ if ($type <= 5) {
 	}
 
 	//get the sensor id
-	$query = "SELECT * FROM sensors WHERE zone_id = '{$id}' LIMIT 1;";
-	$result = $conn->query($query);
-	$sensor = mysqli_fetch_array($result);
-	$temperature_sensor_id=$sensor['sensor_id'];
-	$temperature_sensor_child_id=$sensor['sensor_child_id'];
-	$sensor_type_id=$sensor['sensor_type_id'];
-	$zone_c = $sensor['current_val_1'];
+//	$query = "SELECT * FROM sensors WHERE zone_id = '{$id}';";
+	$query = "SELECT * FROM `sensors` WHERE (now() < DATE_ADD(`last_seen`, INTERVAL `fail_timeout` MINUTE) OR `fail_timeout` = 0) AND zone_id = '{$id}';";
+	$sresults = $conn->query($query);
+        // catch startup condition where the sensors have not yet been read
+        $sensor_count = mysqli_num_rows($sresults);
+        if ($sensor_count == 0) {
+                $query = "SELECT * FROM `sensors` WHERE zone_id = '{$zone_id}';";
+                $sresults = $conn->query($query);
+                $sensor_count = mysqli_num_rows($sresults);
+        }
+	$zone_c = 0;
+        while ($srow = mysqli_fetch_assoc($sresults)) {
+		$sensor_id = $srow['sensor_id'];
+                $sensor_type_id = $srow['sensor_type_id'];
+		$zone_c = $zone_c + $srow['current_val_1'];
+	}
+        if ($sensor_count > 0) {
+                $zone_c = $zone_c/$sensor_count;
+                $unit = SensorUnits($conn,$sensor_type_id);
+        }
+	$unit = SensorUnits($conn,$sensor_type_id);
 	//Zone Main Mode
 	/*	0 - idle
 		10 - fault
@@ -179,8 +193,11 @@ if ($type <= 5) {
                 case 1:
                         if ($zone_category != 2) {
 				if ($sensor_type_id != 3) {
-                                	$unit = SensorUnits($conn,$sensor_type_id);
-                               		 echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit;
+					if ($sensor_count > 1) { // add symbol to indicate that this is an average reading
+						echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit.$lang['mean'];
+					} else {
+                               		 	echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit;
+					}
                         	} else {
                                 	if ($add_on_active == 0) { echo 'OFF'; } else { echo 'ON'; }
 				}
@@ -200,6 +217,10 @@ if ($type <= 5) {
 	        case 5:
         	        if($overrun == 1) { echo '<i class="bi bi-play-fill orange-red">'; }
                 	break;
+		// livetemp
+		case 38:
+			echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit;
+			break;
 	        default:
 	}
 } elseif ($type == 6 || $type == 7 || $type == 8)  {
@@ -753,7 +774,7 @@ if ($type <= 5) {
         //update display last 5 CPU temps modal
         //--------------------------------------
 	echo '<div id="cpu_temps">';
-        	$query = "select * from messages_in where node_id = 0 order by datetime desc limit 5";
+        	$query = "select * from messages_in where node_id = '0' order by datetime desc limit 5";
                 $results = $conn->query($query);
                 echo '<div class="list-group">';
                 	while ($row = mysqli_fetch_assoc($results)) {
@@ -862,7 +883,7 @@ if ($type <= 5) {
         //return the current cpu tempeature status
         //----------------------------------------
 	$max_cpu_temp = settings($conn, 'max_cpu_temp');
-	$query = "select * from messages_in where node_id = 0 ORDER BY id DESC LIMIT 1";
+	$query = "select * from messages_in where node_id = '0' ORDER BY id DESC LIMIT 1";
 	$result = $conn->query($query);
 	$result = mysqli_fetch_array($result);
 	$system_cc = $result['payload'];
@@ -1316,5 +1337,69 @@ if ($type <= 5) {
                         <td class="col-2" style="text-align:center; vertical-align:middle;" data-bs-toggle="tooltip" title="'.$content_msg.'"><button class="btn-circle" style="background-color:'.$r_color.'" onclick="relay_log(`'.$r_id.'`, `'.$r_name.'`, `'.$relay_id.'`);"</button></td>
                 </tr>';
 	}
+} elseif ($type == 39) {
+        //-----------------------------
+        //update system controller mode
+        //-----------------------------
+        $query = "SELECT * FROM system_controller LIMIT 1";
+        $result = $conn->query($query);
+        $row = mysqli_fetch_array($result);
+        if ($result->num_rows > 0) {
+                $sc_mode  = $row['sc_mode'];
+                //Mode 0 is EU Boiler Mode, Mode 1 is US HVAC Mode
+                $system_controller_mode = settings($conn, 'mode') & 0b1;
+                //if in HVAC mode display the mode selector
+                if ($system_controller_mode == 1) {
+                        switch ($sc_mode) {
+                                case 0:
+                                        $current_sc_mode = $lang['mode_off'];
+                                        break;
+                                case 1:
+                                        $current_sc_mode = $lang['mode_timer'];
+                                        break;
+                                case 2:
+                                        $current_sc_mode = $lang['mode_timer'];
+                                        break;
+                                case 3:
+                                        $current_sc_mode = $lang['mode_timer'];
+                                        break;
+                                case 4:
+                                        $current_sc_mode = $lang['mode_auto'];
+                                        break;
+                                case 5:
+                                        $current_sc_mode = $lang['mode_fan'];
+                                        break;
+                                case 6:
+                                        $current_sc_mode = $lang['mode_heat'];
+                                        break;
+                                case 7:
+                                        $current_sc_mode = $lang['mode_cool'];
+                                        break;
+                                default:
+                                        $current_sc_mode = $lang['mode_off'];
+                        }
+                } else {
+                        switch ($sc_mode) {
+                                case 0:
+                                        $current_sc_mode = $lang['mode_off'];
+                                        break;
+                                case 1:
+                                        $current_sc_mode = $lang['mode_timer'];
+                                        break;
+                                case 2:
+                                        $current_sc_mode = $lang['mode_ce'];
+                                        break;
+                                case 3:
+                                        $current_sc_mode = $lang['mode_hw'];
+                                        break;
+                                case 4:
+                                        $current_sc_mode = $lang['mode_both'];
+                                        break;
+                                default:
+                                        $current_sc_mode = $lang['mode_off'];
+                        }
+                }
+        echo $current_sc_mode;
+        }
 }
 ?>

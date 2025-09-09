@@ -31,6 +31,10 @@ if(isset($_GET['id'])) {
 } else {
 	$id = 0;
 }
+
+$uri = $_SERVER['QUERY_STRING'];
+if (strpos($uri, "id=") !== false) { $link = "settings.php?s_id=7"; } else { $link = "home.php"; }
+
 //Form submit
 if (isset($_POST['submit'])) {
         $pre_post = isset($_POST['pre_post']) ? $_POST['pre_post'] : "0";
@@ -48,6 +52,7 @@ if (isset($_POST['submit'])) {
         $purge= '0';
 	$frost_temp = $_POST['frost_temp'];
 	if ($frost_temp == 0) { $frost_controller = 0; } else { $frost_controller = $_POST['frost_controller']; }
+	$fail_timeout = $_POST['fail_timeout'];
         $show_it = $_POST['show_it'];
         $min_max_graph = $_POST['min_max_graph'];
         $graph_num = $_POST['graph_num'];
@@ -60,14 +65,16 @@ if (isset($_POST['submit'])) {
 
         if ($id==0){
                 $query = "INSERT INTO `sensors` (`id`, `sync`, `purge`, `zone_id`, `sensor_id`, `sensor_child_id`, `correction_factor`, `sensor_type_id`, `index_id`, `pre_post`,
-                          `name`, `graph_num`, `show_it`, `min_max_graph`, `message_in`, `frost_temp`, `frost_controller`, `mode`, `timeout`, `resolution`, `current_val_1`, `current_val_2`, `user_display`)
+                           `name`, `graph_num`, `show_it`, `min_max_graph`, `message_in`, `frost_temp`, `frost_controller`, `fail_timeout`, `mode`, `timeout`, `resolution`, `current_val_1`,
+			   `current_val_2`, `user_display`)
                            VALUES ('{$id}', '{$sync}', '{$purge}', '0', '{$sensor_id}', '{$sensor_child_id}', '{$correction_factor}', '{$sensor_type_id}', '{$index_id}',
-                           '{$pre_post}', '{$name}', '0', '1', '0', 1, '{$frost_temp}', '{$frost_controller}', '{$mode}', '{$timeout}', '{$resolution}', 0, 0, 0);";
+                           '{$pre_post}', '{$name}', '0', '1', '0', 1, '{$frost_temp}', '{$frost_controller}', '{$fail_timeout}', '{$mode}', '{$timeout}', '{$resolution}', 0, 0, 0);";
         } else {
                 $query = "UPDATE `sensors` SET `sync` = '{$sync}',`purge` = '{$purge}',`sensor_id` = '{$sensor_id}',`sensor_child_id` = '{$sensor_child_id}',
-                         `correction_factor` = '{$correction_factor}',`sensor_type_id` = '{$sensor_type_id}',`index_id` = '{$index_id}',`pre_post` = '{$pre_post}',
-                          `name` = '{$name}',`graph_num` = '{$graph_num}',`show_it` = '{$show_it}',`min_max_graph` = '{$min_max_graph}',`message_in` = '{$message_in}',`frost_temp` = '{$frost_temp}',`frost_controller` = '{$frost_controller}',
-                          `mode` = '{$mode}', `timeout` = '{$timeout}', `resolution` = '{$resolution}' WHERE `id` = {$id};";
+                           `correction_factor` = '{$correction_factor}',`sensor_type_id` = '{$sensor_type_id}',`index_id` = '{$index_id}',`pre_post` = '{$pre_post}',
+                           `name` = '{$name}',`graph_num` = '{$graph_num}',`show_it` = '{$show_it}',`min_max_graph` = '{$min_max_graph}',`message_in` = '{$message_in}',
+			   `frost_temp` = '{$frost_temp}',`frost_controller` = '{$frost_controller}', `fail_timeout` = '{$fail_timeout}',
+                           `mode` = '{$mode}', `timeout` = '{$timeout}', `resolution` = '{$resolution}' WHERE `id` = {$id};";
         }
 	$result = $conn->query($query);
         $temp_id = mysqli_insert_id($conn);
@@ -81,9 +88,14 @@ if (isset($_POST['submit'])) {
 		$error = "<p>".$lang['sensor_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
 	}
 	$message_success .= "<p>".$lang['do_not_refresh']."</p>";
-	header("Refresh: 10; url=home.php");
-	// After update on all required tables, set $id to mysqli_insert_id.
-	if ($id==0){$id=$temp_id;}
+	header("Refresh: 10; url=home.php?page_name=onetouch");
+        // After update on all required tables, set $id to mysqli_insert_id.
+        if ($id==0) {
+                header("Refresh: 10; url=home.php?page_name=onetouch");
+                $id=$temp_id;
+        } else {
+                header("Refresh: 10; url=settings.php?s_id=7");
+        }
 }
 ?>
 <!-- ### Visible Page ### -->
@@ -172,6 +184,7 @@ if (isset($_POST['submit'])) {
                                                 <script language="javascript" type="text/javascript">
                                                 function enable_fields(value, record_id)
                                                 {
+							console.log(value, record_id);
                                                         if (value == 2) {
                                                                 document.getElementById("frost_temp").style.display = 'none';
                                                                 document.getElementById("frost_protection_label").style.visibility = 'hidden';
@@ -392,10 +405,20 @@ if (isset($_POST['submit'])) {
 							<div class="help-block with-errors"></div>
 						</div>
 
+                                                <!-- Sensor Fail Timout -->
+                                                        <div class="form-group" class="control-label" id="fail_timeout_label" style="display:block"><label><?php echo $lang['fail_timeout'];?></label> <small class="text-muted"><?php echo $lang['fail_timeout_info'];?></small>
+                                                        <select id="fail_timeout" name="fail_timeout" class="form-control select2" autocomplete="off">
+                                                        <?php for ($x = 0; $x <=  120; $x = $x + 10) {
+                                                                echo '<option value="'.$x.'" ' . ($x==$row['fail_timeout'] ? 'selected' : '') . '>'.$x.'</option>';
+                                                        } ?>
+                                                        </select>
+                                                        <div class="help-block with-errors"></div>
+                                                </div>
+
 						<br>
 						<!-- Buttons -->
 						<input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-sm">
-						<a href="home.php"><button type="button" class="btn btn-primary-<?php echo theme($conn, $theme, 'color'); ?> btn-sm"><?php echo $lang['cancel']; ?></button></a>
+						<a href="<?php echo $link; ?>"><button type="button" class="btn btn-primary-<?php echo theme($conn, $theme, 'color'); ?> btn-sm"><?php echo $lang['cancel']; ?></button></a>
 					</form>
 				</div>
                 		<!-- /.card-body -->

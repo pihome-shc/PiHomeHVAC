@@ -2,6 +2,7 @@
 import time, os, fnmatch, MySQLdb as mdb, logging
 from decimal import Decimal
 import configparser
+from datetime import datetime
 from Pin_Dict import pindict
 import board, digitalio
 
@@ -138,8 +139,8 @@ while True:
                         sensor_id = int(results[sensor_to_index["id"]])
                         # Update last reading for this sensor
                         cur.execute(
-                            "UPDATE `sensors` SET `current_val_1` = %s WHERE id = %s",
-                            [int(pin.value), sensor_id],
+                            "UPDATE `sensors` SET `current_val_1` = %s, `last_seen` = %s WHERE id = %s",
+                            [int(pin.value), datetime.now().strftime("%Y-%m-%d %H:%M:%S"), sensor_id],
                         )
                         con.commit()
                 # release the GPIO pin

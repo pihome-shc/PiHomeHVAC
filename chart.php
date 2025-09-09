@@ -27,14 +27,21 @@ require_once(__DIR__.'/st_inc/functions.php');
 $theme = settings($conn, 'theme');
 
 //create array of colours for the graphs
-$query ="SELECT * FROM sensors ORDER BY id ASC;";
+$query = "SELECT `id`, `sensor_id`, `sensor_child_id` FROM `sensors` 
+	UNION
+	SELECT `id`, `sensor_id`, 0 AS`sensor_child_id` FROM `sensor_average`
+	ORDER BY `id` ASC;";
 $results = $conn->query($query);
 $counter = 0;
 $count = mysqli_num_rows($results) + 2; //extra space made for system temperature graph
 $sensor_color = array();
 while ($row = mysqli_fetch_assoc($results)) {
-        $graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
-        $sensor_color[$graph_id] = graph_color($count, ++$counter);
+	if (strpos($row['sensor_id'], "zavg_") !== false) {
+		$graph_id = substr($row['sensor_id'], strpos($row['sensor_id'], "_") + 1).'.0';
+	} else {
+        	$graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
+	}
+	$sensor_color[$graph_id] = graph_color($count, ++$counter);
 }
 
 //check which graphs are enabled as a 6 bit mask

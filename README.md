@@ -1,6 +1,6 @@
 # MaxAir - Smart Thermostat
 
-### Note: Now at Version 3.04.
+### Note: Now at Version 3.11.
 
 The previous version, PiHome, was centered around the creation of zones, this version is more centered around devices.
 
@@ -53,7 +53,22 @@ Version 3.02 Change to the operation of cascading popup screens where they now r
 
 Version 3.03 Introduces Graph Archiving. Optionally all sensors which generate a graph can be archived to a CSV file at midnight each day, the storage path can be set to any location prefered. Additionally a new Graph category, Min/Max, has been added, it used the data from the archive file to display separate graphs for the minimum and maximum sensor readings on a daily basis.
 
-Version 3.04 Adds support for MySensor relay sketches which use 'Heartbeat' signals ie. the WT32-ETH01 adapter where the sketch version is > 0.37 and the Zone Controller or Multi Controller where the sketch version is > 0.33. For these adapters the relay state will only be updated on change rather than being continually rewrite, additionally any unallocated relays will be restored to the OFF state by the 'Heartbeat' process. 
+Version 3.04 Adds support for MySensor relay sketches which use 'Heartbeat' signals ie. the WT32-ETH01 adapter where the sketch version is > 0.37 and the Zone Controller or Multi Controller where the sketch version is > 0.33. For these adapters the relay state will only be updated on change rather than being continually rewrite, additionally any unallocated relays will be restored to the OFF state by the 'Heartbeat' process.
+
+Version 3.05 Changes to ESP32-ETH01 Gateway Controller sketch to only write updates on state change. Rollup of various bug fixes.
+
+Version 3.06 Remove dependancy on paho-mqtt Version 1.5. Changes to Multi-Controller sketch.
+
+Version 3.07 Adds support zones with multiple sensors, using average sensor temperature reading. Update to Bootstrap Version 3.5.7.
+
+Version 3.08 Change to Notification EMail to add timestamps.
+
+Version 3.09 Bug Fix to ensure that if a system power failure occurs during a zone overrun phase, then the system will return with the zone relay switched OFF.
+Update – if zone, or sensor, or relay edit is initiated from the Settings menu, then after committing the change, the user is returned to the popup menu from which the edit was initiated.
+
+Version 3.10 Improvements in display and processing of multi-sensor zones, includes a new table 'sensor_average'.
+
+Version 3.11 User account management revised, to create three distint levels of access to the system; Level 0 - system administrator, with full access to the system, Level 1 - user with configuration access to the system and Level 2 - user with display only access. Support added for the 'Olimex Gateway', which functions as a gateway plus relay controller plus multiple DS18B20 sensor support.
 
 ## Setup:
 
@@ -117,7 +132,9 @@ To install on Debian/Ubuntu:
 * sudo apt -y install git
 * sudo git clone https://github.com/pihome-shc/PiHomeHVAC.git "/var/www"
 * sudo chown -R www-data:www-data /var/www
-* cd /var/www
+* cd /var/www/prerequisites
+* sudo bash ./install.sh (accept all defaults, when asked to enter a new password for the mariadb us passw0rd)
+* cd ../
 * sudo php ./setup.php
 
 To install on ArchLinux:
@@ -125,10 +142,10 @@ To install on ArchLinux:
 * sudo pacman -S git
 * sudo git clone https://github.com/pihome-shc/PiHomeHVAC.git "/srv/http"
 * sudo chown -R http:http /srv/http
-* cd /srv/http
+* cd /srv/http/prerequisites
+* sudo bash ./install.sh (accept all defaults, when asked to enter a new password for the mariadb us passw0rd)
+* cd ../
 * sudo php ./setup.php (setup.php will create a symbolic link /var/www to /srv/http, for compatibility)
-
-### For more detailed instructiosn vist [PiHome](http://www.pihome.eu "PiHome - Smart Heating Control") website 
 
 
 ## Secial Thanks to

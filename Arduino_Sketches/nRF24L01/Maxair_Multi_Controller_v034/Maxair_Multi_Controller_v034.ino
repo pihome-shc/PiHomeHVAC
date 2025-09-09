@@ -9,7 +9,7 @@
 // *****************************************************************
 // *          8 Channel Multi Controller Relay Sketch              *
 // *            Version 0.34 Build Date 06/11/2017                 *
-// *            Last Modification Date 27/05/2024                  *
+// *            Last Modification Date 13/03/2025                  *
 // *                                          Have Fun - PiHome.eu *
 // *****************************************************************
 
@@ -169,9 +169,9 @@ void before()
 }
 
 void setup(){
-	wdt_disable();
-	//do something here if needed 
-	wdt_enable (WDTO_8S);
+  wdt_disable();
+  //do something here if needed 
+  wdt_enable (WDTO_8S);
   #ifdef MY_DEBUG
     Serial.println("WATCHDOG CONFIGURED");
   #endif
@@ -182,13 +182,13 @@ void setup(){
 void(* resetFunc) (void) = 0; 
 
 void presentation(){
-	// Send the sketch version information to the gateway and Controller
-	sendSketchInfo(SKETCH_NAME, SKETCH_VERSION);
-	for (int sensor=1; sensor<=NUMBER_OF_RELAYS; sensor++) {
-		// Register all sensors to gw (they will be created as child devices)
-		present(sensor, S_BINARY);
-		delay(200);
-	}
+  // Send the sketch version information to the gateway and Controller
+  sendSketchInfo(SKETCH_NAME, SKETCH_VERSION);
+  for (int sensor=1; sensor<=NUMBER_OF_RELAYS; sensor++) {
+    // Register all sensors to gw (they will be created as child devices)
+    present(sensor, S_BINARY);
+    delay(200);
+  }
 }
 
 void loop(){
@@ -258,47 +258,49 @@ void loop(){
 //}
 
 void receive(const MyMessage &message){
-	// We only expect one type of message from controller. But we better check anyway.
-	if (message.type==V_STATUS) {
+  // We only expect one type of message from controller. But we better check anyway.
+  if (message.type==V_STATUS) {
     int pin = message.sensor - 1;
     digitalWrite(pinarray[pin], message.getBool()?xnor(trigger, RELAY_OFF):xnor(trigger, RELAY_ON));
     // Store state in eeprom
     saveState(message.sensor, message.getBool());
-		delay(100);
-		// Write some debug info
-		#ifdef MY_DEBUG
-			Serial.print("Incoming Change for Relay: ");
-			Serial.print(message.sensor);
+    delay(100);
+    // Use relay update to reset heartbeat timer
+    recieve_heartbeat_time = millis();
+    // Write some debug info
+    #ifdef MY_DEBUG
+      Serial.print("Incoming Change for Relay: ");
+      Serial.print(message.sensor);
       Serial.print(" - pin: ");
       Serial.print(pinarray[pin]);
-			Serial.print(" - New Status: ");
-			Serial.println(message.getBool());
-		#endif
-	}
-	if (message.type==V_VAR1) {
-    #ifdef MY_DEBUG
-		  Serial.print("Node ID:    ");
-		  Serial.println(message.destination);
-		  Serial.print("Type:    "); //Message type, the number assigned
-		  Serial.println(message.type); // V_VAR1 is 24 zero. etc.
-		  Serial.print("Child:   "); // Child ID of the Sensor/Device
-		  Serial.println(message.sensor);
-		  Serial.print("Payload: "); // This is where the wheels fall off
-		  Serial.println(message.getString()); // This works great!
+      Serial.print(" - New Status: ");
+      Serial.println(message.getBool());
     #endif
-		//if (message.sensor==99 && message.type==24 && message.getString()=="99"){
-		if (message.sensor==99 && message.type==24){
+  }
+  if (message.type==V_VAR1) {
+    #ifdef MY_DEBUG
+      Serial.print("Node ID:    ");
+      Serial.println(message.destination);
+      Serial.print("Type:    "); //Message type, the number assigned
+      Serial.println(message.type); // V_VAR1 is 24 zero. etc.
+      Serial.print("Child:   "); // Child ID of the Sensor/Device
+      Serial.println(message.sensor);
+      Serial.print("Payload: "); // This is where the wheels fall off
+      Serial.println(message.getString()); // This works great!
+    #endif
+    //if (message.sensor==99 && message.type==24 && message.getString()=="99"){
+    if (message.sensor==99 && message.type==24){
       #ifdef MY_DEBUG
-			  Serial.print("Reboot Command Received!!! \n");
-			  Serial.print("..::Rebooting Controller::.. \n");
+        Serial.print("Reboot Command Received!!! \n");
+        Serial.print("..::Rebooting Controller::.. \n");
       #endif
       for (int pin=0; pin<NUMBER_OF_RELAYS; pin++) {
         digitalWrite(pinarray[pin], xnor(trigger, RELAY_OFF));
         delay(100);
       }
-			//call reset function 
-			resetFunc();
-		}
+      //call reset function 
+      resetFunc();
+    }
     // a heartbeat message has been sent to this NODE_ID, so reset the heartbeat timer
     if (message.destination==MY_NODE_ID && message.type==24){
       #ifdef MY_DEBUG
@@ -306,7 +308,7 @@ void receive(const MyMessage &message){
       #endif
       recieve_heartbeat_time = millis();
     }
-	}
+  }
   // Clear any unallocated relays when the Gateway script heartbeat message is returned
   if (message.type==V_VAR3) {
     Serial.print("Relay Mask: ");

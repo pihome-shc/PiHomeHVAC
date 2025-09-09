@@ -31,6 +31,10 @@ if(isset($_GET['id'])) {
 } else {
 	$id = 0;
 }
+
+$uri = $_SERVER['QUERY_STRING'];
+if (strpos($uri, "id=") !== false) { $link = "settings.php?s_id=8"; } else { $link = "home.php"; }
+
 //Form submit
 if (isset($_POST['submit'])) {
 	$name = $_POST['name'];
@@ -50,7 +54,7 @@ if (isset($_POST['submit'])) {
 	} else {
 		$payload = 0;
 	}
-        if(strpos($node_name, 'Gateway Controller Relay') !== false) {
+        if(strpos($node_name, 'Gateway Controller Relay' || strpos($node_name, 'Olimex Gateway Controller') !== false) !== false) {
                 $message_type = 25;
         } else {
                 $message_type = 2;
@@ -66,11 +70,12 @@ if (isset($_POST['submit'])) {
         $purge= '0';
 	$m_out_id = $_POST['m_out_id'];
 	$lag_time = $_POST['lag_time'];
+        $fail_timeout = $_POST['fail_timeout'];
 	//Add or Edit relay record to relays Table
-	$query = "INSERT INTO `relays` (`id`, `sync`, `purge`, `relay_id`, `relay_child_id`, `name`, `type`, `on_trigger`, `lag_time`, `user_display`, `state`)
-		VALUES ('{$id}', '{$sync}', '{$purge}', '{$selected_relay_id}', '{$relay_child_id}', '{$name}', '{$type}', '{$on_trigger}', '{$lag_time}', 0, 0)
+	$query = "INSERT INTO `relays` (`id`, `sync`, `purge`, `relay_id`, `relay_child_id`, `name`, `type`, `on_trigger`, `lag_time`, `user_display`, `state`, `fail_timeout`)
+		VALUES ('{$id}', '{$sync}', '{$purge}', '{$selected_relay_id}', '{$relay_child_id}', '{$name}', '{$type}', '{$on_trigger}', '{$lag_time}', 0, 0, '{$fail_timeout}')
 		ON DUPLICATE KEY UPDATE sync=VALUES(sync), `purge`=VALUES(`purge`), relay_id='{$selected_relay_id}', relay_child_id='{$relay_child_id}', name=VALUES(name),
-		type=VALUES(type), on_trigger=VALUES(on_trigger), lag_time=VALUES(lag_time);";
+		type=VALUES(type), on_trigger=VALUES(on_trigger), lag_time=VALUES(lag_time), fail_timeout=VALUES(fail_timeout);";
 	$result = $conn->query($query);
         $temp_id = mysqli_insert_id($conn);
 	if ($result) {
@@ -100,9 +105,14 @@ if (isset($_POST['submit'])) {
         }
         $message_success .= "<p>".$lang['do_not_refresh']."</p>";
 
-	header("Refresh: 10; url=home.php");
-	// After update on all required tables, set $id to mysqli_insert_id.
-	if ($id==0){$id=$temp_id;}
+	header("Refresh: 10; url=home.php?page_name=onetouch");
+        // After update on all required tables, set $id to mysqli_insert_id.
+        if ($id==0) {
+                header("Refresh: 10; url=home.php?page_name=onetouch");
+                $id=$temp_id;
+        } else {
+                header("Refresh: 10; url=settings.php?s_id=8");
+        }
 }
 ?>
 <!-- ### Visible Page ### -->
@@ -318,10 +328,20 @@ if (isset($_POST['submit'])) {
 							<div class="help-block with-errors"></div>
 						</div>
 
+                                                <!-- Relay Fail Timout -->
+                                                        <div class="form-group" class="control-label" id="fail_timeout_label" style="display:block"><label><?php echo$lang['fail_timeout'];?></label> <small class="text-muted"><?php echo $lang['fail_timeout_info'];?></small>
+                                                        <select id="fail_timeout" name="fail_timeout" class="form-control select2" autocomplete="off">
+                                                        <?php for ($x = 0; $x <=  120; $x = $x + 10) {
+                                                                echo '<option value="'.$x.'" ' . ($x==$row['fail_timeout'] ? 'selected' : '') . '>'.$x.'</option>';
+                                                        } ?>
+                                                        </select>
+                                                        <div class="help-block with-errors"></div>
+                                                </div>
+
                                                 <br>
 						<!-- Buttons -->
 						<input type="submit" name="submit" value="<?php echo $lang['submit']; ?>" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-sm">
-						<a href="home.php"><button type="button" class="btn btn-primary-<?php echo theme($conn, $theme, 'color'); ?> btn-sm"><?php echo $lang['cancel']; ?></button></a>
+						<a href="<?php echo $link; ?>"><button type="button" class="btn btn-primary-<?php echo theme($conn, $theme, 'color'); ?> btn-sm"><?php echo $lang['cancel']; ?></button></a>
 					</form>
 					<!-- /.form -->
 				</div>

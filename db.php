@@ -54,12 +54,21 @@ if(($what=="zone") && ($opp=="delete")){
         //Delete Zone Sensors record
         $query = "UPDATE zone_sensors SET zone_sensors.purge='1' WHERE zone_id = '".$wid."'";
         $conn->query($query);
+
         //Delete Zone Controller record
         $query = "UPDATE zone_relays SET zone_relays.purge='1' WHERE zone_id = '".$wid."'";
         $conn->query($query);
 
         //Mark temperature sensor as un-allocated
         $query = "UPDATE `sensors` SET `zone_id`=0 WHERE `zone_id` = '".$wid."'";
+        $conn->query($query);
+
+        //Delete Average Sensors record
+        $query = "UPDATE sensor_average SET sensor_average.purge='1' WHERE zone_id = '".$wid."'";
+        $conn->query($query);
+
+        //Delete Zone Current State record
+        $query = "UPDATE zone_current_state SET zone_current_state.purge='1' WHERE zone_id = '".$wid."'";
         $conn->query($query);
 
         //Delete Controller-Zone-Logs record
@@ -1578,11 +1587,15 @@ if($what=="setup_email"){
 
 //Setup Graph Setting
 if($what=="setup_graph"){
-	$sel_query = "SELECT id, name, graph_num, min_max_graph, name AS sname
+	$sel_query = "SELECT id, sensor_id, name, graph_num, min_max_graph, name AS sname
 			FROM sensors
 			WHERE sensor_type_id = 1
+                        UNION
+                        SELECT sensor_average.id, sensor_average.sensor_id, zone.name, sensor_average.graph_num, sensor_average.min_max_graph, zone.name AS sname
+                        FROM sensor_average, zone
+                        WHERE sensor_average.zone_id = zone.id
  			UNION
-			SELECT 0 AS id, 'Outside Temp' AS name, '' AS graph_num, enable_archive AS min_max_graph, 'zzz' AS sname
+			SELECT 0 AS id, '' AS sensor_id, 'Outside Temp' AS name, '' AS graph_num, enable_archive AS min_max_graph, 'zzz' AS sname
 			FROM weather
 	ORDER BY sname ASC;";
         $results = $conn->query($sel_query);
@@ -1595,6 +1608,8 @@ if($what=="setup_graph"){
                 if ($enabled=='true'){$enabled = '1';} else {$enabled = '0';}
 		if ($row['id'] == 0) {
 			$query = "UPDATE weather SET enable_archive = ".$enabled." LIMIT 1;";
+		} elseif (strpos($row['sensor_id'], "zavg_") !== false) {
+                        $query = "UPDATE sensor_average SET graph_num = ".$graph_num.", min_max_graph = ".$enabled." WHERE id = ".$row['id']." LIMIT 1;";
 		} else {
 	                $query = "UPDATE sensors SET graph_num = ".$graph_num.", min_max_graph = ".$enabled." WHERE id = ".$row['id']." LIMIT 1;";
 		}
@@ -1647,10 +1662,10 @@ if($what=="node_alerts"){
         $sel_query = "SELECT * FROM nodes where status = 'Active' ORDER BY node_id asc";
         $results = $conn->query($sel_query);
         while ($row = mysqli_fetch_assoc($results) and $update_error == 0) {
-                $node_id = $row['node_id'];
-                if(isset($_GET["interval".$node_id])) {
-                        $notice_interval =  $_GET["interval".$node_id];
-                        $query = "UPDATE nodes SET notice_interval = '".$notice_interval."' WHERE node_id='".$row['node_id']."' LIMIT 1;";
+                $id = $row['id'];
+                if(isset($_GET["interval".$id])) {
+                        $notice_interval =  $_GET["interval".$id];
+                        $query = "UPDATE nodes SET notice_interval = '".$notice_interval."' WHERE id='".$row['id']."' LIMIT 1;";
                         if(!$conn->query($query)){
                                 $update_error=1;
                         }
@@ -1658,7 +1673,7 @@ if($what=="node_alerts"){
                 if(isset($_GET["min_value".$node_id])) {
                         $min_value =  $_GET["min_value".$node_id];
                         if($min_value != 'N/A'){
-                                $query = "UPDATE nodes SET min_value = '".$min_value."' WHERE node_id='".$row['node_id']."' LIMIT 1;";
+                                $query = "UPDATE nodes SET min_value = '".$min_value."' WHERE id='".$row['id']."' LIMIT 1;";
                                 if(!$conn->query($query)){
                                         $update_error=1;
                                 }

@@ -32,6 +32,11 @@ $page_refresh = page_refresh($conn);
 
 // set the display mask for standalone sensors and add-on controllers
 $user_id = $_SESSION['user_id'];
+$query = "SELECT access_level FROM user WHERE id = '{$user_id}' LIMIT 1;";
+$result = $conn->query($query);
+$row = mysqli_fetch_array($result);
+$access_level = $row["access_level"];
+
 if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display everything so mask = 0
 	$user_display_mask = 0;
 } else {
@@ -189,11 +194,10 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
 						}
 
 	                		}
-
-					if ($mode_select == 0 && $user_display_mask == 0) {
+					if ($mode_select == 0 && $access_level != 2) {
                                                 echo '<button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-circle no-shadow black-background '.$button_style.' mainbtn animated fadeIn" onclick="active_sc_mode()">
 		        	        	<h3 class="text-nowrap buttontop"><small>'.$lang['mode'].'</small></h3>
-	        			        <h3 class="degre" >'.$current_sc_mode.'</h3>';
+	        			        <h3 class="degre" id="sc_mode">'.$current_sc_mode.'</h3>';
 		                        	if ($system_controller_mode == 1) {
                 		                	switch ($sc_mode) {
                                 		        	case 1:
@@ -211,11 +215,11 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
 			                        } else {
                 			                echo '<h3 class="statuszoon float-left text-dark"><small>&nbsp</small></h3>';
 		        	                }
-                			        echo '</button>';
-			                } elseif ($user_display_mask == 0) {
+                			        echo '</button>';;
+			                } elseif ($access_level != 2) {
 						echo '<button class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-circle no-shadow black-background '.$button_style.' mainbtn animated fadeIn" onclick="relocate_page(`home.php?page_name=mode`)">
                 			        <h3 class="text-nowrap buttontop"><small>'.$current_sc_mode.'</small></h3>
-		                	        <h3 class="degre" >'.$lang['mode'].'</h3>';
+		                	        <h3 class="degre" id="sc_mode">'.$lang['mode'].'</h3>';
                 		        	if ($system_controller_mode == 1) {
                                 			switch ($sc_mode) {
 		                                        	case 1:
@@ -239,7 +243,12 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
 					//loop through zones
 					$active_schedule = 0;
 					$zone_params = [];
-					$query = "SELECT `zone`.`id`, `zone`.`name`, `zone_type`.`type`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE (`zone`.`type_id` = `zone_type`.`id`) AND (`zone_type`.`category` = 0 OR `zone_type`.`category` = 3 OR `zone_type`.`category` = 4) ORDER BY `zone`.`index_id` ASC;";
+					$query = "SELECT DISTINCT `zone`.`id`,`zone`.`name`, `zt`.`type`, `zt`.`category`
+						FROM `zone`
+						JOIN `zone_type` `zt` ON `zt`.`id` = `zone`.`type_id`
+						JOIN `sensors` `s` ON `s`.`zone_id` = `zone`.`id`
+						WHERE (`zone`.`type_id` = `zt`.`id`) AND (`zt`.`category` = 0 OR `zt`.`category` = 3 OR `zt`.`category` = 4)
+						ORDER BY `zone`.`index_id` ASC;";
 					$results = $conn->query($query);
 					while ($row = mysqli_fetch_assoc($results)) {
 						$zone_id=$row['id'];
@@ -279,26 +288,46 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
 						if ($sch_status == 1) { $active_schedule = 1; }
 
 						//get the sensor id
-			        	        $query = "SELECT * FROM sensors WHERE zone_id = '{$zone_id}' LIMIT 1;";
-        			        	$result = $conn->query($query);
-			                	$sensor = mysqli_fetch_array($result);
-		        		        $temperature_sensor_id=$sensor['sensor_id'];
-			                	$temperature_sensor_child_id=$sensor['sensor_child_id'];
-                			        $sensor_type_id=$sensor['sensor_type_id'];
-		                	        $ajax_modal_24h = "ajax.php?Ajax=GetModal_Sensor_Graph,".$sensor['id'].",0";
-                		        	$ajax_modal_1h = "ajax.php?Ajax=GetModal_Sensor_Graph,".$sensor['id'].",1";
-
-						//get the node id
-        	        			$query = "SELECT node_id FROM nodes WHERE id = '{$temperature_sensor_id}' LIMIT 1;";
-			                	$result = $conn->query($query);
-                				$nodes = mysqli_fetch_array($result);
-		                		$zone_node_id=$nodes['node_id'];
+//			        	        $query = "SELECT * FROM sensors WHERE zone_id = '{$zone_id}';";
+        					$query = "SELECT * FROM `sensors` WHERE (now() < DATE_ADD(`last_seen`, INTERVAL `fail_timeout` MINUTE) OR `fail_timeout` = 0) AND zone_id = '{$zone_id}';";
+        			        	$sresults = $conn->query($query);
+                                                $sensor_count = mysqli_num_rows($sresults);
+                                                // catch startup condition where the sensors have not yet been read
+                                                $sensor_count = mysqli_num_rows($sresults);
+                                                if ($sensor_count == 0) {
+                                                         $query = "SELECT * FROM `sensors` WHERE zone_id = '{$zone_id}';";
+                                                        $sresults = $conn->query($query);
+                                                        $sensor_count = mysqli_num_rows($sresults);
+                                                }
+						// multiple rows if a zone using multiple sensors
+						$zone_c = 0;
+                                                while ($srow = mysqli_fetch_assoc($sresults)) {
+                                                        $s_id = $srow['id'];
+                                                        $sensor_id = $srow['sensor_id'];
+                                                        $sensor_child_id = $srow['sensor_child_id'];
+                                                        $sensor_type_id = $srow['sensor_type_id'];
+							$zone_c = $zone_c + $srow['current_val_1'];
+                                                }
+						$zone_c = $zone_c / $sensor_count;
+						// if average zone temperature, then set chilf id to zero, for getting readings from the messages_in table
+						if ($sensor_count > 1) {
+							$zone_node_id = "zavg_".$zone_id; 
+                                                        $sensor_child_id = 0;
+						} else {
+							//get the node id
+        		        			$query = "SELECT node_id FROM nodes WHERE id = '{$sensor_id}' LIMIT 1;";
+				                	$result = $conn->query($query);
+                					$nodes = mysqli_fetch_array($result);
+		                			$zone_node_id = $nodes['node_id'];
+						}
+                                              	$ajax_modal_24h = "ajax.php?Ajax=GetModal_Sensor_Graph,".$s_id.",0";
+                                              	$ajax_modal_1h = "ajax.php?Ajax=GetModal_Sensor_Graph,".$s_id.",1";
 
 						//query to get temperature from messages_in_view_24h table view
-			                        $query = "SELECT * FROM messages_in WHERE node_id = '{$zone_node_id}' AND child_id = '{$temperature_sensor_child_id}' ORDER BY id desc LIMIT 1;";
-						$result = $conn->query($query);
-						$sensor = mysqli_fetch_array($result);
-						$zone_c = $sensor['payload'];
+//			                        $query = "SELECT * FROM messages_in WHERE node_id = '{$zone_node_id}' AND child_id = '{$sensor_child_id}' ORDER BY id desc LIMIT 1;";
+//						$mresult = $conn->query($query);
+//						$m_in = mysqli_fetch_array($mresult);
+//						$zone_c = $m_in['payload'];
 						//Zone Main Mode
 					/*	0 - idle
 						10 - fault
@@ -336,6 +365,9 @@ if (strpos($_SESSION['username'], "admin") !== false) { //admin account, display
 							if ($zone_c == 0) { echo '<h3 class="degre" id="zd_'.$zone_id.'">OFF</h3>'; } else { echo '<h3 class="degre" id="zd_'.$zone_id.'">ON</h3>'; }
 						} else {
 							$unit = SensorUnits($conn,$sensor_type_id);
+                                                        if ($sensor_count > 1) { // add symbol to indicate that this is an average reading
+                                                                $unit = $unit .$lang['mean'];
+                                                        }
         		                		echo '<h3 class="degre" id="zd_'.$zone_id.'">'.number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit.'</h3>';
 						}
 						echo '<h3 class="status">';
@@ -920,7 +952,7 @@ $(document).ready(function(){
 
             for (var y = 0; y < obj2.length; y++) {
               if (obj2[y].button_function == "live_temp") {
-                $('#load_temp').load("ajax_fetch_data.php?id=" + live_temp_zone_id + "&type=1").fadeIn("slow");
+                $('#load_temp').load("ajax_fetch_data.php?id=" + live_temp_zone_id + "&type=38").fadeIn("slow");
               }
               $('#bs1_' + obj2[y].button_id).load("ajax_fetch_data.php?id=" + obj2[y].button_id + "&type=11").fadeIn("slow");
               $('#bs2_' + obj2[y].button_id).load("ajax_fetch_data.php?id=" + obj2[y].button_id + "&type=12").fadeIn("slow");
@@ -929,6 +961,7 @@ $(document).ready(function(){
             }
     }
 
+    $('#sc_mode').load("ajax_fetch_data.php?id=0&type=39").fadeIn("slow");
     $('#sc_status').load("ajax_fetch_data.php?id=0&type=24").fadeIn("slow");
     $('#homelist_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
     $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
@@ -937,3 +970,5 @@ $(document).ready(function(){
   })();
 });
 </script>
+
+

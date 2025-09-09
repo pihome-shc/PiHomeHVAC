@@ -18,7 +18,8 @@
 */
 ?>
     </div>
-    <!-- /#wrapper -->
+    <!-- /#controller_wrapper -->
+    <!-- /#sensor_wrapper -->
     <!-- jQuery -->
     <script src="js/jquery.min.js"></script>
     <script type="text/javascript">
@@ -56,8 +57,8 @@
 $(document).ready(function() {
     console.log('Bootstrap ' + $.fn.popover.Constructor.VERSION);
     var maxField = 10; //Input fields increment limitation
-    var addButton = $('.add_button'); //Add button selector
-    var wrapper = $('.controler_id_wrapper'); //Input field wrapper
+    var AddControllerButton = $('.add_controller_button'); //Add button selector
+    var controller_wrapper = $('.controler_id_wrapper'); //Input field wrapper
 //    var fieldHTML = '<div><input type="text" name="field_name[]" value=""/><a href="javascript:void(0);" class="remove_button"><img src="./images/remove-icon.png"/></a></div>'; //New input field html 
 
     var controller_HTML = `
@@ -66,7 +67,7 @@ $(document).ready(function() {
 			<div class="form-group" class="control-label" id="controler_id" style="display:block"><label><?php echo $lang['zone_controller_id']; ?></label id="controler_id_label"> <small class="text-muted"><?php echo $lang['zone_controler_id_info'];?></small>
 	        	        <input type="hidden" id="selected_controler_id[]" name="selected_controler_id[]" value="<?php echo $zone_controllers[$i]['controller_relay_id']?>"/>
 				<div class="entry input-group col-xs-12" id="cnt_id - <?php echo $i ?>">
-					<select id="controler_idx" onchange="ControllerIDList(this.options[this.selectedIndex].value)" name="controler_idx" class="form-select" data-bs-error="<?php echo $lang['zone_controller_id_error']; ?>" autocomplete="off">
+					<select id="contr_idx" onchange="ControllerIDList(this.options[this.selectedIndex].value)" name="contr_idx" class="form-select" data-bs-error="<?php echo $lang['zone_controller_id_error']; ?>" autocomplete="off">
 						<?php if(isset($zone_controllers[$i]["zone_controller_name"])) { echo '<option selected >'.$zone_controllers[$i]["zone_controller_name"].'</option>'; } ?>
 						<?php  $query = "SELECT id, name, type FROM relays WHERE type = 0 OR type = 5 ORDER BY id ASC;";
 						$result = $conn->query($query);
@@ -78,9 +79,9 @@ $(document).ready(function() {
 					<div class="help-block with-errors"></div>
 					<span class="input-group-btn">
                                         	<?php if ($i == 0) {
-							echo '<button class="btn btn-outline add_button" type="button" data-bs-toggle="tooltip" title="'.$lang['add_controller'].'"><img src="./images/add-icon.png"/></button>';
+							echo '<button class="btn btn-outline add_controller_button" type="button" data-bs-toggle="tooltip" title="'.$lang['add_controller'].'"><img src="./images/add-icon.png"/></button>';
                                                 } else {
-							echo '<button class="btn btn-outline remove_button" type="button" data-bs-toggle="tooltip" title="'.$lang['remove_controller'].'"><img src="./images/remove-icon.png"/></button>';
+							echo '<button class="btn btn-outline remove_controller_button" type="button" data-bs-toggle="tooltip" title="'.$lang['remove_controller'].'"><img src="./images/remove-icon.png"/></button>';
                                                 } ?>
 					</span>
 				</div>
@@ -88,14 +89,14 @@ $(document).ready(function() {
 		</div>
 		`;
 
-    //Once add button is clicked
-    $(addButton).click(function(){
+    //Once add controller button is clicked
+    $(AddControllerButton).click(function(){
         //Check maximum number of input fields
 	var x = document.getElementById("controller_count").value
         var temp_HTML = controller_HTML.replace(/controler_idx/g, "controler_id".concat(x));
-        temp_HTML = temp_HTML.replace(/index_id/g, x);
+        temp_HTML = temp_HTML.replace(/contr_idx/g, "contr_id".concat(x));
         if(x < maxField){ 
-            $(wrapper).append(temp_HTML); //Add field html
+            $(controller_wrapper).append(temp_HTML); //Add field html
             x++; //Increment field counter
 	    document.getElementById("controller_count").value = x;
             //enable a tooltip for this addition
@@ -108,8 +109,8 @@ $(document).ready(function() {
         }
     });
 
-    //Once remove button is clicked
-    $(wrapper).on('click', '.remove_button', function(e){
+    //Once remove controller button is clicked
+    $(controller_wrapper).on('click', '.remove_controller_button', function(e){
 	var x = document.getElementById("controller_count").value
         e.preventDefault();
         x--; //Decrement field counter
@@ -117,6 +118,65 @@ $(document).ready(function() {
         $(this).parents('.wrap:first').remove(); //Remove field html
     });
 
+    var AddSensorButton = $('.add_sensor_button'); //Add button selector
+    var sensor_wrapper = $('.sensor_id_wrapper'); //Input field wrapper
+    var sensor_HTML = `
+		<div class="wrap" id>
+			<!-- Sensor ID -->
+			<div class="form-group" class="control-label" id="sensor_idx" style="display:block"><label id="sensor_idx_label_1"><?php echo $lang['secondary_temperature_sensor']; ?></label> <small class="text-muted" id="sensor_idx_label_2"><?php echo $lang['zone_sensor_id_info'];?></small>
+				<input type="hidden" id="selected_sensors_id[]" name="selected_sensors_id[]" value="<?php echo $zone_sensors[$i]['zone_sensor_id']?>"/>
+				<div class="entry input-group col-12" id="sen_id - <?php echo $i ?>">
+					<select id="sens_idx" onchange="SensorIDList(this.options[this.selectedIndex].value, s_index)" name="sens_idx" class="form-select" data-bs-error="<?php echo $lang['zone_temp_sensor_id_error']; ?>" autocomplete="off">
+                                                <?php if(isset($zone_sensors[$i]["zone_sensor_name"])) { echo '<option selected >'.$zone_sensors[$i]["zone_sensor_name"].'</option>'; }
+						$query = "SELECT id, name, sensor_type_id FROM sensors WHERE sensor_type_id = 1 ORDER BY id ASC;";
+                                                $result = $conn->query($query);
+                                                echo "<option></option>";
+                                                while ($datarw=mysqli_fetch_array($result)) {
+                                                        echo "<option value=".$datarw['id'].">".$datarw['name']."</option>";
+                                                } ?>
+ 					</select>
+					<div class="help-block with-errors"></div>
+					<span class="input-group-btn">
+						<?php if ($i == 0) {
+							echo '<button class="btn btn-outline add_sensor_button" type="button" data-bs-toggle="tooltip" title="'.$lang['add_sensor'].'"><img src="./images/add-icon.png"/></button>';
+						} else {
+							echo '<button class="btn btn-outline remove_sensor_button" type="button" data-bs-toggle="tooltip" title="'.$lang['remove_sensor'].'"><img src="./images/remove-icon.png"/></button>';
+						} ?>
+					</span>
+				</div>
+			</div>
+		</div>
+                `;
+
+    //Once add sensor button is clicked
+    $(AddSensorButton).click(function(){
+        //Check maximum number of input fields
+        var x = document.getElementById("sensor_count").value
+        var temp_HTML = sensor_HTML.replace(/sensor_idx/g, "sensor_id".concat(x));
+        temp_HTML = temp_HTML.replace(/sens_idx/g, "sens_id".concat(x));
+        temp_HTML = temp_HTML.replace(/s_index/g, x);
+        if(x < maxField){
+            $(sensor_wrapper).append(temp_HTML); //Add field html
+            x++; //Increment field counter
+            document.getElementById("sensor_count").value = x;
+            //enable a tooltip for this addition
+            $('[data-bs-toggle="tooltip"]').tooltip({
+                trigger : 'hover'
+            });
+            $('[data-bs-toggle="tooltip"]').on('click', function () {
+                $(this).tooltip('hide')
+            });
+        }
+    });
+
+    //Once sensor controller button is clicked
+    $(sensor_wrapper).on('click', '.remove_sensor_button', function(e){
+        var x = document.getElementById("sensor_count").value
+        e.preventDefault();
+        x--; //Decrement field counter
+        document.getElementById("sensor_count").value = x;
+        $(this).parents('.wrap:first').remove(); //Remove field html
+    });
 });
 
 $(document).ready(function() {

@@ -1,17 +1,54 @@
 #!/usr/bin/env python3
+class bc:
+    hed = "\033[95m"
+    dtm = "\033[0;36;40m"
+    ENDC = "\033[0m"
+    SUB = "\033[3;30;45m"
+    WARN = "\033[0;31;40m"
+    grn = "\033[0;32;40m"
+    wht = "\033[0;37;40m"
+    ylw = "\033[93m"
+    fail = "\033[91m"
+
+
+print(bc.hed + " ")
+print("    __  __                             _         ")
+print("   |  \/  |                    /\     (_)        ")
+print("   | \  / |   __ _  __  __    /  \     _   _ __  ")
+print("   | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| ")
+print("   | |  | | | (_| |  >  <   / ____ \  | | | |    ")
+print("   |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
+print(" ")
+print("        " + bc.SUB + "S M A R T   T H E R M O S T A T " + bc.ENDC)
+print(bc.WARN + " ")
+print("********************************************************")
+print("*           Home Assistant Integration Script          *")
+print("*      Build Date: 26/04/2025                          *")
+print("*      Version 0.01 - Last Modified 26/04/2025         *")
+print("*                                 Have Fun - PiHome.eu *")
+print("********************************************************")
+print(" " + bc.ENDC)
+
 import argparse
 import datetime as dt
 import signal
 import sys
 import socket
-import platform
 import threading
 import time
+import logging
 from datetime import timedelta
 from re import findall
 import subprocess
 from subprocess import check_output
 import paho.mqtt.client as mqtt
+import platform
+if int(platform.python_version().split(".")[1]) < 8:
+    import pkg_resources
+    paho_version = pkg_resources.get_distribution("paho-mqtt").version
+else:
+    from importlib.metadata import version
+    paho_version = version("paho-mqtt")
 import psutil
 import pytz
 import csv
@@ -19,6 +56,7 @@ from pytz import timezone
 import MySQLdb as mdb
 import configparser
 import os
+import numpy as n
 
 try:
     from rpi_bad_power import new_under_voltage
@@ -29,6 +67,8 @@ if CHECK_RPI_POWER:
     if new_under_voltage() is None:
         CHECK_RPI_POWER = False
 
+logging.basicConfig(level=logging.WARNING)
+
 DEFAULT_TIME_ZONE = None
 WAIT_TIME_SECONDS = 60
 MQTT_deviceName = "MaxAir"
@@ -38,6 +78,10 @@ CHECK_AVAILABLE_UPDATES = bool(True)
 CHECK_WIFI_STRENGHT = bool(True)
 CHECK_WIFI_SSID = bool(False)
 CHECK_DRIVES = bool(True)
+FIRST_RECONNECT_DELAY = 1
+RECONNECT_RATE = 2
+MAX_RECONNECT_COUNT = 12
+MAX_RECONNECT_DELAY = 60
 
 # Initialise the database access variables
 config = configparser.ConfigParser()
@@ -73,35 +117,29 @@ MA_Zone_ID = []
 MA_Zone_Name = []
 MA_Zone_Type = []
 HA_Zone_Name = []
+HA_Zone_UID = []
 # Get MaxAir mode (0 - Boiler, 1 - HVAC)
 cur.execute("SELECT `mode` FROM `system` LIMIT 1;")
 MA_Mode = cur.fetchone()[0]
 MA_Mode = MA_Mode & 0b1
 # Get Zone info
-cur.execute("SELECT `id`, `sensors_id`, `name` FROM `zone_view` ORDER BY `sensors_id`;")
+cur.execute("""SELECT `n`.`node_id`, `zone_sensors`.`zone_id`, z.name, s.frost_temp, n.type, CONCAT(`zone_sensors`.`zone_id`, '_', `z`.`name`) AS `uid`
+               FROM `zone_sensors`
+               JOIN sensors s ON s.id = `zone_sensor_id`
+               JOIN nodes n ON n.id = s.`sensor_id`
+               JOIN zone z ON z.id = zone_sensors.zone_id
+               ORDER BY zone_sensors.zone_sensor_id;""")
 ZONES = cur.rowcount
 description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
 results = cur.fetchall()
 for row in results:
-    if (
-        row[description_to_index["sensors_id"]] is not None
-    ):  # Process only zones with sensors
-        MA_Zone_ID.append(row[description_to_index["id"]])
-        MA_Zone_Sensor_ID.append(row[description_to_index["sensors_id"]])
-        MA_Zone_Name.append(row[description_to_index["name"]])
-        HA_Zone_Name.append(row[description_to_index["name"]].lower().replace(" ", ""))
-        # Get frost protection temperature
-        cur.execute(
-            "SELECT `frost_temp` FROM `sensors` WHERE `zone_id` = (%s)", [row[0]]
-        )
-        MA_Frost_Protection.append(cur.fetchone()[0])
-        # Get zone type
-        cur.execute("SELECT `type` FROM `nodes` where `node_id`= (%s)", [row[1]])
-        MA_Zone_Type.append(cur.fetchone()[0])
-    else:
-        ZONES = (
-            ZONES - 1
-        )  # In case the zones does not have a sensor reduce the number of zones by 1
+    MA_Zone_ID.append(row[description_to_index["zone_id"]])
+    MA_Zone_Sensor_ID.append(row[description_to_index["node_id"]])
+    MA_Zone_Name.append(row[description_to_index["name"]])
+    HA_Zone_Name.append(row[description_to_index["name"]].lower().replace(" ", ""))
+    MA_Frost_Protection.append(row[description_to_index["frost_temp"]])
+    MA_Zone_Type.append(row[description_to_index["type"]])
+    HA_Zone_UID.append(row[description_to_index["uid"]].lower().replace(" ", ""))
 
 # Get stand alone sensors info
 MA_Sensor_Node_ID = []
@@ -111,8 +149,19 @@ MA_Sensor_Name = []
 HA_Sensor_Name = []
 MA_Sensor_Type = []
 # Get Sensor info
+MA_Sensor_Node_ID = []
+MA_Sensor_Child_ID = []
+MA_Sensor_Measurement = []
+MA_Sensor_Name = []
+HA_Sensor_Name = []
+MA_Sensor_Type = []
+HA_Sensor_UID = []
+# Get Sensor info
 cur.execute(
-    'SELECT `sensor_id`, `sensor_child_id`, `sensor_type_id`, `name` FROM `sensors` WHERE `zone_id` = "0" AND (`sensor_type_id` = "1" OR `sensor_type_id` = "2");'
+    """SELECT `sensors`.`sensor_id`, `sensors`.`sensor_child_id`, `sensors`.`sensor_type_id`, `sensors`.`name`, `nodes`.`node_id`, `nodes`.`type`,
+       CONCAT(`sensors`.`name`, '_', `sensors`.`sensor_id`, '_', `sensors`.`sensor_child_id`) AS `uid`
+       FROM `sensors`, `nodes`
+       WHERE (`sensors`.`sensor_id` = `nodes`.`id`) AND `sensors`.`zone_id` = "0" AND (`sensors`.`sensor_type_id` = "1" OR `sensors`.`sensor_type_id` = "2");"""
 )
 SENSORS = cur.rowcount
 description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
@@ -122,17 +171,28 @@ for row in results:
     MA_Sensor_Measurement.append(row[description_to_index["sensor_type_id"]])
     MA_Sensor_Name.append(row[description_to_index["name"]])
     HA_Sensor_Name.append(row[description_to_index["name"]].lower().replace(" ", ""))
-    # Get Node ID for the sensor
-    cur.execute(
-        "SELECT `node_id`, `type` FROM `nodes` WHERE `id` = (%s)",
-        [row[description_to_index["sensor_id"]]],
-    )
-    description_to_index_nodes = dict((d[0], i) for i, d in enumerate(cur.description))
-    sensor_node = cur.fetchone()
-    MA_Sensor_Node_ID.append(sensor_node[description_to_index_nodes["node_id"]])
-    MA_Sensor_Type.append(sensor_node[description_to_index_nodes["type"]])
-con.close()
+    MA_Sensor_Node_ID.append(row[description_to_index["node_id"]])
+    MA_Sensor_Type.append(row[description_to_index["type"]])
+    HA_Sensor_UID.append(row[description_to_index["uid"]].lower().replace(" ", ""))
 
+MA_Boost_ID = []
+MA_Boost_Zone_ID = []
+MA_Boost_Zone_Name = []
+HA_Boost_Zone_Name = []
+# get boost info
+cur.execute(
+    'SELECT  `boost`.`id`, `boost`.`zone_id`, CONCAT(`zone`.`name`, "_", `boost`.`temperature`, "_", `boost`.`minute`) AS `name`  FROM `boost`, `zone` WHERE `boost`.`zone_id` = `zone`.`id`;'
+)
+BOOSTS = cur.rowcount
+description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+results = cur.fetchall()
+for row in results:
+    MA_Boost_ID.append(row[description_to_index["id"]])
+    MA_Boost_Zone_ID.append(row[description_to_index["zone_id"]])
+    MA_Boost_Zone_Name.append(row[description_to_index["name"]])
+    HA_Boost_Zone_Name.append(row[description_to_index["name"]].lower().replace(" ", ""))
+
+con.close()
 
 class ProgramKilled(Exception):
     pass
@@ -162,7 +222,7 @@ class Job(threading.Thread):
 
 
 def write_message_to_console(message):
-    print(message)
+    print(bc.grn + message + bc.ENDC)
     sys.stdout.flush()
 
 
@@ -206,17 +266,17 @@ def on_message(client, userdata, message):
             "UPDATE `system_controller` SET `sc_mode` = (%s)",
             [message.payload.decode()],
         )
-    elif message.topic[-11:] == "aux_command":
-        zone = HA_Zone_Name.index(message.topic.split("/")[1])
+    elif message.topic[-13:] == "boost_command":
+        boost = HA_Boost_Zone_Name.index(message.topic.split("/")[2])
         if message.payload.decode() == "ON":  # Turn boost on
             cur.execute(
-                "UPDATE `boost` SET `status` = 1 WHERE `zone_id` = (%s)",
-                [MA_Zone_ID[zone]],
+                "UPDATE `boost` SET `status` = 1 WHERE `id` = (%s)",
+                [MA_Boost_ID[boost]],
             )
         else:  # Turn boost off
             cur.execute(
-                "UPDATE `boost` SET `status` = 0 WHERE `zone_id` = (%s)",
-                [MA_Zone_ID[zone]],
+                "UPDATE `boost` SET `status` = 0 WHERE `id` = (%s)",
+                [MA_Boost_ID[boost]],
             )
     elif message.topic[-11:] == "target_temp":
         zone = HA_Zone_Name.index(message.topic.split("/")[1])
@@ -228,8 +288,148 @@ def on_message(client, userdata, message):
     con.close()
     updateSensors()
 
+def check_maxair_changes():
+    changed = False
+    con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+    cur = con.cursor()
+
+    # check if BOOST configurtion has changed
+    cur.execute(
+        """SELECT  CONCAT(`zone`.`name`, '_', `boost`.`temperature`, '_', `boost`.`minute`) AS `name`
+           FROM `boost`, `zone`
+           WHERE `boost`.`zone_id` = `zone`.`id`;"""
+    )
+    if cur.rowcount > 0:
+        temp_array_1 = []
+        results = cur.fetchall()
+        for row in results:
+            temp_array_1.append(row[0].lower().replace(" ", ""))
+
+        narr1 = n.array([temp_array_1])
+        narr2 = n.array([HA_Boost_Zone_Name])
+
+        result_variable = (narr1 == narr2).all()
+        if(result_variable == False):
+            # changed so re-populate the boost info
+            MA_Boost_ID.clear()
+            MA_Boost_Zone_ID.clear()
+            MA_Boost_Zone_Name.clear()
+            HA_Boost_Zone_Name.clear()
+            cur.execute(
+                """SELECT  `boost`.`id`, `boost`.`zone_id`, CONCAT(`zone`.`name`, '_', `boost`.`temperature`, '_', `boost`.`minute`) AS `name`
+                   FROM `boost`, `zone`
+                   WHERE `boost`.`zone_id` = `zone`.`id`;"""
+            )
+            BOOSTS = cur.rowcount
+            description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+            results = cur.fetchall()
+            for row in results:
+                MA_Boost_ID.append(row[description_to_index["id"]])
+                MA_Boost_Zone_ID.append(row[description_to_index["zone_id"]])
+                MA_Boost_Zone_Name.append(row[description_to_index["name"]])
+                HA_Boost_Zone_Name.append(row[description_to_index["name"]].lower().replace(" ", ""))
+            changed = True
+
+    # check if stand alone sensor configurtion has changed
+    cur.execute(
+        """SELECT CONCAT(`sensors`.`name`, '_', `sensors`.`sensor_id`, '_', `sensors`.`sensor_child_id`) AS `uid`
+           FROM `sensors`
+           WHERE `sensors`.`zone_id` = "0" AND (`sensors`.`sensor_type_id` = "1" OR `sensors`.`sensor_type_id` = "2");"""
+    )
+    if cur.rowcount > 0:
+        temp_array_1 = []
+        results = cur.fetchall()
+        for row in results:
+            temp_array_1.append(row[0].lower().replace(" ", ""))
+
+        narr1 = n.array([temp_array_1])
+        narr2 = n.array([HA_Sensor_UID])
+
+        result_variable = (narr1 == narr2).all()
+        if(result_variable == False):
+            # Get stand alone sensors info
+            MA_Sensor_Node_ID.clear()
+            MA_Sensor_Child_ID.clear()
+            MA_Sensor_Measurement.clear()
+            MA_Sensor_Name.clear()
+            HA_Sensor_Name.clear()
+            MA_Sensor_Type.clear()
+            HA_Sensor_UID.clear()
+            # Get Sensor info
+            cur.execute(
+                """SELECT `sensors`.`sensor_id`, `sensors`.`sensor_child_id`, `sensors`.`sensor_type_id`, `sensors`.`name`, `nodes`.`node_id`, `nodes`.`type`,
+                   CONCAT(`sensors`.`name`, '_', `sensors`.`sensor_id`, '_', `sensors`.`sensor_child_id`) AS `uid`
+                   FROM `sensors`, `nodes`
+                   WHERE (`sensors`.`sensor_id` = `nodes`.`id`) AND `sensors`.`zone_id` = "0" AND (`sensors`.`sensor_type_id` = "1" OR `sensors`.`sensor_type_id` = "2");"""
+            )
+            SENSORS = cur.rowcount
+            description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+            results = cur.fetchall()
+            for row in results:
+                MA_Sensor_Child_ID.append(row[description_to_index["sensor_child_id"]])
+                MA_Sensor_Measurement.append(row[description_to_index["sensor_type_id"]])
+                MA_Sensor_Name.append(row[description_to_index["name"]])
+                HA_Sensor_Name.append(row[description_to_index["name"]].lower().replace(" ", ""))
+                MA_Sensor_Node_ID.append(row[description_to_index["node_id"]])
+                MA_Sensor_Type.append(row[description_to_index["type"]])
+                HA_Sensor_UID.append(row[description_to_index["uid"]].lower().replace(" ", ""))
+            changed = True
+
+    # check if zone configurtion has changed
+    cur.execute(
+        """SELECT CONCAT(`zone_sensors`.`zone_id`, '_', `z`.`name`) AS `uid`
+           FROM `zone_sensors`
+           JOIN zone z ON z.id = zone_sensors.zone_id
+           ORDER BY zone_sensors.zone_sensor_id;"""
+    )
+    if cur.rowcount > 0:
+        temp_array_1 = []
+        results = cur.fetchall()
+        for row in results:
+            temp_array_1.append(row[0].lower().replace(" ", ""))
+
+        narr1 = n.array([temp_array_1])
+        narr2 = n.array([HA_Zone_UID])
+
+        result_variable = (narr1 == narr2).all()
+        if(result_variable == False):
+            MA_Zone_Sensor_ID.clear()
+            MA_Frost_Protection.clear()
+            MA_Zone_ID.clear()
+            MA_Zone_Name.clear()
+            MA_Zone_Type.clear()
+            HA_Zone_Name.clear()
+            HA_Zone_UID.clear()
+            cur.execute("""SELECT `n`.`node_id`, `zone_sensors`.`zone_id`, z.name, s.frost_temp, n.type, CONCAT(`zone_sensors`.`zone_id`, '_', `z`.`name`) AS `uid`
+                           FROM `zone_sensors`
+                           JOIN sensors s ON s.id = `zone_sensor_id`
+                           JOIN nodes n ON n.id = s.`sensor_id`
+                           JOIN zone z ON z.id = zone_sensors.zone_id
+                           ORDER BY zone_sensors.zone_sensor_id;""")
+            ZONES = cur.rowcount
+            description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+            results = cur.fetchall()
+            for row in results:
+                MA_Zone_ID.append(row[description_to_index["zone_id"]])
+                MA_Zone_Sensor_ID.append(row[description_to_index["node_id"]])
+                MA_Zone_Name.append(row[description_to_index["name"]])
+                HA_Zone_Name.append(row[description_to_index["name"]].lower().replace(" ", ""))
+                MA_Frost_Protection.append(row[description_to_index["frost_temp"]])
+                MA_Zone_Type.append(row[description_to_index["type"]])
+                HA_Zone_UID.append(row[description_to_index["uid"]].lower().replace(" ", ""))
+            changed = True
+
+    # on change re-send configuration
+    if changed:
+        mqttClient.disconnect()
+        send_config_message(mqttClient)
+
+    con.close()
 
 def updateSensors():
+    # check for MaxAir configuration changes
+    check_maxair_changes()
+
     SC_Mode = get_SC_mode()
     payload_str = (
         "{"
@@ -349,6 +549,16 @@ def updateSensors():
         retain=False,
     )
 
+    # Boosts status
+    for boost in range(BOOSTS):
+        boost_status = get_boost(boost)
+        payload_str = "{" + f'"boost_status": "{boost_status}"' + " }"
+        mqttClient.publish(
+            topic=f"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}/state",
+            payload=payload_str,
+            qos=1,
+            retain=False,
+        )
 
 def get_updates():
     nFiles = 0
@@ -451,6 +661,7 @@ def get_wifi_ssid():
 
 
 def get_rpi_power_status():
+    _underVoltage = new_under_voltage()
     return _underVoltage.get()
 
 
@@ -539,7 +750,7 @@ def get_zone(zone, SC_Mode):
     cur = con.cursor()
     zone_status = []
     cur.execute(
-        "SELECT `status`, `temp_reading`, `temp_target`, sensor_seen_time FROM `zone_current_state` WHERE `id` = (%s)",
+        "SELECT `status`, `temp_reading`, `temp_target`, IFNULL(`sensor_seen_time`,0) AS `sensor_seen_time` FROM `zone_current_state` WHERE `id` = (%s)",
         [MA_Zone_ID[zone]],
     )
     description_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
@@ -589,10 +800,13 @@ def get_zone(zone, SC_Mode):
     cur.execute(
         "SELECT `status` FROM `boost` WHERE `zone_id` = (%s)", [MA_Zone_ID[zone]]
     )
-    if cur.fetchone()[0] == 0:
-        zone_status.append("OFF")
+    if cur.rowcount > 0:
+        if cur.fetchone()[0] == 0:
+            zone_status.append("OFF")
+        else:
+            zone_status.append("ON")
     else:
-        zone_status.append("ON")
+        zone_status.append("OFF")
     # [5] - Batt Level & [6] - Batt Voltage
     if MA_Zone_Type[zone] == "MySensor":
         cur.execute(
@@ -616,6 +830,20 @@ def get_zone(zone, SC_Mode):
     con.close()
     return zone_status
 
+def get_boost(boost):
+    con = mdb.connect(dbhost, dbuser, dbpass, dbname)
+    cur = con.cursor()
+    boost_status = []
+    cur.execute(
+        "SELECT `status` FROM `boost` WHERE `id` = (%s) LIMIT 1",
+        [MA_Boost_ID[boost]],
+    )
+    result = cur.fetchone()
+    con.close()
+    if result[0] == 1:
+        return "ON"
+    else:
+        return "OFF"
 
 def get_host_name():
     return socket.gethostname()
@@ -987,7 +1215,7 @@ def send_config_message(mqttClient):
                 + f'"name":"{deviceNameDisplay} {MA_Sensor_Name[sensor]} Temperature",'
                 + f'"unique_id":"{deviceName}_{HA_Sensor_Name[sensor]}_temperature",'
                 + f'"device":{{"identifiers":["{deviceName}_sensor"],'
-                + f'"name":"{deviceNameDisplay} {MA_Sensor_Name[sensor]}","model":"Stand-alone Temperature sensor", "manufacturer":"PiHome"}},'
+                + f'"name":"{deviceNameDisplay} {MA_Sensor_Name[sensor]}","model":"Stand-alone Temperature sensor", "manufacturer":"MaxAir"}},'
             )
         elif MA_Sensor_Measurement[sensor] == 2:  # Humidity sensor
             payload_str = (
@@ -998,7 +1226,7 @@ def send_config_message(mqttClient):
                 + f'"name":"{deviceNameDisplay} {MA_Sensor_Name[sensor]} Humidity",'
                 + f'"unique_id":"{deviceName}_{HA_Sensor_Name[sensor]}_humidity",'
                 + f'"device":{{"identifiers":["{deviceName}_sensor"],'
-                + f'"name":"{deviceNameDisplay} {MA_Sensor_Name[sensor]}","model":"Stand-alone Humidity sensor", "manufacturer":"PiHome"}},'
+                + f'"name":"{deviceNameDisplay} {MA_Sensor_Name[sensor]}","model":"Stand-alone Humidity sensor", "manufacturer":"MaxAir"}},'
             )
         payload_str = (
             payload_str
@@ -1065,7 +1293,7 @@ def send_config_message(mqttClient):
             + f'"temperature_command_topic":"{MQTT_TOPIC}{HA_Zone_Name[zone]}/target_temp",'
             + f'"json_attributes_topic":"{MQTT_TOPIC}{HA_Zone_Name[zone]}/attributes",'
             + f'"device":{{"identifiers":["{deviceName}_{HA_Zone_Name[zone]}"],'
-            + f'"name":"{deviceNameDisplay} {MA_Zone_Name[zone]}","model":"{MA_Zone_Type[zone]}", "manufacturer":"PiHome"}}'
+            + f'"name":"{deviceNameDisplay} {MA_Zone_Name[zone]}","model":"{MA_Zone_Type[zone]}", "manufacturer":"MaxAir"}}'
             + "}"
         )
         mqttClient.publish(
@@ -1075,10 +1303,30 @@ def send_config_message(mqttClient):
             retain=True,
         )
 
+    for boost in range(BOOSTS):
+        mqttClient.publish(
+            topic=f"homeassistant/switch/{deviceName}/{HA_Boost_Zone_Name[boost]}/config",
+            payload='{'
+            + f'"name":"{deviceNameDisplay} {MA_Boost_Zone_Name[boost]} BOOST",'
+            + f'"state_topic":"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}/state",'
+            + f'"command_topic":"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}/boost_command",'
+            + '"value_template":"{{value_json.boost_status}}",'
+            + f'"unique_id":"{deviceName}_{HA_Boost_Zone_Name[boost]}_boost_status",'
+            + f'"availability_topic":"{MQTT_TOPIC}availability",'
+            + f'"device":{{"identifiers":["{deviceName}_boost"],'
+            + f'"name":"{deviceNameDisplay} BOOST","model":"MaxAir {deviceNameDisplay}", "manufacturer":"MaxAir"}},'
+            + '"payload_on" : "ON" ,'
+            + '"payload_off" : "OFF" ,'
+            + '"force_update":true'
+            + f"}}",
+            qos=1,
+            retain=True,
+        )
+
     mqttClient.publish(f"{MQTT_TOPIC}availability", "online", retain=True)
 
 
-def on_connect(client, userdata, flags, rc):
+def on_connect_1(client, userdata, flags, rc):
     if rc == 0:
         write_message_to_console("Connected to broker")
         subscribe_topics = [
@@ -1093,13 +1341,82 @@ def on_connect(client, userdata, flags, rc):
             subscribe_topics.append(
                 (f"{MQTT_TOPIC}{HA_Zone_Name[zone]}/target_temp", 0)
             )
+        for boost in range(BOOSTS):
+            subscribe_topics.append(
+                (f"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}/boost_command", 0)
+            )
         client.subscribe(subscribe_topics)
         mqttClient.publish(f"{MQTT_TOPIC}availability", "online", retain=True)
     else:
         write_message_to_console("Connection failed")
 
+def on_disconnect_1(client, userdata, reason_code):
+    write_message_to_console("Disconnected with result code: " + str(reason_code))
+    reconnect_count, reconnect_delay = 0, FIRST_RECONNECT_DELAY
+    while reconnect_count < MAX_RECONNECT_COUNT:
+        write_message_to_console("Reconnecting in " + str(reconnect_delay) +  " seconds...")
+        time.sleep(reconnect_delay)
 
+        try:
+            client.reconnect()
+            write_message_to_console("Reconnected successfully!")
+            return
+        except Exception as err:
+            write_message_to_console(str(err) + " Reconnect failed. Retrying...")
+
+        reconnect_delay *= RECONNECT_RATE
+        reconnect_delay = min(reconnect_delay, MAX_RECONNECT_DELAY)
+        reconnect_count += 1
+    write_message_to_console("Reconnect failed after %s attempts. Exiting... " + str(reconnect_count))
+
+# Function run when the MQTT client connect to the brooker for paho-mqtt Version 2
+def on_connect_2(client, userdata, flags, reason_code, properties):
+    if reason_code.is_failure:
+        write_message_to_console("\nConnection failed\n")
+    else:
+        write_message_to_console("Connected to broker")
+        subscribe_topics = [
+            ("homeassistant/status", 0),
+            (f"{MQTT_TOPIC}SC/away_command", 0),
+            (f"{MQTT_TOPIC}SC/mode_command", 0),
+        ]
+        for zone in range(ZONES):
+            subscribe_topics.append(
+                (f"{MQTT_TOPIC}{HA_Zone_Name[zone]}/aux_command", 0)
+            )
+            subscribe_topics.append(
+                (f"{MQTT_TOPIC}{HA_Zone_Name[zone]}/target_temp", 0)
+            )
+        for boost in range(BOOSTS):
+            subscribe_topics.append(
+                (f"{MQTT_TOPIC}BOOST/{HA_Boost_Zone_Name[boost]}/boost_command", 0)
+            )
+        client.subscribe(subscribe_topics)
+        mqttClient.publish(f"{MQTT_TOPIC}availability", "online", retain=True)
+
+# Function run when the MQTT client disconnects to the brooker for paho-mqtt Version 2
+def on_disconnect_2(client, userdata, flags, reason_code, properties):
+    write_message_to_console("Disconnected with result code: " + str(reason_code))
+    reconnect_count, reconnect_delay = 0, FIRST_RECONNECT_DELAY
+    while reconnect_count < MAX_RECONNECT_COUNT:
+        write_message_to_console("Reconnecting in " + str(reconnect_delay) + " seconds...")
+        time.sleep(reconnect_delay)
+
+        try:
+            client.reconnect()
+            write_message_to_console("Reconnected successfully!")
+            return
+        except Exception as err:
+            write_message_to_console(str(err) + "Reconnect failed. Retrying...")
+
+        reconnect_delay *= RECONNECT_RATE
+        reconnect_delay = min(reconnect_delay, MAX_RECONNECT_DELAY)
+        reconnect_count += 1
+    write_message_to_console("Reconnect failed after %s attempts. Exiting... " + str(reconnect_count))
+
+# -----------------------------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
+    write_message_to_console("paho-mqtt Version: " + str(paho_version))
     # Check that MQTT details have been added
     con = mdb.connect(dbhost, dbuser, dbpass, dbname)
     cur = con.cursor()
@@ -1110,7 +1427,7 @@ if __name__ == "__main__":
     if cur.rowcount > 0:
         if cur.rowcount > 1:
             # If more than one MQTT connection has been defined do not connect
-            print(
+            write_message_to_console(
                 "More than one MQTT connection defined in MaxAir for Home Assistant integration, please remove the unused ones."
             )
             MQTT_CONNECTED = 0
@@ -1129,8 +1446,16 @@ if __name__ == "__main__":
                 check=True                                  # raise exception if program fails
             )
             MQTT_PASSWORD = result.stdout.decode("utf-8").split()[0] # result.stdout contains a byte-string
-            mqttClient = mqtt.Client(MQTT_CLIENT_ID)
-            mqttClient.on_connect = on_connect  # attach function to callback
+            if paho_version.find("1.5.0") != -1:
+                mqttClient = mqtt.Client(MQTT_CLIENT_ID)
+                mqttClient.enable_logger()
+                mqttClient.on_connect = on_connect_1  # attach function to callback
+                mqttClient.on_disconnect = on_disconnect_1  # attach function to callback
+            else:
+                mqttClient = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=MQTT_CLIENT_ID)
+                mqttClient.enable_logger()
+                mqttClient.on_connect = on_connect_2  # attach function to callback
+                mqttClient.on_disconnect = on_disconnect_2  # attach function to callback
             mqttClient.on_message = on_message
             deviceName = MQTT_deviceName.replace(" ", "").lower()
             deviceNameDisplay = MQTT_deviceName
@@ -1152,7 +1477,7 @@ if __name__ == "__main__":
             mqttClient.loop_start()
     else:
         # If no MQTT connection has been defined do not connect
-        print(
+        write_message_to_console(
             "Home Assistant integration is disabled. To enable MQTT Home Assistant integration enter the connection details under Settings > System Configuration > MQTT."
         )
 
@@ -1163,8 +1488,10 @@ if __name__ == "__main__":
         except ProgramKilled:
             write_message_to_console("Program killed: running cleanup code")
             mqttClient.publish(f"{MQTT_TOPIC}availability", "offline", retain=True)
-            mqttClient.disconnect()
             mqttClient.loop_stop()
+            MQTT_CONNECTED = 0
+            if (con.open):
+                con.close()
             sys.stdout.flush()
             job.stop()
             break

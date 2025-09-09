@@ -216,9 +216,9 @@ def boiler():
                          cursorinsert.close()
                      cursorupdate = cnx.cursor()
                      if position == 0:
-                         qry_str = "UPDATE `sensors` SET `current_val_1`  = {} WHERE `sensor_id` = {} AND `sensor_child_id` = {} LIMIT 1;".format(response, sensor_id, sensor_child_id)
+                         qry_str = "UPDATE `sensors` SET `current_val_1`  = {}, `last_seen`  = {} WHERE `sensor_id` = {} AND `sensor_child_id` = {} LIMIT 1;".format(response, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), sensor_id, sensor_child_id)
                      else:
-                         qry_str = "UPDATE `sensors` SET `current_val_2`  = {} WHERE `sensor_id` = {} AND `sensor_child_id` = {} LIMIT 1;".format(response, sensor_id, sensor_child_id)
+                         qry_str = "UPDATE `sensors` SET `current_val_2`  = {}, `last_seen`  = {} WHERE `sensor_id` = {} AND `sensor_child_id` = {} LIMIT 1;".format(response, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), sensor_id, sensor_child_id)
                      cursorupdate.execute(qry_str)
                      cnx.commit()
                      cursorupdate.close()
@@ -253,9 +253,9 @@ def boiler():
                          cursorinsert.close()
                      cursorupdate = cnx.cursor()
                      if position == 0:
-                         qry_str = "UPDATE `sensors` SET `current_val_1`  = {} WHERE `sensor_id` = {} AND `sensor_child_id` = {} LIMIT 1;".format(response, sensor_id, sensor_child_id)
+                         qry_str = "UPDATE `sensors` SET `current_val_1`  = {}, `last_seen`  = {} WHERE `sensor_id` = {} AND `sensor_child_id` = {} LIMIT 1;".format(response, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), sensor_id, sensor_child_id)
                      else:
-                         qry_str = "UPDATE `sensors` SET `current_val_2`  = {} WHERE `sensor_id` = {} AND `sensor_child_id` = {} LIMIT 1;".format(response, sensor_id, sensor_child_id)
+                         qry_str = "UPDATE `sensors` SET `current_val_2`  = {}, `last_seen`  = {} WHERE `sensor_id` = {} AND `sensor_child_id` = {} LIMIT 1;".format(response, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), sensor_id, sensor_child_id)
                      cursorupdate.execute(qry_str)
                      cnx.commit()
                      cursorupdate.close()

@@ -15,13 +15,13 @@ echo "Installing Phyton modules"
 MODEL=$(tr -d '\0' </proc/device-tree/model)
 if [[ $MODEL == *"Raspberry"* ]]; then
   echo "Model: Raspberry"
-  sudo pip3 install paho-mqtt==1.5.0 --break-system-packages
+  sudo pip3 install paho-mqtt --break-system-packages
   sudo pip3 install psutil==5.6.6 --break-system-packages
   sudo pip3 install pytz==2019.2 --break-system-packages
   sudo pip3 install PyYAML==5.4 --break-system-packages
   sudo pip3 install rpi_bad_power==0.1.0 --break-system-packages
 else
-  sudo pip3 install paho-mqtt==1.5.0
+  sudo pip3 install paho-mqtt
   sudo pip3 install psutil
   sudo pip3 install pytz
   sudo pip3 install PyYAML

@@ -36,16 +36,18 @@ $query="SELECT date(start_datetime) as date,
 	GROUP BY date(start_datetime) desc";
 
 $result = $conn->query($query);
-echo '<table id="example" class="table table-bordered table-hover dt-responsive" width="100%">';
-echo '<thead><tr><th>Date</th><th>T. Min</th><th class="all">On Min</th><th>S. Min</th><th> <i class="bi bi-tree-fill green"></th></tr></thead><tbody>';
-while ($row = mysqli_fetch_assoc($result)) {
-        echo '
-        <tr>
-        <td class="all">' . $row['date'] . '</td>
-        <td class="all">' . $row['total_minuts'] . '</td>
-        <td class="all">' . $row['on_minuts'] . '</td>
-        <td class="all">' . $row['save_minuts'] . '</td>
-        <td class="all">'.number_format(($row['save_minuts']/$row['total_minuts'])*100,0).'%</td>
-        </tr>';
-}
- echo '</tbody></table>';?>
+if(mysqli_num_rows($result) > 0){
+	echo '<table id="example" class="table table-bordered table-hover dt-responsive" width="100%">';
+        echo '<thead><tr><th>Date</th><th>T. Min</th><th class="all">On Min</th><th>S. Min</th><th> <i class="bi bi-tree-fill green"></th></tr></thead><tbody>';
+        while ($row = mysqli_fetch_assoc($result)) {
+                echo '
+                <tr>
+                <td class="all">' . $row['date'] . '</td>
+                <td class="all">' . $row['total_minuts'] . '</td>
+                <td class="all">' . $row['on_minuts'] . '</td>
+                <td class="all">' . $row['save_minuts'] . '</td>
+                <td class="all">'.number_format(($row['save_minuts']/$row['total_minuts'])*100,0).'%</td>
+                </tr>';
+        }
+         echo '</tbody></table>';
+}?>

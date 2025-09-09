@@ -234,30 +234,39 @@ echo '
                                 $query = "SELECT name FROM repository WHERE status = 1 LIMIT 1;";
                                 $result = $conn->query($query);
                                 $row = mysqli_fetch_assoc($result);
-                                $file2 = file('https://raw.githubusercontent.com/'.$row['name'].'/master/st_inc/db_config.ini');
-                                $pieces =  explode(' ', $file2[count($file2) - 4]);
-                                $code_v_github = array_pop($pieces);
-                                $pieces =  explode(' ', $file2[count($file2) - 3]);
-                                $code_b_github = array_pop($pieces);
-                                $pieces =  explode(' ', $file2[count($file2) - 2]);
-                                $db_v_github = array_pop($pieces);
-                                $pieces =  explode(' ', $file2[count($file2) - 1]);
-                                $db_b_github = array_pop($pieces);
+                                $url = 'https://raw.githubusercontent.com/'.$row['name'].'/master/st_inc/db_config.ini';
+                                $file_headers = @get_headers($url);
+                                if(!$file_headers || $file_headers[0] == 'HTTP/1.1 404 Not Found') {
+                                } else {
+                                        $file2 = file($url);
+                                        $pieces =  explode(' ', $file2[count($file2) - 4]);
+                                        $code_v_github = array_pop($pieces);
+                                        $pieces =  explode(' ', $file2[count($file2) - 3]);
+                                        $code_b_github = array_pop($pieces);
+                                        $pieces =  explode(' ', $file2[count($file2) - 2]);
+                                        $db_v_github = array_pop($pieces);
+                                        $pieces =  explode(' ', $file2[count($file2) - 1]);
+                                        $db_b_github = array_pop($pieces);
+                                }
                                 //get latest Bootstrap version number
-                                $result = file_get_contents('https://getbootstrap.com/docs/versions/');
-                                if (strlen($result) > 0) {
-                                        $search = 'Last update was ';
-                                        $start = stripos($result, $search);
-                                        if ($start !== false) {
-                                                $start = $start + strlen($search) + 1;
-                                                $end = stripos($result, '.</p>', $offset = $start);
-                                                $length = $end - $start;
-                                                $bootstrap_ver = substr($result, $start, $length);
+                                if(!$file_headers || $file_headers[0] == 'HTTP/1.1 404 Not Found') {
+                                } else {
+                                        $url = 'https://getbootstrap.com/docs/versions/';
+                                        $result = file_get_contents($url);
+                                        if (strlen($result) > 0) {
+                                                $search = 'Last update was ';
+                                                $start = stripos($result, $search);
+                                                if ($start !== false) {
+                                                        $start = $start + strlen($search) + 1;
+                                                        $end = stripos($result, '.</p>', $offset = $start);
+                                                        $length = $end - $start;
+                                                        $bootstrap_ver = substr($result, $start, $length);
+                                                } else {
+                                                        $bootstrap_ver = "Not Found";
+                                                }
                                         } else {
                                                 $bootstrap_ver = "Not Found";
                                         }
-                                } else {
-                                        $bootstrap_ver = "Not Found";
                                 }
 
                                 echo '<p class="text-muted"> '.$lang['maxair_versions_text'].' <br>'.$lang['repository'].' - https://github.com/'.$row['name'].'.git</p>
@@ -500,7 +509,7 @@ echo '
                                 <h5 class="modal-title">'.$lang['cpu_temperature'].'</h5>
                         </div>
                         <div class="modal-body">';
-                                $query = "select * from messages_in where node_id = 0 order by datetime desc limit 5";
+                                $query = "select * from messages_in where node_id = '0' order by datetime desc limit 5";
                                 $results = $conn->query($query);
                                 echo '<p class="text-muted"> '.$lang['cpu_temperature_text'].' </p>
 		                <div id="cpu_temps">
@@ -1915,11 +1924,13 @@ echo '<div class="modal fade" id="zone_graph" tabindex="-1" role="dialog" aria-l
             		</div>
             		<div class="modal-body" id="zone_graph_body">
 				<p class="text-muted">'.$lang['graph_settings_text'].'</p>';
-				$query = "SELECT id, name, graph_num, min_max_graph, name AS sname
+				$query = "SELECT id, sensor_id, name, graph_num, min_max_graph, name AS sname
 					FROM sensors
 					WHERE sensor_type_id = 1
+                                        UNION
+                                        SELECT sensor_average.id, sensor_average.sensor_id, zone.name, sensor_average.graph_num, sensor_average.min_max_graph, zone.name AS sname FROM sensor_average, zone WHERE sensor_average.zone_id = zone.id
 					UNION
-					SELECT 0 AS id, 'Outside Temp' AS name, -1 AS graph_num, enable_archive AS min_max_graph, 'zzz' AS sname
+					SELECT 0 AS id, '' AS sensor_id, 'Outside Temp' AS name, -1 AS graph_num, enable_archive AS min_max_graph, 'zzz' AS sname
 					FROM weather
 					ORDER BY sname ASC;";
 				$results = $conn->query($query);
@@ -1930,9 +1941,11 @@ echo '<div class="modal fade" id="zone_graph" tabindex="-1" role="dialog" aria-l
         					<th class="col-2"><small>'.$lang['min_max_graph'].'</small></th>
     					</tr>';
 					while ($row = mysqli_fetch_assoc($results)) {
+                                                $s_name = $row["name"];
+						if (strpos($row['sensor_id'], "zavg_") !== false) { $s_name = $s_name." (Avg)"; }
     						if ($row['min_max_graph'] == 1) { $enabled_check = 'checked'; } else { $enabled_check = ''; }
     						echo '<tr>
-            						<td>'.$row["name"].'</td>';
+            						<td>'.$s_name.'</td>';
 							if ($row['graph_num'] == -1) {
 								echo '<td>N/A</td>';
 							} else {
@@ -2590,12 +2603,22 @@ echo '<div class="modal fade" id="display_graphs" tabindex="-1" role="dialog" ar
                                 <th class="col-lg-1 text-center"><small>'.$lang['enabled'].'</small></th>
                         </tr>';
 			$myArr = [];
-			array_push($myArr, $lang['graph_temperature'], $lang['graph_humidity'], $lang['graph_addon_usage'], $lang['graph_saving'], $lang['graph_system_controller_usage'], $lang['graph_battery_usage'], $lang['graph_min_max']);
+			array_push($myArr, $lang['graph_temperature'], $lang['graph_humidity'], $lang['graph_addon_usage'], $lang['graph_saving'], $lang['graph_system_controller_usage'], $lang['graph_battery_usage']);
+                        // only display min_max selection if archiving has been enabled
+                        $query = "SELECT archive_enable FROM graphs LIMIT 1;";
+                        $result = $conn->query($query);
+                        $row = mysqli_fetch_assoc($result);
+                        if ($row["archive_enable"] != 0) {
+                                array_push($myArr, $lang['graph_min_max']);
+                                $graph_cnt = 6;
+                        } else {
+                                $graph_cnt = 5;
+                        }
                         $query = "SELECT mask FROM graphs LIMIT 1;";
                         $result = $conn->query($query);
 			$row = mysqli_fetch_assoc($result);
 			$m = 1;
-                        for ($x = 0; $x <=  6; $x++) {
+                        for ($x = 0; $x <= $graph_cnt; $x++) {
                         	if ($row['mask'] & $m) { $enabled_check = 'checked'; } else { $enabled_check = ''; }
                                 echo '<tr>
                                         <td>'.$myArr[$x].'</td>
@@ -3529,8 +3552,8 @@ echo '
 				}
 			echo '</div>
 			<!-- /.modal-body -->
-        	   	<div class="modal-footer">
-				<button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>';
+        	   	<div class="modal-footer">';
+				if ($brow['heat_relay_id'] != 0) { echo'<button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>'; }
 				if ($ncount > 0) { echo '<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="system_controller_settings('.(settings($conn, 'mode') & 0b1).')">'; }
 
             		echo '</div>
@@ -3560,7 +3583,7 @@ if ((settings($conn, 'mode') & 0b1) == 0) {
 }
 
 if ((settings($conn, 'mode') & 0b1) == 0) {
-	$query = "SELECT boost.id, boost.`status`, boost.sync, boost.zone_id, zone_idx.index_id, zone_type.category, zone.name, 
+	$query = "SELECT DISTINCT boost.id, boost.`status`, boost.sync, boost.zone_id, zone_idx.index_id, zone_type.category, zone.name, 
         boost.temperature, boost.minute, boost_button_id, boost_button_child_id, hvac_mode, ts.sensor_type_id
         FROM boost
         JOIN zone ON boost.zone_id = zone.id
@@ -3806,7 +3829,7 @@ echo '
             <div class="modal-body">
 <p class="text-muted"> '.$lang['override_settings_text'].'</p>';
 if ((settings($conn, 'mode') & 0b1) == 0) { //boiler mode
-	$query = "SELECT override.`status`, override.sync, override.purge, override.zone_id, zone_idx.index_id, zone_type.category, zone.name,
+	$query = "SELECT DISTINCT override.`status`, override.sync, override.purge, override.zone_id, zone_idx.index_id, zone_type.category, zone.name,
 	override.time, override.temperature, override.hvac_mode, ts.sensor_type_id
 	FROM override
 	JOIN zone ON override.zone_id = zone.id
@@ -4140,6 +4163,8 @@ echo '
                         	<li><a class="dropdown-item" href="pdf_download.php?file=switch_zone_state_control.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['switch_zone_state_control'].'</a></li>
                                 <li class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="pdf_download.php?file=negative_gradient_zone.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['negative_gradient_zone'].'</a></li>
+                                <li class="dropdown-divider"></li>
+				<li><a class="dropdown-item" href="pdf_download.php?file=setup_guide_multiple_sensors.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_guide_multiple_sensors'].'</a></li>
                         </ul>
                 </div>
             </div>
@@ -4202,11 +4227,26 @@ echo '
 	    </div>
 	    <div class="modal-footer">
                 <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
-                <a class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" href="zone.php">'.$lang['zone_add'].'</a>
+                <a class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" href="zone.php?id=0">'.$lang['zone_add'].'</a>
             </div>
         </div>
     </div>
 </div>';
+if ($show_zone_modal == 1) {
+        ?>
+        <script type="text/javascript">
+                $(function(){
+                        //instantiate your content as modal
+                        $('#zone_setup').modal({
+                        //modal options here, like keyboard: false for e.g.
+                        });
+
+                        //show the modal when dom is ready
+                        $('#zone_setup').modal('show');
+                });
+        </script>
+        <?php
+}
 
 //gateway model
 echo '
@@ -4434,11 +4474,11 @@ while ($row = mysqli_fetch_assoc($results)) {
             <td>'.$row['node_id'].'</td>
             <td>'.$row['name'].'</td>
             <td>'.$row['last_seen'].'</td>
-            <td><input id="interval'.$row["node_id"].'" type="value" class="form-control float-right" style="border: none" name="interval'.$row["node_id"].'" value="'.$row["notice_interval"].'" placeholder="Notice Interval" required></td>';
+            <td><input id="interval'.$row["id"].'" type="value" class="form-control float-right" style="border: none" name="interval'.$row["id"].'" value="'.$row["notice_interval"].'" placeholder="Notice Interval" required></td>';
 	    if(!isset($row['batt'])) {
-	            echo '<td><input id="min_value'.$row["node_id"].'" type="value" class="form-control float-right" style="border: none" name="min_value'.$row["node_id"].'" value="N/A" readonly="readonly" placeholder="Min Value"></td>';
+	            echo '<td><input id="min_value'.$row["id"].'" type="value" class="form-control float-right" style="border: none" name="min_value'.$row["id"].'" value="N/A" readonly="readonly" placeholder="Min Value"></td>';
 	    } else {
-                    echo '<td><input id="min_value'.$row["node_id"].'" type="value" class="form-control float-right" style="border: none" name="min_value'.$row["node_id"].'" value="'.$row["min_value"].'" placeholder="Min Value"></td>';
+                echo '<td><input id="min_value'.$row["id"].'" type="value" class="form-control float-right" style="border: none" name="min_value'.$row["id"].'" value="'.$row["min_value"].'" placeholder="Min Value"></td>';
 	    }
         echo '</tr>';
 
@@ -4614,11 +4654,26 @@ echo '<div class="modal fade" id="relay_setup" tabindex="-1" role="dialog" aria-
 	    </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
-                <a class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" href="relay.php">'.$lang['relay_add'].'</a>
+                <a class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" href="relay.php?id=0">'.$lang['relay_add'].'</a>
             </div>
         </div>
     </div>
 </div>';
+if ($show_relay_modal == 1) {
+        ?>
+        <script type="text/javascript">
+                $(function(){
+                        //instantiate your content as modal
+                        $('#relay_setup').modal({
+                        //modal options here, like keyboard: false for e.g.
+                        });
+
+                        //show the modal when dom is ready
+                        $('#relay_setup').modal('show');
+                });
+        </script>
+        <?php
+}
 
 //Test Relays
 echo '<div class="modal fade" id="test_relays" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -4714,6 +4769,8 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
 				<li><a class="dropdown-item" href="pdf_download.php?file=setup_guide_sensors.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_guide_sensors'].'</a></li>
                                 <li class="dropdown-divider"></li>
 				<li><a class="dropdown-item" href="pdf_download.php?file=setup_sensor_notifications.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_sensor_notifications'].'</a></li>
+                                <li class="dropdown-divider"></li>
+				<li><a class="dropdown-item" href="pdf_download.php?file=setup_guide_multiple_sensors.pdf" target="_blank"><i class="bi bi-file-earmark-pdf"></i>&nbsp'.$lang['setup_guide_multiple_sensors'].'</a></li>
                     	</ul>
                 </div>
             </div>
@@ -4791,11 +4848,26 @@ echo '<div class="modal fade" id="sensor_setup" tabindex="-1" role="dialog" aria
 		<div class="modal-footer">
                 	<button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
                 	<input type="button" name="submit" value="'.$lang['save'].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" onclick="show_sensors()">
-                	<a class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" href="sensor.php">'.$lang['sensor_add'].'</a>
+                	<a class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm" href="sensor.php?id=0">'.$lang['sensor_add'].'</a>
             </div>
         </div>
     </div>
 </div>';
+if ($show_sensor_modal == 1) {
+        ?>
+        <script type="text/javascript">
+                $(function(){
+                        //instantiate your content as modal
+                        $('#sensor_setup').modal({
+                        //modal options here, like keyboard: false for e.g.
+                        });
+
+                        //show the modal when dom is ready
+                        $('#sensor_setup').modal('show');
+                });
+        </script>
+        <?php
+}
 
 //Sensor Message
 echo '

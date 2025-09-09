@@ -26,7 +26,7 @@ print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
 print("* Script to communicate with MySensors Nodes, for more *")
 print("* info please check MySensors API.                     *")
 print("*      Build Date: 18/09/2017                          *")
-print("*      Version 0.30 - Last Modified 30/08/2024         *")
+print("*      Version 0.31 - Last Modified 13/03/2025         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -460,6 +460,109 @@ def process_message(in_str):
                             print(infomsg)
                             sys.exit(1)
 
+                    # ..::Step One E::..
+                    # First time Sensor Attached to the Gateway Controller Node Comes online.
+            if (
+                node_id == '0'
+                and child_sensor_id != 255
+                and message_type == 0
+                and (sub_type == 22 or sub_type == 23)
+            ):
+                if sub_type == 22:
+                    sensor_node_id = '200'
+                else:
+                    sensor_node_id = '201'
+                cur.execute(
+                    "SELECT COUNT(*) FROM `nodes` where type = 'MySensor' AND node_id = (%s)", (sensor_node_id,)
+                )
+                row = cur.fetchone()
+                row = int(row[0])
+                if row == 0:
+                    cur.execute(
+                        "SELECT `ms_version`, `sketch_version` FROM `nodes` where type = 'MySensor' AND node_id = '0';"
+                    )
+                    row = cur.fetchone()
+                    ms_version = row[0]
+                    sketch_version = float(row[1])
+                    sketch_version = int(sketch_version * 100)
+                    if dbgLevel >= 2 and dbgMsgIn == 1:
+                        print(
+                            "1-E: Adding Node ID:",
+                            sensor_node_id,
+                            "MySensors Version:",
+                            ms_version,
+                        )
+                    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    try:
+                        cur.execute(
+                            "INSERT INTO nodes(`sync`, `purge`, `type`, `node_id`, `max_child_id`, `sub_type`, `name`, `last_seen`, `notice_interval`, `min_value`, `status`, `ms_version`, `sketch_version`, `repeater`) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                            (
+                                0,
+                                0,
+                                "MySensor",
+                                sensor_node_id,
+                                0,
+                                0,
+                                "Temperature Sensor",
+                                timestamp,
+                                0,
+                                0,
+                                "Active",
+                                ms_version,
+                                sketch_version,
+                                1,
+                            ),
+                        )
+                        con.commit()
+                    except mdb.Error as e:
+                        # skip deadlock error (being caused when mysqldunp runs
+                        if e.args[0] == 1213:
+                            pass
+                        else:
+                            print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                            print(traceback.format_exc())
+                            logging.error(e)
+                            logging.info(traceback.format_exc())
+                            con.close()
+                            if MQTT_CONNECTED == 1:
+                                mqttClient.disconnect()
+                                mqttClient.loop_stop()
+                            print(infomsg)
+                            sys.exit(1)
+                else:
+                    cur.execute(
+                        "SELECT `ms_version`, `sketch_version` FROM `nodes` where type = 'MySensor' AND node_id = '0';"
+                    )
+                    row = cur.fetchone()
+                    ms_version = row[0]
+                    if dbgLevel >= 2 and dbgMsgIn == 1:
+                        print(
+                            "1-E: Node ID:",
+                            sensor_node_id,
+                            " Already Exist In Node Table, Updating MS Version",
+                        )
+                    try:
+                        cur.execute(
+                            "UPDATE nodes SET ms_version = %s where type = 'MySensor' AND node_id = %s",
+                            (ms_version, child_sensor_id),
+                        )
+                        con.commit()
+                    except mdb.Error as e:
+                        # skip deadlock error (being caused when mysqldunp runs
+                        if e.args[0] == 1213:
+                            pass
+                        else:
+                            print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                            print(traceback.format_exc())
+                            logging.error(e)
+                            logging.info(traceback.format_exc())
+                            con.close()
+                            if MQTT_CONNECTED == 1:
+                                mqttClient.disconnect()
+                                mqttClient.loop_stop()
+                            print(infomsg)
+                            sys.exit(1)
+
                 # ..::Step Two A::..
                 # Add Nodes Name i.e. Relay, Temperature Sensor etc. to Nodes Table.
             if (
@@ -646,7 +749,7 @@ def process_message(in_str):
                         print(infomsg)
                         sys.exit(1)
 
-                # ..::Step Four A::..
+                # ..::Step Four B::..
                 # Add Node Child ID to Node Table
                 # 25;0;0;0;6;
             if (
@@ -684,6 +787,48 @@ def process_message(in_str):
                         print(infomsg)
                         sys.exit(1)
 
+                # ..::Step Four C::..
+                # Add Node Child ID to Node Table
+                # 25;0;0;0;6;
+            if (
+                node_id == '0'
+                and child_sensor_id != 255
+                and message_type == 0
+                and (sub_type == 22 or sub_type == 23)
+            ):
+                if sub_type == 22:
+                    sensor_node_id = '200'
+                else:
+                    sensor_node_id = '201'
+                if dbgLevel >= 2 and dbgMsgIn == 1:
+                    print(
+                        "4-C: Adding Node's Max Child ID for Gateway Controller Sensor Node ID:",
+                        sensor_node_id,
+                        " Child Sensor ID:",
+                        child_sensor_id,
+                    )
+                try:
+                    cur.execute(
+                        "UPDATE nodes SET max_child_id = %s WHERE type = 'MySensor' AND node_id = %s",
+                        (child_sensor_id, sensor_node_id),
+                    )
+                    con.commit()
+                except mdb.Error as e:
+                    # skip deadlock error (being caused when mysqldunp runs
+                    if e.args[0] == 1213:
+                        pass
+                    else:
+                        print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                        print(traceback.format_exc())
+                        logging.error(e)
+                        logging.info(traceback.format_exc())
+                        con.close()
+                        if MQTT_CONNECTED == 1:
+                            mqttClient.disconnect()
+                            mqttClient.loop_stop()
+                        print(infomsg)
+                        sys.exit(1)
+
                 # ..::Step Five::..
                 # Add Temperature Reading to database
             if (
@@ -691,8 +836,19 @@ def process_message(in_str):
                 and child_sensor_id != 255
                 and message_type == 1
                 and sub_type == 0
+            ) or (
+                node_id == '0'
+                and child_sensor_id != 200
+                and child_sensor_id != 201
+                and child_sensor_id != 255
+                and message_type == 1
+                and (sub_type == 0 or sub_type == 25)
             ):
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                if node_id == '0' and sub_type == 0:
+                    node_id = '200'
+                else:
+                    node_id = '201'
                 try:
                     cur.execute(
                         "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE node_id = %s",
@@ -738,8 +894,8 @@ def process_message(in_str):
                     resolution = float(results[sensor_to_index["resolution"]])
                     # Update last reading for this sensor
                     cur.execute(
-                        "UPDATE `sensors` SET `current_val_1` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
-                        [payload, sensor_id, child_sensor_id],
+                        "UPDATE `sensors` SET `current_val_1` = %s, `last_seen` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
+                        [payload, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), sensor_id, child_sensor_id],
                     )
                     con.commit()
                     # # Check is sensor is attached to a zone which is being graphed
@@ -942,8 +1098,8 @@ def process_message(in_str):
                     n_id = int(results[sensor_to_index["n_id"]])
                     # Update last reading for this sensor
                     cur.execute(
-                        "UPDATE `sensors` SET `current_val_1` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
-                        [payload, n_id, child_sensor_id],
+                        "UPDATE `sensors` SET `current_val_1` = %s, `last_seen` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
+                        [payload, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), n_id, child_sensor_id],
                     )
                     con.commit()
                     # type = results[zone_view_to_index['type']]
@@ -1064,8 +1220,8 @@ def process_message(in_str):
                     sensor_id = int(result[node_to_index["id"]])
                     # Update last reading for this sensor
                     cur.execute(
-                        "UPDATE `sensors` SET `current_val_1` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
-                        [payload, sensor_id, child_sensor_id],
+                        "UPDATE `sensors` SET `current_val_1` = %s `last_seen` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
+                        [payload, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), sensor_id, child_sensor_id],
                     )
                     con.commit()
 
@@ -1243,7 +1399,7 @@ def process_message(in_str):
                 and child_sensor_id != 255
                 and child_sensor_id == 4
                 and message_type == 1
-                and sub_type == 2
+                and sub_type == 15
             ):
                 # print "2 insert: ", node_id, " , ", child_sensor_id, "payload", payload
                 if dbgLevel >= 2 and dbgMsgIn == 1:
@@ -1410,6 +1566,12 @@ def process_message(in_str):
                 and message_type == 1
                 and sub_type == 47
             ):
+                cur.execute(
+                    "SELECT `sketch_version` FROM `nodes` where type = 'MySensor' AND node_id = '0';"
+                )
+                row = cur.fetchone()
+                sketch_version = float(row[0])
+                sketch_version = int(sketch_version * 100)
                 if dbgLevel >= 2 and dbgMsgIn == 1:
                     print(
                         "16: Updating last seen for Gateway Relay Controller:",
@@ -1442,51 +1604,53 @@ def process_message(in_str):
                         print(infomsg)
                         sys.exit(1)
 
-                # create a bit mask for relays, derived from the data sent with the heartbeat message
-                # Note: this is only relavent for relay sketch versions 034 and later
-                temp = payload.split(",")
-                # there should be 3 elements to the payload message, the string 'Heartbeat' + the node_id + the relay mask
-                if len(temp) == 3:
-                    r_mask = int(temp[2])
-                    cur.execute(
-                        """SELECT relays.relay_id, relays.relay_child_id, n.node_id
-                           FROM `relays`
-                           JOIN nodes n ON n.id = relays.relay_id
-                           WHERE n.type = 'MySensor'
-                           AND n.sketch_version >= 0.34
-                           ORDER BY relays.relay_child_id;"""
-                    )  # MySQL query statemen
-                    relays = cur.fetchall()
-                    relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                    for relay in relays:
-                        relay_id = relay[relay_to_index["relay_id"]]
-                        relay_child_id = relay[relay_to_index["relay_child_id"]]
-                        mask = pow(2, relay_child_id - 1)
-                        if r_mask & mask != 0:
-                            state = 1
-                        else:
-                            state = 0
-                        try:
-                            cur.execute(
-                                "UPDATE `relays` SET `state`= %s WHERE relay_id = %s AND relay_child_id = %s;",
-                                [state, relay_id, relay_child_id],
-                            )
-                            con.commit()
-                        except mdb.Error as e:
-                            # skip deadlock error (being caused when mysqldunp runs
-                            if e.args[0] == 1213:
-                                pass
+                # sketch version 34 requires regular state updates, subseqent versions require updates on change
+                if sketch_version >= 35:
+                    # create a bit mask for relays, derived from the data sent with the heartbeat message
+                    # Note: this is only relavent for relay sketch versions 035 and later
+                    temp = payload.split(",")
+                    # there should be 3 elements to the payload message, the string 'Heartbeat' + the node_id + the relay mask
+                    if len(temp) == 3:
+                        r_mask = int(temp[2])
+                        cur.execute(
+                            """SELECT relays.relay_id, relays.relay_child_id, n.node_id
+                               FROM `relays`
+                               JOIN nodes n ON n.id = relays.relay_id
+                               WHERE n.type = 'MySensor'
+                               AND n.sketch_version >= 0.35
+                               ORDER BY relays.relay_child_id;"""
+                        )  # MySQL query statemen
+                        relays = cur.fetchall()
+                        relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                        for relay in relays:
+                            relay_id = relay[relay_to_index["relay_id"]]
+                            relay_child_id = relay[relay_to_index["relay_child_id"]]
+                            mask = pow(2, relay_child_id - 1)
+                            if r_mask & mask != 0:
+                                state = 1
                             else:
-                                print("DB Error %d: %s" % (e.args[0], e.args[1]))
-                                print(traceback.format_exc())
-                                logging.error(e)
-                                logging.info(traceback.format_exc())
-                                con.close()
-                                if MQTT_CONNECTED == 1:
-                                    mqttClient.disconnect()
-                                    mqttClient.loop_stop()
-                                print(infomsg)
-                                sys.exit(1)
+                                state = 0
+                            try:
+                                cur.execute(
+                                    "UPDATE `relays` SET `state`= %s WHERE relay_id = %s AND relay_child_id = %s;",
+                                    [state, relay_id, relay_child_id],
+                                )
+                                con.commit()
+                            except mdb.Error as e:
+                                # skip deadlock error (being caused when mysqldunp runs
+                                if e.args[0] == 1213:
+                                    pass
+                                else:
+                                    print("DB Error %d: %s" % (e.args[0], e.args[1]))
+                                    print(traceback.format_exc())
+                                    logging.error(e)
+                                    logging.info(traceback.format_exc())
+                                    con.close()
+                                    if MQTT_CONNECTED == 1:
+                                        mqttClient.disconnect()
+                                        mqttClient.loop_stop()
+                                    print(infomsg)
+                                    sys.exit(1)
 
                 # The Heartbeat timer is reset within the socket read thread
 
@@ -1685,7 +1849,7 @@ def set_relays(
         )  # Print what will be sent to the relay.
 
     # node-id ; child-sensor-id ; command ; ack ; type ; payload \n
-    if node_type == 'MySensor' and ((sketch_version >= 34 and out_id != '0') or (sketch_version >= 38 and out_id == '0')):
+    if node_type == 'MySensor' and ((sketch_version >= 35 and out_id != '0') or (sketch_version >= 38 and out_id == '0')):
         node_type = "MySensor2"
 
     if node_type.find("MySensor") != -1 and enable_outgoing == 1:  # process normal node
@@ -1710,7 +1874,7 @@ def set_relays(
         )  # update DB so this message will not be processed in next loop
         con.commit()  # commit above
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        if sketch_version < 34: # relay controller pre sketch ver 0.34 do not use 'heartbeat'
+        if sketch_version < 35: # relay controller pre sketch ver 0.35 do not use 'heartbeat'
             cur.execute(
                 "UPDATE `nodes` SET `last_seen` = %s, `sync` = 0 WHERE `id` = %s",
                 [timestamp, n_id],
@@ -2023,9 +2187,10 @@ def on_message(client, userdata, message):
         else:
             mqtt_msgcount = 0
             clear_hour_timer = True
+        message_str = message.payload.decode()
         print("\nMQTT messaged received.")
         print("Topic: %s" % message.topic)
-        print("Message: %s" % message.payload.decode())
+        print("Message: %s" % message_str)
         cur_mqtt.execute(
             """SELECT `nodes`.id, `nodes`.node_id, `mqtt_devices`.id AS mqtt_id, `mqtt_devices`.child_id, `mqtt_devices`.attribute, `mqtt_devices`.min_value
                FROM `mqtt_devices`, `nodes`
@@ -2231,7 +2396,9 @@ def on_message(client, userdata, message):
                         str_attribute = attribute.split(".")[1]
                     else:
                         str_attribute = attribute
-                if mqtt_payload is not None:
+                message_str_json = json.loads(message_str)
+                message_str_json = json.loads(message_str)
+                if ("Temperature" in message_str_json and "Humidity" in message_str_json and "DewPoint" in message_str_json and message_str_json['DewPoint'] is not None and mqtt_payload is not None) or ("DewPoint" not in message_str_json and mqtt_payload is not None) :
                     # Get reading type (continous or on-change)
                     cur_mqtt.execute(
                         'SELECT sensor_type_id, mode, timeout, correction_factor, resolution FROM sensors WHERE sensor_id = %s AND sensor_child_id = %s LIMIT 1;',
@@ -2252,8 +2419,8 @@ def on_message(client, userdata, message):
                         mqtt_payload = mqtt_payload + correction_factor
                         # Update last reading for this sensor
                         cur_mqtt.execute(
-                            "UPDATE `sensors` SET `current_val_1` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
-                            [mqtt_payload, sensors_id, mqtt_child_sensor_id],
+                            "UPDATE `sensors` SET `current_val_1` = %s, `last_seen` = %s WHERE sensor_id = %s AND sensor_child_id = %s;",
+                            [mqtt_payload, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), sensors_id, mqtt_child_sensor_id],
                         )
                         con_mqtt.commit()
                         # Check is sensor is attached to a zone which is being graphed
@@ -2804,7 +2971,11 @@ try:
             node_id = nd[node_to_index["node_id"]]
             node_type = nd[node_to_index["type"]]
             node_name = nd[node_to_index["name"]]
-            sketch_version = float(nd[node_to_index["sketch_version"]])
+            if nd[node_to_index["sketch_version"]].isnumeric():
+                sketch_version = float(nd[node_to_index["sketch_version"]])
+            else:
+                sketch_version = 0
+
             if sketch_version > 0:
                 sketch_version = int(sketch_version * 100)
 
@@ -2828,7 +2999,49 @@ try:
                     else:
                         # initialise the lag timer dictionary key and value and set the relay state from the current database value
                         relay_lag_timer[relays_id] = 0
-                        out_payload = db_payload
+                        # check if starting where the previous system state was overrun, if so clear the relay state
+                        cur.execute(
+                            """SELECT `zone`.`id`, `zone`.`name` AS `zone_name`, `zone`.`zone_state`, `zr`.`zone_relay_id`, `r`.`relay_child_id`, `r`.`name` AS `relay_name`, `m`.`payload`
+                               FROM `zone`
+                               JOIN `zone_relays` `zr` ON `zr`.`zone_id` = `zone`.`id`
+                               JOIN `relays` `r` ON `r`.`id` = `zr`.`zone_relay_id`
+                               JOIN `messages_out` `m` ON `m`.`n_id` = `r`.`relay_id` AND `m`.`child_id` = `r`.`relay_child_id`
+                               WHERE `m`.`n_id` = (%s) AND `m`.`child_id` = (%s) AND `zone`.`zone_state` = 0 AND `m`.`payload` = '1' LIMIT 1;""",
+                            (n_id, out_child_id),
+                        )
+                        if cur.rowcount == 0: # was not in overrun state so use database payload value
+                            out_payload = db_payload
+                        else: # was in overrun state, so relay state to OFF (no need to set SENT as the relay state will be set in set_relays routine) and add a relay_logs record
+                            zone_state = cur.fetchone()
+                            zone_state_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                            out_payload = 0
+                            cur.execute(
+                                "UPDATE `messages_out` SET `payload` = %s WHERE `n_id` = %s AND `child_id` = %s",
+                                (out_payload, n_id, out_child_id),
+                            )
+                            # determine relay type for the appropriate message
+                            if node_type.find("Tasmota") != -1:
+                                relay_msg = out_payload
+                            elif node_type.find("GPIO") != -1:
+                                if int(out_payload) == 1 :
+                                    relay_msg = "ON"
+                                else :
+                                    relay_msg = "OFF"
+                            else :
+                                if int(out_payload) == int(out_on_trigger) :
+                                    relay_msg = "ON"
+                                else :
+                                    relay_msg = "OFF"
+                            # set mode message to Hysteresis Stopped
+                            main_mode = 100
+                            sub_mode = 0
+                            mode_msg = main_mode_dict[main_mode] + " - " + sub_mode_dict[sub_mode]
+                            # update relay logs message
+                            cur.execute(
+                                "INSERT INTO relay_logs(`sync`, `purge`, `relay_id`, `relay_name`, `message`, `zone_name`, `zone_mode`, `datetime`) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)",
+                                (0, 0, zone_state[zone_state_to_index["zone_relay_id"]], zone_state[zone_state_to_index["relay_name"]], relay_msg, zone_state[zone_state_to_index["zone_name"]], mode_msg, datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+                            )
+                        con.commit()
                     # action trigger setting for MySensor relays attached to the combined gateway/controller
                     if node_type.find("MySensor") != -1 and node_name.find("Controller") != -1 and sketch_version >= 34:
                         out_payload = XNOR(out_on_trigger, out_payload)
@@ -2930,32 +3143,33 @@ try:
                             )
                         gw.send(msg.encode("utf-8"))
 
-                        # Send a mask representing the unallocated relays
-                        cur.execute(
-                            """SELECT relays.relay_child_id
-                               FROM `relays`
-                               JOIN nodes n ON n.id = relays.relay_id
-                               WHERE n.node_id = '0'
-                               AND n.type = 'MySensor'
-                               AND n.sketch_version >= 0.34
-                               ORDER BY relays.relay_child_id;"""
-                        )  # MySQL query statemen
-                        relays = cur.fetchall()
-                        relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                        mask = 0
-                        for relay in relays:
-                            relay_child_id = relay[relay_to_index["relay_child_id"]]
-                            mask = mask + pow(2, relay_child_id - 1)
-                        max_child_id = 16 # The PCF8575 I2C controller on the WT32-ETH01 Gateway can drive 16 relays
-                        mask = mask^(pow(2,max_child_id)-1)
-                        msg = "0;0;0;0;26;" + str(mask) + " \n"
-                        if dbgLevel >= 3 and dbgMsgOut == 1:
-                            print(bc.grn + "\nUnallocated Gateway Relay Controller Mask", bc.ENDC)
-                            print("Date & Time:                 ", time.ctime())
-                            print(
-                                "Full Message to Send:        ", msg.replace("\n", "\\n")
-                            )
-                        gw.send(msg.encode("utf-8"))
+                        if sketch_version >= 35:
+                            # Send a mask representing the unallocated relays
+                            cur.execute(
+                                """SELECT relays.relay_child_id
+                                   FROM `relays`
+                                   JOIN nodes n ON n.id = relays.relay_id
+                                   WHERE n.node_id = '0'
+                                   AND n.type = 'MySensor'
+                                   AND n.sketch_version >= 0.35
+                                   ORDER BY relays.relay_child_id;"""
+                            )  # MySQL query statemen
+                            relays = cur.fetchall()
+                            relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                            mask = 0
+                            for relay in relays:
+                                relay_child_id = relay[relay_to_index["relay_child_id"]]
+                                mask = mask + pow(2, relay_child_id - 1)
+                            max_child_id = 16 # The PCF8575 I2C controller on the WT32-ETH01 Gateway can drive 16 relays
+                            mask = mask^(pow(2,max_child_id)-1)
+                            msg = "0;0;0;0;26;" + str(mask) + " \n"
+                            if dbgLevel >= 3 and dbgMsgOut == 1:
+                                print(bc.grn + "\nUnallocated Gateway Relay Controller Mask", bc.ENDC)
+                                print("Date & Time:                 ", time.ctime())
+                                print(
+                                    "Full Message to Send:        ", msg.replace("\n", "\\n")
+                                )
+                            gw.send(msg.encode("utf-8"))
 
             ## Outgoing messages
             con.commit()
@@ -2983,32 +3197,33 @@ try:
                             )
                         gw.send(msg.encode("utf-8"))
 
-                        # Send a mask representing the unallocated relays
-                        cur.execute(
-                            """SELECT relays.relay_child_id
-                               FROM `relays`
-                               JOIN nodes n ON n.id = relays.relay_id
-                               WHERE n.node_id = (%s)
-                               AND n.type = 'MySensor'
-                               AND n.sketch_version >= 0.34
-                               ORDER BY relays.relay_child_id;""", (node_id,)
-                        )  # MySQL query statemen
-                        relays = cur.fetchall()
-                        relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
-                        mask = 0
-                        for relay in relays:
-                            relay_child_id = relay[relay_to_index["relay_child_id"]]
-                            mask = mask + pow(2, relay_child_id - 1)
-                        mask = mask^(pow(2,max_child_id)-1)
-                        msg = str(node_id) + ";0;0;0;26;" + str(mask) + " \n"
-                        if dbgLevel >= 3 and dbgMsgOut == 1:
-                            print(bc.grn + "\nUnallocated Relay Controller Mask", bc.ENDC)
-                            print("Date & Time:                 ", time.ctime())
-                            print(
-                                "Full Message to Send:        ", msg.replace("\n", "\\n")
-                            )
-                        gw.send(msg.encode("utf-8"))
-                        heartbeat_sent = True # block any other pending message
+                        if sketch_version >= 35:
+                            # Send a mask representing the unallocated relays
+                            cur.execute(
+                                """SELECT relays.relay_child_id
+                                   FROM `relays`
+                                   JOIN nodes n ON n.id = relays.relay_id
+                                   WHERE n.node_id = (%s)
+                                   AND n.type = 'MySensor'
+                                   AND n.sketch_version >= 0.35
+                                   ORDER BY relays.relay_child_id;""", (node_id,)
+                            )  # MySQL query statemen
+                            relays = cur.fetchall()
+                            relay_to_index = dict((d[0], i) for i, d in enumerate(cur.description))
+                            mask = 0
+                            for relay in relays:
+                                relay_child_id = relay[relay_to_index["relay_child_id"]]
+                                mask = mask + pow(2, relay_child_id - 1)
+                            mask = mask^(pow(2,max_child_id)-1)
+                            msg = str(node_id) + ";0;0;0;26;" + str(mask) + " \n"
+                            if dbgLevel >= 3 and dbgMsgOut == 1:
+                                print(bc.grn + "\nUnallocated Relay Controller Mask", bc.ENDC)
+                                print("Date & Time:                 ", time.ctime())
+                                print(
+                                    "Full Message to Send:        ", msg.replace("\n", "\\n")
+                                )
+                            gw.send(msg.encode("utf-8"))
+                            heartbeat_sent = True # block any other pending message
 
             if (heartbeat_sent == False):
                 # select messages_out which are associated with a relay and where sent = 0

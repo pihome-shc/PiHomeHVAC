@@ -94,7 +94,7 @@ if ($s_id != "") {
 	if(isset($_COOKIE["user_login"])) $u_name = $_COOKIE["user_login"]; else $u_name="";
 	if ($u_name != "") {
 		// check if this user has a 'persistant' type account
-        	$query = "SELECT id, admin_account FROM user WHERE username = '{$u_name}' AND persist = 1 LIMIT 1;";
+        	$query = "SELECT id, access_level FROM user WHERE username = '{$u_name}' AND persist = 1 LIMIT 1;";
 	        $result = $conn->query($query);
         	if (mysqli_num_rows($result) > 0) {
 			$found_user = mysqli_fetch_array($result);
@@ -108,7 +108,7 @@ if ($s_id != "") {
 						// Set session variables
        						$_SESSION['user_id'] = $found_user['id'];
 						$_SESSION['username'] = $u_name;
-						$_SESSION['admin'] = $found_user['admin_account'];
+						$_SESSION['access'] = $found_user['access_level'];
        						$_SESSION['persist'] = 1;
 						header('Location:home.php');
 						exit;
@@ -135,7 +135,7 @@ if(($no_ap == 0 || $wifi_connected == 1 || $eth_connected == 1 || $ap_mode == 1)
 	$password = mysqli_real_escape_string($conn,(md5($_POST['password'])));
 	if ( !isset($error_message) ) {
 		// Check database to see if username and the hashed password exist there.
-		$query = "SELECT id, username, admin_account, persist FROM user WHERE username = '{$username}' AND password = '{$password}' AND account_enable = 1 LIMIT 1;";
+		$query = "SELECT id, username, access_level, persist FROM user WHERE username = '{$username}' AND password = '{$password}' AND account_enable = 1 LIMIT 1;";
 		$result_set = $conn->query($query);
 		if (mysqli_num_rows($result_set) == 1) {
 			// username/password authenticated
@@ -143,7 +143,7 @@ if(($no_ap == 0 || $wifi_connected == 1 || $eth_connected == 1 || $ap_mode == 1)
 			// Set username session variable
 			$_SESSION['user_id'] = $found_user['id'];
 			$_SESSION['username'] = $found_user['username'];
-                        $_SESSION['admin'] = $found_user['admin_account'];
+                        $_SESSION['access'] = $found_user['access_level'];
                         $_SESSION['persist'] = $found_user['persist'];
 
 			if(!empty($_POST["remember"])) {
@@ -200,7 +200,7 @@ if (isset($_POST['submit'])) {
 
 		if ( !isset($error_message) ) {
 			// Check database to see if username and the hashed password exist there.
-			$query = "SELECT id, username, admin_account, persist FROM user WHERE username = '{$username}' AND password = '{$password}' AND account_enable = 1 LIMIT 1;";
+			$query = "SELECT id, username, access_level, persist FROM user WHERE username = '{$username}' AND password = '{$password}' AND account_enable = 1 LIMIT 1;";
 			$result_set = $conn->query($query);
 			if (mysqli_num_rows($result_set) == 1) {
 				// username/password authenticated
@@ -208,7 +208,7 @@ if (isset($_POST['submit'])) {
 				// Set username session variable
 				$_SESSION['user_id'] = $found_user['id'];
        				$_SESSION['username'] = $found_user['username'];
-                               	$_SESSION['admin'] = $found_user['admin_account'];
+                               	$_SESSION['access'] = $found_user['access_level'];
                                	$_SESSION['persist'] = $found_user['persist'];
 
 				if(!empty($_POST["remember"])) {
@@ -247,8 +247,8 @@ if (isset($_POST['submit'])) {
 				}
 				redirect_to($url);
 			} else {
-				// add entry to database if login is success
-				$query = "INSERT INTO userhistory(username, password, date, audit, ipaddress) VALUES ('{$username}', '{$password}', '{$lastlogin}', 'Failed', '{$ip}')";
+				// add entry to database if login is failed
+                $query = "INSERT INTO userhistory(username, password, date, audit, ipaddress, s_id) VALUES ('{$username}', '{$password}', '{$lastlogin}', 'Failed', '{$ip}', '{$s_id}')";
 				$result = $conn->query($query);
 				// username/password was not found in the database
 				$error_message = $lang['user_pass_error'];

@@ -151,7 +151,7 @@ $schedule_time = [];
 						<br>';
 
 						//zone listing of each time schedule
-						$query = "SELECT * FROM  schedule_daily_time_zone_view WHERE holidays_id = 0 AND time_id = {$row['time_id']} order by index_id;";
+						$query = "SELECT DISTINCT * FROM  schedule_daily_time_zone_view WHERE holidays_id = 0 AND time_id = {$row['time_id']} order by index_id;";
 						$result = $conn->query($query);
 						while ($datarw = mysqli_fetch_array($result)) {
 							if ($datarw["tz_status"] == "0") {

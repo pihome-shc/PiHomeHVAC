@@ -61,7 +61,7 @@ $theme = settings($conn, 'theme');
                 		        $js_button_params = json_encode($button_params);
 		                }
 
-                		if($_SESSION['admin'] == 1) {
+                		if($_SESSION['access'] != 2) {
 					echo '<button class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-circle no-shadow black-background '.$button_style.' mainbtn animated fadeIn" onclick="relocate_page(`theme.php`)">
                                         <h3 class="buttontop"><small>'.$lang['add_theme'].'</small></h3>
                                         <h3 class="degre" style="margin-top: 10px;"><i class="bi bi-plus-square-fill icon-2x orange"></i></h3>
@@ -159,7 +159,7 @@ $(document).ready(function(){
 
             for (var y = 0; y < obj2.length; y++) {
 	      if (obj2[y].button_function == "live_temp") {
-    		$('#load_temp').load("ajax_fetch_data.php?id=" + live_temp_zone_id + "&type=1").fadeIn("slow");
+    		$('#load_temp').load("ajax_fetch_data.php?id=" + live_temp_zone_id + "&type=38").fadeIn("slow");
 	      }
               $('#bs1_' + obj2[y].button_id).load("ajax_fetch_data.php?id=" + obj2[y].button_id + "&type=11").fadeIn("slow");
               $('#bs2_' + obj2[y].button_id).load("ajax_fetch_data.php?id=" + obj2[y].button_id + "&type=12").fadeIn("slow");
