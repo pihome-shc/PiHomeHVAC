@@ -2397,7 +2397,7 @@ def on_message(client, userdata, message):
                     else:
                         str_attribute = attribute
                 message_str_json = json.loads(message_str)
-                if (isinstance( message_str_json, float) and mqtt_payload is not None) or ("Temperature" in message_str_json and "Humidity" in message_str_json and "DewPoint" in message_str_json and message_str_json['DewPoint'] is not None and mqtt_payload is not None) or ("DewPoint" not in message_str_json and mqtt_payload is not None):
+                if (isinstance(message_str_json, float) and mqtt_payload is not None) or ("Temperature" in message_str_json and "Humidity" in message_str_json and "DewPoint" in message_str_json and message_str_json['DewPoint'] is not None and mqtt_payload is not None) or ("DewPoint" not in message_str_json and mqtt_payload is not None):
                     # Get reading type (continous or on-change)
                     cur_mqtt.execute(
                         'SELECT sensor_type_id, mode, timeout, correction_factor, resolution FROM sensors WHERE sensor_id = %s AND sensor_child_id = %s LIMIT 1;',
