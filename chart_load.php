@@ -25,12 +25,13 @@ $result = $conn->query($query);
 while ($row = mysqli_fetch_assoc($result)) {
         $datetime = $row['datetime'];
         $payload = $row['payload'];
-        if ($row['node_id'] == '0') {
+        if ($row['node_id'] == 0) {
                 $system_c[] = array(strtotime($datetime) * 1000, DispSensor($conn,$payload,1));
-        } elseif ($row['node_id'] == '1') {
+        } elseif ($row['node_id'] == 1) {
                 $weather_c[] = array(strtotime($datetime) * 1000, DispSensor($conn,$payload,1));
         }
 }
+if (count($system_c) != 0) {$cpu_temps = True;} else {$cpu_temps = False;}
 
 // weather table to get sunrise and sun set time
 $query="select * from weather";
@@ -43,19 +44,13 @@ $sunset = $weather_row['sunset']* 1000 ;
 //http://php.net/manual/en/function.date-sun-info.php
 
 //check which graphs are enabled as a 6 bit mask
-$query ="SELECT `mask` FROM `graphs` LIMIT 1;";
+$query ="SELECT mask FROM graphs LIMIT 1;";
 $result = $conn->query($query);
 $grow = mysqli_fetch_assoc($result);
 
 if ($grow['mask'] & 0b1) {
 	// create datasets based on all available sensors
-	$querya ="SELECT `id`, `name`, `sensor_id`, `sensor_child_id`, `graph_num`  FROM `sensors` WHERE `graph_num` > 0 AND `sensor_type_id` = 1 ORDER BY `id` ASC;";
-	$querya ="SELECT `id`, `name`, `sensor_id`, `sensor_child_id`, `graph_num`  FROM `sensors` WHERE `graph_num` > 0 AND `sensor_type_id` = 1
-		UNION
-		SELECT sensor_average.id, CONCAT(zone.name,' - Average') AS name, sensor_average.sensor_id, '0' AS sensor_child_id, sensor_average.graph_num
-		FROM sensor_average, zone
-		WHERE sensor_average.zone_id = zone.id AND `graph_num` > 0
-		ORDER BY `id` ASC;";
+	$querya ="SELECT * FROM sensors WHERE graph_num > 0 AND sensor_type_id = 1 ORDER BY id ASC;";
 	$resulta = $conn->query($querya);
 	$graph1 = '';
 	$graph2 = '';
@@ -64,16 +59,11 @@ if ($grow['mask'] & 0b1) {
 	while ($row = mysqli_fetch_assoc($resulta)) {
         	// grab the sensor names to be displayed in the plot legend
 		$name=$row['name'];
-		if (strpos($row['sensor_id'], "zavg_") !== false) {
-			$id = substr($row['sensor_id'], strpos($row['sensor_id'], "_") + 1);
-                        $graph_id = substr($row['sensor_id'], strpos($row['sensor_id'], "_") + 1).'.0';
-		} else {
-			$id=$row['id'];
-	                $graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
-		}
+		$id=$row['id'];
+	  	$graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
         	$graph_num = $row['graph_num'];
                 if(strpos($name, 'Water') !== false) { $graph_water = $graph_num; }
-		$query="SELECT * FROM `sensor_graphs` WHERE `zone_id` = {$id};";
+		$query="select * from sensor_graphs where zone_id = {$id};";
         	$result = $conn->query($query);
 	        // create array of pairs of x and y values for every zone
         	$graph1_temp = array();
@@ -84,7 +74,7 @@ if ($grow['mask'] & 0b1) {
                 	        $graph1_temp[] = array(strtotime($rowb['datetime']) * 1000, $rowb['payload']);
 	                } elseif($graph_num == 2) {
         	                $graph2_temp[] = array(strtotime($rowb['datetime']) * 1000, $rowb['payload']);
-                	} elseif($graph_num == 3) {
+                	} elseif($graph_num == 3 && $cpu_temps) {
                         	$graph3_temp[] = array(strtotime($rowb['datetime']) * 1000, $rowb['payload']);
 			}
         	}
@@ -93,7 +83,7 @@ if ($grow['mask'] & 0b1) {
                 	$graph1 = $graph1. "{label: \"".$name."\", data: ".json_encode($graph1_temp).", color: '".$sensor_color[$graph_id]."'}, \n";
 	        } elseif($graph_num == 2) {
         	        $graph2 = $graph2. "{label: \"".$name."\", data: ".json_encode($graph2_temp).", color: '".$sensor_color[$graph_id]."'}, \n";
-	        } elseif($graph_num == 3) {
+	        } elseif($graph_num == 3 && $cpu_temps) {
         	        $graph3 = $graph3. "{label: \"".$name."\", data: ".json_encode($graph3_temp).", color: '".$sensor_color[$graph_id]."'}, \n";
 		}
 	}
@@ -101,7 +91,7 @@ if ($grow['mask'] & 0b1) {
 	$graph2 = $graph2."{label: \"".$lang['graph_outsie']."\", data: ".json_encode($weather_c).", color: '".graph_color($count, ++$counter)."'}, \n";
 
 	// add CPU temperature
-	$graph3 = $graph3."{label: \"".$lang['cpu']."\", data: ".json_encode($system_c).", color: '".graph_color($count, ++$counter)."'}, \n";
+	if ($cpu_temps) {$graph3 = $graph3."{label: \"".$lang['cpu']."\", data: ".json_encode($system_c).", color: '".graph_color($count, ++$counter)."'}, \n";}
 
 	//background-color for system controller on time
 	$query="select start_datetime, stop_datetime, type from zone_log_view where status= '1' AND start_datetime > current_timestamp() - interval 24 hour;";
@@ -194,31 +184,33 @@ if ($grow['mask'] & 0b1) {
     legend: { noColumns: 3, labelBoxBorderColor: "#ffff", position: "nw" }
   };
 
-  $(document).ready(function () {$.plot($("#graph3"), hdataset, options_three);$("#graph3").UseTooltip();});
-  var previousPoint = null, previousLabel = null;
+  if (hdataset.length > 0) {
+    $(document).ready(function () {$.plot($("#graph3"), hdataset, options_three);$("#graph3").UseTooltip();});
+    var previousPoint = null, previousLabel = null;
 
-  $.fn.UseTooltip = function () {
-    $(this).bind("plothover", function (event, pos, item) {
-        if (item) {
-            if ((previousLabel != item.series.label) ||
-                 (previousPoint != item.dataIndex)) {
-                previousPoint = item.dataIndex;
-                previousLabel = item.series.label;
-                $("#tooltip").remove();
-                var x = item.datapoint[0];
-                var y = item.datapoint[1];
-                var color = item.series.color;
-                showTooltip(item.pageX,
-                        item.pageY,
-                        color,
-                        "<strong>" + item.series.label + "</strong> At: " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"<br> <strong><?php echo $lang['temp']; ?>  : " + $.formatNumber(y, { format: "#,##0", locale: "us" }) + "&deg;</strong> ");
-            }
-        } else {
-            $("#tooltip").remove();
-            previousPoint = null;
-        }
-    });
-  };
+    $.fn.UseTooltip = function () {
+      $(this).bind("plothover", function (event, pos, item) {
+          if (item) {
+              if ((previousLabel != item.series.label) ||
+                   (previousPoint != item.dataIndex)) {
+                  previousPoint = item.dataIndex;
+                  previousLabel = item.series.label;
+                  $("#tooltip").remove();
+                  var x = item.datapoint[0];
+                  var y = item.datapoint[1];
+                  var color = item.series.color;
+                  showTooltip(item.pageX,
+                          item.pageY,
+                          color,
+                          "<strong>" + item.series.label + "</strong> At: " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"<br> <strong><?php echo $lang['temp']; ?>  : " + $.formatNumber(y, { format: "#,##0", locale: "us" }) + "&deg;</strong> ");
+              }
+          } else {
+              $("#tooltip").remove();
+              previousPoint = null;
+          }
+      });
+    };
+  }
 
   function showTooltip(x, y, color, contents) {
     $('<div id="tooltip">' + contents + '</div>').css({
