@@ -26,7 +26,7 @@ print("* MySensors Wifi/Ethernet/Serial Gateway Communication *")
 print("* Script to communicate with MySensors Nodes, for more *")
 print("* info please check MySensors API.                     *")
 print("*      Build Date: 18/09/2017                          *")
-print("*      Version 0.31 - Last Modified 13/03/2025         *")
+print("*      Version 0.31 - Last Modified 28/09/2025         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -845,10 +845,11 @@ def process_message(in_str):
                 and (sub_type == 0 or sub_type == 25)
             ):
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                if node_id == '0' and sub_type == 0:
-                    node_id = '200'
-                else:
-                    node_id = '201'
+                if node_id == '0':
+                    if sub_type == 0:
+                        node_id = '200'
+                    else:
+                        node_id = '201'
                 try:
                     cur.execute(
                         "UPDATE `nodes` SET `last_seen`=%s, `sync`=0  WHERE node_id = %s",
@@ -2397,8 +2398,7 @@ def on_message(client, userdata, message):
                     else:
                         str_attribute = attribute
                 message_str_json = json.loads(message_str)
-                message_str_json = json.loads(message_str)
-                if ("Temperature" in message_str_json and "Humidity" in message_str_json and "DewPoint" in message_str_json and message_str_json['DewPoint'] is not None and mqtt_payload is not None) or ("DewPoint" not in message_str_json and mqtt_payload is not None) :
+                if (isinstance(message_str_json, float) and mqtt_payload is not None) or ("Temperature" in message_str_json and "Humidity" in message_str_json and "DewPoint" in message_str_json and message_str_json['DewPoint'] is not None and mqtt_payload is not None) or ("DewPoint" not in message_str_json and mqtt_payload is not None):
                     # Get reading type (continous or on-change)
                     cur_mqtt.execute(
                         'SELECT sensor_type_id, mode, timeout, correction_factor, resolution FROM sensors WHERE sensor_id = %s AND sensor_child_id = %s LIMIT 1;',

@@ -185,22 +185,31 @@ if ($settings_id == 1) {
 		                       	        $max_cpu_temp = settings($conn, 'max_cpu_temp');
 				        	$query = "select * from messages_in where node_id = 0 ORDER BY id DESC LIMIT 1";
 		        			$result = $conn->query($query);
-        					$result = mysqli_fetch_array($result);
-		        			$system_cc = $result['payload'];
-	        			       	if ($system_cc < $max_cpu_temp - 10){$system_cc="#0bb71b";}elseif ($system_cc < $max_cpu_temp){$system_cc="#F0AD4E";}elseif ($system_cc > $max_cpu_temp){$system_cc="#ff0000";}
-		        	        	?>
-                                                <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#cpu_temp_history">
-			               		<h3 class="buttontop"><small><?php echo $lang['system']; ?> &deg;</small></h3>
-	        			        <h3 class="degre" style="margin-top:12px;"><i class="bi bi-cpu-fill" style="font-size: 1.5rem;"></i></h3>
-						<div id="cpu_status">
-							<h3 class="status">
-        						<small class="statuscircle" style="color:<?php echo $system_cc;?>"><i class="bi bi-circle-fill" style="font-size: 0.55rem;"></i></small>
-				                	<small class="statusdegree"><?php echo number_format(DispTemp($conn,$result['payload']),0);?>&deg;</small>
-							<?php if ($result['payload'] > $max_cpu_temp){
-						               	echo '<small class="statuszoon"><i class="spinner-grow text-danger" role="status" style="width: 0.7rem; height: 0.7rem;"></i></small></h3>';
-							} ?>
-						</div>
-				                </button>
+                				$rowcount = mysqli_num_rows($result);
+                				if ($rowcount != 0){
+        						$result = mysqli_fetch_array($result);
+			        			$system_cc = $result['payload'];
+		        			       	if ($system_cc < $max_cpu_temp - 10){$system_cc="#0bb71b";}elseif ($system_cc < $max_cpu_temp){$system_cc="#F0AD4E";}elseif ($system_cc > $max_cpu_temp){$system_cc="#ff0000";}
+			        	        	?>
+                        	                        <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#cpu_temp_history">
+			        	       		<h3 class="buttontop"><small><?php echo $lang['system']; ?> &deg;</small></h3>
+	        				        <h3 class="degre" style="margin-top:12px;"><i class="bi bi-cpu-fill" style="font-size: 1.5rem;"></i></h3>
+							<div id="cpu_status">
+								<h3 class="status">
+	        						<small class="statuscircle" style="color:<?php echo $system_cc;?>"><i class="bi bi-circle-fill" style="font-size: 0.55rem;"></i></small>
+					                	<small class="statusdegree"><?php echo number_format(DispTemp($conn,$result['payload']),0);?>&deg;</small>
+								<?php if ($result['payload'] > $max_cpu_temp){
+							               	echo '<small class="statuszoon"><i class="spinner-grow text-danger" role="status" style="width: 0.7rem; height: 0.7rem;"></i></small></h3>';
+								} ?>
+							</div>
+				                	</button>
+						<?php } else { ?>
+                                                        <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn">
+                                                        <h3 class="buttontop"><small><?php echo $lang['system']; ?> &deg;</small></h3>
+                                                        <h3 class="degre" >N/A</h3>
+							<h3 class="status"></small></h3>
+							</button>
+                                                <?php } ?>
 
                 			   	<button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#big_thanks">
 		                		<h3 class="buttontop"><small><?php echo $lang['big_thanks']; ?></small></h3>

@@ -58,11 +58,15 @@ import configparser
 import os
 import numpy as n
 
-try:
-    from rpi_bad_power import new_under_voltage
-    CHECK_RPI_POWER = True
-except ImportError:
+if 'x86_64' not in platform.machine():
+    try:
+        from rpi_bad_power import new_under_voltage
+        CHECK_RPI_POWER = True
+    except ImportError:
+        CHECK_RPI_POWER = False
+else:
     CHECK_RPI_POWER = False
+
 if CHECK_RPI_POWER:
     if new_under_voltage() is None:
         CHECK_RPI_POWER = False
