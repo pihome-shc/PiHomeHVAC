@@ -157,6 +157,12 @@ if ($settings_id == 1) {
 					        <h3 class="status"></small></h3>
         	        		        </button>
 
+                                                <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style;?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#temp_delta">
+                                                <h3 class="buttontop"><small><?php echo $lang['temp_delta']; ?></small></h3>
+                                                <h3 class="degre" ><i class="bi bi-speedometer2" style="font-size: 1.5rem;"></i></h3>
+                                                <h3 class="status"></small></h3>
+                                                </button>
+
                                                 <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#status_relays">
                                                 <h3 class="buttontop"><small><?php echo $lang['relays']; ?></small></h3>
                                                 <h3 class="degre" ><i class="bi bi-shuffle" style="font-size:1.5rem;"></i></h3>
@@ -175,8 +181,8 @@ if ($settings_id == 1) {
 		        		        <h3 class="status"></small></h3>
 	       					</button>
 
-		        	      		<button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#maxair_versions">
-        				       	<h3 class="buttontop"><small><?php echo $lang['maxair_versions']; ?></small></h3>
+		        	      		<button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#about_maxair">
+        				       	<h3 class="buttontop"><small><?php echo $lang['about_maxair']; ?></small></h3>
 				        	<h3 class="degre" ><i class="bi bi-collection blueinfo" style="font-size: 1.5rem;"></i></h3>
 	        				<h3 class="status"></small></h3>
 		       				</button>
@@ -296,6 +302,18 @@ if ($settings_id == 1) {
 					        <h3 class="degre" ><i class="bi bi-cloud-sun" style="font-size: 1.5rem;"></i></h3>
 			        		<h3 class="status"></small></h3>
 					        </button>
+
+                                                <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#hw_compensation">
+                                                <h3 class="buttontop"><small><?php echo $lang['hw_comp']; ?></small></h3>
+                                                <h3 class="degre" ><i class="bi bi-water blue" style="font-size: 1.5rem;"></i></h3>
+                                                <h3 class="status"></small></h3>
+                                                </button>
+
+                                                <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="edit_gpio.php" data-bs-toggle="modal" data-bs-target="#set_summer">
+                                                <h3 class="buttontop"><small><?php echo $lang['set_summer']; ?></small></h3>
+                                                <h3 class="degre" ><i class="bi bi-sun-fill orange" style="font-size: 1.5rem;"></i></h3>
+                                                <h3 class="status"></small></h3>
+                                                </button>
 
                         			<button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#display_graphs">
 			        	        <h3 class="buttontop"><small><?php echo $lang['enable_graphs']; ?></small></h3>
@@ -469,6 +487,12 @@ if ($settings_id == 1) {
        				                <h3 class="status"></small></h3>
                         	                </button>
 
+                                                <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#index_zones">
+                                                <h3 class="buttontop"><small><?php echo $lang['index_zones']; ?></small></h3>
+                                                <h3 class="degre" ><i class="b1 bi-list-columns orange" style="font-size: 1.8rem;"></i></h3>
+                                                 <h3 class="status"></small></h3>
+                                                </button>
+
 			        		<button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="edit_override.php" data-bs-toggle="modal" data-bs-target="#nodes">
         	        			<h3 class="buttontop"><small><?php echo $lang['nodes']; ?></small></h3>
        				                <h3 class="degre" style="margin-top:12px;"><i class="bi bi-diagram-3-fill green" style="font-size: 2rem;"></i></h3>
@@ -494,6 +518,18 @@ if ($settings_id == 1) {
        				                <h3 class="status"></small></h3>
                 	                        </button>
 
+                                                <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#relay_messages">
+                                                <h3 class="buttontop"><small><?php echo $lang['relay_message']; ?></small></h3>
+                                                <h3 class="degre" ><i class="b1 bi-card-text" style="font-size: 1.5rem;"></i></h3>
+                                                <h3 class="status"></small></h3>
+                                                </button>
+
+                                                <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#relay_group_setup">
+                                                <h3 class="buttontop"><small><?php echo $lang['relay_groups']; ?></small></h3>
+                                                <h3 class="degre" ><i class="b1 bi-list-ol" style="font-size:2rem;"></i></h3>
+                                                <h3 class="status"></small></h3>
+                                                </button>
+
                                                 <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#test_relays">
                                                 <h3 class="buttontop"><small><?php echo $lang['test_relays']; ?></small></h3>
                                                 <h3 class="degre" ><i class="bi bi-toggles green" style="font-size:1.5rem;"></i></h3>
@@ -517,6 +553,12 @@ if ($settings_id == 1) {
         	                                <h3 class="degre" ><i class="b1 bi-list-ol red" style="font-size: 2rem;"></i></h3>
        				                <h3 class="status"></small></h3>
                         	                </button>
+
+                                                <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#index_devices">
+                                                <h3 class="buttontop"><small><?php echo $lang['index_devices']; ?></small></h3>
+                                                <h3 class="degre" ><i class="b1 bi-list-columns blue" style="font-size: 1.8rem;"></i></h3>
+                                                 <h3 class="status"></small></h3>
+                                                </button>
 
                                                 <button class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-href="#" data-bs-toggle="modal" data-bs-target="#hide_sensor_relay">
                                                 <h3 class="buttontop"><small><?php echo $lang['hide']; ?></small></h3>
@@ -562,6 +604,7 @@ if ($settings_id == 1) {
                 	        	<h3 class="degre" ><i class="bi bi-toggle2-off red" style="font-size: 1.5rem;"></i></h3>
 				       	<h3 class="status"></small></h3>
 		        		</button>
+            			<!-- placeholder -->
 			</div>
 			<!-- /.row -->
 		</div>

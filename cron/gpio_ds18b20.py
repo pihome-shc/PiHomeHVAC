@@ -1,11 +1,10 @@
 #!/usr/bin/python
-import time, os, fnmatch, MySQLdb as mdb, logging
+import time, os, fnmatch, MySQLdb as mdb, logging, sys
 from decimal import Decimal
 import configparser
 from datetime import datetime
 import math
 import subprocess
-import shlex
 
 class bc:
     hed = "\033[0;36;40m"
@@ -16,23 +15,13 @@ class bc:
     grn = "\033[0;32;40m"
     wht = "\033[0;37;40m"
 
-
-# Parameters for spike removal and data smoothing
-dT_max = (
-    3  # Maximum difference in tempearture between consecuive readings of the seonsor
-)
-skip_max = 3  # Maximum number of readings skipped if dT is greater than dT_Max
-alpha = 1  # Alpha for expnential weighted moving average. Value must be between 0 and 1 (alpha = 1 means EWMA is disabled)
-
-update_rate = 60  # Update rate for DS18b20 sensors in seconds
-
 print(bc.hed + " ")
-print("    __  __                             _         ")
-print("   |  \/  |                    /\     (_)        ")
-print("   | \  / |   __ _  __  __    /  \     _   _ __  ")
-print("   | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| ")
-print("   | |  | | | (_| |  >  <   / ____ \  | | | |    ")
-print("   |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
+print(r"    __  __                             _         ")
+print(r"   |  \/  |                    /\     (_)        ")
+print(r"   | \  / |   __ _  __  __    /  \     _   _ __  ")
+print(r"   | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| ")
+print(r"   | |  | | | (_| |  >  <   / ____ \  | | | |    ")
+print(r"   |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
 print(" ")
 print("             " + bc.SUB + "S M A R T   THERMOSTAT " + bc.ENDC)
 print(bc.WARN + " ")
@@ -40,10 +29,20 @@ print("***********************************************************")
 print("*   PiHome DS18B20 Temperature Sensors Data to MySQL DB   *")
 print("* Use this script if you have DS18B20 Temperature sensors *")
 print("* Connected directly on Raspberry Pi GPIO.                *")
-print("*                                  Build Date: 01/08/2025 *")
+print("*                                  Build Date: 24/03/2026 *")
 print("*                                    Have Fun - PiHome.eu *")
 print("***********************************************************")
 print(" " + bc.ENDC)
+
+#Determine if the enable exponential weighted moving average flag is present and set
+if len(sys.argv) == 1:
+    ewma_flag = True
+else:
+    if int(sys.argv[1]) == 1:
+        ewma_flag = False
+    else:
+        ewma_flag = True
+
 logging.basicConfig(
     filename="/var/www/cron/logs/DS18B20_error.log",
     level=logging.DEBUG,
@@ -51,29 +50,39 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Add in the w1_gpio and w1_therm modules
-os.system("modprobe w1-gpio")
-os.system("modprobe w1-therm")
+#Add in the w1_gpio and w1_therm modules
+os.system('modprobe w1-gpio')
+os.system('modprobe w1-therm')
 
 # Initialise the database access variables
 config = configparser.ConfigParser()
-config.read("/var/www/st_inc/db_config.ini")
-dbhost = config.get("db", "hostname")
-dbuser = config.get("db", "dbusername")
-dbpass = config.get("db", "dbpassword")
-dbname = config.get("db", "dbname")
+config.read('/var/www/st_inc/db_config.ini')
+dbhost = config.get('db', 'hostname')
+dbuser = config.get('db', 'dbusername')
+dbpass = config.get('db', 'dbpassword')
+dbname = config.get('db', 'dbname')
 
 null_value = None
 hour_timer = time.time()
 gpio_recv = 0
+update_rate = 10  # Update rate for DS18b20 sensors in seconds
 
-print(bc.dtm + time.ctime() + bc.ENDC + " - DS18B20 Temperature Sensors Script Started")
-print("-" * 70)
+# Parameters for spike removal and data smoothing
+dT_max = 3   # Maximum difference in tempearture between consecuive readings of the seonsor
+skip_max = 3 # Maximum number of readings skipped if dT is greater than dT_Max
+alpha = 1     # Alpha for exponential weighted moving average. Value must be between 0 and 1 (alpha = 1 means EWMA is disabled)
 
-# Function for Storing DS18B20 Temperature Readings into MySQL
+print(bc.dtm + time.ctime() + bc.ENDC + ' - DS18B20 Temperature Sensors Script Started')
+print("-" * 72)
+
+#Function for Storing DS18B20 Temperature Readings into MySQL
 def insertDB(IDs, temperature):
     global hour_timer
     global gpio_recv
+    # Creates a running flag file
+    with open('/tmp/gpio_ds18b20_running', 'w') as fp:
+        pass
+
     try:
         con = mdb.connect(dbhost, dbuser, dbpass, dbname)
         cur = con.cursor()
@@ -281,68 +290,100 @@ def insertDB(IDs, temperature):
         logger.error(e)
         print(bc.dtm + time.ctime() + bc.ENDC + " - DB Connection Closed: %s" % e)
 
-# Read DS18B20 Sensors and Save Them to MySQL
+    if os.path.exists("/tmp/gpio_ds18b20_running"):
+        os.remove("/tmp/gpio_ds18b20_running")
+
+# Display detected bus masters on startup
+bus_masters = []
+for filename in os.listdir("/sys/bus/w1/devices"):
+    if fnmatch.fnmatch(filename, 'w1_bus_master*'):
+        bus_masters.append(filename)
+if ewma_flag:
+    print(bc.grn + "EWMA Enabled" + bc.ENDC)
+else:
+    print(bc.grn + "EWMA Disabled" + bc.ENDC)
+print(bc.grn + f"Detected {len(bus_masters)} OneWire bus master(s):" + bc.ENDC)
+for bus in bus_masters:
+    print(f"  - {bus}")
+print("-" * 72)
+
+#Read DS18B20 Sensors and Save Them to MySQL
 temperature = []
 IDs = []
 skip_count = []
-cmd = 'cat /sys/bus/w1/devices/w1_bus_master1/w1_master_slaves'
-args = shlex.split(cmd)
-while True:
-    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    s = p.communicate()[0]
-    res = s.split()
 
-    # create a list of the currently active sensors
-    IDs_current = []
-    for filename in res:
-        w1_name = filename.decode("utf-8")
-        IDs_current.append(w1_name)
-    # loop through IDs to identify any missing sensors
-    for id in IDs:
-        if id not in IDs_current:
-            # remove items from the 3 lists if the sensor is no longer connected
-            index = IDs.index(id)
-            temperature = [element for i, element in enumerate(temperature) if i != index]
-            IDs = [element for i, element in enumerate(IDs) if i != index]
-            skip_count = [element for i, element in enumerate(skip_count) if i != index]
-    for id in IDs_current:
-        if fnmatch.fnmatch(id, "28-*"):
-            with open("/sys/bus/w1/devices/" + id + "/w1_slave") as fileobj:
+while True:
+    try:
+        # build a list of the attached slave device
+        bus_slaves = []
+        for filename in os.listdir("/sys/bus/w1/devices"):
+            if fnmatch.fnmatch(filename, '28-*'):
+                bus_slaves.append(filename)
+
+        # loop through IDs to identify any missing sensors
+        for id in IDs:
+            if id not in bus_slaves:
+                # remove items from the 3 lists if the sensor is no longer connected
+                index = IDs.index(id)
+                temperature = [element for i, element in enumerate(temperature) if i != index]
+                IDs = [element for i, element in enumerate(IDs) if i != index]
+                skip_count = [element for i, element in enumerate(skip_count) if i != index]
+
+        # Loop through all slave
+        for slave in bus_slaves:
+            # Build 2 lists, IDs and temperatures
+            with open("/sys/bus/w1/devices/" + slave + "/w1_slave") as fileobj:
                 lines = fileobj.readlines()
-                # print lines
+                #print lines
+                # If we got data then proceed
                 if len(lines) > 0:
-                    if lines[0].find("YES"):
-                        pok = lines[1].find("=")
-                        current_temperature = (
-                            float(lines[1][pok + 1 : pok + 6]) / 1000
-                        )  # Current tempearture reading
-                        current_ID = id  # Current sensor ID
-                        if (
-                            id in IDs
-                        ):  # Check if data from this sensor had alread been received
-                            i = IDs.index(id)  # Find the index for the sensore
-                            if (
-                                skip_count[i] == skip_max
-                            ):  # If the maximum number of readings as been reached force and update
-                                old_temperature[i] = current_temperature
-                            if (
-                                abs(current_temperature - old_temperature[i]) < dT_max
-                            ):  # If the new reading is within the max range update temperature with the EMA
-                                skip_count[i] = 0
-                                temperature[i] = (1 - alpha) * old_temperature[
-                                    i
-                                ] + alpha * current_temperature
-                            else:  # If the new reading is not within the max range return the revious reading
-                                skip_count[i] += 1
-                                temperature[i] = old_temperature[i]
-                        else:  # If this is a new sensor append it to the end and set the skip count to 0
-                            temperature.append(current_temperature)
-                            IDs.append(current_ID)
-                            skip_count.append(0)
+                    # calculate the sum of all the bytes, to catch error when all data = 0x00
+                    sum = 0
+                    for x in range(0, 27, 3):
+                        sum = sum + (int(lines[0][x:x+3], 16))
+                    if lines[0].find("YES") != -1 and sum > 0:
+                        pok = lines[1].find('=')
+                        if not ewma_flag:
+                            temperature.append(float(lines[1][pok+1:pok+6])/1000)
+                            IDs.append(slave)
+                        else:
+                            current_temperature = float(lines[1][pok+1:pok+6])/1000 #Current tempearture reading
+                            current_ID = slave #Current sensor ID
+                            if (slave in IDs): #Check if data from this sensor had alread been received
+                                i = IDs.index(slave) #Find the index for the sensore
+                                if (skip_count[i] == skip_max): #If the maximum number of readings as been reached force and update
+                                    old_temperature[i] = current_temperature
+                                if (abs(current_temperature - old_temperature[i]) < dT_max): #If the new reading is within the max range update temperature with the EMA
+                                    skip_count[i] = 0
+                                    temperature[i] = (1 - alpha) * old_temperature[i] + alpha * current_temperature
+                                else: #If the new reading is not within the max range return the revious reading
+                                    skip_count[i] += 1
+                                    temperature[i] = old_temperature[i]
+                            else: #If this is a new sensor append it to the end and set the skip count to 0
+                                temperature.append(current_temperature)
+                                IDs.append(current_ID)
+                                skip_count.append(0)
                     else:
-                        logger.error("Error reading sensor with ID: %s" % (id))
-    old_temperature = temperature  # Update the previous tempearture record
-    if len(temperature) > 0:
-        insertDB(IDs, temperature)
+                        logger.error("Error reading sensor with ID: %s" % (slave))
+
+        # If the lists contain data then pass to database function
+        if (len(IDs) > 0 and len(temperature) > 0):
+            insertDB(IDs, temperature)
+
+        if ewma_flag:
+            old_temperature = temperature #Update the previous tempearture record
+        else:
+            IDs.clear()
+            temperature.clear()
+
+    except KeyboardInterrupt:
+        print("\n" + bc.WARN + "Shutting down gracefully..." + bc.ENDC)
+        break
+    except Exception as e:
+        logger.error(f"Critical error in main loop: {e}")
+        print(bc.WARN + f"Error in main loop: {e}" + bc.ENDC)
+        # Continue running despite errors
 
     time.sleep(update_rate)
+
+print(bc.dtm + time.ctime() + bc.ENDC + " - DS18B20 Script Stopped")

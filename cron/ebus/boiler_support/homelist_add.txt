@@ -1,0 +1,10 @@
+                                <div class="btn-group" id="footer_reset_count">
+                                        <?php
+                                        $query="SELECT COUNT(*) AS `reset_count` FROM `reset` WHERE `start_datetime` > now() - interval 24 hour AND `type` = 'AUTO';";
+                                        $result = $conn->query($query);
+                                        $row = mysqli_fetch_array($result);
+                                        $reset_count = $row['reset_count'];
+                                        echo '<small class="statuszoon text-dark">Reset Count&nbsp'.$reset_count.'</small>';
+                                        ?>
+                                </div>
+

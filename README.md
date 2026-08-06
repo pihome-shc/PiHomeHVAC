@@ -1,6 +1,6 @@
 # MaxAir - Smart Thermostat
 
-### Note: Now at Version 3.11.
+### Note: Now at Version 3.23
 
 The previous version, PiHome, was centered around the creation of zones, this version is more centered around devices.
 
@@ -70,6 +70,32 @@ Version 3.10 Improvements in display and processing of multi-sensor zones, inclu
 
 Version 3.11 User account management revised, to create three distint levels of access to the system; Level 0 - system administrator, with full access to the system, Level 1 - user with configuration access to the system and Level 2 - user with display only access. Support added for the 'Olimex Gateway', which functions as a gateway plus relay controller plus multiple DS18B20 sensor support.
 
+Version 3.12 Enable multiple relays controllers to be attached to a single sensor being used for 'Frost Control'. Add initial support for ZigBee sensors using MQTT and Zigbee2MQTT.
+
+Version 3.13 Change to Min/Max graph process to use a table to hold daily minimum and maximum vales for all sensors set to procuce a graph (rather than a csv file).
+
+Version 3.14 New Feature, 'One Shot Boost' boost will terminate once the target temperature is reached.
+
+Version 3.15 Bug Fix. Increase field size of colume 'zone_mode' in table 'relay_logs'.
+
+Version 3.16 New Features, Stand-alone relays (relays not attached to a zone can be displayed on the Home Screen and their 'state' toggled by clicking on the tile), new GUI Settings/Node and Zone Configuration/Zone Indexing (to edit Home Screen tile placement of Zone and Add-On Zone tiles) and new GUI Settings/Device Configuration/Device Indexing (to edit Home Screen tile placement of Stand-alone Sensor and Stand-alone Relay tiles).
+
+Version 3.17 Update Bootstrap to version 5.3.8
+
+Version 3.18 New Feature, a local language file can be created to hold variations to the default language file.
+
+Version 3.19 New Feature, Smart Off - Zone state will not re‑activate within a set number of minutes of a schedule end time.
+
+Version 3.20 New Feature, Relay Messages - Enable custom messages to be displayed in the lower right hand corner of Stand Alone Relay tiles.
+
+Version 3.21 New Features and Bug Fixes, Relay Schedules - Enable the creation of schedules for Stand Alone relays which operate in the same way as Zone schedules, Relay Groups - Enable the grouping of relays so that conditions applied to any relay in the group are applied to all relays in the same group, MQTT Relay Support - enhancements to the handling of MQTT relays so that returned state messages can be used with Relay Messages to create an indication of the MQTT relay's actual state (rather than what state MaxAir has tried to set the relay to), Home Screen layout - removal of the copywrite and title text from the Home screen and creation of a top left 'MaxAir' logo, which can be used as a Home button, EMail Setup Password - bug fix so that an unencrypted password is loaded when the Email popup screen opens plus the ability to display the password in plain text, Page Footer Text - weather and schedule text shown in larger bold text.
+
+Version 3.22 New Features, Hot Water Weather Compensation - Override the schedule temperature for the Hot Water zone with a value derived from an algorithm using a control temperature (eg. the Weather Channel outside temperature) and a set of coefficients. Disabled Active Schedule Icon - display an icon in the lower right hand corner of a zone tile to indicate that a schedule which should be active at that time has been disabled.
+
+Version 3.23 New Features, 'Return to Home Page' – if the system is left displaying any Settings menu screen, the Schedule list screen or the One Touch screen for longer than a configurable timeout period, then the display will return to the Home Screen. The timeout can be configured from the 'Settings/system Maintenance/Page Refresh' menu option, selecting a value of '0' will disable the timeout. The default is 60 second timeout. 'Temperature Delta' – new menu option 'Settings/System Status/Temp Delta', to display the Max, Min and Delta values by either Zone or Sensor over the preceding one or twenty four hour time interval and 'Disable schedules during summer months' – disable selected schedules during a set period of time, popup to define the period and a 'OneTouch' button to enable/disable the feature.
+Additional APIs - see documentaion.
+Update – Improve database update synchronisation.
+
 ## Setup:
 
 * Add Nodes (as per PiHome)
@@ -130,22 +156,19 @@ MaxAir can be installed on both Debian/Ubuntu or ArchLinux operating systems, th
 To install on Debian/Ubuntu:
 * sudo rm -R /var/www
 * sudo apt -y install git
-* sudo git clone https://github.com/pihome-shc/PiHomeHVAC.git "/var/www"
+* sudo git clone https://github.com/twa127/PiHomeHVAC.git "/var/www"
 * sudo chown -R www-data:www-data /var/www
 * cd /var/www/prerequisites
 * sudo bash ./install.sh (accept all defaults, when asked to enter a new password for the mariadb us passw0rd)
-* cd ../
-* sudo php ./setup.php
 
 To install on ArchLinux:
 * sudo rm -R /srv/http
 * sudo pacman -S git
-* sudo git clone https://github.com/pihome-shc/PiHomeHVAC.git "/srv/http"
+* sudo git clone https://github.com/twa127/PiHomeHVAC.git "/srv/http"
 * sudo chown -R http:http /srv/http
 * cd /srv/http/prerequisites
 * sudo bash ./install.sh (accept all defaults, when asked to enter a new password for the mariadb us passw0rd)
-* cd ../
-* sudo php ./setup.php (setup.php will create a symbolic link /var/www to /srv/http, for compatibility)
+* Note: setup.php will create a symbolic link /var/www to /srv/http, for compatibility
 
 
 ## Secial Thanks to

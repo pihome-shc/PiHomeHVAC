@@ -21,13 +21,29 @@ $system_c = array();
 
 $query="select * from messages_in where datetime > DATE_SUB( NOW(), INTERVAL 24 HOUR)";
 $result = $conn->query($query);
+// find the node and child id for the weater sensor
+$query = "SELECT `weather_sensor_id`, `n`.`node_id`, `s`.`sensor_child_id`
+        FROM `system_controller` `sc`
+        JOIN `sensors` `s` ON `s`.`id` = `sc`.`weather_sensor_id`
+        JOIN `nodes` `n` ON `n`.`id` = `s`.`sensor_id`
+        LIMIT 1;";
+$weather_sensor = $conn->query($query);
+$row = mysqli_fetch_assoc($weather_sensor);
+if(! $row) {
+        $node_id = "1";
+        $child_id = 0;
+} else {
+        $node_id = $row['node_id'];
+        $child_id = $row['sensor_child_id'];
+}
+
 //create array of pairs of x and y values
 while ($row = mysqli_fetch_assoc($result)) {
         $datetime = $row['datetime'];
         $payload = $row['payload'];
         if ($row['node_id'] == 0) {
                 $system_c[] = array(strtotime($datetime) * 1000, DispSensor($conn,$payload,1));
-        } elseif ($row['node_id'] == 1) {
+        } elseif ($row['node_id'] == $node_id && $row['child_id'] == $child_id) {
                 $weather_c[] = array(strtotime($datetime) * 1000, DispSensor($conn,$payload,1));
         }
 }
@@ -50,7 +66,15 @@ $grow = mysqli_fetch_assoc($result);
 
 if ($grow['mask'] & 0b1) {
 	// create datasets based on all available sensors
-	$querya ="SELECT * FROM sensors WHERE graph_num > 0 AND sensor_type_id = 1 ORDER BY id ASC;";
+//	$querya ="SELECT * FROM sensors WHERE graph_num > 0 AND sensor_type_id = 1 ORDER BY id ASC;";
+	$querya ="SELECT id, sensor_id, sensor_child_id, name, graph_num
+		FROM sensors
+        WHERE sensor_type_id = 1 AND graph_num > 0
+        UNION
+        SELECT zone_id AS id, sensor_id, 0 AS sensor_child_id, CONCAT(name, '-Avg') AS name, graph_num
+        FROM sensor_average, zone
+        WHERE sensor_average.zone_id = zone.id AND graph_num > 0
+        ORDER BY id ASC;";
 	$resulta = $conn->query($querya);
 	$graph1 = '';
 	$graph2 = '';
@@ -481,6 +505,20 @@ Timeformat specifiers
   weekday[5] = "Friday";
   weekday[6] = "Saturday";
 
+  var monthofyear = new Array(12);
+  monthofyear[0] = "01";
+  monthofyear[1] = "02";
+  monthofyear[2] = "03";
+  monthofyear[3] = "04";
+  monthofyear[4] = "05";
+  monthofyear[5] = "06";
+  monthofyear[6] = "07";
+  monthofyear[7] = "08";
+  monthofyear[8] = "09";
+  monthofyear[9] = "10";
+  monthofyear[10] = "11";
+  monthofyear[11] = "12";
+
   $.fn.UseTooltip3 = function () {
     $(this).bind("plothover", function (event, pos, item) {
         if (item) {
@@ -502,7 +540,7 @@ Timeformat specifiers
                 showTooltip_min_max(item.pageX,
                         item.pageY,
                         color,
-                        "<strong>" + item.series.label + "</strong> At: " + weekday[new Date(x).getDay()] + " " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"<br> <strong>" + stype + "  : " + $.formatNumber(y, { format: "#,##0", locale: "us" }) + units + "</strong> ");
+                        "<strong>" + item.series.label + "</strong> At: " + new Date(x).getDate() + "/" + monthofyear[new Date(x).getMonth()] + "/" + + new Date(x).getFullYear() + " " + (new Date(x).getHours()<10?'0':'') + new Date(x).getHours() + ":"  + (new Date(x).getMinutes()<10?'0':'') + new Date(x).getMinutes() +"<br> <strong>" + stype + "  : " + $.formatNumber(y, { format: "#,##0", locale: "us" }) + units + "</strong> ");
             }
         } else {
             $("#tooltip").remove();

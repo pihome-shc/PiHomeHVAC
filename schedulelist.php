@@ -51,17 +51,34 @@ $schedule_time = [];
         <!-- /.card-header -->
         <div class="card-body">
         	<ul class="list-group list-group-flush">
-                	<li class="list-group-item">
-        			<a href="scheduling.php" class="d-flex justify-content-between list-group-item list-group-item-action">
-          				<span class="circle orangesch"><i class="bi bi-plus-lg" style="font-size: 1.2rem;"></i></span> 
-                        		<span class="header">
-                                		<strong class="primary-font"> </strong>
-                                		<small class="text-muted">
-                                			<?php echo $lang['schedule_add']; ?> <i class="bi bi-chevron-right icon-fw"></i>
-                                		</small>
-                        		</span>
-        			</a>
-	                </li>
+                        <li class="list-group-item">
+                                <a href="scheduling.php?type=0" class="d-flex justify-content-between list-group-item list-group-item-action">
+                                        <div class="d-flex justify-content-start">
+	                                        <span class="circle orangesch"><i class="bi bi-plus-lg" style="font-size: 1.2rem;"></i></span>
+                                                <span class="text-muted fw-bolder">&nbsp<?php echo $lang['zones']; ?></span>
+					</div>
+                                        <span class="header">
+                                                <strong class="primary-font"> </strong>
+                                                <small class="text-muted">
+                                                        <?php echo $lang['zone_schedule_add']; ?> <i class="bi bi-chevron-right icon-fw"></i>
+                                                </small>
+                                        </span>
+                                </a>
+                        </li>
+                        <li class="list-group-item">
+                                <a href="scheduling.php?type=2" class="d-flex justify-content-between list-group-item list-group-item-action">
+					<div class="d-flex justify-content-start">
+                                        	<span class="circle orangesch"><i class="bi bi-plus-lg" style="font-size: 1.2rem;"></i></span>
+						<span class="text-muted fw-bolder">&nbsp<?php echo $lang['relays']; ?></span>
+					</div>
+                                        <span class="header">
+                                                <strong class="primary-font"> </strong>
+                                                <small class="text-muted">
+                                                        <?php echo $lang['relay_schedule_add']; ?> <i class="bi bi-chevron-right icon-fw"></i>
+                                                </small>
+                                        </span>
+                                </a>
+                        </li>
         	        <?php
 			//following variable set to 0 on start for array index.
 			$sch_time_index = '0';
@@ -72,11 +89,37 @@ $schedule_time = [];
 			$away_status = $away['status'];
 			//$query = "SELECT time_id, time_status, `start`, `end`, tz_id, tz_status, zone_id, index_id, zone_name, temperature, max(temperature) as max_c FROM schedule_daily_time_zone_view group by time_id ORDER BY start asc";
 			//$query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, type, `category`, temperature, FORMAT(max(temperature),2) as max_c, sch_name, max(sunset) AS sunset, sensor_type_id, stype FROM schedule_daily_time_zone_view WHERE holidays_id = 0 AND tz_status = 1 group by time_id ORDER BY start, sch_name asc";
-                	$query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, type, `category`, temperature,
-                        	FORMAT(max(temperature),2) as max_c, sch_name, sch_type, start_sr, start_ss, start_offset, end_sr, end_ss, end_offset, sensor_type_id, stype
-	                        FROM schedule_daily_time_zone_view
-        	                WHERE holidays_id = 0 AND (tz_status = 1 OR (tz_status = 0 AND disabled = 1))
-                	        GROUP BY time_id ORDER BY start, sch_name asc";
+                	//$query = "SELECT time_id, time_status, `start`, `end`, WeekDays,tz_id, tz_status, zone_id, index_id, zone_name, type, `category`, temperature,
+                        //	FORMAT(max(temperature),2) as max_c, sch_name, sch_type, start_sr, start_ss, start_offset, end_sr, end_ss, end_offset, sensor_type_id, stype
+	                //        FROM schedule_daily_time_zone_view
+        	        //        WHERE holidays_id = 0 AND (tz_status = 1 OR (tz_status = 0 AND disabled = 1))
+                	//        GROUP BY time_id ORDER BY start, sch_name asc";
+                        $query = "SELECT time_id, time_status, `start`, `end`,  WeekDays, tz_id AS tzr_id, tz_status AS tzr_status, zone_id AS zr_id, index_id, zone_name AS zr_name,
+				type, `category`, temperature,FORMAT(max(temperature),2) as max_c, sch_name, sch_type, start_sr, start_ss, start_offset, end_sr, end_ss, end_offset,
+				sensor_type_id, stype
+				FROM schedule_daily_time_zone_view
+				JOIN (
+    					SELECT `schedule_daily_time_id`,COUNT(*) as count
+					FROM schedule_daily_time_zone
+					GROUP BY `schedule_daily_time_id`
+    				)
+				cnt ON schedule_daily_time_zone_view.time_id = cnt.schedule_daily_time_id
+				WHERE holidays_id = 0 AND (tz_status = 1 OR (tz_status = 0 AND disabled = 1) OR (tz_status = 0 AND cnt.count = 1))
+				GROUP BY time_id
+				UNION
+				SELECT time_id, time_status, `start`, `end`,  WeekDays, tr_id AS tzr_id, tr_status AS tzr_status, relay_id AS zr_id, index_id, relay_name AS zr_name,
+				NULL AS type, NULL AS `category`, NULL AS temperature, NULL AS max_c, sch_name, sch_type, start_sr, start_ss, start_offset, end_sr, end_ss, end_offset,
+				NULL AS sensor_type_id, NULL AS stype
+				FROM schedule_daily_time_relays_view
+                                JOIN (
+                                        SELECT `schedule_daily_time_id`,COUNT(*) as count
+                                        FROM schedule_daily_time_relays
+                                        GROUP BY `schedule_daily_time_id`
+                                )
+                                cnt ON schedule_daily_time_relays_view.time_id = cnt.schedule_daily_time_id
+				WHERE holidays_id = 0 AND (tr_status = 1 OR (tr_status = 0 AND disabled = 1) OR (tr_status = 0 AND cnt.count > 0))
+				GROUP BY time_id
+				ORDER BY start, sch_name ASC;";
 			$results = $conn->query($query);
         	        $sch_params = [];
 			while ($row = mysqli_fetch_assoc($results)) {
@@ -89,11 +132,16 @@ $schedule_time = [];
 				if($row["WeekDays"]  & (1 << 5)){ $Friday_status_icon="bi-check-circle-fill"; $Friday_status_color="orangefa"; }else{ $Friday_status_icon="bi-x-circle-fill"; $Friday_status_color="bluefa"; }
 				if($row["WeekDays"]  & (1 << 6)){ $Saturday_status_icon="bi-check-circle-fill"; $Saturday_status_color="orangefa"; }else{ $Saturday_status_icon="bi-x-circle-fill"; $Saturday_status_color="bluefa"; }
                                 $sch_name = $row['sch_name'];
+                                $sch_type = $row['sch_type'];
 
         	                if($row["time_status"] == "0"){
 					$shactive="bluesch";
 				} else {
-					$query = "SELECT schedule FROM zone_current_state WHERE sch_time_id = {$row['time_id']} AND schedule = 1 LIMIT 1;";
+					if ($sch_type == 2) {
+                                                $query = "SELECT schedule FROM relays WHERE sch_time_id = {$row['time_id']} AND schedule = 1 LIMIT 1;";
+					} else {
+						$query = "SELECT schedule FROM zone_current_state WHERE sch_time_id = {$row['time_id']} AND schedule = 1 LIMIT 1;";
+					}
                                         $result = $conn->query($query);
                                         $rowcount=mysqli_num_rows($result);
                                         if ($rowcount > 0) {
@@ -111,7 +159,7 @@ $schedule_time = [];
 								<a href="javascript:active_schedule(' . $row["time_id"] . ');" style="text-decoration: none;">
 									<span class="" id="sch_status_'.$row["time_id"].'">
                 	        						<div class="circle ' . $shactive . '">';
-											if ($row["tz_status"] == 1 || ($row["tz_status"] == 0 && $row["time_status"] == 1)) {
+											if ($row["tzr_status"] == 1 || ($row["tzr_status"] == 0 && $row["time_status"] == 1)) {
 			        		        	                		if($row["category"] <> 2 && $row["sensor_type_id"] <> 3) {
 													$unit = SensorUnits($conn,$row['sensor_type_id']);
 													echo '<p class="schdegree">' . DispSensor($conn, number_format($row["max_c"], 1), $row["sensor_type_id"]) . $unit . '</p>';
@@ -120,7 +168,7 @@ $schedule_time = [];
 		                        					echo ' </div>
 									</span>
 								</a>
-                        					<a style="color: #333; cursor: pointer; text-decoration: none;" data-bs-toggle="collapse" href="#collapse' . $row['tz_id'] . '">
+                        					<a style="color: #333; cursor: pointer; text-decoration: none;" data-bs-toggle="collapse" href="#collapse' . $row['tzr_id'] . '">
 				        	                        <span class="header text-info">&nbsp;&nbsp;
                                 					        <span class="label bg-info text-light">' . $sch_name . '</span>';
 					                	        	if($row["category"] == 2 && $sr_ss == 1) { echo '&nbsp;&nbsp;<img src="./images/sunset.png">'; }
@@ -130,7 +178,7 @@ $schedule_time = [];
 							</div>
 						</span>
 						<span>
-							<a style="color: #333; cursor: pointer; text-decoration: none;" data-bs-toggle="collapse" href="#collapse' . $row['tz_id'] . '">
+							<a style="color: #333; cursor: pointer; text-decoration: none;" data-bs-toggle="collapse" href="#collapse' . $row['tzr_id'] . '">
                         				        <span class="header text-info">
 									<small>
 									&nbsp;&nbsp;&nbsp;&nbsp;S&nbsp;&nbsp;&nbsp;M&nbsp;&nbsp;&nbsp;T&nbsp;&nbsp;W&nbsp;&nbsp;&nbsp;T&nbsp;&nbsp;&nbsp;F&nbsp;&nbsp;&nbsp;S<br>
@@ -147,14 +195,24 @@ $schedule_time = [];
 							</a>
 						<span>
 					</div>
-					<div class="collapse" id="collapse' . $row["tz_id"] . '">
+					<div class="collapse" id="collapse' . $row["tzr_id"] . '">
 						<br>';
 
 						//zone listing of each time schedule
-						$query = "SELECT DISTINCT * FROM  schedule_daily_time_zone_view WHERE holidays_id = 0 AND time_id = {$row['time_id']} order by index_id;";
+						if($sch_type == 2) {
+                                                        $query = "SELECT DISTINCT tr_id AS tzr_id, tr_status AS tzr_status, coop, relay_name
+                                                                FROM  schedule_daily_time_relays_view
+                                                                WHERE holidays_id = 0 AND time_id = {$row['time_id']}
+                                                                ORDER BY index_id;";
+						} else {
+							$query = "SELECT DISTINCT tz_id AS tzr_id, tz_status AS tzr_status,coop, zone_name, category, sensor_type_id, temperature
+								FROM  schedule_daily_time_zone_view
+								WHERE holidays_id = 0 AND time_id = {$row['time_id']}
+								ORDER BY index_id;";
+						}
 						$result = $conn->query($query);
 						while ($datarw = mysqli_fetch_array($result)) {
-							if ($datarw["tz_status"] == "0") {
+							if ($datarw["tzr_status"] == "0") {
 								$status_icon = "bi-x-circle-fill";
 								$status_color = "bluefa";
 							} else {
@@ -170,16 +228,22 @@ $schedule_time = [];
 							echo '<ul class="list-group">
 								<li class="list-group-item">
 									<div class="d-flex justify-content-between">';
-	        	                                        	        if ($datarw["category"] <> 2 && $datarw["sensor_type_id"] <> 3) {
-        	        	                        				$unit = SensorUnits($conn,$datarw['sensor_type_id']);
-											echo '<span>
-												<i class="bi ' . $status_icon . ' ' . $status_color . '"></i>  ' . $datarw['zone_name'] . ' ' . $coop;
-											echo '</span>
-											<span class="text-muted small"><em>' . number_format(DispSensor($conn, $datarw['temperature'],$datarw['sensor_type_id']), 1) . $unit .'</em></span>';
+										if ($row['sch_type'] == 2) {
+                                                                                	echo '<span>
+                                                                                		<i class="bi ' . $status_icon . ' ' . $status_color . '"></i>  ' . $datarw['relay_name'] . '
+                                                                                        </span>';
 										} else {
-											echo '<span>
-												<i class="bi ' . $status_icon . ' ' . $status_color . '"></i>  ' . $datarw['zone_name'] . '
-											</span>';
+	        	                                        	        	if ($datarw["category"] <> 2 && $datarw["sensor_type_id"] <> 3) {
+        	        	                        					$unit = SensorUnits($conn,$datarw['sensor_type_id']);
+												echo '<span>
+													<i class="bi ' . $status_icon . ' ' . $status_color . '"></i>  ' . $datarw['zone_name'] . ' ' . $coop;
+												echo '</span>
+												<span class="text-muted small"><em>' . number_format(DispSensor($conn, $datarw['temperature'],$datarw['sensor_type_id']), 1) . $unit .'</em></span>';
+											} else {
+												echo '<span>
+													<i class="bi ' . $status_icon . ' ' . $status_color . '"></i>  ' . $datarw['zone_name'] . '
+												</span>';
+											}
 										}
 									echo '</div>
 								</li>
@@ -189,8 +253,8 @@ $schedule_time = [];
 						//delete and edit button for each schedule
 						echo '<div class="row mt-2"></div>
 						<div class="d-flex justify-content-end">
-						<button class="btn warning btn-danger btn-sm" onclick="delete_schedule(' . $row["time_id"] . ');"><span class="bi bi-trash-fill"></span></button> </a> &nbsp;&nbsp;
-						<a href="scheduling.php?id=' . $row["time_id"] . '" class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-sm login"><span class="bi bi-pencil"></span></a>
+						<a href="scheduling.php?id=' . $row["time_id"] . '&type='.$row["sch_type"].'" class="btn btn-bm-'.theme($conn, $theme, 'color').' btn-sm login"><span class="bi bi-pencil"></span></a> &nbsp;&nbsp;
+                                                <button class="btn warning btn-danger btn-sm" onclick="delete_schedule(' . $row["time_id"] . ');"><span class="bi bi-trash-fill"></span></button> </a>
 						</div>
 					</div>
 					<!-- /.collapse -->
@@ -219,7 +283,7 @@ $schedule_time = [];
                 	</div>
                         <div class="btn-group" id="footer_all_running_time">
                     		<?php
-                    		echo '<i class="bi bi-clock"></i>&nbspAll Schedule:&nbsp' . secondsToWords((array_sum($schedule_time) * 60));
+                    		echo ' <i class="bi bi-clock" style="font-size: 1.0rem;"></i><strong class="rfooter">&nbspAll Schedule:&nbsp' .secondsToWords($row['run_time']).'</strong>';
                     		?>
                 	</div>
             	</div>

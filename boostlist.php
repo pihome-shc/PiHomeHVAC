@@ -42,7 +42,7 @@ $theme = settings($conn, 'theme');
 		<ul class="list-group list-group-flush">
 			<?php
 			if ((settings($conn, 'mode') & 0b1) == 0) { // Boiler Mode
-				$query = "SELECT boost.id, boost.status, boost.zone_id, zone.index_id, boost.time, boost.temperature, boost.minute FROM boost join zone on boost.zone_id = zone.id WHERE boost.`purge` = '0' order by zone.index_id, boost.temperature;";
+				$query = "SELECT boost.id, boost.status, boost.zone_id, zone.index_id, boost.time, boost.temperature, boost.minute, boost.one_shot FROM boost join zone on boost.zone_id = zone.id WHERE boost.`purge` = '0' order by zone.index_id, boost.temperature;";
 				$results = $conn->query($query);
 				while ($row = mysqli_fetch_assoc($results)) {
 					//query to search location device_id
@@ -50,6 +50,7 @@ $theme = settings($conn, 'theme');
 					$result = $conn->query($query);
 					$pi_device = mysqli_fetch_array($result);
 					$device = $pi_device['name'];
+					if ($row['one_shot'] == '1') { $device = $device." - One Shot"; }
 					$type = $pi_device['type'];
 			        	$category = $pi_device['category'];
 					$zone_status = $pi_device['status'];

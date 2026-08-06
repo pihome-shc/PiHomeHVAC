@@ -26,3 +26,7 @@ The 'ebus.py' Python script is used to capture eBUS values and populate the MaxA
 This shell script can be used to read all the values for a selected device ID, e.g
 
 ./readall.sh **bai**  (reads data from Vailant boiler)
+
+## FlowTempDesired
+In order to improve boiler efficiency, it would be useful to be able to adjust the boiler's target temperature based on some control value, for example the outside temperature. The Vailiant boiler does have a 'FlowTempDesired' parameter, but unfortuately ebusd is not able to write new values to this parameter. A solution to this problem has been developed using a customised version of the configuration file '08.bai.csv', which implements a new writable parameter 'SetMode'.
+To implent copy the '08.bai.csv' file to directory '/etc/ebusd/en/08.bai.csv' and modify the file '/etc/default/ebusd' to set --'scanconfig=off' and '--configpath=/etc/ebusd/en'. The control script 'ebus.py' will detect these settings and implement control of the FlowTempDesired.

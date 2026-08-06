@@ -177,6 +177,66 @@ $(document).ready(function() {
         document.getElementById("sensor_count").value = x;
         $(this).parents('.wrap:first').remove(); //Remove field html
     });
+
+    var AddFrostControllerButton = $('.add_frost_controller_button'); //Add button selector
+    var frost_controller_wrapper = $('.frost_id_wrapper'); //Input field wrapper
+//    var fieldHTML = '<div><input type="text" name="field_name[]" value=""/><a href="javascript:void(0);" class="remove_button"><img src="./images/remove-icon.png"/></a></div>'; //New input field html 
+
+    var frost_controller_HTML = `
+		<div class="wrap" id>
+			<div class="form-group"  id="frost_controller_label" style="display:block"><label><?php echo $lang['frost_controller']; ?></label> <small class="text-muted"><?php echo $lang['frost_controller_text'];?></small>
+				<input type="hidden" id="selected_frost_controler_id[]" name="selected_frost_controler_id[]" value="<?php echo $frost_zones[$i]['relay_id']?>"/>
+				<div class="entry input-group col-xs-12" id="frost_cnt_id - <?php echo $i ?>">
+					<select id="frost_contr_idx" onchange="ControllerIDList(this.options[this.selectedIndex].value)" name="frost_contr_idx<?php echo $i ?>" class="form-select" data-bs-error="<?php echo $lang['zone_controller_id_error']; ?>" autocomplete="off">
+                        			<?php if(isset($frost_zones[$i]["zone_controller_name"])) { echo '<option selected >'.$frost_zones[$i]["zone_controller_name"].'</option>'; } ?>
+						<?php  $query = "SELECT id, name, type FROM relays WHERE type = 0 OR type = 5 ORDER BY id ASC;";
+						$result = $conn->query($query);
+						echo "<option></option>";
+						while ($datarw=mysqli_fetch_array($result)) {
+							echo "<option value=".$datarw['id'].">".$datarw['name']."</option>";
+						} ?>
+					</select>
+					<div class="help-block with-errors"></div>
+					<span class="input-group-btn">
+                                        	<?php if ($i == 0) {
+							echo '<button class="btn btn-outline add_frost_controller_button" type="button" data-bs-toggle="tooltip" title="'.$lang['add_controller'].'"><img src="./images/add-icon.png"/></button>';
+                                                } else {
+							echo '<button class="btn btn-outline remove_frost_controller_button" type="button" data-bs-toggle="tooltip" title="'.$lang['remove_controller'].'"><img src="./images/remove-icon.png"/></button>';
+                                                } ?>
+					</span>
+				</div>
+    			</div>
+		</div>
+		`;
+
+    //Once add controller button is clicked
+    $(AddFrostControllerButton).click(function(){
+        //Check maximum number of input fields
+	var x = document.getElementById("frost_count").value
+        var temp_HTML = frost_controller_HTML.replace(/frost_controler_idx/g, "frost_controler_id".concat(x));
+        temp_HTML = temp_HTML.replace(/frost_contr_idx/g, "frost_contr_id".concat(x));
+        if(x < maxField){ 
+            $(frost_controller_wrapper).append(temp_HTML); //Add field html
+            x++; //Increment field counter
+	    document.getElementById("frost_count").value = x;
+            //enable a tooltip for this addition
+            $('[data-bs-toggle="tooltip"]').tooltip({
+                trigger : 'hover'
+            });
+            $('[data-bs-toggle="tooltip"]').on('click', function () {
+                $(this).tooltip('hide')
+            });
+        }
+    });
+
+    //Once remove controller button is clicked
+    $(frost_controller_wrapper).on('click', '.remove_frost_controller_button', function(e){
+	var x = document.getElementById("frost_count").value
+        e.preventDefault();
+        x--; //Decrement field counter
+        document.getElementById("frost_count").value = x;
+        $(this).parents('.wrap:first').remove(); //Remove field html
+    });
 });
 
 $(document).ready(function() {

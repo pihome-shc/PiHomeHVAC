@@ -84,14 +84,34 @@ function active_boost(wid){
 
 //activate and deactivate away 
 function active_away(){
-	var quest = "?w=away&o=active" + "&frost_temp=0" + "&wid=0";
-	request('db.php', 'GET', quest, function(){ $('#homelist').load('homelist.php'); } );
+    var idata="w=away&o=active";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(!odata.Success)
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("active_away: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
 }
 
 //toggle hvac mode
 function active_sc_mode(){
-        var quest = "?w=sc_mode&o=active" + "&frost_temp=0" + "&wid=0";
-        request('db.php', 'GET', quest, function(){ $('#homelist').load('homelist.php'); } );
+    var idata="w=sc_mode&o=active";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(!odata.Success)
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("active_sc_mode: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
 }
 
 //set system controller mode
@@ -243,6 +263,7 @@ function add_boost(wid){
 var idata="w=boost&o=add&zone_id="+document.getElementById("zone_id").value;
 	idata+="&boost_temperature="+document.getElementById("boost_temperature").value;
 	idata+="&boost_time="+document.getElementById("boost_time").value;
+        idata+="&one_shot="+document.getElementById("checkbox7").checked;
 	if(wid==0) {
 		idata+="&boost_console_id="+document.getElementById("boost_console_id").value;
 		idata+="&boost_button_child_id="+document.getElementById("boost_button_child_id").value;
@@ -291,7 +312,10 @@ var x = document.getElementById("boost_setup").querySelectorAll("input");
 var i;
 var idata="w=boost&o=update";
     for (i = 0; i < x.length; i++) {
-        idata+="&"+x[i].id+"="+x[i].value;
+        if(x[i].name == "one_shot")
+             idata+="&"+x[i].id+"="+x[i].checked;
+        else
+             idata+="&"+x[i].id+"="+x[i].value;
     }
     idata+="&wid=0";
     $.get('db.php',idata)
@@ -763,6 +787,31 @@ var idata="w=show_sensors&o=update";
     });
 }
 
+//update relays to display
+function show_relays(){
+//var x = document.getElementsByTagName("input");
+var x = document.getElementById("relay_setup").querySelectorAll("input");
+var i;
+var idata="w=show_relays&o=update";
+    for (i = 0; i < x.length; i++) {
+        idata+="&"+x[i].id+"="+x[i].checked;
+    }
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=6"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("show_relays: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
 //update notice interval
 function node_alerts(){
 //var x = document.getElementsByTagName("input");
@@ -1171,6 +1220,7 @@ var idata="w=set_max_cpu_temp&o=update";
 function update_refresh(){
 var idata="w=page_refresh_rate&o=update";
     idata+="&new_refresh="+document.getElementById("new_refresh").value;
+    idata+="&new_timeout="+document.getElementById("new_timeout").value;
     idata+="&wid=0";
     $.get('db.php',idata)
     .done(function(odata){
@@ -1654,3 +1704,219 @@ var idata="w=enable_zone_current_state_logs&o=update";
     .always(function() {
     });
 }
+
+//update device index
+function update_device_index(){
+//var x = document.getElementsByTagName("input");
+var x = document.getElementById("index_devices").querySelectorAll("input");
+var i;
+var idata="w=device_index&o=update";
+    for (i = 0; i < x.length; i++) {
+        if(x[i].name == "index")
+             idata+="&"+x[i].id+"="+x[i].value;
+        else
+             idata+="&"+x[i].id+"="+x[i].checked;
+    }
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+	    document.getElementById("update_d_index").value = 1;
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("update_device_index: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//update zone index
+function update_zone_index(){
+//var x = document.getElementsByTagName("input");
+var x = document.getElementById("index_zones").querySelectorAll("input");
+var i;
+var idata="w=zone_index&o=update";
+    for (i = 0; i < x.length; i++) {
+        if(x[i].name == "index")
+             idata+="&"+x[i].id+"="+x[i].value;
+        else
+             idata+="&"+x[i].id+"="+x[i].checked;
+    }
+    idata+="&wid=0";
+    console.log(idata);
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            document.getElementById("update_z_index").value = 1;
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("update_zone_index: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//Add Relay Message
+function add_relay_message(){
+var idata="w=relay_message&o=add&msg_relay_id="+document.getElementById("msg_relay_id").value;
+    idata+="&msg_id="+document.getElementById("msg_id").value;
+    idata+="&msg_text="+document.getElementById("msg_text").value;
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=6"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("add_relay_message: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//Delete Relay Message
+function delete_relay_message(wid){
+var idata="w=relay_message&o=delete&wid="+wid;
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=6"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("delete_relay_message: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//activate and deactivate relay schedule
+function schedule_relay(wid){
+    var idata="w=schedule_relay&o=active&wid=" + wid + "&frost_temp=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success) {
+            $("#sdtr_" + wid).load("ajax_fetch_data.php?id=" + wid + "&type=46").fadeIn("slow");
+        } else {
+            console.log(odata.Message);
+        }
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("schedule_relay: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//Add Relay Group
+function add_relay_group(){
+var idata="w=relay_group&o=add&relay_group="+document.getElementById("relay_group").value;
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=6"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("add_relay_group: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//Delete Relay Group
+function delete_relay_group(wid){
+var idata="w=relay_group&o=delete&wid="+wid;
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=6"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("delete_relay_group: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//update hot water compensation
+function setup_hw_comp(){
+var idata="w=setup_hw_comp&o=update&enabled="+document.getElementById("checkbox2").checked;
+    idata+="&hw_comp_zone="+document.getElementById("hw_comp_zone").value;
+        idata+="&hw_coefficient="+document.getElementById("hw_coefficient").value;
+        idata+="&hw_threshold="+document.getElementById("hw_threshold").value;
+        idata+="&default_c="+document.getElementById("default_temp").value;
+        idata+="&hw_sensor_id="+document.getElementById("weather_sensor_id").value;
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=3"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("setup_hw_comp: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//activate and deactivate summer
+function active_summer(){
+    var idata="w=summer&o=active";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(!odata.Success)
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("active_summer: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+
+//set summer period start and end date
+function set_summer_start_end(){
+    let start_date = document.getElementById("start_date").value;
+    let end_date = document.getElementById("end_date").value;
+    var idata="w=set_summer_dates";
+        idata+="&start_date="+start_date;
+        idata+="&end_date="+end_date;
+    idata+="&wid=0";
+    $.get('db.php',idata)
+    .done(function(odata){
+        if(odata.Success)
+            window.location="settings.php?s_id=3"
+        else
+            console.log(odata.Message);
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ){
+        if(jqXHR==401 || jqXHR==403) return;
+        console.log("set_summer_dates: Error.\r\n\r\njqXHR: "+jqXHR+"\r\n\r\ntextStatus: "+textStatus+"\r\n\r\nerrorThrown:"+errorThrown);
+    })
+    .always(function() {
+    });
+}
+

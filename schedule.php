@@ -24,6 +24,9 @@ confirm_logged_in();
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 
+$page_refresh = page_refresh($conn);
+$page_timeout = settings($conn, 'page_timeout');
+
 ?>
 <?php include("header.php");  ?>
 <?php include_once("notice.php"); ?>
@@ -46,3 +49,44 @@ require_once(__DIR__.'/st_inc/functions.php');
 </div>
 <!-- /#container-fluid -->
 <?php include("footer.php");  ?>
+
+<script>
+
+// update page data every x seconds
+$(document).ready(function(){
+
+(function() {
+
+    const idleDurationSecs = '<?php echo $page_timeout ?>';    // X number of seconds
+    if (idleDurationSecs != 0) {
+        const redirectUrl = 'home.php';  // ADD URL IN WICH YOU WANNA REDIRECT USERS es. yourpage.com/home
+        let idleTimeout; // variable to hold the timeout, do not modify
+
+        const resetIdleTimeout = function() {
+
+            // Clears the existing timeout
+            if(idleTimeout) clearTimeout(idleTimeout);
+
+            // Set a new idle timeout to load the redirectUrl after idleDurationSecs
+            idleTimeout = setTimeout(() => location.href = redirectUrl, idleDurationSecs * 1000);
+        };
+
+        // Init on page load
+        resetIdleTimeout();
+
+        // Reset the idle timeout on any of the events listed below
+        ['click', 'touchstart', 'mousemove', 'scroll'].forEach(evt =>
+            document.addEventListener(evt, resetIdleTimeout, false)
+        );
+    }
+
+})();
+
+  var delay = '<?php echo $page_refresh ?>';
+
+  (function loop() {
+        setTimeout(loop, delay);
+  })();
+
+});
+</script>

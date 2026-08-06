@@ -1,0 +1,14 @@
+//Reset Boiler
+function reset_boiler() {
+        var quest = "?w=reset_boiler" + "&o=0" + "&frost_temp=0" + "&wid=0";
+        request('db.php', 'GET', quest, function(){ window.location="home.php"; });
+    //window.location="settings.php?status=reboot";
+}
+
+//Boiler Power Cycle
+function boiler_power_cycle() {
+        var quest = "?w=boiler_power_cycle" + "&o=0" + "&frost_temp=0" + "&wid=0";
+        request('db.php', 'GET', quest, function(){ window.location="home.php"; });
+    //window.location="settings.php?status=reboot";
+}
+

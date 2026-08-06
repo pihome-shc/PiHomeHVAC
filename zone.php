@@ -289,7 +289,7 @@ if (isset($_POST['submit'])) {
 
 			//Add Zone to boost table at same time
 			if ((settings($conn, 'mode') & 0b1) == 0) { //boiler mode
-				$query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `boost_button_id`, `boost_button_child_id`, `hvac_mode`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$boost_c}','{$max_operation_time}', '{$boost_button_id}', '{$boost_button_child_id}', '0');";
+				$query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `one_shot`, `boost_button_id`, `boost_button_child_id`, `hvac_mode`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$boost_c}','{$max_operation_time}', '0', '{$boost_button_id}', '{$boost_button_child_id}', '0');";
 		                $result = $conn->query($query);
         		        if ($result) {
                 		        $message_success .= "<p>".$lang['zone_boost_success']."</p>";
@@ -306,7 +306,7 @@ if (isset($_POST['submit'])) {
 					} else {
                         	                $temp = $min_c;
 					}
-	                        	$query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `boost_button_id`, `boost_button_child_id`, `hvac_mode`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$temp}','{$max_operation_time}', '0', '0', '{$i}');";
+	                        	$query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `one_shot`, `boost_button_id`, `boost_button_child_id`, `hvac_mode`) VALUES ('0', '0', '0', '{$zone_id}', '{$date_time}', '{$temp}','{$max_operation_time}', '0', '0', '0', '{$i}');";
 			                $result = $conn->query($query);
                 			if ($result) {
 		        	                $message_success .= "<p>".$lang['zone_boost_success']."</p>";
@@ -784,13 +784,13 @@ $count_num_sensors =count($sensorArray);
 						                document.getElementById("sensor_id_label_1").style.visibility = 'visible';
 								document.getElementById("sensor_id_label_1").innerHTML = str_1;
 						                document.getElementById("sensor_id_label_2").style.visibility = 'visible';
-						                document.getElementById("zone_sensor_id").style.display = 'block';
-						                document.getElementById("zone_sensor_id").required = true;
+						                document.getElementById("sens_id0").style.display = 'block';
+						                document.getElementById("sens_id0").required = true;
 						        } else {
-						                document.getElementById("zone_sensor_id").style.display = 'none';
+						                document.getElementById("sens_id0").style.display = 'none';
 						                document.getElementById("sensor_id_label_1").style.visibility = 'hidden';
 						                document.getElementById("sensor_id_label_2").style.visibility = 'hidden';
-						                document.getElementById("zone_sensor_id").required = false;
+						                document.getElementById("sens_id0").required = false;
 						        }
 						        if (map_bin & 0b1000000) {
 						                document.getElementById("controler_id_label").style.visibility = 'visible';
@@ -828,47 +828,48 @@ $count_num_sensors =count($sensorArray);
 						                document.getElementById("system_controller_id_label").style.visibility = 'hidden';
 						                document.getElementById("system_controller_id").required = false;
 						        }
-                                                        if (map_bin & 0b10000000000 && sensor_type === "1") {
-                                                                document.getElementById("default_m_label_1").style.visibility = 'visible';
-								document.getElementById("default_m_label_2").style.visibility = 'visible';
-                                                                document.getElementById("m_default").style.display = 'block';
-                                                                document.getElementById("m_default").required = true;
-                                                        } else {
-                                                                document.getElementById("m_default").style.display = 'none';
-                                                                document.getElementById("default_m_label_1").style.visibility = 'hidden';
-								document.getElementById("default_m_label_2").style.visibility = 'hidden';
-                                                                document.getElementById("m_default").required = false;
-                                                        }
+                                if (map_bin & 0b10000000000 && sensor_type === "1") {
+                                	document.getElementById("default_m_label_1").style.visibility = 'visible';
+									document.getElementById("default_m_label_2").style.visibility = 'visible';
+                                    document.getElementById("m_default").style.display = 'block';
+                                    document.getElementById("m_default").required = true;
+                                } else {
+                                    document.getElementById("m_default").style.display = 'none';
+                                	document.getElementById("default_m_label_1").style.visibility = 'hidden';
+									document.getElementById("default_m_label_2").style.visibility = 'hidden';
+                                    document.getElementById("m_default").required = false;
+                                }
 
-							// re-build the sensor list based on the zone type (1 = temperature, 2 = humidity)
-						 	var opt = document.getElementById("zone_sensor_id").getElementsByTagName("option");
-							var jArray = <?php echo json_encode($sensorArray); ?>;
+                                // re-build the sensor list based on the zone type (1 = temperature, 2 = humidity)
+                                var id = <?php echo $id; ?>;
+                                if(id == 0) {
+                                    var opt = document.getElementById("sens_id0").getElementsByTagName("option");
+                                    var jArray = <?php echo json_encode($sensorArray); ?>;
 
-						 	for(j=opt.length-1;j>=0;j--)
-						 	{
-						        	document.getElementById("zone_sensor_id").options.remove(j);
-						 	}
+                                    for(j=opt.length-1;j>=0;j--) {
+                                    	document.getElementById("sens_id0").options.remove(j);
+                                    }
 
-						        for(j=0;j<jArray.length;j++)
-						        {
-						                var optn = document.createElement("OPTION");
-								var stype = parseInt(jArray[j]['sensor_type_id']);
-						                optn.text = jArray[j]['name'];
-						                optn.value = jArray[j]['id'];
-								if(stype == sensor_type || zone_cat === "2") {
-						                	document.getElementById("zone_sensor_id").options.add(optn);
-								}
-						        }
+                                    for(j=0;j<jArray.length;j++) {
+                                        var optn = document.createElement("OPTION");
+                                        var stype = parseInt(jArray[j]['sensor_type_id']);
+                                        optn.text = jArray[j]['name'];
+                                        optn.value = jArray[j]['id'];
+                                        if(stype == sensor_type || zone_cat === "2") {
+                                            document.getElementById("sens_id0").options.add(optn);
+                                            if(j == 0) {option.setAttribute('selected', true);}
+                                        }
+                                    }
+                                }
+                                document.getElementById("selected_zone_category").value = zone_cat;
+                                var e = document.getElementById("type");
+                                var selected_type = e.options[e.selectedIndex].text;
+                                document.getElementById("selected_zone_type").value = selected_type;
 
-                                                        document.getElementById("selected_zone_category").value = zone_cat;
-                                                        var e = document.getElementById("type");
-                                                        var selected_type = e.options[e.selectedIndex].text;
-                                                        document.getElementById("selected_zone_type").value = selected_type;
-
-                                                        //set initial sensor
-//                                                        document.getElementById("zone_sensor_id").value = document.getElementById("selected_sensor_id").value;
-                                                        document.getElementById("selected_sensor_type_id").value = sensor_type;
-						}
+                                //set initial sensor
+                                //document.getElementById("zone_sensor_id").value = document.getElementById("selected_sensor_id").value;
+                                document.getElementById("selected_sensor_type_id").value = sensor_type;
+                            }
 						</script>
 
 						<!-- Default Temperature -->
@@ -951,7 +952,7 @@ $count_num_sensors =count($sensorArray);
                                                         <?php for ($i = 0; $i < $sensor_count; $i++) { ?>
                                                         	<div class="wrap" id>
 									<!-- Sensor ID -->
-									<div class="form-group" class="control-label" id="sensor_id" style="display:block"><label id="sensor_id_label_1"><?php echo $lang['primary_temperature_sensor']; ?></label> <small class="text-muted" id="sensor_id_label_2"><?php echo $lang['zone_sensor_id_info'];?></small>
+                                    <div class="form-group" class="control-label" id="sensor_id" style="display:block"><label id="sensor_id_label_1"><?php if($i == 0) { echo $lang['primary_temperature_sensor']; } else { echo $lang['secondary_temperature_sensor']; } ?></label> <small class="text-muted" id="sensor_id_label_2"><?php echo $lang['zone_sensor_id_info'];?></small>
 										<input type="hidden" id="selected_sensors_id[]" name="selected_sensors_id[]" value="<?php echo $zone_sensors[$i]['zone_sensor_id']?>"/>
 										<div class="entry input-group col-12" id="sen_id - <?php echo $i ?>">
 											<select id="sens_id<?php echo $i ?>" onchange="SensorIDList(this.options[this.selectedIndex].value, <?php echo $i ?>)" name="sens_id<?php echo $i ?>" class="form-select" data-bs-error="<?php echo $lang['zone_temp_sensor_id_error']; ?>" autocomplete="off">

@@ -113,13 +113,22 @@ backup()
     sed -i "/^[[:space:]]*#/!s|^\S\+\(\s\+/boot\S*\s\+vfat\s\+.*\)$|PARTUUID=${PTUUID}-01\1|" "${MNTPATH}/etc/fstab"
     sed -i "/^[[:space:]]*#/!s|^\S\+\(\s\+/\s\+.*\)$|PARTUUID=${PTUUID}-02\1|" "${MNTPATH}/etc/fstab"
   fi
-  if [[ "${OSID}" != "ubuntu" && "${NOEXPAND}" = "FALSE" && "${ROOT_TYPE}" != "f2fs" && $(grep -v '^[[:space:]]*#' "${MNTPATH}/etc/rc.local" | grep -c 'resize-root-fs') -eq 0 ]]; then
-    cat <<\EOF1 > "${MNTPATH}/etc/resize-root-fs"
+  if [[ "${OSID}" != "ubuntu" && "${NOEXPAND}" = "FALSE" && "${ROOT_TYPE}" != "f2fs" ]]; then
+    if [ ! -f "${MNTPATH}/etc/rc.local" ]; then
+      cat <<EOF > "${MNTPATH}/etc/rc.local"
+#!/bin/sh -e
+
+exit 0
+EOF
+      chmod +x "${MNTPATH}/etc/rc.local"
+    fi
+    if [ $(grep -v '^[[:space:]]*#' "${MNTPATH}/etc/rc.local" | grep -c 'resize-root-fs') -eq 0 ]; then
+      cat <<\EOF1 > "${MNTPATH}/etc/resize-root-fs"
 #!/bin/bash
 
 ROOT_PART="$(mount | sed -n 's|^\(/dev/.*\) on / .*|\1|p')"
 ROOT_DEV="$(sed 's/[0-9]\+$//' <<< "${ROOT_PART}")"
-if [[ "${ROOT_DEV}" = "/dev/mmcblk0p" || "${ROOT_DEV}" = "/dev/nvme0n1p" ]]; then
+if [[ "${ROOT_DEV}" =~ ^/dev/mmcblk[0-9]p$ || "${ROOT_DEV}" =~ ^/dev/nvme[0-9]n1p$ ]]; then
   ROOT_DEV="${ROOT_DEV:0:(${#ROOT_DEV} - 1)}"
 fi
 START=$(sfdisk -d "${ROOT_DEV}" | sed -n "s|^${ROOT_PART}\s\+:.*start=\s*\([0-9]\+\).*$|\1|p")
@@ -162,8 +171,9 @@ sed -i '/resize-root-fs/d' /etc/rc.local
 rm /etc/resize-root-fs
 shutdown --no-wall -r now
 EOF1
-    chmod +x "${MNTPATH}/etc/resize-root-fs"
-    sed -i 's|^exit 0$|/etc/resize-root-fs\nexit 0|' "${MNTPATH}/etc/rc.local"
+      chmod +x "${MNTPATH}/etc/resize-root-fs"
+      sed -i 's|^exit 0$|/etc/resize-root-fs\nexit 0|' "${MNTPATH}/etc/rc.local"
+    fi
   fi
   sync
   umntimg
@@ -212,7 +222,7 @@ if [ $? -ne 0 ]; then
   errexit "rsync not installed (run: apt-get install rsync)"
 fi
 OSID="$(sed -n 's|^ID=\(.*\)|\1|p' /etc/os-release)"
-BOOTMNT="${MNTPATH}$(sed -n 's|^\S\+\s\+\(/boot\S*\)\s\+.*$|\1|p' /etc/fstab)"
+BOOTMNT="${MNTPATH}$(sed -n '/^[[:space:]]*#/!s|^\S\+\s\+\(/boot\S*\)\s\+.*$|\1|p' /etc/fstab)"
 if [ "${BOOTMNT}" = "${MNTPATH}/boot/firmware" ]; then
   BOOTSIZE=512
 else
@@ -221,7 +231,7 @@ fi
 ROOT_PART="$(mount | sed -n 's|^\(/dev/.*\) on / .*|\1|p')"
 ROOT_DEV_P="$(sed 's/[0-9]\+$//' <<< "${ROOT_PART}")"
 ROOT_DEV="${ROOT_DEV_P}"
-if [[ "${ROOT_DEV}" = "/dev/mmcblk0p" || "${ROOT_DEV}" = "/dev/nvme0n1p" ]]; then
+if [[ "${ROOT_DEV}" =~ ^/dev/mmcblk[0-9]p$ || "${ROOT_DEV}" =~ ^/dev/nvme[0-9]n1p$ ]]; then
   ROOT_DEV="${ROOT_DEV:0:(${#ROOT_DEV} - 1)}"
 fi
 ROOT_TYPE=$(blkid "${ROOT_PART}" | sed -n 's|^.*TYPE="\(\S\+\)".*|\1|p')

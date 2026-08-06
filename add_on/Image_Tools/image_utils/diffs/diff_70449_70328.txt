@@ -1,0 +1,389 @@
+diff -Nurs /tmp/imut/tempunz/image-backup /home/pi/updt-imgutils/imageutilstmp/image-backup
+--- /tmp/imut/tempunz/image-backup	2024-11-20 22:05:04.000000000 +0000
++++ /home/pi/updt-imgutils/imageutilstmp/image-backup	2024-04-27 21:43:36.000000000 +0000
+@@ -113,17 +113,8 @@
+     sed -i "/^[[:space:]]*#/!s|^\S\+\(\s\+/boot\S*\s\+vfat\s\+.*\)$|PARTUUID=${PTUUID}-01\1|" "${MNTPATH}/etc/fstab"
+     sed -i "/^[[:space:]]*#/!s|^\S\+\(\s\+/\s\+.*\)$|PARTUUID=${PTUUID}-02\1|" "${MNTPATH}/etc/fstab"
+   fi
+-  if [[ "${OSID}" != "ubuntu" && "${NOEXPAND}" = "FALSE" && "${ROOT_TYPE}" != "f2fs" ]]; then
+-    if [ ! -f "${MNTPATH}/etc/rc.local" ]; then
+-      cat <<EOF > "${MNTPATH}/etc/rc.local"
+-#!/bin/sh -e
+-
+-exit 0
+-EOF
+-      chmod +x "${MNTPATH}/etc/rc.local"
+-    fi
+-    if [ $(grep -v '^[[:space:]]*#' "${MNTPATH}/etc/rc.local" | grep -c 'resize-root-fs') -eq 0 ]; then
+-      cat <<\EOF1 > "${MNTPATH}/etc/resize-root-fs"
++  if [[ "${OSID}" != "ubuntu" && "${NOEXPAND}" = "FALSE" && "${ROOT_TYPE}" != "f2fs" && $(grep -v '^[[:space:]]*#' "${MNTPATH}/etc/rc.local" | grep -c 'resize-root-fs') -eq 0 ]]; then
++    cat <<\EOF1 > "${MNTPATH}/etc/resize-root-fs"
+ #!/bin/bash
+ 
+ ROOT_PART="$(mount | sed -n 's|^\(/dev/.*\) on / .*|\1|p')"
+@@ -171,9 +162,8 @@
+ rm /etc/resize-root-fs
+ shutdown --no-wall -r now
+ EOF1
+-      chmod +x "${MNTPATH}/etc/resize-root-fs"
+-      sed -i 's|^exit 0$|/etc/resize-root-fs\nexit 0|' "${MNTPATH}/etc/rc.local"
+-    fi
++    chmod +x "${MNTPATH}/etc/resize-root-fs"
++    sed -i 's|^exit 0$|/etc/resize-root-fs\nexit 0|' "${MNTPATH}/etc/rc.local"
+   fi
+   sync
+   umntimg
+@@ -222,7 +212,7 @@
+   errexit "rsync not installed (run: apt-get install rsync)"
+ fi
+ OSID="$(sed -n 's|^ID=\(.*\)|\1|p' /etc/os-release)"
+-BOOTMNT="${MNTPATH}$(sed -n '/^[[:space:]]*#/!s|^\S\+\s\+\(/boot\S*\)\s\+.*$|\1|p' /etc/fstab)"
++BOOTMNT="${MNTPATH}$(sed -n 's|^\S\+\s\+\(/boot\S*\)\s\+.*$|\1|p' /etc/fstab)"
+ if [ "${BOOTMNT}" = "${MNTPATH}/boot/firmware" ]; then
+   BOOTSIZE=512
+ else
+Files /tmp/imut/tempunz/image-check and /home/pi/updt-imgutils/imageutilstmp/image-check are identical
+diff -Nurs /tmp/imut/tempunz/image-chroot /home/pi/updt-imgutils/imageutilstmp/image-chroot
+--- /tmp/imut/tempunz/image-chroot	2024-11-20 20:07:52.000000000 +0000
++++ /home/pi/updt-imgutils/imageutilstmp/image-chroot	2023-10-18 21:52:10.000000000 +0000
+@@ -48,7 +48,7 @@
+     errexit "Unable to mount image ROOT partition"
+   fi
+   MNTED=TRUE
+-  BOOTMNT="${MNTPATH}$(sed -n '/^[[:space:]]*#/!s|^\S\+\s\+\(/boot\S*\)\s\+.*$|\1|p' "${MNTPATH}/etc/fstab")"
++  BOOTMNT="${MNTPATH}$(sed -n 's|^\S\+\s\+\(/boot\S*\)\s\+.*$|\1|p' "${MNTPATH}/etc/fstab")"
+   if [ ! -d "${BOOTMNT}/" ]; then
+     mkdir -p "${BOOTMNT}/"
+     if [ $? -ne 0 ]; then
+diff -Nurs /tmp/imut/tempunz/image-compare /home/pi/updt-imgutils/imageutilstmp/image-compare
+--- /tmp/imut/tempunz/image-compare	2024-11-20 20:10:36.000000000 +0000
++++ /home/pi/updt-imgutils/imageutilstmp/image-compare	2023-10-31 20:24:52.000000000 +0000
+@@ -98,7 +98,7 @@
+ if [ $? -ne 0 ]; then
+   errexit "rsync not installed (run: apt-get install rsync)"
+ fi
+-BOOTMNT="${MNTPATH}$(sed -n '/^[[:space:]]*#/!s|^\S\+\s\+\(/boot\S*\)\s\+.*$|\1|p' /etc/fstab)"
++BOOTMNT="${MNTPATH}$(sed -n 's|^\S\+\s\+\(/boot\S*\)\s\+.*$|\1|p' /etc/fstab)"
+ IMGFILE=""
+ OPTIONS=()
+ while [ $# -gt 0 ]; do
+diff -Nurs /tmp/imut/tempunz/image-config /home/pi/updt-imgutils/imageutilstmp/image-config
+--- /tmp/imut/tempunz/image-config	2024-11-20 20:13:28.000000000 +0000
++++ /home/pi/updt-imgutils/imageutilstmp/image-config	1970-01-01 00:00:00.000000000 +0000
+@@ -1,289 +0,0 @@
+-#!/bin/bash
+-
+-trap '{ stty sane; echo ""; errexit "Aborted"; }' SIGINT SIGTERM
+-
+-MNTPATH="/tmp/image-config-mnt"
+-
+-errexit()
+-{
+-  echo ""
+-  echo -e "$1"
+-  echo ""
+-  if [ "${MNTED}" = "TRUE" ]; then
+-    umount "${BOOTMNT2}/" &> /dev/null
+-    umount "${MNTPATH}/" &> /dev/null
+-  fi
+-  rm -rf "${MNTPATH}/" &> /dev/null
+-  rmloop
+-  exit 1
+-}
+-
+-mkloop()
+-{
+-  LOOP="$(losetup -f --show -P "${IMGFILE}")"
+-  if [ $? -ne 0 ]; then
+-    errexit "Unable to create loop device"
+-  fi
+-}
+-
+-rmloop()
+-{
+-  if [ "${LOOP}" != "" ]; then
+-    losetup -d "${LOOP}"
+-    LOOP="" 
+- fi
+-}
+-
+-mntimg()
+-{
+-  mkloop
+-  if [ ! -d "${MNTPATH}/" ]; then
+-    mkdir "${MNTPATH}/"
+-    if [ $? -ne 0 ]; then
+-      errexit "Unable to make ROOT partition mount point"
+-    fi
+-  fi
+-  mount "${LOOP}p2" "${MNTPATH}/"
+-  if [ $? -ne 0 ]; then
+-    errexit "Unable to mount image ROOT partition"
+-  fi
+-  MNTED=TRUE
+-  BOOTMNT1="$(sed -n '/^[[:space:]]*#/!s|^\S\+\s\+\(/boot\S*\)\s\+.*$|\1|p' "${MNTPATH}/etc/fstab")"
+-  BOOTMNT2="${MNTPATH}${BOOTMNT1}"
+-  if [ ! -d "${BOOTMNT2}/" ]; then
+-    mkdir -p "${BOOTMNT2}/"
+-    if [ $? -ne 0 ]; then
+-      errexit "Unable to make BOOT partition mount point"
+-    fi
+-  fi
+-  mount "${LOOP}p1" "${BOOTMNT2}/"
+-  if [ $? -ne 0 ]; then
+-    errexit "Unable to mount image BOOT partition"
+-  fi
+-}
+-
+-umntimg()
+-{
+-  umount "${BOOTMNT2}/"
+-  if [ $? -ne 0 ]; then
+-    errexit "Unable to unmount image BOOT partition"
+-  fi
+-  umount "${MNTPATH}/"
+-  if [ $? -ne 0 ]; then
+-    errexit "Unable to unmount image ROOT partition"
+-  fi
+-  MNTED=FALSE
+-  rmloop
+-  rm -r "${MNTPATH}/"
+-}
+-
+-usage()
+-{
+-  errexit "Usage: $0 [options] pathto/imagefile\n\
+--h,--help       This usage description"
+-}
+-
+-LOOP=""
+-MNTED=FALSE
+-if [ $(id -u) -ne 0 ]; then
+-  errexit "Must be run as root user: sudo $0"
+-fi
+-PGMNAME="$(basename $0)"
+-for PID in $(pidof -x -o %PPID "${PGMNAME}"); do
+-  if [ ${PID} -ne $$ ]; then
+-    errexit "${PGMNAME} is already running"
+-  fi
+-done
+-IMGFILE=""
+-while [ $# -gt 0 ]; do
+-  case "$1" in
+-
+-    -h|--help)
+-      usage
+-      ;;
+-
+-    -*|--*)
+-      usage
+-      ;;
+-
+-    *)
+-      IMGFILE="$1"
+-      shift
+-      ;;
+-
+-  esac
+-done
+-if [ "${IMGFILE}" = "" ]; then
+-  errexit "No image file specified"
+-fi
+-if [ ! -f "${IMGFILE}" ]; then
+-  errexit "${IMGFILE} not found"
+-fi
+-while :
+-do
+-  echo ""
+-  echo -n "User account to create (optional): "
+-  read -r USERACCT
+-  if [ "${USERACCT}" != "" ]; then
+-    if [[ "${USERACCT}" =~ ^[[:lower:]][[:lower:][:digit:]\-]*$ && ${#USERACCT} -le 32 ]]; then
+-      break
+-    else
+-      echo "Invalid user account"
+-    fi
+-  else
+-    break
+-  fi
+-done
+-if [ "${USERACCT}" != "" ]; then
+-  while :
+-  do
+-    echo ""
+-    echo -n "Enter password for user account '${USERACCT}': "
+-    read -r -s USERPASS
+-    echo ""
+-    echo -n "Retype password: "
+-    read -r -s USERPASS2
+-    echo ""
+-    if [ "${USERPASS2}" = "${USERPASS}"  ]; then
+-      if [[ "${USERPASS}" =~ ^[[:graph:]]+$ ]]; then
+-        break
+-      else
+-        echo "Invalid password"
+-      fi
+-    else
+-      echo "Passwords don't match"
+-    fi
+-  done
+-fi
+-while :
+-do
+-  echo ""
+-  echo -n "WiFi (optional) \"SSID\" \"Password\" \"Country\": "
+-  read -r WPA_CONF
+-  if [ "${WPA_CONF}" != "" ]; then
+-    WPA_CONF="$(sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' <<< "${WPA_CONF}")"
+-    WPA_SSID="$(sed -n 's|^"\(.*\)"\s\+".*"\s\+".*"$|\1|p' <<< ${WPA_CONF})"
+-    WPA_PASS="$(sed -n 's|^".*"\s\+"\(.*\)"\s\+".*"$|\1|p' <<< ${WPA_CONF})"
+-    WPA_CC="$(sed -n 's|^".*"\s\+".*"\s\+"\(.*\)"$|\1|p' <<< ${WPA_CONF})"
+-    WPA_CC="$(tr [a-z] [A-Z] <<< ${WPA_CC})"
+-    if [[ "${WPA_SSID}" =~ ^[^[:blank:]][[:print:]]+[^[:blank:]]$ && "${WPA_PASS}" =~ ^[^[:blank:]][[:print:]]+[^[:blank:]]$ && "${WPA_CC}" =~ ^[[:alpha:]][[:alpha:]]$ ]]; then
+-      break
+-    else
+-      echo "Invalid WiFi parameter(s): '${WPA_CONF}'"
+-    fi
+-  else
+-    break
+-  fi
+-done
+-echo ""
+-echo -n "Enable SSH (y/n)? "
+-while read -r -n 1 -s answer; do
+-  if [[ ${answer} = [yYnN] ]]; then
+-    echo "${answer}"
+-    if [[ ${answer} = [yY] ]]; then
+-      SSH=TRUE
+-    else
+-      SSH=FALSE
+-    fi
+-    break
+-  fi
+-done
+-echo ""
+-if [ "${USERACCT}" != "" ]; then
+-  echo "User account: ${USERACCT}"
+-else
+-  echo "User account: (None)"
+-fi
+-if [ "${WPA_CONF}" != "" ]; then
+-  echo "WiFi: SSID=${WPA_SSID}  Password=${WPA_PASS}  Country=${WPA_CC}"
+-else
+-  echo "WiFi: (None)"
+-fi
+-echo -n "SSH: "
+-if [ "${SSH}" = "TRUE" ]; then
+-  echo "Enabled"
+-else
+-  echo "Disabled"
+-fi
+-echo ""
+-echo -n "Ok to configure '${IMGFILE}' (y/n)? "
+-while read -r -n 1 -s answer; do
+-  if [[ ${answer} = [yYnN] ]]; then
+-    echo "${answer}"
+-    if [[ ${answer} = [yY] ]]; then
+-      break
+-    else
+-      errexit "Aborted"
+-    fi
+-  fi
+-done
+-mntimg
+-rm "${BOOTMNT2}/userconf" "${BOOTMNT2}/userconf.txt" &> /dev/null
+-if [ "${USERACCT}" != "" ]; then
+-  ENCPWD="$(echo ${USERPASS} | openssl passwd -6 -stdin)"
+-  echo "${USERACCT}:${ENCPWD}" > "${BOOTMNT2}/userconf"
+-fi
+-rm "${BOOTMNT2}/firstrun.sh" &> /dev/null
+-sed -i 's| systemd.run.*||g' "${BOOTMNT2}/cmdline.txt"
+-rm -r "${MNTPATH}/etc/NetworkManager/system-connections/"
+-mkdir "${MNTPATH}/etc/NetworkManager/system-connections/"
+-rm "${BOOTMNT2}/wpa_supplicant.conf" &> /dev/null
+-if [ "${WPA_CONF}" != "" ]; then
+-  OSVER="$(sed -n 's|^VERSION=".*(\(.*\))"|\1|p' ${MNTPATH}/etc/os-release)"
+-  if [ "${OSVER}" = "bookworm" ]; then
+-    cat <<EOF > "${MNTPATH}/etc/NetworkManager/system-connections/${WPA_SSID}.nmconnection"
+-[connection]
+-id=${WPA_SSID}
+-uuid=$(cat /proc/sys/kernel/random/uuid)
+-type=wifi
+-interface-name=wlan0
+-
+-[wifi]
+-mode=infrastructure
+-ssid=${WPA_SSID}
+-
+-[wifi-security]
+-auth-alg=open
+-key-mgmt=wpa-psk
+-psk=${WPA_PASS}
+-
+-[ipv4]
+-method=auto
+-
+-[ipv6]
+-method=auto
+-EOF
+-    chmod 600 "${MNTPATH}/etc/NetworkManager/system-connections/${WPA_SSID}.nmconnection"
+-    cat <<EOF > "${BOOTMNT2}/firstrun.sh"
+-#!/bin/bash
+-
+-set +e
+-
+-raspi-config nonint do_wifi_country ${WPA_CC}
+-rm -f ${BOOTMNT1}/firstrun.sh
+-sed -i 's| systemd.run.*||g' ${BOOTMNT1}/cmdline.txt
+-exit 0
+-EOF
+-    sed -i "/^[[:space:]]*#/!s|^\(.*\)$|\1 systemd.run=${BOOTMNT1}/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target|" "${BOOTMNT2}/cmdline.txt"
+-  else
+-    cat <<EOF > "${BOOTMNT2}/wpa_supplicant.conf"
+-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+-country=${WPA_CC}
+-update_config=1
+-
+-network={
+- ssid="${WPA_SSID}"
+- psk="${WPA_PASS}"
+-}
+-EOF
+-  fi
+-fi
+-rm "${BOOTMNT2}/ssh" "${BOOTMNT2}/ssh.txt" &> /dev/null
+-if [ "${SSH}" = "TRUE" ]; then
+-  touch "${BOOTMNT2}/ssh"
+-fi
+-umntimg
+-sync
+-echo ""
+-echo "${IMGFILE} configured"
+-echo ""
+diff -Nurs /tmp/imut/tempunz/image-info /home/pi/updt-imgutils/imageutilstmp/image-info
+--- /tmp/imut/tempunz/image-info	2024-11-20 20:16:22.000000000 +0000
++++ /home/pi/updt-imgutils/imageutilstmp/image-info	2023-10-18 21:53:14.000000000 +0000
+@@ -48,7 +48,7 @@
+     errexit "Unable to mount image ROOT partition"
+   fi
+   MNTED=TRUE
+-  BOOTMNT="${MNTPATH}$(sed -n '/^[[:space:]]*#/!s|^\S\+\s\+\(/boot\S*\)\s\+.*$|\1|p' "${MNTPATH}/etc/fstab")"
++  BOOTMNT="${MNTPATH}$(sed -n 's|^\S\+\s\+\(/boot\S*\)\s\+.*$|\1|p' "${MNTPATH}/etc/fstab")"
+   if [ ! -d "${BOOTMNT}/" ]; then
+     mkdir -p "${BOOTMNT}/"
+     if [ $? -ne 0 ]; then
+Files /tmp/imut/tempunz/image-mount and /home/pi/updt-imgutils/imageutilstmp/image-mount are identical
+diff -Nurs /tmp/imut/tempunz/image-set-partuuid /home/pi/updt-imgutils/imageutilstmp/image-set-partuuid
+--- /tmp/imut/tempunz/image-set-partuuid	2024-11-20 20:19:32.000000000 +0000
++++ /home/pi/updt-imgutils/imageutilstmp/image-set-partuuid	2023-10-18 21:53:46.000000000 +0000
+@@ -48,7 +48,7 @@
+     errexit "Unable to mount image ROOT partition"
+   fi
+   MNTED=TRUE
+-  BOOTMNT="${MNTPATH}$(sed -n '/^[[:space:]]*#/!s|^\S\+\s\+\(/boot\S*\)\s\+.*$|\1|p' "${MNTPATH}/etc/fstab")"
++  BOOTMNT="${MNTPATH}$(sed -n 's|^\S\+\s\+\(/boot\S*\)\s\+.*$|\1|p' "${MNTPATH}/etc/fstab")"
+   if [ ! -d "${BOOTMNT}/" ]; then
+     mkdir -p "${BOOTMNT}/"
+     if [ $? -ne 0 ]; then
+Files /tmp/imut/tempunz/image-shrink and /home/pi/updt-imgutils/imageutilstmp/image-shrink are identical
+Files /tmp/imut/tempunz/README.txt and /home/pi/updt-imgutils/imageutilstmp/README.txt are identical

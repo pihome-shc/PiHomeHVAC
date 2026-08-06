@@ -60,99 +60,58 @@ echo "<h4>".$lang['graph_min_max']."</h4></p>".$lang['graph_min_text']."</p>";
 <br>
 
 <?php
-//compile an array containg the names of those sensors with min_max_graph set
-$graph_enable = array();
-$query = "SELECT id FROM sensors WHERE min_max_graph = 1
-	UNION
-	SELECT id FROM sensor_average WHERE min_max_graph = 1
-	ORDER BY id ASC;";
-$results = $conn->query($query);
-while ($row = mysqli_fetch_assoc($results)) {
-        $graph_enable[] = $row['id'];
-}
+//array to hold the minimum and maximum readings by sensor name and date
+$graph_min = '';
+$graph_max = '';
 
+$query = "SELECT id FROM sensors WHERE min_max_graph = 1
+        UNION
+        SELECT id FROM sensor_average WHERE min_max_graph = 1
+        ORDER BY id ASC;";
+$resultsa = $conn->query($query);
+while ($rowa = mysqli_fetch_assoc($resultsa)) {
+        $graph1_temp = array();
+        $graph2_temp = array();
+	$query = "SELECT sensor_min_max_graph.sensor_id, sensor_min_max_graph.name, sensor_min_max_graph.max, sensor_min_max_graph.min, s.sensor_type_id,
+                DATE(sensor_min_max_graph.date) DateOnly
+		FROM sensor_min_max_graph
+		JOIN sensors s ON sensor_min_max_graph.sensor_id = s.id
+		WHERE sensor_min_max_graph.sensor_id = {$rowa['id']}
+		ORDER BY sensor_min_max_graph.sensor_id ASC;";
+	$results = $conn->query($query);
+	while ($row = mysqli_fetch_assoc($results)) {
+		$date= date("d-m-Y",strtotime($row['DateOnly']));
+		$graph1_temp[] = array(strtotime($date) * 1000, $row['max']);
+        	$graph2_temp[] = array(strtotime($date) * 1000, $row['min']);
+	}
+        $graph_min = $graph_min."{label: \"".$s_name[$rowa['id']]."\", data: ".json_encode($graph1_temp).", color: '".$s_color[$rowa['id']]."', stype: '".$s_type[$rowa['id']]."'}, \n";
+        $graph_max = $graph_max."{label: \"".$s_name[$rowa['id']]."\", data: ".json_encode($graph2_temp).", color: '".$s_color[$rowa['id']]."', stype: '".$s_type[$rowa['id']]."'}, \n";
+}
 //check if the outside temp graph is enabled
 $query = "SELECT enable_archive FROM weather WHERE enable_archive = 1 LIMIT 1;";
 $result = $conn->query($query);
 if (mysqli_num_rows($result) > 0) {
-	$graph_enable[] = 0;
+        $graph1_temp = array();
+        $graph2_temp = array();
+        $query = "SELECT sensor_min_max_graph.sensor_id, sensor_min_max_graph.name, sensor_min_max_graph.max, sensor_min_max_graph.min, 1 ASsensor_type_id, DATE(sensor_min_max_graph.date) DateOnly
+                FROM sensor_min_max_graph
+                WHERE sensor_min_max_graph.sensor_id = 0
+                ORDER BY DateOnly ASC;";
+        $results = $conn->query($query);
+        while ($row = mysqli_fetch_assoc($results)) {
+                $date= date("d-m-Y",strtotime($row['DateOnly']));
+                $graph1_temp[] = array(strtotime($date) * 1000, $row['max']);
+                $graph2_temp[] = array(strtotime($date) * 1000, $row['min']);
+        }
+        $graph_min = $graph_min."{label: \"".$s_name[0]."\", data: ".json_encode($graph1_temp).", color: '".$s_color[0]."', stype: '".$s_type[0]."'}, \n";
+        $graph_max = $graph_max."{label: \"".$s_name[0]."\", data: ".json_encode($graph2_temp).", color: '".$s_color[0]."', stype: '".$s_type[0]."'}, \n";
 }
-
-//array to hold the minimum and maximum readings by sensor name and date
-$min_array = array();
-$max_array = array();
-
-// CSV file to read into an Array
-$query = "SELECT archive_file FROM graphs LIMIT 1;";
-$result = $conn->query($query);
-$row = mysqli_fetch_array($result);
-$csvFile = $row['archive_file'];
-
-if (($handle = fopen($csvFile, "r")) !== FALSE) {
-        //read first line of csv file
-        $data = fgetcsv($handle, 1000, ",");
-        $sensor_id = $data[0];
-        $sensor_min = $sensor_max = $data[2];
-        //only going to use the date part from the datetime
-        $date = date("d-m-Y",strtotime($data[3]));
-
-        //loop through the rest of the file
-        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-		if (in_array($sensor_id, $graph_enable)) {
-                        //only going to use the date part from the datetime
-                        $record_date = date("d-m-Y",strtotime($data[3]));
-	                if ($data[0] == $sensor_id && $record_date == $date) {
-                	        if ($data[2] < $sensor_min) { $sensor_min = $data[2]; }
-                        	if ($data[2] > $sensor_max) { $sensor_max = $data[2]; }
-	                } else {
-		                if (!array_key_exists($sensor_id, $min_array)) {
-       			                $min_array[$sensor_id] = array();
-               			}
-       		                $min_array[$sensor_id][] = array(strtotime($date) * 1000, $sensor_min);
-               		        if (!array_key_exists($sensor_id, $max_array)) {
-                       		        $max_array[$sensor_id] = array();
-	                        }
-       		                $max_array[$sensor_id][] = array(strtotime($date) * 1000, $sensor_max);
-               		        $sensor_id = $data[0];
-                       		$sensor_reading = $sensor_min = $sensor_max = $data[2];
-                        	$date = $record_date;
-			}
-		} else {
-                	$sensor_id = $data[0];
-                        $sensor_reading = $sensor_min = $sensor_max = $data[2];
-                        //only going to use the date part from the datetime
-                        $date = date("d-m-Y",strtotime($data[3]));
-		}
-	}
-        // if last sensor in the csv file is to be archived, then capture the last data
-	if ($sensor_id == end($graph_enable)) {
-		$min_array[$sensor_id][] = array(strtotime($date) * 1000, $sensor_min);
-	        $max_array[$sensor_id][] = array(strtotime($date) * 1000, $sensor_max);
-	}
-        fclose($handle);
-}
-//print_r($min_array);
 ?>
+
 <script type="text/javascript">
-// create min_dataset based on all available sensors
-var min_dataset = [
-<?php
-//iterate through the array to compile the dataset
-$keys = array_keys($min_array);
-for($i = 0; $i < count($min_array); $i++) {
-	echo "{label: \"".$s_name[$keys[$i]]."\", data: ".json_encode($min_array[$keys[$i]]).", color: '".$s_color[$keys[$i]]."', stype: '".$s_type[$keys[$i]]."'}, \n";
-}
-
-?> ];
-
-// create max dataset based on all available sensors
-var max_dataset = [
-<?php
-//iterate through the array to compile the dataset
-$keys = array_keys($max_array);
-for($i = 0; $i < count($max_array); $i++) {
-        echo "{label: \"".$s_name[$keys[$i]]."\", data: ".json_encode($max_array[$keys[$i]]).", color: '".$s_color[$keys[$i]]."', stype: '".$s_type[$keys[$i]]."'}, \n";
-}
-
-?> ];
+// create min_dataset based on all available Min Max Values
+var min_dataset = [ <?php echo $graph_min ?>];
+var max_dataset = [ <?php echo $graph_max ?>];
 </script>
+<?php
+?>

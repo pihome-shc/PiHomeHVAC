@@ -1,0 +1,4 @@
+$lang['reset_boiler'] = "Reset Boiler";
+$lang['reset_boiler_text'] = "Are You Sure You Want To Reset The Boiler?";
+$lang['boiler_power'] = "Boiler Power";
+$lang['boiler_power_cycle_text'] = "Are You Sure You Want To Power Cycle The Boiler?";

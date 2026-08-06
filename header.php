@@ -99,9 +99,10 @@ $theme = settings($conn, 'theme');
 <body>
 <nav class="navbar navbar-light navbar-static-top navbar-expand bg-<?php echo theme($conn, settings($conn, 'theme'), 'color'); ?>" role="navigation" style="margin-bottom: 0;">
 	<div class="container-fluid">
+	    <a class="navbar-brand" href="index.php"><img src="images/logo_maxair_white_bold.png" width="100"></a>
             <!-- /.navbar-header -->
              <ul class="navbar-nav ms-auto">
-               <li class="nav-item">
+                <li class="nav-item">
                     <a class="nav-link" href="index.php">
                         <i class="bi bi-house-fill <?php echo theme($conn, settings($conn, 'theme'), 'text_color'); ?>" style="font-size: 1.2rem;"></i>
                     </a>

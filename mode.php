@@ -24,6 +24,7 @@ confirm_logged_in();
 require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 $theme = settings($conn, 'theme');
+$page_refresh = page_refresh($conn);
 
 ?>
 <div class="card border-<?php echo theme($conn, $theme, 'color'); ?>">

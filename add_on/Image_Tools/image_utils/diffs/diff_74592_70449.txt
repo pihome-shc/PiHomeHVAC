@@ -1,0 +1,61 @@
+diff -Nurs /tmp/imut/tempunz/image-backup /home/pi/updt-imgutils/imageutilstmp/image-backup
+--- /tmp/imut/tempunz/image-backup	2024-12-13 16:38:58.000000000 +0000
++++ /home/pi/updt-imgutils/imageutilstmp/image-backup	2024-11-20 22:05:04.000000000 +0000
+@@ -128,7 +128,7 @@
+ 
+ ROOT_PART="$(mount | sed -n 's|^\(/dev/.*\) on / .*|\1|p')"
+ ROOT_DEV="$(sed 's/[0-9]\+$//' <<< "${ROOT_PART}")"
+-if [[ "${ROOT_DEV}" =~ ^/dev/mmcblk[0-9]p$ || "${ROOT_DEV}" =~ ^/dev/nvme[0-9]n1p$ ]]; then
++if [[ "${ROOT_DEV}" = "/dev/mmcblk0p" || "${ROOT_DEV}" =~ ^/dev/nvme[0-9]n1p$ ]]; then
+   ROOT_DEV="${ROOT_DEV:0:(${#ROOT_DEV} - 1)}"
+ fi
+ START=$(sfdisk -d "${ROOT_DEV}" | sed -n "s|^${ROOT_PART}\s\+:.*start=\s*\([0-9]\+\).*$|\1|p")
+@@ -231,7 +231,7 @@
+ ROOT_PART="$(mount | sed -n 's|^\(/dev/.*\) on / .*|\1|p')"
+ ROOT_DEV_P="$(sed 's/[0-9]\+$//' <<< "${ROOT_PART}")"
+ ROOT_DEV="${ROOT_DEV_P}"
+-if [[ "${ROOT_DEV}" =~ ^/dev/mmcblk[0-9]p$ || "${ROOT_DEV}" =~ ^/dev/nvme[0-9]n1p$ ]]; then
++if [[ "${ROOT_DEV}" = "/dev/mmcblk0p" || "${ROOT_DEV}" =~ ^/dev/nvme[0-9]n1p$ ]]; then
+   ROOT_DEV="${ROOT_DEV:0:(${#ROOT_DEV} - 1)}"
+ fi
+ ROOT_TYPE=$(blkid "${ROOT_PART}" | sed -n 's|^.*TYPE="\(\S\+\)".*|\1|p')
+Files /tmp/imut/tempunz/image-check and /home/pi/updt-imgutils/imageutilstmp/image-check are identical
+Files /tmp/imut/tempunz/image-chroot and /home/pi/updt-imgutils/imageutilstmp/image-chroot are identical
+Files /tmp/imut/tempunz/image-compare and /home/pi/updt-imgutils/imageutilstmp/image-compare are identical
+diff -Nurs /tmp/imut/tempunz/image-config /home/pi/updt-imgutils/imageutilstmp/image-config
+--- /tmp/imut/tempunz/image-config	2025-07-02 15:50:46.000000000 +0000
++++ /home/pi/updt-imgutils/imageutilstmp/image-config	2024-11-20 20:13:28.000000000 +0000
+@@ -230,7 +230,7 @@
+ rm "${BOOTMNT2}/wpa_supplicant.conf" &> /dev/null
+ if [ "${WPA_CONF}" != "" ]; then
+   OSVER="$(sed -n 's|^VERSION=".*(\(.*\))"|\1|p' ${MNTPATH}/etc/os-release)"
+-  if [[ "${OSVER}" = "trixie" || "${OSVER}" = "bookworm" ]]; then
++  if [ "${OSVER}" = "bookworm" ]; then
+     cat <<EOF > "${MNTPATH}/etc/NetworkManager/system-connections/${WPA_SSID}.nmconnection"
+ [connection]
+ id=${WPA_SSID}
+Files /tmp/imut/tempunz/image-info and /home/pi/updt-imgutils/imageutilstmp/image-info are identical
+Files /tmp/imut/tempunz/image-mount and /home/pi/updt-imgutils/imageutilstmp/image-mount are identical
+Files /tmp/imut/tempunz/image-set-partuuid and /home/pi/updt-imgutils/imageutilstmp/image-set-partuuid are identical
+Files /tmp/imut/tempunz/image-shrink and /home/pi/updt-imgutils/imageutilstmp/image-shrink are identical
+diff -Nurs /tmp/imut/tempunz/README.txt /home/pi/updt-imgutils/imageutilstmp/README.txt
+--- /tmp/imut/tempunz/README.txt	2025-10-03 21:00:40.000000000 +0000
++++ /home/pi/updt-imgutils/imageutilstmp/README.txt	2023-11-12 18:32:00.000000000 +0000
+@@ -53,17 +53,6 @@
+ image-compare compares a running Raspbian system to an existing standard 'raw' image file and displays the incremental changes that image-backup would perform if run.
+ 
+ 
+-image-config:
+-
+-Usage: image-config pathto/imagefile
+-
+-image-config customizes an image file with the following:
+-
+-User account/password
+-WiFi credentials
+-SSH status
+-
+-
+ image-info:
+ 
+ Usage: image-info [options] pathto/imagefile

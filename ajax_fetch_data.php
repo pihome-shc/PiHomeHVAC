@@ -36,6 +36,10 @@ require_once(__DIR__.'/st_inc/functions.php');
 require_once(__DIR__.'/st_inc/session.php');
 
 $theme = settings($conn, 'theme');
+$tile_size = theme($conn, $theme, 'tile_size');
+
+if($tile_size == 1 || settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") { $button_style = "btn-xxl-wide"; } else { $button_style = "btn-xxl"; }
+
 $rval = os_info();
 if (array_key_exists('ID', $rval)) {
         if (strpos($rval["ID"], "debian") !== false || strpos($rval["ID"], "ubuntu") !== false) {
@@ -77,37 +81,43 @@ if ($rowcount > 0) {
         $holidays_status = 0;
 }
 
-if ($type <= 5 || $type == 38) {
+if ($type <= 4 || $type == 38) {
 	//---------------
 	//process  zones
 	//---------------
 	$active_schedule = 0;
-	$query = "SELECT `zone`.`id`, `zone_type`.`category` FROM `zone`, `zone_type` WHERE `zone`.`id` = {$id} AND `zone`.`type_id` = `zone_type`.`id`;";
-	$result = $conn->query($query);
-	$row = mysqli_fetch_assoc($result);
-	$zone_id=$row['id'];
-	$zone_category=$row['category'];
+        $query = "SELECT `zone`.`id`, `zt`.`category`, `hw`.`enabled`
+                FROM `zone`
+                JOIN `zone_type` `zt` ON `zt`.`id` = `zone`.`type_id`
+                LEFT JOIN `hw_compensation` `hw` ON `hw`.`zone_id` = `zone`.`id`
+                WHERE `zone`.`id` = {$id};";
+        $result = $conn->query($query);
+        $row = mysqli_fetch_assoc($result);
+        $zone_category=$row['category'];
+        $zone_weather_comp = $row['enabled'];
 
-	//query to get zone current state
-	$query = "SELECT * FROM zone_current_state WHERE zone_id = '{$id}' LIMIT 1;";
-	$result = $conn->query($query);
-	$zone_current_state = mysqli_fetch_array($result);
-	$zone_mode = $zone_current_state['mode'];
-	$zone_temp_reading = $zone_current_state['temp_reading'];
+        //query to get zone current state
+        $query = "SELECT zone_current_state.*
+                FROM zone_current_state
+                WHERE zone_current_state.zone_id = '{$id}' LIMIT 1;";
+        $result = $conn->query($query);
+        $zone_current_state = mysqli_fetch_array($result);
+        $zone_mode = $zone_current_state['mode'];
+        $zone_temp_reading = $zone_current_state['temp_reading'];
         if ($zone_category == 2) { $zone_temp_target = ""; } else { $zone_temp_target = $zone_current_state['temp_target']; }
-	$zone_temp_cut_in = $zone_current_state['temp_cut_in'];
-	$zone_temp_cut_out = $zone_current_state['temp_cut_out'];
-	$zone_ctr_fault = $zone_current_state['controler_fault'];
-	$controler_seen = $zone_current_state['controler_seen_time'];
-	$zone_sensor_fault = $zone_current_state['sensor_fault'];
-	$sensor_seen = $zone_current_state['sensor_seen_time'];
-	$temp_reading_time= $zone_current_state['sensor_reading_time'];
-	$overrun= $zone_current_state['overrun'];
+        $zone_temp_cut_in = $zone_current_state['temp_cut_in'];
+        $zone_temp_cut_out = $zone_current_state['temp_cut_out'];
+        $zone_ctr_fault = $zone_current_state['controler_fault'];
+        $controler_seen = $zone_current_state['controler_seen_time'];
+        $zone_sensor_fault = $zone_current_state['sensor_fault'];
+        $sensor_seen = $zone_current_state['sensor_seen_time'];
+        $temp_reading_time= $zone_current_state['sensor_reading_time'];
+        $overrun= $zone_current_state['overrun'];
         $schedule = $zone_current_state['schedule'];
 
-        //get the current zone schedule status
-        $sch_status = $schedule & 0b1;
-        $away_sch = ($schedule >> 1) & 0b1;
+	//get the current zone schedule status
+	$sch_status = $schedule & 0b1;
+	$away_sch = ($schedule >> 1) & 0b1;
 
 	if ($zone_category == 1 || $zone_category == 2  || $zone_category == 5) {
         	if ($zone_mode == 0) { $add_on_active = 0; } else { $add_on_active = 1; }
@@ -190,34 +200,47 @@ if ($type <= 5 || $type == 38) {
 	//process return strings by type
 	//-------------------------------
 	switch ($type) {
-                case 1:
-                        if ($zone_category != 2) {
-				if ($sensor_type_id != 3) {
-					if ($sensor_count > 1) { // add symbol to indicate that this is an average reading
-						echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit.$lang['mean'];
-					} else {
-                               		 	echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit;
+            case 1:
+                if ($zone_category != 2) {
+					if ($sensor_type_id != 3) {
+						if ($sensor_count > 1) { // add symbol to indicate that this is an average reading
+							echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit.$lang['mean'];
+						} else {
+                			echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit;
+						}
+            		} else {
+                		if ($add_on_active == 0) { echo 'OFF'; } else { echo 'ON'; }
 					}
-                        	} else {
-                                	if ($add_on_active == 0) { echo 'OFF'; } else { echo 'ON'; }
-				}
-                        } else {
-                                echo '<i class="bi bi-power '.$add_on_colour.'" style="font-size: 1.4rem;">';
-                        }
-                        break;
+                } else {
+                    echo '<i class="bi bi-power '.$add_on_colour.'" style="font-size: 1.4rem;">';
+                }
+                break;
 	        case 2:
         		echo '<i class="bi bi-circle-fill '.$rval['status'].'" style="font-size: 0.55rem;">';
                 	break;
 	        case 3:
-        	       	if ($sensor_type_id != 3) { echo $rval['target']; }
-                	break;
+                        if ($sensor_type_id != 3) {
+                                if ($zone_weather_comp == 0) {
+                                        echo $rval['target'];
+                                } else {
+                                        echo "[".$rval['target']."]";
+                                }
+                        }
+                        break;
 	        case 4:
-	        	echo '<i class="bi ' . $rval['shactive'] . ' ' . $rval['shcolor'] . ' bi-fw">';
-                	break;
-	        case 5:
-        	        if($overrun == 1) { echo '<i class="bi bi-play-fill orange-red">'; }
-                	break;
-		// livetemp
+                        if($schedule == 2) {
+                                echo '<i class="bi bi-x-circle-fill  colorize-blue" style="font-size: 0.6rem;">';
+                        } elseif($schedule == 3) {
+                                echo '<i class="bi bi-x-circle-fill  colorize-blue" style="font-size: 0.6rem;"><i class="bi bi-sun-fill orange" style="font-size: 0.6rem;">';
+                        } else {
+                                if($overrun == 0) {
+                                        echo '<i class="bi ' . $rval['shactive'] . ' ' . $rval['shcolor'] . ' bi-fw">';
+                                } elseif ($overrun == 1) {
+                                        echo '<i class="bi bi-play-fill orange-red" style="font-size: 0.8rem;">';
+                                }
+                        }
+                        break;
+			// livetemp
 		case 38:
 			echo number_format(DispSensor($conn,$zone_c,$sensor_type_id),1).$unit;
 			break;
@@ -446,7 +469,7 @@ if ($type <= 5 || $type == 38) {
 	} else {
 		if ($type == 9) { echo '<i class="bi bi-fire" style="font-size: 1.4rem;">'; } else { echo''; }
 	}
-} elseif ($type == 11 || $type == 12) {
+} elseif ($type == 11 || $type == 12 || $type == 49) {
 	//-------------------------------------------
 	//process homelist and onetouch page buttons
 	//-------------------------------------------
@@ -567,6 +590,44 @@ if ($type <= 5 || $type == 38) {
 			}
         		echo '<i class="bi bi-circle-fill '.$holidaystatus.'" style="font-size: 0.55rem;">';
                         break;
+                case 7:
+                        $query = "SELECT * FROM system_controller LIMIT 1";
+                        $result = $conn->query($query);
+                        $row = mysqli_fetch_array($result);
+                        $sc_mode = $row['sc_mode'];
+
+                        $query = "SELECT status, summer_winter FROM summer LIMIT 1;";
+                        $result = $conn->query($query);
+                        $summer = mysqli_fetch_array($result);
+                        if ($summer['summer_winter'] == '0') {
+                                $summer_winter = $lang["summer"];
+                        } else {
+                                $summer_winter = $lang["winter"];
+                        }
+                        if ($summer['status']=='1') {
+                                if ($summer['summer_winter'] == '0') {
+                                        $summerstatus="blueinfo";
+                                } else {
+                                        $summerstatus="";
+                                }
+                                $summer_state= "OFF";
+                        } elseif ($summer['status']=='0' || $sc_mode == 0) {
+                                if ($summer['summer_winter'] == '0') {
+                                        $summerstatus="red";
+                                } else {
+                                        $summerstatus="";
+                                }
+                                $summer_state= "ON";
+                        }
+//                      if ($sc_mode != 0 ) { echo '<a style="font-style: normal;" href="javascript:active_away();">'; }
+                        if ($type == 11) {
+                                echo '<i class="bi bi-circle-fill '.$summerstatus.'" style="font-size: 0.55rem;"></i>';
+                        } elseif ($type == 49) {
+                                echo $summer_state;
+                        } elseif ($type == 12) {
+                                echo $summer_winter;
+                        }
+                        break;
 	}
 } elseif ($type == 13) {
 	//------------
@@ -605,7 +666,7 @@ if ($type <= 5 || $type == 38) {
        	$system_controller_time_total = $system_controller_time['total_minuts'];
         $system_controller_time_on = $system_controller_time['on_minuts'];
         $system_controller_time_save = $system_controller_time['save_minuts'];
-        if($system_controller_time_on >0){      echo ' <i class="bi bi-clock"></i>&nbsp'.secondsToWords(($system_controller_time_on)*60);}
+        if($system_controller_time_on >0){      echo ' <i class="bi bi-clock" style="font-size: 1.0rem;"></i>&nbsp<strong class="rfooter">'.secondsToWords(($system_controller_time_on)*60).'</strong>';}
 } elseif ($type == 16) {
 	//----------------------
 	//process sensors by id
@@ -652,21 +713,36 @@ if ($type <= 5 || $type == 38) {
         $query = "SELECT SUM(`run_time`) AS run_time FROM `schedule_daily_time`;";
 	$result = $conn->query($query);
         $row = mysqli_fetch_array($result);
-	echo ' <i class="bi bi-clock"></i>&nbspAll Schedule:&nbsp' .secondsToWords($row['run_time']);
+        echo ' <i class="bi bi-clock" style="font-size: 1.0rem;"></i><strong class="rfooter">&nbspAll Schedule:&nbsp' .secondsToWords($row['run_time']).'</strong>';
 } elseif ($type == 18 || $type == 19) {
         //------------------------------------------------------
         //return the schedule status and temp for schedule by id
         //------------------------------------------------------
 	if ($type == 18) { $holiday_id = 0; } else { $holiday_id = 1; }
-        $query = "SELECT time_status, category, FORMAT(max(temperature),2) as max_c, sensor_type_id
-                FROM schedule_daily_time_zone_view
-                WHERE time_id = {$id} AND holidays_id = {$holiday_id} AND (tz_status = 1 OR (tz_status = 0 AND disabled = 1));";
+	// determine the type of schedule, 0 = zone, 2 = relay
+	$query = "SELECT type FROM schedule_daily_time WHERE id = {$id} LIMIT 1";
+        $result = $conn->query($query);
+        $row = mysqli_fetch_array($result);
+	$sch_type = $row["type"];
+	if ($sch_type == 2) {
+                $query = "SELECT time_status
+                        FROM schedule_daily_time_relays_view
+                        WHERE time_id = {$id} AND holidays_id = {$holiday_id} AND (tr_status = 1 OR (tr_status = 0 AND disabled = 1));";
+	} else {
+        	$query = "SELECT time_status, category, FORMAT(max(temperature),2) as max_c, sensor_type_id
+                	FROM schedule_daily_time_zone_view
+                	WHERE time_id = {$id} AND holidays_id = {$holiday_id} AND (tz_status = 1 OR (tz_status = 0 AND disabled = 1));";
+	}
         $results = $conn->query($query);
 	$row = mysqli_fetch_array($results);
         if($row["time_status"] == 0){
                 $shactive="bluesch";
         } else {
-                $query = "SELECT schedule FROM zone_current_state WHERE sch_time_id = {$id} AND schedule = 1 LIMIT 1;";
+		if ($sch_type == 2) {
+                	$query = "SELECT schedule FROM relays WHERE sch_time_id = {$id} AND schedule = 1 LIMIT 1;";
+		} else {
+                        $query = "SELECT schedule FROM zone_current_state WHERE sch_time_id = {$id} AND schedule = 1 LIMIT 1;";
+		}
                 $result = $conn->query($query);
                 $rowcount=mysqli_num_rows($result);
                 if ($rowcount > 0) {
@@ -675,20 +751,36 @@ if ($type <= 5 || $type == 38) {
                         $shactive="orangesch";
                 }
         }
-        $query = "SELECT  * FROM `schedule_daily_time_zone` WHERE `schedule_daily_time_id` = {$id};";
+	if ($sch_type == 2) {
+                $query = "SELECT  * FROM `schedule_daily_time_relays` WHERE `schedule_daily_time_id` = {$id};";
+	} else {
+        	$query = "SELECT  * FROM `schedule_daily_time_zone` WHERE `schedule_daily_time_id` = {$id};";
+	}
         $results = $conn->query($query);
         $count = mysqli_num_rows($results);
-	$query = "SELECT COUNT(*) AS dis_cont FROM `schedule_daily_time_zone` WHERE ((`status` = 0 AND `disabled` = 1) OR (`status` = 0 AND `disabled` = 0)) AND `schedule_daily_time_id` = {$id};";
+        if ($sch_type == 2) {
+		$query = "SELECT COUNT(*) AS dis_cont
+			FROM `schedule_daily_time_relays`
+			WHERE ((`status` = 0 AND `disabled` = 1) OR (`status` = 0 AND `disabled` = 0)) AND `schedule_daily_time_id` = {$id};";
+	} else {
+                $query = "SELECT COUNT(*) AS dis_cont
+                        FROM `schedule_daily_time_zone`
+                        WHERE ((`status` = 0 AND `disabled` = 1) OR (`status` = 0 AND `disabled` = 0)) AND `schedule_daily_time_id` = {$id};";
+	}
         $result = $conn->query($query);
         $sdrow = mysqli_fetch_array($result);
         if ($row["time_status"] == 0 || $sdrow["dis_cont"] == $count) {
                 echo '<div class="circle bluesch_disable"><p class="schdegree">D</p></div>';
         } else {
                 echo '<div class="circle ' . $shactive . '">';
-                        if($row["category"] <> 2 && $row["sensor_type_id"] <> 3) {
-                                $unit = SensorUnits($conn,$row['sensor_type_id']);
-                                echo '<p class="schdegree">' . DispSensor($conn, number_format($row["max_c"], 1), $row["sensor_type_id"]) . $unit . '</p>';
-                        }
+			if ($sch_type == 2) {
+				echo '<p class="schdegree">R</p>';
+			} else {
+                        	if($row["category"] <> 2 && $row["sensor_type_id"] <> 3) {
+                                	$unit = SensorUnits($conn,$row['sensor_type_id']);
+                                	echo '<p class="schdegree">' . DispSensor($conn, number_format($row["max_c"], 1), $row["sensor_type_id"]) . $unit . '</p>';
+                        	}
+			}
                 echo ' </div>';
         }
 } elseif ($type == 20) {
@@ -698,16 +790,22 @@ if ($type <= 5 || $type == 38) {
         $query = "SELECT zone_id, schedule FROM zone_current_state WHERE sch_time_id = {$id} LIMIT 1;";
         $result = $conn->query($query);
 	$row = mysqli_fetch_array($result);
-        if ($row["schedule"] == 0) {
+        $zone_id = $row["zone_id"];
+        $schedule = $row["schedule"];
+        if ($schedule == 0) {
 	        $shactive="orangesch_list";
 	} else {
                 $shactive="redsch_list";
 	}
 
-        $query = "SELECT sensor_type_id FROM sensors WHERE zone_id = '{$row['$zone_id']}' LIMIT 1;";
+        $query = "SELECT sensor_type_id FROM sensors WHERE zone_id = {$zone_id} LIMIT 1;";
         $result = $conn->query($query);
         $sensor = mysqli_fetch_array($result);
         $sensor_type_id=$sensor['sensor_type_id'];
+
+        $query = "SELECT disabled FROM schedule_daily_time_zone WHERE schedule_daily_time_id = {$id} AND zone_id = '{$zone_id}' LIMIT 1;";
+        $result = $conn->query($query);
+        $srow = mysqli_fetch_array($result);
 
         $c_f = settings($conn, 'c_f');
         if ($c_f == 0) { $units = 'C'; } else { $units = 'F'; }
@@ -902,19 +1000,10 @@ if ($type <= 5 || $type == 38) {
         //-------------------------------
         $fcolor = "blue";
 
-        $query = "SELECT sensor_id, sensor_child_id, frost_temp FROM sensors WHERE frost_temp <> 0;";
+        $query = "SELECT mode FROM zone_current_state;";
         $results = $conn->query($query);
         while ($row = mysqli_fetch_assoc($results)) {
-                $query = "SELECT node_id FROM nodes WHERE id = ".$row['sensor_id']." LIMIT 1;";
-                $result = $conn->query($query);
-                $frost_sensor_node = mysqli_fetch_array($result);
-                $frost_sensor_node_id = $frost_sensor_node['node_id'];
-                //query to get temperature from messages_in_view_24h table view
-                $query = "SELECT payload FROM messages_in_view_24h WHERE node_id = '".$frost_sensor_node_id."' AND child_id = ".$row['sensor_child_id']." LIMIT 1;";
-                $result = $conn->query($query);
-                $msg_in = mysqli_fetch_array($result);
-                $frost_sensor_c = $msg_in['payload'];
-                if ($frost_sensor_c <= $row["frost_temp"]) { $fcolor = "red"; }
+                if (floor($row['mode']/10) == 2) { $fcolor = "red"; }
         }
 	echo '<small class="statuscircle" id="frost_status"><i class="bi bi-circle-fill '.$fcolor.'" style="font-size: 0.55rem;"></i></small>';
 } elseif ($type == 27) {
@@ -1400,6 +1489,242 @@ if ($type <= 5 || $type == 38) {
                         }
                 }
         echo $current_sc_mode;
+        }
+} elseif ($type == 40) {
+        //-----------------------------
+        //update the device index table
+        //-----------------------------
+
+	// get relays and sensors which are not attached to a zone
+        $query = "SELECT CONCAT('r', `id`) AS `id`, `name`,'relay' AS `device_type`,`relay_id` AS `device_id`, `relay_child_id` AS `device_child_id`,`index_id`,`pre_post`
+        	FROM `relays`
+                WHERE `id` NOT IN (SELECT `zone_relay_id` FROM `zone_relays`) AND (`type` = 0 OR `type` = 6) AND `show_it` = 1
+                UNION
+                SELECT CONCAT('s', `id`) AS `id`, `name`,'sensor' AS `device_type`,`sensor_id` AS `device_id`, `sensor_child_id` AS `device_child_id`,`index_id`,`pre_post`
+                FROM `sensors`
+                WHERE `id` NOT IN (SELECT `zone_sensor_id` FROM `zone_sensors`) AND `show_it` = 1
+                ORDER BY pre_post DESC, index_id ASC;";
+	$results = $conn->query($query);
+        while ($row = mysqli_fetch_assoc($results)) {
+        	$check = ($row['pre_post'] == 1) ? 'checked' : '';
+                echo '<tr>
+                	<td>'.$row["name"].'</td>
+                        <td style="text-align:center; vertical-align:middle;">'.$row["device_type"].'</td>
+                        <td style="text-align:center; vertical-align:middle;">
+                        	<input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" id="checkbox'.$row["id"].'" name="checkbox'.$row["id"].'" value="1" '.$check.'>
+                        </td>
+			<td>
+				<input id="index'.$row["id"].'" type="text" class="float-left text" style="border: none" name="index" size="3" value="'.$row["index_id"].'" placeholder="Index Number" required>
+			</td>
+              	</tr>';
+	}
+} elseif ($type == 41 || $type == 42 || $type == 43 || $type == 44) {
+        //-------------------------
+        //update standalone relays
+        //-------------------------
+        $query = "SELECT relays.id, relays.name, relays.relay_child_id, relays.type, relays.state, relays.schedule_prev, relays.schedule, relays.current_val_2,
+		nodes.node_id, nodes.last_seen, nodes.notice_interval
+                FROM relays, nodes
+                WHERE relays.id = {$id} AND nodes.id = relays.relay_id AND `relays`.`id` NOT IN (SELECT `zone_relay_id` FROM `zone_relays`) AND (`relays`.`type` = 0 OR `relays`.`type` = 6)
+		AND relays.show_it = 1
+		LIMIT 1;";
+        $result = $conn->query($query);
+        $row = mysqli_fetch_assoc($result);
+        $relay_id = $row['id'];
+        $relay_name = $row['name'];
+        $relay_child_id = $row['relay_child_id'];
+        $node_id = $row['node_id'];
+        $node_seen = $row['last_seen'];
+        $node_notice = $row['notice_interval'];
+        $relay_type_id = $row['type'];
+        $relay_state = $row['state'];
+        $relay_schedule = $row['schedule'];
+        $val_2 = $row['current_val_2'];
+        $shcolor = "#00C853";
+        if($node_notice > 0){
+                $now=strtotime(date('Y-m-d H:i:s'));
+                $node_seen_time = strtotime($node_seen);
+                if ($node_seen_time  < ($now - ($node_notice*60))) { $shcolor = "red"; }
+        }
+        //-------------------------------
+        //process return strings by type
+        //-------------------------------
+        switch ($type) {
+                case 41:
+                        if ($relay_state == 1) {$rcolor = 'green';} else {$rcolor = 'black';}
+                        echo '<i class="bi bi-power '.$rcolor.'" style="font-size: 1.4rem;">';
+                        break;
+                case 42:
+                        if ($relay_state == 1) {$rcolor = 'red';} else {$rcolor = 'black';}
+                        echo '<i class="bi  bi-circle-fill '.$rcolor.'" style="font-size: 0.55rem;">';
+                        break;
+                case 43:
+                        if ($relay_state == 1) {$rstate = 'ON';} else {$rstate = 'OFF';}
+                        echo $rstate;
+                        break;
+		case 44:
+                        if ($relay_state == 1) {
+				if ($relay_schedule == 0) { $mode = 140; } else { $mode = 80; };
+			} else {
+				$mode = 0;
+			}
+			$query = "SELECT message FROM relay_messages WHERE relay_id = {$relay_id} AND message_id = {$val_2} LIMIT 1;";
+			$mresult = $conn->query($query);
+			$rowcount = mysqli_num_rows($mresult);
+			if ($rowcount > 0 && $relay_schedule == 0) {
+	                        $relay_message = mysqli_fetch_array($mresult);
+				if ($relay_state == 1) {
+        				echo $relay_message['message'];
+				} else {
+					echo '';
+				}
+			} else {
+				$rval=getIndicators($conn, $mode, 0);
+	                        echo '<i class="bi ' . $rval['shactive'] . ' ' . $rval['shcolor'] . ' icon-fw">';
+			}
+			// set the action of the onclick event depending on if schedule is running
+                        ?>
+                        <script>
+                        var id = <?php echo $id ?>;
+                        var sch = <?php echo $relay_schedule ?>;
+                        var tmp1 = "toggle_relay_state(" + id + ")";
+                        if(sch == 1) {
+                                document.getElementById("r_".concat(id)).removeAttribute("onclick");
+                                document.getElementById("r_".concat(id)).setAttribute("data-bs-href", "#");
+                                document.getElementById("r_".concat(id)).setAttribute("data-bs-toggle", "modal");
+                                document.getElementById("r_".concat(id)).setAttribute("data-remote", "false");
+                                document.getElementById("r_".concat(id)).setAttribute("data-bs-target", "#ajaxModal");
+                                document.getElementById("r_".concat(id)).setAttribute("data-ajax","ajax.php?Ajax=GetModal_Schedule_List_Relay,".concat(id));
+                        } else {
+                                document.getElementById("r_".concat(id)).removeAttribute("data-bs-href");
+                                document.getElementById("r_".concat(id)).removeAttribute("data-bs-toggle");
+                                document.getElementById("r_".concat(id)).removeAttribute("data-remote");
+                                document.getElementById("r_".concat(id)).removeAttribute("data-bs-target");
+                                document.getElementById("r_".concat(id)).removeAttribute("data-ajax");
+                                document.getElementById("r_".concat(id)).setAttribute("onclick", tmp1);
+                        }
+                        </script>
+                        <?php
+			break;
+                default:
+	}
+} elseif ($type == 45) {
+        //-----------------------------
+        //update the device index table
+        //-----------------------------
+
+        // get relays and sensors which are not attached to a zone
+        $query = "SELECT `id`, `status`, `index_id`, `name`, `type_id`
+                FROM `zone`
+                ORDER BY index_id;";
+        $results = $conn->query($query);
+        while ($row = mysqli_fetch_assoc($results)) {
+                $check = ($row['status'] == 1) ? 'checked' : '';
+		$zone_type = ($row['type_id'] == 5) ? 'Add-On' : 'Heating/Water';
+                echo '<tr>
+                        <td>'.$row["name"].'</td>
+                        <td style="text-align:center; vertical-align:middle;">'.$zone_type.'</td>
+                        <td style="text-align:center; vertical-align:middle;">
+                                <input class="form-check-input form-check-input-'.theme($conn, settings($conn, 'theme'), 'color').'" type="checkbox" id="checkbox'.$row["id"].'" name="checkbox'.$row["id"].'" value="1" '.$check.'>
+                        </td>
+                        <td>
+                                <input id="index'.$row["id"].'" type="text" class="float-left text" style="border: none" name="index" size="3" value="'.$row["index_id"].'" placeholder="Index Number" required>
+                        </td>
+                </tr>';
+        }
+} elseif ($type == 46) {
+        //----------------------------------------------
+        //used by request.js when relay state is toggled
+        //----------------------------------------------
+        $query = "SELECT status, schedule_daily_time_id FROM schedule_daily_time_relays WHERE id = {$id} LIMIT 1;";
+        $result = $conn->query($query);
+        $row = mysqli_fetch_assoc($result);
+	$time_id = $row['schedule_daily_time_id'];
+        $sel_query = "SELECT COUNT(id) AS cnt, status FROM schedule_daily_time WHERE id = {$time_id};";
+        $result = $conn->query($sel_query);
+        $srow = mysqli_fetch_assoc($result);
+        if($srow['cnt'] == 1) {
+                $status = $srow['status'];
+		if($status == 1) {
+			$shactive="redsch_list";
+			echo '<div class="circle_list '. $shactive.'"></div>';
+		} else {
+			echo '<div class="circle_list bluesch_disable"> <p class="schdegree">D</p></div>';
+		}
+	} else {
+	        $status = $row['status'];
+		$dow = idate('w');
+		$query = "SELECT schedule_daily_time.sch_name, schedule_daily_time.start, schedule_daily_time.end,
+			schedule_daily_time_relays.id AS tr_id, schedule_daily_time_relays.coop, schedule_daily_time_relays.disabled
+			FROM `schedule_daily_time`, `schedule_daily_time_relays`
+			WHERE (schedule_daily_time.id = schedule_daily_time_relays.schedule_daily_time_id) AND schedule_daily_time.status = 1
+			AND (schedule_daily_time_relays.status = 1 OR schedule_daily_time_relays.disabled = 1) AND schedule_daily_time.type = 2
+			AND schedule_daily_time_relays.id ='{$id}' AND (schedule_daily_time.WeekDays & (1 << {$dow})) > 0
+ 			ORDER BY schedule_daily_time.start asc;";
+	        $result = $conn->query($query);
+        	$row = mysqli_fetch_array($result);
+		$relay_id = $row['tr_id'];
+        	$disabled = $row['disabled'];
+	        $start_time = strtotime($row['start']);
+        	$end_time = strtotime($row['end']);
+	        $query = "SELECT state FROM relays WHERE id = '{$relayid}' LIMIT 1;";
+        	$result = $conn->query($query);
+	        $row = mysqli_fetch_array($result);
+        	$state = $row["state"];
+
+	        if ($disabled == 0) {
+        	        $time = strtotime(date("G:i:s"));
+                	if ($time >$start_time && $time <$end_time) { $shactive="redsch_list"; } else { $shactive="orangesch_list"; }
+	                echo '<div class="circle_list '. $shactive.'"></div>';
+//              echo '<div class="circle_list '. $shactive.'"> <p </p></div>;
+        	} else {
+                	echo '<div class="circle_list bluesch_disable"> <p class="schdegree">D</p></div>';
+        	}
+	}
+} elseif ($type == 47) {
+        //---------------------------------
+        //update the temp_delta table head
+        //---------------------------------
+
+        if ($id == 0) {
+                echo $lang['zone'].'&nbsp'.$lang['name'];
+        } else {
+                echo $lang['sensor'].'&nbsp'.$lang['name'];
+        }
+
+} elseif ($type == 48) {
+        //---------------------------------
+        //update the temp_delta table body
+        //---------------------------------
+
+        if ($id == 0 || $id == 1) { $interval = 1; } else { $interval = 24; }
+ 
+        if ($id == 0 || $id == 2) {
+                $query = "SELECT z.id, CONCAT(z.name, ' (', s.name, ')') AS `name`, ROUND(MIN(`payload`), 2) AS `Min`, ROUND(MAX(`payload`), 2) AS `Max`,
+                        ROUND(MAX(`payload`) - MIN(`payload`), 2) AS `Diff`
+                        FROM `zone_sensors`
+                        JOIN zone z ON z.id = zone_sensors.zone_id
+                        JOIN sensors s ON s.id = zone_sensors.zone_sensor_id
+                        JOIN nodes n ON n.id = s.sensor_id
+                        JOIN messages_in m ON m.node_id = n.node_id AND m.child_id = s.sensor_child_id
+                        WHERE datetime >= DATE_SUB(NOW(),INTERVAL {$interval} HOUR) AND s.sensor_type_id = 1
+                        GROUP BY m.node_id, m.child_id;";
+        } else {
+                $query = "SELECT s.id, s.name, ROUND(MIN(`payload`), 2) AS `Min`, ROUND(MAX(`payload`), 2) AS `Max`, ROUND(MAX(`payload`) - MIN(`payload`), 2) AS `Diff`
+                        FROM messages_in
+                        JOIN nodes n ON n.node_id = messages_in.node_id
+                        JOIN sensors s ON s.sensor_id = n.id AND s.sensor_child_id = messages_in.child_id
+                        WHERE datetime >= DATE_SUB(NOW(),INTERVAL {$interval} HOUR) AND s.sensor_type_id = 1
+                        GROUP BY messages_in.node_id, messages_in.child_id;";
+        }
+        $results = $conn->query($query);
+        while ($row = mysqli_fetch_assoc($results)) {
+                echo '<tr>
+                        <td>'.$row["name"].'</td>
+                        <td style="text-align:center; vertical-align:middle;">'.$row["Min"].'</td>
+                        <td style="text-align:center; vertical-align:middle;">'.$row["Max"].'</td>
+                        <td style="text-align:center; vertical-align:middle;">'.$row["Diff"].'</td>
+                </tr>';
         }
 }
 ?>

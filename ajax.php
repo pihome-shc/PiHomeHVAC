@@ -40,10 +40,13 @@ function GetModal_Sensor_Graph($conn)
         //foreach($_GET as $variable => $value) echo $variable . "&nbsp;=&nbsp;" . $value . "<br />\r\n";
 
 	//create array of colours for the graphs
-	$query ="SELECT * FROM sensors ORDER BY id ASC;";
+    $query ="SELECT `id`, `sensor_id`, `sensor_child_id` FROM sensors
+            UNION
+            SELECT `id`, `sensor_id`, 0 AS`sensor_child_id` FROM `sensor_average`
+            ORDER BY id ASC;";
 	$results = $conn->query($query);
 	$counter = 0;
-	$count = mysqli_num_rows($results) + 2; //extra space made for system temperature graph
+	$count = mysqli_num_rows($results);
 	$sensor_color = array();
 	while ($row = mysqli_fetch_assoc($results)) {
         	$graph_id = $row['sensor_id'].".".$row['sensor_child_id'];
@@ -52,30 +55,60 @@ function GetModal_Sensor_Graph($conn)
 
         $pieces = explode(',', $_GET['Ajax']);
 	// check if this a zone average temperature graph
-	if (str_starts_with($pieces[1], 'zavg_')) {
-		$z_id = substr($pieces[1],5);
-		$query = "SELECT `sensor_type_id`, z.name 
-			FROM `sensors`
-			JOIN zone z ON zone_id = z.id
-			WHERE z.id = {$z_id}
-			LIMIT 1;";
-                $result = $conn->query($query);
-                $row = mysqli_fetch_assoc($result);
-                $name = $row['name']." Average";
-                $nodes_id = $pieces[1];
-                $child_id = 0;
-                $type_id = $row['sensor_type_id'];
+	//Check php version before doing anything else
+	$version = explode('.', PHP_VERSION);
+	if ($version[0] >= 8){
+		if (str_starts_with($pieces[1], 'zavg_')) {
+			$z_id = substr($pieces[1],5);
+			$query = "SELECT `sensor_type_id`, z.name 
+				FROM `sensors`
+				JOIN zone z ON zone_id = z.id
+				WHERE z.id = {$z_id}
+				LIMIT 1;";
+	                $result = $conn->query($query);
+        	        $row = mysqli_fetch_assoc($result);
+                	$name = $row['name']." Average";
+	                $nodes_id = $pieces[1];
+        	        $child_id = 0;
+                	$type_id = $row['sensor_type_id'];
+		} else {
+		        $query="SELECT * FROM sensors WHERE id = {$pieces[1]} LIMIT 1;";
+        		$result = $conn->query($query);
+		        $row = mysqli_fetch_assoc($result);
+			$name = $row['name'];
+                	$query="SELECT node_id FROM nodes WHERE id = {$row['sensor_id']} LIMIT 1;";
+	                $nresult = $conn->query($query);
+        	        $nrow = mysqli_fetch_assoc($nresult);
+                	$nodes_id = $nrow['node_id'];
+			$child_id = $row['sensor_child_id'];
+			$type_id = $row['sensor_type_id'];
+		}
 	} else {
-	        $query="SELECT * FROM sensors WHERE id = {$pieces[1]} LIMIT 1;";
-        	$result = $conn->query($query);
-	        $row = mysqli_fetch_assoc($result);
-		$name = $row['name'];
-                $query="SELECT node_id FROM nodes WHERE id = {$row['sensor_id']} LIMIT 1;";
-                $nresult = $conn->query($query);
-                $nrow = mysqli_fetch_assoc($nresult);
-                $nodes_id = $nrow['node_id'];
-		$child_id = $row['sensor_child_id'];
-		$type_id = $row['sensor_type_id'];
+                if (strpos($pieces[1], "zavg_") !== false) {
+                        $z_id = substr($pieces[1],5);
+                        $query = "SELECT `sensor_type_id`, z.name
+                                FROM `sensors`
+                                JOIN zone z ON zone_id = z.id
+                                WHERE z.id = {$z_id}
+                                LIMIT 1;";
+                        $result = $conn->query($query);
+                        $row = mysqli_fetch_assoc($result);
+                        $name = $row['name']." Average";
+                        $nodes_id = $pieces[1];
+                        $child_id = 0;
+                        $type_id = $row['sensor_type_id'];
+                } else {
+                        $query="SELECT * FROM sensors WHERE id = {$pieces[1]} LIMIT 1;";
+                        $result = $conn->query($query);
+                        $row = mysqli_fetch_assoc($result);
+                        $name = $row['name'];
+                        $query="SELECT node_id FROM nodes WHERE id = {$row['sensor_id']} LIMIT 1;";
+                        $nresult = $conn->query($query);
+                        $nrow = mysqli_fetch_assoc($nresult);
+                        $nodes_id = $nrow['node_id'];
+                        $child_id = $row['sensor_child_id'];
+                        $type_id = $row['sensor_type_id'];
+                }
 	}
 	if ($type_id == 1) {
                 $title = $lang['temperature'];
@@ -642,4 +675,162 @@ if(explode(',', $_GET['Ajax'])[0]=='GetModal_Schedule_List')
     GetModal_Schedule_List($conn);
     return;
 }
+
+function GetModal_Schedule_List_Relay($conn)
+{
+        global $lang;
+
+        //following variable set to current day of the week.
+        $dow = idate('w');
+
+        //query to check away status
+        $query = "SELECT * FROM away LIMIT 1";
+        $result = $conn->query($query);
+        $away = mysqli_fetch_array($result);
+        $away_status = $away['status'];
+
+        //query to check holidays status
+        $query = "SELECT * FROM holidays WHERE NOW() between start_date_time AND end_date_time AND status = '1' LIMIT 1";
+        $result = $conn->query($query);
+        $rowcount=mysqli_num_rows($result);
+        if ($rowcount > 0) {
+        	$holidays = mysqli_fetch_array($result);
+                $holidays_status = $holidays['status'];
+        } else {
+                $holidays_status = 0;
+        }
+
+	$pieces = explode(',', $_GET['Ajax']);
+        $relay_id = $pieces[1];
+
+        //query to get relay current state
+        $query = "SELECT * FROM `relays` WHERE `id` = '{$relay_id}' AND `id` NOT IN (SELECT `zone_relay_id` FROM `zone_relays`) AND `type` = 6 LIMIT 1;";
+        $result = $conn->query($query);
+        $relay = mysqli_fetch_array($result);
+        $relay_name = $relay['name'];
+        $relay_state = $relay['state'];
+        if ($relay_state == 1) {
+        	if ($relay['schedule'] == 0) { $mode = 140; } else { $mode = 80; }
+       	} else {
+        	$relay_mode = 0;
+        }
+        $relay_mode = $relay['mode'];
+        $relay_mode_main=floor($relay_mode/10)*10;
+        $relay_mode_sub=floor($relay_mode%10);
+//        $zone_ctr_fault = $zone_current_state['controler_fault'];
+        $relay_fault = 0;
+        $relay_seen = $relay['last_seen'];
+        $schedule = $relay['schedule'];
+
+        //get the current zone schedule status
+        $sch_status = $schedule & 0b1;
+      	$away_sch = ($schedule >> 1) & 0b1;
+
+        if ($sch_status == 1) { $active_schedule = 1; }
+
+        echo '<div class="modal-header '.theme($conn, settings($conn, 'theme'), 'text_color').' bg-'.theme($conn, settings($conn, 'theme'), 'color').'">
+            <h5 class="modal-title" id="ajaxModalLabel">'.$relay_name.'</h5>
+            <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+        </div>
+        <div class="modal-body" id="ajaxModalBody">';
+                if ($relay_fault == '1') {
+                	$date_time = date('Y-m-d H:i:s');
+                        $datetime1 = strtotime("$date_time");
+                        echo '
+                        <ul class="list-group">
+                                <li class="list-group-item">
+                                        <div class="header">';
+                                                $cquery = "SELECT `zone_relays`.`zone_id`, `zone_relays`.`zone_relay_id`, n.`last_seen`, n.`notice_interval` FROM `zone_relays`
+                                                LEFT JOIN `relays` r on `zone_relays`.`zone_relay_id` = r.`id`
+                                                LEFT JOIN `nodes` n ON r.`relay_id` = n.`id`
+                                                WHERE `zone_relays`.`zone_id` = ".$relay_id.";";
+						$cquery = "SELECT * FROM relays WHERE id = ".$relay_id.";";
+                                                $cresults = $conn->query($cquery);
+                                                while ($crow = mysqli_fetch_assoc($cresults)) {
+                                                        $datetime2 = strtotime($crow['last_seen']);
+                                                        $interval  = abs($datetime2 - $datetime1);
+                                                        $relay_minutes   = round($interval / 60);
+                                                        $relay_id = $crow['id'];
+                                                        echo '<div class="d-flex justify-content-between">
+                                                                <span>
+                                                                      <strong class="primary-font red">Relay Fault!!!</strong>
+                                                                </span>
+                                                                <span>
+                                                                        <small class="text-muted">
+                                                                                <i class="bi bi-clock icon-fw"></i> '.secondsToWords(($relay_minutes)*60).' ago
+                                                                        </small>
+                                                                </span>
+                                                        </div>
+                                                        <br>
+                                                        <p>Relay ID '.$relay_id.' last seen at '.$crow['last_seen'].' </p>';
+                                                }
+                                                echo '<p class="text-info">Relay will resume its normal operation once this issue is fixed. </p>
+                                        </div>
+                                </li>
+                        </ul>';
+                        //echo $zone_senros_txt;
+ 		} else {
+//			$squery = "SELECT * FROM schedule_daily_time_zone_view where zone_id ='{$zone_id}' AND tz_status = 1 AND time_status = '1' AND (WeekDays & (1 << {$dow})) > 0 AND type = 0 ORDER BY start asc";
+                        $squery = "SELECT schedule_daily_time.sch_name, schedule_daily_time.start, schedule_daily_time.end,
+                        schedule_daily_time_relays.id AS tr_id, schedule_daily_time_relays.coop, schedule_daily_time_relays.disabled
+                        FROM `schedule_daily_time`, `schedule_daily_time_relays`
+                        WHERE (schedule_daily_time.id = schedule_daily_time_relays.schedule_daily_time_id) AND schedule_daily_time.status = 1
+                        AND (schedule_daily_time_relays.status = 1 OR schedule_daily_time_relays.disabled = 1) AND schedule_daily_time.type = 2
+			AND schedule_daily_time_relays.relay_id ='{$relay_id}' AND (schedule_daily_time.WeekDays & (1 << {$dow})) > 0
+                        ORDER BY schedule_daily_time.start asc;";
+			$sresults = $conn->query($squery);
+			if (mysqli_num_rows($sresults) == 0){
+				echo '<div class="list-group">
+					<a href="#" class="list-group-item"><i class="bi bi-exclamation-triangle red"></i>&nbsp;&nbsp;'.$lang['schedule_active_today'].' '.$relay_name.'!!! </a>
+				</div>';
+			} else {
+				//echo '<h4>'.mysqli_num_rows($sresults).' Schedule Records found.</h4>';
+				echo '<p>'.$lang['schedule_relay_disble'].'</p>
+				<br>
+				<div class="list-group">' ;
+					while ($srow = mysqli_fetch_assoc($sresults)) {
+						$shactive="orangesch_list";
+						$time = strtotime(date("G:i:s"));
+						$start_time = strtotime($srow['start']);
+						$end_time = strtotime($srow['end']);
+						if ($time >$start_time && $time <$end_time){$shactive="redsch_list";}
+                                                if ($srow['coop'] == "1") {
+							$coop = '<i class="bi bi-tree-fill green" data-container="body" data-bs-toggle="popover" data-placement="right" data-content="' . $lang['schedule_coop_help'] . '"></i>';
+                                                } else {
+                                                        $coop = '';
+                                                }
+						//this line to pass unique argument  "?w=schedule_list&o=active&wid=" href="javascript:delete_schedule('.$srow["id"].');"
+		                                echo '<li class="list-group-item">
+                		                        <div class="d-flex justify-content-between">
+                                		                <span>
+                                                		        <div class="d-flex justify-content-start">
+										<a href="javascript:schedule_relay('.$srow['tr_id'].');" style="text-decoration: none;">';
+											if ($srow['disabled'] == 0) {
+												echo '<div id="sdtr_'.$srow['tr_id'].'"><div class="circle_list '. $shactive.'"> <p </p></div></div>';
+											} else {
+												echo '<div id="sdtr_'.$srow['tr_id'].'"><div class="circle_list bluesch_disable"> <p class="schdegree">D</p></div></div>';
+											}
+										echo '</a>
+										<span class="label text-info">&nbsp&nbsp'.$srow['sch_name'].'</span>
+									</div>
+								</span>
+								<span class="text-muted"><em>'. $coop. '&nbsp'.$srow['start'].' - ' .$srow['end'].'</em></span>';
+							echo '</div>
+						</li>';
+					}
+				echo '</div>';
+			}
+		}
+    	echo '</div>
+        <div class="modal-footer" id="ajaxModalFooter">
+                <button type="button" class="btn btn-primary-'.theme($conn, settings($conn, 'theme'), 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['close'].'</button>
+        </div>';      //close class="modal-footer">
+    return;
+}
+if(explode(',', $_GET['Ajax'])[0]=='GetModal_Schedule_List_Relay')
+{
+    GetModal_Schedule_List_Relay($conn);
+    return;
+}
 ?>
+

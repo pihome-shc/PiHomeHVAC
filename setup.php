@@ -13,7 +13,7 @@ echo "                \033[45m S M A R T   T H E R M O S T A T \033[0m \n";
 echo "\033[31m";
 echo "***************************************************************\n";
 echo "*   MaxAir Datase Script Version 0.01 Build Date 20/12/2020   *\n";
-echo "*   Last Modified on 13/09/2022                               *\n";
+echo "*   Last Modified on 06/02/2026                               *\n";
 echo "*                                      Have Fun - PiHome.eu   *\n";
 echo "***************************************************************\n";
 echo "\033[0m";
@@ -224,7 +224,7 @@ if (file_exists($sudoersfile)) {
 
 // Add User table data 
 echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Creating User Table.  \n";
-$query_user = "REPLACE INTO `user` (`id`, `account_enable`, `fullname`, `username`, `email`, `password`, `cpdate`, `account_date`, `access_level`) VALUES(1, 1, 'Administrator', 'admin', '', '0f5f9ba0136d5a8588b3fc70ec752869', 'date1', 'date2', 0);";
+$query_user = "REPLACE INTO `user` (`id`, `account_enable`, `fullname`, `username`, `email`, `password`, `cpdate`, `account_date`, `admin_account`) VALUES(1, 1, 'Administrator', 'admin', '', '0f5f9ba0136d5a8588b3fc70ec752869', 'date1', 'date2', 1);";
 $query_user = str_replace("date1",$date_time,$query_user);
 $query_user = str_replace("date2",$date_time,$query_user);
 $results = $conn->query($query_user);
@@ -319,13 +319,14 @@ echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Adding Job Scheduling Records\n"
 $query_job_scheduling = "INSERT INTO `jobs`(`job_name`, `script`, `enabled`, `log_it`, `time`, `output`, `datetime`) ";
 $query_job_scheduling .= "VALUES ('shutdown_reboot','/var/www/cron/shutdown_reboot.py',1,0,'15','',now()),";
 $query_job_scheduling .= "('check_sc','/var/www/cron/check_sc.php',1,0,'60','',now()),";
-$query_job_scheduling .= "('controller','/var/www/cron/controller.php',1,0,'60','',now()),";
 $query_job_scheduling .= "('db_cleanup','/var/www/cron/db_cleanup.php',1,0,'02:00','',now()),";
 $query_job_scheduling .= "('check_gw','/var/www/cron/check_gw.php',1,0,'60','',now()),";
 $query_job_scheduling .= "('system_c','/var/www/cron/system_c.php',1,0,'300','',now()),";
 $query_job_scheduling .= "('weather_update','/var/www/cron/weather_update.php',1,0,'1800','',now()),";
-$query_job_scheduling .= "('reboot_wifi','/var/www/cron/reboot_wifi.sh',1,0,'120','',now()),";
+$query_job_scheduling .= "('nmcli_reboot_wifi','/var/www/cron/reboot_wifi.sh',1,0,'120','',now()),";
 $query_job_scheduling .= "('check_ds18b20','/var/www/cron/check_ds18b20.php',0,0,'60','',now()),";
+$query_job_scheduling .= "('check_ebus','/var/www/cron/check_ebus.php',0,0,'60','',now()),";
+$query_job_scheduling .= "('check_ems','/var/www/cron/check_ems.php',0,0,'60','',now()),";
 $query_job_scheduling .= "('notice','/var/www/cron/notice.py',0,0,'60','',now()),";
 $query_job_scheduling .= "('sw_install','/var/www/cron/sw_install.py',1,0,'10','',now()),";
 $query_job_scheduling .= "('update_code','/var/www/cron/update_code.py',1,0,'00:00','',now());";
@@ -429,6 +430,16 @@ if ($ffs) {
 	}
 } else {
        	echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - There are No Database Updates to Apply.\n";
+}
+
+//Setting Default Repository
+echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Setting the Default Repository to 'twa127/PiHomeHVAC'\n";
+$query_repository = "UPDATE `repository` SET `status` = CASE WHEN name = 'twa127/PiHomeHVAC' THEN 1 ELSE 0 END;";
+$results = $conn->query($query_repository);
+if ($results) {
+                echo  "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Repository Record Updated \033[41mRepository\033[0m Data  Succeeded \n";
+} else {
+                echo "\033[36m".date('Y-m-d H:i:s'). "\033[0m - Repository Record \033[41mRepository\033[0m Data Failed \n";
 }
 
 // Check if running Orange Pi OS and if so create a symlink for Adafruit Platform  Detect

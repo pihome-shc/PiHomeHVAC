@@ -24,6 +24,7 @@ require_once(__DIR__.'/st_inc/connection.php');
 require_once(__DIR__.'/st_inc/functions.php');
 
 $page_refresh = page_refresh($conn);
+$page_timeout = settings($conn, 'page_timeout');
 
 $sensors_params = [];
 $query = "SELECT id FROM sensors;";
@@ -90,6 +91,33 @@ if(isset($_GET["find_gw"])) {
 // update page data every x seconds
 $(document).ready(function(){
   var delay = '<?php echo $page_refresh ?>';
+
+(function() {
+
+    const idleDurationSecs = '<?php echo $page_timeout ?>';    // X number of seconds
+    if (idleDurationSecs != 0) {
+        const redirectUrl = 'home.php';  // ADD URL IN WICH YOU WANNA REDIRECT USERS es. yourpage.com/home
+        let idleTimeout; // variable to hold the timeout, do not modify
+
+        const resetIdleTimeout = function() {
+
+            // Clears the existing timeout
+            if(idleTimeout) clearTimeout(idleTimeout);
+
+            // Set a new idle timeout to load the redirectUrl after idleDurationSecs
+            idleTimeout = setTimeout(() => location.href = redirectUrl, idleDurationSecs * 1000);
+        };
+
+        // Init on page load
+        resetIdleTimeout();
+
+        // Reset the idle timeout on any of the events listed below
+        ['click', 'touchstart', 'mousemove', 'scroll'].forEach(evt =>
+            document.addEventListener(evt, resetIdleTimeout, false)
+        );
+    }
+
+})();
 
   (function loop() {
 	//load sensor history if the modal is shown
@@ -235,11 +263,44 @@ $(document).ready(function(){
                 $('#relay_states').load("ajax_fetch_data.php?id=0&type=37").fadeIn("slow");
         }
 
-        $('#settings_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
-        $('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
+        if ($('#index_devices').is(':visible')) {
+		if (document.getElementById("update_d_index").value == 1) {
+                	$('#device_index_table').load("ajax_fetch_data.php?id=0&type=40").fadeIn("slow");
+			document.getElementById("update_d_index").value = 0;
+		}
+        }
+
+        if ($('#index_zones').is(':visible')) {
+                if (document.getElementById("update_z_index").value == 1) {
+                        $('#zone_index_table').load("ajax_fetch_data.php?id=0&type=45").fadeIn("slow");
+                        document.getElementById("update_z_index").value = 0;
+                }
+        }
+
+        if ($('#temp_delta').is(':visible')) {
+                console.log(document.getElementById("zone_sensor").value);
+                if (document.getElementById("zone_sensor").value == 0) {
+                        $('#temp_delta_table_h1').load("ajax_fetch_data.php?id=0&type=47").fadeIn("slow");
+                        if (document.getElementById("1h_24h").value == 1) {
+	                        $('#temp_delta_table').load("ajax_fetch_data.php?id=0&type=48").fadeIn("slow");
+			} else {
+                                $('#temp_delta_table').load("ajax_fetch_data.php?id=2&type=48").fadeIn("slow");
+			}
+                } else {
+                	$('#temp_delta_table_h1').load("ajax_fetch_data.php?id=1&type=47").fadeIn("slow");
+                        if (document.getElementById("1h_24h").value == 1) {
+	                        $('#temp_delta_table').load("ajax_fetch_data.php?id=1&type=48").fadeIn("slow");
+			} else {
+                                $('#temp_delta_table').load("ajax_fetch_data.php?id=3&type=48").fadeIn("slow");
+			}
+                }
+        }
+
+	$('#settings_date').load("ajax_fetch_data.php?id=0&type=13").fadeIn("slow");
+	$('#footer_weather').load("ajax_fetch_data.php?id=0&type=14").fadeIn("slow");
 	$('#footer_all_running_time').load("ajax_fetch_data.php?id=0&type=17").fadeIn("slow");
-        $('#cpu_status').load("ajax_fetch_data.php?id=0&type=25").fadeIn("slow");
-        $('#frost_status').load("ajax_fetch_data.php?id=0&type=26").fadeIn("slow");
+	$('#cpu_status').load("ajax_fetch_data.php?id=0&type=25").fadeIn("slow");
+	$('#frost_status').load("ajax_fetch_data.php?id=0&type=26").fadeIn("slow");
 
         setTimeout(loop, delay);
   })();

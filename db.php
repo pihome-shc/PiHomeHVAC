@@ -130,20 +130,28 @@ if(($what=="user") && ($opp=="delete")){
 
 //Heating Schedule
 if($what=="schedule"){
-	if($opp=="active"){
-		$query = "SELECT * FROM schedule_daily_time WHERE id ='".$wid."'";
-		$results = $conn->query($query);
-		$row = mysqli_fetch_assoc($results);
-		$da= $row['status'];
-		if($da=="1"){ $set="0"; }else{ $set="1"; }
-		$query  = "UPDATE schedule_daily_time SET sync = '0', status='".$set."' WHERE id = '".$wid."'";
-		$conn->query($query);
-	}elseif ($opp=="delete") {
-		$query  = "UPDATE schedule_daily_time_zone SET schedule_daily_time_zone.purge = '1', schedule_daily_time_zone.sync = '0' WHERE schedule_daily_time_id = '".$wid."';";
-		$conn->query($query);
-		$query  = "UPDATE schedule_daily_time SET schedule_daily_time.purge = '1', schedule_daily_time.sync = '0' WHERE id = '".$wid."';";
-		$conn->query($query);
-	}
+        $query = "SELECT * FROM schedule_daily_time WHERE id ='".$wid."'";
+        $results = $conn->query($query);
+        $row = mysqli_fetch_assoc($results);
+        $da= $row['status'];
+        $sch_type = $row['type'];
+        if($opp=="active"){
+                $da= $row['status'];
+                if($da=="1"){ $set="0"; $dis="1"; }else{ $set="1"; $dis="0"; }
+                $query  = "UPDATE schedule_daily_time SET sync = '0', status='".$set."' WHERE id = '".$wid."'";
+                $conn->query($query);
+                $query  = "UPDATE schedule_daily_time_zone SET sync = '0', disabled = '".$dis."' WHERE schedule_daily_time_id = '".$wid."'";
+                $conn->query($query);
+        } elseif ($opp=="delete") {
+                if($sch_type <> 2) {
+                        $query = "UPDATE schedule_daily_time_zone SET schedule_daily_time_zone.purge = '1', schedule_daily_time_zone.sync = '0' WHERE schedule_daily_time_id = '".$wid."';";
+                } elseif($sch_type == 2) {
+                    $query = "UPDATE schedule_daily_time_relays SET schedule_daily_time_relays.purge = '1', schedule_daily_time_relays.sync = '0' WHERE schedule_daily_time_id = '".$wid."';";
+                }
+                $conn->query($query);
+                $query  = "UPDATE schedule_daily_time SET schedule_daily_time.purge = '1', schedule_daily_time.sync = '0' WHERE id = '".$wid."';";
+                $conn->query($query);
+        }
 }
 
 //update each schedule from model from homelist
@@ -238,6 +246,8 @@ if($what=="boost"){
                 $boost_temperature = $_GET['boost_temperature'];
                 $boost_console_id = $_GET['boost_console_id'];
                 $boost_button_child_id = $_GET['boost_button_child_id'];
+                $one_shot = $_GET['one_shot'];
+		if ($one_shot=='true'){$one_shot = '1';} else {$one_shot = '0';}
                 $query = "SELECT id FROM nodes WHERE node_id = '".$boost_console_id."' LIMIT 1;";
                 $nresult = $conn->query($query);
                 $nodes_row = mysqli_fetch_assoc($nresult);
@@ -253,8 +263,8 @@ if($what=="boost"){
                 }
                 //Add record to Boost table
                 if ($wid == 0) {
-                        $query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `boost_button_id`, `boost_button_child_id`, `hvac_mode`)
-                                VALUES ('0', '0', '0', '{$zone_id}', '{$datetime}', '{$boost_temperature}', '{$boost_time}', '{$boost_console_id}', '{$boost_button_child_id}', '0')";
+                        $query = "INSERT INTO `boost`(`sync`, `purge`, `status`, `zone_id`, `time`, `temperature`, `minute`, `boost_button_id`, `boost_button_child_id`, `one_shot`, `hvac_mode`)
+                                VALUES ('0', '0', '0', '{$zone_id}', '{$datetime}', '{$boost_temperature}', '{$boost_time}', '{$boost_console_id}', '{$boost_button_child_id}', '{$one_shot}', '0')";
                 } else {
                         $query = "SELECT id FROM zone WHERE name = 'HVAC' limit 1;";
                         $result = $conn->query($query);
@@ -278,7 +288,7 @@ if($what=="boost"){
                 $datetime = date("Y-m-d H:i:s");
                 if ((settings($conn, 'mode') & 0b1) == 0) {
                         $sel_query = "SELECT boost.id, boost.`status`, boost.sync, boost.zone_id, zone_idx.index_id, zone_type.category, zone.name,
-                        boost.temperature, boost.minute, n.id AS n_id, boost_button_id, boost_button_child_id, hvac_mode, ts.sensor_type_id
+                        boost.temperature, boost.minute, n.id AS n_id, boost_button_id, boost_button_child_id, boost.one_shot, hvac_mode, ts.sensor_type_id
                         FROM boost
                         JOIN nodes n ON n.node_id = boost.boost_button_id
                         JOIN zone ON boost.zone_id = zone.id
@@ -306,6 +316,7 @@ if($what=="boost"){
                                 $input5 = 'id'.$id;
                                 $input6 = 'hvac_mode'.$id;
                                 $input7 = 'sensor_type'.$id;
+                                $input8 = 'one_shot'.$id;
                                 $minute = $_GET[$input1];
                                 $temperature = $_GET[$input2];
                                 $boost_button_id = $_GET[$input3];
@@ -313,12 +324,15 @@ if($what=="boost"){
                                 $zone_id = $_GET[$input5];
                                 $hvac_mode = $_GET[$input6];
                                 $sensor_type = $_GET[$input7];
+                        	$one_shot =  $_GET[$input8];
+                        	if ($one_shot=='true'){$one_shot = '1';} else {$one_shot = '0';}
                         } else {
                                 $input1 = 'minute'.$id;
                                 $input2 = 'temperature'.$id;
                                 $input3 = 'zone_id'.$id;
                                 $input4 = 'hvac_mode'.$id;
                                 $input5 = 'sensor_type'.$id;
+                                $input6 = 'one_shot'.$id;
                                 $minute = $_GET[$input1];
                                 $temperature = $_GET[$input2];
                                 $boost_button_id = 0;
@@ -326,10 +340,12 @@ if($what=="boost"){
                                 $zone_id = $_GET[$input3];
                                 $hvac_mode = $_GET[$input4];
                                 $sensor_type = $_GET[$input5];
+                                $one_shot =  $_GET[$input8];
+                                if ($one_shot=='true'){$one_shot = '1';} else {$one_shot = '0';}
                         }
                         //Update Boost table
                         $upd_query = "UPDATE boost SET minute = '".$minute."', temperature = '".SensorToDB($conn, $temperature, $sensor_type)."', boost_button_id = '".$boost_button_id."',
-                                      boost_button_child_id = '".$boost_button_child_id."', hvac_mode = '".$hvac_mode."' WHERE id='".$row['id']."' LIMIT 1;";
+                                      boost_button_child_id = '".$boost_button_child_id."', one_shot = '".$one_shot."', hvac_mode = '".$hvac_mode."' WHERE id='".$row['id']."' LIMIT 1;";
                         $conn->query($upd_query);
                         $update_error=0;
                         if(!$conn->query($upd_query)){
@@ -628,6 +644,34 @@ if($what=="relay"){
                         $delete_error = 1;
                 }
 
+                // check if any Stand Alone relays are part of a schedule
+                $query = "SELECT  * FROM schedule_daily_time_relays WHERE relay_id =  '".$wid."';";
+                $results = $conn->query($query);
+                $rowcount = mysqli_num_rows($results);
+		$row = mysqli_fetch_assoc($results);
+		$schedule_daily_time_id = $row['schedule_daily_time_id'];
+                if($rowcount > 0) {
+                        $query = "DELETE FROM schedule_daily_time_relays WHERE relay_id =  '".$wid."';";
+                        if($conn->query($query)){
+                                $delete_error = 0;
+                        }else{
+                                $delete_error = 1;
+                        }
+                }
+
+		//if all relays have been deleted for this schedule, then delete the scedule
+                $query = "SELECT  * FROM schedule_daily_time_relays WHERE schedule_daily_time_id = '".$schedule_daily_time_id."';";
+                $results = $conn->query($query);
+                $rowcount = mysqli_num_rows($results);
+                if($rowcount == 0) {
+                        $query = "DELETE FROM schedule_daily_time WHERE id = '".$schedule_daily_time_id."' AND type = 2;";
+                        if($conn->query($query)){
+                                $delete_error = 0;
+                        }else{
+                                $delete_error = 1;
+                        }
+                }
+
 		//delete the relay record
                 $query = "DELETE FROM relays WHERE id = '".$wid."';";
                 if($conn->query($query)){
@@ -871,7 +915,15 @@ if($what=="sc_mode"){
                                 $new_sc_mode = 0;
            	}
                 $query = "UPDATE system_controller SET sc_mode = {$new_sc_mode} LIMIT 1";
-                $conn->query($query);
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
         }
 
         if($opp=="update"){
@@ -1656,6 +1708,34 @@ if($what=="show_sensors"){
         }
 }
 
+//update relays to show
+if($what=="show_relays"){
+        $sel_query = "SELECT * FROM relays ORDER BY id asc;";
+        $results = $conn->query($sel_query);
+        while ($row = mysqli_fetch_assoc($results)) {
+                $checkbox = 'checkbox'.$row['id'];
+                $show_it =  $_GET[$checkbox];
+                if ($show_it=='true'){$show_it = '1';} else {$show_it = '0';}
+                $checkbox_msg_in = 'checkbox_msg_in'.$row['id'];
+                $msg_in =  $_GET[$checkbox_msg_in];
+                if ($msg_in=='true'){$msg_in = '1';} else {$msg_in = '0';}
+                $query = "UPDATE relays SET show_it = '".$show_it."', message_in ='".$msg_in."' WHERE id = '".$row['id']."' LIMIT 1;";
+                $update_error=0;
+                if(!$conn->query($query)){
+                        $update_error=1;
+                }
+        }
+        if($update_error==0){
+                header('Content-type: application/json');
+                echo json_encode(array('Success'=>'Success','Query'=>$query));
+                return;
+        }else{
+                header('Content-type: application/json');
+                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                return;
+        }
+}
+
 //update Node Alerts Notice Interval
 if($what=="node_alerts"){
         $update_error=0;
@@ -1990,7 +2070,8 @@ if($what=="set_max_cpu_temp"){
 //set page refresh rate
 if($what=="page_refresh_rate"){
         $page_refresh =  $_GET['new_refresh'];
-        $query = "UPDATE system SET page_refresh = ".$page_refresh.";";
+        $page_timeout =  $_GET['new_timeout'];
+        $query = "UPDATE system SET page_refresh = ".$page_refresh.", page_timeout = ".$page_timeout.";";
         $update_error=0;
         if(!$conn->query($query)){
                 $update_error=1;
@@ -2421,7 +2502,7 @@ if($what=="mqtt_broker"){
         $inp_Ip =  $_GET['inp_Ip'];
         $inp_Port =  $_GET['inp_Port'];
         $inp_Username =  $_GET['inp_Username'];
-        $inp_Password =  enc_passwd($_GET['inp_Password']);
+        if(strpos($inp_Username, 'anonymous') !== false) { $inp_Password = "";  } else { $inp_Password = enc_passwd($_GET['inp_Password']); }
         $inp_Enabled =  $_GET['inp_Enabled'];
         $inp_Type =  $_GET['inp_Type'];
 
@@ -2508,6 +2589,252 @@ if($what=="enable_zone_current_state_logs"){
         }
 
         if($update_error==0){
+                header('Content-type: application/json');
+                echo json_encode(array('Success'=>'Success','Query'=>$query));
+                return;
+        }else{
+                header('Content-type: application/json');
+                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                return;
+        }
+}
+
+//update standalone sensor and relay home screen indexing
+if($what=="device_index"){
+        if($opp=="update"){
+		$sel_query = "SELECT CONCAT('r', `id`) AS `id`,`index_id`,`pre_post`
+                	FROM `relays`
+                	WHERE `id` NOT IN (SELECT `zone_relay_id` FROM `zone_relays`) AND `type` = 0 AND `show_it` = 1
+                	UNION
+                	SELECT CONCAT('s', `id`) AS `id`,`index_id`,`pre_post`
+                	FROM `sensors`
+                	WHERE `id` NOT IN (SELECT `zone_sensor_id` FROM `zone_sensors`) AND `show_it` = 1
+                	ORDER BY pre_post, index_id;";
+                $results = $conn->query($sel_query);
+                while ($row = mysqli_fetch_assoc($results)) {
+                        $id = $row['id'];
+                        $input1 = 'checkbox'.$id;
+                        $input2 = 'index'.$id;
+			$pre_post = $_GET[$input1];
+                        if ($pre_post == 'true'){$pre_post = '1';} else {$pre_post = '0';}
+                        $index = $_GET[$input2];
+			if (substr($id, 0, 1 ) === "r") {
+                        	$upd_query = "UPDATE relays SET pre_post = ".$pre_post.", index_id = ".$index." WHERE id = ".substr($id,1)." LIMIT 1;";
+			} else {
+                                $upd_query = "UPDATE sensors SET pre_post = ".$pre_post.", index_id = ".$index." WHERE id = ".substr($id,1)." LIMIT 1;";
+			}
+                        if(!$conn->query($upd_query)){
+                                header('Content-type: application/json');
+                                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $upd_query));
+                                return;
+                        }
+		}
+                header('Content-type: application/json');
+                echo json_encode(array('Success'=>'Success','Query'=>$upd_query));
+                return;
+	}
+}
+
+//update zonehome screen indexing
+if($what=="zone_index"){
+        if($opp=="update"){
+		$sel_query = "SELECT `id`, `status`, `index_id`, `name`, `type_id`
+                	FROM `zone`
+                	ORDER BY index_id;";
+                $results = $conn->query($sel_query);
+                while ($row = mysqli_fetch_assoc($results)) {
+                        $id = $row['id'];
+                        $input1 = 'checkbox'.$id;
+                        $input2 = 'index'.$id;
+                        $enabled = $_GET[$input1];
+                        if ($enabled == 'true'){$enabled = '1';} else {$enabled = '0';}
+                        $index = $_GET[$input2];
+                        $upd_query = "UPDATE zone SET status = ".$enabled.", index_id = ".$index." WHERE id = ".$id." LIMIT 1;";
+                        if(!$conn->query($upd_query)){
+                                header('Content-type: application/json');
+                                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $upd_query));
+                                return;
+                        }
+                }
+                header('Content-type: application/json');
+                echo json_encode(array('Success'=>'Success','Query'=>$upd_query));
+                return;
+        }
+}
+
+//Relay Messages
+if($what=="relay_message"){
+        if($opp=="delete"){
+                //Delete from relay_messages
+                $query = "DELETE FROM relay_messages WHERE id = '".$wid."';";
+                $conn->query($query);
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+        if($opp=="add"){
+                $msg_relay_id = $_GET['msg_relay_id'];
+                $msg_id = $_GET['msg_id'];
+                $msg_text = $_GET['msg_text'];
+                //Add record to sensor_messages table
+                $query = "INSERT INTO `relay_messages`(`sync`, `purge`, `relay_id`, `message_id`, `message`)
+                        VALUES ('0', '0', '{$msg_relay_id}', '{$msg_id}', '{$msg_text}'); ";
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+}
+
+//Relay Group
+if($what=="relay_group"){
+        if($opp=="delete"){
+                //Delete from Zone Type
+                $query = "UPDATE relay_group SET relay_group.purge='1' WHERE id = '".$wid."'";
+                $conn->query($query);
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+        if($opp=="add"){
+                $relay_group = $_GET['relay_group'];
+                //Add record to zone_type table
+                $query = "INSERT INTO `relay_group`(`sync`, `purge`, `name`) VALUES ('0', '0', '{$relay_group}')";
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+}
+
+//update each schedule from model from homelist
+if($what=="schedule_relay"){
+        if($opp=="active"){
+                $update_error = 0;
+                $query = "SELECT status, schedule_daily_time_id FROM schedule_daily_time_relays WHERE id ='".$wid."' LIMIT 1";
+                $result = $conn->query($query);
+                $row = mysqli_fetch_assoc($result);
+                $time_id = $row['schedule_daily_time_id'];
+
+                $sel_query = "SELECT COUNT(id) AS cnt, status FROM schedule_daily_time WHERE id = {$time_id};";
+                $result = $conn->query($sel_query);
+                $srow = mysqli_fetch_assoc($result);
+                if($srow['cnt'] == 1) {
+                        $da= $srow['status'];
+                        if($da=="1"){ $set="0"; $dis="1"; }else{ $set="1"; $dis="0"; }
+                        $query  = "UPDATE schedule_daily_time SET sync = '0', status='".$set."' WHERE id = '".$time_id."'";
+                } else {
+                        $da= $row['status'];
+                        if($da=="1"){ $set="0"; $dis="1"; }else{ $set="1"; $dis="0"; }
+                        $query  = "UPDATE schedule_daily_time_relays SET sync = '0', status='".$set."', disabled = '".$dis."' WHERE id = '".$wid."'";
+                }
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+}
+
+//Setup Hot Water Compensation
+if($what=="setup_hw_comp"){
+        $enabled = $_GET['enabled'];
+        $hw_comp_zone = $_GET['hw_comp_zone'];
+        $hw_sensor_id = $_GET['hw_sensor_id'];
+        $hw_coefficient = $_GET['hw_coefficient'];
+        $hw_threshold = $_GET['hw_threshold'];
+        $default_c = $_GET['default_c'];
+        if ($enable=='true'){$enable = '1';} else {$enable = '0';}
+
+        //search for exiting record
+        $update_error = 0;
+        $query = "SELECT * FROM hw_compensation LIMIT 1;";
+        $result = $conn->query($query);
+        if (mysqli_num_rows($result)==0){
+                //Inset New Record
+                $query = "INSERT INTO hw_compensation (`sync`, `purge`, enabled, zone_id, sensor_id, hw_coefficient, hw_threshold)
+                        VALUES (0, 0, '".$enabled."', '".$hw_comp_zone."', '".$hw_sensor_id."', '".$hw_coefficient."', '".$hw_threshold."');";
+        } else {
+                //Update Exiting Record
+                $query = "UPDATE hw_compensation SET enabled = ".$enabled.", zone_id = ".$hw_comp_zone.", sensor_id = ".$hw_sensor_id.", hw_coefficient = ".$hw_coefficient.",
+                        hw_threshold = ".$hw_threshold.";";
+        }
+        if(!$conn->query($query)){
+                $update_error=1;
+        }
+        if($update_error==0){
+                $query = "UPDATE zone_sensors SET default_c = ".$default_c." WHERE zone_id = ".$hw_comp_zone.";";
+                if(!$conn->query($query)){
+                        $update_error=1;
+                }
+        }
+
+        if($update_error==0){
+                header('Content-type: application/json');
+                echo json_encode(array('Success'=>'Success','Query'=>$query));
+                return;
+        }else{
+                header('Content-type: application/json');
+                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                return;
+        }
+
+}
+
+//Summer
+if($what=="summer"){
+        if($opp=="active"){
+                $query = "SELECT * FROM summer";
+                $results = $conn->query($query);
+                $row = mysqli_fetch_assoc($results);
+                $da= $row['status'];
+                if($da=="1"){ $set="0"; }else{ $set="1"; }
+                $query = "UPDATE summer SET status = '{$set}', sync = '0' LIMIT 1";
+                if($conn->query($query)){
+                        header('Content-type: application/json');
+                        echo json_encode(array('Success'=>'Success','Query'=>$query));
+                        return;
+                }else{
+                        header('Content-type: application/json');
+                        echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                        return;
+                }
+        }
+}
+
+//set the summer period start and end dates
+if($what=="set_summer_dates"){
+        $start_date =  $_GET['start_date'];
+        $end_date =  $_GET['end_date'];
+        $query = "UPDATE summer SET start_date = '".$start_date."', end_date = '".$end_date."';";
+        $update_error=0;
+        if($conn->query($query)){
                 header('Content-type: application/json');
                 echo json_encode(array('Success'=>'Success','Query'=>$query));
                 return;

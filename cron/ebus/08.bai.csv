@@ -1,0 +1,55 @@
+type,circuit,level,name,comment,qq,zz,pbsb,id,*name,part,type,divisor/values,unit,comment
+*r,
+*uw,
+*w,
+#!load,bai.308523.inc,,,
+#*[Scan_id_product],Scan,,id,,product
+#*[id_hw],scan,,,,HW
+#r,,,DateTime,date/time,,,b504,00,dcfstate,,UCH,0=nosignal;1=ok;2=sync;3=valid,,DCF receiver state,btime,,BTI,,,time,bdate,,BDA,,,date,temp,,D2B,,°C,temperature
+#r,,,Status16,outside temperature,,,b504,16,value,,D2C,,°C,temperature
+#uw,,,SetMode,Operation mode,,,b510,00,hcmode,,UCH,0=auto;1=off;2=heat;3=water,,boiler mode,flowtempdesired,,D1C,,°C,temperature,hwctempdesired,,D1C,,°C,temperature,hwcflowtempdesired,,UCH,,°C,temperature,ign,,IGN:1,,,,disablehc,,BI0,,,,disablehwctapping,,BI1,,,,disablehwcload,,BI2,,,,ign_1,,IGN:1,,,,remotecontrolhcpump,,BI0,,,,releasebackup,,BI1,,,,releasecooling,,BI2,,,
+#w,,install,SetMode,Operation mode,,,b510,00,hcmode,,UCH,0=auto;1=off;2=heat;3=water,,boiler mode,flowtempdesired,,D1C,,°C,temperature,hwctempdesired,,D1C,,°C,temperature,hwcflowtempdesired,,UCH,,°C,temperature,ign,,IGN:1,,,,disablehc,,BI0,,,,disablehwctapping,,BI1,,,,disablehwcload,,BI2,,,,ign_1,,IGN:1,,,,remotecontrolhcpump,,BI0,,,,releasebackup,,BI1,,,,releasecooling,,BI2,,,
+uw,,,SetMode,Operation mode,,,b510,00,hcmode,,UCH,0=auto;1=off;2=heat;3=water,,boiler mode,flowtempdesired,,D1C,,°C,temperature,hwctempdesired,,D1C,,°C,temperature,hwcflowtempdesired,,UCH,,°C,temperature,setmode1,,UCH,,,,disablehc,,BI0,,,,disablehwctapping,,BI1,,,,disablehwcload,,BI2,,,,setmode2,,UCH,,,,remotecontrolhcpump,,BI0,,,,releasebackup,,BI1,,,,releasecooling,,BI2,,,
+w,,install,SetMode,Operation mode,,,b510,00,hcmode,,UCH,0=auto;1=off;2=heat;3=water,,boiler mode,flowtempdesired,,D1C,,°C,temperature,hwctempdesired,,D1C,,°C,temperature,hwcflowtempdesired,,UCH,,°C,temperature,setmode1,,UCH,,,,disablehc,,BI0,,,,disablehwctapping,,BI1,,,,disablehwcload,,BI2,,,,setmode2,,UCH,,,,remotecontrolhcpump,,BI0,,,,releasebackup,,BI1,,,,releasecooling,,BI2,,,
+r,,,Status01,Vorlauftemperatur/Rücklauftemperatur/Aussentemperatur/WW Temperatur/Speichertemperatur/Pumpenstatus,,,b511,01,temp,,D1C,,°C,temperature,temp_1,,D1C,,°C,temperature,temp_2,,D2B,,°C,temperature,temp_3,,D1C,,°C,temperature,temp_4,,D1C,,°C,temperature,pumpstate,,UCH,0=off;1=on;2=overrun;4=hwc,,pump state
+r,,,Status02,Betriebsart/Maximaltemperatur/ReglerCurrentTemp/Maximaltemperatur/ReglerCurrentTemp,,,b511,02,hwcmode,,UCH,0=disabled;1=on;2=off;3=auto,,hot water mode,temp,,UCH,,°C,temperature,temp_1,,D1C,,°C,temperature,temp_2,,UCH,,°C,temperature,temp_3,,D1C,,°C,temperature
+r,,,Status,Status,,,b511,03,temp,,D2C,,°C,temperature,press,,FLT,,bar,pressure,press_1,,FLT,,bar,pressure,hcmode,,UCH,0=off;3=heat;4=water,,boiler mode,hex,,HEX,,,
+#uw,,,StatusCirPump,Status circulation pump,,,b512,00,value,,UCH,0=off;100=on,,
+r,,,Flame,Flame,,,b509,0d0500,value,,UCH,240=off;15=on,,
+r,,,ModulationDesired,Modulation set point,,,b509,0d2e00,value,,SIN,10,%,Modulation set point
+r,,,PartloadHcKW,d.00 heating partload: Heating part load,,,b509,0d6c00,value,,UCH,,kW,
+r,,,FlowTempDesired,d.05 flow/return setpoint: Flow temperature target value or return target value when return regulation is set,,,b509,0d3900,value,,D2C,,°C,temperature
+r,,,FlowTemp,d.40 TFT_DK: flow temperature,,,b509,0d1800,temp,,D2C,,°C,temperature,sensor,,UCH,0=ok;85=circuit;170=cutoff,,sensor status
+r,,,ReturnTemp,d.41 Temp heating return: return temperature,,,b509,0d9800,temp,,D2C,,°C,temperature,tempmirror,,UIN,,°C,,sensor,,UCH,0=ok;85=circuit;170=cutoff,,sensor status
+r,,,Statenumber,Statenumber_DK: status number,,,b509,0dab00,value,,UCH,,,
+r,,,FlowsetHcMax,d.71 Max value flow temp: Adjustment of maximum central heating setpoint range (maximum endposition of potmeter),,,b509,0d0e04,value,,D2C,,°C,temperature
+w,,install,FlowsetHcMax,d.71 Max value flow temp: Adjustment of maximum central heating setpoint range (maximum endposition of potmeter),,,b509,0ea500,value,,D2C,,°C,temperature
+#[Scan_id_product='0010002315';'0010002316';'0010002317']!load,bai.0010002315.inc,,,
+#[Scan_id_product='0010003958';'0010002465';'0010003959';'0010003960';'0010003961';'0010003962';'0010003963';'0010003964';'0010003965';'0010003966';'0010003967';'0010003968';'0010003969';'0010003970';'0010003971';'0010003972';'0010003973';'0010003974';'0010003975';'0010003976';'0010003977';'0010003991';'0010004015';'0010004016']!load,bai.0010002465.inc,,,
+#[Scan_id_product='0010003857';'0010003858';'0010003860';'0010003861';'0010003862';'0010003863';'0010003864';'0010003865';'0010003869';'0010003872';'0010003874';'0010003875';'0010003876';'0010003877';'0010003878';'0010003881';'0010009340';'0010009341';'0010009342';'0010009343';'0010009344';'0010009345';'0010009346';'0010009347';'0010009348';'0010009349';'0010009350']!load,bai.0010003857.inc,,,
+#[Scan_id_product='0010003882';'0010003883';'0010003886';'0010003887';'0010009351';'0010009352';'167']!load,bai.0010003886.inc,,,
+#[Scan_id_product='0010004110';'0010004111';'0010004112';'0010004113';'0010004114';'0010004121';'0010004122';'0010004123';'0010004124';'0010004125';'0010002498';'209']!load,bai.0010004121.inc,,,
+#[Scan_id_product='0010004126';'0010004127';'0010010384']!load,bai.0010004150.inc,,,
+#[Scan_id_product='0010005400';'0010005401';'0010005402';'0010005403';'0010005404';'0010005405';'0010005406';'0010005407';'0010005408';'0010005409']!load,bai.0010005400.inc,,,
+#[Scan_id_product='0010006080';'0010006081';'0010006082';'0010006083';'0010006084';'0010006085';'0010006086';'0010006087';'0010006088';'0010006089';'0010006090';'0010006091';'0010006092';'0010006093';'0010006094';'0010006095';'0010006096';'0010006097';'0010006098';'0010006099';'0010006100';'0010006101';'0010006102';'0010006103';'0010006104';'0010006105';'0010006106';'0010006107';'0010006108';'0010006109';'0010006110';'0010006111';'0010006112';'0010006113';'0010006114';'0010006115';'0010006118';'0010006119';'0010006120';'0010006121';'0010006122';'0010006123';'0010006126';'0010006127';'0010006129';'0010006130';'0010006131';'0010006134';'0010006135';'0010006136';'0010006137';'0010006138';'0010006139';'0010006140';'0010006141';'188';'BAI__';'']!load,bai.0010006101.inc,,,
+#[Scan_id_product='0010006341']!load,bai.0010006341.inc,,,
+#[Scan_id_product='0010007508';'0010007510';'0010007512';'0010007514';'0010007516';'0010007518';'0010007520';'0010007522';'0010007524';'0010007526';'0010007688';'0010007692';'0010007696';'0010007700';'0010007704']!load,bai.0010007508.inc,,,
+#[Scan_id_product='0010010674';'0010010676';'0010010678';'207']!load,bai.0010010674.inc,,,
+#[Scan_id_product='0010011701';'0010011702';'0010011703';'0010011704';'0010011709';'0010016402';'0010016403']!load,bai.0010011701.inc,,,
+#[Scan_id_product='0010014917';'0010014629';'0010014630';'0010014631';'0010014632';'0010014633';'0010015596';'0010015597';'0010015598';'0010015599';'0010015600';'0010015601';'0010015602';'0010015603';'0010015604';'0010015605';'0010015606';'0010015607';'0010015608';'0010015609';'0010015610';'0010015611';'0010015612';'0010015613';'0010015614';'0010019268';'0010019276';'0010021875';'0010021887';'0010021888';'0010021891';'0010021929']!load,bai.0010015600.inc,,,
+#[Scan_id_product='0020066007';'187']!load,bai.0020066007.inc,,,
+#[Scan_id_product='0010004276';'0010004277';'0010004279';'0010004280';'0010004281';'0010004282';'0010004283';'0010004285';'0010004286';'0010004288';'0010004289';'0010004290';'0010004291';'0010004292';'0010004336';'0010004337';'0010004338';'0010004339';'0010004340';'0010005466';'0010005467';'0010005468';'0010005469';'0010010392';'0010010393';'0010010394';'0010010400';'0020051714';'0020051715';'0020051716';'0020051717';'174']!load,bai.308523.inc,,,
+#[Scan_id_product='0010021901']!load,bai.0010021901.inc,,,
+#[Scan_id_product='0010021961';'0010021962';'0010021963';'0010021964';'0010021965';'0010021966';'0010021967']!load,bai.0010021961.inc,,,
+#[Scan_id_product='0010008045';'0010008863';'0010023648']!load,bai.0010008045.inc,,,
+#[id_hw=6701]!load,bai.0010003886.inc,,,
+#[id_hw=0902]!load,bai.0010004121.inc,,,
+#[id_hw=8801]!load,bai.0010006101.inc,,,
+#[id_hw=0702]!load,bai.0010010674.inc,,,
+#[id_hw=5502]!load,bai.0010011701.inc,,,
+#[id_hw=9602]!load,bai.0010015600.inc,,,
+#[id_hw=8701]!load,bai.0020066007.inc,,,
+#[id_hw=7401]!load,bai.308523.inc,,,
+#[id_hw=3302]!load,bai.0010021901.inc,,,
+#[id_hw=7803]!load,bai.0010021961.inc,,,
+#[id_hw=4702]!load,bai.0010008045.inc,,,

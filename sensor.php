@@ -30,6 +30,7 @@ if(isset($_GET['id'])) {
 	$id = $_GET['id'];
 } else {
 	$id = 0;
+        $frost_count = 1;
 }
 
 $uri = $_SERVER['QUERY_STRING'];
@@ -37,6 +38,7 @@ if (strpos($uri, "id=") !== false) { $link = "settings.php?s_id=7"; } else { $li
 
 //Form submit
 if (isset($_POST['submit'])) {
+        $frost_zones = array();
         $pre_post = isset($_POST['pre_post']) ? $_POST['pre_post'] : "0";
         $index_id = $_POST['index_id'];
 	$name = $_POST['name'];
@@ -51,7 +53,6 @@ if (isset($_POST['submit'])) {
         $sync = '0';
         $purge= '0';
 	$frost_temp = $_POST['frost_temp'];
-	if ($frost_temp == 0) { $frost_controller = 0; } else { $frost_controller = $_POST['frost_controller']; }
 	$fail_timeout = $_POST['fail_timeout'];
         $show_it = $_POST['show_it'];
         $min_max_graph = $_POST['min_max_graph'];
@@ -68,12 +69,12 @@ if (isset($_POST['submit'])) {
                            `name`, `graph_num`, `show_it`, `min_max_graph`, `message_in`, `frost_temp`, `frost_controller`, `fail_timeout`, `mode`, `timeout`, `resolution`, `current_val_1`,
 			   `current_val_2`, `user_display`)
                            VALUES ('{$id}', '{$sync}', '{$purge}', '0', '{$sensor_id}', '{$sensor_child_id}', '{$correction_factor}', '{$sensor_type_id}', '{$index_id}',
-                           '{$pre_post}', '{$name}', '0', '1', '0', 1, '{$frost_temp}', '{$frost_controller}', '{$fail_timeout}', '{$mode}', '{$timeout}', '{$resolution}', 0, 0, 0);";
+                           '{$pre_post}', '{$name}', '0', '1', '0', 1, '{$frost_temp}', 0, '{$fail_timeout}', '{$mode}', '{$timeout}', '{$resolution}', 0, 0, 0);";
         } else {
                 $query = "UPDATE `sensors` SET `sync` = '{$sync}',`purge` = '{$purge}',`sensor_id` = '{$sensor_id}',`sensor_child_id` = '{$sensor_child_id}',
                            `correction_factor` = '{$correction_factor}',`sensor_type_id` = '{$sensor_type_id}',`index_id` = '{$index_id}',`pre_post` = '{$pre_post}',
                            `name` = '{$name}',`graph_num` = '{$graph_num}',`show_it` = '{$show_it}',`min_max_graph` = '{$min_max_graph}',`message_in` = '{$message_in}',
-			   `frost_temp` = '{$frost_temp}',`frost_controller` = '{$frost_controller}', `fail_timeout` = '{$fail_timeout}',
+			   `frost_temp` = '{$frost_temp}',`frost_controller` = 0, `fail_timeout` = '{$fail_timeout}',
                            `mode` = '{$mode}', `timeout` = '{$timeout}', `resolution` = '{$resolution}' WHERE `id` = {$id};";
         }
 	$result = $conn->query($query);
@@ -87,6 +88,24 @@ if (isset($_POST['submit'])) {
 	} else {
 		$error = "<p>".$lang['sensor_record_fail']." </p> <p>" .mysqli_error($conn). "</p>";
 	}
+
+
+        foreach($_POST['selected_frost_controler_id'] as $index => $value) {
+        	$frost_zones[] = array($value);
+        }
+        if ($id!=0){ //if in edit mode delete existing zone frost_sensor records for the current sensor
+        	$query = "DELETE FROM `frost_sensor_relays` WHERE `sensor_id` = '{$id}';";
+                $result = $conn->query($query);
+        }
+        //loop through zone controller for the current zone and replace zone_controllers and messages_out records to cope with individual deleted zone controllers
+	if ($frost_temp != 0) {
+	        for ($i = 0; $i < count($frost_zones); $i++)  {
+			$relay_id = $frost_zones[$i][0];
+        		$query = "INSERT INTO `frost_sensor_relays` (`sync`, `purge`, `sensor_id`, `relay_id`) VALUES ('{$sync}', '{$purge}', '{$id}', '{$relay_id}');";
+	                $result = $conn->query($query);
+		}
+	}
+
 	$message_success .= "<p>".$lang['do_not_refresh']."</p>";
 	header("Refresh: 10; url=home.php?page_name=onetouch");
         // After update on all required tables, set $id to mysqli_insert_id.
@@ -122,6 +141,30 @@ if (isset($_POST['submit'])) {
         $query = "SELECT id, type FROM sensor_type WHERE id = '{$row['sensor_type_id']}' LIMIT 1;";
         $result = $conn->query($query);
         $rowtype = mysqli_fetch_assoc($result);
+
+
+	if ($rowtype['id'] <> 4) {
+                $query = "SELECT sensors.id, fs.relay_id, r.name
+                        FROM sensors
+                        JOIN frost_sensor_relays fs ON sensors.id = fs.sensor_id
+                        JOIN relays r ON fs.relay_id = r.id
+                        WHERE sensors.id = {$id};";
+	        $fresults = $conn->query($query);
+		if ($fresults->num_rows > 0) {
+	        	$index = 0;
+		        while ($frow = mysqli_fetch_assoc($fresults)) {
+        			$frost_zones[$index] = array('sensor_id' =>$frow['id'], 'relay_id' =>$frow['relay_id'],'zone_controller_name' =>$frow['name']);
+                		$index = $index + 1;
+        		}
+        		$frost_count = $index;
+		} else {
+			$frost_count = 1;
+		}
+	} else {
+		$frost_count = 1;
+	}
+} else {
+        $frost_count = 1;
 }
 ?>
 
@@ -380,30 +423,58 @@ if (isset($_POST['submit'])) {
 						{
 							var t = document.getElementById("frost_temp").value;
         						if (t == 0) {
-        							document.getElementById("frost_controller").style.display = 'none';
+        							//document.getElementById("frost_controller").style.display = 'none';
                							document.getElementById("frost_controller_label").style.visibility = 'hidden';
 							} else {
-                                                                document.getElementById("frost_controller").style.display = 'block';
+                                                                //document.getElementById("frost_controller").style.display = 'block';
                                                                 document.getElementById("frost_controller_label").style.visibility = 'visible';
 							}
 						}
 						</script>
+
 						<!-- Frost Controller -->
-						<div class="form-group"  id="frost_controller_label" style="display:block"><label><?php echo $lang['frost_controller']; ?></label> <small class="text-muted"><?php echo $lang['frost_controller_text'];?></small>
-                                                        <select class="form-select" type="number" id="frost_controller" name="frost_controller" >
-                                                                <?php if(isset($rowcontroller['id'])) {
-                                                                        echo '<option selected value='.$rowcontroller['id'].'>'.$rowcontroller['name'].'</option>';
-                                                        		$query = "SELECT id, name, type FROM relays WHERE type <> 1 AND id <> ".$rowcontroller['id']." ORDER BY id ASC;";
-                                                                } else {
-                                                                        $query = "SELECT id, name, type FROM relays WHERE type <> 1 ORDER BY id ASC;";
-                                                                }
-                                                                $result = $conn->query($query);
-                                                                while ($datarw=mysqli_fetch_array($result)) {
-                                                                        echo "<option value=".$datarw['id'].">".$datarw['name']."</option>";
-                                                                } ?>
-                                                        </select>
-							<div class="help-block with-errors"></div>
+						<input type="hidden" id="frost_count" name="frost_count" value="<?php echo $frost_count ?>"/>
+						<div class="frost_id_wrapper">
+							<?php for ($i = 0; $i < $frost_count; $i++) { ?>
+								<div class="wrap" id>
+									<div class="form-group"  id="frost_controller_label" style="display:block"><label><?php echo $lang['frost_controller']; ?></label> <small class="text-muted"><?php echo $lang['frost_controller_text'];?></small>
+                                                                                <input type="hidden" id="selected_frost_controler_id[]" name="selected_frost_controler_id[]" value="<?php echo $frost_zones[$i]['relay_id']?>"/>
+                                                                                <div class="entry input-group col-12" id="frost_cnt_id - <?php echo $i ?>">
+	                                                        			<select id="frost_contr_id<?php echo $i ?>" onchange="ControllerIDList(this.options[this.selectedIndex].value)" name="frost_contr_id<?php echo $i ?>" class="form-select" data-bs-error="<?php echo $lang['zone_controller_id_error']; ?>" autocomplete="off">
+												<?php if(isset($frost_zones[$i]["zone_controller_name"])) { echo '<option selected >'.$frost_zones[$i]["zone_controller_name"].'</option>'; } ?>
+												<?php  $query = "SELECT id, name, type FROM relays WHERE type = 0 OR type = 5 ORDER BY id ASC;";
+                                                                                                $result = $conn->query($query);
+                                                                                                echo "<option></option>";
+                                                                                                while ($datarw=mysqli_fetch_array($result)) {
+                                                                                                        echo "<option value=".$datarw['id'].">".$datarw['name']."</option>";
+                                                                                                } ?>
+         	                                                			</select>
+                	                                                                        <div class="help-block with-errors"></div>
+                        	                                                                <span class="input-group-btn">
+                                	                                                                <?php if ($i == 0) {
+														echo '<button class="btn btn-outline add_frost_controller_button" type="button" data-bs-toggle="tooltip" title="'.$lang['add_controller'].'"><img src="./images/add-icon.png"/></button>';
+                                                	                                                } else {
+														echo '<button class="btn btn-outline remove_frost_controller_button" type="button" data-bs-toggle="tooltip" title="'.$lang['remove_controller'].'"><img src="./images/remove-icon.png"/></button>';
+                                                                	                                } ?>
+                                                                                        </span>
+										</div>
+									</div>
+								</div>
+							<?php } ?>
 						</div>
+
+                                                <script language="javascript" type="text/javascript">
+                                                function ControllerIDList(value)
+                                                {
+                                                        var valuetext = value;
+                                                        var indtext = document.getElementById("frost_count").value - 1;
+
+                                                        var e = document.getElementById("frost_contr_id".concat(indtext));
+                                                        var selected_frost_controler_id = e.options[e.selectedIndex].value;
+                                                        var f = document.getElementsByName('selected_frost_controler_id[]');
+                                                        f[indtext].value = selected_frost_controler_id;
+                                                }
+                                                </script>
 
                                                 <!-- Sensor Fail Timout -->
                                                         <div class="form-group" class="control-label" id="fail_timeout_label" style="display:block"><label><?php echo $lang['fail_timeout'];?></label> <small class="text-muted"><?php echo $lang['fail_timeout_info'];?></small>

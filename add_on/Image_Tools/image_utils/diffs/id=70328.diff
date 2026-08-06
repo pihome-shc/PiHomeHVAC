@@ -1,0 +1,11 @@
+# diff --suppress-common-lines; image-backup
+
+122c122
+< if [[ "${ROOT_DEV}" = "/dev/mmcblk0p" || "${ROOT_DEV}" =~ ^/dev/nvme[0-9]n1p$ ]]; then
+---
+> if [[ "${ROOT_DEV}" = "/dev/mmcblk0p" || "${ROOT_DEV}" = "/dev/nvme0n1p" ]]; then
+224c224
+< if [[ "${ROOT_DEV}" = "/dev/mmcblk0p" || "${ROOT_DEV}" =~ ^/dev/nvme[0-9]n1p$ ]]; then
+---
+> if [[ "${ROOT_DEV}" = "/dev/mmcblk0p" || "${ROOT_DEV}" = "/dev/nvme0n1p" ]]; then
+building file list ... done

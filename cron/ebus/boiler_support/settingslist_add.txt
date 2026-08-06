@@ -1,0 +1,12 @@
+
+                                        <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#reboot_boiler">
+                                        <h3 class="buttontop"><small><?php echo $lang['reset_boiler']; ?></small></h3>
+                                        <h3 class="degre" ><i class="bi bi-bootstrap-reboot purple" style="font-size: 1.5rem;"></i></h3>
+                                        <h3 class="status"></small></h3>
+                                        </button>
+
+                                        <button type="button" class="btn btn-bm-<?php echo theme($conn, $theme, 'color'); ?> btn-circle <?php echo $button_style; ?> mainbtn animated fadeIn" data-bs-toggle="modal" data-bs-target="#boiler_power_cycle">
+                                        <h3 class="buttontop"><small><?php echo $lang['boiler_power']; ?></small></h3>
+                                        <h3 class="degre" ><i class="bi bi-repeat red" style="font-size: 1.5rem;"></i></h3>
+                                        <h3 class="status"></small></h3>
+                                        </button>

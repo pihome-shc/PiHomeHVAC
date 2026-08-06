@@ -257,6 +257,22 @@ h3.status{
     float:right;
 }
 
+.lfooter{
+    font-size: 17px;
+    text-align: left;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    float:left;
+}
+
+.rfooter{
+    font-size: 17px;
+    text-align: right;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    float:right;
+}
+
 .schdegree{
 margin-left: 2px;
 }

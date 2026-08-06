@@ -1,0 +1,30 @@
+
+//Reset Boiler
+if($what=="reset_boiler"){
+        $time = date("Y-m-d H:i:s");
+        $query = "INSERT INTO `reset`(`sync`, `purge`, `status`, `type`, `reset_count`, `start_datetime`, `end_datetime`) VALUES (0, 0, 1, 'WEB', 0, '{$time}', '{$time}');";
+        if($conn->query($query)){
+                header('Content-type: application/json');
+                echo json_encode(array('Success'=>'Success','Query'=>$query));
+                return;
+        }else{
+                header('Content-type: application/json');
+                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                return;
+        }
+}
+
+//Boiler Power Cycle
+if($what=="boiler_power_cycle"){
+        $time = date("Y-m-d H:i:s");
+        $query = "INSERT INTO `reset`(`sync`, `purge`, `status`, `type`, `reset_count`, `start_datetime`, `end_datetime`) VALUES (0, 0, 1, 'POWER_CYCLE', 0, '{$time}', '{$time}');";
+        if($conn->query($query)){
+                header('Content-type: application/json');
+                echo json_encode(array('Success'=>'Success','Query'=>$query));
+                return;
+        }else{
+                header('Content-type: application/json');
+                echo json_encode(array('Message'=>'Database query failed.\r\nQuery=' . $query));
+                return;
+        }
+}

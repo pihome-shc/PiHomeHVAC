@@ -14,12 +14,12 @@ class bc:
     blu = "\033[44m"
 
 print(bc.hed + " ")
-print("    __  __                             _         ")
-print("   |  \/  |                    /\     (_)        ")
-print("   | \  / |   __ _  __  __    /  \     _   _ __  ")
-print("   | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| ")
-print("   | |  | | | (_| |  >  <   / ____ \  | | | |    ")
-print("   |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
+print(r"    __  __                             _         ")
+print(r"   |  \/  |                    /\     (_)        ")
+print(r"   | \  / |   __ _  __  __    /  \     _   _ __  ")
+print(r"   | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| ")
+print(r"   | |  | | | (_| |  >  <   / ____ \  | | | |    ")
+print(r"   |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
 print(" ")
 print("        " + bc.SUB + "S M A R T   T H E R M O S T A T " + bc.ENDC)
 print(bc.WARN + " ")
@@ -27,7 +27,7 @@ print("********************************************************")
 print("*               Graph csv File Script                  *")
 print("*                                                      *")
 print("*               Build Date: 09/02/2024                 *")
-print("*       Version 0.01 - Last Modified 13/02/2024        *")
+print("*       Version 0.02 - Last Modified 25/11/2025        *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" " + bc.ENDC)
@@ -105,6 +105,33 @@ if archive_enable:
                 csvwriter.writerow(row)
 
         print(bc.dtm + time.ctime() + bc.ENDC + ' - ' + str(cur.rowcount) + ' New Sensor Entries Added to Archive File')
+
+    # Generate the Min/Max file
+    # Create sensor temperature readings archive file per sensor
+    cur.execute(
+        """SELECT sensors.id, sensors.name, MAX(sg.payload) AS max, MIN(sg.payload) AS min, DATE(sg.datetime) DateOnly
+           FROM sensors
+           JOIN nodes n ON n.id = sensors.sensor_id
+           JOIN sensor_graphs sg ON sg.node_id = n.node_id AND sg.child_id = sensors.sensor_child_id
+           WHERE sg.datetime > %s
+           GROUP BY sensors.id
+           ORDER BY sg.name ASC, sensor_type_id, sg.datetime ASC;""",
+        (archive_pointer,),
+    )
+    mrows = cur.fetchall()
+    # Continue only if there are rows returned.
+    if mrows:
+        for row in mrows:
+            # Write result to table.
+            cur.execute(
+                "INSERT INTO `sensor_min_max_graph`(`sensor_id`, `name`, `max`, `min`, `date`) VALUES(%s,%s,%s,%s,%s)",
+                (row[0], row[1], row[2], row[3], row[4]),
+            )
+            con.commit()
+
+        print(bc.dtm + time.ctime() + bc.ENDC + ' - ' + str(cur.rowcount) + ' New Sensor Max/Min Entries Added to Archive File')
+
+
     else:
         print(bc.dtm + time.ctime() + bc.ENDC + ' - No New Sensor Entries Added to Archive File')
 
@@ -140,6 +167,31 @@ if archive_enable:
                     csvwriter.writerow(row)
 
             print(bc.dtm + time.ctime() + bc.ENDC + ' - ' + str(cur.rowcount) + ' New Outside Temp Entries Added to Archive File')
+
+        # Process Min/Max for Outside Temperature
+        cur.execute(
+            """SELECT 0 AS id, 'Outside Temp' AS name, MAX(payload) AS max, MIN(payload) AS min, DATE(datetime) DateOnly
+               FROM messages_in
+               WHERE node_id = '1' AND child_id = 0 AND datetime > %s
+               GROUP BY DateOnly
+               ORDER BY datetime ASC;""",
+            (archive_pointer,),
+        )
+
+        mrows = cur.fetchall()
+
+        # Continue only if there are rows returned.
+        if mrows:
+            update_flag = True
+            for row in mrows:
+                # Write result to table.
+                cur.execute(
+                    "INSERT INTO `sensor_min_max_graph`(`sensor_id`, `name`, `max`, `min`, `date`) VALUES(%s,%s,%s,%s,%s)",
+                    (row[0], row[1], row[2], row[3], row[4]),
+                )
+                con.commit()
+
+            print(bc.dtm + time.ctime() + bc.ENDC + ' - ' + str(cur.rowcount) + ' New Max/Min Outside Temp Entries Added to Archive File')
 
         else:
             print(bc.dtm + time.ctime() + bc.ENDC + ' - NO New Outside Temp Added to Archive File')

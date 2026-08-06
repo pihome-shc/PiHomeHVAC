@@ -96,15 +96,15 @@ function ShowWeather($conn)
     $weather = mysqli_fetch_array($result);
     $c_f = settings($conn, 'c_f');
 
-    echo 'Outside: ' .DispTemp($conn,$weather['c']). '&deg;&nbsp;';
+    echo '<strong class="rfooter">Outside: ' .DispTemp($conn,$weather['c']). '&deg;';
     if($c_f==1 || $c_f=='1')
-        echo 'F';
+        echo 'F</strong>';
     else
-        echo 'C';
+        echo 'C</strong>';
     $Img='images/' . $weather['img'] . '.png';
     if(file_exists($Img))
-        echo '<span><img border="0" width="24" src="' . $Img . '" title="' . $weather['title'] . ' - ' . $weather['description'] . '"></span>';
-    echo '<span>' . $weather['title'] . ' - ' . $weather['description'] . '</span>';
+        echo '<strong class="rfooter"><span><img border="0" width="30" src="' . $Img . '" title="' . $weather['title'] . ' - ' . $weather['description'] . '"></span></strong>';
+    echo '<strong class="rfooter"><span>' . $weather['title'] . ' - ' . $weather['description'] . '</span></strong>';
 }
 
 //ref: http://stackoverflow.com/questions/14721443/php-convert-seconds-into-mmddhhmmss
@@ -619,7 +619,11 @@ function getIndicators($conn, $zone_mode, $zone_temp_target)
                 	//if not coop start waiting for the system_controller
                 	if($zone_mode_sub <> 3){
                         	$shactive='bi-clock';
-                		$shcolor='';
+                                if($zone_mode_sub <> 8){
+                                        $shcolor='';
+                                } else {
+                                        $shcolor='red';
+                                }
                 	}
                 	//if coop start waiting for the system_controller
                 	else{
@@ -1089,6 +1093,48 @@ function live_temp($conn,$button) {
 	<h3 class="degre" style="margin-top:5px;"><img src="images/'.$icon.'" border="0"></h3>
 	<h3 class="status"><small class="statuscircle"><i class="bi bi-circle-fill '.$lt_status.'" style="font-size: 0.55rem;"></i></small></h3>
 	</button>';
+}
+
+function disable_summer($conn,$button) {
+        global $button_style;
+
+        $query = "SELECT * FROM system_controller LIMIT 1";
+        $result = $conn->query($query);
+        $row = mysqli_fetch_array($result);
+        $sc_mode = $row['sc_mode'];
+
+        $query = "SELECT * FROM summer LIMIT 1";
+        $result = $conn->query($query);
+        $summer = mysqli_fetch_array($result);
+        if ($summer['status']=='1') {
+                if ($summer['summer_winter'] == 0) {
+                        $summerstatus="blueinfo";
+                } else {
+                        $summerstatus="";
+                }
+                $summer_state = "OFF";
+        } elseif ($summer['status']=='0' || $sc_mode == 0) {
+                if ($summer['summer_winter'] == 0) {
+                        $summerstatus="red";
+                } else {
+                        $summerstatus="";
+                }
+                $summer_state = "ON";
+        }
+        if ($summer['summer_winter'] == 0) {
+                $summer_winter = $lang["summer"];
+        } else {
+                $summer_winter = $lang["winter"];
+        }
+        if ($sc_mode != 0 ) {
+                echo '<button type="button" class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-circle no-shadow '.$button_style.' mainbtn" onclick="active_summer()">';
+        } else {
+                echo '<button type="button" class="btn btn-bm-'.theme($conn, settings($conn, 'theme'), 'color').' btn-circle no-shadow '.$button_style.' mainbtn">';
+        }
+        echo '<h3 class="buttontop"><small>'.$button.'</small></h3>
+        <h3 class="degre" id="bs0_7">'.$summer_state.'</h3>
+        <h3 class="status"><small class="statuscircle" id="bs1_7"><i class="bi bi-circle-fill '.$summerstatus.'" style="font-size: 0.55rem;"></i></small><small class="statuszoon" id="bs2_7">'.$summer_winter.'</small>
+        </h3></button>';
 }
 
 function enc_passwd($plain_password) {

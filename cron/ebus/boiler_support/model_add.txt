@@ -1,0 +1,42 @@
+// Reset Boiler Modal
+echo '
+<div class="modal fade" id="reboot_boiler" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['reset_boiler'].'</h5>
+            </div>
+            <div class="modal-body">
+                        <p class="text-muted"> <i class="bi bi-bootstrap-reboot purple" style="font-size: 1.2rem;"></i>&nbsp'.$lang['reset_boiler_text'].' </p>
+
+            </div>
+            <div class="modal-footer">
+                        <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['cancel'].'</button>
+                        <a href="javascript:reset_boiler()" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm">'.$lang['yes'].'</a>
+            </div>
+        </div>
+    </div>
+</div>';
+
+// power Cycle Boiler Modal
+echo '
+<div class="modal fade" id="boiler_power_cycle" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header '.theme($conn, $theme, 'text_color').' bg-'.theme($conn, $theme, 'color').'">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">x</button>
+                <h5 class="modal-title">'.$lang['boiler_power'].'</h5>
+            </div>
+            <div class="modal-body">
+                        <p class="text-muted"> <i class="bi bi-repeat red" style="font-size: 1.2rem;"></i>&nbsp'.$lang['boiler_power_cycle_text'].' </p>
+
+            </div>
+            <div class="modal-footer">
+                        <button type="button" class="btn btn-primary-'.theme($conn, $theme, 'color').' btn-sm" data-bs-dismiss="modal">'.$lang['cancel'].'</button>
+                        <a href="javascript:boiler_power_cycle()" class="btn btn-bm-'.theme($conn, $theme, 'color').' login btn-sm">'.$lang['yes'].'</a>
+            </div>
+        </div>
+    </div>
+</div>';
+

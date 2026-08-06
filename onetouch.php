@@ -26,6 +26,7 @@ require_once(__DIR__.'/st_inc/functions.php');
 
 if(settings($conn, 'language') == "sk" || settings($conn, 'language') == "de") { $button_style = "btn-xxl-wide"; } else { $button_style = "btn-xxl"; }
 $page_refresh = page_refresh($conn);
+$page_timeout = settings($conn, 'page_timeout');
 $theme = settings($conn, 'theme');
 ?>
 <div class="container-fluid ps-0 pe-0">
@@ -150,6 +151,33 @@ $(document).ready(function(){
   var delay = '<?php echo $page_refresh ?>';
   var live_temp_zone_id = document.getElementById("zone_id").value;
 
+(function() {
+
+    const idleDurationSecs = '<?php echo $page_timeout ?>';    // X number of seconds
+    if (idleDurationSecs != 0) {
+        const redirectUrl = 'home.php?page_name=homelist';  // ADD URL IN WICH YOU WANNA REDIRECT USERS es. yourpage.com/home
+        let idleTimeout; // variable to hold the timeout, do not modify
+
+        const resetIdleTimeout = function() {
+
+            // Clears the existing timeout
+            if(idleTimeout) clearTimeout(idleTimeout);
+
+            // Set a new idle timeout to load the redirectUrl after idleDurationSecs
+            idleTimeout = setTimeout(() => location.href = redirectUrl, idleDurationSecs * 1000);
+        };
+
+        // Init on page load
+        resetIdleTimeout();
+
+        // Reset the idle timeout on any of the events listed below
+        ['click', 'touchstart', 'mousemove', 'scroll'].forEach(evt =>
+            document.addEventListener(evt, resetIdleTimeout, false)
+        );
+    }
+
+})();
+
   (function loop() {
     //load() method fetch data from fetch.php page
     var data2 = '<?php echo $js_button_params ?>';
@@ -161,6 +189,7 @@ $(document).ready(function(){
 	      if (obj2[y].button_function == "live_temp") {
     		$('#load_temp').load("ajax_fetch_data.php?id=" + live_temp_zone_id + "&type=38").fadeIn("slow");
 	      }
+              $('#bs0_' + obj2[y].button_id).load("ajax_fetch_data.php?id=" + obj2[y].button_id + "&type=49").fadeIn("slow");
               $('#bs1_' + obj2[y].button_id).load("ajax_fetch_data.php?id=" + obj2[y].button_id + "&type=11").fadeIn("slow");
               $('#bs2_' + obj2[y].button_id).load("ajax_fetch_data.php?id=" + obj2[y].button_id + "&type=12").fadeIn("slow");
 //	      console.log(obj2[y].button_name);

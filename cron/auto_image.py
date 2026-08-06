@@ -13,12 +13,12 @@ class bc:
 
 
 print(bc.hed + " ")
-print("    __  __                             _         ")
-print("   |  \/  |                    /\     (_)        ")
-print("   | \  / |   __ _  __  __    /  \     _   _ __  ")
-print("   | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| ")
-print("   | |  | | | (_| |  >  <   / ____ \  | | | |    ")
-print("   |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
+print(r"    __  __                             _         ")
+print(r"   |  \/  |                    /\     (_)        ")
+print(r"   | \  / |   __ _  __  __    /  \     _   _ __  ")
+print(r"   | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| ")
+print(r"   | |  | | | (_| |  >  <   / ____ \  | | | |    ")
+print(r"   |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
 print(" ")
 print("             " +bc.SUB + "S M A R T   THERMOSTAT " + bc.ENDC)
 print("********************************************************")
@@ -156,15 +156,6 @@ if ai_result[image_to_index['enabled']] == 1:
     if elapsed_time >= freq:
         con = mdb.connect(dbhost, dbuser, dbpass, dbname)
         cursorupdate = con.cursor()
-        print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Suspend Gateway and Controller Processing")
-        print("-" * line_len)
-        # put controller in test mode to suspend database activity
-        cursorupdate.execute(
-            "UPDATE `system` SET `test_mode`= 4;"
-        )
-        con.commit()
-        # create flag file to suspend Gatewau processing
-        running_flag = file = open('/tmp/db_cleanup_running', 'w+')
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Creating System Image File")
         print("-" * line_len)
         # Image file path
@@ -184,14 +175,6 @@ if ai_result[image_to_index['enabled']] == 1:
         print("-" * line_len)
         print(bc.blu + (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Restore Gateway and Controller Processing")
         print("-" * line_len)
-
-        # remove the flag file and clear test_mode
-        if os.path.exists('/tmp/db_cleanup_running'):
-            os.remove('/tmp/db_cleanup_running')
-        cursorupdate.execute(
-            "UPDATE `system` SET `test_mode`= 0;"
-        )
-        con.commit()
 
         # Record datetime of backup creation
         cursorupdate.execute(

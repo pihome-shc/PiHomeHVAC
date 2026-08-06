@@ -48,8 +48,6 @@ echo '<div class="container-fluid">
                 <!-- /.col-lg-4 -->
         </div>
 	<!-- /.row -->
-        <div class="d-flex justify-content-center" style="margin-top:20px">'.settings($conn, "name").' '.settings($conn, "version")."&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;".$lang["build"]." ".settings($conn, "build").'</div>
-        <div class="d-flex justify-content-center" style="margin-top:10px">&copy;&nbsp;'.$lang["copyright"].'</div>
 </div>
 <!--  -->
 ';

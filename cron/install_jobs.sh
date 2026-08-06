@@ -11,7 +11,7 @@ echo "Creating Unit File: $FILE"
 sudo cat <<EOT >> /lib/systemd/system/pihome_jobs_schedule.service
 [Unit]
 Description=Schedule
-After=network.target
+After=mariadb.service
 StartLimitIntervalSec=0
 
 [Service]

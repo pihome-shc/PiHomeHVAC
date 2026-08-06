@@ -53,6 +53,17 @@ Usage: image-compare [options] pathto/imagefile
 image-compare compares a running Raspbian system to an existing standard 'raw' image file and displays the incremental changes that image-backup would perform if run.
 
 
+image-config:
+
+Usage: image-config pathto/imagefile
+
+image-config customizes an image file with the following:
+
+User account/password
+WiFi credentials
+SSH status
+
+
 image-info:
 
 Usage: image-info [options] pathto/imagefile

@@ -50,16 +50,17 @@ if (isset($_POST['submit'])) {
     	$mqtt_off_message = $_POST['off_message'];
     	$mqtt_json_attribute = $_POST['json_attribute'];
         $state_message = isset($_POST['create_state_topic']) ? $_POST['create_state_topic'] : "0";
+        $brand_id = $_POST['brand_id'];
         $notice_interval = $_POST['notice_interval'];
         $min_value = $_POST['min_value'];
 	$mqtt_node_id = $nodes_node_id."-".$mqtt_child_id;
 
 	//Add or Edit MQTT Device record to mqtt_devices Table
 	if ($id == 0) {
-		$query = "INSERT INTO `mqtt_devices`(`id`, `child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`,
+		$query = "INSERT INTO `mqtt_devices`(`id`, `child_id`, `nodes_id`, `type`, `purge`, `brand`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`,
 			`last_seen`, `notice_interval`, `min_value`)
-                        VALUES ('{$id}', '{$mqtt_child_id}', '{$nodes_id}', {$mqtt_type_id}, '0', '{$mqtt_name}', '{$mqtt_topic}', '{$mqtt_on_message}', '{$mqtt_off_message}',
-			'{$mqtt_json_attribute}', NULL, '{$notice_interval}', '{$min_value}');";
+                        VALUES ('{$id}', '{$mqtt_child_id}', '{$nodes_id}', {$mqtt_type_id}, '0', '{$brand_id}', '{$mqtt_name}', '{$mqtt_topic}', '{$mqtt_on_message}',
+                        '{$mqtt_off_message}', '{$mqtt_json_attribute}', NULL, '{$notice_interval}', '{$min_value}');";
 	} else {
                 if ($mqtt_type_id == 0 || $mqtt_type_id == "0") {
 		        $query = "UPDATE `mqtt_devices` SET `child_id`= '{$mqtt_child_id}', `nodes_id`= '{$nodes_id}', `type`= '{$mqtt_type_id}',`purge`= '{$purge}',
@@ -67,7 +68,7 @@ if (isset($_POST['submit'])) {
 			`attribute`= '{$mqtt_json_attribute}', `notice_interval`= '{$notice_interval}', `min_value` = '{$min_value}' WHERE `id` = '{$id}';";
 		} else {
                         $query = "UPDATE `mqtt_devices` SET `child_id`= '{$mqtt_child_id}', `nodes_id`= '{$nodes_id}', `type`= '{$mqtt_type_id}',`purge`= '{$purge}',
-                        `name`= '{$mqtt_name}', `mqtt_topic`= '{$mqtt_topic}', `on_payload`= '{$mqtt_on_message}', `off_payload`= '{$mqtt_off_message}',
+                        `brand`= '{$brand_id}', `name`= '{$mqtt_name}', `mqtt_topic`= '{$mqtt_topic}', `on_payload`= '{$mqtt_on_message}', `off_payload`= '{$mqtt_off_message}',
                         `attribute`= '{$mqtt_json_attribute}' WHERE `id` = '{$id}';";
 		}
 	}
@@ -85,27 +86,34 @@ if (isset($_POST['submit'])) {
         // if a controller device the Add/Edit the correstonding STATE entry
         if ($mqtt_type_id == 1 || $mqtt_type_id == "1") {
 		if ($state_message == "1") {
-                        $mqtt_attribute = substr($mqtt_topic, strrpos($mqtt_topic, '/') + 1);
-        	        $mqtt_topic = str_replace("cmnd","tele",$mqtt_topic);
-			$mqtt_topic = preg_replace('/POWER.*/', 'STATE', $mqtt_topic);
+                        if ($brand_id == 0 || $brand_id == 4) {
+        	        	$mqtt_topic = str_replace("cmnd","stat",$mqtt_topic);
+				$mqtt_topic = preg_replace('/POWER.*/', 'RESULT', $mqtt_topic);
+                        	$mqtt_attribute = "empty";
+			} else {
+//				$mqtt_topic = substr($mqtt_topic, 0, strpos($mqtt_topic, "/",  strpos($mqtt_topic, "/") + 1));
+				$mqtt_attribute = substr($mqtt_topic, strrpos($mqtt_topic, '/') + 1);
+				$mqtt_topic = preg_replace('/set.*/', 'get', $mqtt_topic);
+			}
 	                if ($id == 0) {
-		                $query = "INSERT INTO `mqtt_devices`(`child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`,
+		                $query = "INSERT INTO `mqtt_devices`(`child_id`, `nodes_id`, `type`, `purge`, `brand`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`,
                 		        `last_seen`, `notice_interval`, `min_value`)
-                	                VALUES ('{$mqtt_child_id}', '{$nodes_id}', 0, '0', '{$mqtt_name}', '{$mqtt_topic}', '', '', '{$mqtt_attribute}',
+                	                VALUES ('{$mqtt_child_id}', '{$nodes_id}', 0, '0', '{$brand_id}', '{$mqtt_name}', '{$mqtt_topic}', '', '', '{$mqtt_attribute}',
 					NULL, '{$notice_interval}', '{$min_value}');";
 	                } else {
         	                $found_product = "SELECT * FROM `mqtt_devices` WHERE `nodes_id` = '{$nodes_id}' AND `child_id` = '{$mqtt_child_id}' AND `type` = 0 LIMIT 1;";
                 	        $result = $conn->query($found_product);
                         	$count = $result->num_rows;
 	                        if ($count == 0) {
-			                $query = "INSERT INTO `mqtt_devices`(`child_id`, `nodes_id`, `type`, `purge`, `name`, `mqtt_topic`, `on_payload`, `off_payload`, `attribute`,
-                        			`last_seen`, `notice_interval`, `min_value`)
-                	                        VALUES ('{$mqtt_child_id}', '{$nodes_id}', 0, '0', '{$mqtt_name}', '{$mqtt_topic}', '', '', '{$mqtt_attribute}',
+			                $query = "INSERT INTO `mqtt_devices`(`child_id`, `nodes_id`, `type`, `purge`, `brand`, `name`, `mqtt_topic`, `on_payload`, `off_payload`,
+						`attribute`, `last_seen`, `notice_interval`, `min_value`)
+                	                        VALUES ('{$mqtt_child_id}', '{$nodes_id}', 0, '0', '{$brand_id}', '{$mqtt_name}', '{$mqtt_topic}', '', '', '{$mqtt_attribute}',
 						NULL, '{$notice_interval}', '{$min_value}');";
                         	} else {
 					$found_product = mysqli_fetch_array($result);
-                                	$query = "UPDATE `mqtt_devices` SET `child_id`= '{$mqtt_child_id}',`nodes_id`= '{$nodes_id}',`type`= '0',`purge`= '{$purge}',`name`= '{$mqtt_name}',
-                                        	`mqtt_topic`= '{$mqtt_topic}',`on_payload`= '',`off_payload`= '',`attribute`= '{$mqtt_attribute}', `notice_interval`= '{$notice_interval}',`min_value` = '{$min_value}' WHERE `id` = {$found_product['id']};";
+                                	$query = "UPDATE `mqtt_devices` SET `child_id`= '{$mqtt_child_id}',`nodes_id`= '{$nodes_id}',`type`= '0',`purge`= '{$purge}',`brand`= '{$brand_id}',
+						`name`= '{$mqtt_name}', `mqtt_topic`= '{$mqtt_topic}',`on_payload`= '',`off_payload`= '',`attribute`= '{$mqtt_attribute}',
+						`notice_interval`= '{$notice_interval}', `min_value` = '{$min_value}' WHERE `id` = {$found_product['id']};";
 	                        }
         	        }
 	        	$result = $conn->query($query);
@@ -266,6 +274,8 @@ if (isset($_POST['submit'])) {
                                                                 document.getElementById("off_message_label").style.visibility = 'hidden';
                                                                 document.getElementById("json_attribute").style.display = 'block';
                                                                 document.getElementById("json_attribute_label").style.visibility = 'visible';
+                                                                document.getElementById("mqtt_type").style.display = 'none';
+                                                                document.getElementById("brand_label").style.visibility = 'hidden';
                                                                 document.getElementById("notice_interval").style.display = 'block';
                                                                 document.getElementById("notice_interval_label").style.visibility = 'visible';
                                                                 document.getElementById("min_value").style.display = 'block';
@@ -280,11 +290,15 @@ if (isset($_POST['submit'])) {
                                                                 document.getElementById("json_attribute").style.display = 'none';
                                                                 document.getElementById("json_attribute_label").style.visibility = 'hidden';
 								if (statetext == "") {
+                                                                        document.getElementById("mqtt_type").style.display = 'none';
+                                                                        document.getElementById("brand_label").style.visibility = 'hidden';
                                                                 	document.getElementById("notice_interval").style.display = 'none';
                                                                 	document.getElementById("notice_interval_label").style.visibility = 'hidden';
                                                                 	document.getElementById("min_value").style.display = 'none';
                                                                 	document.getElementById("min_value_label").style.visibility = 'hidden';
 								} else {
+                                                                        document.getElementById("mqtt_type").style.display = 'block';
+                                                                        document.getElementById("brand_label").style.visibility = 'visible';
                                                                         document.getElementById("notice_interval").style.display = 'block';
                                                                         document.getElementById("notice_interval_label").style.visibility = 'visible';
                                                                         document.getElementById("min_value").style.display = 'block';
@@ -332,6 +346,28 @@ if (isset($_POST['submit'])) {
 	                                                <div class="help-block with-errors"></div>
         	                                </div>
 
+                                                <!-- Brand -->
+							<input type="hidden" id="brand_id" name="brand_id" value="<?php if(isset($row['brand'])) { echo $row['brand']; } else { echo '0'; }?>"/>
+                                                        <div class="form-group" class="control-label" id="brand_label" style="display:block"><label><?php echo$lang['brand']; ?></label> <small class="text-muted"><?php echo $lang['brand_info'];?></small>
+                                                        <select id="mqtt_type" name="mqtt_type" class="form-control select2" onchange=DevManID(this.options[this.selectedIndex].value)>
+                						<?php echo '<option ' . ($row['brand'] == 0 ? 'selected' : '') . ' value = 0>Tasmota</option>';?>
+                                                                <?php echo '<option ' . ($row['brand'] == 1 ? 'selected' : '') . ' value = 1>Shelly</option>';?>
+                                                                <?php echo '<option ' . ($row['brand'] == 2 ? 'selected' : '') . ' value = 2>Sonoff</option>';?>
+                                                                <?php echo '<option ' . ($row['brand'] == 3 ? 'selected' : '') . ' value = 3>Tuya</option>';?>
+                                                                <?php echo '<option ' . ($row['brand'] == 4 ? 'selected' : '') . ' value = 4>Other</option>';?>
+                                                        </select>
+                                                        <div class="help-block with-errors"></div>
+                                                </div>
+
+                                                <script language="javascript" type="text/javascript">
+                                                        function DevManID(value)
+                                                                {
+                                                                var valuetext = value;
+
+                                                                document.getElementById("brand_id").value = valuetext;
+                                                        }
+                                                </script>
+
                                                 <!-- Notice Interval -->
 							<div class="form-group" class="control-label" id="notice_interval_label" style="display:block"><label><?php echo $lang['notice_interval']; ?></label> <small class="text-muted"><?php echo $lang['notice_interval_info'];?></small>
                                                         <select id="notice_interval" name="notice_interval" class="form-control select2" autocomplete="off">
@@ -365,10 +401,15 @@ if (isset($_POST['submit'])) {
 				<div class="card-footer card-footer-<?php echo theme($conn, $theme, 'color'); ?>">
 					<div class="text-start">
 						<?php
+						if(isset($row['brand'])) { $b_id = $row['brand']; } else { $b_id = 0; }
 						echo '<script type="text/javascript">',
      						'sensor_controller("'.$row['type'].'");',
      						'</script>'
 						;
+                                                echo '<script type="text/javascript">',
+                                                'DevManID("'.$b_id.'");',
+                                                '</script>'
+                                                ;
 						ShowWeather($conn);
 						?>
 					</div>

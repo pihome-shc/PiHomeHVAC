@@ -13,18 +13,18 @@ class bc:
 
 
 print(bc.hed + " ")
-print("            __  __                             _         ")
-print("           |  \/  |                    /\     (_)        ")
-print("           | \  / |   __ _  __  __    /  \     _   _ __  ")
-print("           | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| ")
-print("           | |  | | | (_| |  >  <   / ____ \  | | | |    ")
-print("           |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
+print(r"    __  __                             _         ")
+print(r"   |  \/  |                    /\     (_)        ")
+print(r"   | \  / |   __ _  __  __    /  \     _   _ __  ")
+print(r"   | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| ")
+print(r"   | |  | | | (_| |  >  <   / ____ \  | | | |    ")
+print(r"   |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
 print(" ")
 print("                       " +bc.SUB + "S M A R T   THERMOSTAT " + bc.ENDC)
 print("      ********************************************************")
 print("      *          Script to send status Email messages        *")
 print("      *                Build Date: 26/10/2021                *")
-print("      *      Version 0.08 - Last Modified 08/07/2025         *")
+print("      *      Version 0.08 - Last Modified 14/02/2026         *")
 print("      *                                 Have Fun - PiHome.eu *")
 print("      ********************************************************")
 print(" ")
@@ -539,10 +539,10 @@ try:
             id = i[sensor_to_index['id']]
             name = i[sensor_to_index['name']]
             notice_interval = i[sensor_to_index['fail_timeout']]
-            lst_seen = i[sensor_to_index['last_seen']]
+            last_seen = i[sensor_to_index['last_seen']]
             timeDifference = (datetime.datetime.now() - last_seen)
             time_difference_in_minutes = (timeDifference.days * 24 * 60) + (timeDifference.seconds / 60)
-            message = name + " " + str(id) + " last reported on " + str(last_seen)
+            message = "TIMEOUT ALERT - Sensor " + name + " " + str(id) + " last reported on " + str(last_seen)
             # select any records in the notice table which match the current message
             query = ("SELECT * FROM notice WHERE message = '" + message + "'")
             cursorsel = con.cursor()
@@ -570,7 +570,7 @@ try:
                 cursorupdate.close()
                 con.commit()
             else:  # node has now reported so delete any 'notice' records
-                query = "DELETE FROM notice WHERE message LIKE '" + name + " " + str(id) + "%'"
+                query = "DELETE FROM notice WHERE message LIKE '%" + name + " " + str(id) + "%'"
                 cursordelete = con.cursor()
                 cursordelete.execute(query)
                 cursordelete.close()

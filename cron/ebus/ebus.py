@@ -1,351 +1,657 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
+# =============================================================================
+# Console colours
+# =============================================================================
 class bc:
-    hed = '\033[95m'
-    dtm = '\033[0;36;40m'
+    hed = "\033[95m"
     ENDC = '\033[0m'
-    SUB = '\033[3;30;45m'
+    SUB = "\033[3;30;45m"
     WARN = '\033[0;31;40m'
-    grn = '\033[0;32;40m'
-    wht = '\033[0;37;40m'
-    ylw = '\033[93m'
+    grn  = '\033[0;32;40m'
+    wht  = '\033[0;37;40m'
     fail = '\033[91m'
-    blu = '\033[36m'
-
+    blu  = '\033[36m'
+    dtm = "\033[0;36;40m"
 
 print(bc.hed + " ")
-print("    __  __                             _         ")
-print("   |  \/  |                    /\     (_)        ")
-print("   | \  / |   __ _  __  __    /  \     _   _ __  ")
-print("   | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| ")
-print("   | |  | | | (_| |  >  <   / ____ \  | | | |    ")
-print("   |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
+print(r"    __  __                             _         ")
+print(r"   |  \/  |                    /\     (_)        ")
+print(r"   | \  / |   __ _  __  __    /  \     _   _ __  ")
+print(r"   | |\/| |  / _` | \ \/ /   / /\ \   | | | '__| ")
+print(r"   | |  | | | (_| |  >  <   / ____ \  | | | |    ")
+print(r"   |_|  |_|  \__,_| /_/\_\ /_/    \_\ |_| |_|    ")
 print(" ")
 print("             " +bc.SUB + "S M A R T   THERMOSTAT " + bc.ENDC)
 print("********************************************************")
 print("*  Script to read data from an eBUS Boiler interface   *")
 print("*             and store in message_in queue.           *")
 print("*                Build Date: 05/08/2022                *")
-print("*      Version 0.02 - Last Modified 19/12/2022         *")
+print("*      Version 0.03 - Last Modified 11/06/2026         *")
 print("*                                 Have Fun - PiHome.eu *")
 print("********************************************************")
 print(" ")
 print(" " + bc.ENDC)
 
 import time
-from datetime import datetime
-import string
-import os
 import sys
+import socket
+from datetime import datetime
 import MySQLdb
-import schedule
+import MySQLdb.cursors
+from configparser import ConfigParser
 
-try:
-    from configparser import ConfigParser
-except ImportError:
-    from configparser import ConfigParser
+# =============================================================================
+# Constants
+# =============================================================================
+MAX_RETRIES      = 10
+RETRY_SLEEP_BASE = 0.05
+TCP_RETRIES      = 3
+TCP_BACKOFF_BASE = 0.05
+EBUSD_MAX_MSG_AGE = "5" # maximum age of cached ebusd message
+line_len = 60; #length of seperator lines
 
-# *****************************************************************************
-# write the command message to ebusd and capture response
-# *****************************************************************************
-def Transact(command):
+def log_error(context, err):
+    print(f"{bc.fail}[{context}] {err}{bc.ENDC}")
 
-    global symbol_error_count
-    global sync_error_count
-    global element_error_count
-    global timeout_error_count
-    global nosignal_error_count
-    global error_count
-    global EBUS_Counter
 
-    # Check if EBus is connected
-    ebusd_status = os.system('systemctl is-active --quiet ebusd')
-    if ebusd_status == 0:
-       counter = 0
-       response = os.popen('ebusctl read -f ' + command).read()
-       while response.find('ERR:') == 1 and counter < 10:
-          time.sleep(0.1)
-          response = os.popen('ebusctl read -f ' + command).read()
-          counter = counter + 1
-       if response.find('ERR: wrong symbol received') != -1:
-          symbol_error_count = symbol_error_count + 1
-          fault = 1
-          response = ''
-          EBUS_Counter = EBUS_Counter + 1
-          return [fault, response]
-       elif response.find('ERR: SYN received') != -1:
-          sync_error_count = sync_error_count + 1
-          fault = 2
-          response = ''
-          EBUS_Counter = EBUS_Counter + 1
-          return [fault, response]
-       elif response.find('ERR: element not found') != -1:
-          element_error_count = element_error_count + 1
-          fault = 3
-          response = ''
-          EBUS_Counter = EBUS_Counter + 1
-          return [fault, response]
-       elif response.find('ERR: read timeout') != -1:
-          timeout_error_count = timeout_error_count + 1
-          fault = 4
-          response = ''
-          EBUS_Counter = EBUS_Counter + 1
-          return [fault, response]
-       elif response.find('ERR: no signal') != -1:
-          nosignal_error_count = nosignal_error_count + 1
-          fault = 5
-          response = ''
-          EBUS_Counter = EBUS_Counter + 1
-          return [fault, response]
-       elif response.find('ERR:') != -1:
-          error_count = error_count + 1
-          fault = 6
-          response = ''
-          EBUS_Counter = EBUS_Counter + 1
-          return [fault, response]
-       else:
-          fault = 0
-          return [fault, response]
-    else:
-       print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - eBUS Daemon Connection Lost")
-       print("------------------------------------------------------------------")
-       quit()
+def log_status(timestamp, message, text):
+    print(f"{bc.blu}{timestamp}{bc.wht} - {message} - {text}")
 
-########## Initialise the database access varables ##########
+# =============================================================================
+# Config
+# =============================================================================
 config = ConfigParser()
 config.read('/var/www/st_inc/db_config.ini')
 servername = config.get('db', 'hostname')
-username = config.get('db', 'dbusername')
-password = config.get('db', 'dbpassword')
-dbname = config.get('db', 'dbname')
-#############################################################
+username   = config.get('db', 'dbusername')
+password   = config.get('db', 'dbpassword')
+dbname     = config.get('db', 'dbname')
 
-# Initialise variables
-# ********************
-EBUS_Counter = 0
-symbol_error_count = 0
-sync_error_count = 0
-element_error_count = 0
-timeout_error_count = 0
-nosignal_error_count = 0
-error_count = 0
+# =============================================================================
+# ebusd TCP settings
+# =============================================================================
+EBUSD_HOST    = '127.0.0.1'
+EBUSD_PORT    = 8888
+EBUSD_TIMEOUT = 1
 
-# Initialise  database connection string
-# **************************************
-cnx = MySQLdb.connect(host=servername, user=username, passwd=password, db=dbname)
+# =============================================================================
+# DB connection
+# =============================================================================
+_db_conn = None
 
-last_readings = dict()
-last_date_time = dict()
 
-# =================================== MAIN BOILER PROCESS ==================================
-def boiler():
+def get_connection():
+    global _db_conn
+    try:
+        if _db_conn is None:
+            raise Exception("No connection")
+        _db_conn.ping(True)
+    except Exception:
+        _db_conn = MySQLdb.connect(
+            host=servername,
+            user=username,
+            passwd=password,
+            db=dbname,
+            cursorclass=MySQLdb.cursors.DictCursor
+        )
+    return _db_conn
 
-      global last_readings
-      global last_date_time
+# =============================================================================
+# Persistent TCP
+# =============================================================================
+_ebusd_socket = None
 
-      cnx = MySQLdb.connect(host=servername, user=username, passwd=password, db=dbname)
 
-      cursorselect = cnx.cursor()
-      cursorselect.execute('SELECT ebus_messages.*, sensors.sensor_type_id FROM ebus_messages, sensors WHERE sensors.id = ebus_messages.sensor_id;')
-      ebus_message_to_index = dict(
-         (d[0], i) for i, d in enumerate(cursorselect.description)
-      )
-      for msg in cursorselect.fetchall():
-         message = msg[ebus_message_to_index["message"]]
-         position = msg[ebus_message_to_index["position"]]
-         offset = int(msg[ebus_message_to_index["offset"]])
-         sensors_id = msg[ebus_message_to_index["sensor_id"]]
-         sensors_type_id = msg[ebus_message_to_index["sensor_type_id"]]
-         cursorselect.execute('SELECT * FROM sensors WHERE id = (%s)', (sensors_id, ))
-         sensor_to_index = dict(
-            (d[0], i) for i, d in enumerate(cursorselect.description)
-         )
-         result = cursorselect.fetchone()
-         if cursorselect.rowcount > 0 :
-            id = int(result[sensor_to_index["id"]])
-            sensor_id = int(result[sensor_to_index["sensor_id"]])
-            sensor_child_id = int(result[sensor_to_index["sensor_child_id"]])
-            sensor_name = result[sensor_to_index["name"]]
-            sensor_type_id = int(result[sensor_to_index["sensor_type_id"]])
-            graph_num = int(result[sensor_to_index["graph_num"]])
-            msg_in = result[sensor_to_index["message_in"]]
-            mode = result[sensor_to_index["mode"]]
-            sensor_timeout = int(result[sensor_to_index["timeout"]])*60
-            correction_factor = int(result[sensor_to_index["correction_factor"]])
-            resolution = float(result[sensor_to_index["resolution"]])
-            cursorselect.execute('SELECT node_id FROM nodes WHERE id = (%s)', (sensor_id, ))
-            result = cursorselect.fetchone()
-            if cursorselect.rowcount > 0 :
-               node_id = int(result[0])
+def _ebusd_connect(timeout=EBUSD_TIMEOUT):
+    global _ebusd_socket
 
-         no_reading = True
-         status = Transact(message)
-         if status[0] == 0 :
-            response = status[1]
-            if len(response) > 0:
-               no_reading = False
-               if ";" in response:
-                  response = response.split(";")[0]
-               elif " " in response:
-                  response = response.split(" ")[0]
-               elif "off" in response:
-                  response = 0
-               elif "on" in response:
-                  response = 1
-               else:
-                  response = response.rstrip()
-               response = float(response) +  offset
-         else :
-            fault = 1
+    if _ebusd_socket is not None:
+        return _ebusd_socket
 
-         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-         date_time = datetime.now()
-         tdelta = 0
-         if no_reading :
-            print(bc.blu + timestamp + bc.wht + " - " + message + " - No Response Message")
-         else :
-            # Update messages_in if required
-            # process NOT a temperature sensor
-            if sensor_type_id > 2 :
-               if last_readings[message] != response :
-                  print(bc.blu + timestamp + bc.wht + " - " + message + " - " + str(response))
-                  try :
-                     if msg_in == 1:
-                         cursorinsert = cnx.cursor()
-                         cursorinsert.execute('INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`) VALUES(%s,%s,%s,%s,%s,%s)', (0,0,node_id,sensor_child_id,position,response))
-                         cnx.commit()
-                         cursorinsert.close()
-                     cursorupdate = cnx.cursor()
-                     if position == 0:
-                         qry_str = "UPDATE `sensors` SET `current_val_1`  = {}, `last_seen`  = {} WHERE `sensor_id` = {} AND `sensor_child_id` = {} LIMIT 1;".format(response, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), sensor_id, sensor_child_id)
-                     else:
-                         qry_str = "UPDATE `sensors` SET `current_val_2`  = {}, `last_seen`  = {} WHERE `sensor_id` = {} AND `sensor_child_id` = {} LIMIT 1;".format(response, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), sensor_id, sensor_child_id)
-                     cursorupdate.execute(qry_str)
-                     cnx.commit()
-                     cursorupdate.close()
-                     last_readings[message] = response
-                     last_date_time[message] = date_time
-                  except :
-                     pass
-                  try :
-                     cursorupdate = cnx.cursor()
-                     cursorupdate.execute(
-                        "UPDATE `nodes` SET `last_seen`=%s, `sync`=0 WHERE id = %s",
-                        [timestamp, sensor_id],
-                     )
-                     cursorupdate.close()
-                     cnx.commit()
-                  except :
-                     pass
-               else :
-                  print(bc.blu + timestamp + bc.wht + " - " + message + " - No Change")
+    s = socket.create_connection(
+        (EBUSD_HOST, EBUSD_PORT),
+        timeout=timeout
+    )
+
+    s.settimeout(timeout)
+
+    _ebusd_socket = s
+    return s
+
+
+def _ebusd_disconnect():
+    global _ebusd_socket
+
+    if _ebusd_socket is not None:
+        try:
+            _ebusd_socket.close()
+        except Exception:
+            pass
+
+    _ebusd_socket = None
+
+
+def _ebusd_tcp(command, timeout=EBUSD_TIMEOUT):
+    global _ebusd_socket
+
+    for attempt in range(TCP_RETRIES):
+        try:
+            s = _ebusd_connect(timeout)
+
+            payload = f"{command}\n".encode()
+            s.sendall(payload)
+
+            chunks = []
+
+            while True:
+                chunk = s.recv(4096)
+
+                if not chunk:
+                    raise ConnectionError("ebusd closed connection")
+
+                chunks.append(chunk)
+
+                # ebusd responses terminate with newline
+                if b'\n' in chunk:
+                    break
+
+            return b''.join(chunks).decode().strip()
+
+        except (socket.timeout, OSError, ConnectionError) as e:
+
+            _ebusd_disconnect()
+
+            if attempt == TCP_RETRIES - 1:
+                log_error("ebusd not running", e)
+                sys.exit(0)
+
+            time.sleep(min(0.2, TCP_BACKOFF_BASE * (2 ** attempt)))
+
+# =============================================================================
+# eBUS helpers
+# =============================================================================
+def normalize_response(response):
+    if not response:
+        return response
+
+    response = response.strip()
+    resp = response.lower()
+
+    if resp == "off":
+        return "0"
+
+    if resp == "on":
+        return "1"
+
+    if ";" in response:
+        return response.split(";", 1)[0]
+
+    if " " in response:
+        return response.split(" ", 1)[0]
+
+    return response
+
+
+def transact(command):
+    counter = 0
+
+    while counter < MAX_RETRIES:
+        try:
+            response = _ebusd_tcp(f'read -m {EBUSD_MAX_MSG_AGE} {command}')
+
+            if "ERR:" not in response:
+                return (0, response)
+
+            time.sleep(min(0.2, RETRY_SLEEP_BASE * (2 ** counter)))
+            counter += 1
+
+        except socket.timeout:
+            return (4, '')
+
+        except OSError as e:
+            log_error("TCP ERROR", e)
+            return (6, '')
+
+    print(f"{bc.WARN}[RETRY FAIL] {command} → {response}{bc.ENDC}")
+    return (6, '')
+
+# =============================================================================
+# Weather compensation constants
+# =============================================================================
+A          = 2.55
+B          = 0.78
+T_SET      = 25.0
+HEAT_CURVE = 1.2
+
+OUT_NODE_ID    = 1
+OUT_CHILD_ID   = 0
+
+MAX_DELTA = 28.0
+
+MIN_WRITE_INTERVAL   = 1
+TEMP_WRITE_THRESHOLD = 1.0
+TEMP_HYSTERESIS      = 0.2
+MAX_SILENT_INTERVAL  = 600
+NO_CHANGE_SUPPRESS   = 300
+
+# =============================================================================
+# SetMode state
+# =============================================================================
+_last_written_temp   = None
+_last_write_ts       = 0.0
+_last_sent_ts        = None
+_target_stable_since = None
+_last_stable_target  = None
+
+# =============================================================================
+# DB helper
+# =============================================================================
+def _get_sensor_rows(cur, *node_child_pairs):
+    conditions = " OR ".join(
+        ["(node_id = %s AND child_id = %s)"] * len(node_child_pairs)
+    )
+
+    params = [v for pair in node_child_pairs for v in pair]
+
+    cur.execute(f"""
+        SELECT m1.node_id, m1.child_id, m1.payload
+        FROM messages_in m1
+        INNER JOIN (
+            SELECT node_id, child_id, MAX(id) AS max_id
+            FROM messages_in
+            WHERE {conditions}
+            GROUP BY node_id, child_id
+        ) m2 ON m1.node_id = m2.node_id
+            AND m1.child_id = m2.child_id
+            AND m1.id = m2.max_id
+    """, params)
+
+    result = {}
+
+    for row in cur.fetchall():
+        key = (int(row['node_id']), int(row['child_id']))
+
+        try:
+            result[key] = float(row['payload'])
+        except (TypeError, ValueError):
+            result[key] = None
+
+    return result
+
+# =============================================================================
+# SetMode helpers
+# =============================================================================
+def _should_write(temp):
+    if _last_written_temp is None:
+        return True
+
+    return abs(temp - _last_written_temp) >= TEMP_WRITE_THRESHOLD
+
+
+def _can_write(now):
+    return (now - _last_write_ts) >= MIN_WRITE_INTERVAL
+
+
+def _force_keepalive(now):
+    if _last_sent_ts is None:
+        return True
+
+    return (now - _last_sent_ts) >= MAX_SILENT_INTERVAL
+
+
+def _is_target_stable_too_long(target, now):
+    global _target_stable_since, _last_stable_target
+
+    if target != _last_stable_target:
+        _last_stable_target = target
+        _target_stable_since = now
+        return False
+
+    if _target_stable_since is None:
+        _target_stable_since = now
+        return False
+
+    return (now - _target_stable_since) >= NO_CHANGE_SUPPRESS
+
+# =============================================================================
+# eBUS send
+# =============================================================================
+def _send_ebus(temp):
+    global _last_written_temp, _last_write_ts, _last_sent_ts
+
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        if 'SetMode' in open('/etc/ebusd/en/08.bai.csv').read():
+            payload = f"0;{temp};-;-;-;0;0;0;-;0;0;0"
+            command = f'write -c bai SetMode {payload}'
+            try:
+                response = _ebusd_tcp(command)
+
+                if response == '' or response.lower() in ('done', 'empty'):
+                    now = time.time()
+                    _last_written_temp = temp
+                    _last_write_ts = now
+                    _last_sent_ts = now
+
+                    log_status(timestamp, "SetMode sent", str(temp) + "°C")
+                    return True
+
+                log_error("EBUS WRITE", response)
+                return False
+
+            except Exception as e:
+                log_error("EBUS TCP", e)
+                return False
+        else:
+                log_status(timestamp, "SetMode", "NOT defined in csv file.")
+                return True
+    except:
+        log_status(timestamp, "/etc/ebusd/en/08.bai.csv", "File NOT Present.")
+        return True
+
+# =============================================================================
+# Hot-water relay check
+# =============================================================================
+def _is_hw_relay_on(cur):
+    cur.execute("""
+        SELECT 1
+        FROM zone_current_state
+        JOIN zone ON zone_current_state.zone_id = zone.id
+        WHERE zone_current_state.mode IN (61, 81)
+          AND zone.type_id = 3
+        LIMIT 1
+    """)
+
+    return cur.fetchone() is not None
+
+# =============================================================================
+# set_mode
+# =============================================================================
+def set_mode(conn):
+    now = time.time()
+
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT `s`.`name`, `n`.`node_id`, s.sensor_child_id
+        FROM `sensors` `s`
+        JOIN `nodes` `n` ON `n`.`id` = `s`.`sensor_id`
+        WHERE `s`.`name` = 'Boiler Flow' OR `s`.`name` = 'Boiler Return';
+    """)
+    for row in cur.fetchall():
+        if 'Boiler Flow' in row['name']:
+            flow_node_id = int(row['node_id'])
+            flow_child_id = int(row['sensor_child_id'])
+        else:
+            return_node_id = int(row['node_id'])
+            return_child_id = int(row['sensor_child_id'])
+
+    try:
+        with conn.cursor() as cur:
+            rows = _get_sensor_rows(
+                cur,
+                (OUT_NODE_ID, OUT_CHILD_ID),
+                (flow_node_id, flow_child_id),
+                (return_node_id, return_child_id),
+            )
+
+            Tout = rows.get((OUT_NODE_ID, OUT_CHILD_ID))
+
+            if Tout is None:
+                log_error("SETMODE", "No outdoor temp in DB — skipping")
+                return
+
+            target = T_SET + A * ((T_SET - Tout) * HEAT_CURVE) ** B
+
+            if _is_hw_relay_on(cur):
+                target = 60.0
+
+            flow = rows.get((flow_node_id, flow_child_id))
+            ret  = rows.get((return_node_id, return_child_id))
+
+            if flow is not None and ret is not None:
+                delta = flow - ret
+
+                if delta > MAX_DELTA:
+                    clamped = ret + MAX_DELTA
+
+                    print(
+                        f"{bc.WARN}[ΔT CLAMP] flow={flow}°C ret={ret}°C "
+                        f"ΔT={delta:.1f} > {MAX_DELTA} — "
+                        f"target clamped {target:.1f}→{clamped:.1f}°C{bc.ENDC}"
+                    )
+
+                    target = min(target, clamped)
+
+            target = round(target, 1)
+
+            if _last_written_temp is not None:
+                if abs(target - _last_written_temp) < TEMP_HYSTERESIS:
+                    target = _last_written_temp
+
+            keepalive = _force_keepalive(now)
+            stable = _is_target_stable_too_long(target, now)
+
+            if not _can_write(now):
+                return
+
+            if stable and not keepalive:
+                return
+
+            if _should_write(target) or keepalive:
+                _send_ebus(target)
+
+    except Exception as e:
+        log_error("SETMODE", e)
+
+# =============================================================================
+# Boiler read loop
+# =============================================================================
+last_readings = {}
+last_date_time = {}
+
+
+def boiler(conn):
+    global last_readings, last_date_time
+
+    with conn.cursor() as cursor:
+        cursor.execute("""
+            SELECT
+                em.message, em.position, em.offset, em.sensor_id,
+                s.id as sensor_db_id, s.sensor_id, s.sensor_child_id,
+                s.name as sensor_name, s.sensor_type_id, s.graph_num,
+                s.message_in, s.mode, s.timeout,
+                s.correction_factor, s.resolution,
+                n.node_id
+            FROM ebus_messages em
+            JOIN sensors s ON s.id = em.sensor_id
+            JOIN nodes   n ON n.id = s.sensor_id
+        """)
+
+        rows = cursor.fetchall()
+
+        msg_inserts = []
+        sensor_updates_1 = []
+        sensor_updates_2 = []
+        graph_inserts = []
+        graph_deletes = set()
+        node_updates = {}
+
+        for msg in rows:
+            date_time = datetime.now()
+
+            message = msg['message']
+            position = msg['position']
+            offset = int(msg['offset'])
+            id_ = int(msg['sensor_db_id'])
+            sensor_id = int(msg['sensor_id'])
+            sensor_child_id = int(msg['sensor_child_id'])
+            sensor_name = msg['sensor_name']
+            sensor_type_id = int(msg['sensor_type_id'])
+            graph_num = int(msg['graph_num'])
+            msg_in = msg['message_in']
+            mode = msg['mode']
+            sensor_timeout = int(msg['timeout']) * 60
+            correction_factor = int(msg['correction_factor'])
+            resolution = float(msg['resolution'])
+            node_id = int(msg['node_id'])
+
+            status = transact(message)
+
+            if status[0] != 0 or not status[1]:
+                timestamp = date_time.strftime("%Y-%m-%d %H:%M:%S")
+                log_status(timestamp, message, "No Response")
+                continue
+
+            response = normalize_response(status[1])
+
+            try:
+                response = float(response) + offset
+            except ValueError:
+                print(f"{bc.fail}[PARSE ERROR] '{response}' for {message}{bc.ENDC}")
+                continue
+
+            last_val = last_readings.get(message)
+            last_time = last_date_time.get(message, date_time)
+
+            timestamp = date_time.strftime("%Y-%m-%d %H:%M:%S")
+
+            if sensor_type_id > 2:
+                if last_val != response:
+                    log_status(timestamp, message, response)
+
+                    if msg_in == 1:
+                        msg_inserts.append((0, 0, node_id, sensor_child_id, position, response))
+
+                    if position == 0:
+                        sensor_updates_1.append((response, id_))
+                    else:
+                        sensor_updates_2.append((response, id_))
+
+                    node_updates[sensor_id] = (timestamp, sensor_id)
+
+                    last_readings[message] = response
+                    last_date_time[message] = date_time
+                else:
+                    log_status(timestamp, message, "No Change")
+
             else:
-               # process temperature sensor
-               response = response + correction_factor
-               if mode == 1:
-                  tdelta = (datetime.now() - last_date_time[message]).total_seconds()
-               if mode == 0 or (mode == 1 and (response < last_readings[message] - resolution or response > last_readings[message] + resolution) or tdelta > sensor_timeout):
-                  print(bc.blu + timestamp + bc.wht + " - " + message + " - " + str(response))
-                  try :
-                     if msg_in == 1:
-                         cursorinsert = cnx.cursor()
-                         cursorinsert.execute('INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`) VALUES(%s,%s,%s,%s,%s,%s)', (0,0,node_id,sensor_child_id,position,response))
-                         cnx.commit()
-                         cursorinsert.close()
-                     cursorupdate = cnx.cursor()
-                     if position == 0:
-                         qry_str = "UPDATE `sensors` SET `current_val_1`  = {}, `last_seen`  = {} WHERE `sensor_id` = {} AND `sensor_child_id` = {} LIMIT 1;".format(response, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), sensor_id, sensor_child_id)
-                     else:
-                         qry_str = "UPDATE `sensors` SET `current_val_2`  = {}, `last_seen`  = {} WHERE `sensor_id` = {} AND `sensor_child_id` = {} LIMIT 1;".format(response, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), sensor_id, sensor_child_id)
-                     cursorupdate.execute(qry_str)
-                     cnx.commit()
-                     cursorupdate.close()
-                  except :
-                     pass
-                  try :
-                     cursorupdate = cnx.cursor()
-                     cursorupdate.execute(
-                        "UPDATE `nodes` SET `last_seen`=%s, `sync`=0 WHERE id = %s",
-                        [timestamp, sensor_id],
-                     )
-                     cursorupdate.close()
-                     cnx.commit()
-                  except :
-                     pass
+                response += correction_factor
 
-                  if msg_in ==1 and graph_num > 0 :
-                     try :
-                        cursorinsert = cnx.cursor()
-                        cursorinsert.execute('INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`,`child_id`, `sub_type`, `payload`, `datetime`)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)', (0,0,id,sensor_name,"Sensor",0,node_id,sensor_child_id,0,response,timestamp))
-                        cursorinsert.close()
-                        cnx.commit()
-                        cursordelete = cnx.cursor()
-                        cursordelete.execute('DELETE FROM sensor_graphs WHERE node_id = (%s) AND child_id = (%s) AND datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR;',(node_id, sensor_child_id))
-                        cursordelete.close()
-                        cnx.commit()
-                     except :
-                        pass
-                  last_readings[message] = response
-               else :
-                  print(bc.blu + timestamp + bc.wht + " - " + message + " - No Change")
+                tdelta = (date_time - last_time).total_seconds()
 
-               last_date_time[message] = date_time
+                should_update = (
+                    last_val is None or
+                    mode == 0 or
+                    (mode == 1 and abs(response - last_val) > resolution) or
+                    tdelta > sensor_timeout
+                )
 
-      #  Display Current Number of Faults
-      if sync_error_count > 0 :
-         print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Number of Sync Faults is %d" % sync_error_count)
-      if timeout_error_count > 0 :
-         print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Number of Timeout Faults is %d" % timeout_error_count)
-      if symbol_error_count > 0 :
-         print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Number of Symbol Faults is %d" % symbol_error_count)
-      if element_error_count > 0 :
-         print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Number of Element Not Found Faults is %d" % element_error_count)
-      if nosignal_error_count > 0 :
-         print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Number of No Signal Faults is %d" % nosignal_error_count)
-      if error_count > 0 :
-         print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - Number of unknown Faults is %d" % error_count)
+                if should_update:
+                    log_status(timestamp, message, response)
 
-def main() :
-   print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - eBUS Data Capture Script Started")
-   print("------------------------------------------------------------------")
+                    if msg_in == 1:
+                        msg_inserts.append((0, 0, node_id, sensor_child_id, position, response))
 
-   # *************
-   #  Initialise
-   # *************
+                    if position == 0:
+                        sensor_updates_1.append((response, id_))
+                    else:
+                        sensor_updates_2.append((response, id_))
 
-   # Check if EBus is connected
-   ebusd_status = os.system('systemctl is-active --quiet ebusd')
-   if ebusd_status == 0:
-      cursorselect = cnx.cursor()
+                    if msg_in == 1 and graph_num > 0:
+                        graph_inserts.append(
+                            (
+                                0, 0, id_, sensor_name, "Sensor", 0,
+                                node_id, sensor_child_id, 0,
+                                response, timestamp
+                            )
+                        )
 
-      # Clear the last message seen dictionary to -1, for first pass through initialisation
-      cursorselect = cnx.cursor()
-      cursorselect.execute('SELECT * FROM ebus_messages;')
-      ebus_message_to_index = dict(
-         (d[0], i) for i, d in enumerate(cursorselect.description)
-      )
-      for msg in cursorselect.fetchall():
-         message = msg[ebus_message_to_index["message"]]
-         last_readings[message] = -1
-         last_date_time[message] = datetime.now()
+                        graph_deletes.add((node_id, sensor_child_id))
 
-      cursorselect.close()
-      cnx.close()
+                    last_readings[message] = response
+                else:
+                    log_status(timestamp, message, "No Change")
 
-      # Schedule boiler function to run every 15 seconds
-      schedule.every(15).seconds.do(boiler)
+                last_date_time[message] = date_time
 
-      # ***************************************
-      # Start scheduler and run every 1 second
-      # ***************************************
-      while True:
-        # Checks whether a scheduled task
-        # is pending to run or not
-        schedule.run_pending()
-        time.sleep(1)
-   else :
-      print(bc.blu + (datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + bc.wht + " - eBUS Daemon is NOT running")
-      print("------------------------------------------------------------------")
+        if msg_inserts:
+            cursor.executemany("INSERT INTO messages_in(`sync`, `purge`, `node_id`, `child_id`, `sub_type`, `payload`) VALUES (%s, %s, %s, %s, %s, %s)", msg_inserts)
+
+        if sensor_updates_1:
+            cursor.executemany("UPDATE sensors SET current_val_1 = %s WHERE id = %s LIMIT 1", sensor_updates_1)
+
+        if sensor_updates_2:
+            cursor.executemany("UPDATE sensors SET current_val_2 = %s WHERE id = %s LIMIT 1", sensor_updates_2)
+
+        if graph_inserts:
+            cursor.executemany("""INSERT INTO sensor_graphs(`sync`, `purge`, `zone_id`, `name`, `type`, `category`, `node_id`, `child_id`, `sub_type`, `payload`, `datetime`)
+                                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", graph_inserts)
+
+        if graph_deletes:
+            cursor.executemany("DELETE FROM sensor_graphs WHERE node_id=%s AND child_id=%s AND datetime < CURRENT_TIMESTAMP - INTERVAL 24 HOUR", list(graph_deletes))
+
+        if node_updates:
+            cursor.executemany("UPDATE nodes SET last_seen=%s, sync=0 WHERE id=%s", list(node_updates.values()))
+
+    # commit the above
+    conn.commit()
+
+# =============================================================================
+# Main
+# =============================================================================
+def main():
+    try:
+        conn = get_connection()
+
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT message FROM ebus_messages")
+
+            now = datetime.now()
+            rows = cursor.fetchall()
+
+            for row in rows:
+                msg = row['message']
+                last_readings[msg] = None
+                last_date_time[msg] = now
+
+        conn.close()
+
+    except Exception as e:
+        log_error("INIT", e)
+
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"{bc.blu}{timestamp}{bc.wht} - eBUS Data Capture Script Started")
+    print("-" * line_len)
+
+    while True:
+        try:
+            start = time.time()
+
+            conn = get_connection()
+
+            try:
+                boiler(conn)
+                set_mode(conn)
+                print("-" * line_len)
+            finally:
+                conn.close()
+
+            duration = time.time() - start
+
+            if duration > 10:
+                print(f"{bc.WARN}[SLOW LOOP] {duration:.2f}s{bc.ENDC}")
+
+            sleep_for = max(0, 10 - duration)
+            time.sleep(sleep_for)
+
+        except KeyboardInterrupt:
+            _ebusd_disconnect()
+            sys.exit(0)
+
+        except Exception as e:
+            log_error("MAIN LOOP", e)
+            time.sleep(10)
 
 
-if __name__=="__main__":
-   main()
+if __name__ == "__main__":
+    main()
